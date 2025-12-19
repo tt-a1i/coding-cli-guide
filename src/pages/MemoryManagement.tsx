@@ -46,7 +46,8 @@ export function MemoryManagement() {
             <h4 className="text-purple-400 font-bold mb-2">📂 项目记忆</h4>
             <code className="text-xs text-gray-400 block mb-2">.innies/INNIES.md</code>
             <p className="text-sm text-gray-300">
-              项目特定信息，如架构决策、API 约定等
+              项目特定信息，如架构决策、API 约定等。<br/>
+              *文件名可通过 <code>QWEN_CONFIG_DIR</code> 环境变量自定义。
             </p>
           </div>
         </div>

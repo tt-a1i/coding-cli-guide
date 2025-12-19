@@ -142,16 +142,19 @@ const stream = contentGenerator.generateContentStream(request);`
     icon: '🔧',
     details: `// AI 返回的工具调用
 {
-    "name": "glob",
-    "args": { "pattern": "src/**/*.ts" }
+    "name": "write_file",
+    "args": { "path": "src/api.ts", "content": "..." }
 }
 
-工具调度流程：
-1. validating: 验证参数
-2. scheduled: 加入执行队列
-3. awaiting_approval: 等待用户确认（如需要）
-4. executing: 执行中
-5. success/error: 完成`
+工具调度状态机 (useReactToolScheduler):
+1. scheduled: 加入队列
+2. validating: 验证参数 (DeclarativeTool.validate)
+3. awaiting_approval: 等待用户确认
+   - 检查 ApprovalMode (YOLO vs Standard)
+   - 检查是否为敏感操作 (Mutator Kinds)
+4. executing: 用户批准后执行
+5. success/error: 执行完成
+6. response_submitted: 结果已回传给 AI`
   },
   {
     title: '工具执行',
