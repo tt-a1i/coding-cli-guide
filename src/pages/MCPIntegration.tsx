@@ -142,7 +142,7 @@ export function MCPIntegration() {
             "command": "npx",
             "args": ["-y", "@anthropic/mcp-server-github"],
             "env": {
-                "GITHUB_TOKEN": "${GITHUB_TOKEN}"
+                "GITHUB_TOKEN": "\${GITHUB_TOKEN}"
             }
         },
         {
@@ -150,7 +150,7 @@ export function MCPIntegration() {
             "url": "http://localhost:3000/mcp",
             "auth": {
                 "type": "bearer",
-                "token": "${API_TOKEN}"
+                "token": "\${API_TOKEN}"
             }
         }
     ]
