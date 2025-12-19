@@ -127,14 +127,21 @@ export function Animation() {
   const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
-    if (isPlaying && step < 8) {
-      const timer = setTimeout(() => {
-        setStep((s) => s + 1);
-      }, 1500);
-      return () => clearTimeout(timer);
-    } else if (step >= 8) {
-      setIsPlaying(false);
-    }
+    if (!isPlaying) return;
+    if (step >= 8) return;
+
+    const timer = setTimeout(() => {
+      setStep((currentStep) => {
+        const nextStep = currentStep + 1;
+        if (nextStep >= 8) {
+          setIsPlaying(false);
+          return 8;
+        }
+        return nextStep;
+      });
+    }, 1500);
+
+    return () => clearTimeout(timer);
   }, [isPlaying, step]);
 
   const play = () => {
