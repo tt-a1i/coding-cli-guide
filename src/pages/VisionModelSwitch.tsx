@@ -1,45 +1,48 @@
 import { HighlightBox } from '../components/HighlightBox';
-import { FlowDiagram } from '../components/FlowDiagram';
+import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 
 export function VisionModelSwitch() {
-  const visionSwitchFlow = {
-    title: 'VLM 自动切换流程',
-    nodes: [
-      { id: 'start', label: '用户发送消息', type: 'start' as const },
-      { id: 'check_image', label: '检测是否\n包含图片', type: 'process' as const },
-      { id: 'has_image', label: '有图片?', type: 'decision' as const },
-      { id: 'check_auth', label: '检查认证类型', type: 'process' as const },
-      { id: 'is_qwen', label: 'Qwen OAuth?', type: 'decision' as const },
-      { id: 'check_model', label: '当前是否\n已是 VLM?', type: 'decision' as const },
-      { id: 'check_format', label: '检查图片\n格式支持', type: 'process' as const },
-      { id: 'format_ok', label: '格式支持?', type: 'decision' as const },
-      { id: 'check_yolo', label: 'YOLO 模式?', type: 'decision' as const },
-      { id: 'auto_switch', label: '自动切换\n到 VLM', type: 'process' as const },
-      { id: 'show_dialog', label: '显示切换\n对话框', type: 'process' as const },
-      { id: 'show_warning', label: '显示格式\n不支持警告', type: 'process' as const },
-      { id: 'proceed', label: '继续处理', type: 'end' as const },
-    ],
-    edges: [
-      { from: 'start', to: 'check_image' },
-      { from: 'check_image', to: 'has_image' },
-      { from: 'has_image', to: 'proceed', label: 'No' },
-      { from: 'has_image', to: 'check_auth', label: 'Yes' },
-      { from: 'check_auth', to: 'is_qwen' },
-      { from: 'is_qwen', to: 'proceed', label: 'No' },
-      { from: 'is_qwen', to: 'check_model', label: 'Yes' },
-      { from: 'check_model', to: 'proceed', label: 'Yes (已是VLM)' },
-      { from: 'check_model', to: 'check_format', label: 'No' },
-      { from: 'check_format', to: 'format_ok' },
-      { from: 'format_ok', to: 'show_warning', label: 'No' },
-      { from: 'format_ok', to: 'check_yolo', label: 'Yes' },
-      { from: 'show_warning', to: 'check_yolo' },
-      { from: 'check_yolo', to: 'auto_switch', label: 'Yes' },
-      { from: 'check_yolo', to: 'show_dialog', label: 'No' },
-      { from: 'auto_switch', to: 'proceed' },
-      { from: 'show_dialog', to: 'proceed' },
-    ],
-  };
+  const vlmSwitchFlowChart = `flowchart TD
+    start([用户发送消息])
+    check_image[检测是否<br/>包含图片]
+    has_image{有图片?}
+    check_auth[检查认证类型]
+    is_qwen{Qwen OAuth?}
+    check_model{当前是否<br/>已是 VLM?}
+    check_format[检查图片<br/>格式支持]
+    format_ok{格式支持?}
+    check_yolo{YOLO 模式?}
+    auto_switch[自动切换<br/>到 VLM]
+    show_dialog[显示切换<br/>对话框]
+    show_warning[显示格式<br/>不支持警告]
+    proceed([继续处理])
+
+    start --> check_image
+    check_image --> has_image
+    has_image -->|No| proceed
+    has_image -->|Yes| check_auth
+    check_auth --> is_qwen
+    is_qwen -->|No| proceed
+    is_qwen -->|Yes| check_model
+    check_model -->|Yes (已是VLM)| proceed
+    check_model -->|No| check_format
+    check_format --> format_ok
+    format_ok -->|No| show_warning
+    format_ok -->|Yes| check_yolo
+    show_warning --> check_yolo
+    check_yolo -->|Yes| auto_switch
+    check_yolo -->|No| show_dialog
+    auto_switch --> proceed
+    show_dialog --> proceed
+
+    style start fill:#22d3ee,color:#000
+    style proceed fill:#22c55e,color:#000
+    style has_image fill:#f59e0b,color:#000
+    style is_qwen fill:#f59e0b,color:#000
+    style check_model fill:#f59e0b,color:#000
+    style format_ok fill:#f59e0b,color:#000
+    style check_yolo fill:#f59e0b,color:#000`;
 
   const imageDetectionCode = `// 检测消息是否包含图片
 // packages/cli/src/ui/hooks/useVisionAutoSwitch.ts
@@ -278,7 +281,7 @@ function checkImageFormatsSupport(parts: PartListUnion): {
       {/* 切换流程 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">自动切换流程</h3>
-        <FlowDiagram {...visionSwitchFlow} />
+        <MermaidDiagram chart={vlmSwitchFlowChart} title="VLM 切换流程" />
       </section>
 
       {/* 切换对话框 */}

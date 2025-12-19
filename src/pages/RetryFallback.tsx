@@ -1,66 +1,73 @@
 import { HighlightBox } from '../components/HighlightBox';
-import { FlowDiagram } from '../components/FlowDiagram';
+import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 
 export function RetryFallback() {
-  const retryFlow = {
-    title: '重试机制流程',
-    nodes: [
-      { id: 'start', label: 'API 请求', type: 'start' as const },
-      { id: 'execute', label: '执行请求', type: 'process' as const },
-      { id: 'success', label: '成功?', type: 'decision' as const },
-      { id: 'return', label: '返回结果', type: 'end' as const },
-      { id: 'check_retry', label: '可重试错误?', type: 'decision' as const },
-      { id: 'check_attempts', label: '尝试次数<5?', type: 'decision' as const },
-      { id: 'calc_delay', label: '计算延迟\n指数退避+抖动', type: 'process' as const },
-      { id: 'wait', label: '等待延迟', type: 'process' as const },
-      { id: 'fallback_check', label: '尝试回退?', type: 'decision' as const },
-      { id: 'use_fallback', label: '使用回退模型', type: 'process' as const },
-      { id: 'throw', label: '抛出错误', type: 'end' as const },
-    ],
-    edges: [
-      { from: 'start', to: 'execute' },
-      { from: 'execute', to: 'success' },
-      { from: 'success', to: 'return', label: 'Yes' },
-      { from: 'success', to: 'check_retry', label: 'No' },
-      { from: 'check_retry', to: 'check_attempts', label: 'Yes' },
-      { from: 'check_retry', to: 'fallback_check', label: 'No' },
-      { from: 'check_attempts', to: 'calc_delay', label: 'Yes' },
-      { from: 'check_attempts', to: 'fallback_check', label: 'No' },
-      { from: 'calc_delay', to: 'wait' },
-      { from: 'wait', to: 'execute' },
-      { from: 'fallback_check', to: 'use_fallback', label: 'Yes' },
-      { from: 'fallback_check', to: 'throw', label: 'No' },
-      { from: 'use_fallback', to: 'execute' },
-    ],
-  };
+  const retryFlowChart = `flowchart TD
+    start([API 请求])
+    execute[执行请求]
+    success{成功?}
+    return_result([返回结果])
+    check_retry{可重试错误?}
+    check_attempts{尝试次数<5?}
+    calc_delay[计算延迟<br/>指数退避+抖动]
+    wait[等待延迟]
+    fallback_check{尝试回退?}
+    use_fallback[使用回退模型]
+    throw_error([抛出错误])
 
-  const fallbackFlow = {
-    title: '模型回退流程',
-    nodes: [
-      { id: 'start', label: '主模型请求失败', type: 'start' as const },
-      { id: 'check_error', label: '分析错误类型', type: 'process' as const },
-      { id: 'is_recoverable', label: '可恢复?', type: 'decision' as const },
-      { id: 'check_fallback', label: '有回退模型?', type: 'decision' as const },
-      { id: 'switch_model', label: '切换到\n回退模型', type: 'process' as const },
-      { id: 'retry_request', label: '重新请求', type: 'process' as const },
-      { id: 'success', label: '成功?', type: 'decision' as const },
-      { id: 'return', label: '返回结果\n(降级)', type: 'end' as const },
-      { id: 'fail', label: '最终失败', type: 'end' as const },
-    ],
-    edges: [
-      { from: 'start', to: 'check_error' },
-      { from: 'check_error', to: 'is_recoverable' },
-      { from: 'is_recoverable', to: 'check_fallback', label: 'Yes' },
-      { from: 'is_recoverable', to: 'fail', label: 'No' },
-      { from: 'check_fallback', to: 'switch_model', label: 'Yes' },
-      { from: 'check_fallback', to: 'fail', label: 'No' },
-      { from: 'switch_model', to: 'retry_request' },
-      { from: 'retry_request', to: 'success' },
-      { from: 'success', to: 'return', label: 'Yes' },
-      { from: 'success', to: 'fail', label: 'No' },
-    ],
-  };
+    start --> execute
+    execute --> success
+    success -->|Yes| return_result
+    success -->|No| check_retry
+    check_retry -->|Yes| check_attempts
+    check_retry -->|No| fallback_check
+    check_attempts -->|Yes| calc_delay
+    check_attempts -->|No| fallback_check
+    calc_delay --> wait
+    wait --> execute
+    fallback_check -->|Yes| use_fallback
+    fallback_check -->|No| throw_error
+    use_fallback --> execute
+
+    style start fill:#22d3ee,color:#000
+    style return_result fill:#22c55e,color:#000
+    style throw_error fill:#ef4444,color:#fff
+    style success fill:#f59e0b,color:#000
+    style check_retry fill:#f59e0b,color:#000
+    style check_attempts fill:#f59e0b,color:#000
+    style fallback_check fill:#f59e0b,color:#000
+`;
+
+  const fallbackFlowChart = `flowchart TD
+    start([主模型请求失败])
+    check_error[分析错误类型]
+    is_recoverable{可恢复?}
+    check_fallback{有回退模型?}
+    switch_model[切换到<br/>回退模型]
+    retry_request[重新请求]
+    success{成功?}
+    return_result([返回结果<br/>降级])
+    fail([最终失败])
+
+    start --> check_error
+    check_error --> is_recoverable
+    is_recoverable -->|Yes| check_fallback
+    is_recoverable -->|No| fail
+    check_fallback -->|Yes| switch_model
+    check_fallback -->|No| fail
+    switch_model --> retry_request
+    retry_request --> success
+    success -->|Yes| return_result
+    success -->|No| fail
+
+    style start fill:#22d3ee,color:#000
+    style return_result fill:#22c55e,color:#000
+    style fail fill:#ef4444,color:#fff
+    style is_recoverable fill:#f59e0b,color:#000
+    style check_fallback fill:#f59e0b,color:#000
+    style success fill:#f59e0b,color:#000
+`;
 
   const retryConfigCode = `// packages/core/src/utils/retry.ts
 
@@ -475,7 +482,7 @@ class CircuitBreaker {
       {/* 重试流程 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">重试机制流程</h3>
-        <FlowDiagram {...retryFlow} />
+        <MermaidDiagram chart={retryFlowChart} title="重试机制流程" />
       </section>
 
       {/* 重试配置 */}
@@ -559,7 +566,7 @@ class CircuitBreaker {
       {/* 回退流程 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">模型回退机制</h3>
-        <FlowDiagram {...fallbackFlow} />
+        <MermaidDiagram chart={fallbackFlowChart} title="模型回退流程" />
 
         <div className="mt-4">
           <CodeBlock code={fallbackConfigCode} language="typescript" title="回退配置" />

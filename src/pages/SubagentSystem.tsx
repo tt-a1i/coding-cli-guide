@@ -2,55 +2,56 @@ import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { JsonBlock } from '../components/JsonBlock';
-import { FlowDiagram } from '../components/FlowDiagram';
+import { MermaidDiagram } from '../components/MermaidDiagram';
 
 export function SubagentSystem() {
-  // 模板替换流程图
-  const templateFlow = {
-    title: '模板变量替换流程',
-    nodes: [
-      { id: 'start', label: 'System Prompt\n模板', type: 'start' as const },
-      { id: 'context', label: 'ContextState\n设置变量', type: 'process' as const },
-      { id: 'extract', label: '提取占位符\n${key}', type: 'process' as const },
-      { id: 'check', label: '所有 key\n都存在?', type: 'decision' as const },
-      { id: 'replace', label: '执行替换\nString(value)', type: 'process' as const },
-      { id: 'error', label: '抛出异常\nMissing keys', type: 'end' as const },
-      { id: 'done', label: '最终 Prompt', type: 'end' as const },
-    ],
-    edges: [
-      { from: 'start', to: 'context' },
-      { from: 'context', to: 'extract' },
-      { from: 'extract', to: 'check' },
-      { from: 'check', to: 'error', label: 'No' },
-      { from: 'check', to: 'replace', label: 'Yes' },
-      { from: 'replace', to: 'done' },
-    ],
-  };
+  // 模板变量替换流程 - Mermaid flowchart
+  const templateFlowChart = `flowchart TD
+    start([System Prompt<br/>模板])
+    context[ContextState<br/>设置变量]
+    extract[提取占位符<br/>"\${key}"]
+    check{"所有 key<br/>都存在?"}
+    replace[执行替换<br/>String value]
+    error([抛出异常<br/>Missing keys])
+    done([最终 Prompt])
 
-  // 非交互执行流程图
-  const executionFlow = {
-    title: '非交互式执行流程',
-    nodes: [
-      { id: 'start', label: '初始化\nSubAgentScope', type: 'start' as const },
-      { id: 'tools', label: '准备工具列表\n(过滤 Task 工具)', type: 'process' as const },
-      { id: 'check_limit', label: '检查\n终止条件', type: 'decision' as const },
-      { id: 'send', label: '发送消息\n流式响应', type: 'process' as const },
-      { id: 'has_tools', label: '有工具\n调用?', type: 'decision' as const },
-      { id: 'exec_tools', label: '并行执行\n工具调用', type: 'process' as const },
-      { id: 'goal', label: '任务完成\nGOAL', type: 'end' as const },
-      { id: 'limit', label: '达到限制\nMAX_TURNS/TIMEOUT', type: 'end' as const },
-    ],
-    edges: [
-      { from: 'start', to: 'tools' },
-      { from: 'tools', to: 'check_limit' },
-      { from: 'check_limit', to: 'limit', label: '超限' },
-      { from: 'check_limit', to: 'send', label: '继续' },
-      { from: 'send', to: 'has_tools' },
-      { from: 'has_tools', to: 'goal', label: 'No' },
-      { from: 'has_tools', to: 'exec_tools', label: 'Yes' },
-      { from: 'exec_tools', to: 'check_limit' },
-    ],
-  };
+    start --> context
+    context --> extract
+    extract --> check
+    check -->|No| error
+    check -->|Yes| replace
+    replace --> done
+
+    style start fill:#22d3ee,color:#000
+    style done fill:#22c55e,color:#000
+    style error fill:#ef4444,color:#fff
+    style check fill:#f59e0b,color:#000`;
+
+  // 非交互式执行流程 - Mermaid flowchart
+  const executionFlowChart = `flowchart TD
+    start([初始化<br/>SubAgentScope])
+    tools[准备工具列表<br/>过滤 Task 工具]
+    check_limit{检查<br/>终止条件}
+    send[发送消息<br/>流式响应]
+    has_tools{有工具<br/>调用?}
+    exec_tools[并行执行<br/>工具调用]
+    goal([任务完成<br/>GOAL])
+    limit([达到限制<br/>MAX_TURNS/TIMEOUT])
+
+    start --> tools
+    tools --> check_limit
+    check_limit -->|超限| limit
+    check_limit -->|继续| send
+    send --> has_tools
+    has_tools -->|No| goal
+    has_tools -->|Yes| exec_tools
+    exec_tools --> check_limit
+
+    style start fill:#22d3ee,color:#000
+    style goal fill:#22c55e,color:#000
+    style limit fill:#f59e0b,color:#000
+    style check_limit fill:#a855f7,color:#fff
+    style has_tools fill:#a855f7,color:#fff`;
 
   return (
     <div>
@@ -325,7 +326,7 @@ context.set('project_name', 'innies-cli');
 await subagent.runNonInteractive(context);`}
         />
 
-        <FlowDiagram {...templateFlow} />
+        <MermaidDiagram chart={templateFlowChart} title="模板变量替换流程" />
 
         <CodeBlock
           title="packages/core/src/subagents/subagent.ts:129-155 - templateString"
@@ -477,7 +478,7 @@ toolsList.push(
 
       {/* 非交互式执行流程 */}
       <Layer title="非交互式执行流程" icon="⚡">
-        <FlowDiagram {...executionFlow} />
+        <MermaidDiagram chart={executionFlowChart} title="非交互式执行流程" />
 
         <CodeBlock
           title="runNonInteractive 核心逻辑"

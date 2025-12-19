@@ -1,32 +1,32 @@
 import { HighlightBox } from '../components/HighlightBox';
-import { FlowDiagram } from '../components/FlowDiagram';
+import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 
 export function ExtensionSystem() {
-  const extensionFlow = {
-    title: '扩展加载流程',
-    nodes: [
-      { id: 'start', label: 'CLI 启动', type: 'start' as const },
-      { id: 'scan_local', label: '扫描本地扩展\n.innies/extensions/', type: 'process' as const },
-      { id: 'scan_global', label: '扫描全局扩展\n~/.innies/extensions/', type: 'process' as const },
-      { id: 'load_manifest', label: '加载 manifest\npackage.json', type: 'process' as const },
-      { id: 'validate', label: '验证扩展', type: 'decision' as const },
-      { id: 'init_ext', label: '初始化扩展\n执行 activate()', type: 'process' as const },
-      { id: 'register', label: '注册扩展能力\n工具/命令/MCP', type: 'process' as const },
-      { id: 'ready', label: '扩展就绪', type: 'end' as const },
-      { id: 'skip', label: '跳过无效扩展', type: 'end' as const },
-    ],
-    edges: [
-      { from: 'start', to: 'scan_local' },
-      { from: 'scan_local', to: 'scan_global' },
-      { from: 'scan_global', to: 'load_manifest' },
-      { from: 'load_manifest', to: 'validate' },
-      { from: 'validate', to: 'init_ext', label: '有效' },
-      { from: 'validate', to: 'skip', label: '无效' },
-      { from: 'init_ext', to: 'register' },
-      { from: 'register', to: 'ready' },
-    ],
-  };
+  const extensionFlow = `flowchart TD
+    start["CLI 启动"]
+    scan_local["扫描本地扩展<br/>.innies/extensions/"]
+    scan_global["扫描全局扩展<br/>~/.innies/extensions/"]
+    load_manifest["加载 manifest<br/>package.json"]
+    validate{"验证扩展"}
+    init_ext["初始化扩展<br/>执行 activate()"]
+    register["注册扩展能力<br/>工具/命令/MCP"]
+    ready["扩展就绪"]
+    skip["跳过无效扩展"]
+
+    start --> scan_local
+    scan_local --> scan_global
+    scan_global --> load_manifest
+    load_manifest --> validate
+    validate -->|有效| init_ext
+    validate -->|无效| skip
+    init_ext --> register
+    register --> ready
+
+    style start fill:#22d3ee,color:#000
+    style ready fill:#22c55e,color:#000
+    style skip fill:#22c55e,color:#000
+    style validate fill:#f59e0b,color:#000`;
 
   const extensionManifestCode = `// 扩展清单文件
 // package.json
@@ -449,7 +449,7 @@ innies extensions info ext-name
       {/* 加载流程 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">扩展加载流程</h3>
-        <FlowDiagram {...extensionFlow} />
+        <MermaidDiagram chart={extensionFlow} title="扩展加载流程" />
       </section>
 
       {/* 扩展清单 */}

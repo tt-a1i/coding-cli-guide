@@ -1,33 +1,38 @@
 import { HighlightBox } from '../components/HighlightBox';
-import { FlowDiagram } from '../components/FlowDiagram';
+import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 
 export function TelemetrySystem() {
-  const telemetryFlow = {
-    title: '遥测数据流',
-    nodes: [
-      { id: 'start', label: '事件发生', type: 'start' as const },
-      { id: 'collect', label: '收集事件数据', type: 'process' as const },
-      { id: 'enrich', label: '丰富上下文\n添加元数据', type: 'process' as const },
-      { id: 'check_consent', label: '用户同意?', type: 'decision' as const },
-      { id: 'buffer', label: '缓冲事件', type: 'process' as const },
-      { id: 'batch_ready', label: '批次就绪?', type: 'decision' as const },
-      { id: 'send', label: '发送到后端\nOpenTelemetry', type: 'process' as const },
-      { id: 'drop', label: '丢弃数据', type: 'end' as const },
-      { id: 'stored', label: '存储/分析', type: 'end' as const },
-    ],
-    edges: [
-      { from: 'start', to: 'collect' },
-      { from: 'collect', to: 'enrich' },
-      { from: 'enrich', to: 'check_consent' },
-      { from: 'check_consent', to: 'buffer', label: 'Yes' },
-      { from: 'check_consent', to: 'drop', label: 'No' },
-      { from: 'buffer', to: 'batch_ready' },
-      { from: 'batch_ready', to: 'send', label: 'Yes' },
-      { from: 'batch_ready', to: 'buffer', label: 'No' },
-      { from: 'send', to: 'stored' },
-    ],
-  };
+  const telemetryFlowChart = `flowchart TD
+    start([事件发生])
+    collect[收集事件数据]
+    enrich[丰富上下文<br/>添加元数据]
+    check_consent{用户同意?}
+    buffer[缓冲事件]
+    batch_ready{批次就绪?}
+    send[发送到后端<br/>OpenTelemetry]
+    drop([丢弃数据])
+    stored([存储/分析])
+
+    start --> collect
+    collect --> enrich
+    enrich --> check_consent
+    check_consent -->|Yes| buffer
+    check_consent -->|No| drop
+    buffer --> batch_ready
+    batch_ready -->|Yes| send
+    batch_ready -->|No| buffer
+    send --> stored
+
+    style start fill:#22d3ee,color:#000
+    style collect fill:#3b82f6,color:#fff
+    style enrich fill:#3b82f6,color:#fff
+    style check_consent fill:#f59e0b,color:#000
+    style buffer fill:#3b82f6,color:#fff
+    style batch_ready fill:#f59e0b,color:#000
+    style send fill:#3b82f6,color:#fff
+    style drop fill:#ef4444,color:#fff
+    style stored fill:#22c55e,color:#000`;
 
   const telemetryConfigCode = `// 遥测配置
 // packages/core/src/telemetry/config.ts
@@ -599,7 +604,7 @@ export class TelemetryService {
       {/* 数据流 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">遥测数据流</h3>
-        <FlowDiagram {...telemetryFlow} />
+        <MermaidDiagram chart={telemetryFlowChart} title="遥测数据流" />
       </section>
 
       {/* 配置 */}

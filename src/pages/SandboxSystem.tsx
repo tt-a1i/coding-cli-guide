@@ -1,61 +1,64 @@
 import { HighlightBox } from '../components/HighlightBox';
-import { FlowDiagram } from '../components/FlowDiagram';
+import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 
 export function SandboxSystem() {
-  const sandboxDecisionFlow = {
-    title: '沙箱类型选择流程',
-    nodes: [
-      { id: 'start', label: '启动 Bash 工具', type: 'start' as const },
-      { id: 'check_env', label: '检查 GEMINI_SANDBOX\n环境变量', type: 'process' as const },
-      { id: 'is_docker', label: 'sandbox=docker?', type: 'decision' as const },
-      { id: 'is_podman', label: 'sandbox=podman?', type: 'decision' as const },
-      { id: 'is_true', label: 'sandbox=true?', type: 'decision' as const },
-      { id: 'check_platform', label: '检测操作系统', type: 'process' as const },
-      { id: 'is_macos', label: 'macOS?', type: 'decision' as const },
-      { id: 'docker_exec', label: 'Docker 容器\n沙箱', type: 'process' as const },
-      { id: 'podman_exec', label: 'Podman 容器\n沙箱', type: 'process' as const },
-      { id: 'seatbelt_exec', label: 'macOS Seatbelt\nsandbox-exec', type: 'process' as const },
-      { id: 'no_sandbox', label: '无沙箱\n直接执行', type: 'end' as const },
-    ],
-    edges: [
-      { from: 'start', to: 'check_env' },
-      { from: 'check_env', to: 'is_docker' },
-      { from: 'is_docker', to: 'docker_exec', label: 'Yes' },
-      { from: 'is_docker', to: 'is_podman', label: 'No' },
-      { from: 'is_podman', to: 'podman_exec', label: 'Yes' },
-      { from: 'is_podman', to: 'is_true', label: 'No' },
-      { from: 'is_true', to: 'check_platform', label: 'Yes' },
-      { from: 'is_true', to: 'no_sandbox', label: 'No' },
-      { from: 'check_platform', to: 'is_macos' },
-      { from: 'is_macos', to: 'seatbelt_exec', label: 'Yes' },
-      { from: 'is_macos', to: 'docker_exec', label: 'No (默认Docker)' },
-    ],
-  };
+  const sandboxDecisionFlow = `flowchart TD
+    start[启动 Bash 工具]
+    check_env[检查 GEMINI_SANDBOX<br/>环境变量]
+    is_docker{sandbox=docker?}
+    is_podman{sandbox=podman?}
+    is_true{sandbox=true?}
+    check_platform[检测操作系统]
+    is_macos{macOS?}
+    docker_exec[Docker 容器<br/>沙箱]
+    podman_exec[Podman 容器<br/>沙箱]
+    seatbelt_exec[macOS Seatbelt<br/>sandbox-exec]
+    no_sandbox[无沙箱<br/>直接执行]
 
-  const containerStartupFlow = {
-    title: '容器启动流程',
-    nodes: [
-      { id: 'start', label: '请求沙箱执行', type: 'start' as const },
-      { id: 'check_running', label: '检查容器\n是否运行', type: 'decision' as const },
-      { id: 'build_image', label: '构建镜像\n(如果需要)', type: 'process' as const },
-      { id: 'create_container', label: '创建容器\n挂载工作目录', type: 'process' as const },
-      { id: 'start_container', label: '启动容器', type: 'process' as const },
-      { id: 'exec_command', label: '执行命令\ndocker exec', type: 'process' as const },
-      { id: 'capture_output', label: '捕获输出\nstdout/stderr', type: 'process' as const },
-      { id: 'return_result', label: '返回结果', type: 'end' as const },
-    ],
-    edges: [
-      { from: 'start', to: 'check_running' },
-      { from: 'check_running', to: 'exec_command', label: '已运行' },
-      { from: 'check_running', to: 'build_image', label: '未运行' },
-      { from: 'build_image', to: 'create_container' },
-      { from: 'create_container', to: 'start_container' },
-      { from: 'start_container', to: 'exec_command' },
-      { from: 'exec_command', to: 'capture_output' },
-      { from: 'capture_output', to: 'return_result' },
-    ],
-  };
+    start --> check_env
+    check_env --> is_docker
+    is_docker -->|Yes| docker_exec
+    is_docker -->|No| is_podman
+    is_podman -->|Yes| podman_exec
+    is_podman -->|No| is_true
+    is_true -->|Yes| check_platform
+    is_true -->|No| no_sandbox
+    check_platform --> is_macos
+    is_macos -->|Yes| seatbelt_exec
+    is_macos -->|No<br/>默认Docker| docker_exec
+
+    style start fill:#22d3ee,color:#000
+    style no_sandbox fill:#22c55e,color:#000
+    style is_docker fill:#f59e0b,color:#000
+    style is_podman fill:#f59e0b,color:#000
+    style is_true fill:#f59e0b,color:#000
+    style is_macos fill:#f59e0b,color:#000
+`;
+
+  const containerStartupFlow = `flowchart TD
+    start[请求沙箱执行]
+    check_running{检查容器<br/>是否运行}
+    build_image[构建镜像<br/>如果需要]
+    create_container[创建容器<br/>挂载工作目录]
+    start_container[启动容器]
+    exec_command[执行命令<br/>docker exec]
+    capture_output[捕获输出<br/>stdout/stderr]
+    return_result[返回结果]
+
+    start --> check_running
+    check_running -->|已运行| exec_command
+    check_running -->|未运行| build_image
+    build_image --> create_container
+    create_container --> start_container
+    start_container --> exec_command
+    exec_command --> capture_output
+    capture_output --> return_result
+
+    style start fill:#22d3ee,color:#000
+    style return_result fill:#22c55e,color:#000
+    style check_running fill:#f59e0b,color:#000
+`;
 
   const sandboxTypeCode = `// packages/cli/src/utils/sandbox.ts
 export type SandboxType = 'docker' | 'podman' | 'seatbelt' | 'none';
@@ -335,7 +338,7 @@ async function startContainer(config: DockerSandboxConfig) {
       {/* 沙箱类型选择 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">沙箱类型选择</h3>
-        <FlowDiagram {...sandboxDecisionFlow} />
+        <MermaidDiagram chart={sandboxDecisionFlow} title="沙箱类型选择流程" />
 
         <div className="mt-4">
           <CodeBlock code={sandboxTypeCode} language="typescript" title="沙箱类型检测" />
@@ -380,7 +383,7 @@ async function startContainer(config: DockerSandboxConfig) {
       {/* 容器沙箱 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">Docker/Podman 容器沙箱</h3>
-        <FlowDiagram {...containerStartupFlow} />
+        <MermaidDiagram chart={containerStartupFlow} title="容器启动流程" />
 
         <div className="mt-4">
           <CodeBlock code={dockerConfigCode} language="typescript" title="容器配置" />

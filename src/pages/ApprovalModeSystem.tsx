@@ -1,61 +1,69 @@
 import { HighlightBox } from '../components/HighlightBox';
-import { FlowDiagram } from '../components/FlowDiagram';
+import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 
 export function ApprovalModeSystem() {
-  const approvalDecisionFlow = {
-    title: '工具审批决策流程',
-    nodes: [
-      { id: 'start', label: 'AI 请求执行工具', type: 'start' as const },
-      { id: 'check_mode', label: '检查当前\n审批模式', type: 'process' as const },
-      { id: 'is_plan', label: 'plan 模式\n+ 修改类工具?', type: 'decision' as const },
-      { id: 'is_yolo', label: 'yolo 模式?', type: 'decision' as const },
-      { id: 'is_auto_edit', label: 'auto-edit?', type: 'decision' as const },
-      { id: 'is_readonly', label: '只读工具?', type: 'decision' as const },
-      { id: 'is_edit_tool', label: '编辑类工具?', type: 'decision' as const },
-      { id: 'block', label: '阻断执行\n提示 Plan Mode', type: 'end' as const },
-      { id: 'auto_approve', label: '自动批准\n立即执行', type: 'end' as const },
-      { id: 'prompt_user', label: '等待用户确认\n显示 Diff', type: 'end' as const },
-    ],
-    edges: [
-      { from: 'start', to: 'check_mode' },
-      { from: 'check_mode', to: 'is_plan' },
-      { from: 'is_plan', to: 'block', label: 'Yes' },
-      { from: 'is_plan', to: 'is_yolo', label: 'No' },
-      { from: 'is_yolo', to: 'auto_approve', label: 'Yes' },
-      { from: 'is_yolo', to: 'is_auto_edit', label: 'No' },
-      { from: 'is_auto_edit', to: 'is_edit_tool', label: 'Yes' },
-      { from: 'is_auto_edit', to: 'is_readonly', label: 'No (default)' },
-      { from: 'is_edit_tool', to: 'auto_approve', label: 'Yes (Edit/Write)' },
-      { from: 'is_edit_tool', to: 'prompt_user', label: 'No (Bash等)' },
-      { from: 'is_readonly', to: 'auto_approve', label: 'Yes (Read/Glob)' },
-      { from: 'is_readonly', to: 'prompt_user', label: 'No' },
-    ],
-  };
+  // 工具审批决策流程 - Mermaid flowchart
+  const approvalDecisionFlowChart = `flowchart TD
+    start([AI 请求执行工具])
+    check_mode[检查当前<br/>审批模式]
+    is_plan{plan 模式<br/>+ 修改类工具?}
+    is_yolo{yolo 模式?}
+    is_auto_edit{auto-edit?}
+    is_readonly{只读工具?}
+    is_edit_tool{编辑类工具?}
+    block([阻断执行<br/>提示 Plan Mode])
+    auto_approve([自动批准<br/>立即执行])
+    prompt_user([等待用户确认<br/>显示 Diff])
 
-  const toolCallStateFlow = {
-    title: '工具调用状态机',
-    nodes: [
-      { id: 'validating', label: 'validating\n验证参数', type: 'start' as const },
-      { id: 'awaiting', label: 'awaiting_approval\n等待审批', type: 'process' as const },
-      { id: 'scheduled', label: 'scheduled\n已排期', type: 'process' as const },
-      { id: 'executing', label: 'executing\n执行中', type: 'process' as const },
-      { id: 'success', label: 'success\n成功', type: 'end' as const },
-      { id: 'cancelled', label: 'cancelled\n已取消', type: 'end' as const },
-      { id: 'error', label: 'error\n错误', type: 'end' as const },
-    ],
-    edges: [
-      { from: 'validating', to: 'awaiting', label: '需要确认' },
-      { from: 'validating', to: 'scheduled', label: '自动批准' },
-      { from: 'validating', to: 'error', label: '参数无效' },
-      { from: 'awaiting', to: 'scheduled', label: '用户确认' },
-      { from: 'awaiting', to: 'cancelled', label: '用户拒绝' },
-      { from: 'scheduled', to: 'executing' },
-      { from: 'executing', to: 'success', label: '执行成功' },
-      { from: 'executing', to: 'error', label: '执行失败' },
-      { from: 'executing', to: 'cancelled', label: 'Ctrl+C' },
-    ],
-  };
+    start --> check_mode
+    check_mode --> is_plan
+    is_plan -->|Yes| block
+    is_plan -->|No| is_yolo
+    is_yolo -->|Yes| auto_approve
+    is_yolo -->|No| is_auto_edit
+    is_auto_edit -->|Yes| is_edit_tool
+    is_auto_edit -->|"No (default)"| is_readonly
+    is_edit_tool -->|"Yes (Edit/Write)"| auto_approve
+    is_edit_tool -->|"No (Bash等)"| prompt_user
+    is_readonly -->|"Yes (Read/Glob)"| auto_approve
+    is_readonly -->|No| prompt_user
+
+    style start fill:#22d3ee,color:#000
+    style block fill:#ef4444,color:#fff
+    style auto_approve fill:#22c55e,color:#000
+    style prompt_user fill:#f59e0b,color:#000
+    style is_plan fill:#a855f7,color:#fff
+    style is_yolo fill:#a855f7,color:#fff
+    style is_auto_edit fill:#a855f7,color:#fff
+    style is_readonly fill:#a855f7,color:#fff
+    style is_edit_tool fill:#a855f7,color:#fff`;
+
+  // 工具调用状态机 - Mermaid stateDiagram
+  const toolCallStateChart = `stateDiagram-v2
+    [*] --> validating: 开始验证
+
+    validating --> awaiting_approval: 需要确认
+    validating --> scheduled: 自动批准
+    validating --> error: 参数无效
+
+    awaiting_approval --> scheduled: 用户确认
+    awaiting_approval --> cancelled: 用户拒绝
+
+    scheduled --> executing: 开始执行
+
+    executing --> success: 执行成功
+    executing --> error: 执行失败
+    executing --> cancelled: Ctrl+C
+
+    success --> [*]
+    cancelled --> [*]
+    error --> [*]
+
+    note right of validating : 验证参数
+    note right of awaiting_approval : 等待审批
+    note right of scheduled : 已排期
+    note right of executing : 执行中`;
 
   const approvalModeEnum = `// packages/core/src/config/config.ts
 
@@ -255,7 +263,7 @@ In plan mode:
       {/* 审批决策流程 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">审批决策流程</h3>
-        <FlowDiagram {...approvalDecisionFlow} />
+        <MermaidDiagram chart={approvalDecisionFlowChart} title="工具审批决策流程" />
 
         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-gray-800/50 rounded-lg p-4">
@@ -288,7 +296,7 @@ In plan mode:
       {/* 工具调用状态机 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">工具调用状态机</h3>
-        <FlowDiagram {...toolCallStateFlow} />
+        <MermaidDiagram chart={toolCallStateChart} title="工具调用状态机" />
         <CodeBlock code={toolConfirmationCode} language="typescript" title="工具调用状态类型" />
       </section>
 

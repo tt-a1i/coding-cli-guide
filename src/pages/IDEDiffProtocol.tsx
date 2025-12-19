@@ -1,60 +1,64 @@
 import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
-import { FlowDiagram } from '../components/FlowDiagram';
+import { MermaidDiagram } from '../components/MermaidDiagram';
 
 export function IDEDiffProtocol() {
-  const connectionFlow = {
-    title: 'IDE 连接建立流程',
-    nodes: [
-      { id: 'start', label: 'CLI 启动\n/ide enable', type: 'start' as const },
-      { id: 'detect', label: '检测 IDE\n进程树', type: 'process' as const },
-      { id: 'read_port', label: '读取端口文件\n/tmp/qwen-code-ide-server-{ppid}.json', type: 'process' as const },
-      { id: 'validate', label: '验证 Workspace\n路径匹配?', type: 'decision' as const },
-      { id: 'mcp_connect', label: 'MCP Client\n建立 HTTP SSE', type: 'process' as const },
-      { id: 'discover', label: '发现可用工具\nopenDiff/closeDiff', type: 'process' as const },
-      { id: 'connected', label: 'IDEConnectionStatus\n= Connected', type: 'end' as const },
-      { id: 'failed', label: '连接失败\n提示安装插件', type: 'end' as const },
-    ],
-    edges: [
-      { from: 'start', to: 'detect' },
-      { from: 'detect', to: 'read_port' },
-      { from: 'read_port', to: 'validate' },
-      { from: 'validate', to: 'failed', label: 'No' },
-      { from: 'validate', to: 'mcp_connect', label: 'Yes' },
-      { from: 'mcp_connect', to: 'discover' },
-      { from: 'discover', to: 'connected' },
-    ],
-  };
+  // IDE 连接建立流程 - Mermaid flowchart
+  const connectionFlowChart = `flowchart TD
+    start([CLI 启动<br/>/ide enable])
+    detect[检测 IDE<br/>进程树]
+    read_port[读取端口文件<br/>/tmp/qwen-code-ide-server-ppid.json]
+    validate{验证 Workspace<br/>路径匹配?}
+    mcp_connect[MCP Client<br/>建立 HTTP SSE]
+    discover[发现可用工具<br/>openDiff/closeDiff]
+    connected([IDEConnectionStatus<br/>= Connected])
+    failed([连接失败<br/>提示安装插件])
 
-  const diffFlow = {
-    title: 'Diff View 交互流程',
-    nodes: [
-      { id: 'tool', label: 'AI 调用\nwrite_file/edit', type: 'start' as const },
-      { id: 'check_ide', label: 'IDE 已连接\n且支持 Diff?', type: 'decision' as const },
-      { id: 'acquire_mutex', label: '获取 diffMutex\n(单 Diff 锁)', type: 'process' as const },
-      { id: 'send_open', label: 'MCP: openDiff\n{filePath, newContent}', type: 'process' as const },
-      { id: 'vscode_diff', label: 'VS Code 渲染\n原生 Diff View', type: 'process' as const },
-      { id: 'user_action', label: '用户操作', type: 'decision' as const },
-      { id: 'accept', label: 'ide/diffAccepted\n通知', type: 'process' as const },
-      { id: 'reject', label: 'ide/diffClosed\n通知', type: 'process' as const },
-      { id: 'write', label: '写入磁盘', type: 'end' as const },
-      { id: 'cancel', label: '取消修改', type: 'end' as const },
-      { id: 'direct', label: '直接写入\n(非 IDE 模式)', type: 'end' as const },
-    ],
-    edges: [
-      { from: 'tool', to: 'check_ide' },
-      { from: 'check_ide', to: 'direct', label: 'No' },
-      { from: 'check_ide', to: 'acquire_mutex', label: 'Yes' },
-      { from: 'acquire_mutex', to: 'send_open' },
-      { from: 'send_open', to: 'vscode_diff' },
-      { from: 'vscode_diff', to: 'user_action' },
-      { from: 'user_action', to: 'accept', label: 'Accept' },
-      { from: 'user_action', to: 'reject', label: 'Cancel/Close' },
-      { from: 'accept', to: 'write' },
-      { from: 'reject', to: 'cancel' },
-    ],
-  };
+    start --> detect
+    detect --> read_port
+    read_port --> validate
+    validate -->|No| failed
+    validate -->|Yes| mcp_connect
+    mcp_connect --> discover
+    discover --> connected
+
+    style start fill:#22d3ee,color:#000
+    style connected fill:#22c55e,color:#000
+    style failed fill:#ef4444,color:#fff
+    style validate fill:#f59e0b,color:#000`;
+
+  // Diff View 交互流程 - Mermaid flowchart
+  const diffFlowChart = `flowchart TD
+    tool([AI 调用<br/>write_file/edit])
+    check_ide{IDE 已连接<br/>且支持 Diff?}
+    acquire_mutex[获取 diffMutex<br/>单 Diff 锁]
+    send_open[MCP: openDiff<br/>filePath, newContent]
+    vscode_diff[VS Code 渲染<br/>原生 Diff View]
+    user_action{用户操作}
+    accept[ide/diffAccepted<br/>通知]
+    reject[ide/diffClosed<br/>通知]
+    write([写入磁盘])
+    cancel([取消修改])
+    direct([直接写入<br/>非 IDE 模式])
+
+    tool --> check_ide
+    check_ide -->|No| direct
+    check_ide -->|Yes| acquire_mutex
+    acquire_mutex --> send_open
+    send_open --> vscode_diff
+    vscode_diff --> user_action
+    user_action -->|Accept| accept
+    user_action -->|Cancel/Close| reject
+    accept --> write
+    reject --> cancel
+
+    style tool fill:#22d3ee,color:#000
+    style write fill:#22c55e,color:#000
+    style cancel fill:#ef4444,color:#fff
+    style direct fill:#6b7280,color:#fff
+    style check_ide fill:#f59e0b,color:#000
+    style user_action fill:#f59e0b,color:#000`;
 
   const architectureCode = `// IDE 集成架构图
 // 来源: packages/vscode-ide-companion/ + packages/core/src/ide/
@@ -415,7 +419,7 @@ this.client.setNotificationHandler(
 
       {/* 连接流程 */}
       <Layer title="连接建立流程" icon="🔗">
-        <FlowDiagram {...connectionFlow} />
+        <MermaidDiagram chart={connectionFlowChart} title="IDE 连接建立流程" />
 
         <CodeBlock code={portFileCode} title="端口发现机制" />
 
@@ -430,7 +434,7 @@ this.client.setNotificationHandler(
 
       {/* Diff 流程 */}
       <Layer title="Diff View 交互流程" icon="📝">
-        <FlowDiagram {...diffFlow} />
+        <MermaidDiagram chart={diffFlowChart} title="Diff View 交互流程" />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <HighlightBox title="Mutex 锁机制" icon="🔒" variant="red">

@@ -1,51 +1,49 @@
 import { HighlightBox } from '../components/HighlightBox';
-import { FlowDiagram } from '../components/FlowDiagram';
+import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 
 export function Checkpointing() {
-  const checkpointCreationFlow = {
-    title: '检查点创建流程',
-    nodes: [
-      { id: 'start', label: '用户批准\n修改工具', type: 'start' as const },
-      { id: 'check_enabled', label: '检查点功能\n是否启用?', type: 'decision' as const },
-      { id: 'create_snapshot', label: '创建 Git\n快照', type: 'process' as const },
-      { id: 'save_conversation', label: '保存对话\n历史', type: 'process' as const },
-      { id: 'save_tool_call', label: '保存工具\n调用信息', type: 'process' as const },
-      { id: 'execute_tool', label: '执行工具', type: 'process' as const },
-      { id: 'end', label: '工具执行完成', type: 'end' as const },
-      { id: 'skip', label: '直接执行\n(无检查点)', type: 'end' as const },
-    ],
-    edges: [
-      { from: 'start', to: 'check_enabled' },
-      { from: 'check_enabled', to: 'skip', label: 'No' },
-      { from: 'check_enabled', to: 'create_snapshot', label: 'Yes' },
-      { from: 'create_snapshot', to: 'save_conversation' },
-      { from: 'save_conversation', to: 'save_tool_call' },
-      { from: 'save_tool_call', to: 'execute_tool' },
-      { from: 'execute_tool', to: 'end' },
-    ],
-  };
+  const checkpointFlowChart = `flowchart TD
+    start([用户批准<br/>修改工具])
+    check_enabled{检查点功能<br/>是否启用?}
+    create_snapshot[创建 Git<br/>快照]
+    save_conversation[保存对话<br/>历史]
+    save_tool_call[保存工具<br/>调用信息]
+    execute_tool[执行工具]
+    end([工具执行完成])
+    skip([直接执行<br/>无检查点])
 
-  const restoreFlow = {
-    title: '/restore 恢复流程',
-    nodes: [
-      { id: 'start', label: '执行 /restore\n命令', type: 'start' as const },
-      { id: 'list', label: '列出可用\n检查点', type: 'process' as const },
-      { id: 'select', label: '用户选择\n检查点', type: 'process' as const },
-      { id: 'revert_files', label: '恢复文件\n(git checkout)', type: 'process' as const },
-      { id: 'restore_convo', label: '恢复对话\n历史', type: 'process' as const },
-      { id: 'restore_tool', label: '重新提议\n工具调用', type: 'process' as const },
-      { id: 'end', label: '恢复完成\n可重新执行', type: 'end' as const },
-    ],
-    edges: [
-      { from: 'start', to: 'list' },
-      { from: 'list', to: 'select' },
-      { from: 'select', to: 'revert_files' },
-      { from: 'revert_files', to: 'restore_convo' },
-      { from: 'restore_convo', to: 'restore_tool' },
-      { from: 'restore_tool', to: 'end' },
-    ],
-  };
+    start --> check_enabled
+    check_enabled -->|No| skip
+    check_enabled -->|Yes| create_snapshot
+    create_snapshot --> save_conversation
+    save_conversation --> save_tool_call
+    save_tool_call --> execute_tool
+    execute_tool --> end
+
+    style start fill:#22d3ee,color:#000
+    style end fill:#22c55e,color:#000
+    style skip fill:#22c55e,color:#000
+    style check_enabled fill:#f59e0b,color:#000`;
+
+  const restoreFlowChart = `flowchart TD
+    start([执行 /restore<br/>命令])
+    list[列出可用<br/>检查点]
+    select[用户选择<br/>检查点]
+    revert_files[恢复文件<br/>git checkout]
+    restore_convo[恢复对话<br/>历史]
+    restore_tool[重新提议<br/>工具调用]
+    end([恢复完成<br/>可重新执行])
+
+    start --> list
+    list --> select
+    select --> revert_files
+    revert_files --> restore_convo
+    restore_convo --> restore_tool
+    restore_tool --> end
+
+    style start fill:#22d3ee,color:#000
+    style end fill:#22c55e,color:#000`;
 
   const enableConfigCode = `// 方式一：命令行参数启用
 $ innies --checkpointing
@@ -251,7 +249,7 @@ Select: 1
       {/* 检查点创建流程 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">检查点创建流程</h3>
-        <FlowDiagram {...checkpointCreationFlow} />
+        <MermaidDiagram chart={checkpointFlowChart} title="检查点创建流程" />
 
         <HighlightBox title="检查点包含内容" variant="green">
           <div className="grid grid-cols-3 gap-4 text-sm">
@@ -325,7 +323,7 @@ Select: 1
       {/* 恢复流程 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">/restore 恢复流程</h3>
-        <FlowDiagram {...restoreFlow} />
+        <MermaidDiagram chart={restoreFlowChart} title="/restore 恢复流程" />
         <CodeBlock code={restoreCommandCode} language="text" title="/restore 命令使用" />
       </section>
 

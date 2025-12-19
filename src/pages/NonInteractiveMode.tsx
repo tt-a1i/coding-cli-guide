@@ -1,38 +1,40 @@
 import { HighlightBox } from '../components/HighlightBox';
-import { FlowDiagram } from '../components/FlowDiagram';
+import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 
 export function NonInteractiveMode() {
-  const nonInteractiveFlow = {
-    title: '非交互模式执行流程',
-    nodes: [
-      { id: 'start', label: '命令行启动\ninnies -p "prompt"', type: 'start' as const },
-      { id: 'parse_args', label: '解析命令行参数', type: 'process' as const },
-      { id: 'check_stdin', label: '检查 stdin\n输入', type: 'decision' as const },
-      { id: 'read_stdin', label: '读取 stdin\n内容', type: 'process' as const },
-      { id: 'process_at', label: '处理 @path\n文件引用', type: 'process' as const },
-      { id: 'build_prompt', label: '构建完整\nprompt', type: 'process' as const },
-      { id: 'execute', label: '执行 AI 请求', type: 'process' as const },
-      { id: 'is_multi', label: '多轮对话?', type: 'decision' as const },
-      { id: 'continue', label: '继续对话', type: 'process' as const },
-      { id: 'output', label: '输出结果\n(stdout/文件)', type: 'process' as const },
-      { id: 'exit', label: '退出\n(exit code)', type: 'end' as const },
-    ],
-    edges: [
-      { from: 'start', to: 'parse_args' },
-      { from: 'parse_args', to: 'check_stdin' },
-      { from: 'check_stdin', to: 'read_stdin', label: '有' },
-      { from: 'check_stdin', to: 'process_at', label: '无' },
-      { from: 'read_stdin', to: 'process_at' },
-      { from: 'process_at', to: 'build_prompt' },
-      { from: 'build_prompt', to: 'execute' },
-      { from: 'execute', to: 'is_multi' },
-      { from: 'is_multi', to: 'continue', label: 'Yes' },
-      { from: 'is_multi', to: 'output', label: 'No' },
-      { from: 'continue', to: 'execute' },
-      { from: 'output', to: 'exit' },
-    ],
-  };
+  const nonInteractiveFlow = `
+flowchart TD
+    start["命令行启动<br/>innies -p &quot;prompt&quot;"]
+    parse_args["解析命令行参数"]
+    check_stdin{"检查 stdin<br/>输入"}
+    read_stdin["读取 stdin<br/>内容"]
+    process_at["处理 @path<br/>文件引用"]
+    build_prompt["构建完整<br/>prompt"]
+    execute["执行 AI 请求"]
+    is_multi{"多轮对话?"}
+    continue["继续对话"]
+    output["输出结果<br/>(stdout/文件)"]
+    exit["退出<br/>(exit code)"]
+
+    start --> parse_args
+    parse_args --> check_stdin
+    check_stdin -->|有| read_stdin
+    check_stdin -->|无| process_at
+    read_stdin --> process_at
+    process_at --> build_prompt
+    build_prompt --> execute
+    execute --> is_multi
+    is_multi -->|Yes| continue
+    is_multi -->|No| output
+    continue --> execute
+    output --> exit
+
+    style start fill:#22d3ee,color:#000
+    style exit fill:#22c55e,color:#000
+    style check_stdin fill:#f59e0b,color:#000
+    style is_multi fill:#f59e0b,color:#000
+`;
 
   const cliOptionsCode = `// packages/cli/src/nonInteractiveCli.ts
 
@@ -485,7 +487,7 @@ fi`;
       {/* 执行流程 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">执行流程</h3>
-        <FlowDiagram {...nonInteractiveFlow} />
+        <MermaidDiagram chart={nonInteractiveFlow} title="非交互模式执行流程" />
       </section>
 
       {/* 命令行参数 */}

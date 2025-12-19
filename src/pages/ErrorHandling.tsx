@@ -1,35 +1,36 @@
 import { HighlightBox } from '../components/HighlightBox';
-import { FlowDiagram } from '../components/FlowDiagram';
+import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 
 export function ErrorHandling() {
-  const errorFlow = {
-    title: '错误处理流程',
-    nodes: [
-      { id: 'start', label: '错误发生', type: 'start' as const },
-      { id: 'capture', label: '错误捕获\nError Boundary', type: 'process' as const },
-      { id: 'classify', label: '错误分类', type: 'process' as const },
-      { id: 'is_recoverable', label: '可恢复?', type: 'decision' as const },
-      { id: 'recovery', label: '尝试恢复\n重试/回退', type: 'process' as const },
-      { id: 'recovered', label: '恢复成功?', type: 'decision' as const },
-      { id: 'continue', label: '继续执行', type: 'end' as const },
-      { id: 'report', label: '错误报告\n用户通知', type: 'process' as const },
-      { id: 'log', label: '日志记录\n遥测上报', type: 'process' as const },
-      { id: 'end', label: '优雅退出', type: 'end' as const },
-    ],
-    edges: [
-      { from: 'start', to: 'capture' },
-      { from: 'capture', to: 'classify' },
-      { from: 'classify', to: 'is_recoverable' },
-      { from: 'is_recoverable', to: 'recovery', label: 'Yes' },
-      { from: 'is_recoverable', to: 'report', label: 'No' },
-      { from: 'recovery', to: 'recovered' },
-      { from: 'recovered', to: 'continue', label: 'Yes' },
-      { from: 'recovered', to: 'report', label: 'No' },
-      { from: 'report', to: 'log' },
-      { from: 'log', to: 'end' },
-    ],
-  };
+  const errorFlowChart = `flowchart TD
+    start["错误发生"]
+    capture["错误捕获<br/>Error Boundary"]
+    classify["错误分类"]
+    is_recoverable{"可恢复?"}
+    recovery["尝试恢复<br/>重试/回退"]
+    recovered{"恢复成功?"}
+    continue["继续执行"]
+    report["错误报告<br/>用户通知"]
+    log["日志记录<br/>遥测上报"]
+    endNode["优雅退出"]
+
+    start --> capture
+    capture --> classify
+    classify --> is_recoverable
+    is_recoverable -->|Yes| recovery
+    is_recoverable -->|No| report
+    recovery --> recovered
+    recovered -->|Yes| continue
+    recovered -->|No| report
+    report --> log
+    log --> endNode
+
+    style start fill:#22d3ee,color:#000
+    style continue fill:#22c55e,color:#000
+    style endNode fill:#22c55e,color:#000
+    style is_recoverable fill:#f59e0b,color:#000
+    style recovered fill:#f59e0b,color:#000`;
 
   const errorTypesCode = `// packages/core/src/errors/types.ts
 
@@ -599,7 +600,7 @@ function attemptJSONFix(
       {/* 错误处理流程 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">错误处理流程</h3>
-        <FlowDiagram {...errorFlow} />
+        <MermaidDiagram chart={errorFlowChart} title="错误处理流程" />
       </section>
 
       {/* 错误类型 */}

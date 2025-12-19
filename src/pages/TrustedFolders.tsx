@@ -1,39 +1,43 @@
 import { HighlightBox } from '../components/HighlightBox';
-import { FlowDiagram } from '../components/FlowDiagram';
+import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 
 export function TrustedFolders() {
-  const trustDecisionFlow = {
-    title: '信任决策流程',
-    nodes: [
-      { id: 'start', label: '启动 CLI', type: 'start' as const },
-      { id: 'check_enabled', label: '检查 folderTrust\n是否启用', type: 'decision' as const },
-      { id: 'check_ide', label: '检查 IDE\n信任信号', type: 'process' as const },
-      { id: 'ide_trusted', label: 'IDE 信任?', type: 'decision' as const },
-      { id: 'check_file', label: '检查\ntrustedFolders.json', type: 'process' as const },
-      { id: 'file_has_rule', label: '有规则?', type: 'decision' as const },
-      { id: 'show_dialog', label: '显示信任对话框', type: 'process' as const },
-      { id: 'user_choice', label: '用户选择', type: 'decision' as const },
-      { id: 'trusted', label: '完全功能模式', type: 'end' as const },
-      { id: 'untrusted', label: '受限安全模式', type: 'end' as const },
-      { id: 'skip', label: '跳过检查\n(功能未启用)', type: 'end' as const },
-    ],
-    edges: [
-      { from: 'start', to: 'check_enabled' },
-      { from: 'check_enabled', to: 'skip', label: 'No' },
-      { from: 'check_enabled', to: 'check_ide', label: 'Yes' },
-      { from: 'check_ide', to: 'ide_trusted' },
-      { from: 'ide_trusted', to: 'trusted', label: 'Yes' },
-      { from: 'ide_trusted', to: 'check_file', label: 'No/无连接' },
-      { from: 'check_file', to: 'file_has_rule' },
-      { from: 'file_has_rule', to: 'trusted', label: '已信任' },
-      { from: 'file_has_rule', to: 'untrusted', label: '已拒绝' },
-      { from: 'file_has_rule', to: 'show_dialog', label: '无记录' },
-      { from: 'show_dialog', to: 'user_choice' },
-      { from: 'user_choice', to: 'trusted', label: '信任' },
-      { from: 'user_choice', to: 'untrusted', label: '不信任' },
-    ],
-  };
+  const trustDecisionFlowChart = `flowchart TD
+    start([启动 CLI])
+    check_enabled{检查 folderTrust<br/>是否启用}
+    check_ide[检查 IDE<br/>信任信号]
+    ide_trusted{IDE 信任?}
+    check_file[检查<br/>trustedFolders.json]
+    file_has_rule{有规则?}
+    show_dialog[显示信任对话框]
+    user_choice{用户选择}
+    trusted([完全功能模式])
+    untrusted([受限安全模式])
+    skip([跳过检查<br/>功能未启用])
+
+    start --> check_enabled
+    check_enabled -->|No| skip
+    check_enabled -->|Yes| check_ide
+    check_ide --> ide_trusted
+    ide_trusted -->|Yes| trusted
+    ide_trusted -->|No/无连接| check_file
+    check_file --> file_has_rule
+    file_has_rule -->|已信任| trusted
+    file_has_rule -->|已拒绝| untrusted
+    file_has_rule -->|无记录| show_dialog
+    show_dialog --> user_choice
+    user_choice -->|信任| trusted
+    user_choice -->|不信任| untrusted
+
+    style start fill:#22d3ee,color:#000
+    style trusted fill:#22c55e,color:#000
+    style untrusted fill:#ef4444,color:#fff
+    style skip fill:#22c55e,color:#000
+    style check_enabled fill:#f59e0b,color:#000
+    style ide_trusted fill:#f59e0b,color:#000
+    style file_has_rule fill:#f59e0b,color:#000
+    style user_choice fill:#f59e0b,color:#000`;
 
   const enableConfigCode = `// ~/.innies/settings.json
 // 启用 Trusted Folders 功能
@@ -192,7 +196,7 @@ async function checkIDETrust(): Promise<boolean | null> {
       {/* 信任决策流程 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">信任决策流程</h3>
-        <FlowDiagram {...trustDecisionFlow} />
+        <MermaidDiagram chart={trustDecisionFlowChart} title="信任决策流程" />
 
         <div className="mt-4 bg-gray-800/50 rounded-lg p-4">
           <h4 className="font-semibold text-cyan-400 mb-3">决策优先级（从高到低）</h4>

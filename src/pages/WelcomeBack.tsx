@@ -1,56 +1,58 @@
 import { HighlightBox } from '../components/HighlightBox';
-import { FlowDiagram } from '../components/FlowDiagram';
+import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 
 export function WelcomeBack() {
-  const welcomeBackFlow = {
-    title: 'Welcome Back 检测流程',
-    nodes: [
-      { id: 'start', label: '启动 CLI', type: 'start' as const },
-      { id: 'check_enabled', label: '检查\nenableWelcomeBack', type: 'decision' as const },
-      { id: 'check_summary', label: '检查\nPROJECT_SUMMARY.md', type: 'process' as const },
-      { id: 'has_summary', label: '存在摘要?', type: 'decision' as const },
-      { id: 'show_dialog', label: '显示\nWelcome Back 对话框', type: 'process' as const },
-      { id: 'user_choice', label: '用户选择', type: 'decision' as const },
-      { id: 'load_context', label: '加载摘要\n@.innies/PROJECT_SUMMARY.md', type: 'process' as const },
-      { id: 'new_session', label: '新会话', type: 'end' as const },
-      { id: 'continue', label: '继续对话', type: 'end' as const },
-    ],
-    edges: [
-      { from: 'start', to: 'check_enabled' },
-      { from: 'check_enabled', to: 'new_session', label: 'No' },
-      { from: 'check_enabled', to: 'check_summary', label: 'Yes' },
-      { from: 'check_summary', to: 'has_summary' },
-      { from: 'has_summary', to: 'new_session', label: 'No' },
-      { from: 'has_summary', to: 'show_dialog', label: 'Yes' },
-      { from: 'show_dialog', to: 'user_choice' },
-      { from: 'user_choice', to: 'new_session', label: '新会话' },
-      { from: 'user_choice', to: 'load_context', label: '继续' },
-      { from: 'load_context', to: 'continue' },
-    ],
-  };
+  const welcomeBackFlowChart = `flowchart TD
+    start([启动 CLI])
+    check_enabled{检查<br/>enableWelcomeBack}
+    check_summary[检查<br/>PROJECT_SUMMARY.md]
+    has_summary{存在摘要?}
+    show_dialog[显示<br/>Welcome Back 对话框]
+    user_choice{用户选择}
+    load_context[加载摘要<br/>@.innies/PROJECT_SUMMARY.md]
+    new_session([新会话])
+    continue([继续对话])
 
-  const quitConfirmFlow = {
-    title: '/quit-confirm 退出流程',
-    nodes: [
-      { id: 'start', label: '触发退出\nCtrl+C 或 /quit-confirm', type: 'start' as const },
-      { id: 'show_dialog', label: '显示退出\n确认对话框', type: 'process' as const },
-      { id: 'choice', label: '用户选择', type: 'decision' as const },
-      { id: 'quit_now', label: '立即退出', type: 'end' as const },
-      { id: 'gen_summary', label: '生成摘要\n/summary', type: 'process' as const },
-      { id: 'save_chat', label: '保存对话\n/chat save', type: 'process' as const },
-      { id: 'quit_after', label: '退出', type: 'end' as const },
-    ],
-    edges: [
-      { from: 'start', to: 'show_dialog' },
-      { from: 'show_dialog', to: 'choice' },
-      { from: 'choice', to: 'quit_now', label: '立即退出' },
-      { from: 'choice', to: 'gen_summary', label: '生成摘要' },
-      { from: 'choice', to: 'save_chat', label: '保存对话' },
-      { from: 'gen_summary', to: 'quit_after' },
-      { from: 'save_chat', to: 'quit_after' },
-    ],
-  };
+    start --> check_enabled
+    check_enabled -->|No| new_session
+    check_enabled -->|Yes| check_summary
+    check_summary --> has_summary
+    has_summary -->|No| new_session
+    has_summary -->|Yes| show_dialog
+    show_dialog --> user_choice
+    user_choice -->|新会话| new_session
+    user_choice -->|继续| load_context
+    load_context --> continue
+
+    style start fill:#22d3ee,color:#000
+    style check_enabled fill:#f59e0b,color:#000
+    style has_summary fill:#f59e0b,color:#000
+    style user_choice fill:#f59e0b,color:#000
+    style new_session fill:#22c55e,color:#000
+    style continue fill:#22c55e,color:#000`;
+
+  const quitConfirmFlowChart = `flowchart TD
+    start([触发退出<br/>Ctrl+C 或 /quit-confirm])
+    show_dialog[显示退出<br/>确认对话框]
+    choice{用户选择}
+    quit_now([立即退出])
+    gen_summary[生成摘要<br/>/summary]
+    save_chat[保存对话<br/>/chat save]
+    quit_after([退出])
+
+    start --> show_dialog
+    show_dialog --> choice
+    choice -->|立即退出| quit_now
+    choice -->|生成摘要| gen_summary
+    choice -->|保存对话| save_chat
+    gen_summary --> quit_after
+    save_chat --> quit_after
+
+    style start fill:#22d3ee,color:#000
+    style choice fill:#f59e0b,color:#000
+    style quit_now fill:#ef4444,color:#fff
+    style quit_after fill:#22c55e,color:#000`;
 
   const projectSummaryFormat = `# Project Summary
 
@@ -226,7 +228,7 @@ your-project/
       {/* Welcome Back 流程 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">Welcome Back 检测流程</h3>
-        <FlowDiagram {...welcomeBackFlow} />
+        <MermaidDiagram chart={welcomeBackFlowChart} title="Welcome Back 检测流程" />
 
         <div className="mt-4 bg-gray-800/50 rounded-lg p-4">
           <h4 className="font-semibold text-cyan-400 mb-3">自动检测条件</h4>
@@ -340,7 +342,7 @@ your-project/
       {/* 退出确认 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">/quit-confirm 退出确认</h3>
-        <FlowDiagram {...quitConfirmFlow} />
+        <MermaidDiagram chart={quitConfirmFlowChart} title="/quit-confirm 退出流程" />
         <CodeBlock code={quitConfirmCode} language="text" title="退出确认对话框" />
 
         <div className="mt-4 grid grid-cols-3 gap-4">

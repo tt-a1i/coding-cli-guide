@@ -1,35 +1,40 @@
 import { HighlightBox } from '../components/HighlightBox';
-import { FlowDiagram } from '../components/FlowDiagram';
+import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 
 export function LoopDetection() {
-  const loopDetectionFlow = {
-    title: '循环检测流程',
-    nodes: [
-      { id: 'start', label: 'AI 响应完成', type: 'start' as const },
-      { id: 'record', label: '记录工具调用\n和内容哈希', type: 'process' as const },
-      { id: 'check_tool', label: '工具调用重复\n≥5次?', type: 'decision' as const },
-      { id: 'check_content', label: '内容哈希重复\n≥10次?', type: 'decision' as const },
-      { id: 'check_turns', label: '对话轮数\n≥30?', type: 'decision' as const },
-      { id: 'llm_check', label: 'LLM 智能检测\n分析对话模式', type: 'process' as const },
-      { id: 'is_loop', label: '检测到循环?', type: 'decision' as const },
-      { id: 'report_loop', label: '报告循环\n触发中断', type: 'end' as const },
-      { id: 'continue', label: '继续执行', type: 'end' as const },
-    ],
-    edges: [
-      { from: 'start', to: 'record' },
-      { from: 'record', to: 'check_tool' },
-      { from: 'check_tool', to: 'report_loop', label: 'Yes' },
-      { from: 'check_tool', to: 'check_content', label: 'No' },
-      { from: 'check_content', to: 'report_loop', label: 'Yes' },
-      { from: 'check_content', to: 'check_turns', label: 'No' },
-      { from: 'check_turns', to: 'llm_check', label: 'Yes' },
-      { from: 'check_turns', to: 'continue', label: 'No' },
-      { from: 'llm_check', to: 'is_loop' },
-      { from: 'is_loop', to: 'report_loop', label: 'Yes' },
-      { from: 'is_loop', to: 'continue', label: 'No' },
-    ],
-  };
+  const loopDetectionFlow = `
+flowchart TD
+    start([AI 响应完成])
+    record[记录工具调用<br/>和内容哈希]
+    check_tool{工具调用重复<br/>≥5次?}
+    check_content{内容哈希重复<br/>≥10次?}
+    check_turns{对话轮数<br/>≥30?}
+    llm_check[LLM 智能检测<br/>分析对话模式]
+    is_loop{检测到循环?}
+    report_loop([报告循环<br/>触发中断])
+    continue([继续执行])
+
+    start --> record
+    record --> check_tool
+    check_tool -->|Yes| report_loop
+    check_tool -->|No| check_content
+    check_content -->|Yes| report_loop
+    check_content -->|No| check_turns
+    check_turns -->|Yes| llm_check
+    check_turns -->|No| continue
+    llm_check --> is_loop
+    is_loop -->|Yes| report_loop
+    is_loop -->|No| continue
+
+    style start fill:#22d3ee,color:#000
+    style check_tool fill:#f59e0b,color:#000
+    style check_content fill:#f59e0b,color:#000
+    style check_turns fill:#f59e0b,color:#000
+    style is_loop fill:#f59e0b,color:#000
+    style report_loop fill:#ef4444,color:#fff
+    style continue fill:#22c55e,color:#000
+`;
 
   const thresholdsCode = `// packages/core/src/services/loopDetectionService.ts
 
@@ -386,7 +391,7 @@ export class GeminiChat {
       {/* 检测流程 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">检测流程</h3>
-        <FlowDiagram {...loopDetectionFlow} />
+        <MermaidDiagram chart={loopDetectionFlow} title="循环检测流程" />
       </section>
 
       {/* 核心配置 */}

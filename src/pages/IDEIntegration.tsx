@@ -1,63 +1,66 @@
 import { HighlightBox } from '../components/HighlightBox';
-import { FlowDiagram } from '../components/FlowDiagram';
+import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
 
 export function IDEIntegration() {
-  const connectionFlow = {
-    title: 'IDE 连接流程',
-    nodes: [
-      { id: 'start', label: '启动 CLI\n(在 IDE 终端)', type: 'start' as const },
-      { id: 'detect_env', label: '检测环境变量\nQWEN_CODE_IDE_*', type: 'process' as const },
-      { id: 'has_env', label: '有环境变量?', type: 'decision' as const },
-      { id: 'check_ext', label: '检查扩展\n是否安装', type: 'process' as const },
-      { id: 'ext_ok', label: '扩展可用?', type: 'decision' as const },
-      { id: 'connect', label: '建立连接\nHTTP/SSE', type: 'process' as const },
-      { id: 'check_workspace', label: '验证工作区\n路径匹配', type: 'decision' as const },
-      { id: 'connected', label: '连接成功\n启用 IDE 功能', type: 'end' as const },
-      { id: 'show_nudge', label: '提示安装\n扩展', type: 'process' as const },
-      { id: 'standalone', label: '独立模式\n(无 IDE 功能)', type: 'end' as const },
-    ],
-    edges: [
-      { from: 'start', to: 'detect_env' },
-      { from: 'detect_env', to: 'has_env' },
-      { from: 'has_env', to: 'standalone', label: 'No' },
-      { from: 'has_env', to: 'check_ext', label: 'Yes' },
-      { from: 'check_ext', to: 'ext_ok' },
-      { from: 'ext_ok', to: 'show_nudge', label: 'No' },
-      { from: 'ext_ok', to: 'connect', label: 'Yes' },
-      { from: 'show_nudge', to: 'standalone' },
-      { from: 'connect', to: 'check_workspace' },
-      { from: 'check_workspace', to: 'connected', label: 'Match' },
-      { from: 'check_workspace', to: 'standalone', label: 'Mismatch' },
-    ],
-  };
+  const connectionFlowChart = `flowchart TD
+    start([启动 CLI<br/>(在 IDE 终端)])
+    detect_env[检测环境变量<br/>QWEN_CODE_IDE_*]
+    has_env{有环境变量?}
+    check_ext[检查扩展<br/>是否安装]
+    ext_ok{扩展可用?}
+    connect[建立连接<br/>HTTP/SSE]
+    check_workspace{验证工作区<br/>路径匹配}
+    connected([连接成功<br/>启用 IDE 功能])
+    show_nudge[提示安装<br/>扩展]
+    standalone([独立模式<br/>(无 IDE 功能)])
 
-  const diffFlow = {
-    title: 'Native Diff 工作流',
-    nodes: [
-      { id: 'start', label: 'AI 提议\n修改文件', type: 'start' as const },
-      { id: 'check_ide', label: 'IDE 已连接?', type: 'decision' as const },
-      { id: 'call_mcp', label: '调用 MCP\nopenDiff 工具', type: 'process' as const },
-      { id: 'cli_diff', label: '在 CLI 中\n显示 Diff', type: 'process' as const },
-      { id: 'set_content', label: 'DiffContentProvider\n设置虚拟文档内容', type: 'process' as const },
-      { id: 'open_diff', label: 'vscode.diff\n打开对比视图', type: 'process' as const },
-      { id: 'user_action', label: '用户操作', type: 'decision' as const },
-      { id: 'accept', label: '接受修改\nide/diffAccepted', type: 'end' as const },
-      { id: 'reject', label: '拒绝修改\nide/diffRejected', type: 'end' as const },
-    ],
-    edges: [
-      { from: 'start', to: 'check_ide' },
-      { from: 'check_ide', to: 'cli_diff', label: 'No' },
-      { from: 'check_ide', to: 'call_mcp', label: 'Yes' },
-      { from: 'call_mcp', to: 'set_content' },
-      { from: 'set_content', to: 'open_diff' },
-      { from: 'open_diff', to: 'user_action' },
-      { from: 'cli_diff', to: 'user_action' },
-      { from: 'user_action', to: 'accept', label: '✓ / Cmd+S' },
-      { from: 'user_action', to: 'reject', label: '✗ / 关闭' },
-    ],
-  };
+    start --> detect_env
+    detect_env --> has_env
+    has_env -->|No| standalone
+    has_env -->|Yes| check_ext
+    check_ext --> ext_ok
+    ext_ok -->|No| show_nudge
+    ext_ok -->|Yes| connect
+    show_nudge --> standalone
+    connect --> check_workspace
+    check_workspace -->|Match| connected
+    check_workspace -->|Mismatch| standalone
+
+    style start fill:#22d3ee,color:#000
+    style connected fill:#22c55e,color:#000
+    style standalone fill:#22c55e,color:#000
+    style has_env fill:#f59e0b,color:#000
+    style ext_ok fill:#f59e0b,color:#000
+    style check_workspace fill:#f59e0b,color:#000`;
+
+  const diffFlowChart = `flowchart TD
+    start([AI 提议<br/>修改文件])
+    check_ide{IDE 已连接?}
+    call_mcp[调用 MCP<br/>openDiff 工具]
+    cli_diff[在 CLI 中<br/>显示 Diff]
+    set_content[DiffContentProvider<br/>设置虚拟文档内容]
+    open_diff[vscode.diff<br/>打开对比视图]
+    user_action{用户操作}
+    accept([接受修改<br/>ide/diffAccepted])
+    reject([拒绝修改<br/>ide/diffRejected])
+
+    start --> check_ide
+    check_ide -->|No| cli_diff
+    check_ide -->|Yes| call_mcp
+    call_mcp --> set_content
+    set_content --> open_diff
+    open_diff --> user_action
+    cli_diff --> user_action
+    user_action -->|✓ / Cmd+S| accept
+    user_action -->|✗ / 关闭| reject
+
+    style start fill:#22d3ee,color:#000
+    style accept fill:#22c55e,color:#000
+    style reject fill:#ef4444,color:#fff
+    style check_ide fill:#f59e0b,color:#000
+    style user_action fill:#f59e0b,color:#000`;
 
   return (
     <div className="space-y-8">
@@ -384,7 +387,7 @@ server.registerTool('closeDiff', {
       {/* 连接流程 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">连接流程</h3>
-        <FlowDiagram {...connectionFlow} />
+        <MermaidDiagram chart={connectionFlowChart} title="IDE 连接流程" />
       </section>
 
       {/* 连接配置 */}
@@ -519,7 +522,7 @@ QWEN_CODE_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
       {/* Native Diff */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">原生 Diff 视图</h3>
-        <FlowDiagram {...diffFlow} />
+        <MermaidDiagram chart={diffFlowChart} title="Native Diff 工作流" />
 
         <div className="mt-4 bg-gray-900 rounded-lg p-4 border border-gray-700">
           <h4 className="text-white font-semibold mb-3">Diff 视图示例</h4>
