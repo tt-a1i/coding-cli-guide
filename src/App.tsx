@@ -13,21 +13,34 @@ import { UIRenderingLayer } from './pages/UIRenderingLayer';
 import { RequestLifecycle } from './pages/RequestLifecycle';
 import { Animation } from './pages/Animation';
 import { CoreCode } from './pages/CoreCode';
+import { ConfigSystem } from './pages/ConfigSystem';
+import { AuthenticationFlow } from './pages/AuthenticationFlow';
+import { MemoryManagement } from './pages/MemoryManagement';
+import { SubagentSystem } from './pages/SubagentSystem';
+import { SlashCommands } from './pages/SlashCommands';
+import { AtCommands } from './pages/AtCommands';
 import './index.css';
 
 const tabs = [
   // 基础
   { id: 'overview', label: '概览' },
   { id: 'startup', label: '启动流程' },
+  { id: 'config', label: '配置系统' },
+  { id: 'auth', label: '认证流程' },
   // 核心机制
   { id: 'lifecycle', label: '请求生命周期', highlight: true },
   { id: 'gemini-chat', label: '核心循环' },
   { id: 'content-gen', label: 'API调用层' },
+  { id: 'memory', label: '上下文管理' },
   // 工具系统
   { id: 'tool-arch', label: '工具架构' },
   { id: 'tool-detail', label: '工具执行' },
   { id: 'ai-tool', label: 'AI工具交互' },
+  // 命令系统
+  { id: 'slash-cmd', label: '斜杠命令' },
+  { id: 'at-cmd', label: '@命令' },
   // 扩展
+  { id: 'subagent', label: '子代理系统' },
   { id: 'mcp', label: 'MCP集成' },
   { id: 'ui', label: 'UI渲染层' },
   // 演示
@@ -44,18 +57,30 @@ function App() {
         return <Overview />;
       case 'startup':
         return <StartupFlow />;
+      case 'config':
+        return <ConfigSystem />;
+      case 'auth':
+        return <AuthenticationFlow />;
       case 'lifecycle':
         return <RequestLifecycle />;
       case 'gemini-chat':
         return <GeminiChatCore />;
       case 'content-gen':
         return <ContentGeneratorDetails />;
+      case 'memory':
+        return <MemoryManagement />;
       case 'tool-arch':
         return <ToolSystemArchitecture />;
       case 'tool-detail':
         return <ToolDetails />;
       case 'ai-tool':
         return <AIToolInteraction />;
+      case 'slash-cmd':
+        return <SlashCommands />;
+      case 'at-cmd':
+        return <AtCommands />;
+      case 'subagent':
+        return <SubagentSystem />;
       case 'mcp':
         return <MCPIntegration />;
       case 'ui':
