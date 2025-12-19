@@ -1,6 +1,5 @@
 import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
-import { Module } from '../components/Module';
 import { CodeBlock } from '../components/CodeBlock';
 
 export function SystemPromptArch() {

@@ -78,7 +78,7 @@ export function MemoryManagement() {
           code={`// packages/core/src/tools/memoryTool.ts
 
 class MemoryTool extends BaseDeclarativeTool {
-    readonly name = 'memory';
+    readonly name = 'save_memory';
     readonly description = '保存重要信息到记忆文件';
 
     // 支持的操作

@@ -1,0 +1,768 @@
+import { HighlightBox } from '../components/HighlightBox';
+import { FlowDiagram } from '../components/FlowDiagram';
+import { CodeBlock } from '../components/CodeBlock';
+import { Layer } from '../components/Layer';
+
+export function IDEIntegration() {
+  const connectionFlow = {
+    title: 'IDE 连接流程',
+    nodes: [
+      { id: 'start', label: '启动 CLI\n(在 IDE 终端)', type: 'start' as const },
+      { id: 'detect_env', label: '检测环境变量\nQWEN_CODE_IDE_*', type: 'process' as const },
+      { id: 'has_env', label: '有环境变量?', type: 'decision' as const },
+      { id: 'check_ext', label: '检查扩展\n是否安装', type: 'process' as const },
+      { id: 'ext_ok', label: '扩展可用?', type: 'decision' as const },
+      { id: 'connect', label: '建立连接\nHTTP/SSE', type: 'process' as const },
+      { id: 'check_workspace', label: '验证工作区\n路径匹配', type: 'decision' as const },
+      { id: 'connected', label: '连接成功\n启用 IDE 功能', type: 'end' as const },
+      { id: 'show_nudge', label: '提示安装\n扩展', type: 'process' as const },
+      { id: 'standalone', label: '独立模式\n(无 IDE 功能)', type: 'end' as const },
+    ],
+    edges: [
+      { from: 'start', to: 'detect_env' },
+      { from: 'detect_env', to: 'has_env' },
+      { from: 'has_env', to: 'standalone', label: 'No' },
+      { from: 'has_env', to: 'check_ext', label: 'Yes' },
+      { from: 'check_ext', to: 'ext_ok' },
+      { from: 'ext_ok', to: 'show_nudge', label: 'No' },
+      { from: 'ext_ok', to: 'connect', label: 'Yes' },
+      { from: 'show_nudge', to: 'standalone' },
+      { from: 'connect', to: 'check_workspace' },
+      { from: 'check_workspace', to: 'connected', label: 'Match' },
+      { from: 'check_workspace', to: 'standalone', label: 'Mismatch' },
+    ],
+  };
+
+  const diffFlow = {
+    title: 'Native Diff 工作流',
+    nodes: [
+      { id: 'start', label: 'AI 提议\n修改文件', type: 'start' as const },
+      { id: 'check_ide', label: 'IDE 已连接?', type: 'decision' as const },
+      { id: 'call_mcp', label: '调用 MCP\nopenDiff 工具', type: 'process' as const },
+      { id: 'cli_diff', label: '在 CLI 中\n显示 Diff', type: 'process' as const },
+      { id: 'set_content', label: 'DiffContentProvider\n设置虚拟文档内容', type: 'process' as const },
+      { id: 'open_diff', label: 'vscode.diff\n打开对比视图', type: 'process' as const },
+      { id: 'user_action', label: '用户操作', type: 'decision' as const },
+      { id: 'accept', label: '接受修改\nide/diffAccepted', type: 'end' as const },
+      { id: 'reject', label: '拒绝修改\nide/diffRejected', type: 'end' as const },
+    ],
+    edges: [
+      { from: 'start', to: 'check_ide' },
+      { from: 'check_ide', to: 'cli_diff', label: 'No' },
+      { from: 'check_ide', to: 'call_mcp', label: 'Yes' },
+      { from: 'call_mcp', to: 'set_content' },
+      { from: 'set_content', to: 'open_diff' },
+      { from: 'open_diff', to: 'user_action' },
+      { from: 'cli_diff', to: 'user_action' },
+      { from: 'user_action', to: 'accept', label: '✓ / Cmd+S' },
+      { from: 'user_action', to: 'reject', label: '✗ / 关闭' },
+    ],
+  };
+
+  return (
+    <div className="space-y-8">
+      {/* 概述 */}
+      <section>
+        <h2 className="text-2xl font-bold text-cyan-400 mb-4">IDE 集成</h2>
+        <p className="text-gray-300 mb-4">
+          CLI 可以与 IDE 集成，提供更无缝的开发体验。支持的 IDE 包括 Visual Studio Code
+          及其兼容编辑器。通过 IDE Companion 扩展，可以获得原生 Diff 视图、工作区上下文等功能。
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <HighlightBox title="工作区上下文" variant="blue">
+            <ul className="text-sm text-gray-300 space-y-1">
+              <li>• 最近访问的 10 个文件</li>
+              <li>• 当前光标位置</li>
+              <li>• 选中的文本 (最多 16KB)</li>
+            </ul>
+          </HighlightBox>
+
+          <HighlightBox title="原生 Diff" variant="green">
+            <ul className="text-sm text-gray-300 space-y-1">
+              <li>• 在 IDE 中查看修改</li>
+              <li>• 支持编辑后接受</li>
+              <li>• 熟悉的 Diff 界面</li>
+            </ul>
+          </HighlightBox>
+
+          <HighlightBox title="信任同步" variant="purple">
+            <ul className="text-sm text-gray-300 space-y-1">
+              <li>• 自动获取 IDE 信任状态</li>
+              <li>• 统一的安全管理</li>
+              <li>• 与 Trusted Folders 集成</li>
+            </ul>
+          </HighlightBox>
+        </div>
+      </section>
+
+      {/* 支持的 IDE */}
+      <section>
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">支持的 IDE</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4 text-center">
+            <span className="text-3xl">📘</span>
+            <p className="text-blue-400 font-semibold mt-2">VS Code</p>
+            <p className="text-gray-400 text-xs">完全支持</p>
+          </div>
+          <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4 text-center">
+            <span className="text-3xl">📗</span>
+            <p className="text-green-400 font-semibold mt-2">VSCodium</p>
+            <p className="text-gray-400 text-xs">通过 Open VSX</p>
+          </div>
+          <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-4 text-center">
+            <span className="text-3xl">📕</span>
+            <p className="text-purple-400 font-semibold mt-2">Cursor</p>
+            <p className="text-gray-400 text-xs">兼容 VSCode 扩展</p>
+          </div>
+          <div className="bg-gray-800/50 border border-gray-600 rounded-lg p-4 text-center">
+            <span className="text-3xl">📓</span>
+            <p className="text-gray-400 font-semibold mt-2">其他</p>
+            <p className="text-gray-500 text-xs">VSCode 兼容编辑器</p>
+          </div>
+        </div>
+      </section>
+
+      {/* IDEServer 架构 */}
+      <Layer title="IDEServer 架构" icon="🏗️">
+        <div className="bg-gray-800/50 rounded-lg p-6 mb-4">
+          <h4 className="text-cyan-400 font-bold mb-3">核心组件</h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
+              <h5 className="text-blue-400 font-semibold mb-2">Express HTTP Server</h5>
+              <p className="text-xs text-gray-300">监听 127.0.0.1 随机端口，处理 HTTP/SSE 请求</p>
+            </div>
+            <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3">
+              <h5 className="text-green-400 font-semibold mb-2">MCP Server</h5>
+              <p className="text-xs text-gray-300">提供 openDiff 和 closeDiff 两个工具</p>
+            </div>
+            <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-3">
+              <h5 className="text-purple-400 font-semibold mb-2">DiffManager</h5>
+              <p className="text-xs text-gray-300">管理虚拟文档和 Diff 视图状态</p>
+            </div>
+          </div>
+        </div>
+
+        <CodeBlock
+          title="IDEServer 启动流程"
+          language="typescript"
+          code={`class IDEServer {
+  private server: HTTPServer;
+  private authToken: string;  // 随机 UUID
+
+  async start(context: ExtensionContext) {
+    this.authToken = randomUUID();  // 生成认证令牌
+
+    const app = express();
+    app.use(express.json({ limit: '10mb' }));
+
+    // CORS 保护 - 仅允许非浏览器请求
+    app.use(cors({
+      origin: (origin, callback) => {
+        if (!origin) return callback(null, true);  // CLI 请求无 origin
+        return callback(new Error('Denied'), false);
+      },
+    }));
+
+    // Host 头验证
+    app.use((req, res, next) => {
+      const allowedHosts = ['localhost:' + port, '127.0.0.1:' + port];
+      if (!allowedHosts.includes(req.headers.host)) {
+        return res.status(403).send('Invalid Host');
+      }
+      next();
+    });
+
+    // Bearer Token 认证
+    app.use((req, res, next) => {
+      const token = req.headers.authorization?.split(' ')[1];
+      if (token && token !== this.authToken) {
+        return res.status(401).send('Unauthorized');
+      }
+      next();
+    });
+
+    // MCP 端点
+    app.post('/mcp', async (req, res) => {
+      await transport.handleRequest(req, res, req.body);
+    });
+
+    this.server = app.listen(0, '127.0.0.1');
+  }
+}`}
+        />
+
+        <HighlightBox title="三层安全认证" icon="🔒" variant="green" className="mt-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div>
+              <h5 className="font-semibold text-green-400">1. CORS 保护</h5>
+              <p className="text-gray-400 text-xs">拒绝浏览器请求，仅接受 CLI 请求</p>
+            </div>
+            <div>
+              <h5 className="font-semibold text-green-400">2. Host 头验证</h5>
+              <p className="text-gray-400 text-xs">仅允许 localhost/127.0.0.1</p>
+            </div>
+            <div>
+              <h5 className="font-semibold text-green-400">3. Bearer Token</h5>
+              <p className="text-gray-400 text-xs">每次启动生成随机 UUID</p>
+            </div>
+          </div>
+        </HighlightBox>
+      </Layer>
+
+      {/* innies-diff scheme */}
+      <Layer title="innies-diff:// 虚拟文档机制" icon="📄">
+        <HighlightBox title="技术原理" icon="💡" variant="blue">
+          <p className="text-sm mb-2">
+            VS Code 的 Diff 视图需要两个文档 URI：左侧（原始）和右侧（修改后）。
+            <code className="text-yellow-400 mx-1">innies-diff://</code> 是自定义的虚拟文档 scheme，
+            用于提供 AI 提议的新内容，而无需实际写入文件。
+          </p>
+        </HighlightBox>
+
+        <CodeBlock
+          title="URI 构造规则"
+          language="typescript"
+          code={`// innies-diff:// URI 构造
+const DIFF_SCHEME = 'innies-diff';
+
+const rightDocUri = vscode.Uri.from({
+  scheme: DIFF_SCHEME,           // 'innies-diff'
+  path: filePath,                // 原始文件的绝对路径
+  query: \`rand=\${Math.random()}\`  // 缓存清除
+});
+
+// 示例 URI:
+// innies-diff:///Users/dev/project/src/utils.ts?rand=0.123456`}
+        />
+
+        <CodeBlock
+          title="DiffContentProvider 实现"
+          language="typescript"
+          code={`// 虚拟文档内容提供者
+class DiffContentProvider implements TextDocumentContentProvider {
+  private content = new Map<string, string>();  // URI → 内容
+  private onDidChangeEmitter = new EventEmitter<Uri>();
+
+  get onDidChange(): Event<Uri> {
+    return this.onDidChangeEmitter.event;
+  }
+
+  // VS Code 请求文档内容时调用
+  provideTextDocumentContent(uri: Uri): string {
+    return this.content.get(uri.toString()) ?? '';
+  }
+
+  // 设置虚拟文档内容
+  setContent(uri: Uri, content: string): void {
+    this.content.set(uri.toString(), content);
+    this.onDidChangeEmitter.fire(uri);  // 通知内容变更
+  }
+
+  // 删除虚拟文档
+  deleteContent(uri: Uri): void {
+    this.content.delete(uri.toString());
+  }
+}`}
+        />
+
+        <div className="bg-black/30 rounded-xl p-6 mt-4">
+          <h4 className="text-cyan-400 font-bold mb-4">Diff 视图打开流程</h4>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+            <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
+              <h5 className="text-blue-400 font-semibold mb-2">1. 构建 URI</h5>
+              <pre className="text-xs text-gray-300">
+{`innies-diff://
+  /path/to/file.ts
+  ?rand=0.xxx`}
+              </pre>
+            </div>
+            <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-3">
+              <h5 className="text-purple-400 font-semibold mb-2">2. 设置内容</h5>
+              <pre className="text-xs text-gray-300">
+{`provider.setContent(
+  rightDocUri,
+  newContent
+);`}
+              </pre>
+            </div>
+            <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3">
+              <h5 className="text-green-400 font-semibold mb-2">3. 打开 Diff</h5>
+              <pre className="text-xs text-gray-300">
+{`vscode.commands
+  .executeCommand(
+  'vscode.diff',
+  leftUri, rightUri
+);`}
+              </pre>
+            </div>
+            <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-3">
+              <h5 className="text-orange-400 font-semibold mb-2">4. 允许编辑</h5>
+              <pre className="text-xs text-gray-300">
+{`executeCommand(
+  'workbench.action
+  .files.setActive
+  EditorWriteable...'
+);`}
+              </pre>
+            </div>
+          </div>
+        </div>
+
+        <HighlightBox title="左侧文档选择策略" icon="📋" variant="purple" className="mt-4">
+          <ul className="text-sm space-y-1">
+            <li>• 如果文件存在：使用 <code>file://</code> 真实文件 URI</li>
+            <li>• 如果是新文件：使用 <code>untitled:</code> scheme (空文档)</li>
+          </ul>
+        </HighlightBox>
+      </Layer>
+
+      {/* MCP 工具 */}
+      <Layer title="MCP 工具接口" icon="🔧">
+        <CodeBlock
+          title="openDiff / closeDiff 工具"
+          language="typescript"
+          code={`// MCP Server 注册工具
+const mcpServer = new McpServer({
+  name: 'qwen-code-companion-mcp-server',
+  version: '1.0.0',
+});
+
+// 工具 1: openDiff - 打开 Diff 视图
+server.registerTool('openDiff', {
+  description: '(IDE Tool) Open a diff view showing changes',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      filePath: { type: 'string', description: '文件绝对路径' },
+      newContent: { type: 'string', description: '新内容' },
+    },
+    required: ['filePath', 'newContent'],
+  },
+}, async ({ filePath, newContent }) => {
+  await diffManager.showDiff(filePath, newContent);
+  return { content: [] };
+});
+
+// 工具 2: closeDiff - 关闭 Diff 视图
+server.registerTool('closeDiff', {
+  description: '(IDE Tool) Close an open diff view',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      filePath: { type: 'string' },
+      suppressNotification: { type: 'boolean' },
+    },
+    required: ['filePath'],
+  },
+}, async ({ filePath, suppressNotification }) => {
+  const content = await diffManager.closeDiff(filePath, suppressNotification);
+  return { content: [{ type: 'text', text: JSON.stringify({ content }) }] };
+});`}
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+            <h4 className="text-green-400 font-bold mb-2">openDiff</h4>
+            <ul className="text-sm space-y-1">
+              <li><strong>输入</strong>: filePath, newContent</li>
+              <li><strong>输出</strong>: 空 (异步等待用户操作)</li>
+              <li><strong>通知</strong>: ide/diffAccepted 或 ide/diffRejected</li>
+            </ul>
+          </div>
+          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+            <h4 className="text-red-400 font-bold mb-2">closeDiff</h4>
+            <ul className="text-sm space-y-1">
+              <li><strong>输入</strong>: filePath, suppressNotification?</li>
+              <li><strong>输出</strong>: 当前编辑器中的内容</li>
+              <li><strong>用途</strong>: 强制关闭或获取编辑后内容</li>
+            </ul>
+          </div>
+        </div>
+      </Layer>
+
+      {/* 连接流程 */}
+      <section>
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">连接流程</h3>
+        <FlowDiagram {...connectionFlow} />
+      </section>
+
+      {/* 连接配置 */}
+      <Layer title="连接配置与持久化" icon="⚙️">
+        <CodeBlock
+          title="临时文件位置"
+          language="text"
+          code={`# 主文件 (按端口)
+/tmp/qwen-code-ide-server-{port}.json
+
+# 按父进程 ID (多窗口支持)
+/tmp/qwen-code-ide-server-{ppid}.json
+
+# 文件内容
+{
+  "port": 54321,
+  "workspacePath": "/path/to/project",
+  "ppid": 12345,
+  "authToken": "uuid-string"
+}
+
+# 权限: chmod 0o600 (仅当前用户可读)`}
+        />
+
+        <CodeBlock
+          title="环境变量"
+          language="text"
+          code={`# 由 IDE Companion 扩展设置
+QWEN_CODE_IDE_SERVER_PORT=54321
+QWEN_CODE_IDE_WORKSPACE_PATH=/path/to/project
+
+# 多工作区用 path.delimiter 分隔
+QWEN_CODE_IDE_WORKSPACE_PATH=/path1:/path2
+
+# Stdio 模式 (替代 HTTP)
+QWEN_CODE_IDE_SERVER_STDIO_COMMAND=node
+QWEN_CODE_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
+        />
+
+        <HighlightBox title="容器支持" icon="🐳" variant="blue" className="mt-4">
+          <p className="text-sm mb-2">
+            在 Docker/Podman 容器中运行时，CLI 自动检测容器环境并使用
+            <code className="mx-1 text-yellow-400">host.docker.internal</code> 连接宿主机。
+          </p>
+          <pre className="bg-black/30 p-3 rounded text-xs">
+{`function getIdeServerHost() {
+  const isInContainer =
+    fs.existsSync('/.dockerenv') ||
+    fs.existsSync('/run/.containerenv');
+  return isInContainer ? 'host.docker.internal' : '127.0.0.1';
+}`}
+          </pre>
+        </HighlightBox>
+      </Layer>
+
+      {/* 工作区上下文 */}
+      <Layer title="工作区上下文同步" icon="📂">
+        <CodeBlock
+          title="OpenFilesManager 实现"
+          language="typescript"
+          code={`class OpenFilesManager {
+  private openFiles: File[] = [];  // 最多 10 个文件
+
+  constructor(context: ExtensionContext) {
+    // 监听编辑器活动
+    vscode.window.onDidChangeActiveTextEditor((editor) => {
+      if (editor) this.addOrMoveToFront(editor);
+    });
+
+    // 监听选区变更
+    vscode.window.onDidChangeTextEditorSelection((event) => {
+      this.updateActiveContext(event.textEditor);
+    });
+
+    // 监听文件关闭/删除/重命名
+    vscode.workspace.onDidCloseTextDocument((doc) => this.remove(doc.uri));
+    vscode.workspace.onDidDeleteFiles((e) => ...);
+    vscode.workspace.onDidRenameFiles((e) => ...);
+  }
+
+  get state(): IDEContext {
+    return {
+      workspaceState: {
+        openFiles: this.openFiles,
+        isTrusted: vscode.workspace.isTrusted,
+      }
+    };
+  }
+}`}
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+            <h4 className="text-blue-400 font-bold mb-2">File 数据结构</h4>
+            <pre className="text-xs">
+{`{
+  path: string,      // 绝对路径
+  timestamp: number, // 最后聚焦时间
+  isActive: boolean, // 是否为当前文件
+  selectedText?: string,  // 选中文本
+  cursor?: {
+    line: number,    // 1-based
+    character: number // 0-based
+  }
+}`}
+            </pre>
+          </div>
+          <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
+            <h4 className="text-purple-400 font-bold mb-2">限制与优化</h4>
+            <ul className="text-sm space-y-1">
+              <li>• 最多保留 <strong>10 个</strong>最近文件</li>
+              <li>• 选中文本最多 <strong>16 KB</strong></li>
+              <li>• 50ms 防抖，减少频繁更新</li>
+              <li>• 按时间戳倒序排列</li>
+            </ul>
+          </div>
+        </div>
+
+        <HighlightBox title="上下文通知" icon="📡" variant="green" className="mt-4">
+          <p className="text-sm mb-2">
+            上下文变更通过 <code>ide/contextUpdate</code> 通知推送给 CLI：
+          </p>
+          <ul className="text-sm space-y-1">
+            <li>• 新会话初始化时</li>
+            <li>• 打开的文件列表变更时</li>
+            <li>• Diff 状态变更时</li>
+            <li>• 工作区信任状态变更时</li>
+          </ul>
+        </HighlightBox>
+      </Layer>
+
+      {/* Native Diff */}
+      <section>
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">原生 Diff 视图</h3>
+        <FlowDiagram {...diffFlow} />
+
+        <div className="mt-4 bg-gray-900 rounded-lg p-4 border border-gray-700">
+          <h4 className="text-white font-semibold mb-3">Diff 视图示例</h4>
+          <div className="grid grid-cols-2 gap-4 text-sm font-mono">
+            <div className="bg-red-900/20 p-3 rounded">
+              <p className="text-gray-400 mb-2">// 原始文件 (file://)</p>
+              <p className="text-red-400">- function hello() {'{'}</p>
+              <p className="text-red-400">-   console.log("Hello");</p>
+              <p className="text-red-400">- {'}'}</p>
+            </div>
+            <div className="bg-green-900/20 p-3 rounded">
+              <p className="text-gray-400 mb-2">// 修改后 (innies-diff://)</p>
+              <p className="text-green-400">+ function hello(name: string) {'{'}</p>
+              <p className="text-green-400">+   console.log(`Hello, ${'{'}name{'}'}`)</p>
+              <p className="text-green-400">+ {'}'}</p>
+            </div>
+          </div>
+          <div className="flex gap-4 mt-4 justify-center">
+            <button className="px-4 py-2 bg-green-600 text-white rounded flex items-center gap-2">
+              <span>✓</span> Accept (Cmd+S)
+            </button>
+            <button className="px-4 py-2 bg-red-600 text-white rounded flex items-center gap-2">
+              <span>✗</span> Reject
+            </button>
+          </div>
+        </div>
+
+        <HighlightBox title="用户可编辑" icon="✏️" variant="blue" className="mt-4">
+          <p className="text-sm">
+            打开 Diff 后会自动执行 <code>setActiveEditorWriteableInSession</code>，
+            允许用户直接在右侧编辑内容。接受时会保存用户编辑后的版本。
+          </p>
+        </HighlightBox>
+      </section>
+
+      {/* Diff 互斥锁 */}
+      <Layer title="Diff 互斥锁机制" icon="🔐">
+        <CodeBlock
+          title="Mutex 实现"
+          language="typescript"
+          code={`class IdeClient {
+  private diffMutex = Promise.resolve();
+  private diffResponses = new Map<string, (result) => void>();
+
+  async openDiff(filePath: string, newContent: string): Promise<DiffResult> {
+    // 获取互斥锁 - 确保一次仅一个 Diff
+    const release = await this.acquireMutex();
+
+    try {
+      const promise = new Promise((resolve, reject) => {
+        this.diffResponses.set(filePath, resolve);
+
+        // 发送 MCP 工具调用
+        this.client.request({
+          method: 'tools/call',
+          params: { name: 'openDiff', arguments: { filePath, newContent } },
+        }, { timeout: 10 * 60 * 1000 });  // 10 分钟超时
+      });
+
+      return await promise;
+    } finally {
+      release();  // 释放锁
+    }
+  }
+
+  private async acquireMutex(): Promise<() => void> {
+    let release: () => void;
+    const newMutex = new Promise<void>((resolve) => { release = resolve; });
+    const oldMutex = this.diffMutex;
+    this.diffMutex = newMutex;
+    await oldMutex;  // 等待前一个 Diff 完成
+    return release!;
+  }
+}`}
+        />
+
+        <HighlightBox title="为什么需要互斥锁？" icon="❓" variant="yellow">
+          <ul className="text-sm space-y-1">
+            <li>• 避免多个 Diff 视图同时打开造成混乱</li>
+            <li>• 确保用户按顺序处理每个修改建议</li>
+            <li>• 防止 Promise 解析错乱</li>
+          </ul>
+        </HighlightBox>
+      </Layer>
+
+      {/* IDE 命令 */}
+      <Layer title="IDE 命令" icon="⌨️">
+        <div className="bg-gray-800/50 rounded-lg p-4">
+          <h4 className="font-semibold text-cyan-400 mb-3">CLI 命令</h4>
+          <table className="w-full text-sm">
+            <tbody className="text-gray-300">
+              <tr className="border-b border-gray-700">
+                <td className="p-2"><code>/ide install</code></td>
+                <td className="p-2">安装 Companion 扩展</td>
+              </tr>
+              <tr className="border-b border-gray-700">
+                <td className="p-2"><code>/ide enable</code></td>
+                <td className="p-2">启用 IDE 连接</td>
+              </tr>
+              <tr className="border-b border-gray-700">
+                <td className="p-2"><code>/ide disable</code></td>
+                <td className="p-2">禁用 IDE 连接</td>
+              </tr>
+              <tr>
+                <td className="p-2"><code>/ide status</code></td>
+                <td className="p-2">查看连接状态和上下文</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="bg-gray-800/50 rounded-lg p-4 mt-4">
+          <h4 className="font-semibold text-cyan-400 mb-3">VS Code 命令面板</h4>
+          <table className="w-full text-sm">
+            <tbody className="text-gray-300">
+              <tr className="border-b border-gray-700">
+                <td className="p-2"><code>Innies Code: Run</code></td>
+                <td className="p-2">启动新的 CLI 会话</td>
+              </tr>
+              <tr className="border-b border-gray-700">
+                <td className="p-2"><code>Innies Code: Accept Diff</code></td>
+                <td className="p-2">接受当前 Diff 视图中的修改</td>
+              </tr>
+              <tr>
+                <td className="p-2"><code>Innies Code: Close Diff Editor</code></td>
+                <td className="p-2">拒绝修改并关闭 Diff 视图</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <HighlightBox title="快捷键: Ctrl+G" variant="blue" className="mt-4">
+          <p className="text-sm text-gray-300">
+            按 <kbd className="px-2 py-1 bg-gray-700 rounded">Ctrl+G</kbd> 可快速查看 CLI 从 IDE 接收到的上下文信息。
+          </p>
+        </HighlightBox>
+      </Layer>
+
+      {/* 故障排查 */}
+      <Layer title="故障排查" icon="🔍">
+        <div className="space-y-3 text-sm">
+          <div className="p-3 bg-red-900/20 rounded">
+            <p className="text-red-300 font-mono">🔴 Failed to connect to IDE companion extension</p>
+            <p className="text-gray-400 mt-1">
+              → 确保扩展已安装且 IDE 已打开，在 IDE 集成终端中启动 CLI
+            </p>
+          </div>
+          <div className="p-3 bg-red-900/20 rounded">
+            <p className="text-red-300 font-mono">🔴 Directory mismatch</p>
+            <p className="text-gray-400 mt-1">
+              → CLI 工作目录必须在 IDE 工作区内，使用 <code>cd</code> 切换到正确目录
+            </p>
+          </div>
+          <div className="p-3 bg-red-900/20 rounded">
+            <p className="text-red-300 font-mono">🔴 To use this feature, please open a workspace</p>
+            <p className="text-gray-400 mt-1">
+              → 在 IDE 中打开项目文件夹，不是单个文件
+            </p>
+          </div>
+          <div className="p-3 bg-yellow-900/20 rounded">
+            <p className="text-yellow-300 font-mono">⚠️ 容器中连接失败</p>
+            <p className="text-gray-400 mt-1">
+              → 确保容器可以访问 <code>host.docker.internal</code>，检查网络配置
+            </p>
+          </div>
+        </div>
+      </Layer>
+
+      {/* 架构图 */}
+      <Layer title="集成架构总览" icon="🏗️">
+        <div className="bg-gray-800/50 rounded-lg p-6">
+          <pre className="text-xs text-gray-300 overflow-x-auto">
+{`┌─────────────────────────────────────────────────────────────────┐
+│                     Visual Studio Code                          │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │              IDE Companion Extension                     │    │
+│  │                                                         │    │
+│  │   ┌──────────────┐    ┌──────────────┐    ┌─────────┐  │    │
+│  │   │ IDEServer    │    │ DiffManager  │    │OpenFiles│  │    │
+│  │   │              │    │              │    │Manager  │  │    │
+│  │   │ Express HTTP │    │ innies-diff  │    │         │  │    │
+│  │   │ + MCP Server │    │ :// Provider │    │ Context │  │    │
+│  │   │              │    │              │    │ Sync    │  │    │
+│  │   └──────────────┘    └──────────────┘    └─────────┘  │    │
+│  │            │                   ▲               │        │    │
+│  └────────────┼───────────────────┼───────────────┼────────┘    │
+│               │ HTTP/SSE          │ Diff Events   │ Context     │
+│               ▼                   │               ▼             │
+│  ┌─────────────────────────────────────────────────────────┐    │
+│  │                   Integrated Terminal                    │    │
+│  │   $ innies                                              │    │
+│  └─────────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────────┘
+                                  │
+          ┌───────────────────────┼───────────────────────┐
+          │ QWEN_CODE_IDE_*       │ /tmp/qwen-code-ide-*  │
+          │ Environment Vars      │ Connection Files      │
+          └───────────────────────┼───────────────────────┘
+                                  ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                        Innies CLI                               │
+│   ┌──────────────────────────────────────────────────────────┐  │
+│   │                    IDE Integration                        │  │
+│   │                                                          │  │
+│   │   ┌────────────────┐  ┌─────────────┐  ┌──────────────┐  │  │
+│   │   │ IdeClient      │  │IdeContext   │  │ DiffHandler  │  │  │
+│   │   │                │  │Store        │  │              │  │  │
+│   │   │ MCP Client     │  │             │  │ openDiff()   │  │  │
+│   │   │ HTTP/SSE       │  │ Subscribe   │  │ Mutex        │  │  │
+│   │   │ Connection     │  │ to updates  │  │ 10min timeout│  │  │
+│   │   └────────────────┘  └─────────────┘  └──────────────┘  │  │
+│   └──────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘`}
+          </pre>
+        </div>
+      </Layer>
+
+      {/* 最佳实践 */}
+      <section>
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">最佳实践</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
+            <h4 className="text-green-400 font-semibold mb-2">推荐做法</h4>
+            <ul className="text-sm text-gray-300 space-y-1">
+              <li>✓ 在 IDE 集成终端中启动 CLI</li>
+              <li>✓ 使用原生 Diff 查看修改</li>
+              <li>✓ 利用 Ctrl+G 查看上下文</li>
+              <li>✓ 在 Diff 中直接编辑后接受</li>
+              <li>✓ 保持 IDE 和 CLI 目录一致</li>
+            </ul>
+          </div>
+          <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
+            <h4 className="text-red-400 font-semibold mb-2">注意事项</h4>
+            <ul className="text-sm text-gray-300 space-y-1">
+              <li>✗ 不要在外部终端启动后尝试连接</li>
+              <li>✗ 避免目录不匹配</li>
+              <li>✗ 沙箱中注意网络配置</li>
+              <li>✗ 大型选区会被截断 (16KB)</li>
+              <li>✗ 只读工作区无法使用 Diff</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}

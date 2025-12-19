@@ -187,7 +187,7 @@ interface ToolResult {
             <ul className="text-sm text-gray-400 space-y-1">
               <li>• 通常自动执行</li>
               <li>• 不需要用户确认</li>
-              <li>• 示例: read_file, glob, grep</li>
+              <li>• 示例: read_file, glob, grep_search</li>
             </ul>
           </div>
 
@@ -207,7 +207,7 @@ interface ToolResult {
             <ul className="text-sm text-gray-400 space-y-1">
               <li>• 通常需要确认</li>
               <li>• 可能进入沙箱</li>
-              <li>• 示例: bash, task</li>
+              <li>• 示例: run_shell_command, task</li>
             </ul>
           </div>
         </div>
@@ -228,17 +228,17 @@ interface ToolResult {
             displayName="Write File"
             description="写入或创建文件"
             kind="write"
-            params={['absolute_path', 'file_text']}
+            params={['file_path', 'content']}
           />
           <ToolCard
             name="edit"
             displayName="Edit File"
             description="通过字符串替换编辑文件"
             kind="write"
-            params={['absolute_path', 'old_str', 'new_str']}
+            params={['file_path', 'old_string', 'new_string']}
           />
           <ToolCard
-            name="bash"
+            name="run_shell_command"
             displayName="Shell"
             description="执行 shell 命令"
             kind="execute"
@@ -252,7 +252,7 @@ interface ToolResult {
             params={['pattern', 'path?']}
           />
           <ToolCard
-            name="grep"
+            name="grep_search"
             displayName="Grep"
             description="在文件中搜索文本"
             kind="read"
@@ -450,7 +450,7 @@ interface ToolResult {
             "autoApprove": false,
             "requireConfirmation": true
         },
-        "bash": {
+        "run_shell_command": {
             "autoApprove": false,
             "allowedCommands": [
                 "ls", "cat", "grep", "find",

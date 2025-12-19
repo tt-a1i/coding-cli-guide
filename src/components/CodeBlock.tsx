@@ -1,6 +1,7 @@
 interface CodeBlockProps {
   code: string;
   title?: string;
+  language?: string; // Optional language hint for styling
 }
 
 export function CodeBlock({ code, title }: CodeBlockProps) {
