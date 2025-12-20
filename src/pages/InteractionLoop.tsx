@@ -98,15 +98,12 @@ export function InteractionLoop() {
 
     Note over User,Sched: Turn 2: Continuation
 
-    Sched->>Submit: functionResponse<br/>(isContinuation=true)
+    Sched->>Submit: functionResponse (isContinuation=true)
     Submit->>API: 发送工具结果
     API-->>Submit: Content (分析结果)
     API-->>Submit: Finished (无工具)
 
-    Submit-->>User: 对话完成
-
-    style User fill:#22d3ee,color:#000
-    style Tools fill:#22c55e,color:#000`;
+    Submit-->>User: 对话完成`;
 
   return (
     <div className="space-y-8 animate-fadeIn">
