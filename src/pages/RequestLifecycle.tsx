@@ -1,309 +1,751 @@
-import { useState } from 'react';
 import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
-import { JsonBlock } from '../components/JsonBlock';
+import { MermaidDiagram } from '../components/MermaidDiagram';
 
-interface LifecycleStepProps {
-  step: number;
-  title: string;
-  description: string;
-  icon: string;
-  details: string;
-  active: boolean;
-  onClick: () => void;
+export function RequestLifecycle() {
+  // 完整请求生命周期流程图
+  const requestLifecycleFlowChart = `flowchart TD
+    start([用户输入请求])
+    preprocess[消息预处理<br/>@file, @memory, @url]
+    add_to_history[添加到历史记录]
+    api_request[API 请求<br/>generateContentStream]
+    stream_response{流式响应处理}
+    has_tool_calls{包含<br/>tool_calls?}
+    schedule_tools[工具调度<br/>CoreToolScheduler]
+    execute_tools[工具执行]
+    tool_result[结果入历史]
+    next_round[下一轮 API 请求]
+    finish_reason{finish_reason}
+    final_response[最终响应]
+    persist[持久化<br/>聊天日志+统计]
+    end([请求完成])
+
+    start --> preprocess
+    preprocess --> add_to_history
+    add_to_history --> api_request
+    api_request --> stream_response
+    stream_response --> has_tool_calls
+    has_tool_calls -->|Yes| schedule_tools
+    has_tool_calls -->|No| final_response
+    schedule_tools --> execute_tools
+    execute_tools --> tool_result
+    tool_result --> next_round
+    next_round --> stream_response
+    finish_reason -->|stop| final_response
+    finish_reason -->|tool_calls| schedule_tools
+    final_response --> persist
+    persist --> end
+
+    style start fill:#22d3ee,color:#000
+    style end fill:#22c55e,color:#000
+    style has_tool_calls fill:#a855f7,color:#fff
+    style finish_reason fill:#a855f7,color:#fff
+    style schedule_tools fill:#f59e0b,color:#000
+    style execute_tools fill:#3b82f6,color:#fff
+    style final_response fill:#22c55e,color:#000`;
+
+  // 多轮交互序列图
+  const multiRoundSequenceChart = `sequenceDiagram
+    participant User as 用户
+    participant CLI as CLI UI
+    participant Preprocessor as 消息预处理器
+    participant History as 历史记录
+    participant API as AI API
+    participant Scheduler as CoreToolScheduler
+    participant Tool as 工具
+
+    Note over User,Tool: 第 1 轮：用户请求
+
+    User->>CLI: 输入请求
+    CLI->>Preprocessor: 处理 @file/@memory/@url
+    Preprocessor-->>CLI: Content 对象
+    CLI->>History: push(userMessage)
+    CLI->>API: generateContentStream(history)
+
+    API-->>CLI: 流式响应 (tool_call)
+    CLI->>Scheduler: schedule(tool_call)
+    Scheduler->>Scheduler: 验证参数
+    Scheduler->>Scheduler: 等待用户批准
+    User->>Scheduler: 批准工具
+    Scheduler->>Tool: execute()
+    Tool-->>Scheduler: result
+    Scheduler-->>CLI: functionResponse
+    CLI->>History: push(functionResponse)
+
+    Note over User,Tool: 第 2 轮：包含工具结果
+
+    CLI->>API: generateContentStream(history + result)
+    API-->>CLI: 流式响应 (文本)
+    CLI->>User: 显示最终回复
+    CLI->>History: push(modelMessage)
+    CLI->>CLI: 持久化聊天日志`;
+
+  // 状态机流程图
+  const stateFlowChart = `stateDiagram-v2
+    [*] --> Idle: 等待输入
+    Idle --> Processing: 用户输入
+    Processing --> APIRequest: 消息预处理完成
+    APIRequest --> Streaming: 开始流式响应
+
+    Streaming --> ToolScheduling: finish_reason=tool_calls
+    Streaming --> Complete: finish_reason=stop
+
+    ToolScheduling --> ToolValidating: 验证参数
+    ToolValidating --> ToolAwaiting: 需要用户确认
+    ToolValidating --> ToolExecuting: 自动批准
+
+    ToolAwaiting --> ToolExecuting: 用户批准
+    ToolAwaiting --> ToolCancelled: 用户拒绝
+
+    ToolExecuting --> ToolCompleted: 执行成功
+    ToolExecuting --> ToolError: 执行失败
+
+    ToolCompleted --> APIRequest: 结果入历史
+    ToolError --> APIRequest: 错误入历史
+    ToolCancelled --> Idle: 取消操作
+
+    Complete --> Persisting: 持久化
+    Persisting --> Idle: 准备下次请求
+
+    Idle --> [*]: 会话结束`;
+
+  const messagePreprocessCode = `// 源码: packages/cli/src/ui/hooks/useGeminiStream.ts:520
+// 消息预处理器处理 @ 引用
+
+/**
+ * 处理用户输入中的 @ 命令
+ * @file - 读取文件内容并注入
+ * @memory - 获取记忆内容
+ * @url - 获取网页内容
+ */
+async function processAtCommands(input: string): Promise<Content> {
+  const parts: Part[] = [];
+
+  // 解析 @file 引用
+  const fileMatches = input.matchAll(/@([\\w\\/.-]+)/g);
+  for (const match of fileMatches) {
+    const filePath = match[1];
+    const content = await readFile(filePath);
+    parts.push({
+      text: \`File: \${filePath}\\n\${content}\`
+    });
+  }
+
+  // 解析 @memory 引用
+  if (input.includes('@memory')) {
+    const memories = await memoryService.getRelevantMemories(input);
+    parts.push({
+      text: \`Memories:\\n\${memories.join('\\n')}\`
+    });
+  }
+
+  // 解析 @url 引用
+  const urlMatches = input.matchAll(/@(https?:\\/\\/[^\\s]+)/g);
+  for (const match of urlMatches) {
+    const url = match[1];
+    const content = await fetchUrl(url);
+    parts.push({
+      text: \`URL: \${url}\\n\${content}\`
+    });
+  }
+
+  // 添加用户原始输入
+  parts.push({ text: input });
+
+  return {
+    role: 'user',
+    parts
+  };
+}`;
+
+  const apiRequestCode = `// 源码: packages/core/src/core/contentGenerator.ts:145
+
+/**
+ * 发送流式 API 请求
+ */
+async *generateContentStream(
+  request: GenerateContentRequest
+): AsyncGenerator<ContentChunk> {
+  const response = await fetch(API_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': \`Bearer \${apiKey}\`
+    },
+    body: JSON.stringify({
+      model: request.model || 'qwen-coder-plus',
+      contents: request.contents,  // 完整历史
+      tools: request.tools,         // 工具定义
+      generationConfig: request.generationConfig
+    })
+  });
+
+  // 处理流式响应
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    const chunk = decoder.decode(value);
+    const lines = chunk.split('\\n');
+
+    for (const line of lines) {
+      if (line.startsWith('data: ')) {
+        const data = JSON.parse(line.slice(6));
+
+        // 文本内容
+        if (data.candidates[0].content.parts[0].text) {
+          yield {
+            type: 'text',
+            content: data.candidates[0].content.parts[0].text
+          };
+        }
+
+        // 工具调用
+        if (data.candidates[0].content.parts[0].functionCall) {
+          yield {
+            type: 'tool_call',
+            call: data.candidates[0].content.parts[0].functionCall
+          };
+        }
+
+        // 完成原因
+        if (data.candidates[0].finishReason) {
+          yield {
+            type: 'finish',
+            reason: data.candidates[0].finishReason
+          };
+        }
+      }
+    }
+  }
+}`;
+
+  const parallelToolCallsCode = `// 源码: packages/core/src/core/coreToolScheduler.ts:625
+
+/**
+ * 并行工具调用处理
+ */
+async schedule(
+  request: ToolCallRequestInfo | ToolCallRequestInfo[],
+  signal: AbortSignal
+): Promise<void> {
+  const requests = Array.isArray(request) ? request : [request];
+
+  // 并行验证所有工具调用
+  const validationPromises = requests.map(async (req) => {
+    const tool = toolRegistry.getTool(req.name);
+    const invocation = await tool.build(req.args);
+    return { req, tool, invocation };
+  });
+
+  const validated = await Promise.all(validationPromises);
+
+  // 并行执行所有工具（如果都自动批准）
+  const autoApproved = validated.filter(v =>
+    !v.invocation.shouldConfirmExecute()
+  );
+
+  if (autoApproved.length > 0) {
+    await Promise.all(
+      autoApproved.map(v => v.invocation.execute())
+    );
+  }
+
+  // 等待用户批准的工具
+  const needApproval = validated.filter(v =>
+    v.invocation.shouldConfirmExecute()
+  );
+
+  for (const { invocation } of needApproval) {
+    await waitForUserApproval(invocation);
+    await invocation.execute();
+  }
+}`;
+
+  const errorHandlingCode = `// 错误处理机制
+
+/**
+ * 工具执行失败处理
+ */
+async handleToolError(
+  error: Error,
+  toolCall: ToolCallRequestInfo
+): Promise<Content> {
+  // 将错误作为 functionResponse 发送给 AI
+  return {
+    role: 'user',
+    parts: [{
+      functionResponse: {
+        name: toolCall.name,
+        response: {
+          error: error.message,
+          stack: error.stack
+        }
+      }
+    }]
+  };
 }
 
-function LifecycleStep({ step, title, description, icon, details, active, onClick }: LifecycleStepProps) {
+/**
+ * API 调用失败重试
+ */
+async retryApiCall(
+  request: GenerateContentRequest,
+  maxRetries = 3
+): Promise<Response> {
+  let lastError: Error;
+
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fetch(API_ENDPOINT, requestOptions);
+    } catch (error) {
+      lastError = error;
+
+      // 指数退避
+      const delay = Math.pow(2, i) * 1000;
+      await sleep(delay);
+    }
+  }
+
+  throw lastError;
+}
+
+/**
+ * 用户取消处理
+ */
+function setupAbortController(): AbortController {
+  const controller = new AbortController();
+
+  // Ctrl+C 触发取消
+  process.on('SIGINT', () => {
+    controller.abort();
+  });
+
+  return controller;
+}`;
+
   return (
-    <div
-      onClick={onClick}
-      className={`
-        cursor-pointer transition-all p-4 rounded-lg border-2
-        ${active
-          ? 'bg-cyan-400/20 border-cyan-400'
-          : 'bg-white/5 border-white/10 hover:border-cyan-400/50'
-        }
-      `}
-    >
-      <div className="flex items-center gap-3">
-        <div className={`
-          w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold
-          ${active ? 'bg-cyan-400 text-gray-900' : 'bg-white/10 text-white'}
-        `}>
-          {step}
-        </div>
-        <div className="text-2xl">{icon}</div>
-        <div>
-          <h4 className={`font-bold ${active ? 'text-cyan-400' : 'text-white'}`}>
-            {title}
-          </h4>
-          <p className="text-sm text-gray-400">{description}</p>
-        </div>
-      </div>
-      {active && (
-        <div className="mt-4 p-3 bg-black/30 rounded-lg text-sm">
-          <pre className="whitespace-pre-wrap text-gray-300">{details}</pre>
-        </div>
-      )}
-    </div>
+    <div className="space-y-8">
+      {/* 目标 */}
+      <section>
+        <Layer title="目标" icon="🎯">
+          <HighlightBox title="请求生命周期核心目标" variant="blue">
+            <p className="text-gray-300 mb-2">
+              管理从用户输入到 AI 响应的完整流程，包括：
+            </p>
+            <ul className="text-sm text-gray-300 space-y-1">
+              <li>• 预处理用户输入（@file、@memory、@url 等引用）</li>
+              <li>• 维护完整的对话历史记录</li>
+              <li>• 处理流式 API 响应和工具调用</li>
+              <li>• 协调多轮交互（工具调用 → 结果 → 下一轮）</li>
+              <li>• 持久化聊天记录和统计信息</li>
+            </ul>
+          </HighlightBox>
+        </Layer>
+      </section>
+
+      {/* 输入 */}
+      <section>
+        <Layer title="输入" icon="📥">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <HighlightBox title="用户输入" variant="green">
+              <ul className="text-sm text-gray-300 space-y-1">
+                <li>• 纯文本请求</li>
+                <li>• @file 文件引用</li>
+                <li>• @memory 记忆引用</li>
+                <li>• @url 网页引用</li>
+                <li>• 斜杠命令（/help、/clear 等）</li>
+              </ul>
+            </HighlightBox>
+
+            <HighlightBox title="上下文依赖" variant="purple">
+              <ul className="text-sm text-gray-300 space-y-1">
+                <li>• 完整对话历史（history 数组）</li>
+                <li>• 工具定义列表（tools）</li>
+                <li>• 系统提示词配置</li>
+                <li>• 模型配置参数</li>
+                <li>• AbortSignal 取消信号</li>
+              </ul>
+            </HighlightBox>
+          </div>
+        </Layer>
+      </section>
+
+      {/* 输出 */}
+      <section>
+        <Layer title="输出" icon="📤">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <HighlightBox title="AI 响应" variant="blue">
+              <ul className="text-sm text-gray-300 space-y-1">
+                <li>• 流式文本内容</li>
+                <li>• 工具调用请求</li>
+                <li>• finish_reason 标记</li>
+                <li>• 错误信息</li>
+              </ul>
+            </HighlightBox>
+
+            <HighlightBox title="状态变化" variant="yellow">
+              <ul className="text-sm text-gray-300 space-y-1">
+                <li>• 历史记录更新</li>
+                <li>• 工具调用状态转换</li>
+                <li>• UI 渲染更新</li>
+                <li>• Token 统计累计</li>
+              </ul>
+            </HighlightBox>
+
+            <HighlightBox title="副作用" variant="green">
+              <ul className="text-sm text-gray-300 space-y-1">
+                <li>• 聊天日志文件写入</li>
+                <li>• 工具执行（文件修改等）</li>
+                <li>• 遥测数据上报</li>
+                <li>• 检查点创建</li>
+              </ul>
+            </HighlightBox>
+          </div>
+        </Layer>
+      </section>
+
+      {/* 关键文件与入口 */}
+      <section>
+        <Layer title="关键文件与入口" icon="📁">
+          <div className="space-y-3 text-sm">
+            <div className="flex items-center gap-2">
+              <code className="bg-black/30 px-2 py-1 rounded text-cyan-300">
+                packages/cli/src/ui/hooks/useGeminiStream.ts:520
+              </code>
+              <span className="text-gray-400">消息预处理和 @ 命令解析</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <code className="bg-black/30 px-2 py-1 rounded text-cyan-300">
+                packages/cli/src/ui/hooks/useGeminiStream.ts:800
+              </code>
+              <span className="text-gray-400">主循环 - processStream 流式响应处理</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <code className="bg-black/30 px-2 py-1 rounded text-cyan-300">
+                packages/core/src/core/contentGenerator.ts:145
+              </code>
+              <span className="text-gray-400">generateContentStream API 调用</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <code className="bg-black/30 px-2 py-1 rounded text-cyan-300">
+                packages/core/src/core/coreToolScheduler.ts:625
+              </code>
+              <span className="text-gray-400">工具调度主入口 schedule()</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <code className="bg-black/30 px-2 py-1 rounded text-cyan-300">
+                packages/cli/src/services/chatRecordingService.ts
+              </code>
+              <span className="text-gray-400">聊天日志持久化</span>
+            </div>
+          </div>
+        </Layer>
+      </section>
+
+      {/* 流程图 */}
+      <section>
+        <Layer title="流程图" icon="📊">
+          <h3 className="text-xl font-semibold text-cyan-400 mb-4">完整请求生命周期</h3>
+          <MermaidDiagram chart={requestLifecycleFlowChart} title="请求生命周期流程" />
+
+          <h3 className="text-xl font-semibold text-cyan-400 mb-4 mt-8">多轮交互序列</h3>
+          <MermaidDiagram chart={multiRoundSequenceChart} title="多轮交互序列图" />
+
+          <h3 className="text-xl font-semibold text-cyan-400 mb-4 mt-8">请求状态机</h3>
+          <MermaidDiagram chart={stateFlowChart} title="请求处理状态转换" />
+        </Layer>
+      </section>
+
+      {/* 关键分支与边界条件 */}
+      <section>
+        <Layer title="关键分支与边界条件" icon="⚡">
+          <div className="space-y-4">
+            <HighlightBox title="finish_reason 判断" variant="purple">
+              <div className="text-sm space-y-2">
+                <p className="text-gray-300">
+                  <strong>stop</strong>: AI 完成响应，结束当前轮次
+                </p>
+                <p className="text-gray-300">
+                  <strong>tool_calls</strong>: 需要执行工具，继续下一轮
+                </p>
+                <p className="text-gray-300">
+                  <strong>length</strong>: 达到 token 上限，可能需要续写
+                </p>
+                <p className="text-gray-300">
+                  <strong>safety</strong>: 内容安全拦截，终止响应
+                </p>
+              </div>
+            </HighlightBox>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <HighlightBox title="工具调用分支" variant="blue">
+                <ul className="text-sm text-gray-300 space-y-1">
+                  <li>• 单个工具 vs 多个工具（并行执行）</li>
+                  <li>• 自动批准 vs 需要用户确认</li>
+                  <li>• 只读工具 vs 修改类工具</li>
+                  <li>• 工具执行成功 vs 失败</li>
+                </ul>
+              </HighlightBox>
+
+              <HighlightBox title="边界条件" variant="yellow">
+                <ul className="text-sm text-gray-300 space-y-1">
+                  <li>• 空输入：拒绝或提示</li>
+                  <li>• 超长输入：截断或分段处理</li>
+                  <li>• 网络中断：重试机制</li>
+                  <li>• 用户取消：AbortController</li>
+                  <li>• API 限流：退避重试</li>
+                </ul>
+              </HighlightBox>
+            </div>
+
+            <CodeBlock
+              code={`// 关键分支示例
+
+// 1. finish_reason 分支
+if (finishReason === 'stop') {
+  // 结束循环，持久化记录
+  await persistChatLog();
+  return;
+} else if (finishReason === 'tool_calls') {
+  // 执行工具，继续下一轮
+  await scheduleTools(toolCalls);
+  continue;
+}
+
+// 2. 工具调用分支
+if (toolCalls.length === 1) {
+  // 单个工具调用
+  await scheduleToolCall(toolCalls[0]);
+} else {
+  // 多个工具调用 - 并行执行
+  await Promise.all(
+    toolCalls.map(call => scheduleToolCall(call))
   );
 }
 
-const lifecycleSteps = [
-  {
-    title: '用户输入',
-    description: '用户在终端输入请求',
-    icon: '👤',
-    details: `用户: "列出 src 目录中的所有 TypeScript 文件"
-
-触发流程：
-1. InputPrompt 组件捕获输入
-2. 调用 onSubmit(text) 回调
-3. 检查是否为斜杠命令 (/help, /clear 等)
-4. 如果不是命令，进入消息发送流程`
-  },
-  {
-    title: '消息预处理',
-    description: '处理 @ 命令和注入',
-    icon: '⚙️',
-    details: `预处理步骤：
-1. 解析 @file 引用，读取文件内容
-2. 解析 @memory 引用，获取记忆
-3. 解析 @url 引用，获取网页内容
-4. 应用系统提示词
-5. 创建 Content 对象
-
-示例：
-@package.json 你好
-→ 转换为包含文件内容的完整消息`
-  },
-  {
-    title: '添加到历史',
-    description: 'userMessage → history.push()',
-    icon: '📝',
-    details: `// 创建用户消息
-const userContent: Content = {
-    role: 'user',
-    parts: [
-        { text: "列出 src 目录中的所有 TypeScript 文件" }
-    ]
-};
-
-// 添加到历史
-this.history.push(userContent);
-
-// 同时记录到聊天日志
-chatRecordingService.recordMessage(userContent);`
-  },
-  {
-    title: 'API 请求',
-    description: 'generateContentStream()',
-    icon: '📡',
-    details: `// 构建请求
-const request = {
-    model: "qwen-coder-plus",
-    contents: this.history,  // 完整历史
-    tools: toolRegistry.getAllToolDefinitions(),
-    generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 8192
-    }
-};
-
-// 调用 ContentGenerator
-const stream = contentGenerator.generateContentStream(request);`
-  },
-  {
-    title: '流式响应',
-    description: '实时处理 AI 返回',
-    icon: '🌊',
-    details: `for await (const chunk of stream) {
-    // 文本内容 → 实时显示
-    if (chunk.text) {
-        yield { type: 'text', content: chunk.text };
-        // UI 立即更新
-    }
-
-    // 工具调用 → 进入工具执行
-    if (chunk.functionCall) {
-        yield { type: 'tool_call', call: chunk.functionCall };
-        // 触发工具调度器
-    }
+// 3. 边界条件检查
+if (!input.trim()) {
+  throw new Error('Empty input not allowed');
 }
 
-// 检查 finish_reason
-// "stop" → 结束
-// "tool_calls" → 继续循环`
-  },
-  {
-    title: '工具调度',
-    description: 'CoreToolScheduler 管理',
-    icon: '🔧',
-    details: `// AI 返回的工具调用
-{
-    "name": "write_file",
-    "args": { "path": "src/api.ts", "content": "..." }
-}
-
-工具调度状态机 (useReactToolScheduler):
-1. scheduled: 加入队列
-2. validating: 验证参数 (DeclarativeTool.validate)
-3. awaiting_approval: 等待用户确认
-   - 检查 ApprovalMode (YOLO vs Standard)
-   - 检查是否为敏感操作 (Mutator Kinds)
-4. executing: 用户批准后执行
-5. success/error: 执行完成
-6. response_submitted: 结果已回传给 AI`
-  },
-  {
-    title: '工具执行',
-    description: 'tool.invoke(params)',
-    icon: '⚡',
-    details: `// GlobTool 执行
-const tool = toolRegistry.getTool("glob");
-const invocation = tool.build({ pattern: "src/**/*.ts" });
-
-// 执行
-const result = await invocation.execute();
-
-// 返回结果
-{
-    llmContent: "src/index.ts\\nsrc/app.ts\\n...",
-    returnDisplay: "Found 15 files matching pattern"
-}`
-  },
-  {
-    title: '结果入历史',
-    description: 'functionResponse → history',
-    icon: '📥',
-    details: `// 工具结果作为 user 角色消息
-const toolResult: Content = {
-    role: 'user',
-    parts: [{
-        functionResponse: {
-            name: 'glob',
-            response: {
-                content: "src/index.ts\\nsrc/app.ts\\n..."
-            }
-        }
-    }]
-};
-
-// 添加到历史
-this.history.push(toolResult);
-
-// 继续下一轮循环...`
-  },
-  {
-    title: '第二轮 API',
-    description: '包含工具结果的请求',
-    icon: '🔄',
-    details: `// 第二轮请求包含完整历史
-contents: [
-    { role: "user", parts: [{ text: "列出..." }] },
-    { role: "model", parts: [{ functionCall: {...} }] },
-    { role: "user", parts: [{ functionResponse: {...} }] }  // 新增
-]
-
-// AI 看到工具结果后生成最终回复
-// 这次 finish_reason 应该是 "stop"`
-  },
-  {
-    title: '最终响应',
-    description: 'finish_reason: "stop"',
-    icon: '✅',
-    details: `AI 最终回复：
-"src 目录中共有 15 个 TypeScript 文件：
-
-1. src/index.ts
-2. src/app.ts
-3. src/config.ts
-...
-
-主要分布在 src/ui、src/core 和 src/tools 子目录中。"
-
-finish_reason: "stop" → 循环结束`
-  },
-  {
-    title: '持久化',
-    description: '记录和统计',
-    icon: '💾',
-    details: `完成后的处理：
-1. 添加模型响应到历史
-2. 记录到聊天日志文件
-3. 更新 token 统计
-4. 更新 UI 状态
-5. 准备接收下一个用户输入
-
-统计信息：
-- 输入 tokens: 1,234
-- 输出 tokens: 567
-- 工具调用: 1 次
-- 总耗时: 2.3s`
-  }
-];
-
-export function RequestLifecycle() {
-  const [activeStep, setActiveStep] = useState(0);
-
-  return (
-    <div>
-      <h2 className="text-2xl text-cyan-400 mb-5">请求完整生命周期</h2>
-
-      {/* 概述 */}
-      <Layer title="生命周期概述" icon="🔄">
-        <HighlightBox title="一个请求的完整旅程" icon="🗺️" variant="blue">
-          <p>
-            从用户输入到最终响应，一个请求会经历多个阶段。
-            如果涉及工具调用，会形成多轮循环。点击下方步骤查看详情。
-          </p>
-        </HighlightBox>
-      </Layer>
-
-      {/* 交互式步骤 */}
-      <Layer title="详细步骤" icon="📋">
-        <div className="space-y-3">
-          {lifecycleSteps.map((step, index) => (
-            <LifecycleStep
-              key={index}
-              step={index + 1}
-              title={step.title}
-              description={step.description}
-              icon={step.icon}
-              details={step.details}
-              active={activeStep === index}
-              onClick={() => setActiveStep(index)}
+if (input.length > MAX_INPUT_LENGTH) {
+  input = truncateInput(input, MAX_INPUT_LENGTH);
+}`}
+              language="typescript"
+              title="关键分支逻辑"
             />
-          ))}
-        </div>
-      </Layer>
+          </div>
+        </Layer>
+      </section>
 
-      {/* 时序图 */}
-      <Layer title="时序图" icon="📊">
-        <div className="bg-black/30 rounded-xl p-6 overflow-x-auto">
-          <pre className="text-sm font-mono text-gray-300">
-{`用户        CLI         AI API       工具
- │           │            │            │
- │──输入────▶│            │            │
- │           │──请求─────▶│            │
- │           │◀──流式────│            │
- │           │   tool_call            │
- │           │───────────────────────▶│
- │           │◀──────────────result───│
- │           │──请求+结果─▶│            │
- │           │◀──最终响应─│            │
- │◀──显示───│            │            │
- │           │            │            │`}
-          </pre>
-        </div>
-      </Layer>
+      {/* 失败与恢复 */}
+      <section>
+        <Layer title="失败与恢复" icon="🔧">
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+                <h4 className="text-red-400 font-bold mb-2">工具执行失败</h4>
+                <p className="text-sm text-gray-300 mb-2">
+                  工具返回错误时，错误信息作为 functionResponse 发送给 AI
+                </p>
+                <code className="text-xs text-gray-400">
+                  AI 可能会尝试其他方法或报告错误
+                </code>
+              </div>
 
-      {/* 多工具调用 */}
-      <Layer title="多工具调用场景" icon="🔗">
-        <CodeBlock
-          title="示例：复杂任务需要多个工具"
-          code={`用户: "读取 package.json 并更新版本号为 2.0.0"
+              <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4">
+                <h4 className="text-orange-400 font-bold mb-2">API 调用失败</h4>
+                <p className="text-sm text-gray-300 mb-2">
+                  网络错误或 API 错误触发重试机制
+                </p>
+                <code className="text-xs text-gray-400">
+                  最多重试 3 次，使用指数退避
+                </code>
+              </div>
+
+              <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
+                <h4 className="text-yellow-400 font-bold mb-2">用户取消</h4>
+                <p className="text-sm text-gray-300 mb-2">
+                  Ctrl+C 触发 AbortController，优雅终止当前操作
+                </p>
+                <code className="text-xs text-gray-400">
+                  保留历史记录，可以继续对话
+                </code>
+              </div>
+            </div>
+
+            <CodeBlock
+              code={errorHandlingCode}
+              language="typescript"
+              title="错误处理机制"
+            />
+
+            <HighlightBox title="降级策略" variant="green">
+              <div className="text-sm space-y-2">
+                <p className="text-gray-300">
+                  <strong>工具不可用</strong>: 禁用该工具，通知 AI 使用其他方法
+                </p>
+                <p className="text-gray-300">
+                  <strong>API 不可用</strong>: 切换到备用模型或离线模式
+                </p>
+                <p className="text-gray-300">
+                  <strong>存储失败</strong>: 内存缓存，稍后重试持久化
+                </p>
+              </div>
+            </HighlightBox>
+          </div>
+        </Layer>
+      </section>
+
+      {/* 相关配置项 */}
+      <section>
+        <Layer title="相关配置项" icon="⚙️">
+          <div className="space-y-4">
+            <div className="bg-gray-800/50 rounded-lg p-4">
+              <h4 className="font-semibold text-cyan-400 mb-3">模型配置</h4>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <code className="text-yellow-300">OPENAI_MODEL</code>
+                  <p className="text-gray-400">使用的 AI 模型名称</p>
+                </div>
+                <div>
+                  <code className="text-yellow-300">OPENAI_API_KEY</code>
+                  <p className="text-gray-400">API 认证密钥</p>
+                </div>
+                <div>
+                  <code className="text-yellow-300">OPENAI_BASE_URL</code>
+                  <p className="text-gray-400">API 端点地址</p>
+                </div>
+                <div>
+                  <code className="text-yellow-300">temperature</code>
+                  <p className="text-gray-400">生成随机性（0.0-1.0）</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gray-800/50 rounded-lg p-4">
+              <h4 className="font-semibold text-cyan-400 mb-3">工具配置</h4>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <code className="text-yellow-300">approvalMode</code>
+                  <p className="text-gray-400">工具批准模式（YOLO/STANDARD/PLAN）</p>
+                </div>
+                <div>
+                  <code className="text-yellow-300">allowedTools</code>
+                  <p className="text-gray-400">白名单工具列表</p>
+                </div>
+                <div>
+                  <code className="text-yellow-300">checkpointing</code>
+                  <p className="text-gray-400">是否启用检查点</p>
+                </div>
+                <div>
+                  <code className="text-yellow-300">maxToolOutputLength</code>
+                  <p className="text-gray-400">工具输出截断阈值</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gray-800/50 rounded-lg p-4">
+              <h4 className="font-semibold text-cyan-400 mb-3">流式响应配置</h4>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <code className="text-yellow-300">maxOutputTokens</code>
+                  <p className="text-gray-400">单次响应最大 token 数</p>
+                </div>
+                <div>
+                  <code className="text-yellow-300">streamTimeout</code>
+                  <p className="text-gray-400">流式响应超时时间</p>
+                </div>
+                <div>
+                  <code className="text-yellow-300">retryAttempts</code>
+                  <p className="text-gray-400">API 重试次数</p>
+                </div>
+                <div>
+                  <code className="text-yellow-300">retryDelay</code>
+                  <p className="text-gray-400">重试延迟（指数退避）</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Layer>
+      </section>
+
+      {/* 详细步骤展开 */}
+      <section>
+        <Layer title="详细实现步骤" icon="📋">
+          <h3 className="text-xl font-semibold text-cyan-400 mb-4">1. 消息预处理</h3>
+          <CodeBlock
+            code={messagePreprocessCode}
+            language="typescript"
+            title="@ 命令预处理实现"
+          />
+
+          <h3 className="text-xl font-semibold text-cyan-400 mb-4 mt-8">2. API 请求</h3>
+          <CodeBlock
+            code={apiRequestCode}
+            language="typescript"
+            title="流式 API 请求实现"
+          />
+
+          <h3 className="text-xl font-semibold text-cyan-400 mb-4 mt-8">3. 并行工具调用</h3>
+          <HighlightBox title="AI 可以并行请求多个工具" variant="green">
+            <p className="text-gray-300 mb-2">
+              在一次响应中，AI 可以同时请求多个独立的工具调用，CLI 会并行执行它们以提高效率。
+            </p>
+          </HighlightBox>
+          <CodeBlock
+            code={parallelToolCallsCode}
+            language="typescript"
+            title="并行工具调用处理"
+          />
+
+          <div className="mt-4">
+            <CodeBlock
+              code={`// AI 返回多个 tool_calls 示例
+{
+  "tool_calls": [
+    {
+      "id": "call_1",
+      "name": "read_file",
+      "args": { "path": "src/a.ts" }
+    },
+    {
+      "id": "call_2",
+      "name": "read_file",
+      "args": { "path": "src/b.ts" }
+    },
+    {
+      "id": "call_3",
+      "name": "read_file",
+      "args": { "path": "src/c.ts" }
+    }
+  ]
+}
+
+// CLI 并行执行
+await Promise.all([
+  executeToolCall(call_1),
+  executeToolCall(call_2),
+  executeToolCall(call_3)
+]);`}
+              language="json"
+              title="并行工具调用示例"
+            />
+          </div>
+        </Layer>
+      </section>
+
+      {/* 多工具调用场景 */}
+      <section>
+        <Layer title="复杂场景示例" icon="🔗">
+          <h3 className="text-xl font-semibold text-cyan-400 mb-4">多工具调用任务</h3>
+          <CodeBlock
+            code={`用户: "读取 package.json 并更新版本号为 2.0.0"
 
 第 1 轮:
 ├─ AI: tool_call { name: "read_file", args: { path: "package.json" } }
@@ -322,82 +764,50 @@ export function RequestLifecycle() {
 第 3 轮:
 ├─ AI: "已将 package.json 的版本号从 1.0.0 更新为 2.0.0"
 └─ finish_reason: "stop"`}
-        />
-      </Layer>
+            language="text"
+            title="多轮工具调用示例"
+          />
+        </Layer>
+      </section>
 
-      {/* 并行工具调用 */}
-      <Layer title="并行工具调用" icon="⚡">
-        <HighlightBox title="AI 可以并行请求多个工具" icon="🚀" variant="green">
-          <p>
-            在一次响应中，AI 可以同时请求多个独立的工具调用，CLI 会并行执行它们以提高效率。
-          </p>
-        </HighlightBox>
+      {/* 性能优化提示 */}
+      <section>
+        <Layer title="性能优化" icon="🚀">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <HighlightBox title="流式响应优化" variant="blue">
+              <ul className="text-sm text-gray-300 space-y-1">
+                <li>• 实时渲染文本，不等完整响应</li>
+                <li>• 使用 ReadableStream 降低内存占用</li>
+                <li>• 分块处理，避免阻塞 UI</li>
+              </ul>
+            </HighlightBox>
 
-        <JsonBlock
-          code={`// AI 返回多个 tool_calls
-{
-    "tool_calls": [
-        {
-            "id": "call_1",
-            "name": "read_file",
-            "args": { "path": "src/a.ts" }
-        },
-        {
-            "id": "call_2",
-            "name": "read_file",
-            "args": { "path": "src/b.ts" }
-        },
-        {
-            "id": "call_3",
-            "name": "read_file",
-            "args": { "path": "src/c.ts" }
-        }
-    ]
-}
+            <HighlightBox title="工具调用优化" variant="green">
+              <ul className="text-sm text-gray-300 space-y-1">
+                <li>• 并行执行独立工具调用</li>
+                <li>• 缓存工具验证结果</li>
+                <li>• 截断大输出，保存到文件</li>
+              </ul>
+            </HighlightBox>
 
-// CLI 并行执行
-await Promise.all([
-    executeToolCall(call_1),
-    executeToolCall(call_2),
-    executeToolCall(call_3)
-]);`}
-        />
-      </Layer>
+            <HighlightBox title="历史记录优化" variant="purple">
+              <ul className="text-sm text-gray-300 space-y-1">
+                <li>• 定期压缩旧消息</li>
+                <li>• 移除重复的系统提示</li>
+                <li>• 限制历史长度（token 预算）</li>
+              </ul>
+            </HighlightBox>
 
-      {/* 错误处理 */}
-      <Layer title="错误处理流程" icon="⚠️">
-        <div className="space-y-3">
-          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
-            <h4 className="text-red-400 font-bold mb-2">工具执行失败</h4>
-            <p className="text-sm text-gray-300 mb-2">
-              工具返回错误时，错误信息会作为 functionResponse 发送给 AI
-            </p>
-            <code className="text-xs text-gray-400">
-              AI 可能会尝试其他方法或报告错误
-            </code>
+            <HighlightBox title="网络优化" variant="yellow">
+              <ul className="text-sm text-gray-300 space-y-1">
+                <li>• 复用 HTTP 连接</li>
+                <li>• 启用压缩（gzip）</li>
+                <li>• 智能重试（指数退避）</li>
+              </ul>
+            </HighlightBox>
           </div>
-
-          <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4">
-            <h4 className="text-orange-400 font-bold mb-2">API 调用失败</h4>
-            <p className="text-sm text-gray-300 mb-2">
-              网络错误或 API 错误会触发重试机制
-            </p>
-            <code className="text-xs text-gray-400">
-              最多重试 3 次，使用指数退避
-            </code>
-          </div>
-
-          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
-            <h4 className="text-yellow-400 font-bold mb-2">用户取消</h4>
-            <p className="text-sm text-gray-300 mb-2">
-              Ctrl+C 触发 AbortController，优雅终止当前操作
-            </p>
-            <code className="text-xs text-gray-400">
-              保留历史记录，可以继续对话
-            </code>
-          </div>
-        </div>
-      </Layer>
+        </Layer>
+      </section>
     </div>
   );
 }

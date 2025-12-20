@@ -41,6 +41,7 @@ import { IDEDiffProtocol } from './pages/IDEDiffProtocol';
 import { StartupChain } from './pages/StartupChain';
 import { InteractionLoop } from './pages/InteractionLoop';
 import { ToolReference } from './pages/ToolReference';
+import { ToolSchedulerDetails } from './pages/ToolSchedulerDetails';
 import './index.css';
 
 const tabs = [
@@ -60,6 +61,7 @@ const tabs = [
   { id: 'memory', label: '上下文管理' },
   // 工具系统
   { id: 'tool-ref', label: '工具参考', highlight: true },
+  { id: 'tool-scheduler', label: '工具调度详解', highlight: true },
   { id: 'tool-arch', label: '工具架构' },
   { id: 'tool-detail', label: '工具执行' },
   { id: 'ai-tool', label: 'AI工具交互' },
@@ -126,6 +128,8 @@ function App() {
         return <MemoryManagement />;
       case 'tool-ref':
         return <ToolReference />;
+      case 'tool-scheduler':
+        return <ToolSchedulerDetails />;
       case 'tool-arch':
         return <ToolSystemArchitecture />;
       case 'tool-detail':

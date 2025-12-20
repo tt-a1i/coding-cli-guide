@@ -2,6 +2,7 @@ import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { JsonBlock } from '../components/JsonBlock';
+import { MermaidDiagram } from '../components/MermaidDiagram';
 
 export function ConfigSystem() {
   return (
@@ -677,34 +678,754 @@ function isWorkspaceTrusted(settings: Settings): TrustResult {
         />
       </Layer>
 
-      {/* 源码位置 */}
-      <Layer title="源码位置" icon="📍">
-        <div className="text-sm space-y-2">
-          <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/cli/src/config/settingsSchema.ts:51-60</code>
-            <span className="text-gray-400">MergeStrategy 枚举定义</span>
+      {/* loadCliConfig() 完整链路 */}
+      <Layer title="loadCliConfig() 完整链路" icon="🔄">
+        <HighlightBox title="配置加载入口函数" icon="🚀" variant="blue">
+          <p className="text-sm mb-2">
+            <code>loadCliConfig()</code> 是 CLI 启动时的核心配置加载函数，位于 <code>packages/cli/src/config/config.ts:522</code>
+          </p>
+          <p className="text-sm text-gray-400">
+            该函数负责：配置合并、环境变量解析、记忆加载、工具注册、MCP 服务器发现、审批模式校验等完整初始化流程
+          </p>
+        </HighlightBox>
+
+        <MermaidDiagram
+          title="loadCliConfig() 数据流向图"
+          chart={`flowchart TB
+    Start([CLI 启动]) --> LoadSettings[loadSettings<br/>四层配置加载]
+    LoadSettings --> MergeSettings[mergeSettings<br/>配置合并]
+    MergeSettings --> TrustCheck{folderTrust<br/>检查}
+
+    TrustCheck -->|受信任| LoadEnv[loadEnvFiles<br/>加载 .env]
+    TrustCheck -->|不受信任| SkipEnv[跳过项目级 .env]
+
+    LoadEnv --> LoadMemory[loadHierarchicalGeminiMemory<br/>加载 INNIES.md]
+    SkipEnv --> LoadMemory
+
+    LoadMemory --> MergeMcp[mergeMcpServers<br/>合并 MCP 服务器配置]
+
+    MergeMcp --> ApprovalCheck{approvalMode<br/>校验}
+    ApprovalCheck -->|不受信任 & yolo/auto-edit| ForceDefault[强制降级至 default]
+    ApprovalCheck -->|合法| KeepMode[保持 approval mode]
+
+    ForceDefault --> CreateConfig[new Config]
+    KeepMode --> CreateConfig
+
+    CreateConfig --> ToolRegistry[createToolRegistry<br/>工具集组装]
+
+    ToolRegistry --> CoreTools[注册核心工具<br/>Read/Edit/Bash/...]
+    ToolRegistry --> DiscoveryTools[discoveryCommand<br/>发现外部工具]
+    ToolRegistry --> McpTools[MCP 工具<br/>从 MCP 服务器]
+
+    CoreTools --> FinalConfig([Config 实例])
+    DiscoveryTools --> FinalConfig
+    McpTools --> FinalConfig
+
+    style Start fill:#22d3ee,stroke:#0891b2,color:#000
+    style FinalConfig fill:#4ade80,stroke:#16a34a,color:#000
+    style TrustCheck fill:#f59e0b,stroke:#d97706,color:#000
+    style ApprovalCheck fill:#f59e0b,stroke:#d97706,color:#000
+    style ForceDefault fill:#ef4444,stroke:#dc2626,color:#fff
+    style LoadMemory fill:#8b5cf6,stroke:#7c3aed,color:#fff
+    style ToolRegistry fill:#06b6d4,stroke:#0891b2,color:#000`}
+        />
+
+        <CodeBlock
+          title="packages/cli/src/config/config.ts:522-708 - loadCliConfig 核心流程"
+          code={`export async function loadCliConfig(
+  settings: Settings,       // 已合并的 Settings 对象
+  extensions: Extension[],  // 加载的扩展列表
+  extensionEnablementManager: ExtensionEnablementManager,
+  sessionId: string,
+  argv: CliArgs,           // 命令行参数
+  cwd: string = process.cwd(),
+): Promise<Config> {
+  // 1️⃣ 基础准备
+  const debugMode = isDebugMode(argv);
+  const folderTrust = settings.security?.folderTrust?.enabled ?? false;
+  const trustedFolder = isWorkspaceTrusted(settings)?.isTrusted ?? true;
+
+  // 2️⃣ 激活扩展筛选
+  const activeExtensions = extensions.filter(
+    (_, i) => allExtensions[i].isActive,
+  );
+
+  // 3️⃣ 设置上下文文件名（hack 方式）
+  if (settings.context?.fileName) {
+    setServerGeminiMdFilename(settings.context.fileName);
+  }
+
+  // 4️⃣ 加载层级记忆（INNIES.md）
+  const { memoryContent, fileCount } = await loadHierarchicalGeminiMemory(
+    cwd,
+    settings.context?.loadMemoryFromIncludeDirectories
+      ? includeDirectories
+      : [],
+    debugMode,
+    fileService,
+    settings,
+    extensionContextFilePaths,
+    trustedFolder,  // ⚠️ 受信任才加载项目级记忆
+    memoryImportFormat,
+    fileFiltering,
+  );
+
+  // 5️⃣ 合并 MCP 服务器配置
+  let mcpServers = mergeMcpServers(settings, activeExtensions);
+
+  // 6️⃣ 确定 approval mode（带后向兼容）
+  let approvalMode: ApprovalMode;
+  if (argv.approvalMode) {
+    approvalMode = parseApprovalModeValue(argv.approvalMode);
+  } else if (argv.yolo) {
+    approvalMode = ApprovalMode.YOLO;
+  } else if (settings.tools?.approvalMode) {
+    approvalMode = parseApprovalModeValue(settings.tools.approvalMode);
+  } else {
+    approvalMode = ApprovalMode.DEFAULT;
+  }
+
+  // 7️⃣ 🔐 强制安全降级：不受信任 → 降级至 default
+  if (
+    !trustedFolder &&
+    approvalMode !== ApprovalMode.DEFAULT &&
+    approvalMode !== ApprovalMode.PLAN
+  ) {
+    logger.warn(
+      'Approval mode overridden to "default" because the current folder is not trusted.',
+    );
+    approvalMode = ApprovalMode.DEFAULT;
+  }
+
+  // 8️⃣ 创建 Config 实例（后续调用 createToolRegistry）
+  return new Config({
+    sessionId,
+    targetDir: cwd,
+    includeDirectories,
+    debugMode,
+    approvalMode,
+    mcpServers,
+    userMemory: memoryContent,  // 传入加载的记忆
+    toolDiscoveryCommand: settings.tools?.discoveryCommand,
+    // ... 其他配置
+  });
+}`}
+        />
+      </Layer>
+
+      {/* 信任门禁对配置的影响 */}
+      <Layer title="信任门禁对配置的影响" icon="🔐">
+        <HighlightBox title="isTrustedFolder 的影响范围" icon="⚠️" variant="red">
+          <p className="text-sm mb-3">
+            当 <code>security.folderTrust.enabled: true</code> 且工作区未受信任时，配置加载的多个环节会受到限制：
+          </p>
+        </HighlightBox>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-red-500/10 border-2 border-red-500/30 rounded-lg p-4">
+            <h4 className="text-red-400 font-bold mb-2 flex items-center gap-2">
+              <span>🚫</span>
+              <span>Workspace Settings 被忽略</span>
+            </h4>
+            <p className="text-sm text-gray-300 mb-2">
+              源码位置: <code className="text-xs">packages/cli/src/config/settings.ts:403</code>
+            </p>
+            <CodeBlock
+              code={`// mergeSettings() 中的安全检查
+const safeWorkspace = isTrusted ? workspace : ({} as Settings);
+
+// 非信任工作区 → workspace 配置被替换为空对象
+return customDeepMerge(
+  getMergeStrategyForPath,
+  {},
+  systemDefaults,
+  user,
+  safeWorkspace,  // ⚠️ 可能为空对象
+  system,
+);`}
+            />
           </div>
-          <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/cli/src/config/settings.ts:35-48</code>
-            <span className="text-gray-400">getMergeStrategyForPath() 策略查找</span>
+
+          <div className="bg-red-500/10 border-2 border-red-500/30 rounded-lg p-4">
+            <h4 className="text-red-400 font-bold mb-2 flex items-center gap-2">
+              <span>🚫</span>
+              <span>.env 文件不加载</span>
+            </h4>
+            <p className="text-sm text-gray-300 mb-2">
+              源码位置: <code className="text-xs">packages/cli/src/config/settings.ts:540</code>
+            </p>
+            <CodeBlock
+              code={`// loadEnvFiles() 中的信任检查
+async function loadEnvFiles(
+  cwd: string,
+  isTrusted: boolean,
+): Promise<void> {
+  // 只在受信任目录加载项目级 .env
+  if (isTrusted) {
+    const workspaceEnvPath = path.join(cwd, '.env');
+    if (fs.existsSync(workspaceEnvPath)) {
+      dotenv.config({ path: workspaceEnvPath });
+    }
+  }
+
+  // 用户级 ~/.innies/.env 始终加载
+  const userEnvPath = path.join(homedir(), '.innies', '.env');
+  if (fs.existsSync(userEnvPath)) {
+    dotenv.config({ path: userEnvPath });
+  }
+}`}
+            />
           </div>
-          <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/cli/src/config/settings.ts:396-418</code>
-            <span className="text-gray-400">mergeSettings() 四层合并</span>
+
+          <div className="bg-red-500/10 border-2 border-red-500/30 rounded-lg p-4">
+            <h4 className="text-red-400 font-bold mb-2 flex items-center gap-2">
+              <span>⬇️</span>
+              <span>approvalMode 强制降级</span>
+            </h4>
+            <p className="text-sm text-gray-300 mb-2">
+              源码位置: <code className="text-xs">packages/cli/src/config/config.ts:605-615</code>
+            </p>
+            <CodeBlock
+              code={`// loadCliConfig() 中的 approval mode 校验
+if (
+  !trustedFolder &&
+  approvalMode !== ApprovalMode.DEFAULT &&
+  approvalMode !== ApprovalMode.PLAN
+) {
+  logger.warn(
+    'Approval mode overridden to "default" ' +
+    'because the current folder is not trusted.',
+  );
+  approvalMode = ApprovalMode.DEFAULT;
+}
+
+// ⚠️ yolo 和 auto-edit 在不受信任目录强制降级为 default`}
+            />
           </div>
-          <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/cli/src/config/settings.ts:421-484</code>
-            <span className="text-gray-400">LoadedSettings 类</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/cli/src/utils/deepMerge.ts</code>
-            <span className="text-gray-400">customDeepMerge() 实现</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/cli/src/config/trustedFolders.ts</code>
-            <span className="text-gray-400">工作区信任机制</span>
+
+          <div className="bg-red-500/10 border-2 border-red-500/30 rounded-lg p-4">
+            <h4 className="text-red-400 font-bold mb-2 flex items-center gap-2">
+              <span>🚫</span>
+              <span>MCP 服务器发现受限</span>
+            </h4>
+            <p className="text-sm text-gray-300 mb-2">
+              项目级 <code>.innies/settings.json</code> 中定义的 MCP 服务器在非信任目录不会被加载
+            </p>
+            <div className="text-xs text-gray-400 space-y-1">
+              <div>✅ 用户级 <code>~/.innies/settings.json</code> MCP 配置：始终生效</div>
+              <div>✅ 扩展提供的 MCP 配置：始终生效</div>
+              <div>❌ 项目级 <code>.innies/settings.json</code> MCP 配置：仅受信任时生效</div>
+            </div>
           </div>
         </div>
+
+        <HighlightBox title="信任检查触发时机" icon="⏱️" variant="purple">
+          <div className="text-sm space-y-2">
+            <div className="flex items-start gap-2">
+              <span className="text-cyan-400">1.</span>
+              <div>
+                <strong>loadSettings() 阶段</strong> - 决定是否加载 workspace settings
+                <div className="text-xs text-gray-400 mt-1">
+                  位置: <code>packages/cli/src/config/settings.ts:396-418</code>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="text-cyan-400">2.</span>
+              <div>
+                <strong>loadEnvFiles() 阶段</strong> - 决定是否加载项目级 .env
+                <div className="text-xs text-gray-400 mt-1">
+                  位置: <code>packages/cli/src/config/settings.ts:540</code>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="text-cyan-400">3.</span>
+              <div>
+                <strong>loadCliConfig() 阶段</strong> - 校验和降级 approvalMode
+                <div className="text-xs text-gray-400 mt-1">
+                  位置: <code>packages/cli/src/config/config.ts:605-615</code>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="text-cyan-400">4.</span>
+              <div>
+                <strong>loadHierarchicalGeminiMemory() 阶段</strong> - 决定是否加载项目级 INNIES.md
+                <div className="text-xs text-gray-400 mt-1">
+                  位置: <code>packages/core/src/utils/memoryDiscovery.ts:359</code>
+                </div>
+              </div>
+            </div>
+          </div>
+        </HighlightBox>
+      </Layer>
+
+      {/* userMemory 构建 */}
+      <Layer title="userMemory 构建机制" icon="🧠">
+        <HighlightBox title="INNIES.md 层级发现" icon="🔍" variant="green">
+          <p className="text-sm mb-2">
+            <code>loadHierarchicalGeminiMemory()</code> 函数负责发现并合并多层级的 INNIES.md 文件，
+            构建成 <code>userMemory</code> 字符串传递给 AI 模型。
+          </p>
+          <p className="text-sm text-gray-400">
+            源码位置: <code>packages/core/src/utils/memoryDiscovery.ts:359</code>
+          </p>
+        </HighlightBox>
+
+        <MermaidDiagram
+          title="INNIES.md 发现与合并流程"
+          chart={`flowchart TB
+    Start([开始加载记忆]) --> GetPaths[getGeminiMdFilePathsInternal<br/>获取所有 INNIES.md 路径]
+
+    GetPaths --> GlobalCheck{检查全局级}
+    GlobalCheck -->|存在| AddGlobal[添加 ~/.innies/INNIES.md]
+    GlobalCheck -->|不存在| CheckProject
+    AddGlobal --> CheckProject
+
+    CheckProject{检查项目级}
+    CheckProject -->|受信任| AddProject[添加 .innies/INNIES.md]
+    CheckProject -->|不受信任| SkipProject[跳过项目级]
+
+    AddProject --> CheckInclude
+    SkipProject --> CheckInclude
+
+    CheckInclude{includeDirectories?}
+    CheckInclude -->|有| AddInclude[添加各 includeDirectory<br/>下的 INNIES.md]
+    CheckInclude -->|无| CheckExtensions
+    AddInclude --> CheckExtensions
+
+    CheckExtensions{扩展 contextFiles?}
+    CheckExtensions -->|有| AddExtensions[添加扩展提供的<br/>context 文件]
+    CheckExtensions -->|无| ReadFiles
+    AddExtensions --> ReadFiles
+
+    ReadFiles[readGeminiMdFiles<br/>读取所有文件内容]
+
+    ReadFiles --> Concatenate[concatenateInstructions<br/>拼接成单一字符串]
+
+    Concatenate --> Result([userMemory: string])
+
+    style Start fill:#22d3ee,stroke:#0891b2,color:#000
+    style Result fill:#4ade80,stroke:#16a34a,color:#000
+    style CheckProject fill:#f59e0b,stroke:#d97706,color:#000
+    style SkipProject fill:#ef4444,stroke:#dc2626,color:#fff
+    style AddGlobal fill:#8b5cf6,stroke:#7c3aed,color:#fff
+    style AddProject fill:#8b5cf6,stroke:#7c3aed,color:#fff`}
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-purple-500/10 border-2 border-purple-500/30 rounded-lg p-4">
+            <h4 className="text-purple-400 font-bold mb-2">层级合并（全局 → 项目）</h4>
+            <CodeBlock
+              code={`// 1. 全局级（始终加载）
+~/.innies/INNIES.md
+
+// 2. 项目级（受信任时加载）
+/path/to/project/.innies/INNIES.md
+
+// 3. includeDirectories（若启用）
+/include/dir1/.innies/INNIES.md
+/include/dir2/.innies/INNIES.md
+
+// 4. 扩展提供的 context files
+/extension/context/file1.md
+/extension/context/file2.md
+
+// 最终拼接成单一字符串
+userMemory = concatenate(所有文件内容)`}
+            />
+          </div>
+
+          <div className="bg-purple-500/10 border-2 border-purple-500/30 rounded-lg p-4">
+            <h4 className="text-purple-400 font-bold mb-2">importFormat 控制</h4>
+            <p className="text-sm text-gray-300 mb-2">
+              <code>context.importFormat</code> 配置项控制如何展示文件来源：
+            </p>
+            <div className="space-y-2 text-xs">
+              <div className="bg-black/30 rounded p-2">
+                <div className="text-cyan-400 font-bold mb-1">tree 格式（默认）</div>
+                <pre className="text-gray-400">{`# Codebase and user instructions
+...
+Contents of ~/.innies/INNIES.md:
+[global content]
+
+Contents of /project/.innies/INNIES.md:
+[project content]`}</pre>
+              </div>
+              <div className="bg-black/30 rounded p-2">
+                <div className="text-orange-400 font-bold mb-1">flat 格式</div>
+                <pre className="text-gray-400">{`# claudeMd
+[concatenated content without file paths]`}</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <CodeBlock
+          title="packages/core/src/utils/memoryDiscovery.ts:359-415 - 核心实现"
+          code={`export async function loadServerHierarchicalMemory(
+  currentWorkingDirectory: string,
+  includeDirectoriesToReadGemini: readonly string[],
+  debugMode: boolean,
+  fileService: FileDiscoveryService,
+  extensionContextFilePaths: string[] = [],
+  folderTrust: boolean,  // ⚠️ 信任标志
+  importFormat: 'flat' | 'tree' = 'tree',
+  fileFilteringOptions?: FileFilteringOptions,
+  maxDirs: number = 200,
+): Promise<LoadServerHierarchicalMemoryResponse> {
+  // 1. 获取所有 INNIES.md 文件路径
+  const filePaths = await getGeminiMdFilePathsInternal(
+    currentWorkingDirectory,
+    includeDirectoriesToReadGemini,
+    userHomePath,
+    debugMode,
+    fileService,
+    extensionContextFilePaths,
+    folderTrust,  // ⚠️ 传递信任状态
+    fileFilteringOptions || DEFAULT_MEMORY_FILE_FILTERING_OPTIONS,
+    maxDirs,
+  );
+
+  if (filePaths.length === 0) {
+    return { memoryContent: '', fileCount: 0 };
+  }
+
+  // 2. 读取所有文件内容
+  const contentsWithPaths = await readGeminiMdFiles(
+    filePaths,
+    debugMode,
+    importFormat,
+  );
+
+  // 3. 拼接成单一指令字符串
+  const combinedInstructions = concatenateInstructions(
+    contentsWithPaths,
+    currentWorkingDirectory,
+  );
+
+  return {
+    memoryContent: combinedInstructions,
+    fileCount: contentsWithPaths.length,
+  };
+}`}
+        />
+
+        <HighlightBox title="Context Files 处理" icon="📄" variant="blue">
+          <p className="text-sm mb-2">
+            扩展可以通过 <code>extension.contextFiles</code> 提供额外的上下文文件，
+            这些文件会与 INNIES.md 一起被加载并拼接到 <code>userMemory</code> 中。
+          </p>
+          <CodeBlock
+            code={`// 扩展定义示例（extension.ts）
+export const myExtension: Extension = {
+  name: 'my-extension',
+  contextFiles: [
+    '/path/to/extension/context.md',
+    '/path/to/extension/rules.md',
+  ],
+  // ...
+};
+
+// 这些文件会在 loadHierarchicalGeminiMemory 中被包含
+const extensionContextFilePaths = activeExtensions.flatMap(
+  (e) => e.contextFiles,
+);`}
+          />
+        </HighlightBox>
+      </Layer>
+
+      {/* 工具集组装 */}
+      <Layer title="工具集组装：三路合流" icon="🛠️">
+        <HighlightBox title="createToolRegistry() 工具来源" icon="⚙️" variant="purple">
+          <p className="text-sm mb-2">
+            <code>Config.createToolRegistry()</code> 负责组装最终的工具集，
+            工具来源于三个渠道，按优先级合流：
+          </p>
+        </HighlightBox>
+
+        <MermaidDiagram
+          title="工具集三路合流"
+          chart={`flowchart LR
+    subgraph Source1[核心工具]
+      Core[Core 内置工具<br/>Read/Edit/Bash/Grep/...]
+      CoreFilter{coreTools<br/>白名单?}
+      Core --> CoreFilter
+      CoreFilter -->|过滤| CoreEnabled[启用的核心工具]
+    end
+
+    subgraph Source2[发现工具]
+      Discovery[discoveryCommand<br/>外部工具发现]
+      DiscoveryExec[执行发现命令<br/>获取工具定义]
+      Discovery --> DiscoveryExec
+      DiscoveryExec --> DiscoveryTools[外部工具列表]
+    end
+
+    subgraph Source3[MCP 工具]
+      McpServers[MCP 服务器配置]
+      McpConnect[连接 MCP 服务器<br/>获取工具列表]
+      McpServers --> McpConnect
+      McpConnect --> McpTools[MCP 工具列表]
+    end
+
+    CoreEnabled --> Registry[ToolRegistry]
+    DiscoveryTools --> Registry
+    McpTools --> Registry
+
+    Registry --> ExcludeFilter{excludeTools<br/>黑名单?}
+    ExcludeFilter -->|过滤| FinalToolset([最终工具集])
+
+    style Source1 fill:#22d3ee20,stroke:#22d3ee
+    style Source2 fill:#8b5cf620,stroke:#8b5cf6
+    style Source3 fill:#f59e0b20,stroke:#f59e0b
+    style FinalToolset fill:#4ade80,stroke:#16a34a,color:#000`}
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-4">
+            <h4 className="text-cyan-400 font-bold mb-2 flex items-center gap-2">
+              <span>1️⃣</span>
+              <span>Core 内置工具</span>
+            </h4>
+            <p className="text-sm text-gray-300 mb-2">
+              源码: <code className="text-xs">packages/core/src/config/config.ts:1092-1200</code>
+            </p>
+            <div className="text-xs space-y-1 text-gray-400">
+              <div>✅ TaskTool - 子任务委托</div>
+              <div>✅ LSTool - 列出文件</div>
+              <div>✅ ReadFileTool - 读取文件</div>
+              <div>✅ GrepTool - 搜索内容</div>
+              <div>✅ EditTool - 编辑文件</div>
+              <div>✅ WriteFileTool - 写入文件</div>
+              <div>✅ ShellTool - 执行命令</div>
+              <div>✅ WebSearchTool - 网络搜索</div>
+              <div>... 等 20+ 工具</div>
+            </div>
+          </div>
+
+          <div className="bg-purple-500/10 border-2 border-purple-500/30 rounded-lg p-4">
+            <h4 className="text-purple-400 font-bold mb-2 flex items-center gap-2">
+              <span>2️⃣</span>
+              <span>Discovery 发现工具</span>
+            </h4>
+            <p className="text-sm text-gray-300 mb-2">
+              通过 <code>tools.discoveryCommand</code> 发现外部工具
+            </p>
+            <CodeBlock
+              code={`// settings.json 配置
+{
+  "tools": {
+    "discoveryCommand": "./discover-tools.sh"
+  }
+}
+
+// 发现命令输出格式（JSON）
+[
+  {
+    "name": "custom_tool",
+    "description": "My custom tool",
+    "parameters": {...}
+  }
+]`}
+            />
+          </div>
+
+          <div className="bg-orange-500/10 border-2 border-orange-500/30 rounded-lg p-4">
+            <h4 className="text-orange-400 font-bold mb-2 flex items-center gap-2">
+              <span>3️⃣</span>
+              <span>MCP 工具</span>
+            </h4>
+            <p className="text-sm text-gray-300 mb-2">
+              从 MCP 服务器获取工具定义
+            </p>
+            <div className="text-xs space-y-1 text-gray-400">
+              <div>🔌 连接到配置的 MCP 服务器</div>
+              <div>📋 调用 tools/list 获取工具列表</div>
+              <div>🔄 动态注册工具到 Registry</div>
+              <div>⚙️ 工具调用通过 MCP 协议代理</div>
+            </div>
+          </div>
+        </div>
+
+        <CodeBlock
+          title="packages/core/src/config/config.ts:1092-1200 - createToolRegistry 实现"
+          code={`async createToolRegistry(): Promise<ToolRegistry> {
+  const registry = new ToolRegistry(this, this.eventEmitter);
+
+  // Helper: 注册核心工具（带 coreTools/excludeTools 过滤）
+  const registerCoreTool = (ToolClass: any, ...args: unknown[]) => {
+    const toolName = ToolClass.Name || ToolClass.name;
+    const coreTools = this.getCoreTools();  // tools.core 白名单
+    const excludeTools = this.getExcludeTools() || [];  // tools.exclude 黑名单
+
+    let isEnabled = true;
+
+    // 1️⃣ coreTools 白名单过滤
+    if (coreTools) {
+      isEnabled = coreTools.some(
+        (tool) =>
+          tool === toolName ||
+          tool.startsWith(\`\${toolName}(\`),
+      );
+    }
+
+    // 2️⃣ excludeTools 黑名单过滤
+    const isExcluded = excludeTools.some(
+      (tool) => tool === toolName,
+    );
+
+    if (isExcluded) {
+      isEnabled = false;
+    }
+
+    // 3️⃣ 只注册启用的工具
+    if (isEnabled) {
+      registry.registerTool(new ToolClass(...args));
+    }
+  };
+
+  // 注册所有核心工具
+  registerCoreTool(TaskTool, this);
+  registerCoreTool(LSTool, this);
+  registerCoreTool(ReadFileTool, this);
+  registerCoreTool(GrepTool, this);
+  registerCoreTool(EditTool, this);
+  registerCoreTool(WriteFileTool, this);
+  registerCoreTool(ShellTool, this);
+  registerCoreTool(WebSearchTool, this);
+  // ... 更多核心工具
+
+  // 4️⃣ 发现外部工具（如果配置了 discoveryCommand）
+  if (this.getToolDiscoveryCommand()) {
+    await registry.discoverTools(this.getToolDiscoveryCommand());
+  }
+
+  // 5️⃣ 注册 MCP 工具（通过 MCP 服务器连接获取）
+  await registry.registerMcpTools(this.getMcpServers());
+
+  return registry;
+}`}
+        />
+
+        <HighlightBox title="工具过滤优先级" icon="🎯" variant="orange">
+          <div className="text-sm space-y-2">
+            <div className="flex items-start gap-2">
+              <span className="text-red-400 font-bold">1.</span>
+              <div>
+                <strong className="text-red-400">excludeTools 黑名单</strong> - 优先级最高，直接排除
+                <div className="text-xs text-gray-400 mt-1">
+                  <code>tools.exclude: ["web_search"]</code> → 无论如何都排除
+                </div>
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="text-cyan-400 font-bold">2.</span>
+              <div>
+                <strong className="text-cyan-400">coreTools 白名单</strong> - 若配置则只启用列表中的工具
+                <div className="text-xs text-gray-400 mt-1">
+                  <code>tools.core: ["read_file", "edit"]</code> → 只启用这两个核心工具
+                </div>
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="text-green-400 font-bold">3.</span>
+              <div>
+                <strong className="text-green-400">默认全启用</strong> - 若无配置则所有核心工具默认启用
+                <div className="text-xs text-gray-400 mt-1">
+                  未配置 <code>tools.core</code> 时的行为
+                </div>
+              </div>
+            </div>
+          </div>
+        </HighlightBox>
+      </Layer>
+
+      {/* 源码位置 */}
+      <Layer title="源码位置" icon="📍">
+        <HighlightBox title="配置系统核心源码" icon="📁" variant="blue">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h5 className="text-cyan-400 font-bold mb-2">配置加载与合并</h5>
+              <div className="text-sm space-y-2">
+                <div className="flex items-start gap-2">
+                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/cli/src/config/settings.ts:35-48</code>
+                  <span className="text-gray-400 text-xs">getMergeStrategyForPath() 策略查找</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/cli/src/config/settings.ts:396-418</code>
+                  <span className="text-gray-400 text-xs">mergeSettings() 四层合并</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/cli/src/config/settings.ts:421-484</code>
+                  <span className="text-gray-400 text-xs">LoadedSettings 类</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/cli/src/config/settings.ts:540</code>
+                  <span className="text-gray-400 text-xs">loadEnvFiles() 环境变量加载</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/cli/src/utils/deepMerge.ts</code>
+                  <span className="text-gray-400 text-xs">customDeepMerge() 实现</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h5 className="text-purple-400 font-bold mb-2">完整加载链路</h5>
+              <div className="text-sm space-y-2">
+                <div className="flex items-start gap-2">
+                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/cli/src/config/config.ts:522-708</code>
+                  <span className="text-gray-400 text-xs">loadCliConfig() 主入口</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/cli/src/config/config.ts:605-615</code>
+                  <span className="text-gray-400 text-xs">approvalMode 安全降级</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/core/src/utils/memoryDiscovery.ts:359-415</code>
+                  <span className="text-gray-400 text-xs">loadServerHierarchicalMemory()</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/core/src/config/config.ts:1092-1200</code>
+                  <span className="text-gray-400 text-xs">createToolRegistry() 工具组装</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h5 className="text-red-400 font-bold mb-2">信任与安全</h5>
+              <div className="text-sm space-y-2">
+                <div className="flex items-start gap-2">
+                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/cli/src/config/trustedFolders.ts</code>
+                  <span className="text-gray-400 text-xs">工作区信任机制</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/cli/src/config/settings.ts:403</code>
+                  <span className="text-gray-400 text-xs">workspace 配置信任检查</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/cli/src/config/settings.ts:540</code>
+                  <span className="text-gray-400 text-xs">.env 文件信任检查</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h5 className="text-green-400 font-bold mb-2">Schema 与定义</h5>
+              <div className="text-sm space-y-2">
+                <div className="flex items-start gap-2">
+                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/cli/src/config/settingsSchema.ts:51-60</code>
+                  <span className="text-gray-400 text-xs">MergeStrategy 枚举定义</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/cli/src/config/settingsSchema.ts</code>
+                  <span className="text-gray-400 text-xs">完整 Settings Schema 定义</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </HighlightBox>
       </Layer>
     </div>
   );

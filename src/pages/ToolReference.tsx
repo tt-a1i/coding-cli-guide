@@ -1,32 +1,472 @@
 import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
+import { MermaidDiagram } from '../components/MermaidDiagram';
 
 /**
- * Authoritative Tool Reference Page
+ * Tool Reference Page - 工具系统参考
  *
- * Source of truth: packages/core/src/tools/tool-names.ts
- * All tool names and parameters are derived from actual source code.
+ * 聚焦于内置工具的分类、参数规范、注册机制和使用指南
+ * Source: packages/core/src/tools/*.ts
  */
 export function ToolReference() {
+  // 工具注册和发现流程
+  const toolRegistrationFlow = `flowchart TD
+    start([启动 Innies CLI])
+    init_config[初始化 Config]
+    register_tools[registerTools]
+    create_instances[创建工具实例]
+    group_by_kind[按 Kind 分组]
+    build_schema[构建 JSON Schema]
+    gemini_tools[Gemini Tools Array]
+    available[工具可用]
+
+    start --> init_config
+    init_config --> register_tools
+    register_tools --> create_instances
+    create_instances --> group_by_kind
+    group_by_kind --> build_schema
+    build_schema --> gemini_tools
+    gemini_tools --> available
+
+    style start fill:#22d3ee,color:#000
+    style available fill:#22c55e,color:#000
+    style register_tools fill:#a855f7,color:#fff
+    style build_schema fill:#f59e0b,color:#000`;
+
+  // 工具 Kind 分类系统
+  const toolKindClassification = `flowchart LR
+    subgraph Read["🔵 Read (只读)"]
+      read_file[read_file]
+      read_many[read_many_files]
+    end
+
+    subgraph Search["🟢 Search (搜索)"]
+      grep[grep_search]
+      glob[glob]
+    end
+
+    subgraph Edit["🟡 Edit (修改)"]
+      edit[edit]
+      write[write_file]
+    end
+
+    subgraph Execute["🟠 Execute (执行)"]
+      shell[run_shell_command]
+    end
+
+    subgraph Think["🔵 Think (思考)"]
+      todo[todo_write]
+      memory[save_memory]
+      exit_plan[exit_plan_mode]
+    end
+
+    subgraph Other["⚪ Other (其他)"]
+      task[task - 子代理]
+    end
+
+    style Read fill:#3b82f6,color:#fff
+    style Search fill:#22c55e,color:#000
+    style Edit fill:#f59e0b,color:#000
+    style Execute fill:#f97316,color:#fff
+    style Think fill:#6366f1,color:#fff
+    style Other fill:#6b7280,color:#fff`;
+
+  // 工具调用生命周期
+  const toolInvocationLifecycle = `sequenceDiagram
+    participant AI as AI Model
+    participant Scheduler as ToolScheduler
+    participant Registry as Tool Registry
+    participant Tool as Tool Implementation
+
+    AI->>Scheduler: schedule(tool_call)
+    Scheduler->>Registry: getToolByName(name)
+    Registry-->>Scheduler: Tool Instance
+    Scheduler->>Tool: validateParams(args)
+    Tool-->>Scheduler: validation result
+    Scheduler->>Tool: shouldConfirmExecute()
+    Tool-->>Scheduler: null (auto-approve) or details
+    Scheduler->>Tool: execute(params)
+    activate Tool
+    Tool->>Tool: process logic
+    Tool-->>Scheduler: output (string | Part[])
+    deactivate Tool
+    Scheduler->>Scheduler: convertToFunctionResponse()
+    Scheduler-->>AI: FunctionResponse`;
+
   return (
     <div className="space-y-8 animate-fadeIn">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-cyan-400">工具参考 (对齐源码)</h2>
+        <h2 className="text-2xl font-bold text-cyan-400">工具系统参考手册</h2>
         <p className="text-gray-400 mt-2">
-          工具名称和 Kind 分类以代码为准 - 来源: <code>packages/core/src/tools/*.ts</code>
+          Innies CLI 内置工具分类、参数规范与注册机制完整指南
         </p>
       </div>
 
-      {/* 重要警告 */}
-      <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-4">
-        <h3 className="text-yellow-400 font-bold mb-2">对齐说明</h3>
-        <ul className="text-sm text-gray-300 space-y-1">
-          <li>工具名称来自 <code>tool-names.ts</code>，Kind 分类来自各工具实现文件</li>
-          <li>参数 Schema 来自各工具的 <code>*ToolParams</code> 接口定义</li>
-          <li>工具名称区分大小写，配置中必须完全匹配</li>
-        </ul>
-      </div>
+      {/* 🎯 目标 */}
+      <Layer title="目标" icon="🎯">
+        <div className="space-y-3 text-gray-300">
+          <p>
+            工具系统是 Innies CLI 的核心能力，提供了 AI 与本地环境交互的标准化接口。
+            主要解决以下问题：
+          </p>
+          <ul className="list-disc list-inside space-y-2 ml-4">
+            <li>
+              <strong className="text-cyan-400">标准化 AI 能力</strong> -
+              通过统一的工具接口，让 AI 可以执行文件读写、代码搜索、Shell 命令等操作
+            </li>
+            <li>
+              <strong className="text-cyan-400">安全控制</strong> -
+              通过 Kind 分类和 ApprovalMode，精确控制哪些操作需要用户确认
+            </li>
+            <li>
+              <strong className="text-cyan-400">扩展性</strong> -
+              支持 MCP 外部工具和自定义工具，灵活扩展 AI 能力边界
+            </li>
+            <li>
+              <strong className="text-cyan-400">可维护性</strong> -
+              清晰的工具分类和参数规范，便于开发和调试
+            </li>
+          </ul>
+        </div>
+      </Layer>
+
+      {/* 📥 输入 */}
+      <Layer title="输入" icon="📥">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <HighlightBox title="工具调用请求" variant="blue">
+            <div className="text-sm space-y-2">
+              <p className="text-gray-300">来自 AI Model 的工具调用：</p>
+              <ul className="space-y-1 text-gray-400">
+                <li>• <code className="text-cyan-300">name</code> - 工具名称（必须匹配 ToolNames）</li>
+                <li>• <code className="text-cyan-300">callId</code> - 唯一调用标识符</li>
+                <li>• <code className="text-cyan-300">args</code> - JSON 参数对象</li>
+              </ul>
+            </div>
+          </HighlightBox>
+
+          <HighlightBox title="工具注册配置" variant="green">
+            <div className="text-sm space-y-2">
+              <p className="text-gray-300">工具系统初始化依赖：</p>
+              <ul className="space-y-1 text-gray-400">
+                <li>• <code className="text-cyan-300">Config</code> - 配置对象（工作目录、临时目录等）</li>
+                <li>• <code className="text-cyan-300">allowedTools</code> - 白名单工具列表</li>
+                <li>• <code className="text-cyan-300">ApprovalMode</code> - 审批模式设置</li>
+              </ul>
+            </div>
+          </HighlightBox>
+        </div>
+      </Layer>
+
+      {/* 📤 输出 */}
+      <Layer title="输出" icon="📤">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <HighlightBox title="Gemini 格式响应" variant="yellow">
+            <CodeBlock
+              code={`// 内部使用 Gemini FunctionResponse 格式
+{
+  role: 'user',
+  parts: [{
+    functionResponse: {
+      id: 'call_xxx',
+      name: 'read_file',
+      response: {
+        output: '文件内容...',
+        error: null
+      }
+    }
+  }]
+}`}
+            />
+          </HighlightBox>
+
+          <HighlightBox title="OpenAI 兼容格式" variant="green">
+            <CodeBlock
+              code={`// 发送到 OpenAI API 时转换为
+{
+  role: 'tool',
+  tool_call_id: 'call_xxx',
+  content: '文件内容...'
+}`}
+            />
+          </HighlightBox>
+        </div>
+
+        <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-3 mt-4">
+          <p className="text-sm text-yellow-300">
+            <strong>重要：</strong> Innies CLI 内部统一使用 Gemini 格式，
+            仅在与 OpenAI 兼容 API 通信时才进行格式转换。
+          </p>
+        </div>
+      </Layer>
+
+      {/* 📁 关键文件与入口 */}
+      <Layer title="关键文件与入口" icon="📁">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-gray-900 rounded-lg p-4">
+            <h4 className="text-cyan-400 font-bold mb-2">核心定义文件</h4>
+            <div className="text-xs font-mono space-y-1 text-gray-400">
+              <div className="flex justify-between">
+                <code>packages/core/src/tools/tool-names.ts</code>
+                <span className="text-purple-400">工具名称常量</span>
+              </div>
+              <div className="flex justify-between">
+                <code>packages/core/src/tools/tools.ts:584</code>
+                <span className="text-purple-400">Kind 枚举定义</span>
+              </div>
+              <div className="flex justify-between">
+                <code>packages/core/src/tools/tools.ts:1-500</code>
+                <span className="text-purple-400">工具基类和接口</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gray-900 rounded-lg p-4">
+            <h4 className="text-cyan-400 font-bold mb-2">工具实现文件</h4>
+            <div className="text-xs font-mono space-y-1 text-gray-400">
+              <div>packages/core/src/tools/edit.ts</div>
+              <div>packages/core/src/tools/write-file.ts</div>
+              <div>packages/core/src/tools/read-file.ts</div>
+              <div>packages/core/src/tools/grep.ts</div>
+              <div>packages/core/src/tools/glob.ts</div>
+              <div>packages/core/src/tools/shell.ts</div>
+              <div>packages/core/src/tools/memoryTool.ts</div>
+              <div>packages/core/src/tools/todoWrite.ts</div>
+              <div>packages/core/src/tools/task.ts</div>
+            </div>
+          </div>
+
+          <div className="bg-gray-900 rounded-lg p-4">
+            <h4 className="text-cyan-400 font-bold mb-2">注册和调度</h4>
+            <div className="text-xs font-mono space-y-1 text-gray-400">
+              <div className="flex justify-between">
+                <code>packages/core/src/config/config.ts:1092</code>
+                <span className="text-green-400">registerTools()</span>
+              </div>
+              <div className="flex justify-between">
+                <code>packages/core/src/core/coreToolScheduler.ts</code>
+                <span className="text-green-400">工具调度器</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gray-900 rounded-lg p-4">
+            <h4 className="text-cyan-400 font-bold mb-2">工具工具函数</h4>
+            <div className="text-xs font-mono space-y-1 text-gray-400">
+              <div>packages/core/src/utils/tool-utils.ts</div>
+              <div className="text-gray-500 mt-1">白名单匹配、工具查找等</div>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      {/* 📊 流程图 */}
+      <Layer title="流程图" icon="📊">
+        <div className="space-y-6">
+          <div>
+            <h4 className="text-lg font-semibold text-cyan-400 mb-3">工具注册和发现流程</h4>
+            <MermaidDiagram chart={toolRegistrationFlow} title="Tool Registration Flow" />
+          </div>
+
+          <div>
+            <h4 className="text-lg font-semibold text-cyan-400 mb-3">工具 Kind 分类体系</h4>
+            <MermaidDiagram chart={toolKindClassification} title="Tool Kind Classification" />
+          </div>
+
+          <div>
+            <h4 className="text-lg font-semibold text-cyan-400 mb-3">工具调用生命周期</h4>
+            <MermaidDiagram chart={toolInvocationLifecycle} title="Tool Invocation Lifecycle" />
+          </div>
+        </div>
+      </Layer>
+
+      {/* ⚡ 关键分支与边界条件 */}
+      <Layer title="关键分支与边界条件" icon="⚡">
+        <div className="space-y-4">
+          <HighlightBox title="工具名称区分大小写" variant="red">
+            <p className="text-sm text-gray-300 mb-2">
+              工具名称必须完全匹配 <code>ToolNames</code> 常量，大小写敏感。
+            </p>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="text-left text-gray-400 border-b border-gray-700">
+                    <th className="py-1 px-2">错误写法</th>
+                    <th className="py-1 px-2">正确写法</th>
+                    <th className="py-1 px-2">说明</th>
+                  </tr>
+                </thead>
+                <tbody className="text-gray-300 font-mono">
+                  <tr className="border-b border-gray-800 bg-red-900/10">
+                    <td className="py-1 px-2 text-red-400 line-through">'bash'</td>
+                    <td className="py-1 px-2 text-green-400">'run_shell_command'</td>
+                    <td className="py-1 px-2 font-sans text-gray-400">Shell 工具正确名称</td>
+                  </tr>
+                  <tr className="border-b border-gray-800 bg-red-900/10">
+                    <td className="py-1 px-2 text-red-400 line-through">'grep'</td>
+                    <td className="py-1 px-2 text-green-400">'grep_search'</td>
+                    <td className="py-1 px-2 font-sans text-gray-400">Grep 工具正确名称</td>
+                  </tr>
+                  <tr className="border-b border-gray-800 bg-red-900/10">
+                    <td className="py-1 px-2 text-red-400 line-through">'memory'</td>
+                    <td className="py-1 px-2 text-green-400">'save_memory'</td>
+                    <td className="py-1 px-2 font-sans text-gray-400">Memory 工具正确名称</td>
+                  </tr>
+                  <tr className="bg-red-900/10">
+                    <td className="py-1 px-2 text-red-400 line-through">'read'</td>
+                    <td className="py-1 px-2 text-green-400">'read_file'</td>
+                    <td className="py-1 px-2 font-sans text-gray-400">Read 工具正确名称</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </HighlightBox>
+
+          <HighlightBox title="Kind 分类决定审批行为" variant="purple">
+            <div className="text-sm space-y-2">
+              <p className="text-gray-300">工具的 Kind 决定了是否需要用户确认：</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-gray-800/50 rounded p-2">
+                  <h5 className="font-semibold text-green-300 mb-1">自动批准 Kind</h5>
+                  <ul className="space-y-1 text-gray-400 text-xs">
+                    <li>• <code className="text-blue-300">Read</code> - 只读操作</li>
+                    <li>• <code className="text-green-300">Search</code> - 搜索操作</li>
+                    <li>• <code className="text-blue-300">Think</code> - 思考类工具</li>
+                  </ul>
+                </div>
+                <div className="bg-gray-800/50 rounded p-2">
+                  <h5 className="font-semibold text-yellow-300 mb-1">需要确认 Kind</h5>
+                  <ul className="space-y-1 text-gray-400 text-xs">
+                    <li>• <code className="text-yellow-300">Edit</code> - 修改文件</li>
+                    <li>• <code className="text-orange-300">Execute</code> - 执行命令</li>
+                    <li>• <code className="text-gray-300">Other</code> - 其他操作</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </HighlightBox>
+
+          <HighlightBox title="参数验证失败" variant="red">
+            <p className="text-sm text-gray-300 mb-2">
+              每个工具都有严格的参数 Schema，违反规范会导致执行失败：
+            </p>
+            <ul className="text-xs text-gray-400 space-y-1">
+              <li>• 必需参数缺失 → <code className="text-red-400">error: Missing required parameter</code></li>
+              <li>• 类型不匹配 → <code className="text-red-400">error: Invalid parameter type</code></li>
+              <li>• 路径必须为绝对路径 → <code className="text-red-400">error: Path must be absolute</code></li>
+            </ul>
+          </HighlightBox>
+        </div>
+      </Layer>
+
+      {/* 🔧 失败与恢复 */}
+      <Layer title="失败与恢复" icon="🔧">
+        <div className="space-y-4">
+          <HighlightBox title="工具未找到" variant="red">
+            <div className="text-sm space-y-2">
+              <p className="text-gray-300">
+                <strong>错误：</strong> 工具名称不存在于 ToolNames 或工具未注册
+              </p>
+              <CodeBlock
+                code={`// 错误响应
+{
+  status: 'error',
+  error: 'Tool not found: bash',
+  suggestion: 'Available tools: read_file, write_file, ...'
+}`}
+              />
+              <p className="text-cyan-300">
+                <strong>恢复策略：</strong> 检查 <code>ToolNames</code> 常量表，使用正确的工具名称
+              </p>
+            </div>
+          </HighlightBox>
+
+          <HighlightBox title="参数验证失败" variant="yellow">
+            <div className="text-sm space-y-2">
+              <p className="text-gray-300">
+                <strong>错误：</strong> 参数类型或格式不符合 Schema 要求
+              </p>
+              <CodeBlock
+                code={`// 错误响应
+{
+  status: 'error',
+  error: 'Invalid parameter: file_path must be absolute',
+  received: './relative/path.ts'
+}`}
+              />
+              <p className="text-cyan-300">
+                <strong>恢复策略：</strong> 参考工具参数 Schema，调整参数格式
+              </p>
+            </div>
+          </HighlightBox>
+
+          <HighlightBox title="Plan Mode 阻断" variant="purple">
+            <div className="text-sm space-y-2">
+              <p className="text-gray-300">
+                <strong>场景：</strong> 在 Plan Mode 下尝试执行修改类工具
+              </p>
+              <CodeBlock
+                code={`// Plan Mode 系统提示
+<system-reminder>
+You are in Plan Mode. You can only use read-only tools...
+To exit Plan Mode, use the exit_plan_mode tool.
+</system-reminder>`}
+              />
+              <p className="text-cyan-300">
+                <strong>恢复策略：</strong> 使用 <code>exit_plan_mode</code> 工具退出 Plan Mode
+              </p>
+            </div>
+          </HighlightBox>
+        </div>
+      </Layer>
+
+      {/* ⚙️ 相关配置项 */}
+      <Layer title="相关配置项" icon="⚙️">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-gray-400 border-b border-gray-700">
+                <th className="py-2 px-3">配置项</th>
+                <th className="py-2 px-3">类型</th>
+                <th className="py-2 px-3">默认值</th>
+                <th className="py-2 px-3">说明</th>
+              </tr>
+            </thead>
+            <tbody className="text-gray-300">
+              <tr className="border-b border-gray-800">
+                <td className="py-2 px-3"><code className="text-cyan-400">approvalMode</code></td>
+                <td className="py-2 px-3">ApprovalMode</td>
+                <td className="py-2 px-3"><code>DEFAULT</code></td>
+                <td className="py-2 px-3">工具审批模式（DEFAULT/YOLO/AUTO_EDIT/PLAN）</td>
+              </tr>
+              <tr className="border-b border-gray-800">
+                <td className="py-2 px-3"><code className="text-cyan-400">allowedTools</code></td>
+                <td className="py-2 px-3">string[]</td>
+                <td className="py-2 px-3"><code>[]</code></td>
+                <td className="py-2 px-3">白名单工具列表，支持精确匹配和模式匹配</td>
+              </tr>
+              <tr className="border-b border-gray-800">
+                <td className="py-2 px-3"><code className="text-cyan-400">enableToolOutputTruncation</code></td>
+                <td className="py-2 px-3">boolean</td>
+                <td className="py-2 px-3"><code>true</code></td>
+                <td className="py-2 px-3">是否启用工具输出截断</td>
+              </tr>
+              <tr className="border-b border-gray-800">
+                <td className="py-2 px-3"><code className="text-cyan-400">truncateToolOutputThreshold</code></td>
+                <td className="py-2 px-3">number</td>
+                <td className="py-2 px-3"><code>50000</code></td>
+                <td className="py-2 px-3">输出截断阈值（字符数）</td>
+              </tr>
+              <tr>
+                <td className="py-2 px-3"><code className="text-cyan-400">truncateToolOutputLines</code></td>
+                <td className="py-2 px-3">number</td>
+                <td className="py-2 px-3"><code>100</code></td>
+                <td className="py-2 px-3">截断后保留的行数</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Layer>
 
       {/* 工具名称常量表 */}
       <Layer title="工具名称常量表 (ToolNames)" icon="🏷️">
@@ -41,7 +481,7 @@ export function ToolReference() {
                 <th className="py-2 px-3">常量</th>
                 <th className="py-2 px-3">工具名称 (API)</th>
                 <th className="py-2 px-3">类名</th>
-                <th className="py-2 px-3">类型</th>
+                <th className="py-2 px-3">Kind</th>
               </tr>
             </thead>
             <tbody className="text-gray-300 font-mono">
@@ -133,60 +573,12 @@ export function ToolReference() {
         />
       </Layer>
 
-      {/* 常见错误对照 */}
-      <Layer title="常见错误对照" icon="⚠️">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-gray-400 border-b border-gray-700">
-                <th className="py-2 px-3">错误写法</th>
-                <th className="py-2 px-3">正确写法</th>
-                <th className="py-2 px-3">说明</th>
-              </tr>
-            </thead>
-            <tbody className="text-gray-300 font-mono">
-              <tr className="border-b border-gray-800 bg-red-900/10">
-                <td className="py-2 px-3 text-red-400 line-through">'bash'</td>
-                <td className="py-2 px-3 text-green-400">'run_shell_command'</td>
-                <td className="py-2 px-3 text-gray-400 font-sans">Shell 工具的正确名称</td>
-              </tr>
-              <tr className="border-b border-gray-800 bg-red-900/10">
-                <td className="py-2 px-3 text-red-400 line-through">'shell'</td>
-                <td className="py-2 px-3 text-green-400">'run_shell_command'</td>
-                <td className="py-2 px-3 text-gray-400 font-sans">Shell 工具的正确名称</td>
-              </tr>
-              <tr className="border-b border-gray-800 bg-red-900/10">
-                <td className="py-2 px-3 text-red-400 line-through">'grep'</td>
-                <td className="py-2 px-3 text-green-400">'grep_search'</td>
-                <td className="py-2 px-3 text-gray-400 font-sans">Grep 工具的正确名称</td>
-              </tr>
-              <tr className="border-b border-gray-800 bg-red-900/10">
-                <td className="py-2 px-3 text-red-400 line-through">'memory'</td>
-                <td className="py-2 px-3 text-green-400">'save_memory'</td>
-                <td className="py-2 px-3 text-gray-400 font-sans">Memory 工具的正确名称</td>
-              </tr>
-              <tr className="border-b border-gray-800 bg-red-900/10">
-                <td className="py-2 px-3 text-red-400 line-through">'read'</td>
-                <td className="py-2 px-3 text-green-400">'read_file'</td>
-                <td className="py-2 px-3 text-gray-400 font-sans">Read 工具的正确名称</td>
-              </tr>
-              <tr className="bg-red-900/10">
-                <td className="py-2 px-3 text-red-400 line-through">'write'</td>
-                <td className="py-2 px-3 text-green-400">'write_file'</td>
-                <td className="py-2 px-3 text-gray-400 font-sans">Write 工具的正确名称</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </Layer>
-
-      {/* 各工具参数详解 */}
+      {/* 工具参数 Schema 详解 */}
       <Layer title="工具参数 Schema (详解)" icon="📋">
-
         {/* edit */}
         <HighlightBox title="edit - 文件编辑" icon="✏️" variant="yellow">
           <p className="text-sm text-gray-400 mb-2">
-            来源: <code>packages/core/src/tools/edit.ts</code>
+            来源: <code>packages/core/src/tools/edit.ts</code> | Kind: <span className="text-yellow-400">Edit</span>
           </p>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
@@ -231,7 +623,7 @@ export function ToolReference() {
         {/* write_file */}
         <HighlightBox title="write_file - 文件写入" icon="📝" variant="yellow">
           <p className="text-sm text-gray-400 mb-2">
-            来源: <code>packages/core/src/tools/write-file.ts</code>
+            来源: <code>packages/core/src/tools/write-file.ts</code> | Kind: <span className="text-yellow-400">Edit</span>
           </p>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
@@ -303,7 +695,7 @@ export function ToolReference() {
         {/* grep_search */}
         <HighlightBox title="grep_search - 内容搜索" icon="🔍" variant="green">
           <p className="text-sm text-gray-400 mb-2">
-            来源: <code>packages/core/src/tools/grep.ts</code>
+            来源: <code>packages/core/src/tools/grep.ts</code> | Kind: <span className="text-green-400">Search</span>
           </p>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
@@ -348,7 +740,7 @@ export function ToolReference() {
         {/* glob */}
         <HighlightBox title="glob - 文件查找" icon="📁" variant="green">
           <p className="text-sm text-gray-400 mb-2">
-            来源: <code>packages/core/src/tools/glob.ts</code>
+            来源: <code>packages/core/src/tools/glob.ts</code> | Kind: <span className="text-green-400">Search</span>
           </p>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
@@ -399,7 +791,7 @@ export function ToolReference() {
         {/* run_shell_command */}
         <HighlightBox title="run_shell_command - Shell 执行" icon="💻" variant="orange">
           <p className="text-sm text-gray-400 mb-2">
-            来源: <code>packages/core/src/tools/shell.ts</code>
+            来源: <code>packages/core/src/tools/shell.ts</code> | Kind: <span className="text-orange-400">Execute</span>
           </p>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
@@ -444,7 +836,7 @@ export function ToolReference() {
         {/* save_memory */}
         <HighlightBox title="save_memory - 记忆保存" icon="🧠" variant="blue">
           <p className="text-sm text-gray-400 mb-2">
-            来源: <code>packages/core/src/tools/memoryTool.ts</code>
+            来源: <code>packages/core/src/tools/memoryTool.ts</code> | Kind: <span className="text-blue-400">Think</span>
           </p>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
@@ -477,7 +869,7 @@ export function ToolReference() {
         {/* todo_write */}
         <HighlightBox title="todo_write - 任务管理" icon="✅" variant="blue">
           <p className="text-sm text-gray-400 mb-2">
-            来源: <code>packages/core/src/tools/todoWrite.ts</code>
+            来源: <code>packages/core/src/tools/todoWrite.ts</code> | Kind: <span className="text-blue-400">Think</span>
           </p>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
@@ -508,7 +900,7 @@ export function ToolReference() {
         {/* task */}
         <HighlightBox title="task - 子代理调度" icon="🤖" variant="purple">
           <p className="text-sm text-gray-400 mb-2">
-            来源: <code>packages/core/src/tools/task.ts</code>
+            来源: <code>packages/core/src/tools/task.ts</code> | Kind: <span className="text-gray-400">Other</span>
           </p>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
@@ -543,82 +935,6 @@ export function ToolReference() {
             </table>
           </div>
         </HighlightBox>
-      </Layer>
-
-      {/* 工具结果格式 */}
-      <Layer title="工具结果格式说明" icon="📤">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <HighlightBox title="内部格式 (Innies)" icon="🔧" variant="blue">
-            <p className="text-sm text-gray-300 mb-2">
-              工具结果在内部使用 Gemini 风格:
-            </p>
-            <CodeBlock
-              code={`{
-  role: 'user',
-  parts: [{
-    functionResponse: {
-      id: 'call_xxx',
-      name: 'read_file',
-      response: {
-        output: '...',
-        error: null
-      }
-    }
-  }]
-}`}
-            />
-          </HighlightBox>
-
-          <HighlightBox title="OpenAI 兼容格式" icon="🔌" variant="green">
-            <p className="text-sm text-gray-300 mb-2">
-              发送到 OpenAI 兼容 API 时转换为:
-            </p>
-            <CodeBlock
-              code={`{
-  role: 'tool',
-  tool_call_id: 'call_xxx',
-  content: '...'
-}`}
-            />
-          </HighlightBox>
-        </div>
-
-        <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-3 mt-4">
-          <p className="text-sm text-yellow-300">
-            <strong>注意:</strong> 本项目内部统一使用 Gemini 风格 (<code>role: 'user'</code> + <code>functionResponse</code>)，
-            仅在发送到 OpenAI 兼容 API 时才转换为 <code>role: 'tool'</code> 格式。
-          </p>
-        </div>
-      </Layer>
-
-      {/* 源码文件参考 */}
-      <Layer title="源码文件参考" icon="📁">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-gray-900 rounded-lg p-4">
-            <h4 className="text-cyan-400 font-bold mb-2">工具定义</h4>
-            <div className="text-xs font-mono space-y-1 text-gray-400">
-              <div>packages/core/src/tools/tool-names.ts</div>
-              <div>packages/core/src/tools/tools.ts</div>
-              <div>packages/core/src/tools/edit.ts</div>
-              <div>packages/core/src/tools/write-file.ts</div>
-              <div>packages/core/src/tools/read-file.ts</div>
-              <div>packages/core/src/tools/grep.ts</div>
-              <div>packages/core/src/tools/glob.ts</div>
-              <div>packages/core/src/tools/shell.ts</div>
-              <div>packages/core/src/tools/memoryTool.ts</div>
-              <div>packages/core/src/tools/todoWrite.ts</div>
-              <div>packages/core/src/tools/task.ts</div>
-            </div>
-          </div>
-
-          <div className="bg-gray-900 rounded-lg p-4">
-            <h4 className="text-cyan-400 font-bold mb-2">工具注册</h4>
-            <div className="text-xs font-mono space-y-1 text-gray-400">
-              <div>packages/core/src/config/config.ts:1092</div>
-              <div className="text-gray-500 mt-2">工具实例化和注册位置</div>
-            </div>
-          </div>
-        </div>
       </Layer>
     </div>
   );

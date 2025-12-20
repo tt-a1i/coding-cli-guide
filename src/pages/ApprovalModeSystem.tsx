@@ -1,6 +1,7 @@
 import { HighlightBox } from '../components/HighlightBox';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
+import { Layer } from '../components/Layer';
 
 export function ApprovalModeSystem() {
   // 工具审批决策流程 - Mermaid flowchart
@@ -182,125 +183,572 @@ In plan mode:
 
   return (
     <div className="space-y-8">
-      {/* 概述 */}
+      {/* 页面标题 */}
       <section>
         <h2 className="text-2xl font-bold text-cyan-400 mb-4">审批模式系统</h2>
         <p className="text-gray-300 mb-4">
           审批模式是 CLI 的核心安全机制，控制 AI 执行工具时的权限级别。通过不同模式，
           用户可以在便利性和安全性之间取得平衡。
         </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <HighlightBox title="Plan" variant="purple">
-            <div className="text-sm">
-              <p className="font-semibold text-purple-300 mb-1">计划模式</p>
-              <ul className="space-y-1 text-gray-300">
-                <li>• 完全阻止所有修改</li>
-                <li>• 只能分析和计划</li>
-                <li>• 最安全的模式</li>
-              </ul>
-            </div>
-          </HighlightBox>
-
-          <HighlightBox title="Default" variant="blue">
-            <div className="text-sm">
-              <p className="font-semibold text-blue-300 mb-1">默认模式</p>
-              <ul className="space-y-1 text-gray-300">
-                <li>• 只读工具自动执行</li>
-                <li>• 修改工具需确认</li>
-                <li>• 推荐日常使用</li>
-              </ul>
-            </div>
-          </HighlightBox>
-
-          <HighlightBox title="Auto-Edit" variant="green">
-            <div className="text-sm">
-              <p className="font-semibold text-green-300 mb-1">自动编辑</p>
-              <ul className="space-y-1 text-gray-300">
-                <li>• 文件编辑自动批准</li>
-                <li>• Bash 仍需确认</li>
-                <li>• 适合信任的任务</li>
-              </ul>
-            </div>
-          </HighlightBox>
-
-          <HighlightBox title="YOLO" variant="red">
-            <div className="text-sm">
-              <p className="font-semibold text-red-300 mb-1">完全自动</p>
-              <ul className="space-y-1 text-gray-300">
-                <li>• 所有工具自动执行</li>
-                <li>• 无需任何确认</li>
-                <li>• 仅限可信环境</li>
-              </ul>
-            </div>
-          </HighlightBox>
-        </div>
       </section>
 
-      {/* 模式切换 */}
-      <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">模式切换</h3>
-        <div className="bg-gray-800/50 rounded-lg p-4">
-          <div className="flex items-center justify-center gap-4 text-lg">
-            <span className="px-4 py-2 bg-purple-500/20 border border-purple-500 rounded">plan</span>
-            <span className="text-gray-500">→</span>
-            <span className="px-4 py-2 bg-blue-500/20 border border-blue-500 rounded">default</span>
-            <span className="text-gray-500">→</span>
-            <span className="px-4 py-2 bg-green-500/20 border border-green-500 rounded">auto-edit</span>
-            <span className="text-gray-500">→</span>
-            <span className="px-4 py-2 bg-red-500/20 border border-red-500 rounded">yolo</span>
-            <span className="text-gray-500">→</span>
-            <span className="text-gray-400">循环</span>
-          </div>
-          <p className="text-center text-gray-400 mt-4">
-            使用 <kbd className="px-2 py-1 bg-gray-700 rounded">Shift+Tab</kbd> 快捷键循环切换模式
+      {/* 1. 目标 */}
+      <Layer title="目标" icon="🎯">
+        <div className="space-y-3 text-gray-300">
+          <p>
+            审批模式系统旨在解决以下核心问题：
           </p>
+          <ul className="list-disc list-inside space-y-2 ml-4">
+            <li>
+              <strong className="text-cyan-400">安全风险控制</strong>：防止 AI 未经用户同意执行危险操作（如删除文件、执行系统命令）
+            </li>
+            <li>
+              <strong className="text-cyan-400">用户体验平衡</strong>：在安全性和便利性之间提供灵活的权限级别
+            </li>
+            <li>
+              <strong className="text-cyan-400">信任边界管理</strong>：根据工作环境的可信程度动态调整权限策略
+            </li>
+            <li>
+              <strong className="text-cyan-400">透明化决策</strong>：让用户清楚了解每个工具调用的风险和影响
+            </li>
+          </ul>
         </div>
+      </Layer>
 
-        <CodeBlock code={approvalModeEnum} language="typescript" title="审批模式枚举" />
-      </section>
-
-      {/* 审批决策流程 */}
-      <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">审批决策流程</h3>
-        <MermaidDiagram chart={approvalDecisionFlowChart} title="工具审批决策流程" />
-
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-gray-800/50 rounded-lg p-4">
-            <h4 className="font-semibold text-green-400 mb-2">自动批准的工具 (Kind: Read/Search/Think/Fetch)</h4>
-            <ul className="text-sm text-gray-300 space-y-1">
-              <li>• <code className="text-cyan-300">read_file</code> - 读取文件</li>
-              <li>• <code className="text-cyan-300">read_many_files</code> - 批量读取</li>
-              <li>• <code className="text-cyan-300">glob</code> - 文件匹配</li>
-              <li>• <code className="text-cyan-300">grep_search</code> - 内容搜索</li>
-              <li>• <code className="text-cyan-300">web_search</code> - 网页搜索</li>
-              <li>• <code className="text-cyan-300">web_fetch</code> - 获取网页</li>
-              <li>• <code className="text-cyan-300">todo_write</code> - 任务管理</li>
-              <li>• <code className="text-cyan-300">save_memory</code> - 记忆保存</li>
+      {/* 2. 输入 */}
+      <Layer title="输入" icon="📥">
+        <div className="space-y-4">
+          <div>
+            <h4 className="text-cyan-400 font-semibold mb-2">触发条件</h4>
+            <ul className="text-gray-300 list-disc list-inside space-y-1 ml-4">
+              <li>AI 请求执行任意工具调用时</li>
+              <li>用户通过 Shift+Tab 切换审批模式时</li>
+              <li>用户通过 <code className="bg-black/30 px-1 rounded">/approval</code> 命令设置模式时</li>
+              <li>进入不可信文件夹时（自动降级到 plan/default）</li>
             </ul>
           </div>
 
-          <div className="bg-gray-800/50 rounded-lg p-4">
-            <h4 className="font-semibold text-yellow-400 mb-2">需要确认的工具 (Kind: Edit/Execute)</h4>
-            <ul className="text-sm text-gray-300 space-y-1">
-              <li>• <code className="text-orange-300">write_file</code> - 写入文件</li>
-              <li>• <code className="text-orange-300">edit</code> - 编辑文件</li>
-              <li>• <code className="text-orange-300">run_shell_command</code> - 执行命令</li>
-              <li>• <code className="text-orange-300">notebook_edit</code> - 编辑笔记本</li>
-              <li>• <code className="text-orange-300">MCP 工具</code> - 外部 MCP 服务器工具</li>
+          <div>
+            <h4 className="text-cyan-400 font-semibold mb-2">输入参数</h4>
+            <ul className="text-gray-300 list-disc list-inside space-y-1 ml-4">
+              <li><strong>当前 ApprovalMode</strong>：PLAN / DEFAULT / AUTO_EDIT / YOLO</li>
+              <li><strong>工具 Kind 类型</strong>：Read / Search / Fetch / Edit / Delete / Execute</li>
+              <li><strong>allowedTools 白名单</strong>：配置文件中定义的自动批准工具列表</li>
+              <li><strong>文件夹信任状态</strong>：isTrustedFolder() 返回值</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-cyan-400 font-semibold mb-2">前置依赖</h4>
+            <ul className="text-gray-300 list-disc list-inside space-y-1 ml-4">
+              <li>配置系统（Config）已初始化</li>
+              <li>工具注册表（ToolRegistry）已加载所有工具</li>
+              <li>CoreToolScheduler 已启动</li>
             </ul>
           </div>
         </div>
-      </section>
+      </Layer>
 
-      {/* 工具调用状态机 */}
-      <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">工具调用状态机</h3>
-        <MermaidDiagram chart={toolCallStateChart} title="工具调用状态机" />
-        <CodeBlock code={toolConfirmationCode} language="typescript" title="工具调用状态类型" />
-      </section>
+      {/* 3. 输出 */}
+      <Layer title="输出" icon="📤">
+        <div className="space-y-4">
+          <div>
+            <h4 className="text-cyan-400 font-semibold mb-2">产出物</h4>
+            <ul className="text-gray-300 list-disc list-inside space-y-1 ml-4">
+              <li>
+                <strong>审批决策</strong>：
+                <ul className="list-disc list-inside ml-6 mt-1">
+                  <li>返回 <code className="bg-black/30 px-1 rounded">null</code> → 自动批准，立即执行</li>
+                  <li>返回 <code className="bg-black/30 px-1 rounded">ToolCallConfirmationDetails</code> → 需要用户确认</li>
+                  <li>返回 <code className="bg-black/30 px-1 rounded">Plan Mode 提示</code> → 阻断执行</li>
+                </ul>
+              </li>
+              <li>
+                <strong>UI 反馈</strong>：
+                <ul className="list-disc list-inside ml-6 mt-1">
+                  <li>工具确认对话框（包含 Diff 预览、参数详情）</li>
+                  <li>模式切换提示（Shift+Tab 时显示）</li>
+                  <li>Plan Mode 阻断警告</li>
+                </ul>
+              </li>
+            </ul>
+          </div>
 
-      {/* 四种模式详细对比 */}
+          <div>
+            <h4 className="text-cyan-400 font-semibold mb-2">状态变化</h4>
+            <ul className="text-gray-300 list-disc list-inside space-y-1 ml-4">
+              <li>工具调用状态：validating → scheduled / awaiting_approval / error</li>
+              <li>审批模式切换：plan → default → auto-edit → yolo（循环）</li>
+              <li>ToolConfirmationOutcome 记录：记录用户的批准/拒绝决策</li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-cyan-400 font-semibold mb-2">副作用</h4>
+            <ul className="text-gray-300 list-disc list-inside space-y-1 ml-4">
+              <li>触发 telemetry 事件记录（工具确认/拒绝/模式切换）</li>
+              <li>更新 allowedTools 白名单（用户选择"总是批准"时）</li>
+              <li>更新会话配置（模式切换时）</li>
+            </ul>
+          </div>
+        </div>
+      </Layer>
+
+      {/* 4. 关键文件与入口 */}
+      <Layer title="关键文件与入口" icon="📁">
+        <div className="space-y-3">
+          <div className="grid grid-cols-1 gap-2 text-sm">
+            <div className="flex items-start gap-2">
+              <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
+                packages/core/src/config/config.ts:102-107
+              </code>
+              <span className="text-gray-400">ApprovalMode 枚举定义</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
+                packages/core/src/tools/tools.ts:575-594
+              </code>
+              <span className="text-gray-400">ToolConfirmationOutcome 枚举、Kind 枚举</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
+                packages/core/src/core/coreToolScheduler.ts:740-790
+              </code>
+              <span className="text-gray-400">shouldConfirmExecute 确认决策核心逻辑</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
+                packages/core/src/core/prompts.ts
+              </code>
+              <span className="text-gray-400">getPlanModeSystemReminder() 系统提示生成</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
+                packages/core/src/tools/exitPlanMode.ts
+              </code>
+              <span className="text-gray-400">ExitPlanModeTool 实现</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
+                packages/core/src/utils/tool-utils.ts
+              </code>
+              <span className="text-gray-400">doesToolInvocationMatch() 白名单匹配逻辑</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
+                packages/cli/src/ui/commands/approvalModeCommand.ts
+              </code>
+              <span className="text-gray-400">/approval 命令实现</span>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      {/* 5. 流程图 */}
+      <Layer title="流程图" icon="📊">
+        <div className="space-y-6">
+          <div>
+            <h4 className="text-cyan-400 font-semibold mb-3">审批决策流程</h4>
+            <MermaidDiagram chart={approvalDecisionFlowChart} title="工具审批决策流程" />
+          </div>
+
+          <div>
+            <h4 className="text-cyan-400 font-semibold mb-3">工具调用状态机</h4>
+            <MermaidDiagram chart={toolCallStateChart} title="工具调用状态机" />
+          </div>
+
+          <div>
+            <h4 className="text-cyan-400 font-semibold mb-3">四种审批模式对比</h4>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <HighlightBox title="Plan" variant="purple">
+                <div className="text-sm">
+                  <p className="font-semibold text-purple-300 mb-1">计划模式</p>
+                  <ul className="space-y-1 text-gray-300">
+                    <li>• 完全阻止所有修改</li>
+                    <li>• 只能分析和计划</li>
+                    <li>• 最安全的模式</li>
+                  </ul>
+                </div>
+              </HighlightBox>
+
+              <HighlightBox title="Default" variant="blue">
+                <div className="text-sm">
+                  <p className="font-semibold text-blue-300 mb-1">默认模式</p>
+                  <ul className="space-y-1 text-gray-300">
+                    <li>• 只读工具自动执行</li>
+                    <li>• 修改工具需确认</li>
+                    <li>• 推荐日常使用</li>
+                  </ul>
+                </div>
+              </HighlightBox>
+
+              <HighlightBox title="Auto-Edit" variant="green">
+                <div className="text-sm">
+                  <p className="font-semibold text-green-300 mb-1">自动编辑</p>
+                  <ul className="space-y-1 text-gray-300">
+                    <li>• 文件编辑自动批准</li>
+                    <li>• Bash 仍需确认</li>
+                    <li>• 适合信任的任务</li>
+                  </ul>
+                </div>
+              </HighlightBox>
+
+              <HighlightBox title="YOLO" variant="red">
+                <div className="text-sm">
+                  <p className="font-semibold text-red-300 mb-1">完全自动</p>
+                  <ul className="space-y-1 text-gray-300">
+                    <li>• 所有工具自动执行</li>
+                    <li>• 无需任何确认</li>
+                    <li>• 仅限可信环境</li>
+                  </ul>
+                </div>
+              </HighlightBox>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      {/* 6. 关键分支与边界条件 */}
+      <Layer title="关键分支与边界条件" icon="⚡">
+        <div className="space-y-4">
+          <div>
+            <h4 className="text-cyan-400 font-semibold mb-2">模式切换循环</h4>
+            <div className="bg-gray-800/50 rounded-lg p-4">
+              <div className="flex items-center justify-center gap-4 text-lg flex-wrap">
+                <span className="px-4 py-2 bg-purple-500/20 border border-purple-500 rounded">plan</span>
+                <span className="text-gray-500">→</span>
+                <span className="px-4 py-2 bg-blue-500/20 border border-blue-500 rounded">default</span>
+                <span className="text-gray-500">→</span>
+                <span className="px-4 py-2 bg-green-500/20 border border-green-500 rounded">auto-edit</span>
+                <span className="text-gray-500">→</span>
+                <span className="px-4 py-2 bg-red-500/20 border border-red-500 rounded">yolo</span>
+                <span className="text-gray-500">→</span>
+                <span className="text-gray-400">循环回 plan</span>
+              </div>
+              <p className="text-center text-gray-400 mt-4">
+                使用 <kbd className="px-2 py-1 bg-gray-700 rounded">Shift+Tab</kbd> 快捷键循环切换模式
+              </p>
+            </div>
+            <CodeBlock code={approvalModeEnum} language="typescript" title="审批模式枚举定义" />
+          </div>
+
+          <div>
+            <h4 className="text-cyan-400 font-semibold mb-2">不可信文件夹限制</h4>
+            <HighlightBox title="安全边界" variant="red">
+              <div className="text-sm space-y-2">
+                <p className="text-gray-300">
+                  当 <code className="bg-black/30 px-1 rounded">isTrustedFolder() = false</code> 时，
+                  只允许使用 <strong className="text-purple-300">PLAN</strong> 或 <strong className="text-blue-300">DEFAULT</strong> 模式。
+                </p>
+                <p className="text-gray-300">
+                  尝试切换到 <strong className="text-green-300">AUTO_EDIT</strong> 或 <strong className="text-red-300">YOLO</strong>
+                  会抛出错误：<br/>
+                  <code className="bg-black/30 px-1 rounded text-red-300">Cannot enable privileged approval modes in an untrusted folder.</code>
+                </p>
+              </div>
+            </HighlightBox>
+            <CodeBlock code={setApprovalModeCode} language="typescript" title="setApprovalMode 安全检查" />
+          </div>
+
+          <div>
+            <h4 className="text-cyan-400 font-semibold mb-2">Plan Mode 特殊行为</h4>
+            <div className="space-y-3">
+              <HighlightBox title="阻断逻辑" variant="purple">
+                <div className="text-sm space-y-2">
+                  <div>
+                    <h5 className="font-semibold text-purple-300 mb-1">触发条件</h5>
+                    <ul className="space-y-1 text-gray-300 list-disc list-inside ml-2">
+                      <li><code>ApprovalMode = PLAN</code></li>
+                      <li>工具的 <code>shouldConfirmExecute()</code> 返回非空（需要确认）</li>
+                      <li>工具名称不是 <code>exit_plan_mode</code></li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h5 className="font-semibold text-purple-300 mb-1">阻断行为</h5>
+                    <ul className="space-y-1 text-gray-300 list-disc list-inside ml-2">
+                      <li>将工具调用标记为 <code>error</code> 状态</li>
+                      <li>返回 <code>getPlanModeSystemReminder()</code> 系统提示</li>
+                      <li>AI 收到提示后停止使用修改类工具</li>
+                      <li>只有 <code>exit_plan_mode</code> 工具可以突破阻断</li>
+                    </ul>
+                  </div>
+                </div>
+              </HighlightBox>
+              <CodeBlock code={planModePromptCode} language="typescript" title="Plan Mode 系统提示" />
+            </div>
+          </div>
+
+          <div>
+            <h4 className="text-cyan-400 font-semibold mb-2">工具 Kind 分类</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-gray-800/50 rounded-lg p-4">
+                <h5 className="font-semibold text-green-400 mb-2">自动批准类 (Kind: Read/Search/Fetch)</h5>
+                <ul className="text-sm text-gray-300 space-y-1">
+                  <li>• <code className="text-cyan-300">read_file</code> - 读取文件</li>
+                  <li>• <code className="text-cyan-300">read_many_files</code> - 批量读取</li>
+                  <li>• <code className="text-cyan-300">glob</code> - 文件匹配</li>
+                  <li>• <code className="text-cyan-300">grep_search</code> - 内容搜索</li>
+                  <li>• <code className="text-cyan-300">web_search</code> - 网页搜索</li>
+                  <li>• <code className="text-cyan-300">web_fetch</code> - 获取网页</li>
+                  <li>• <code className="text-cyan-300">todo_write</code> - 任务管理</li>
+                </ul>
+              </div>
+
+              <div className="bg-gray-800/50 rounded-lg p-4">
+                <h5 className="font-semibold text-yellow-400 mb-2">需确认类 (Kind: Edit/Execute)</h5>
+                <ul className="text-sm text-gray-300 space-y-1">
+                  <li>• <code className="text-orange-300">write_file</code> - 写入文件</li>
+                  <li>• <code className="text-orange-300">edit</code> - 编辑文件</li>
+                  <li>• <code className="text-orange-300">run_shell_command</code> - 执行命令</li>
+                  <li>• <code className="text-orange-300">notebook_edit</code> - 编辑笔记本</li>
+                  <li>• <code className="text-orange-300">MCP 工具</code> - 外部服务器工具</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="text-cyan-400 font-semibold mb-2">用户确认结果类型</h4>
+            <CodeBlock code={toolConfirmationCode} language="typescript" title="ToolConfirmationOutcome 枚举" />
+            <div className="mt-3 bg-gray-800/50 rounded-lg p-4">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-gray-400 border-b border-gray-700">
+                    <th className="text-left p-2">确认结果</th>
+                    <th className="text-left p-2">行为</th>
+                  </tr>
+                </thead>
+                <tbody className="text-gray-300">
+                  <tr className="border-b border-gray-700/50">
+                    <td className="p-2"><code className="text-cyan-300">ProceedOnce</code></td>
+                    <td className="p-2">批准一次，仅执行当前工具调用</td>
+                  </tr>
+                  <tr className="border-b border-gray-700/50">
+                    <td className="p-2"><code className="text-green-300">ProceedAlways</code></td>
+                    <td className="p-2">总是批准此工具（加入 allowedTools）</td>
+                  </tr>
+                  <tr className="border-b border-gray-700/50">
+                    <td className="p-2"><code className="text-blue-300">ProceedAlwaysServer</code></td>
+                    <td className="p-2">总是批准此 MCP 服务器的所有工具</td>
+                  </tr>
+                  <tr className="border-b border-gray-700/50">
+                    <td className="p-2"><code className="text-purple-300">ProceedAlwaysTool</code></td>
+                    <td className="p-2">总是批准此类型的工具</td>
+                  </tr>
+                  <tr className="border-b border-gray-700/50">
+                    <td className="p-2"><code className="text-yellow-300">ModifyWithEditor</code></td>
+                    <td className="p-2">用外部编辑器修改参数后批准</td>
+                  </tr>
+                  <tr>
+                    <td className="p-2"><code className="text-red-300">Cancel</code></td>
+                    <td className="p-2">取消执行</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      {/* 7. 失败与恢复 */}
+      <Layer title="失败与恢复" icon="🔧">
+        <div className="space-y-4">
+          <div>
+            <h4 className="text-cyan-400 font-semibold mb-2">失败场景</h4>
+            <div className="bg-gray-800/50 rounded-lg p-4 space-y-3">
+              <div>
+                <h5 className="text-yellow-400 font-semibold mb-1">场景 1：不可信文件夹尝试切换高权限模式</h5>
+                <ul className="text-sm text-gray-300 list-disc list-inside ml-4">
+                  <li>
+                    <strong>错误</strong>：<code className="bg-black/30 px-1 rounded text-red-300">Cannot enable privileged approval modes in an untrusted folder.</code>
+                  </li>
+                  <li><strong>恢复</strong>：将文件夹标记为可信，或继续使用 PLAN/DEFAULT 模式</li>
+                </ul>
+              </div>
+
+              <div>
+                <h5 className="text-yellow-400 font-semibold mb-1">场景 2：Plan Mode 阻断修改类工具</h5>
+                <ul className="text-sm text-gray-300 list-disc list-inside ml-4">
+                  <li><strong>行为</strong>：工具调用标记为 error，返回 Plan Mode 系统提示</li>
+                  <li><strong>恢复</strong>：AI 停止使用修改工具，通过 <code>exit_plan_mode</code> 提交计划后切换模式</li>
+                </ul>
+              </div>
+
+              <div>
+                <h5 className="text-yellow-400 font-semibold mb-1">场景 3：用户取消工具执行</h5>
+                <ul className="text-sm text-gray-300 list-disc list-inside ml-4">
+                  <li><strong>行为</strong>：工具调用标记为 cancelled，不执行操作</li>
+                  <li><strong>恢复</strong>：AI 收到 cancelled 响应，可以提出替代方案或询问用户意图</li>
+                </ul>
+              </div>
+
+              <div>
+                <h5 className="text-yellow-400 font-semibold mb-1">场景 4：allowedTools 白名单不匹配</h5>
+                <ul className="text-sm text-gray-300 list-disc list-inside ml-4">
+                  <li><strong>行为</strong>：触发用户确认流程</li>
+                  <li><strong>恢复</strong>：用户可选择"总是批准"将工具加入白名单</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="text-cyan-400 font-semibold mb-2">降级策略</h4>
+            <HighlightBox title="自动降级机制" variant="blue">
+              <div className="text-sm space-y-2">
+                <p className="text-gray-300">
+                  当进入不可信文件夹时，如果当前模式为 AUTO_EDIT 或 YOLO，系统会自动降级到 DEFAULT 模式，
+                  确保用户仍能正常工作，同时保持必要的安全审批。
+                </p>
+                <div className="mt-2 bg-black/30 rounded p-2">
+                  <code className="text-cyan-300">YOLO/AUTO_EDIT</code>
+                  <span className="text-gray-400"> → 进入不可信文件夹 → </span>
+                  <code className="text-blue-300">DEFAULT</code>
+                </div>
+              </div>
+            </HighlightBox>
+          </div>
+
+          <div>
+            <h4 className="text-cyan-400 font-semibold mb-2">Plan Mode 退出机制</h4>
+            <CodeBlock
+              code={`// packages/core/src/tools/exitPlanMode.ts
+
+// exit_plan_mode 工具：提交计划并退出 Plan Mode
+export class ExitPlanModeTool extends Tool {
+  static readonly Name = 'exit_plan_mode';
+
+  static readonly FUNCTION_DECLARATION = {
+    name: 'exit_plan_mode',
+    description:
+      'Exit plan mode and present a summary of the implementation plan.',
+    parameters: {
+      type: 'object',
+      properties: {
+        plan: {
+          type: 'string',
+          description: 'The implementation plan to present to the user.',
+        },
+      },
+      required: ['plan'],
+    },
+  };
+
+  async run(): Promise<ToolResult> {
+    // 1. 将 AI 提交的计划展示给用户
+    // 2. 等待用户确认
+    // 3. 确认后切换回 Default 模式并执行计划
+    return {
+      output: 'Plan submitted for user approval.',
+    };
+  }
+}`}
+              language="typescript"
+              title="exit_plan_mode 工具实现"
+            />
+          </div>
+        </div>
+      </Layer>
+
+      {/* 8. 相关配置项 */}
+      <Layer title="相关配置项" icon="⚙️">
+        <div className="space-y-4">
+          <div>
+            <h4 className="text-cyan-400 font-semibold mb-2">审批模式配置</h4>
+            <CodeBlock
+              code={`// .innies/settings.json
+
+{
+  // 默认审批模式（会话启动时的初始模式）
+  "approvalMode": "default", // "plan" | "default" | "auto-edit" | "yolo"
+
+  // 文件夹信任配置
+  "trustedFolders": [
+    "/Users/username/trusted-project",
+    "/Users/username/work/*"
+  ]
+}`}
+              language="json"
+              title="审批模式配置"
+            />
+          </div>
+
+          <div>
+            <h4 className="text-cyan-400 font-semibold mb-2">allowedTools 白名单配置</h4>
+            <CodeBlock code={allowedToolsCode} language="json" title="settings.json 工具白名单配置" />
+            <div className="mt-3 bg-gray-800/50 rounded-lg p-4">
+              <h5 className="font-semibold text-cyan-400 mb-3">白名单匹配示例</h5>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-gray-400 border-b border-gray-700">
+                    <th className="text-left p-2">配置模式</th>
+                    <th className="text-left p-2">匹配行为</th>
+                    <th className="text-left p-2">示例</th>
+                  </tr>
+                </thead>
+                <tbody className="text-gray-300">
+                  <tr className="border-b border-gray-700/50">
+                    <td className="p-2"><code className="text-cyan-300">read_file</code></td>
+                    <td className="p-2">精确匹配工具名称</td>
+                    <td className="p-2">允许所有 read_file 调用</td>
+                  </tr>
+                  <tr className="border-b border-gray-700/50">
+                    <td className="p-2"><code className="text-cyan-300">run_shell_command(git)</code></td>
+                    <td className="p-2">匹配工具名 + 命令前缀</td>
+                    <td className="p-2">只允许 <code>git status</code>, <code>git diff</code> 等</td>
+                  </tr>
+                  <tr>
+                    <td className="p-2"><code className="text-cyan-300">run_shell_command(npm test)</code></td>
+                    <td className="p-2">匹配工具名 + 精确命令</td>
+                    <td className="p-2">只允许 <code>npm test</code></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="text-cyan-400 font-semibold mb-2">快捷键配置</h4>
+            <CodeBlock code={keyboardShortcutsCode} language="text" title="审批相关快捷键" />
+            <div className="mt-3 bg-gray-800/50 rounded-lg p-4">
+              <h5 className="font-semibold text-cyan-400 mb-3">工具确认对话框操作</h5>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-gray-400 border-b border-gray-700">
+                    <th className="text-left p-2">快捷键</th>
+                    <th className="text-left p-2">操作</th>
+                    <th className="text-left p-2">说明</th>
+                  </tr>
+                </thead>
+                <tbody className="text-gray-300">
+                  <tr className="border-b border-gray-700/50">
+                    <td className="p-2"><kbd className="px-2 py-1 bg-gray-700 rounded">y</kbd> / <kbd className="px-2 py-1 bg-gray-700 rounded">Enter</kbd></td>
+                    <td className="p-2 text-green-400">批准</td>
+                    <td className="p-2">执行当前工具调用</td>
+                  </tr>
+                  <tr className="border-b border-gray-700/50">
+                    <td className="p-2"><kbd className="px-2 py-1 bg-gray-700 rounded">n</kbd> / <kbd className="px-2 py-1 bg-gray-700 rounded">Esc</kbd></td>
+                    <td className="p-2 text-red-400">拒绝</td>
+                    <td className="p-2">取消工具执行</td>
+                  </tr>
+                  <tr className="border-b border-gray-700/50">
+                    <td className="p-2"><kbd className="px-2 py-1 bg-gray-700 rounded">e</kbd></td>
+                    <td className="p-2 text-yellow-400">编辑</td>
+                    <td className="p-2">修改工具参数后执行</td>
+                  </tr>
+                  <tr>
+                    <td className="p-2"><kbd className="px-2 py-1 bg-gray-700 rounded">a</kbd></td>
+                    <td className="p-2 text-blue-400">全部批准</td>
+                    <td className="p-2">批准所有待执行的工具</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      {/* 补充：四种模式详细对比表 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">四种审批模式详细对比</h3>
         <div className="overflow-x-auto">
@@ -386,7 +834,7 @@ In plan mode:
         </p>
       </section>
 
-      {/* Plan Mode */}
+      {/* 补充：Plan Mode 工作流可视化 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">Plan Mode 工作流</h3>
         <p className="text-gray-300 mb-4">
@@ -394,7 +842,6 @@ In plan mode:
           不执行任何可能修改系统的操作。
         </p>
 
-        {/* Plan Mode 生命周期 */}
         <div className="bg-gray-800/50 rounded-lg p-4 mb-4">
           <h4 className="text-purple-400 font-semibold mb-3">Plan Mode 生命周期</h4>
           <div className="flex items-center justify-center gap-4 text-sm flex-wrap">
@@ -423,8 +870,6 @@ In plan mode:
           </div>
         </div>
 
-        <CodeBlock code={planModePromptCode} language="typescript" title="Plan Mode 系统提示" />
-
         <HighlightBox title="Plan Mode 行为" variant="purple">
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
@@ -447,161 +892,6 @@ In plan mode:
             </div>
           </div>
         </HighlightBox>
-
-        <CodeBlock
-          code={`// packages/core/src/tools/exitPlanMode.ts
-
-// exit_plan_mode 工具：提交计划并退出 Plan Mode
-export class ExitPlanModeTool extends Tool {
-  static readonly Name = 'exit_plan_mode';
-
-  static readonly FUNCTION_DECLARATION = {
-    name: 'exit_plan_mode',
-    description:
-      'Exit plan mode and present a summary of the implementation plan.',
-    parameters: {
-      type: 'object',
-      properties: {
-        plan: {
-          type: 'string',
-          description: 'The implementation plan to present to the user.',
-        },
-      },
-      required: ['plan'],
-    },
-  };
-
-  async run(): Promise<ToolResult> {
-    // 1. 将 AI 提交的计划展示给用户
-    // 2. 等待用户确认
-    // 3. 确认后切换回 Default 模式并执行计划
-    return {
-      output: 'Plan submitted for user approval.',
-    };
-  }
-}`}
-          language="typescript"
-          title="exit_plan_mode 工具定义"
-        />
-      </section>
-
-      {/* 安全限制 */}
-      <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">安全限制</h3>
-        <CodeBlock code={setApprovalModeCode} language="typescript" title="不可信文件夹限制" />
-
-        <HighlightBox title="不可信文件夹限制" variant="red">
-          <p className="text-sm text-gray-300">
-            在未被信任的文件夹中，只能使用 <code className="text-purple-300">plan</code> 或{' '}
-            <code className="text-blue-300">default</code> 模式。
-            尝试切换到 <code className="text-green-300">auto-edit</code> 或{' '}
-            <code className="text-red-300">yolo</code> 会抛出错误。
-            这是为了防止恶意项目自动执行危险操作。
-          </p>
-        </HighlightBox>
-      </section>
-
-      {/* 工具白名单 */}
-      <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">工具白名单配置</h3>
-        <p className="text-gray-300 mb-4">
-          通过 <code>allowedTools</code> 配置，可以精确控制哪些工具可以自动执行。
-        </p>
-        <CodeBlock code={allowedToolsCode} language="json" title="settings.json 工具配置" />
-      </section>
-
-      {/* 快捷键 */}
-      <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">快捷键</h3>
-        <CodeBlock code={keyboardShortcutsCode} language="text" title="审批相关快捷键" />
-
-        <div className="mt-4 bg-gray-800/50 rounded-lg p-4">
-          <h4 className="font-semibold text-cyan-400 mb-3">工具确认对话框操作</h4>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-gray-400 border-b border-gray-700">
-                <th className="text-left p-2">快捷键</th>
-                <th className="text-left p-2">操作</th>
-                <th className="text-left p-2">说明</th>
-              </tr>
-            </thead>
-            <tbody className="text-gray-300">
-              <tr className="border-b border-gray-700/50">
-                <td className="p-2"><kbd className="px-2 py-1 bg-gray-700 rounded">y</kbd> / <kbd className="px-2 py-1 bg-gray-700 rounded">Enter</kbd></td>
-                <td className="p-2 text-green-400">批准</td>
-                <td className="p-2">执行当前工具调用</td>
-              </tr>
-              <tr className="border-b border-gray-700/50">
-                <td className="p-2"><kbd className="px-2 py-1 bg-gray-700 rounded">n</kbd> / <kbd className="px-2 py-1 bg-gray-700 rounded">Esc</kbd></td>
-                <td className="p-2 text-red-400">拒绝</td>
-                <td className="p-2">取消工具执行</td>
-              </tr>
-              <tr className="border-b border-gray-700/50">
-                <td className="p-2"><kbd className="px-2 py-1 bg-gray-700 rounded">e</kbd></td>
-                <td className="p-2 text-yellow-400">编辑</td>
-                <td className="p-2">修改工具参数后执行</td>
-              </tr>
-              <tr>
-                <td className="p-2"><kbd className="px-2 py-1 bg-gray-700 rounded">a</kbd></td>
-                <td className="p-2 text-blue-400">全部批准</td>
-                <td className="p-2">批准所有待执行的工具</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      {/* 架构图 */}
-      <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">审批系统架构</h3>
-        <div className="bg-gray-800/50 rounded-lg p-6">
-          <pre className="text-sm text-gray-300 overflow-x-auto">
-{`┌─────────────────────────────────────────────────────────────────┐
-│                         CLI 主循环                               │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │              AI Response (Tool Calls)                   │    │
-│  └───────────────────────┬─────────────────────────────────┘    │
-│                          │                                       │
-│                          ▼                                       │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │              CoreToolScheduler                          │    │
-│  │                                                         │    │
-│  │  ┌──────────┐   ┌──────────┐   ┌──────────┐            │    │
-│  │  │ Validate │──▶│ Decide   │──▶│ Execute  │            │    │
-│  │  │ Params   │   │ Approval │   │ or Wait  │            │    │
-│  │  └──────────┘   └────┬─────┘   └──────────┘            │    │
-│  │                      │                                  │    │
-│  └──────────────────────┼──────────────────────────────────┘    │
-│                         │                                        │
-│                         ▼                                        │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │              ApprovalMode Check                         │    │
-│  │                                                         │    │
-│  │   ┌────────┐  ┌─────────┐  ┌───────────┐  ┌──────┐     │    │
-│  │   │  plan  │  │ default │  │ auto-edit │  │ yolo │     │    │
-│  │   │ BLOCK  │  │ CONFIRM │  │ AUTO-EDIT │  │ AUTO │     │    │
-│  │   └────────┘  └─────────┘  └───────────┘  └──────┘     │    │
-│  │                                                         │    │
-│  └─────────────────────────────────────────────────────────┘    │
-│                                                                  │
-│  ┌─────────────────────────────────────────────────────────┐    │
-│  │              ToolConfirmation UI                        │    │
-│  │                                                         │    │
-│  │  ┌────────────────────────────────────────────────┐    │    │
-│  │  │  工具: Edit                                     │    │    │
-│  │  │  文件: src/app.ts                              │    │    │
-│  │  │  ─────────────────────────────────────────────  │    │    │
-│  │  │  - old line                                     │    │    │
-│  │  │  + new line                                     │    │    │
-│  │  │  ─────────────────────────────────────────────  │    │    │
-│  │  │  [y] 批准  [n] 拒绝  [e] 编辑  [a] 全部批准     │    │    │
-│  │  └────────────────────────────────────────────────┘    │    │
-│  │                                                         │    │
-│  └─────────────────────────────────────────────────────────┘    │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘`}
-          </pre>
-        </div>
       </section>
 
       {/* 最佳实践 */}
@@ -627,41 +917,6 @@ export class ExitPlanModeTool extends Tool {
               <li>✗ 忽略安全警告</li>
               <li>✗ 在生产环境使用 yolo 模式</li>
             </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* 源码位置 */}
-      <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">源码位置</h3>
-        <div className="text-sm space-y-2">
-          <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/config/config.ts:102-107</code>
-            <span className="text-gray-400">ApprovalMode 枚举定义</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/tools/tools.ts:584-594</code>
-            <span className="text-gray-400">Kind 枚举 (Read/Edit/Execute等)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/tools/tools.ts:597-602</code>
-            <span className="text-gray-400">MUTATOR_KINDS 数组</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/core/prompts.ts</code>
-            <span className="text-gray-400">getPlanModeSystemReminder()</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/tools/exitPlanMode.ts</code>
-            <span className="text-gray-400">ExitPlanModeTool 实现</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/core/coreToolScheduler.ts</code>
-            <span className="text-gray-400">工具调度与审批逻辑</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/cli/src/ui/commands/approvalModeCommand.ts</code>
-            <span className="text-gray-400">/approval 命令实现</span>
           </div>
         </div>
       </section>

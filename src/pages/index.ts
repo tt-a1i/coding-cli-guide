@@ -34,3 +34,4 @@ export * from './VisionModelSwitch';
 export * from './IDEIntegration';
 export * from './StartupChain';
 export * from './InteractionLoop';
+export * from './ToolSchedulerDetails';
