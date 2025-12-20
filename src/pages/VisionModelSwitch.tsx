@@ -25,7 +25,7 @@ export function VisionModelSwitch() {
     check_auth --> is_qwen
     is_qwen -->|No| proceed
     is_qwen -->|Yes| check_model
-    check_model -->|Yes (已是VLM)| proceed
+    check_model -->|Yes| proceed
     check_model -->|No| check_format
     check_format --> format_ok
     format_ok -->|No| show_warning
@@ -36,13 +36,13 @@ export function VisionModelSwitch() {
     auto_switch --> proceed
     show_dialog --> proceed
 
-    style start fill:#22d3ee,color:#000
-    style proceed fill:#22c55e,color:#000
-    style has_image fill:#f59e0b,color:#000
-    style is_qwen fill:#f59e0b,color:#000
-    style check_model fill:#f59e0b,color:#000
-    style format_ok fill:#f59e0b,color:#000
-    style check_yolo fill:#f59e0b,color:#000`;
+    classDef decision fill:#f59e0b,color:#000,stroke:#d97706;
+    classDef start fill:#22d3ee,color:#000,stroke:#06b6d4;
+    classDef terminal fill:#22c55e,color:#000,stroke:#16a34a;
+
+    class start start
+    class proceed terminal
+    class has_image,is_qwen,check_model,format_ok,check_yolo decision`;
 
   const imageDetectionCode = `// 检测消息是否包含图片
 // packages/cli/src/ui/hooks/useVisionAutoSwitch.ts
