@@ -131,6 +131,113 @@ export function ToolReference() {
         </div>
       </Layer>
 
+      {/* 工具来源说明 */}
+      <Layer title="工具来源说明" icon="🔍">
+        <div className="space-y-4">
+          <p className="text-gray-300">
+            Innies CLI 的工具系统由三种来源组成,提供了从核心功能到动态扩展的完整能力：
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <HighlightBox title="Core 内置工具 (14个)" variant="blue">
+              <div className="text-sm space-y-2">
+                <p className="text-gray-300 font-semibold">来源: config.ts:1092-1178</p>
+                <p className="text-gray-400 text-xs mb-2">
+                  在 <code className="text-cyan-300">createToolRegistry()</code> 中注册的所有核心工具
+                </p>
+                <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
+                  <div className="text-gray-400">• <code className="text-cyan-300">TaskTool</code> - 子任务委托</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">LSTool</code> - 列出目录</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">ReadFileTool</code> - 读取文件</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">ReadManyFilesTool</code> - 批量读取</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">GrepTool</code> - 内容搜索</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">RipGrepTool</code> - 快速搜索*</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">GlobTool</code> - 文件匹配</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">EditTool</code> - 编辑文件</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">SmartEditTool</code> - 智能编辑*</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">WriteFileTool</code> - 写入文件</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">ShellTool</code> - 执行命令</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">MemoryTool</code> - 保存记忆</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">TodoWriteTool</code> - 待办事项</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">ExitPlanModeTool</code> - 退出计划</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">WebFetchTool</code> - 网页获取</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">WebSearchTool</code> - 网页搜索*</div>
+                </div>
+                <p className="text-yellow-300 text-xs mt-2">
+                  * 条件注册: RipGrep/Grep、SmartEdit/Edit 二选一；WebSearch 需配置
+                </p>
+              </div>
+            </HighlightBox>
+
+            <HighlightBox title="tool-names.ts 常量" variant="green">
+              <div className="text-sm space-y-2">
+                <p className="text-gray-300 font-semibold">来源: tool-names.ts</p>
+                <p className="text-gray-400 text-xs mb-2">
+                  核心工具名称常量（非完整工具列表）
+                </p>
+                <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
+                  <div className="text-gray-400">• <code className="text-cyan-300">edit</code></div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">write_file</code></div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">read_file</code></div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">read_many_files</code></div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">grep_search</code></div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">glob</code></div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">run_shell_command</code></div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">todo_write</code></div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">save_memory</code></div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">task</code></div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">exit_plan_mode</code></div>
+                </div>
+                <p className="text-yellow-300 text-xs mt-2">
+                  注意: LSTool、WebFetchTool 等未在此定义
+                </p>
+              </div>
+            </HighlightBox>
+
+            <HighlightBox title="动态工具" variant="purple">
+              <div className="text-sm space-y-2">
+                <p className="text-gray-300 font-semibold">MCP + Extensions</p>
+                <p className="text-gray-400">
+                  通过 MCP 协议和扩展系统动态注册的工具
+                </p>
+                <ul className="space-y-1 text-gray-400 text-xs">
+                  <li>• <strong>MCP 工具</strong> - 通过 Model Context Protocol 动态注册</li>
+                  <li>• <strong>Discovered 工具</strong> - 运行时发现的扩展工具</li>
+                </ul>
+                <p className="text-purple-300 text-xs mt-2">
+                  这些工具在运行时根据配置和环境动态加载
+                </p>
+              </div>
+            </HighlightBox>
+          </div>
+
+          <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
+            <h4 className="text-blue-300 font-semibold mb-2">工具来源架构图</h4>
+            <div className="text-xs text-gray-400 font-mono space-y-1">
+              <div className="flex items-center space-x-2">
+                <span className="text-blue-400">📦 Static</span>
+                <span>→ tool-names.ts 定义的核心工具 (编译时确定)</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-green-400">🔧 Built-in</span>
+                <span>→ 其他内建工具 (运行时注册, 非 ToolNames)</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span className="text-purple-400">🔌 Dynamic</span>
+                <span>→ MCP + Extensions (运行时动态加载)</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-3">
+            <p className="text-sm text-yellow-300">
+              <strong>重要提示：</strong> <code>tool-names.ts</code> 定义的是核心工具常量,
+              但不是工具系统的唯一来源。实际可用工具还包括内建工具和动态加载的 MCP 工具。
+            </p>
+          </div>
+        </div>
+      </Layer>
+
       {/* 📥 输入 */}
       <Layer title="输入" icon="📥">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -208,7 +315,7 @@ export function ToolReference() {
             <div className="text-xs font-mono space-y-1 text-gray-400">
               <div className="flex justify-between">
                 <code>packages/core/src/tools/tool-names.ts</code>
-                <span className="text-purple-400">工具名称常量</span>
+                <span className="text-purple-400">核心工具名称常量</span>
               </div>
               <div className="flex justify-between">
                 <code>packages/core/src/tools/tools.ts:584</code>
@@ -218,6 +325,9 @@ export function ToolReference() {
                 <code>packages/core/src/tools/tools.ts:1-500</code>
                 <span className="text-purple-400">工具基类和接口</span>
               </div>
+            </div>
+            <div className="mt-2 text-xs text-yellow-300">
+              注: tool-names.ts 定义核心工具,另有内建工具和 MCP 动态工具
             </div>
           </div>
 
@@ -356,6 +466,39 @@ export function ToolReference() {
               <li>• 路径必须为绝对路径 → <code className="text-red-400">error: Path must be absolute</code></li>
             </ul>
           </HighlightBox>
+
+          <HighlightBox title="⚠️ edit vs replace 命名不一致" variant="yellow">
+            <div className="text-sm space-y-2">
+              <p className="text-yellow-200">
+                <strong>已知问题：</strong> Core 层定义的工具名是 <code className="text-cyan-300">edit</code>，
+                但 CLI 层在某些逻辑中使用了 <code className="text-orange-300">replace</code>。
+              </p>
+              <div>
+                <h5 className="font-semibold text-yellow-300 mb-1">具体表现</h5>
+                <ul className="space-y-1 text-gray-300">
+                  <li>• <strong>Core 定义：</strong> <code className="text-cyan-300">ToolNames.EDIT = 'edit'</code></li>
+                  <li>• <strong>CLI 使用：</strong> <code className="text-orange-300">EDIT_TOOL_NAMES = new Set(['replace', 'write_file'])</code></li>
+                </ul>
+              </div>
+              <div>
+                <h5 className="font-semibold text-yellow-300 mb-1">影响功能</h5>
+                <ul className="space-y-1 text-gray-300">
+                  <li>• <strong>AUTO_EDIT 模式：</strong> 自动批准 <code>replace</code> 而非 <code>edit</code></li>
+                  <li>• <strong>Checkpointing：</strong> 监听 <code>replace</code> 的状态变化</li>
+                </ul>
+              </div>
+              <div className="bg-yellow-900/20 border border-yellow-600/30 rounded p-2 mt-2">
+                <p className="text-xs text-yellow-200">
+                  <strong>源码位置：</strong>
+                  <br />• packages/core/src/tools/tool-names.ts:13
+                  <br />• packages/cli/src/ui/hooks/useGeminiStream.ts:75
+                </p>
+              </div>
+              <p className="text-yellow-200 mt-2">
+                <strong>建议：</strong> 在实际使用时，确认 AI 模型返回的工具调用名称与预期一致。
+              </p>
+            </div>
+          </HighlightBox>
         </div>
       </Layer>
 
@@ -469,9 +612,10 @@ To exit Plan Mode, use the exit_plan_mode tool.
       </Layer>
 
       {/* 工具名称常量表 */}
-      <Layer title="工具名称常量表 (ToolNames)" icon="🏷️">
+      <Layer title="核心工具名称常量表 (ToolNames)" icon="🏷️">
         <p className="text-gray-300 mb-4">
           来源: <code className="text-cyan-400">packages/core/src/tools/tool-names.ts</code>
+          <span className="text-yellow-400 ml-2">(核心工具定义,非全部工具)</span>
         </p>
 
         <div className="overflow-x-auto">
@@ -571,6 +715,19 @@ To exit Plan Mode, use the exit_plan_mode tool.
   EXIT_PLAN_MODE: 'exit_plan_mode',
 } as const;`}
         />
+
+        <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-3 mt-4">
+          <p className="text-sm text-blue-300">
+            <strong>补充说明：</strong> 除了上述核心工具外，系统还包括:
+          </p>
+          <ul className="text-xs text-gray-400 mt-2 space-y-1 ml-4">
+            <li>• <code className="text-cyan-300">list_directory</code> - 内建目录列表工具</li>
+            <li>• <code className="text-cyan-300">web_fetch</code> - 内建网页获取工具</li>
+            <li>• <code className="text-cyan-300">web_search</code> - 内建网页搜索工具 (可选)</li>
+            <li>• MCP 工具 - 通过 Model Context Protocol 动态注册的工具</li>
+            <li>• Extension 工具 - 运行时发现的扩展工具</li>
+          </ul>
+        </div>
       </Layer>
 
       {/* 工具参数 Schema 详解 */}

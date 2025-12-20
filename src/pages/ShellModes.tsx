@@ -253,7 +253,17 @@ export function ShellModes() {
               </div>
               <div>
                 <strong>AI 上下文:</strong>
-                <p>可选将命令和输出添加到 Gemini 历史记录</p>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>命令和输出会写入 LLM 对话历史</li>
+                  <li>用于保持 AI 对执行上下文的理解</li>
+                </ul>
+              </div>
+              <div>
+                <strong>特殊行为:</strong>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li>执行 <code>cd</code> 命令后会显示"工作目录变更不持久"警告</li>
+                  <li>提醒用户交互式 Shell 的目录变更不会影响后续命令</li>
+                </ul>
               </div>
             </div>
           </div>

@@ -119,7 +119,7 @@ export enum VisionSwitchOutcome {
 export function processVisionSwitchOutcome(
   outcome: VisionSwitchOutcome,
 ): VisionSwitchResult {
-  const vlModelId = getDefaultVisionModel(); // qwen3-vl-plus
+  const vlModelId = getDefaultVisionModel(); // 返回 'vision-model' (别名，映射到 qwen3-vl-plus-2025-09-23)
 
   switch (outcome) {
     case VisionSwitchOutcome.SwitchOnce:
@@ -453,12 +453,24 @@ function checkImageFormatsSupport(parts: PartListUnion): {
               </tr>
               <tr>
                 <td className="p-2 font-semibold">Qwen Vision</td>
-                <td className="p-2"><code>qwen3-vl-plus</code></td>
+                <td className="p-2"><code>vision-model</code></td>
                 <td className="p-2 text-green-400">✓</td>
-                <td className="p-2">Vision 模型，支持图片分析</td>
+                <td className="p-2">Vision 模型别名，映射到 qwen3-vl-plus-2025-09-23</td>
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <div className="mt-4">
+          <HighlightBox title="模型别名说明" variant="blue">
+            <p className="text-sm text-gray-300 mb-2">
+              <code className="text-cyan-400">vision-model</code> 是一个别名，会自动映射到最新的 Qwen Vision 模型版本。
+              使用别名的好处是无需手动更新配置即可使用最新模型。
+            </p>
+            <p className="text-sm text-gray-400">
+              当前映射：<code className="text-cyan-400">vision-model</code> → <code>qwen3-vl-plus-2025-09-23</code>
+            </p>
+          </HighlightBox>
         </div>
       </section>
 

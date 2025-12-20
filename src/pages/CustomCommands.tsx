@@ -84,12 +84,16 @@ export function CustomCommands() {
     parse[解析命令内容<br/>平衡花括号]
     replace_args[替换 {{'{'}args{'}'}}<br/>为转义后的参数]
     check_allow[checkCommandPermissions]
-    is_blocklist{在 blocklist?}
+    is_blocklist{在 tools.exclude?}
     hard_deny[硬拒绝<br/>抛出错误]
-    is_allowlist{在 allowlist?}
+    is_core_wildcard{tools.core 包含<br/>Bash/run_shell_command?}
+    auto_allow[自动允许]
+    is_global_allowlist{在 tools.core<br/>run_shell_command 列表?}
+    is_session_allowlist{在 sessionShellAllowlist?}
     is_yolo{YOLO 模式?}
     confirm_dialog[弹出确认对话框]
     user_approve{用户批准?}
+    add_session[添加到 sessionShellAllowlist]
     execute[执行 Shell 命令]
     inject[注入输出到 prompt]
     user_cancel[抛出取消错误]
@@ -99,14 +103,20 @@ export function CustomCommands() {
     replace_args --> check_allow
     check_allow --> is_blocklist
     is_blocklist -->|Yes| hard_deny
-    is_blocklist -->|No| is_allowlist
-    is_allowlist -->|Yes| execute
-    is_allowlist -->|No| is_yolo
+    is_blocklist -->|No| is_core_wildcard
+    is_core_wildcard -->|Yes| auto_allow
+    is_core_wildcard -->|No| is_global_allowlist
+    is_global_allowlist -->|Yes| execute
+    is_global_allowlist -->|No| is_session_allowlist
+    is_session_allowlist -->|Yes| execute
+    is_session_allowlist -->|No| is_yolo
     is_yolo -->|Yes| execute
     is_yolo -->|No| confirm_dialog
     confirm_dialog --> user_approve
-    user_approve -->|Yes| execute
+    user_approve -->|Yes| add_session
     user_approve -->|No| user_cancel
+    auto_allow --> execute
+    add_session --> execute
     execute --> inject
 
     style start fill:#22d3ee,color:#000
@@ -114,10 +124,13 @@ export function CustomCommands() {
     style hard_deny fill:#ef4444,color:#fff
     style user_cancel fill:#ef4444,color:#fff
     style is_blocklist fill:#a855f7,color:#fff
-    style is_allowlist fill:#a855f7,color:#fff
+    style is_core_wildcard fill:#a855f7,color:#fff
+    style is_global_allowlist fill:#a855f7,color:#fff
+    style is_session_allowlist fill:#a855f7,color:#fff
     style is_yolo fill:#a855f7,color:#fff
     style user_approve fill:#a855f7,color:#fff
-    style confirm_dialog fill:#f59e0b,color:#fff`;
+    style confirm_dialog fill:#f59e0b,color:#fff
+    style auto_allow fill:#22c55e,color:#fff`;
 
   return (
     <div>
@@ -418,7 +431,7 @@ fatal: not a git repository (or any of the parent directories): .git`}
             <h5 className="text-md text-purple-400 font-semibold mb-2">4. Blocklist 命令</h5>
             <HighlightBox variant="red">
               <p className="text-sm text-gray-300 mb-2">
-                <strong>错误场景：</strong>Shell 命令匹配 blockedCommands 列表
+                <strong>错误场景：</strong>Shell 命令匹配 <code>tools.exclude</code> 列表
               </p>
               <p className="text-sm text-gray-300">
                 <strong>恢复策略：</strong>硬拒绝，抛出错误，阻止命令执行
@@ -453,7 +466,35 @@ if (!allAllowed && isHardDenial) {
 
       {/* 相关配置项 */}
       <Layer title="相关配置项" icon="⚙️">
-        <h4 className="text-lg text-cyan-400 font-bold mb-3">安全配置</h4>
+        <h4 className="text-lg text-cyan-400 font-bold mb-3">Shell 命令权限检查机制</h4>
+        <HighlightBox title="权限检查流程" icon="🔒" variant="purple">
+          <p className="text-sm text-gray-300 mb-3">
+            Shell 命令注入通过三层安全机制保护：<code>tools.exclude</code>（全局阻止列表）、
+            <code>tools.core</code>（全局允许列表）、<code>sessionShellAllowlist</code>（会话允许列表）
+          </p>
+          <div className="space-y-2 text-sm text-gray-300">
+            <div className="bg-red-500/10 border border-red-500/30 rounded p-3">
+              <strong className="text-red-400">1. tools.exclude（最高优先级）</strong>
+              <p className="mt-1">包含 <code>run_shell_command(pattern)</code> 形式的阻止规则，匹配的命令<strong>硬拒绝</strong>，无法通过确认对话框绕过</p>
+            </div>
+            <div className="bg-green-500/10 border border-green-500/30 rounded p-3">
+              <strong className="text-green-400">2. tools.core（全局允许列表）</strong>
+              <p className="mt-1">
+                包含 <code>Bash</code> 或 <code>run_shell_command(pattern)</code> 形式的允许规则：
+              </p>
+              <ul className="list-disc pl-5 mt-1 space-y-1">
+                <li><code>Bash</code> 通配符：允许所有 Shell 命令（自动通过）</li>
+                <li>具体模式：如 <code>run_shell_command(git *)</code> 允许所有 git 命令</li>
+              </ul>
+            </div>
+            <div className="bg-cyan-500/10 border border-cyan-500/30 rounded p-3">
+              <strong className="text-cyan-400">3. sessionShellAllowlist（会话允许列表）</strong>
+              <p className="mt-1">运行时动态维护，用户通过确认对话框批准的命令会添加到此列表，会话期间无需重复确认</p>
+            </div>
+          </div>
+        </HighlightBox>
+
+        <h4 className="text-lg text-cyan-400 font-bold mb-3 mt-5">安全配置</h4>
         <CodeBlock
           title="~/.innies/config.toml"
           code={`# 工作区信任
@@ -462,16 +503,19 @@ enabled = true  # 启用工作区信任检查
 
 # Shell 命令安全
 [tools]
-allowed = [
-    "git",
-    "npm test",
-    "ls"
+# 全局允许列表 (支持通配符和具体命令)
+core = [
+    "Bash",                        # 允许所有 Shell 命令 (通配符)
+    "run_shell_command(git *)",    # 允许所有 git 命令
+    "run_shell_command(npm test)", # 允许特定命令
+    "run_shell_command(ls *)"      # 允许 ls 及其参数
 ]
 
-blockedCommands = [
-    "rm -rf",
-    "dd",
-    "mkfs"
+# 全局阻止列表 (硬拒绝)
+exclude = [
+    "run_shell_command(rm -rf *)", # 阻止危险删除
+    "run_shell_command(dd *)",     # 阻止磁盘操作
+    "run_shell_command(mkfs *)"    # 阻止格式化
 ]
 
 [approvalMode]
@@ -522,8 +566,8 @@ mode = "DEFAULT"  # DEFAULT | YOLO | AUTO_EDIT | PLAN`}
             <ol className="list-decimal pl-5 text-sm space-y-1">
               <li>解析 <code>!{'{command}'}</code> 块（支持嵌套花括号）</li>
               <li>替换 <code>{'{{args}}'}</code> 为转义后的参数</li>
-              <li>安全检查：对比 allowlist/blocklist</li>
-              <li><strong>非 YOLO 模式：弹出确认对话框</strong></li>
+              <li>安全检查：检查 <code>tools.exclude</code>（阻止列表）、<code>tools.core</code>（全局允许列表）、<code>sessionShellAllowlist</code>（会话允许列表）</li>
+              <li><strong>非 YOLO 模式且未在允许列表：弹出确认对话框，批准后添加到会话允许列表</strong></li>
               <li>执行命令，将输出注入到 prompt</li>
             </ol>
           </HighlightBox>

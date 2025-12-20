@@ -500,7 +500,7 @@ In plan mode:
                   <li>• <code className="text-orange-300">write_file</code> - 写入文件</li>
                   <li>• <code className="text-orange-300">edit</code> - 编辑文件</li>
                   <li>• <code className="text-orange-300">run_shell_command</code> - 执行命令</li>
-                  <li>• <code className="text-orange-300">notebook_edit</code> - 编辑笔记本</li>
+                  <li>• <code className="text-orange-300">save_memory</code> - 保存记忆</li>
                   <li>• <code className="text-orange-300">MCP 工具</code> - 外部服务器工具</li>
                 </ul>
               </div>
@@ -850,8 +850,7 @@ export class ExitPlanModeTool extends Tool {
               <div className="text-xs text-gray-400">正常工作</div>
             </div>
             <div className="flex flex-col items-center">
-              <span className="text-gray-400">Shift+Tab 或</span>
-              <span className="text-gray-400">enter_plan_mode</span>
+              <span className="text-gray-400">Shift+Tab</span>
               <span className="text-gray-500">→</span>
             </div>
             <div className="bg-purple-500/20 border border-purple-500 rounded px-4 py-2 text-center">

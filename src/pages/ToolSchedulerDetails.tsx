@@ -572,6 +572,32 @@ export type ToolCall =
         <MermaidDiagram chart={confirmationDecisionChart} title="确认决策流程" />
         <CodeBlock code={shouldConfirmCode} language="typescript" title="确认决策核心代码" />
 
+        <HighlightBox title="⚠️ 工具命名不一致警告" variant="yellow">
+          <div className="text-sm space-y-2">
+            <p className="text-yellow-200">
+              <strong>已知问题：</strong> Core 层定义的工具名是 <code className="text-cyan-300">edit</code>，
+              但 CLI 层的 EDIT_TOOL_NAMES 使用 <code className="text-cyan-300">replace</code>。
+            </p>
+            <div>
+              <h5 className="font-semibold text-yellow-300 mb-1">影响范围</h5>
+              <ul className="space-y-1 text-gray-300">
+                <li>• <strong>AUTO_EDIT 模式：</strong> 自动批准 <code className="text-orange-300">replace</code> 和 <code className="text-orange-300">write_file</code>，而非 <code className="text-cyan-300">edit</code></li>
+                <li>• <strong>Checkpointing：</strong> 监听 <code className="text-orange-300">replace</code> 和 <code className="text-orange-300">write_file</code> 的 awaiting_approval 状态</li>
+              </ul>
+            </div>
+            <div>
+              <h5 className="font-semibold text-yellow-300 mb-1">源码位置</h5>
+              <ul className="space-y-1 text-gray-400 text-xs font-mono">
+                <li>• packages/core/src/tools/tool-names.ts:13 - <code className="text-cyan-300">EDIT: 'edit'</code></li>
+                <li>• packages/cli/src/ui/hooks/useGeminiStream.ts:75 - <code className="text-orange-300">new Set(['replace', 'write_file'])</code></li>
+              </ul>
+            </div>
+            <p className="text-yellow-200 mt-2">
+              <strong>建议：</strong> 在实际使用时确认 AI 返回的工具调用名称与 CLI 预期是否一致。
+            </p>
+          </div>
+        </HighlightBox>
+
         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-gray-800/50 rounded-lg p-4">
             <h4 className="font-semibold text-green-400 mb-2">自动批准条件</h4>

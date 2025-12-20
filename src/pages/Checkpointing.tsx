@@ -4,33 +4,36 @@ import { CodeBlock } from '../components/CodeBlock';
 
 export function Checkpointing() {
   const checkpointFlowChart = `flowchart TD
-    start([用户批准<br/>修改工具])
+    start([工具进入<br/>awaiting_approval<br/>状态])
     check_enabled{检查点功能<br/>是否启用?}
     create_snapshot[创建 Git<br/>快照]
     save_conversation[保存对话<br/>历史]
     save_tool_call[保存工具<br/>调用信息]
+    wait_approval[等待用户<br/>批准]
     execute_tool[执行工具]
     end([工具执行完成])
-    skip([直接执行<br/>无检查点])
+    skip([等待批准<br/>无检查点])
 
     start --> check_enabled
     check_enabled -->|No| skip
     check_enabled -->|Yes| create_snapshot
     create_snapshot --> save_conversation
     save_conversation --> save_tool_call
-    save_tool_call --> execute_tool
+    save_tool_call --> wait_approval
+    skip --> wait_approval
+    wait_approval --> execute_tool
     execute_tool --> end
 
     style start fill:#22d3ee,color:#000
     style end fill:#22c55e,color:#000
-    style skip fill:#22c55e,color:#000
+    style wait_approval fill:#f59e0b,color:#000
     style check_enabled fill:#f59e0b,color:#000`;
 
   const restoreFlowChart = `flowchart TD
     start([执行 /restore<br/>命令])
     list[列出可用<br/>检查点]
     select[用户选择<br/>检查点]
-    revert_files[恢复文件<br/>git checkout]
+    revert_files[恢复文件<br/>restoreProjectFromSnapshot]
     restore_convo[恢复对话<br/>历史]
     restore_tool[重新提议<br/>工具调用]
     end([恢复完成<br/>可重新执行])
@@ -45,10 +48,10 @@ export function Checkpointing() {
     style start fill:#22d3ee,color:#000
     style end fill:#22c55e,color:#000`;
 
-  const enableConfigCode = `// 方式一：命令行参数启用
-$ innies --checkpointing
+  const enableConfigCode = `// 方式一：命令行参数启用(已废弃,不推荐)
+$ innies --checkpointing  # ⚠️ Deprecated
 
-// 方式二：settings.json 永久启用
+// 方式二：settings.json 永久启用(推荐)
 // ~/.innies/settings.json
 {
   "general": {
@@ -70,7 +73,7 @@ $ innies --checkpointing
     └── <project_hash>/
         └── checkpoints/        # 检查点元数据
             ├── 2025-06-22T10-00-00_000Z-app.ts-write_file.json
-            ├── 2025-06-22T10-05-00_000Z-index.ts-edit.json
+            ├── 2025-06-22T10-05-00_000Z-index.ts-replace.json
             └── ...
 
 // 检查点 JSON 结构
@@ -145,7 +148,7 @@ Available checkpoints:
 │  # │ Checkpoint                                           │
 ├────┼──────────────────────────────────────────────────────┤
 │  1 │ 2025-06-22T10-00-00 - app.ts (write_file)           │
-│  2 │ 2025-06-22T10-05-00 - index.ts (edit)               │
+│  2 │ 2025-06-22T10-05-00 - index.ts (replace)               │
 │  3 │ 2025-06-22T10-10-00 - package.json (write_file)     │
 └────┴──────────────────────────────────────────────────────┘
 
@@ -380,7 +383,7 @@ useEffect(() => {
             <div className="mt-2 space-y-1">
               <p><strong>timestamp</strong>: ISO 8601 格式时间戳</p>
               <p><strong>filename</strong>: 将被修改的目标文件名</p>
-              <p><strong>toolname</strong>: 执行的工具名称 (write_file, edit 等)</p>
+              <p><strong>toolname</strong>: 执行的工具名称 (write_file, replace 等)</p>
             </div>
             <p className="mt-2 text-gray-400">
               示例: <code>2025-06-22T10-00-00_000Z-app.ts-write_file</code>
@@ -821,8 +824,12 @@ async function restoreAction(
 
           <HighlightBox title="仅限修改工具" variant="blue">
             <p className="text-sm text-gray-300">
-              检查点只在文件修改工具（write_file, edit 等）执行前创建，
+              检查点只在文件修改工具（<code>replace</code>, <code>write_file</code>）执行前创建，
               只读工具不会触发检查点。
+            </p>
+            <p className="text-xs text-gray-400 mt-2">
+              注:CLI 使用 <code>replace</code> 和 <code>write_file</code> 工具名,
+              与 core 包的 <code>edit</code> 工具名不一致。
             </p>
           </HighlightBox>
 

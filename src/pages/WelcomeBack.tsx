@@ -5,12 +5,12 @@ import { CodeBlock } from '../components/CodeBlock';
 export function WelcomeBack() {
   const welcomeBackFlowChart = `flowchart TD
     start([启动 CLI])
-    check_enabled{检查<br/>enableWelcomeBack}
+    check_enabled{检查<br/>settings.ui.enableWelcomeBack}
     check_summary[检查<br/>PROJECT_SUMMARY.md]
     has_summary{存在摘要?}
     show_dialog[显示<br/>Welcome Back 对话框]
     user_choice{用户选择}
-    load_context[加载摘要<br/>@.innies/PROJECT_SUMMARY.md]
+    prefill_input[预填充输入框<br/>用户需按回车确认]
     new_session([新会话])
     continue([继续对话])
 
@@ -22,8 +22,8 @@ export function WelcomeBack() {
     has_summary -->|Yes| show_dialog
     show_dialog --> user_choice
     user_choice -->|新会话| new_session
-    user_choice -->|继续| load_context
-    load_context --> continue
+    user_choice -->|继续| prefill_input
+    prefill_input --> continue
 
     style start fill:#22d3ee,color:#000
     style check_enabled fill:#f59e0b,color:#000
@@ -209,7 +209,7 @@ your-project/
             <ul className="text-sm text-gray-300 space-y-1">
               <li>• 自动检测 PROJECT_SUMMARY.md</li>
               <li>• 显示上次的目标和进度</li>
-              <li>• 一键继续上次对话</li>
+              <li>• 快速继续上次对话</li>
               <li>• 保持工作连贯性</li>
             </ul>
           </HighlightBox>
@@ -236,7 +236,7 @@ your-project/
             <li className="flex items-start gap-2">
               <span className="text-green-400">1.</span>
               <div>
-                <strong>enableWelcomeBack 设置</strong>
+                <strong>settings.ui.enableWelcomeBack 设置</strong>
                 <span className="text-gray-400"> - 默认启用，可在 settings.json 中关闭</span>
               </div>
             </li>
@@ -276,7 +276,7 @@ your-project/
 
           <HighlightBox title="继续上次对话" variant="green">
             <p className="text-sm text-gray-300">
-              自动填充输入框：<br/>
+              预填充输入框内容，用户需按回车确认发送：<br/>
               <code className="text-xs">@.innies/PROJECT_SUMMARY.md, Based on our previous conversation, Let's continue?</code>
             </p>
           </HighlightBox>
@@ -403,7 +403,7 @@ your-project/
               <div className="w-8 h-8 rounded-full bg-green-500/20 border border-green-500 flex items-center justify-center text-green-400 font-bold">4</div>
               <div>
                 <h5 className="font-semibold text-white">下次继续</h5>
-                <p className="text-gray-400 text-sm">重新启动时，Welcome Back 会显示上次的进度，一键继续</p>
+                <p className="text-gray-400 text-sm">重新启动时，Welcome Back 会显示上次的进度，快速继续工作</p>
               </div>
             </div>
           </div>
