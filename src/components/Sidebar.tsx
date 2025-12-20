@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface NavItem {
   id: string;
@@ -150,6 +150,16 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
     });
     return initial;
   });
+
+  // Auto-expand group when activeTab changes (e.g., from StartHere navigation)
+  useEffect(() => {
+    const groupContainingTab = navGroups.find((group) =>
+      group.items.some((item) => item.id === activeTab)
+    );
+    if (groupContainingTab && !openGroups.has(groupContainingTab.id)) {
+      setOpenGroups((prev) => new Set([...prev, groupContainingTab.id]));
+    }
+  }, [activeTab]);
 
   const toggleGroup = (groupId: string) => {
     setOpenGroups((prev) => {

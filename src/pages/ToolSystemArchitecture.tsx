@@ -439,30 +439,29 @@ interface ToolResult {
         </HighlightBox>
 
         <JsonBlock
-          code={`// 工具权限配置示例
-{
-    "toolPermissions": {
-        "read_file": {
-            "autoApprove": true,
-            "allowedPaths": ["**/*"]
-        },
-        "write_file": {
-            "autoApprove": false,
-            "requireConfirmation": true
-        },
-        "run_shell_command": {
-            "autoApprove": false,
-            "allowedCommands": [
-                "ls", "cat", "grep", "find",
-                "npm run *", "git status"
-            ],
-            "blockedCommands": [
-                "rm -rf", "sudo *", "chmod 777"
-            ],
-            "useSandbox": true
-        }
-    }
-}`}
+          code={`# 真实配置结构 (settings.toml)
+# 来源: packages/cli/src/config/settings.ts
+
+[tools]
+# 全局允许列表 - 自动批准
+core = [
+    "read_file",                    # 读取文件自动批准
+    "glob",                         # 文件搜索自动批准
+    "grep_search",                  # 内容搜索自动批准
+    "run_shell_command(git *)",     # git 命令自动批准
+    "run_shell_command(npm test)",  # npm test 自动批准
+]
+
+# 全局阻止列表 - 硬拒绝
+exclude = [
+    "run_shell_command(rm -rf *)",  # 危险删除
+    "run_shell_command(sudo *)",    # 提权命令
+]
+
+# 工作区允许列表 (在 .innies/settings.toml)
+allowed = [
+    "run_shell_command(./scripts/*)",  # 项目脚本
+]`}
         />
       </Layer>
     </div>

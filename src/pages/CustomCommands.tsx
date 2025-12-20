@@ -86,7 +86,7 @@ export function CustomCommands() {
     check_allow[checkCommandPermissions]
     is_blocklist{在 tools.exclude?}
     hard_deny[硬拒绝<br/>抛出错误]
-    is_core_wildcard{tools.core 包含<br/>Bash/run_shell_command?}
+    is_core_wildcard{tools.core 包含<br/>run_shell_command?}
     auto_allow[自动允许]
     is_global_allowlist{在 tools.core<br/>run_shell_command 列表?}
     is_session_allowlist{在 sessionShellAllowlist?}
@@ -255,7 +255,7 @@ description = "命令描述（显示在 /help 中）"`}
             desc="DefaultArgumentProcessor - 参数追加处理"
           />
           <SourceLink
-            path="packages/core/src/tools/bash.ts:187"
+            path="packages/core/src/utils/shell-utils.ts"
             desc="checkCommandPermissions() - Shell 命令安全检查"
           />
         </div>
@@ -480,10 +480,10 @@ if (!allAllowed && isHardDenial) {
             <div className="bg-green-500/10 border border-green-500/30 rounded p-3">
               <strong className="text-green-400">2. tools.core（全局允许列表）</strong>
               <p className="mt-1">
-                包含 <code>Bash</code> 或 <code>run_shell_command(pattern)</code> 形式的允许规则：
+                包含 <code>run_shell_command</code> 或 <code>run_shell_command(pattern)</code> 形式的允许规则：
               </p>
               <ul className="list-disc pl-5 mt-1 space-y-1">
-                <li><code>Bash</code> 通配符：允许所有 Shell 命令（自动通过）</li>
+                <li><code>run_shell_command</code> 通配符：允许所有 Shell 命令（自动通过）</li>
                 <li>具体模式：如 <code>run_shell_command(git *)</code> 允许所有 git 命令</li>
               </ul>
             </div>
@@ -505,7 +505,7 @@ enabled = true  # 启用工作区信任检查
 [tools]
 # 全局允许列表 (支持通配符和具体命令)
 core = [
-    "Bash",                        # 允许所有 Shell 命令 (通配符)
+    "run_shell_command",           # 允许所有 Shell 命令 (通配符)
     "run_shell_command(git *)",    # 允许所有 git 命令
     "run_shell_command(npm test)", # 允许特定命令
     "run_shell_command(ls *)"      # 允许 ls 及其参数

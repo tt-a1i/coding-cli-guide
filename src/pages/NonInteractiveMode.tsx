@@ -104,7 +104,7 @@ innies -p "继续之前的任务" --resume session-abc123
 innies -p "只分析代码，不要修改" --tools "Read,Grep,Glob"
 
 # 禁用危险工具
-innies -p "清理项目" --no-tools "Bash"
+innies -p "清理项目" --no-tools "run_shell_command"
 
 # 使用沙箱执行
 innies -p "运行测试" --sandbox

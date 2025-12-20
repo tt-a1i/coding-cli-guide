@@ -26,7 +26,7 @@ export function ApprovalModeSystem() {
     is_auto_edit -->|Yes| is_edit_tool
     is_auto_edit -->|"No (default)"| is_readonly
     is_edit_tool -->|"Yes (Edit/Write)"| auto_approve
-    is_edit_tool -->|"No (Bash等)"| prompt_user
+    is_edit_tool -->|"No (Shell等)"| prompt_user
     is_readonly -->|"Yes (Read/Glob)"| auto_approve
     is_readonly -->|No| prompt_user
 
@@ -126,7 +126,7 @@ commands that could modify the system. Instead, present your plan
 using the exit_plan_mode tool when ready.
 
 In plan mode:
-- DO NOT use Write, Edit, Bash, or any modifying tools
+- DO NOT use Write, Edit, run_shell_command, or any modifying tools
 - DO analyze and plan the implementation
 - DO explain your approach step by step
 - When ready, call exit_plan_mode with your plan
@@ -387,7 +387,7 @@ In plan mode:
                   <p className="font-semibold text-green-300 mb-1">自动编辑</p>
                   <ul className="space-y-1 text-gray-300">
                     <li>• 文件编辑自动批准</li>
-                    <li>• Bash 仍需确认</li>
+                    <li>• run_shell_command 仍需确认</li>
                     <li>• 适合信任的任务</li>
                   </ul>
                 </div>
@@ -884,7 +884,7 @@ export class ExitPlanModeTool extends Tool {
               <h5 className="font-semibold text-purple-300 mb-1">禁止的操作</h5>
               <ul className="space-y-1">
                 <li>• Write / Edit 文件</li>
-                <li>• Bash 命令执行</li>
+                <li>• Shell 命令执行</li>
                 <li>• 任何修改性工具</li>
                 <li>• 直接实施变更</li>
               </ul>
@@ -912,7 +912,7 @@ export class ExitPlanModeTool extends Tool {
             <ul className="text-sm text-gray-300 space-y-1">
               <li>✗ 在不可信项目中使用 yolo</li>
               <li>✗ 不看 Diff 直接批准</li>
-              <li>✗ 对所有 Bash 命令自动批准</li>
+              <li>✗ 对所有 Shell 命令自动批准</li>
               <li>✗ 忽略安全警告</li>
               <li>✗ 在生产环境使用 yolo 模式</li>
             </ul>

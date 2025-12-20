@@ -245,7 +245,7 @@ export function ToolReference() {
             <div className="text-sm space-y-2">
               <p className="text-gray-300">来自 AI Model 的工具调用：</p>
               <ul className="space-y-1 text-gray-400">
-                <li>• <code className="text-cyan-300">name</code> - 工具名称（必须匹配 ToolNames）</li>
+                <li>• <code className="text-cyan-300">name</code> - 工具名称（必须匹配 ToolRegistry 已注册的工具名）</li>
                 <li>• <code className="text-cyan-300">callId</code> - 唯一调用标识符</li>
                 <li>• <code className="text-cyan-300">args</code> - JSON 参数对象</li>
               </ul>

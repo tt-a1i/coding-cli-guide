@@ -37,7 +37,7 @@ export function Overview() {
           <Module
             icon="🔧"
             name="工具层"
-            path="core/src/tools"
+            path="packages/core/src/tools"
             description="ReadFile、Edit、Shell 等"
           />
           <Module

@@ -366,11 +366,11 @@ export function ShellModes() {
           </div>
 
           <div className="bg-gray-800/50 rounded-lg p-4">
-            <h4 className="text-orange-400 font-semibold mb-3">Bash 工具 (AI 使用)</h4>
+            <h4 className="text-orange-400 font-semibold mb-3">run_shell_command (AI 使用)</h4>
             <div className="text-sm space-y-2">
               <SourceLink
                 path="packages/core/src/tools/shell.ts:52"
-                desc="ShellToolInvocation class - Bash 工具实现"
+                desc="ShellToolInvocation class - Shell 工具实现"
               />
               <SourceLink
                 path="packages/core/src/tools/shell.ts:82"
@@ -378,7 +378,7 @@ export function ShellModes() {
               />
               <SourceLink
                 path="packages/core/src/tools/shell.ts:114"
-                desc="execute() - Bash 工具执行入口"
+                desc="execute() - Shell 工具执行入口"
               />
               <SourceLink
                 path="packages/core/src/utils/shell-utils.ts"
@@ -903,13 +903,13 @@ prompt = """
           </div>
 
           <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-            <h4 className="text-cyan-400 font-bold mb-2">❌ 误解：Bash 工具和交互式 Shell 是同一个</h4>
+            <h4 className="text-cyan-400 font-bold mb-2">❌ 误解：run_shell_command 和交互式 Shell 是同一个</h4>
             <p className="text-sm text-gray-300 mb-2">
               <strong>✅ 正确：</strong>
             </p>
             <ul className="text-sm text-gray-300 list-disc pl-5 space-y-1">
               <li><strong>交互式 Shell:</strong> 用户直接输入 <code>!command</code></li>
-              <li><strong>Bash 工具:</strong> AI Model 通过工具调用系统执行命令</li>
+              <li><strong>run_shell_command:</strong> AI Model 通过工具调用系统执行命令</li>
               <li><strong>自定义命令注入:</strong> TOML 定义的 <code>!{'{command}'}</code></li>
               <li>三者都使用 <code>ShellExecutionService</code> 但调用路径和权限模型不同</li>
             </ul>

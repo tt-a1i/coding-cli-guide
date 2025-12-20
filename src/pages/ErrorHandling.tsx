@@ -614,7 +614,7 @@ function attemptJSONFix(
 {`CLIError (基类)
 ├── APIError           - API 调用错误 (状态码、响应)
 ├── AuthenticationError - 认证错误 (登录失败)
-├── ToolExecutionError  - 工具执行错误 (Bash、文件操作)
+├── ToolExecutionError  - 工具执行错误 (Shell、文件操作)
 ├── ConfigurationError  - 配置错误 (无效配置)
 ├── NetworkError        - 网络错误 (连接失败)
 └── TimeoutError        - 超时错误 (操作超时)`}

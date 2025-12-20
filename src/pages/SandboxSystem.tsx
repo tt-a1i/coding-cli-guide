@@ -4,7 +4,7 @@ import { CodeBlock } from '../components/CodeBlock';
 
 export function SandboxSystem() {
   const sandboxDecisionFlow = `flowchart TD
-    start[启动 Bash 工具]
+    start[启动 run_shell_command]
     check_env[检查 GEMINI_SANDBOX<br/>环境变量]
     is_docker{sandbox=docker?}
     is_podman{sandbox=podman?}
@@ -503,7 +503,7 @@ async function startContainer(config: DockerSandboxConfig) {
 {`┌──────────────────────────────────────────────────────────────┐
 │                        Innies CLI                            │
 │  ┌────────────────────────────────────────────────────────┐  │
-│  │                    Bash Tool                           │  │
+│  │                   Shell Tool                           │  │
 │  │  runShellCommand(command, options)                     │  │
 │  └───────────────────────┬────────────────────────────────┘  │
 │                          │                                    │

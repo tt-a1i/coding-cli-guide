@@ -713,7 +713,7 @@ function isWorkspaceTrusted(settings: Settings): TrustResult {
 
     CreateConfig --> ToolRegistry[createToolRegistry<br/>工具集组装]
 
-    ToolRegistry --> CoreTools[注册核心工具<br/>Read/Edit/Bash/...]
+    ToolRegistry --> CoreTools[注册核心工具<br/>Read/Edit/Shell/...]
     ToolRegistry --> DiscoveryTools[discoveryCommand<br/>发现外部工具]
     ToolRegistry --> McpTools[MCP 工具<br/>从 MCP 服务器]
 
@@ -1149,7 +1149,7 @@ const extensionContextFilePaths = activeExtensions.flatMap(
           title="工具集三路合流"
           chart={`flowchart LR
     subgraph Source1[核心工具]
-      Core[Core 内置工具<br/>Read/Edit/Bash/Grep/...]
+      Core[Core 内置工具<br/>Read/Edit/Shell/Grep/...]
       CoreFilter{coreTools<br/>白名单?}
       Core --> CoreFilter
       CoreFilter -->|过滤| CoreEnabled[启用的核心工具]

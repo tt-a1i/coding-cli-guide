@@ -86,16 +86,27 @@ interface Checkpoint {
   conversationHistory: Message[];  // 对话历史
 }`;
 
-  const shadowGitCode = `// 影子 Git 仓库机制
+  const shadowGitCode = `// 影子 Git 仓库机制 (简化版)
 // 来源: packages/core/src/services/gitService.ts
 
 class GitService {
-  /**
-   * 初始化 checkpointing - 检查 Git 是否可用
-   * @throws 如果 Git 不可用或初始化失败
-   */
-  async initializeCheckpointing(): Promise<void> {
-    const gitAvailable = await this.isGitAvailable();
+  private projectRoot: string;
+  private storage: Storage;  // 管理全局路径
+
+  constructor(projectRoot: string, storage: Storage) {
+    this.projectRoot = path.resolve(projectRoot);
+    this.storage = storage;
+  }
+
+  // 影子仓库位置: ~/.innies/history/<project-hash>/
+  // 注意: 不在项目目录内，而是在全局 ~/.innies 下
+  private getHistoryDir(): string {
+    return this.storage.getHistoryDir();
+    // 实际路径: ~/.innies/history/<sha256(projectRoot)>/
+  }
+
+  async initialize(): Promise<void> {
+    const gitAvailable = await this.verifyGitAvailability();
     if (!gitAvailable) {
       throw new Error(
         'Checkpointing is enabled, but Git is not installed.'
@@ -104,30 +115,20 @@ class GitService {
     await this.setupShadowGitRepository();
   }
 
-  /**
-   * 在项目根目录创建隐藏的 git 仓库
-   * 用于支持 checkpointing 功能
-   */
   async setupShadowGitRepository(): Promise<void> {
-    const hiddenGitDir = path.join(this.targetDir, '.innies', '.git');
+    const repoDir = this.getHistoryDir();
+    await fs.mkdir(repoDir, { recursive: true });
 
-    if (await exists(hiddenGitDir)) {
-      return; // 已存在
+    // 创建专用 gitconfig，避免继承用户配置
+    const gitConfigContent =
+      '[user]\\n  name = Innies Cli\\n  email = ...';
+    await fs.writeFile(path.join(repoDir, '.gitconfig'), gitConfigContent);
+
+    const repo = simpleGit(repoDir);
+    if (!await repo.checkIsRepo()) {
+      await repo.init(false, { '--initial-branch': 'main' });
+      await repo.commit('Initial commit', { '--allow-empty': null });
     }
-
-    // 初始化隐藏的 git 仓库
-    await this.runGitCommand(['init'], {
-      cwd: path.join(this.targetDir, '.innies'),
-    });
-  }
-
-  /**
-   * 创建检查点 - 在执行修改工具前调用
-   */
-  async createCheckpoint(message: string): Promise<string> {
-    await this.runGitCommand(['add', '-A']);
-    const result = await this.runGitCommand(['commit', '-m', message]);
-    return this.getHeadCommitHash();
   }
 
   /**
