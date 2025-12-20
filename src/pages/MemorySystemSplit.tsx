@@ -9,40 +9,38 @@ export function MemorySystemSplit() {
   const memoryArchitectureChart = `flowchart TD
     user_input([用户输入])
     ai_trigger([AI 识别需求])
-
-    memory_cmd[/memory 命令]
+    memory_cmd[&#47;memory 命令]
     save_memory[save_memory 工具]
-
-    innies_file[(INNIES.md 文件)]
-
+    innies_file[("INNIES.md" 文件)]
     discovery[memoryDiscovery<br/>层级发现]
     read_files[读取所有 INNIES.md]
     concatenate[拼接内容]
     system_prompt[注入 System Prompt]
-
     write_section[写入 ## Innies Added Memories]
     user_confirm[用户确认]
 
     user_input --> memory_cmd
     ai_trigger --> save_memory
-
     memory_cmd --> discovery
     discovery --> read_files
     read_files --> innies_file
     innies_file --> concatenate
     concatenate --> system_prompt
-
     save_memory --> user_confirm
     user_confirm --> write_section
     write_section --> innies_file
 
-    style user_input fill:#22d3ee,color:#000
-    style ai_trigger fill:#a855f7,color:#fff
-    style memory_cmd fill:#22d3ee,color:#000
-    style save_memory fill:#a855f7,color:#fff
-    style innies_file fill:#f59e0b,color:#000
-    style system_prompt fill:#22c55e,color:#000
-    style user_confirm fill:#f59e0b,color:#000`;
+    classDef input fill:#22d3ee,color:#000
+    classDef ai fill:#a855f7,color:#fff
+    classDef file fill:#f59e0b,color:#000
+    classDef output fill:#22c55e,color:#000
+    classDef confirm fill:#f59e0b,color:#000
+
+    class user_input,memory_cmd input
+    class ai_trigger,save_memory ai
+    class innies_file file
+    class system_prompt output
+    class user_confirm confirm`;
 
   // 层级发现流程
   const hierarchyDiscoveryChart = `flowchart TD

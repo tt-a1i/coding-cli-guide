@@ -9,7 +9,7 @@ export function SubagentSystem() {
   const templateFlowChart = `flowchart TD
     start([System Prompt<br/>模板])
     context[ContextState<br/>设置变量]
-    extract[提取占位符<br/>"\${key}"]
+    extract[提取占位符<br/>&#34;&#36;&#123;key&#125;&#34;]
     check{"所有 key<br/>都存在?"}
     replace[执行替换<br/>String value]
     error([抛出异常<br/>Missing keys])
@@ -22,10 +22,15 @@ export function SubagentSystem() {
     check -->|Yes| replace
     replace --> done
 
-    style start fill:#22d3ee,color:#000
-    style done fill:#22c55e,color:#000
-    style error fill:#ef4444,color:#fff
-    style check fill:#f59e0b,color:#000`;
+    classDef input_node fill:#22d3ee,color:#000
+    classDef output_node fill:#22c55e,color:#000
+    classDef error_node fill:#ef4444,color:#fff
+    classDef decision_node fill:#f59e0b,color:#000
+
+    class start input_node
+    class done output_node
+    class error error_node
+    class check decision_node`;
 
   // 非交互式执行流程 - Mermaid flowchart
   const executionFlowChart = `flowchart TD

@@ -84,9 +84,9 @@ export function CustomCommands() {
 
   // Shell 注入安全流程
   const shellInjectionSafetyFlow = `flowchart TD
-    start([检测到 !{'{command}'} ])
+    start([检测到 !&#123;command&#125; ])
     parse[解析命令内容<br/>平衡花括号]
-    replace_args[替换 {{'{'}args{'}'}}<br/>为转义后的参数]
+    replace_args[替换 &#123;&#123;args&#125;&#125;<br/>为转义后的参数]
     check_allow[checkCommandPermissions]
     is_blocklist{在 tools.exclude?}
     hard_deny[硬拒绝<br/>抛出错误]
@@ -99,7 +99,7 @@ export function CustomCommands() {
     user_approve{用户批准?}
     add_session[添加到 sessionShellAllowlist]
     execute[执行 Shell 命令]
-    inject[注入输出到 prompt]
+    inject([注入输出到 prompt])
     user_cancel[抛出取消错误]
 
     start --> parse
@@ -123,18 +123,19 @@ export function CustomCommands() {
     add_session --> execute
     execute --> inject
 
-    style start fill:#22d3ee,color:#000
-    style inject fill:#22c55e,color:#000
-    style hard_deny fill:#ef4444,color:#fff
-    style user_cancel fill:#ef4444,color:#fff
-    style is_blocklist fill:#a855f7,color:#fff
-    style is_core_wildcard fill:#a855f7,color:#fff
-    style is_global_allowlist fill:#a855f7,color:#fff
-    style is_session_allowlist fill:#a855f7,color:#fff
-    style is_yolo fill:#a855f7,color:#fff
-    style user_approve fill:#a855f7,color:#fff
-    style confirm_dialog fill:#f59e0b,color:#fff
-    style auto_allow fill:#22c55e,color:#fff`;
+    classDef start fill:#22d3ee,color:#000
+    classDef success fill:#22c55e,color:#000
+    classDef error fill:#ef4444,color:#fff
+    classDef decision fill:#a855f7,color:#fff
+    classDef warn fill:#f59e0b,color:#fff
+    classDef approve fill:#22c55e,color:#fff
+
+    class start start
+    class inject success
+    class hard_deny,user_cancel error
+    class is_blocklist,is_core_wildcard,is_global_allowlist,is_session_allowlist,is_yolo,user_approve decision
+    class confirm_dialog warn
+    class auto_allow approve`;
 
   return (
     <div>
