@@ -33,23 +33,26 @@ export function Checkpointing() {
     class wait_approval,check_enabled decision_node`;
 
   const restoreFlowChart = `flowchart TD
-    start([执行 /restore<br/>命令])
+    start([执行 #47;restore<br/>命令])
     list[列出可用<br/>检查点]
     select[用户选择<br/>检查点]
     revert_files[恢复文件<br/>restoreProjectFromSnapshot]
     restore_convo[恢复对话<br/>历史]
     restore_tool[重新提议<br/>工具调用]
-    end([恢复完成<br/>可重新执行])
+    restore_done([恢复完成<br/>可重新执行])
 
     start --> list
     list --> select
     select --> revert_files
     revert_files --> restore_convo
     restore_convo --> restore_tool
-    restore_tool --> end
+    restore_tool --> restore_done
 
-    style start fill:#22d3ee,color:#000
-    style end fill:#22c55e,color:#000`;
+    classDef start_node fill:#22d3ee,color:#000
+    classDef terminal_node fill:#22c55e,color:#000
+
+    class start start_node
+    class restore_done terminal_node`;
 
   const enableConfigCode = `// 方式一：命令行参数启用(已废弃,不推荐)
 $ innies --checkpointing  # ⚠️ Deprecated
