@@ -5,7 +5,7 @@ import { Layer } from '../components/Layer';
 
 export function IDEIntegration() {
   const connectionFlowChart = `flowchart TD
-    start([启动 CLI<br/>(在 IDE 终端)])
+    start([启动 CLI<br/>&#40;在 IDE 终端&#41;])
     detect_env[检测环境变量<br/>QWEN_CODE_IDE_*]
     has_env{有环境变量?}
     check_ext[检查扩展<br/>是否安装]
@@ -14,7 +14,7 @@ export function IDEIntegration() {
     check_workspace{验证工作区<br/>路径匹配}
     connected([连接成功<br/>启用 IDE 功能])
     show_nudge[提示安装<br/>扩展]
-    standalone([独立模式<br/>(无 IDE 功能)])
+    standalone([独立模式<br/>&#40;无 IDE 功能&#41;])
 
     start --> detect_env
     detect_env --> has_env
@@ -28,12 +28,15 @@ export function IDEIntegration() {
     check_workspace -->|Match| connected
     check_workspace -->|Mismatch| standalone
 
-    style start fill:#22d3ee,color:#000
-    style connected fill:#22c55e,color:#000
-    style standalone fill:#22c55e,color:#000
-    style has_env fill:#f59e0b,color:#000
-    style ext_ok fill:#f59e0b,color:#000
-    style check_workspace fill:#f59e0b,color:#000`;
+    classDef start fill:#22d3ee,color:#000
+    classDef success fill:#22c55e,color:#000
+    classDef decision fill:#f59e0b,color:#000
+    classDef hint fill:#f59e0b,color:#000
+
+    class start start
+    class connected,standalone success
+    class has_env,ext_ok,check_workspace decision
+    class show_nudge hint`;
 
   const diffFlowChart = `flowchart TD
     start([AI 提议<br/>修改文件])
