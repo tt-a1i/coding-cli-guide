@@ -46,12 +46,12 @@ export function CustomCommands() {
   const promptProcessingFlow = `flowchart TD
     start([用户调用 /custom-cmd args])
     get_template[获取命令的 prompt 模板]
-    atfile_check{包含 @{'{...}'} ?}
+    atfile_check{包含 @&#123;...&#125; ?}
     atfile_proc[AtFileProcessor<br/>读取文件内容注入]
-    shell_check{包含 !{'{...}'} ?}
+    shell_check{包含 !&#123;...&#125; ?}
     shell_proc[ShellProcessor<br/>执行命令注入]
-    args_check{包含 {{'{'}args{'}'}} ?}
-    args_replace[替换 {{'{'}args{'}'}}<br/>为用户参数]
+    args_check{包含 &#123;&#123;args&#125;&#125; ?}
+    args_replace[替换 &#123;&#123;args&#125;&#125;<br/>为用户参数]
     default_args[DefaultArgumentProcessor<br/>追加未使用的 args]
     final_prompt[最终 prompt]
     send_ai([发送给 AI 模型])
@@ -70,13 +70,17 @@ export function CustomCommands() {
     default_args --> final_prompt
     final_prompt --> send_ai
 
-    style start fill:#22d3ee,color:#000
-    style send_ai fill:#22c55e,color:#000
-    style atfile_check fill:#a855f7,color:#fff
-    style shell_check fill:#a855f7,color:#fff
-    style args_check fill:#a855f7,color:#fff
-    style atfile_proc fill:#3b82f6,color:#fff
-    style shell_proc fill:#f59e0b,color:#fff`;
+    classDef start_node fill:#22d3ee,color:#000
+    classDef terminal_node fill:#22c55e,color:#000
+    classDef decision_node fill:#a855f7,color:#fff
+    classDef processor_node fill:#3b82f6,color:#fff
+    classDef shell_node fill:#f59e0b,color:#fff
+
+    class start start_node
+    class send_ai terminal_node
+    class atfile_check,shell_check,args_check decision_node
+    class atfile_proc processor_node
+    class shell_proc shell_node`;
 
   // Shell 注入安全流程
   const shellInjectionSafetyFlow = `flowchart TD
