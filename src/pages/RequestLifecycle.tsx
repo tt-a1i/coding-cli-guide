@@ -6,44 +6,47 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 export function RequestLifecycle() {
   // 完整请求生命周期流程图
   const requestLifecycleFlowChart = `flowchart TD
-    start([用户输入请求])
-    preprocess[消息预处理<br/>@file, @memory, @url]
-    add_to_history[添加到历史记录]
-    api_request[API 请求<br/>generateContentStream]
-    stream_response{流式响应处理}
-    has_tool_calls{包含<br/>tool_calls?}
-    schedule_tools[工具调度<br/>CoreToolScheduler]
-    execute_tools[工具执行]
-    tool_result[结果入历史]
-    next_round[下一轮 API 请求]
-    finish_reason{finish_reason}
-    final_response[最终响应]
-    persist[持久化<br/>聊天日志+统计]
-    end([请求完成])
+    node_start(["用户输入请求"])
+    node_preprocess["消息预处理<br/>@file, @memory, @url"]
+    node_add_hist["添加到历史记录"]
+    node_api_req["API 请求<br/>generateContentStream"]
+    node_stream_resp["流式响应处理"]
+    node_check_finish{"Finish Reason?"}
+    node_schedule_tools["工具调度<br/>CoreToolScheduler"]
+    node_exec_tools["工具执行"]
+    node_tool_result["结果入历史"]
+    node_next_round["下一轮 API 请求"]
+    node_final_resp["最终响应"]
+    node_persist["持久化<br/>聊天日志 + 统计"]
+    node_end(["请求完成"])
 
-    start --> preprocess
-    preprocess --> add_to_history
-    add_to_history --> api_request
-    api_request --> stream_response
-    stream_response --> has_tool_calls
-    has_tool_calls -->|Yes| schedule_tools
-    has_tool_calls -->|No| final_response
-    schedule_tools --> execute_tools
-    execute_tools --> tool_result
-    tool_result --> next_round
-    next_round --> stream_response
-    finish_reason -->|stop| final_response
-    finish_reason -->|tool_calls| schedule_tools
-    final_response --> persist
-    persist --> end
+    node_start --> node_preprocess
+    node_preprocess --> node_add_hist
+    node_add_hist --> node_api_req
+    node_api_req --> node_stream_resp
+    node_stream_resp --> node_check_finish
+    node_check_finish -->|tool_calls| node_schedule_tools
+    node_check_finish -->|stop| node_final_resp
+    node_schedule_tools --> node_exec_tools
+    node_exec_tools --> node_tool_result
+    node_tool_result --> node_next_round
+    node_next_round --> node_api_req
+    node_final_resp --> node_persist
+    node_persist --> node_end
 
-    style start fill:#22d3ee,color:#000
-    style end fill:#22c55e,color:#000
-    style has_tool_calls fill:#a855f7,color:#fff
-    style finish_reason fill:#a855f7,color:#fff
-    style schedule_tools fill:#f59e0b,color:#000
-    style execute_tools fill:#3b82f6,color:#fff
-    style final_response fill:#22c55e,color:#000`;
+    classDef startClass fill:#22d3ee,color:#000;
+    classDef endClass fill:#22c55e,color:#000;
+    classDef decisionClass fill:#a855f7,color:#fff;
+    classDef toolSchedClass fill:#f59e0b,color:#000;
+    classDef toolExecClass fill:#3b82f6,color:#fff;
+    classDef finalClass fill:#22c55e,color:#000;
+
+    class node_start startClass
+    class node_end endClass
+    class node_check_finish decisionClass
+    class node_schedule_tools toolSchedClass
+    class node_exec_tools toolExecClass
+    class node_final_resp finalClass`;
 
   // 多轮交互序列图
   const multiRoundSequenceChart = `sequenceDiagram
