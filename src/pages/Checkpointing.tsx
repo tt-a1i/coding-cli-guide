@@ -4,14 +4,14 @@ import { CodeBlock } from '../components/CodeBlock';
 
 export function Checkpointing() {
   const checkpointFlowChart = `flowchart TD
-    start([工具进入<br/>awaiting_approval<br/>状态])
+    start([工具进入<br/>awaiting approval<br/>状态])
     check_enabled{检查点功能<br/>是否启用?}
     create_snapshot[创建 Git<br/>快照]
     save_conversation[保存对话<br/>历史]
     save_tool_call[保存工具<br/>调用信息]
     wait_approval[等待用户<br/>批准]
     execute_tool[执行工具]
-    end([工具执行完成])
+    tool_done([工具执行完成])
     skip([等待批准<br/>无检查点])
 
     start --> check_enabled
@@ -22,12 +22,15 @@ export function Checkpointing() {
     save_tool_call --> wait_approval
     skip --> wait_approval
     wait_approval --> execute_tool
-    execute_tool --> end
+    execute_tool --> tool_done
 
-    style start fill:#22d3ee,color:#000
-    style end fill:#22c55e,color:#000
-    style wait_approval fill:#f59e0b,color:#000
-    style check_enabled fill:#f59e0b,color:#000`;
+    classDef start_node fill:#22d3ee,color:#000
+    classDef terminal_node fill:#22c55e,color:#000
+    classDef decision_node fill:#f59e0b,color:#000
+
+    class start start_node
+    class tool_done terminal_node
+    class wait_approval,check_enabled decision_node`;
 
   const restoreFlowChart = `flowchart TD
     start([执行 /restore<br/>命令])
