@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { loadPrism, normalizeLanguage } from '../utils/prism';
 
 interface CodeBlockProps {
   code: string;
@@ -12,15 +13,44 @@ interface CodeBlockProps {
 export function CodeBlock({
   code,
   title,
+  language,
   collapsible = true,
   defaultCollapsed = true,
   collapsedHeightPx = 160,
 }: CodeBlockProps) {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
+  const [highlightedHtml, setHighlightedHtml] = useState<string | null>(null);
   const lineCount = useMemo(() => code.split('\n').length, [code]);
+  const normalizedLang = useMemo(
+    () => normalizeLanguage(language, title, code),
+    [language, title, code]
+  );
+  const prismLangKey = normalizedLang === 'text' ? 'typescript' : normalizedLang;
 
   const showToggle = collapsible;
   void collapsedHeightPx;
+
+  useEffect(() => {
+    if (collapsed) return;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const Prism = await loadPrism();
+        const languages = Prism.languages as Record<string, unknown>;
+        const grammar = languages[prismLangKey] ?? languages.plaintext;
+        if (!grammar) return;
+        const html = Prism.highlight(code, grammar as never, prismLangKey);
+        if (!cancelled) setHighlightedHtml(html);
+      } catch {
+        if (!cancelled) setHighlightedHtml(null);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [collapsed, code, prismLangKey]);
 
   return (
     <div className="my-4">
@@ -48,9 +78,25 @@ export function CodeBlock({
         </div>
       ) : (
         <div className="rounded-lg">
-          <pre className="code-block">{code}</pre>
+          <pre className={`code-block language-${prismLangKey}`}>
+            <code
+              className={`language-${prismLangKey}`}
+              dangerouslySetInnerHTML={{
+                __html: highlightedHtml ?? escapeHtml(code),
+              }}
+            />
+          </pre>
         </div>
       )}
     </div>
   );
+}
+
+function escapeHtml(text: string) {
+  return text
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
 }
