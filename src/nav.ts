@@ -14,6 +14,16 @@ export interface NavGroup {
 
 export const navGroups: NavGroup[] = [
   {
+    id: 'guide',
+    title: '学习导读',
+    icon: '🧭',
+    defaultOpen: true,
+    items: [
+      { id: 'e2e', label: '端到端走读', highlight: true },
+      { id: 'upstream-diff', label: 'Innies 改造总览', highlight: true },
+    ],
+  },
+  {
     id: 'start',
     title: '快速入门',
     icon: '🚀',
@@ -152,4 +162,3 @@ export function flattenNav(groups: NavGroup[] = navGroups): FlatNavItem[] {
 }
 
 export const flatNavItems = flattenNav(navGroups);
-

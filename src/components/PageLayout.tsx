@@ -3,7 +3,7 @@ import { flatNavItems } from '../nav';
 import { useOutline } from './OutlineContext';
 import { OutlineProvider } from './OutlineProvider';
 
-function ShareButtons() {
+function ShareButtons({ activeSectionId }: { activeSectionId: string | null }) {
   const [copied, setCopied] = useState<'page' | 'section' | null>(null);
 
   const copyToClipboard = useCallback(async (text: string, type: 'page' | 'section') => {
@@ -32,13 +32,11 @@ function ShareButtons() {
 
   const copySectionLink = useCallback(() => {
     const url = new URL(window.location.href);
-    if (!url.hash) {
-      // 如果没有 hash，复制页面链接
-      copyToClipboard(url.toString(), 'section');
-    } else {
-      copyToClipboard(url.toString(), 'section');
+    if (activeSectionId) {
+      url.hash = activeSectionId;
     }
-  }, [copyToClipboard]);
+    copyToClipboard(url.toString(), 'section');
+  }, [activeSectionId, copyToClipboard]);
 
   return (
     <div className="flex items-center gap-2 mb-4">
@@ -60,7 +58,12 @@ function ShareButtons() {
       </button>
       <button
         onClick={copySectionLink}
-        className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-gray-900/30 border border-gray-700 text-gray-300 hover:bg-gray-800/40 hover:border-gray-600 hover:text-cyan-300 transition-colors"
+        disabled={!activeSectionId}
+        className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg border transition-colors ${
+          activeSectionId
+            ? 'bg-gray-900/30 border-gray-700 text-gray-300 hover:bg-gray-800/40 hover:border-gray-600 hover:text-cyan-300'
+            : 'bg-gray-900/10 border-gray-800 text-gray-600 cursor-not-allowed'
+        }`}
       >
         {copied === 'section' ? (
           <>
@@ -78,7 +81,13 @@ function ShareButtons() {
   );
 }
 
-function PageOutline() {
+function PageOutline({
+  activeSectionId,
+  onSelectSection,
+}: {
+  activeSectionId: string | null;
+  onSelectSection: (id: string) => void;
+}) {
   const outline = useOutline();
   const items = useMemo(() => {
     const sections = outline?.sections ?? [];
@@ -87,12 +96,6 @@ function PageOutline() {
   }, [outline?.sections]);
 
   if (items.length === 0) return null;
-
-  const scrollToId = (id: string) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
 
   return (
     <div className="bg-gray-900/30 border border-gray-700 rounded-xl p-4 mb-6">
@@ -107,12 +110,13 @@ function PageOutline() {
             href={`#${s.id}`}
             onClick={(e) => {
               e.preventDefault();
-              scrollToId(s.id);
-              const url = new URL(window.location.href);
-              url.hash = s.id;
-              window.history.replaceState({}, '', url);
+              onSelectSection(s.id);
             }}
-            className="px-3 py-1.5 rounded-lg text-sm bg-gray-950/40 border border-gray-700 text-gray-200 hover:bg-gray-800/40 hover:border-gray-600 transition-colors"
+            className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
+              activeSectionId === s.id
+                ? 'bg-cyan-500/10 border-cyan-500/40 text-cyan-200'
+                : 'bg-gray-950/40 border-gray-700 text-gray-200 hover:bg-gray-800/40 hover:border-gray-600'
+            }`}
           >
             {s.title}
           </a>
@@ -131,6 +135,8 @@ export function PageLayout({
   onNavigate: (tab: string, opts?: { replace?: boolean; preserveHash?: boolean }) => void;
   children: ReactNode;
 }) {
+  const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
+
   const navIndex = useMemo(
     () => flatNavItems.findIndex((i) => i.id === activeTab),
     [activeTab]
@@ -163,10 +169,23 @@ export function PageLayout({
     return () => window.removeEventListener('hashchange', scrollToHash);
   }, [activeTab]);
 
+  const onSelectSection = useCallback((id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const url = new URL(window.location.href);
+    url.hash = id;
+    window.history.replaceState({}, '', url);
+    setActiveSectionId(id);
+  }, []);
+
   return (
     <OutlineProvider key={activeTab}>
-      <ShareButtons />
-      <PageOutline />
+      <OutlineHeader
+        activeSectionId={activeSectionId}
+        setActiveSectionId={setActiveSectionId}
+        onSelectSection={onSelectSection}
+      />
       {children}
 
       <div className="mt-10 flex items-center justify-between gap-4">
@@ -194,5 +213,72 @@ export function PageLayout({
         </button>
       </div>
     </OutlineProvider>
+  );
+}
+
+function OutlineHeader({
+  activeSectionId,
+  setActiveSectionId,
+  onSelectSection,
+}: {
+  activeSectionId: string | null;
+  setActiveSectionId: (id: string | null) => void;
+  onSelectSection: (id: string) => void;
+}) {
+  const outline = useOutline();
+  const items = useMemo(() => {
+    const sections = outline?.sections ?? [];
+    const filtered = sections.filter((s) => s.title.trim().length > 0);
+    return filtered.length >= 2 ? filtered : [];
+  }, [outline?.sections]);
+
+  useEffect(() => {
+    if (items.length === 0) return;
+    const root = document.querySelector('main');
+    if (!(root instanceof HTMLElement)) return;
+
+    const visible = new Map<string, number>();
+    const obs = new IntersectionObserver(
+      (entries) => {
+        const rootRect = root.getBoundingClientRect();
+        for (const entry of entries) {
+          const id = entry.target.id;
+          if (!id) continue;
+          if (entry.isIntersecting) {
+            const distToTop = Math.abs(entry.boundingClientRect.top - rootRect.top);
+            visible.set(id, distToTop);
+          } else {
+            visible.delete(id);
+          }
+        }
+
+        if (visible.size === 0) return;
+        const best = [...visible.entries()].sort((a, b) => a[1] - b[1])[0]?.[0] ?? null;
+        if (best) setActiveSectionId(best);
+      },
+      { root, threshold: [0.1, 0.25, 0.5, 0.75] }
+    );
+
+    for (const s of items) {
+      const el = document.getElementById(s.id);
+      if (el) obs.observe(el);
+    }
+
+    const raw = window.location.hash;
+    const initialId = raw.startsWith('#') ? raw.slice(1) : raw;
+    if (initialId && items.some((s) => s.id === initialId)) {
+      setActiveSectionId(initialId);
+    } else {
+      setActiveSectionId(items[0]?.id ?? null);
+    }
+
+    return () => obs.disconnect();
+  }, [items, setActiveSectionId]);
+
+  return (
+    <>
+      <ShareButtons activeSectionId={activeSectionId} />
+      <PageOutline activeSectionId={activeSectionId} onSelectSection={onSelectSection} />
+    </>
   );
 }

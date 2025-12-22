@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { flatNavItems, navGroups } from '../nav';
 
 interface SidebarProps {
@@ -9,6 +9,7 @@ interface SidebarProps {
 export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
   const [openGroups, setOpenGroups] = useState<Set<string>>(() => {
     const initial = new Set<string>();
@@ -35,6 +36,7 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
           searchInputRef.current?.blur();
         }
         setSearchQuery('');
+        setSelectedIndex(0);
       }
     };
     window.addEventListener('keydown', onKeyDown);
@@ -68,6 +70,27 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
       .slice(0, 15);
   }, [searchQuery]);
 
+  const highlightMatch = useCallback((text: string): ReactNode => {
+    const q = searchQuery.trim();
+    if (!q) return text;
+    const needle = q.toLowerCase();
+    const hay = text.toLowerCase();
+    const index = hay.indexOf(needle);
+    if (index < 0) return text;
+    const before = text.slice(0, index);
+    const match = text.slice(index, index + q.length);
+    const after = text.slice(index + q.length);
+    return (
+      <>
+        {before}
+        <span className="text-cyan-200 bg-cyan-500/10 px-1 rounded">
+          {match}
+        </span>
+        {after}
+      </>
+    );
+  }, [searchQuery]);
+
   return (
     <aside className="w-64 bg-gray-900/50 border-r border-gray-700 h-screen overflow-y-auto sticky top-0">
       {/* Logo/Title */}
@@ -78,34 +101,73 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
           <input
             ref={searchInputRef}
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setSelectedIndex(0);
+            }}
+            onKeyDown={(e) => {
+              const maxIndex = Math.max(searchResults.length - 1, 0);
+              const safeIndex = Math.min(selectedIndex, maxIndex);
+              if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (searchResults.length > 0) {
+                  setSelectedIndex((i) => Math.min(i + 1, maxIndex));
+                }
+              }
+              if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (searchResults.length > 0) {
+                  setSelectedIndex((i) => Math.max(i - 1, 0));
+                }
+              }
+              if (e.key === 'Enter') {
+                const item = searchResults[safeIndex] ?? searchResults[0];
+                if (!item) return;
+                setSearchQuery('');
+                setSelectedIndex(0);
+                onTabChange(item.id);
+              }
+            }}
             placeholder="搜索页面… (Ctrl+K)"
             className="w-full px-3 py-2 text-sm rounded-lg bg-gray-950/50 border border-gray-700 text-gray-200 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/40"
           />
-          {searchResults.length > 0 && (
+          {searchQuery.trim() && (
             <div className="mt-2 bg-gray-950/50 border border-gray-700 rounded-lg overflow-hidden">
-              {searchResults.map((item) => (
-                <button
-                  key={`${item.groupId}:${item.id}`}
-                  onClick={() => {
-                    setSearchQuery('');
-                    onTabChange(item.id);
-                  }}
-                  className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-800/40 transition-colors ${
-                    activeTab === item.id ? 'text-cyan-300' : 'text-gray-300'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    {item.highlight && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-                    )}
-                    <span className="flex-1">{item.label}</span>
-                  </div>
-                  <div className="text-xs text-gray-500 mt-0.5">
-                    {item.groupIcon} {item.groupTitle}
-                  </div>
-                </button>
-              ))}
+              {searchResults.length > 0 ? (
+                searchResults.map((item, index) => {
+                  const isSelected = index === selectedIndex;
+                  return (
+                    <button
+                      key={`${item.groupId}:${item.id}`}
+                      onMouseEnter={() => setSelectedIndex(index)}
+                      onClick={() => {
+                        setSearchQuery('');
+                        setSelectedIndex(0);
+                        onTabChange(item.id);
+                      }}
+                      className={`w-full px-3 py-2 text-left text-sm transition-colors ${
+                        isSelected
+                          ? 'bg-gray-800/60'
+                          : 'hover:bg-gray-800/40'
+                      } ${activeTab === item.id ? 'text-cyan-300' : 'text-gray-300'}`}
+                    >
+                      <div className="flex items-center gap-2">
+                        {item.highlight && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                        )}
+                        <span className="flex-1 truncate">{highlightMatch(item.label)}</span>
+                      </div>
+                      <div className="text-xs text-gray-500 mt-0.5 truncate">
+                        {item.groupIcon} {highlightMatch(item.groupTitle)}
+                      </div>
+                    </button>
+                  );
+                })
+              ) : (
+                <div className="px-3 py-2 text-sm text-gray-500">
+                  无匹配结果
+                </div>
+              )}
             </div>
           )}
         </div>

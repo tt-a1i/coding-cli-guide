@@ -9,6 +9,8 @@ import { StartHere } from './pages/StartHere';
 import { Overview } from './pages/Overview';
 
 // 懒加载的页面
+const EndToEndWalkthrough = lazy(() => import('./pages/EndToEndWalkthrough').then(m => ({ default: m.EndToEndWalkthrough })));
+const UpstreamDiffOverview = lazy(() => import('./pages/UpstreamDiffOverview').then(m => ({ default: m.UpstreamDiffOverview })));
 const StartupFlow = lazy(() => import('./pages/StartupFlow').then(m => ({ default: m.StartupFlow })));
 const StartupChain = lazy(() => import('./pages/StartupChain').then(m => ({ default: m.StartupChain })));
 const ConfigSystem = lazy(() => import('./pages/ConfigSystem').then(m => ({ default: m.ConfigSystem })));
@@ -64,6 +66,7 @@ function PageLoading() {
 }
 
 function App() {
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const validTabIds = useMemo(() => new Set(flatNavItems.map((i) => i.id)), []);
 
   const getTabFromUrl = useCallback(() => {
@@ -92,6 +95,29 @@ function App() {
     [validTabIds]
   );
 
+  const activeTabLabel = useMemo(() => {
+    const item = flatNavItems.find((i) => i.id === activeTab);
+    return item?.label ?? 'Innies CLI';
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (!isMobileSidebarOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsMobileSidebarOpen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isMobileSidebarOpen]);
+
+  useEffect(() => {
+    if (!isMobileSidebarOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [isMobileSidebarOpen]);
+
   useEffect(() => {
     const onPopState = () => {
       setActiveTab(getTabFromUrl());
@@ -112,6 +138,10 @@ function App() {
     switch (activeTab) {
       case 'start-here':
         return <StartHere onNavigate={(tab) => navigateToTab(tab)} />;
+      case 'e2e':
+        return <EndToEndWalkthrough />;
+      case 'upstream-diff':
+        return <UpstreamDiffOverview />;
       case 'overview':
         return <Overview />;
       case 'startup':
@@ -203,12 +233,60 @@ function App() {
 
   return (
     <div className="flex min-h-screen bg-gray-950">
-      {/* Sidebar */}
-      <Sidebar activeTab={activeTab} onTabChange={(tab) => navigateToTab(tab)} />
+      {/* Desktop Sidebar */}
+      <div className="hidden md:block">
+        <Sidebar activeTab={activeTab} onTabChange={(tab) => navigateToTab(tab)} />
+      </div>
+
+      {/* Mobile Sidebar Drawer */}
+      {isMobileSidebarOpen && (
+        <div className="md:hidden fixed inset-0 z-50">
+          <button
+            aria-label="Close sidebar overlay"
+            onClick={() => setIsMobileSidebarOpen(false)}
+            className="absolute inset-0 bg-black/60"
+          />
+          <div className="absolute inset-y-0 left-0 w-72 max-w-[85vw] shadow-2xl">
+            <Sidebar
+              activeTab={activeTab}
+              onTabChange={(tab) => {
+                navigateToTab(tab);
+                setIsMobileSidebarOpen(false);
+              }}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
-        <div className="max-w-5xl mx-auto p-8">
+        {/* Mobile Top Bar */}
+        <div className="md:hidden sticky top-0 z-20 bg-gray-950/80 backdrop-blur border-b border-gray-800">
+          <div className="px-4 py-3 flex items-center gap-3">
+            <button
+              onClick={() => setIsMobileSidebarOpen(true)}
+              className="px-3 py-2 rounded-lg bg-gray-900/30 border border-gray-800 text-gray-200 hover:bg-gray-800/40"
+              aria-label="Open sidebar"
+            >
+              ☰
+            </button>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm text-gray-200 truncate">{activeTabLabel}</div>
+              <div className="text-xs text-gray-500 truncate">
+                搜索页面：Ctrl/⌘ + K
+              </div>
+            </div>
+            <button
+              onClick={() => navigateToTab('start-here')}
+              className="px-3 py-2 rounded-lg bg-gray-900/30 border border-gray-800 text-gray-200 hover:bg-gray-800/40"
+              aria-label="Go to start"
+            >
+              ⌂
+            </button>
+          </div>
+        </div>
+
+        <div className="max-w-5xl mx-auto p-4 md:p-8">
           <div className="animate-fadeIn">
             <PageLayout activeTab={activeTab} onNavigate={navigateToTab}>
               <Suspense fallback={<PageLoading />}>
