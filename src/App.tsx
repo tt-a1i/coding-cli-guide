@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Sidebar } from './components/Sidebar';
+import { PageLayout } from './components/PageLayout';
 import { StartHere } from './pages/StartHere';
 import { Overview } from './pages/Overview';
 import { StartupFlow } from './pages/StartupFlow';
@@ -44,14 +45,57 @@ import { InteractionLoop } from './pages/InteractionLoop';
 import { ToolReference } from './pages/ToolReference';
 import { ToolSchedulerDetails } from './pages/ToolSchedulerDetails';
 import './index.css';
+import { flatNavItems } from './nav';
 
 function App() {
-  const [activeTab, setActiveTab] = useState('start-here');
+  const validTabIds = useMemo(() => new Set(flatNavItems.map((i) => i.id)), []);
+
+  const getTabFromUrl = useCallback(() => {
+    const url = new URL(window.location.href);
+    const tab = url.searchParams.get('tab') ?? 'start-here';
+    return validTabIds.has(tab) ? tab : 'start-here';
+  }, [validTabIds]);
+
+  const [activeTab, setActiveTab] = useState(getTabFromUrl);
+
+  const navigateToTab = useCallback(
+    (tab: string, opts?: { replace?: boolean; preserveHash?: boolean }) => {
+      const nextTab = validTabIds.has(tab) ? tab : 'start-here';
+      const url = new URL(window.location.href);
+      url.searchParams.set('tab', nextTab);
+      if (!opts?.preserveHash) {
+        url.hash = '';
+      }
+      if (opts?.replace) {
+        window.history.replaceState({}, '', url);
+      } else {
+        window.history.pushState({}, '', url);
+      }
+      setActiveTab(nextTab);
+    },
+    [validTabIds]
+  );
+
+  useEffect(() => {
+    const onPopState = () => {
+      setActiveTab(getTabFromUrl());
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, [getTabFromUrl]);
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has('tab')) {
+      url.searchParams.set('tab', 'start-here');
+      window.history.replaceState({}, '', url);
+    }
+  }, []);
 
   const renderContent = () => {
     switch (activeTab) {
       case 'start-here':
-        return <StartHere onNavigate={setActiveTab} />;
+        return <StartHere onNavigate={(tab) => navigateToTab(tab)} />;
       case 'overview':
         return <Overview />;
       case 'startup':
@@ -137,19 +181,23 @@ function App() {
       case 'loop':
         return <LoopMechanism />;
       default:
-        return <StartHere onNavigate={setActiveTab} />;
+        return <StartHere onNavigate={(tab) => navigateToTab(tab)} />;
     }
   };
 
   return (
     <div className="flex min-h-screen bg-gray-950">
       {/* Sidebar */}
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      <Sidebar activeTab={activeTab} onTabChange={(tab) => navigateToTab(tab)} />
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
         <div className="max-w-5xl mx-auto p-8">
-          <div className="animate-fadeIn">{renderContent()}</div>
+          <div className="animate-fadeIn">
+            <PageLayout activeTab={activeTab} onNavigate={navigateToTab}>
+              {renderContent()}
+            </PageLayout>
+          </div>
         </div>
       </main>
     </div>
