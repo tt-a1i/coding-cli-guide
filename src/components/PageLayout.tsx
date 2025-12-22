@@ -1,7 +1,82 @@
-import { useEffect, useMemo, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { flatNavItems } from '../nav';
 import { useOutline } from './OutlineContext';
 import { OutlineProvider } from './OutlineProvider';
+
+function ShareButtons() {
+  const [copied, setCopied] = useState<'page' | 'section' | null>(null);
+
+  const copyToClipboard = useCallback(async (text: string, type: 'page' | 'section') => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(type);
+      setTimeout(() => setCopied(null), 2000);
+    } catch {
+      // fallback for older browsers
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+      setCopied(type);
+      setTimeout(() => setCopied(null), 2000);
+    }
+  }, []);
+
+  const copyPageLink = useCallback(() => {
+    const url = new URL(window.location.href);
+    url.hash = '';
+    copyToClipboard(url.toString(), 'page');
+  }, [copyToClipboard]);
+
+  const copySectionLink = useCallback(() => {
+    const url = new URL(window.location.href);
+    if (!url.hash) {
+      // 如果没有 hash，复制页面链接
+      copyToClipboard(url.toString(), 'section');
+    } else {
+      copyToClipboard(url.toString(), 'section');
+    }
+  }, [copyToClipboard]);
+
+  return (
+    <div className="flex items-center gap-2 mb-4">
+      <button
+        onClick={copyPageLink}
+        className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-gray-900/30 border border-gray-700 text-gray-300 hover:bg-gray-800/40 hover:border-gray-600 hover:text-cyan-300 transition-colors"
+      >
+        {copied === 'page' ? (
+          <>
+            <span className="text-green-400">✓</span>
+            <span>已复制</span>
+          </>
+        ) : (
+          <>
+            <span>🔗</span>
+            <span>复制本页链接</span>
+          </>
+        )}
+      </button>
+      <button
+        onClick={copySectionLink}
+        className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-gray-900/30 border border-gray-700 text-gray-300 hover:bg-gray-800/40 hover:border-gray-600 hover:text-cyan-300 transition-colors"
+      >
+        {copied === 'section' ? (
+          <>
+            <span className="text-green-400">✓</span>
+            <span>已复制</span>
+          </>
+        ) : (
+          <>
+            <span>#</span>
+            <span>复制当前章节链接</span>
+          </>
+        )}
+      </button>
+    </div>
+  );
+}
 
 function PageOutline() {
   const outline = useOutline();
@@ -90,6 +165,7 @@ export function PageLayout({
 
   return (
     <OutlineProvider key={activeTab}>
+      <ShareButtons />
       <PageOutline />
       {children}
 

@@ -1,51 +1,67 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { PageLayout } from './components/PageLayout';
-import { StartHere } from './pages/StartHere';
-import { Overview } from './pages/Overview';
-import { StartupFlow } from './pages/StartupFlow';
-import { AIToolInteraction } from './pages/AIToolInteraction';
-import { LoopMechanism } from './pages/LoopMechanism';
-import { GeminiChatCore } from './pages/GeminiChatCore';
-import { ContentGeneratorDetails } from './pages/ContentGeneratorDetails';
-import { ToolDetails } from './pages/ToolDetails';
-import { ToolSystemArchitecture } from './pages/ToolSystemArchitecture';
-import { MCPIntegration } from './pages/MCPIntegration';
-import { UIRenderingLayer } from './pages/UIRenderingLayer';
-import { RequestLifecycle } from './pages/RequestLifecycle';
-import { Animation } from './pages/Animation';
-import { CoreCode } from './pages/CoreCode';
-import { ConfigSystem } from './pages/ConfigSystem';
-import { AuthenticationFlow } from './pages/AuthenticationFlow';
-import { MemoryManagement } from './pages/MemoryManagement';
-import { SubagentSystem } from './pages/SubagentSystem';
-import { SlashCommands } from './pages/SlashCommands';
-import { CustomCommands } from './pages/CustomCommands';
-import { ShellModes } from './pages/ShellModes';
-import { AtCommands } from './pages/AtCommands';
-import { MemorySystemSplit } from './pages/MemorySystemSplit';
-import { SystemPromptArch } from './pages/SystemPromptArch';
-import { SandboxSystem } from './pages/SandboxSystem';
-import { LoopDetection } from './pages/LoopDetection';
-import { RetryFallback } from './pages/RetryFallback';
-import { ErrorHandling } from './pages/ErrorHandling';
-import { NonInteractiveMode } from './pages/NonInteractiveMode';
-import { ExtensionSystem } from './pages/ExtensionSystem';
-import { TelemetrySystem } from './pages/TelemetrySystem';
-import { ThemeSystem } from './pages/ThemeSystem';
-import { ApprovalModeSystem } from './pages/ApprovalModeSystem';
-import { TrustedFolders } from './pages/TrustedFolders';
-import { Checkpointing } from './pages/Checkpointing';
-import { WelcomeBack } from './pages/WelcomeBack';
-import { VisionModelSwitch } from './pages/VisionModelSwitch';
-import { IDEIntegration } from './pages/IDEIntegration';
-import { IDEDiffProtocol } from './pages/IDEDiffProtocol';
-import { StartupChain } from './pages/StartupChain';
-import { InteractionLoop } from './pages/InteractionLoop';
-import { ToolReference } from './pages/ToolReference';
-import { ToolSchedulerDetails } from './pages/ToolSchedulerDetails';
 import './index.css';
 import { flatNavItems } from './nav';
+
+// 首屏直接加载的页面
+import { StartHere } from './pages/StartHere';
+import { Overview } from './pages/Overview';
+
+// 懒加载的页面
+const StartupFlow = lazy(() => import('./pages/StartupFlow').then(m => ({ default: m.StartupFlow })));
+const StartupChain = lazy(() => import('./pages/StartupChain').then(m => ({ default: m.StartupChain })));
+const ConfigSystem = lazy(() => import('./pages/ConfigSystem').then(m => ({ default: m.ConfigSystem })));
+const AuthenticationFlow = lazy(() => import('./pages/AuthenticationFlow').then(m => ({ default: m.AuthenticationFlow })));
+const RequestLifecycle = lazy(() => import('./pages/RequestLifecycle').then(m => ({ default: m.RequestLifecycle })));
+const InteractionLoop = lazy(() => import('./pages/InteractionLoop').then(m => ({ default: m.InteractionLoop })));
+const GeminiChatCore = lazy(() => import('./pages/GeminiChatCore').then(m => ({ default: m.GeminiChatCore })));
+const SystemPromptArch = lazy(() => import('./pages/SystemPromptArch').then(m => ({ default: m.SystemPromptArch })));
+const ContentGeneratorDetails = lazy(() => import('./pages/ContentGeneratorDetails').then(m => ({ default: m.ContentGeneratorDetails })));
+const VisionModelSwitch = lazy(() => import('./pages/VisionModelSwitch').then(m => ({ default: m.VisionModelSwitch })));
+const MemoryManagement = lazy(() => import('./pages/MemoryManagement').then(m => ({ default: m.MemoryManagement })));
+const ToolReference = lazy(() => import('./pages/ToolReference').then(m => ({ default: m.ToolReference })));
+const ToolSchedulerDetails = lazy(() => import('./pages/ToolSchedulerDetails').then(m => ({ default: m.ToolSchedulerDetails })));
+const ToolSystemArchitecture = lazy(() => import('./pages/ToolSystemArchitecture').then(m => ({ default: m.ToolSystemArchitecture })));
+const ToolDetails = lazy(() => import('./pages/ToolDetails').then(m => ({ default: m.ToolDetails })));
+const AIToolInteraction = lazy(() => import('./pages/AIToolInteraction').then(m => ({ default: m.AIToolInteraction })));
+const SlashCommands = lazy(() => import('./pages/SlashCommands').then(m => ({ default: m.SlashCommands })));
+const CustomCommands = lazy(() => import('./pages/CustomCommands').then(m => ({ default: m.CustomCommands })));
+const ShellModes = lazy(() => import('./pages/ShellModes').then(m => ({ default: m.ShellModes })));
+const AtCommands = lazy(() => import('./pages/AtCommands').then(m => ({ default: m.AtCommands })));
+const MemorySystemSplit = lazy(() => import('./pages/MemorySystemSplit').then(m => ({ default: m.MemorySystemSplit })));
+const SubagentSystem = lazy(() => import('./pages/SubagentSystem').then(m => ({ default: m.SubagentSystem })));
+const MCPIntegration = lazy(() => import('./pages/MCPIntegration').then(m => ({ default: m.MCPIntegration })));
+const ExtensionSystem = lazy(() => import('./pages/ExtensionSystem').then(m => ({ default: m.ExtensionSystem })));
+const IDEIntegration = lazy(() => import('./pages/IDEIntegration').then(m => ({ default: m.IDEIntegration })));
+const IDEDiffProtocol = lazy(() => import('./pages/IDEDiffProtocol').then(m => ({ default: m.IDEDiffProtocol })));
+const ApprovalModeSystem = lazy(() => import('./pages/ApprovalModeSystem').then(m => ({ default: m.ApprovalModeSystem })));
+const TrustedFolders = lazy(() => import('./pages/TrustedFolders').then(m => ({ default: m.TrustedFolders })));
+const Checkpointing = lazy(() => import('./pages/Checkpointing').then(m => ({ default: m.Checkpointing })));
+const SandboxSystem = lazy(() => import('./pages/SandboxSystem').then(m => ({ default: m.SandboxSystem })));
+const LoopDetection = lazy(() => import('./pages/LoopDetection').then(m => ({ default: m.LoopDetection })));
+const RetryFallback = lazy(() => import('./pages/RetryFallback').then(m => ({ default: m.RetryFallback })));
+const ErrorHandling = lazy(() => import('./pages/ErrorHandling').then(m => ({ default: m.ErrorHandling })));
+const NonInteractiveMode = lazy(() => import('./pages/NonInteractiveMode').then(m => ({ default: m.NonInteractiveMode })));
+const WelcomeBack = lazy(() => import('./pages/WelcomeBack').then(m => ({ default: m.WelcomeBack })));
+const UIRenderingLayer = lazy(() => import('./pages/UIRenderingLayer').then(m => ({ default: m.UIRenderingLayer })));
+const ThemeSystem = lazy(() => import('./pages/ThemeSystem').then(m => ({ default: m.ThemeSystem })));
+const TelemetrySystem = lazy(() => import('./pages/TelemetrySystem').then(m => ({ default: m.TelemetrySystem })));
+const Animation = lazy(() => import('./pages/Animation').then(m => ({ default: m.Animation })));
+const CoreCode = lazy(() => import('./pages/CoreCode').then(m => ({ default: m.CoreCode })));
+const LoopMechanism = lazy(() => import('./pages/LoopMechanism').then(m => ({ default: m.LoopMechanism })));
+
+// 页面加载 fallback
+function PageLoading() {
+  return (
+    <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center gap-3 text-gray-400">
+        <div className="w-5 h-5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+        <span>加载页面...</span>
+      </div>
+    </div>
+  );
+}
 
 function App() {
   const validTabIds = useMemo(() => new Set(flatNavItems.map((i) => i.id)), []);
@@ -195,7 +211,9 @@ function App() {
         <div className="max-w-5xl mx-auto p-8">
           <div className="animate-fadeIn">
             <PageLayout activeTab={activeTab} onNavigate={navigateToTab}>
-              {renderContent()}
+              <Suspense fallback={<PageLoading />}>
+                {renderContent()}
+              </Suspense>
             </PageLayout>
           </div>
         </div>

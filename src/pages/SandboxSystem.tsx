@@ -232,9 +232,9 @@ interface SecurityFeatures {
 // 验证命令安全性
 function validateCommand(command: string): boolean {
   const dangerousPatterns = [
-    /rm\s+-rf\s+\/(?!\s)/,       // rm -rf /
+    /rm\\s+-rf\\s+\\/(?!\\s)/,    // rm -rf /
     /mkfs/,                       // 格式化磁盘
-    /dd\s+if=/,                   // 低级磁盘操作
+    /dd\\s+if=/,                  // 低级磁盘操作
     /:(){ :|:& };:/,             // Fork 炸弹
   ];
 

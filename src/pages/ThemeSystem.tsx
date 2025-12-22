@@ -556,7 +556,7 @@ innies config import-theme ./my-theme.json
 innies config export-theme > current-theme.json`;
 
   // 主题预览组件
-  const ThemePreview = ({ themeName, theme }: { themeName: string; theme: any }) => (
+  const ThemePreview = ({ themeName, theme }: { themeName: string; theme: Record<string, Record<string, string>> }) => (
     <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
       <h5 className="font-semibold mb-2" style={{ color: theme.colors.primary }}>
         {themeName}
