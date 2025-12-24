@@ -15,7 +15,7 @@ export function MemoryManagement() {
             <div className="text-center">
               <div className="text-2xl mb-1">📝</div>
               <strong>记忆系统</strong>
-              <p className="text-xs text-gray-400">INNIES.md 持久化知识</p>
+              <p className="text-xs text-gray-400">QWEN.md 持久化知识</p>
             </div>
             <div className="text-center">
               <div className="text-2xl mb-1">🗜️</div>
@@ -36,7 +36,7 @@ export function MemoryManagement() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-4">
             <h4 className="text-cyan-400 font-bold mb-2">🌍 全局记忆</h4>
-            <code className="text-xs text-gray-400 block mb-2">~/.innies/INNIES.md</code>
+            <code className="text-xs text-gray-400 block mb-2">~/.qwen/QWEN.md</code>
             <p className="text-sm text-gray-300">
               跨所有项目共享的知识，如用户偏好、通用技术栈等
             </p>
@@ -44,7 +44,7 @@ export function MemoryManagement() {
 
           <div className="bg-purple-500/10 border-2 border-purple-500/30 rounded-lg p-4">
             <h4 className="text-purple-400 font-bold mb-2">📂 项目记忆</h4>
-            <code className="text-xs text-gray-400 block mb-2">.innies/INNIES.md</code>
+            <code className="text-xs text-gray-400 block mb-2">.qwen/QWEN.md</code>
             <p className="text-sm text-gray-300">
               项目特定信息，如架构决策、API 约定等。<br/>
               *文件名可通过 <code>QWEN_CONFIG_DIR</code> 环境变量自定义。
@@ -53,7 +53,7 @@ export function MemoryManagement() {
         </div>
 
         <CodeBlock
-          title="INNIES.md 文件结构"
+          title="QWEN.md 文件结构"
           code={`# 项目说明
 
 这是一个 React + TypeScript 项目...
@@ -67,7 +67,7 @@ export function MemoryManagement() {
 - 使用 Context 管理全局状态
 - 组件按功能模块组织
 
-## Innies Added Memories
+## Qwen Added Memories
 - 用户偏好使用函数式组件
 - 测试框架是 Vitest
 - 代码风格遵循 ESLint 配置`}
@@ -86,8 +86,8 @@ class MemoryTool extends BaseDeclarativeTool {
         // 添加记忆
         add: async (fact: string, level: 'user' | 'project') => {
             const filePath = level === 'user'
-                ? '~/.innies/INNIES.md'
-                : '.innies/INNIES.md';
+                ? '~/.qwen/QWEN.md'
+                : '.qwen/QWEN.md';
 
             const content = await readFile(filePath);
             const updated = appendToMemorySection(content, fact);
@@ -108,7 +108,7 @@ class MemoryTool extends BaseDeclarativeTool {
 
 // 记忆分段
 function appendToMemorySection(content: string, fact: string): string {
-    const MEMORY_HEADER = '## Innies Added Memories';
+    const MEMORY_HEADER = '## Qwen Added Memories';
 
     if (!content.includes(MEMORY_HEADER)) {
         return content + '\\n\\n' + MEMORY_HEADER + '\\n- ' + fact;
@@ -227,7 +227,7 @@ class ChatCompressionService {
       <Layer title="会话持久化 (Session Persistence)" icon="💾">
         <CodeBlock
           title="会话存储位置"
-          code={`~/.innies/tmp/<project_hash>/chats/
+          code={`~/.qwen/tmp/<project_hash>/chats/
 └── session-2025-12-19-15-30-abc12345.json
 
 命名格式：
@@ -332,10 +332,10 @@ class ChatRecordingService {
       <Layer title="会话恢复 (Resume)" icon="🔄">
         <CodeBlock
           code={`# 恢复最近的会话
-innies --resume
+qwen --resume
 
 # 恢复指定会话
-innies --resume abc12345
+qwen --resume abc12345
 
 # 会话恢复流程
 1. 查找匹配的会话文件

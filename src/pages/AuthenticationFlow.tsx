@@ -209,8 +209,8 @@ async function deviceCodeFlow(): Promise<OAuthToken> {
 
         <HighlightBox title="Token 存储位置" icon="💾" variant="green">
           <ul className="pl-5 list-disc space-y-1">
-            <li><code>~/.innies/oauth_creds.json</code> - Qwen OAuth Token</li>
-            <li><code>~/.innies/google_oauth_creds.json</code> - Google OAuth Token</li>
+            <li><code>~/.qwen/oauth_creds.json</code> - Qwen OAuth Token</li>
+            <li><code>~/.qwen/google_oauth_creds.json</code> - Google OAuth Token</li>
             <li>支持加密存储（设置 <code>FORCE_ENCRYPTED_FILE_ENV_VAR</code>）</li>
           </ul>
         </HighlightBox>
@@ -291,8 +291,8 @@ export OPENAI_MODEL="gpt-4"`}
         <HighlightBox title="认证优先级" icon="📊" variant="blue">
           <ol className="pl-5 list-decimal space-y-1">
             <li><strong>环境变量</strong> - OPENAI_API_KEY 等</li>
-            <li><strong>项目配置</strong> - .innies/settings.json</li>
-            <li><strong>用户配置</strong> - ~/.innies/settings.json</li>
+            <li><strong>项目配置</strong> - .qwen/settings.json</li>
+            <li><strong>用户配置</strong> - ~/.qwen/settings.json</li>
             <li><strong>Qwen OAuth</strong> - 默认回退方式</li>
           </ol>
         </HighlightBox>

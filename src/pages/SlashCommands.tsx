@@ -58,7 +58,7 @@ export function SlashCommands() {
           <CommandCard name="/chat list" desc="列出可用的会话标签" />
           <CommandCard name="/chat delete <tag>" desc="删除已保存的会话" />
           <CommandCard name="/chat share [file]" desc="导出会话到 Markdown/JSON" />
-          <CommandCard name="/summary" desc="生成项目摘要到 .innies/PROJECT_SUMMARY.md" />
+          <CommandCard name="/summary" desc="生成项目摘要到 .qwen/PROJECT_SUMMARY.md" />
           <CommandCard name="/compress" desc="手动压缩聊天历史，节省 Token" />
           <CommandCard name="/stats" desc="显示会话统计（Token 使用、时长等）" />
           <CommandCard name="/clear" desc="清空终端屏幕 (Ctrl+L)" />
@@ -68,9 +68,9 @@ export function SlashCommands() {
         <h4 className="text-lg text-cyan-400 font-bold mb-3">🧠 上下文与记忆</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-6">
           <CommandCard name="/memory show" desc="显示已加载的层级上下文" />
-          <CommandCard name="/memory refresh" desc="重新扫描并加载 INNIES.md 文件" />
+          <CommandCard name="/memory refresh" desc="重新扫描并加载 QWEN.md 文件" />
           <CommandCard name="/memory add <text>" desc="添加文本到记忆" />
-          <CommandCard name="/init" desc="分析当前目录并创建 INNIES.md" />
+          <CommandCard name="/init" desc="分析当前目录并创建 QWEN.md" />
         </div>
 
         {/* 文件检查点 */}

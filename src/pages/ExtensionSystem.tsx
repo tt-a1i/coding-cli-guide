@@ -5,8 +5,8 @@ import { CodeBlock } from '../components/CodeBlock';
 export function ExtensionSystem() {
   const extensionFlow = `flowchart TD
     start["CLI 启动"]
-    scan_local["扫描本地扩展<br/>.innies/extensions/"]
-    scan_global["扫描全局扩展<br/>~/.innies/extensions/"]
+    scan_local["扫描本地扩展<br/>.qwen/extensions/"]
+    scan_global["扫描全局扩展<br/>~/.qwen/extensions/"]
     load_manifest["加载 manifest<br/>package.json"]
     validate{"验证扩展"}
     init_ext["初始化扩展<br/>执行 activate()"]
@@ -38,7 +38,7 @@ export function ExtensionSystem() {
   "main": "dist/index.js",
 
   // 扩展元数据
-  "innies": {
+  "qwen": {
     // 扩展类型
     "type": "extension",
 
@@ -221,20 +221,20 @@ async function installFromGitHub(
 }
 
 // 扩展命令
-// innies extensions install owner/repo
-// innies extensions uninstall extension-name
-// innies extensions list
-// innies extensions update [extension-name]`;
+// qwen extensions install owner/repo
+// qwen extensions uninstall extension-name
+// qwen extensions list
+// qwen extensions update [extension-name]`;
 
   const mcpServerConfigCode = `// MCP 服务器配置
-// .innies/mcp.json
+// .qwen/mcp.json
 
 {
   "mcpServers": {
     // 内置 MCP 服务器
     "filesystem": {
       "command": "node",
-      "args": ["~/.innies/mcp-servers/filesystem/index.js"],
+      "args": ["~/.qwen/mcp-servers/filesystem/index.js"],
       "env": {
         "ALLOWED_PATHS": "/home/user/projects"
       }
@@ -364,7 +364,7 @@ class ExtensionRegistry {
   const cliCommandsCode = `# 扩展管理命令
 
 # 列出所有扩展
-innies extensions list
+qwen extensions list
 # 输出:
 # ┌─────────────────┬─────────┬────────┬──────────┐
 # │ Name            │ Version │ Active │ Type     │
@@ -375,34 +375,34 @@ innies extensions list
 # └─────────────────┴─────────┴────────┴──────────┘
 
 # 安装扩展 (GitHub)
-innies extensions install username/repo
-innies extensions install username/repo@v1.0.0
-innies extensions install github:username/repo
+qwen extensions install username/repo
+qwen extensions install username/repo@v1.0.0
+qwen extensions install github:username/repo
 
 # 安装扩展 (npm)
-innies extensions install npm:package-name
+qwen extensions install npm:package-name
 
 # 安装扩展 (本地)
-innies extensions install ./path/to/extension
+qwen extensions install ./path/to/extension
 
 # 卸载扩展
-innies extensions uninstall extension-name
+qwen extensions uninstall extension-name
 
 # 更新扩展
-innies extensions update           # 更新所有
-innies extensions update ext-name  # 更新特定扩展
+qwen extensions update           # 更新所有
+qwen extensions update ext-name  # 更新特定扩展
 
 # 启用/禁用扩展
-innies extensions enable ext-name
-innies extensions disable ext-name
+qwen extensions enable ext-name
+qwen extensions disable ext-name
 
 # 查看扩展详情
-innies extensions info ext-name
+qwen extensions info ext-name
 # 输出:
 # Name: python-tools
 # Version: 1.2.0
-# Description: Python development tools for innies
-# Path: ~/.innies/extensions/python-tools
+# Description: Python development tools for qwen
+# Path: ~/.qwen/extensions/python-tools
 #
 # Contributes:
 #   Commands:
@@ -495,7 +495,7 @@ innies extensions info ext-name
       {/* CLI 命令 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">扩展管理命令</h3>
-        <CodeBlock code={cliCommandsCode} language="bash" title="innies extensions" />
+        <CodeBlock code={cliCommandsCode} language="bash" title="qwen extensions" />
       </section>
 
       {/* 扩展目录结构 */}
@@ -503,7 +503,7 @@ innies extensions info ext-name
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">扩展目录结构</h3>
         <div className="bg-gray-800/50 rounded-lg p-4">
           <pre className="text-sm text-gray-300">
-{`~/.innies/
+{`~/.qwen/
 ├── extensions/                 # 全局扩展目录
 │   ├── python-tools/
 │   │   ├── package.json       # 扩展清单
@@ -521,7 +521,7 @@ innies extensions info ext-name
 └── mcp.json                   # MCP 配置文件
 
 project/
-├── .innies/
+├── .qwen/
 │   ├── extensions/            # 项目级扩展
 │   │   └── local-extension/
 │   └── mcp.json               # 项目 MCP 配置
@@ -536,7 +536,7 @@ project/
         <div className="bg-gray-800/50 rounded-lg p-6">
           <pre className="text-sm text-gray-300 overflow-x-auto">
 {`┌──────────────────────────────────────────────────────────────────┐
-│                         Innies CLI                               │
+│                         Qwen CLI                               │
 │  ┌────────────────────────────────────────────────────────────┐  │
 │  │                   Extension Manager                        │  │
 │  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │  │
@@ -585,10 +585,10 @@ project/
           <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
             <h4 className="text-blue-400 font-semibold mb-2">开发步骤</h4>
             <ol className="text-sm text-gray-300 space-y-1 list-decimal list-inside">
-              <li>创建 package.json 并添加 innies 配置</li>
+              <li>创建 package.json 并添加 qwen 配置</li>
               <li>实现 activate() 和可选的 deactivate()</li>
               <li>注册命令、工具或 MCP 服务器</li>
-              <li>测试: <code>innies ext install ./</code></li>
+              <li>测试: <code>qwen ext install ./</code></li>
               <li>发布到 GitHub 或 npm</li>
             </ol>
           </div>

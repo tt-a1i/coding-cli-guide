@@ -55,10 +55,10 @@ export function Checkpointing() {
     class restore_done terminal_node`;
 
   const enableConfigCode = `// 方式一：命令行参数启用(已废弃,不推荐)
-$ innies --checkpointing  # ⚠️ Deprecated
+$ qwen --checkpointing  # ⚠️ Deprecated
 
 // 方式二：settings.json 永久启用(推荐)
-// ~/.innies/settings.json
+// ~/.qwen/settings.json
 {
   "general": {
     "checkpointing": {
@@ -68,7 +68,7 @@ $ innies --checkpointing  # ⚠️ Deprecated
 }`;
 
   const checkpointStorageCode = `// 检查点数据存储结构
-// ~/.innies/
+// ~/.qwen/
 
 ├── history/                    # Git 快照存储
 │   └── <project_hash>/        # 每个项目一个影子仓库
@@ -104,11 +104,11 @@ class GitService {
     this.storage = storage;
   }
 
-  // 影子仓库位置: ~/.innies/history/<project-hash>/
-  // 注意: 不在项目目录内，而是在全局 ~/.innies 下
+  // 影子仓库位置: ~/.qwen/history/<project-hash>/
+  // 注意: 不在项目目录内，而是在全局 ~/.qwen 下
   private getHistoryDir(): string {
     return this.storage.getHistoryDir();
-    // 实际路径: ~/.innies/history/<sha256(projectRoot)>/
+    // 实际路径: ~/.qwen/history/<sha256(projectRoot)>/
   }
 
   async initialize(): Promise<void> {
@@ -127,7 +127,7 @@ class GitService {
 
     // 创建专用 gitconfig，避免继承用户配置
     const gitConfigContent =
-      '[user]\\n  name = Innies Cli\\n  email = ...';
+      '[user]\\n  name = Qwen Cli\\n  email = ...';
     await fs.writeFile(path.join(repoDir, '.gitconfig'), gitConfigContent);
 
     const repo = simpleGit(repoDir);
@@ -183,7 +183,7 @@ The following tool call is pending:
   const workflowExampleCode = `// 典型工作流示例
 
 // 1. 启动带检查点的会话
-$ innies --checkpointing
+$ qwen --checkpointing
 
 // 2. AI 提议修改文件
 AI: 我将修改 app.ts 添加新功能...
@@ -415,14 +415,14 @@ useEffect(() => {
 //
 // 影子仓库设置 - 使用独立的 .git 目录和工作树
 async setupShadowGitRepository() {
-  const repoDir = this.getHistoryDir();  // ~/.innies/history/<hash>
+  const repoDir = this.getHistoryDir();  // ~/.qwen/history/<hash>
   const gitConfigPath = path.join(repoDir, '.gitconfig');
 
   await fs.mkdir(repoDir, { recursive: true });
 
   // 创建专用 Git 配置，避免继承用户全局配置
   const gitConfigContent =
-    '[user]\\n  name = Innies Cli\\n  email = qwen-code@qwen.ai\\n[commit]\\n  gpgsign = false\\n';
+    '[user]\\n  name = Qwen Cli\\n  email = qwen-code@qwen.ai\\n[commit]\\n  gpgsign = false\\n';
   await fs.writeFile(gitConfigPath, gitConfigContent);
 
   // 初始化 Git 仓库
@@ -526,7 +526,7 @@ async restoreProjectFromSnapshot(commitHash: string): Promise<void> {
 
           <HighlightBox title="存储位置" variant="green">
             <ul className="text-sm text-gray-300 space-y-1">
-              <li>• 路径: ~/.innies/history/&lt;hash&gt;</li>
+              <li>• 路径: ~/.qwen/history/&lt;hash&gt;</li>
               <li>• 每个项目一个独立仓库</li>
               <li>• hash 基于项目路径生成</li>
               <li>• 可手动删除清理空间</li>
@@ -711,7 +711,7 @@ async function restoreAction(
     GS-->>CS: commitHash
 
     CS->>FS: 写入检查点 JSON
-    Note right of FS: ~/.innies/tmp/<hash>/<br/>checkpoints/<timestamp>.json<br/>{history, clientHistory,<br/>toolCall, commitHash}
+    Note right of FS: ~/.qwen/tmp/<hash>/<br/>checkpoints/<timestamp>.json<br/>{history, clientHistory,<br/>toolCall, commitHash}
 
     CS-->>CLI: 检查点创建完成
     CLI->>User: 执行工具调用
@@ -790,7 +790,7 @@ async function restoreAction(
 ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐
 │ 影子 Git 仓库 │  │ 对话历史文件 │  │ 工具调用 JSON       │
 │              │  │              │  │                      │
-│ ~/.innies/   │  │ ~/.innies/   │  │ ~/.innies/tmp/       │
+│ ~/.qwen/   │  │ ~/.qwen/   │  │ ~/.qwen/tmp/       │
 │ history/     │  │ tmp/<hash>/  │  │ <hash>/checkpoints/  │
 │ <hash>/      │  │ checkpoints/ │  │ <timestamp>.json     │
 │              │  │              │  │                      │
@@ -825,7 +825,7 @@ async function restoreAction(
           <HighlightBox title="存储空间" variant="yellow">
             <p className="text-sm text-gray-300">
               检查点会占用磁盘空间。对于大型项目，影子仓库可能变得很大。
-              可以定期清理 <code>~/.innies/history/</code> 目录。
+              可以定期清理 <code>~/.qwen/history/</code> 目录。
             </p>
           </HighlightBox>
 

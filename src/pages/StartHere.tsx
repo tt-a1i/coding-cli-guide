@@ -10,7 +10,7 @@ export function StartHere({ onNavigate }: StartHereProps) {
       {/* Hero Section */}
       <section className="text-center py-8">
         <h1 className="text-4xl font-bold text-cyan-400 mb-4">
-          Innies CLI 架构深度解析
+          Qwen CLI 架构深度解析
         </h1>
         <p className="text-xl text-gray-400 mb-6">
           一个 AI Coding CLI 的完整架构拆解与源码导读
@@ -235,7 +235,7 @@ export function StartHere({ onNavigate }: StartHereProps) {
       <section className="bg-gray-800/30 rounded-xl p-6 border border-gray-700 text-center">
         <h2 className="text-lg font-bold text-white mb-2">关于本文档</h2>
         <p className="text-sm text-gray-400 mb-4">
-          基于 <a href="https://github.com/zhimanai/innies-cli" className="text-cyan-400 hover:underline">innies-cli</a> 源码分析，
+          基于 <a href="https://github.com/zhimanai/qwen-cli" className="text-cyan-400 hover:underline">qwen-cli</a> 源码分析，
           所有结论均附带源文件路径和行号引用。
         </p>
         <div className="flex justify-center gap-6 text-xs text-gray-500">

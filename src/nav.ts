@@ -20,7 +20,7 @@ export const navGroups: NavGroup[] = [
     defaultOpen: true,
     items: [
       { id: 'e2e', label: '端到端走读', highlight: true },
-      { id: 'upstream-diff', label: 'Innies 改造总览', highlight: true },
+      { id: 'upstream-diff', label: 'Qwen 改造总览', highlight: true },
     ],
   },
   {

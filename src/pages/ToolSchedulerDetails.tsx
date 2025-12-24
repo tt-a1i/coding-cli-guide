@@ -723,7 +723,7 @@ if (isPlanMode && !isExitPlanModeTool) {
                 <li>• 保留开头 <code>20%</code> 的行（前 20 行）</li>
                 <li>• 保留结尾 <code>80%</code> 的行（后 80 行）</li>
                 <li>• 中间部分用 <code>... [CONTENT TRUNCATED] ...</code> 标记</li>
-                <li>• 完整输出保存到 <code>.innies/tmp/&lt;callId&gt;.output</code></li>
+                <li>• 完整输出保存到 <code>.qwen/tmp/&lt;callId&gt;.output</code></li>
               </ul>
             </div>
             <div>

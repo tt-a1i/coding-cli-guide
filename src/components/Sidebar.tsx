@@ -95,7 +95,7 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
     <aside className="w-64 bg-gray-900/50 border-r border-gray-700 h-screen overflow-y-auto sticky top-0">
       {/* Logo/Title */}
       <div className="p-4 border-b border-gray-700">
-        <h1 className="text-lg font-bold text-cyan-400">Innies CLI</h1>
+        <h1 className="text-lg font-bold text-cyan-400">Qwen CLI</h1>
         <p className="text-xs text-gray-500">架构学习指南</p>
         <div className="mt-3">
           <input
@@ -228,7 +228,7 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
       {/* Footer */}
       <div className="p-4 border-t border-gray-700 mt-4">
         <p className="text-xs text-gray-500">
-          基于 innies-cli 源码分析
+          基于 qwen-cli 源码分析
         </p>
         <p className="text-xs text-gray-600 mt-1">
           ⭐ = 推荐阅读

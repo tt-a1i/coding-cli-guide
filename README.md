@@ -1,6 +1,6 @@
 # Coding CLI Guide
 
-Innies CLI 架构交互式学习指南，帮助开发者深入理解 CLI 的内部实现与 AI 工具交互模式。
+Qwen CLI 架构交互式学习指南，帮助开发者深入理解 CLI 的内部实现与 AI 工具交互模式。
 
 ## 预览
 
@@ -74,4 +74,4 @@ npm run lint
 
 ## 相关项目
 
-- [Innies CLI](https://github.com/zhimanai/innies-cli) - 主项目
+- [Qwen CLI](https://github.com/zhimanai/qwen-cli) - 主项目

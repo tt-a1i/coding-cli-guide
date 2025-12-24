@@ -187,7 +187,7 @@ const ideContextDelta = await getIdeContextDelta();
 
 // 准备完整请求
 const request = await prepareRequest(userParts, ideContextDelta);
-// - 添加系统提示 (CLAUDE.md, .innies/instructions.md)
+// - 添加系统提示 (CLAUDE.md, .qwen/instructions.md)
 // - 注入历史消息
 // - Token 计数与截断
 // - 上下文窗口管理`}

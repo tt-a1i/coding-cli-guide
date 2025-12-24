@@ -84,7 +84,7 @@ if (memoryArgs.length > 0) {
             code={`// 解析命令行参数 (yargs)
 const config = loadCliConfig(process.argv);
 
-// 加载用户设置 (~/.innies/settings.json)
+// 加载用户设置 (~/.qwen/settings.json)
 const settings = loadSettings(config.getProjectRoot());
 
 // 配置项包括：
@@ -185,7 +185,7 @@ if (!authResult.valid) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-white/5 rounded-lg p-4 border border-white/10">
             <h4 className="text-cyan-400 font-bold mb-2">全局配置</h4>
-            <code className="text-sm text-gray-400">~/.innies/</code>
+            <code className="text-sm text-gray-400">~/.qwen/</code>
             <ul className="mt-2 text-sm space-y-1">
               <li>├── settings.json (用户设置)</li>
               <li>├── auth.json (认证信息)</li>
@@ -196,10 +196,10 @@ if (!authResult.valid) {
 
           <div className="bg-white/5 rounded-lg p-4 border border-white/10">
             <h4 className="text-cyan-400 font-bold mb-2">项目配置</h4>
-            <code className="text-sm text-gray-400">.innies/</code>
+            <code className="text-sm text-gray-400">.qwen/</code>
             <ul className="mt-2 text-sm space-y-1">
               <li>├── settings.json (项目设置)</li>
-              <li>├── INNIES.md (项目说明)</li>
+              <li>├── QWEN.md (项目说明)</li>
               <li>├── chats/ (聊天记录)</li>
               <li>└── sandbox.Dockerfile (沙箱配置)</li>
             </ul>
@@ -210,7 +210,7 @@ if (!authResult.valid) {
       {/* 命令行参数 */}
       <Layer title="命令行参数" icon="💻">
         <CodeBlock
-          code={`innies [options] [prompt]
+          code={`qwen [options] [prompt]
 
 选项：
   --model, -m      指定模型名称
@@ -223,9 +223,9 @@ if (!authResult.valid) {
   --version        显示版本
 
 示例：
-  innies "帮我写一个 React 组件"
-  innies -m qwen-coder-plus --resume
-  innies --print "列出当前目录文件"`}
+  qwen "帮我写一个 React 组件"
+  qwen -m qwen-coder-plus --resume
+  qwen --print "列出当前目录文件"`}
         />
       </Layer>
     </div>

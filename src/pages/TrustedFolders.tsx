@@ -39,7 +39,7 @@ export function TrustedFolders() {
     style file_has_rule fill:#f59e0b,color:#000
     style user_choice fill:#f59e0b,color:#000`;
 
-  const enableConfigCode = `// ~/.innies/settings.json
+  const enableConfigCode = `// ~/.qwen/settings.json
 // 启用 Trusted Folders 功能
 
 {
@@ -53,7 +53,7 @@ export function TrustedFolders() {
 // 注意：此功能默认关闭
 // 需要手动启用才会进行信任检查`;
 
-  const trustedFoldersJsonCode = `// ~/.innies/trustedFolders.json
+  const trustedFoldersJsonCode = `// ~/.qwen/trustedFolders.json
 // 来源: packages/cli/src/config/trustedFolders.ts
 // 格式: Record<string, TrustLevel> - 简单的 { 路径: 信任级别 } 对象
 
@@ -78,10 +78,10 @@ export function TrustedFolders() {
 // 1. 工作区设置被忽略
 function loadProjectSettings(): Settings {
   if (!this.isTrustedFolder()) {
-    // 不加载 .innies/settings.json
+    // 不加载 .qwen/settings.json
     return {};
   }
-  return loadFromFile('.innies/settings.json');
+  return loadFromFile('.qwen/settings.json');
 }
 
 // 2. 环境变量被忽略
@@ -173,7 +173,7 @@ async function checkIDETrust(): Promise<boolean | null> {
         <HighlightBox title="为什么需要信任机制？" variant="red">
           <p className="text-sm text-gray-300">
             当你打开一个不熟悉的项目（如从网上下载的代码）时，该项目可能包含恶意的
-            <code className="text-yellow-300">.innies/settings.json</code> 配置，
+            <code className="text-yellow-300">.qwen/settings.json</code> 配置，
             例如自动执行危险命令、加载恶意扩展，或窃取敏感信息。
             信任机制确保这些配置在用户明确信任之前不会生效。
           </p>
@@ -212,7 +212,7 @@ async function checkIDETrust(): Promise<boolean | null> {
               <span className="text-cyan-400 font-bold">2.</span>
               <div>
                 <strong className="text-blue-400">本地信任文件</strong>
-                <span className="text-gray-400"> - 检查 ~/.innies/trustedFolders.json</span>
+                <span className="text-gray-400"> - 检查 ~/.qwen/trustedFolders.json</span>
               </div>
             </li>
             <li className="flex items-start gap-2">
@@ -278,7 +278,7 @@ async function checkIDETrust(): Promise<boolean | null> {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <HighlightBox title="1. 工作区设置被忽略" variant="red">
             <p className="text-sm text-gray-300">
-              不加载项目的 <code>.innies/settings.json</code>，
+              不加载项目的 <code>.qwen/settings.json</code>，
               防止加载自定义工具和潜在危险配置。
             </p>
           </HighlightBox>
@@ -324,7 +324,7 @@ async function checkIDETrust(): Promise<boolean | null> {
       {/* 信任规则文件 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">信任规则存储</h3>
-        <CodeBlock code={trustedFoldersJsonCode} language="json" title="~/.innies/trustedFolders.json" />
+        <CodeBlock code={trustedFoldersJsonCode} language="json" title="~/.qwen/trustedFolders.json" />
 
         <HighlightBox title="TrustLevel 语义" variant="blue">
           <ul className="text-sm text-gray-300 space-y-1">
@@ -353,7 +353,7 @@ async function checkIDETrust(): Promise<boolean | null> {
             <li className="flex items-start gap-2">
               <span className="text-cyan-400">•</span>
               <div>
-                <strong>直接编辑</strong> - 打开 <code>~/.innies/trustedFolders.json</code> 手动编辑
+                <strong>直接编辑</strong> - 打开 <code>~/.qwen/trustedFolders.json</code> 手动编辑
               </div>
             </li>
             <li className="flex items-start gap-2">

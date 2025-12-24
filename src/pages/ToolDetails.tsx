@@ -123,7 +123,7 @@ async execute() {
     title: '结果返回',
     code: `// 工具返回的结果
 {
-    llmContent: "{ \\"name\\": \\"@innies/innies-cli\\", ... }",
+    llmContent: "{ \\"name\\": \\"@qwen/qwen-cli\\", ... }",
     returnDisplay: "Read 50 lines from package.json"
 }
 

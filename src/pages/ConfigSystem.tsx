@@ -16,8 +16,8 @@ export function ConfigSystem() {
           <ol className="list-decimal pl-5 space-y-1 text-sm">
             <li><strong>默认值</strong> - 代码中的硬编码默认</li>
             <li><strong>System Defaults</strong> - 系统级默认配置文件</li>
-            <li><strong>User Settings</strong> - 用户级配置 <code>~/.innies/settings.json</code></li>
-            <li><strong>Workspace Settings</strong> - 项目级配置 <code>.innies/settings.json</code></li>
+            <li><strong>User Settings</strong> - 用户级配置 <code>~/.qwen/settings.json</code></li>
+            <li><strong>Workspace Settings</strong> - 项目级配置 <code>.qwen/settings.json</code></li>
             <li><strong>System Settings</strong> - 系统级覆盖配置（企业管控）</li>
             <li><strong>环境变量</strong> - <code>.env</code> 文件或 shell 环境</li>
             <li><strong>命令行参数</strong> - 启动时传入的参数</li>
@@ -27,7 +27,7 @@ export function ConfigSystem() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-4">
             <h4 className="text-cyan-400 font-bold mb-2">🏠 用户级配置</h4>
-            <code className="text-xs text-gray-400 block mb-2">~/.innies/settings.json</code>
+            <code className="text-xs text-gray-400 block mb-2">~/.qwen/settings.json</code>
             <p className="text-sm text-gray-300">
               跨所有项目的全局配置，如 UI 偏好、默认模型等
             </p>
@@ -35,7 +35,7 @@ export function ConfigSystem() {
 
           <div className="bg-purple-500/10 border-2 border-purple-500/30 rounded-lg p-4">
             <h4 className="text-purple-400 font-bold mb-2">📂 项目级配置</h4>
-            <code className="text-xs text-gray-400 block mb-2">.innies/settings.json</code>
+            <code className="text-xs text-gray-400 block mb-2">.qwen/settings.json</code>
             <p className="text-sm text-gray-300">
               项目特定配置，覆盖用户级设置<br/>
               <span className="text-orange-400 text-xs">⚠️ 非信任目录时被忽略</span>
@@ -182,14 +182,14 @@ export function ConfigSystem() {
   // context - 上下文设置
   // ═══════════════════════════════════════════
   "context": {
-    "fileName": ["INNIES.md", "CONTEXT.md"],
+    "fileName": ["QWEN.md", "CONTEXT.md"],
     "importFormat": "tree",     // tree | flat
     "discoveryMaxDirs": 200,
     "includeDirectories": [],
     "loadMemoryFromIncludeDirectories": false,
     "fileFiltering": {
       "respectGitIgnore": true,
-      "respectInniesIgnore": true,
+      "respectQwenIgnore": true,
       "enableRecursiveFileSearch": true,
       "disableFuzzySearch": false
     }
@@ -302,7 +302,7 @@ export function ConfigSystem() {
               <div className="bg-cyan-700/30 border border-cyan-500/50 rounded px-3 py-2 text-center">
                 <div className="text-xs text-gray-400">Layer 2</div>
                 <div className="text-cyan-400 font-mono text-sm">user</div>
-                <div className="text-xs text-gray-500">~/.innies/</div>
+                <div className="text-xs text-gray-500">~/.qwen/</div>
               </div>
               <span className="text-cyan-400">→</span>
               <div className="bg-purple-700/30 border border-purple-500/50 rounded px-3 py-2 text-center relative">
@@ -604,13 +604,13 @@ QWEN_CODE_SYSTEM_DEFAULTS_PATH=/custom/path/defaults.json`}
         </div>
       </Layer>
 
-      {/* .innies 目录结构 */}
-      <Layer title=".innies 目录结构" icon="📂">
+      {/* .qwen 目录结构 */}
+      <Layer title=".qwen 目录结构" icon="📂">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-4">
-            <h4 className="text-cyan-400 font-bold mb-2">~/.innies/ (用户级)</h4>
+            <h4 className="text-cyan-400 font-bold mb-2">~/.qwen/ (用户级)</h4>
             <pre className="text-sm text-gray-300 whitespace-pre-wrap">{`├── settings.json      # 用户配置
-├── INNIES.md          # 用户级记忆
+├── QWEN.md          # 用户级记忆
 ├── oauth_creds.json   # OAuth 凭据
 ├── mcp-oauth-tokens.json  # MCP OAuth tokens
 ├── agents/            # 用户级子代理
@@ -625,9 +625,9 @@ QWEN_CODE_SYSTEM_DEFAULTS_PATH=/custom/path/defaults.json`}
           </div>
 
           <div className="bg-purple-500/10 border-2 border-purple-500/30 rounded-lg p-4">
-            <h4 className="text-purple-400 font-bold mb-2">.innies/ (项目级)</h4>
+            <h4 className="text-purple-400 font-bold mb-2">.qwen/ (项目级)</h4>
             <pre className="text-sm text-gray-300 whitespace-pre-wrap">{`├── settings.json      # 项目配置
-├── INNIES.md          # 项目级记忆
+├── QWEN.md          # 项目级记忆
 ├── agents/            # 项目级子代理
 ├── commands/          # 项目级自定义命令
 ├── extensions/        # 项目级扩展
@@ -645,9 +645,9 @@ QWEN_CODE_SYSTEM_DEFAULTS_PATH=/custom/path/defaults.json`}
             当 <code>security.folderTrust.enabled: true</code> 且工作区未被信任时：
           </p>
           <ul className="list-disc pl-5 text-sm space-y-1">
-            <li>项目级 <code>.innies/settings.json</code> <strong>被忽略</strong></li>
-            <li>项目级 <code>.innies/commands/</code> <strong>不加载</strong></li>
-            <li>项目级 <code>.innies/extensions/</code> <strong>不加载</strong></li>
+            <li>项目级 <code>.qwen/settings.json</code> <strong>被忽略</strong></li>
+            <li>项目级 <code>.qwen/commands/</code> <strong>不加载</strong></li>
+            <li>项目级 <code>.qwen/extensions/</code> <strong>不加载</strong></li>
             <li>项目级 <code>.env</code> 文件 <strong>不加载</strong></li>
             <li><code>tools.approvalMode</code> 受限，不能使用 <code>yolo</code></li>
           </ul>
@@ -699,7 +699,7 @@ function isWorkspaceTrusted(settings: Settings): TrustResult {
     TrustCheck -->|受信任| LoadEnv[loadEnvFiles<br/>加载 .env]
     TrustCheck -->|不受信任| SkipEnv[跳过项目级 .env]
 
-    LoadEnv --> LoadMemory[loadHierarchicalGeminiMemory<br/>加载 INNIES.md]
+    LoadEnv --> LoadMemory[loadHierarchicalGeminiMemory<br/>加载 QWEN.md]
     SkipEnv --> LoadMemory
 
     LoadMemory --> MergeMcp[mergeMcpServers<br/>合并 MCP 服务器配置]
@@ -755,7 +755,7 @@ function isWorkspaceTrusted(settings: Settings): TrustResult {
     setServerGeminiMdFilename(settings.context.fileName);
   }
 
-  // 4️⃣ 加载层级记忆（INNIES.md）
+  // 4️⃣ 加载层级记忆（QWEN.md）
   const { memoryContent, fileCount } = await loadHierarchicalGeminiMemory(
     cwd,
     settings.context?.loadMemoryFromIncludeDirectories
@@ -868,8 +868,8 @@ async function loadEnvFiles(
     }
   }
 
-  // 用户级 ~/.innies/.env 始终加载
-  const userEnvPath = path.join(homedir(), '.innies', '.env');
+  // 用户级 ~/.qwen/.env 始终加载
+  const userEnvPath = path.join(homedir(), '.qwen', '.env');
   if (fs.existsSync(userEnvPath)) {
     dotenv.config({ path: userEnvPath });
   }
@@ -909,12 +909,12 @@ if (
               <span>MCP 服务器发现受限</span>
             </h4>
             <p className="text-sm text-gray-300 mb-2">
-              项目级 <code>.innies/settings.json</code> 中定义的 MCP 服务器在非信任目录不会被加载
+              项目级 <code>.qwen/settings.json</code> 中定义的 MCP 服务器在非信任目录不会被加载
             </p>
             <div className="text-xs text-gray-400 space-y-1">
-              <div>✅ 用户级 <code>~/.innies/settings.json</code> MCP 配置：始终生效</div>
+              <div>✅ 用户级 <code>~/.qwen/settings.json</code> MCP 配置：始终生效</div>
               <div>✅ 扩展提供的 MCP 配置：始终生效</div>
-              <div>❌ 项目级 <code>.innies/settings.json</code> MCP 配置：仅受信任时生效</div>
+              <div>❌ 项目级 <code>.qwen/settings.json</code> MCP 配置：仅受信任时生效</div>
             </div>
           </div>
         </div>
@@ -951,7 +951,7 @@ if (
             <div className="flex items-start gap-2">
               <span className="text-cyan-400">4.</span>
               <div>
-                <strong>loadHierarchicalGeminiMemory() 阶段</strong> - 决定是否加载项目级 INNIES.md
+                <strong>loadHierarchicalGeminiMemory() 阶段</strong> - 决定是否加载项目级 QWEN.md
                 <div className="text-xs text-gray-400 mt-1">
                   位置: <code>packages/core/src/utils/memoryDiscovery.ts:359</code>
                 </div>
@@ -963,9 +963,9 @@ if (
 
       {/* userMemory 构建 */}
       <Layer title="userMemory 构建机制" icon="🧠">
-        <HighlightBox title="INNIES.md 层级发现" icon="🔍" variant="green">
+        <HighlightBox title="QWEN.md 层级发现" icon="🔍" variant="green">
           <p className="text-sm mb-2">
-            <code>loadHierarchicalGeminiMemory()</code> 函数负责发现并合并多层级的 INNIES.md 文件，
+            <code>loadHierarchicalGeminiMemory()</code> 函数负责发现并合并多层级的 QWEN.md 文件，
             构建成 <code>userMemory</code> 字符串传递给 AI 模型。
           </p>
           <p className="text-sm text-gray-400">
@@ -974,24 +974,24 @@ if (
         </HighlightBox>
 
         <MermaidDiagram
-          title="INNIES.md 发现与合并流程"
+          title="QWEN.md 发现与合并流程"
           chart={`flowchart TB
-    Start([开始加载记忆]) --> GetPaths[getGeminiMdFilePathsInternal<br/>获取所有 INNIES.md 路径]
+    Start([开始加载记忆]) --> GetPaths[getGeminiMdFilePathsInternal<br/>获取所有 QWEN.md 路径]
 
     GetPaths --> GlobalCheck{检查全局级}
-    GlobalCheck -->|存在| AddGlobal[添加 ~/.innies/INNIES.md]
+    GlobalCheck -->|存在| AddGlobal[添加 ~/.qwen/QWEN.md]
     GlobalCheck -->|不存在| CheckProject
     AddGlobal --> CheckProject
 
     CheckProject{检查项目级}
-    CheckProject -->|受信任| AddProject[添加 .innies/INNIES.md]
+    CheckProject -->|受信任| AddProject[添加 .qwen/QWEN.md]
     CheckProject -->|不受信任| SkipProject[跳过项目级]
 
     AddProject --> CheckInclude
     SkipProject --> CheckInclude
 
     CheckInclude{includeDirectories?}
-    CheckInclude -->|有| AddInclude[添加各 includeDirectory<br/>下的 INNIES.md]
+    CheckInclude -->|有| AddInclude[添加各 includeDirectory<br/>下的 QWEN.md]
     CheckInclude -->|无| CheckExtensions
     AddInclude --> CheckExtensions
 
@@ -1019,14 +1019,14 @@ if (
             <h4 className="text-purple-400 font-bold mb-2">层级合并（全局 → 项目）</h4>
             <CodeBlock
               code={`// 1. 全局级（始终加载）
-~/.innies/INNIES.md
+~/.qwen/QWEN.md
 
 // 2. 项目级（受信任时加载）
-/path/to/project/.innies/INNIES.md
+/path/to/project/.qwen/QWEN.md
 
 // 3. includeDirectories（若启用）
-/include/dir1/.innies/INNIES.md
-/include/dir2/.innies/INNIES.md
+/include/dir1/.qwen/QWEN.md
+/include/dir2/.qwen/QWEN.md
 
 // 4. 扩展提供的 context files
 /extension/context/file1.md
@@ -1047,10 +1047,10 @@ userMemory = concatenate(所有文件内容)`}
                 <div className="text-cyan-400 font-bold mb-1">tree 格式（默认）</div>
                 <pre className="text-gray-400">{`# Codebase and user instructions
 ...
-Contents of ~/.innies/INNIES.md:
+Contents of ~/.qwen/QWEN.md:
 [global content]
 
-Contents of /project/.innies/INNIES.md:
+Contents of /project/.qwen/QWEN.md:
 [project content]`}</pre>
               </div>
               <div className="bg-black/30 rounded p-2">
@@ -1075,7 +1075,7 @@ Contents of /project/.innies/INNIES.md:
   fileFilteringOptions?: FileFilteringOptions,
   maxDirs: number = 200,
 ): Promise<LoadServerHierarchicalMemoryResponse> {
-  // 1. 获取所有 INNIES.md 文件路径
+  // 1. 获取所有 QWEN.md 文件路径
   const filePaths = await getGeminiMdFilePathsInternal(
     currentWorkingDirectory,
     includeDirectoriesToReadGemini,
@@ -1115,7 +1115,7 @@ Contents of /project/.innies/INNIES.md:
         <HighlightBox title="Context Files 处理" icon="📄" variant="blue">
           <p className="text-sm mb-2">
             扩展可以通过 <code>extension.contextFiles</code> 提供额外的上下文文件，
-            这些文件会与 INNIES.md 一起被加载并拼接到 <code>userMemory</code> 中。
+            这些文件会与 QWEN.md 一起被加载并拼接到 <code>userMemory</code> 中。
           </p>
           <CodeBlock
             code={`// 扩展定义示例（extension.ts）

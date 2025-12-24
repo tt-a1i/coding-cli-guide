@@ -62,8 +62,8 @@ interface TelemetryConfig {
 // 默认配置
 const DEFAULT_TELEMETRY_CONFIG: TelemetryConfig = {
   enabled: true,
-  endpoint: 'https://telemetry.innies.dev',
-  serviceName: 'innies-cli',
+  endpoint: 'https://telemetry.qwen.dev',
+  serviceName: 'qwen-cli',
 
   sampleRate: 1.0,
   tracesSampleRate: 0.1,
@@ -231,7 +231,7 @@ export function initTelemetry(config: TelemetryConfig): void {
 }
 
 // 追踪器
-const tracer = trace.getTracer('innies-cli');
+const tracer = trace.getTracer('qwen-cli');
 
 // 创建 Span
 export function createSpan(name: string) {
@@ -271,7 +271,7 @@ async function executeToolWithTracing(tool: Tool, args: any) {
 
 import { metrics } from '@opentelemetry/api';
 
-const meter = metrics.getMeter('innies-cli');
+const meter = metrics.getMeter('qwen-cli');
 
 // 计数器
 const requestCounter = meter.createCounter('ai_requests_total', {
@@ -371,7 +371,7 @@ export class TelemetrySanitizer {
   private hashUserId(userId: string): string {
     return crypto
       .createHash('sha256')
-      .update(userId + 'innies-salt')
+      .update(userId + 'qwen-salt')
       .digest('hex')
       .substring(0, 16);
   }
@@ -437,7 +437,7 @@ export class ConsentManager {
     const config = await loadConfig();
 
     // 环境变量覆盖
-    if (process.env.INNIES_TELEMETRY === 'false') {
+    if (process.env.QWEN_TELEMETRY === 'false') {
       this.consentGiven = false;
       return false;
     }
@@ -616,8 +616,8 @@ export class TelemetryService {
           <h4 className="font-semibold text-yellow-400 mb-2">禁用遥测</h4>
           <div className="text-sm text-gray-300 space-y-2">
             <p>通过环境变量禁用:</p>
-            <code className="bg-gray-900 px-2 py-1 rounded">export INNIES_TELEMETRY=false</code>
-            <p className="mt-2">通过配置文件禁用 (~/.innies/settings.json):</p>
+            <code className="bg-gray-900 px-2 py-1 rounded">export QWEN_TELEMETRY=false</code>
+            <p className="mt-2">通过配置文件禁用 (~/.qwen/settings.json):</p>
             <code className="bg-gray-900 px-2 py-1 rounded block mt-1">
               {`{ "telemetry": { "enabled": false } }`}
             </code>
@@ -734,7 +734,7 @@ export class TelemetryService {
         <div className="bg-gray-800/50 rounded-lg p-6">
           <pre className="text-sm text-gray-300 overflow-x-auto">
 {`┌──────────────────────────────────────────────────────────────────┐
-│                         Innies CLI                               │
+│                         Qwen CLI                               │
 │                                                                  │
 │  ┌─────────────────────────────────────────────────────────────┐ │
 │  │                    Event Sources                            │ │
@@ -779,7 +779,7 @@ export class TelemetryService {
                                ▼
 ┌──────────────────────────────────────────────────────────────────┐
 │                    Telemetry Backend                             │
-│             https://telemetry.innies.dev                         │
+│             https://telemetry.qwen.dev                         │
 │                                                                  │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │
 │  │  Collector  │  │  Processor  │  │   Storage   │              │

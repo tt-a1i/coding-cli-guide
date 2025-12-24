@@ -216,12 +216,12 @@ export function IDEIntegration() {
         </HighlightBox>
       </Layer>
 
-      {/* innies-diff scheme */}
-      <Layer title="innies-diff:// 虚拟文档机制" icon="📄">
+      {/* qwen-diff scheme */}
+      <Layer title="qwen-diff:// 虚拟文档机制" icon="📄">
         <HighlightBox title="技术原理" icon="💡" variant="blue">
           <p className="text-sm mb-2">
             VS Code 的 Diff 视图需要两个文档 URI：左侧（原始）和右侧（修改后）。
-            <code className="text-yellow-400 mx-1">innies-diff://</code> 是自定义的虚拟文档 scheme，
+            <code className="text-yellow-400 mx-1">qwen-diff://</code> 是自定义的虚拟文档 scheme，
             用于提供 AI 提议的新内容，而无需实际写入文件。
           </p>
         </HighlightBox>
@@ -229,17 +229,17 @@ export function IDEIntegration() {
         <CodeBlock
           title="URI 构造规则"
           language="typescript"
-          code={`// innies-diff:// URI 构造
-const DIFF_SCHEME = 'innies-diff';
+          code={`// qwen-diff:// URI 构造
+const DIFF_SCHEME = 'qwen-diff';
 
 const rightDocUri = vscode.Uri.from({
-  scheme: DIFF_SCHEME,           // 'innies-diff'
+  scheme: DIFF_SCHEME,           // 'qwen-diff'
   path: filePath,                // 原始文件的绝对路径
   query: \`rand=\${Math.random()}\`  // 缓存清除
 });
 
 // 示例 URI:
-// innies-diff:///Users/dev/project/src/utils.ts?rand=0.123456`}
+// qwen-diff:///Users/dev/project/src/utils.ts?rand=0.123456`}
         />
 
         <CodeBlock
@@ -278,7 +278,7 @@ class DiffContentProvider implements TextDocumentContentProvider {
             <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
               <h5 className="text-blue-400 font-semibold mb-2">1. 构建 URI</h5>
               <pre className="text-xs text-gray-300">
-{`innies-diff://
+{`qwen-diff://
   /path/to/file.ts
   ?rand=0.xxx`}
               </pre>
@@ -537,7 +537,7 @@ QWEN_CODE_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
               <p className="text-red-400">- {'}'}</p>
             </div>
             <div className="bg-green-900/20 p-3 rounded">
-              <p className="text-gray-400 mb-2">// 修改后 (innies-diff://)</p>
+              <p className="text-gray-400 mb-2">// 修改后 (qwen-diff://)</p>
               <p className="text-green-400">+ function hello(name: string) {'{'}</p>
               <p className="text-green-400">+   console.log(`Hello, ${'{'}name{'}'}`)</p>
               <p className="text-green-400">+ {'}'}</p>
@@ -642,15 +642,15 @@ QWEN_CODE_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
           <table className="w-full text-sm">
             <tbody className="text-gray-300">
               <tr className="border-b border-gray-700">
-                <td className="p-2"><code>Innies Code: Run</code></td>
+                <td className="p-2"><code>Qwen Code: Run</code></td>
                 <td className="p-2">启动新的 CLI 会话</td>
               </tr>
               <tr className="border-b border-gray-700">
-                <td className="p-2"><code>Innies Code: Accept Diff</code></td>
+                <td className="p-2"><code>Qwen Code: Accept Diff</code></td>
                 <td className="p-2">接受当前 Diff 视图中的修改</td>
               </tr>
               <tr>
-                <td className="p-2"><code>Innies Code: Close Diff Editor</code></td>
+                <td className="p-2"><code>Qwen Code: Close Diff Editor</code></td>
                 <td className="p-2">拒绝修改并关闭 Diff 视图</td>
               </tr>
             </tbody>
@@ -706,7 +706,7 @@ QWEN_CODE_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
 │  │   ┌──────────────┐    ┌──────────────┐    ┌─────────┐  │    │
 │  │   │ IDEServer    │    │ DiffManager  │    │OpenFiles│  │    │
 │  │   │              │    │              │    │Manager  │  │    │
-│  │   │ Express HTTP │    │ innies-diff  │    │         │  │    │
+│  │   │ Express HTTP │    │ qwen-diff  │    │         │  │    │
 │  │   │ + MCP Server │    │ :// Provider │    │ Context │  │    │
 │  │   │              │    │              │    │ Sync    │  │    │
 │  │   └──────────────┘    └──────────────┘    └─────────┘  │    │
@@ -716,7 +716,7 @@ QWEN_CODE_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
 │               ▼                   │               ▼             │
 │  ┌─────────────────────────────────────────────────────────┐    │
 │  │                   Integrated Terminal                    │    │
-│  │   $ innies                                              │    │
+│  │   $ qwen                                              │    │
 │  └─────────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────────┘
                                   │
@@ -726,7 +726,7 @@ QWEN_CODE_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
           └───────────────────────┼───────────────────────┘
                                   ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                        Innies CLI                               │
+│                        Qwen CLI                               │
 │   ┌──────────────────────────────────────────────────────────┐  │
 │   │                    IDE Integration                        │  │
 │   │                                                          │  │

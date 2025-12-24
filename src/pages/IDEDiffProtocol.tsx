@@ -71,7 +71,7 @@ export function IDEDiffProtocol() {
 │  │  extension.ts │    │   ide-server.ts  │    │     diff-manager.ts      │   │
 │  │              │    │                  │    │                          │   │
 │  │ DIFF_SCHEME  │    │  MCP Server      │    │  DiffContentProvider     │   │
-│  │ = 'innies-   │    │  (Express +      │    │  (TextDocumentContent    │   │
+│  │ = 'qwen-   │    │  (Express +      │    │  (TextDocumentContent    │   │
 │  │    diff'     │    │   StreamableHTTP)│    │   Provider)              │   │
 │  │              │    │                  │    │                          │   │
 │  │ 注册 URI     │◄───│  Tools:          │◄───│  DiffManager             │   │
@@ -117,10 +117,10 @@ export function IDEDiffProtocol() {
 │  └──────────────────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────────────────┘`;
 
-  const diffSchemeCode = `// innies-diff:// 自定义 URI Scheme
+  const diffSchemeCode = `// qwen-diff:// 自定义 URI Scheme
 // 来源: packages/vscode-ide-companion/src/extension.ts:20
 
-export const DIFF_SCHEME = 'innies-diff';
+export const DIFF_SCHEME = 'qwen-diff';
 
 // 在 activate() 中注册
 context.subscriptions.push(
@@ -154,9 +154,9 @@ export class DiffContentProvider
 async showDiff(filePath: string, newContent: string) {
   const fileUri = vscode.Uri.file(filePath);
 
-  // 1. 创建 innies-diff:// URI (右侧 - 新内容)
+  // 1. 创建 qwen-diff:// URI (右侧 - 新内容)
   const rightDocUri = vscode.Uri.from({
-    scheme: DIFF_SCHEME,  // 'innies-diff'
+    scheme: DIFF_SCHEME,  // 'qwen-diff'
     path: filePath,
     query: \`rand=\${Math.random()}\`,  // cache busting
   });
@@ -181,7 +181,7 @@ async showDiff(filePath: string, newContent: string) {
   await vscode.commands.executeCommand(
     'vscode.diff',
     leftDocUri,     // 左侧: 原始文件 (file://)
-    rightDocUri,    // 右侧: AI 修改 (innies-diff://)
+    rightDocUri,    // 右侧: AI 修改 (qwen-diff://)
     \`\${path.basename(filePath)} ↔ Modified\`,  // 标题
     { preview: false, preserveFocus: true }
   );
@@ -480,7 +480,7 @@ this.client.setNotificationHandler(
           <ul className="text-sm text-gray-300 space-y-1">
             <li>• <strong>MCP 通知</strong>：发送 <code>ide/diffAccepted</code> 或 <code>ide/diffClosed</code></li>
             <li>• <strong>VS Code UI</strong>：打开 Diff Editor Tab，占用编辑器空间</li>
-            <li>• <strong>临时 URI</strong>：创建 <code>innies-diff://</code> scheme 的虚拟文档</li>
+            <li>• <strong>临时 URI</strong>：创建 <code>qwen-diff://</code> scheme 的虚拟文档</li>
             <li>• <strong>工作区状态</strong>：文件可能被修改（如果用户接受）</li>
           </ul>
         </HighlightBox>
@@ -731,12 +731,12 @@ this.client.setNotificationHandler(
               </thead>
               <tbody className="text-gray-300">
                 <tr className="border-b border-gray-800">
-                  <td className="py-2"><code className="text-purple-300">INNIES_IDE_ENABLED</code></td>
+                  <td className="py-2"><code className="text-purple-300">QWEN_IDE_ENABLED</code></td>
                   <td className="py-2">全局启用/禁用 IDE 集成</td>
                   <td className="py-2"><code>false</code></td>
                 </tr>
                 <tr className="border-b border-gray-800">
-                  <td className="py-2"><code className="text-purple-300">INNIES_IDE_TIMEOUT</code></td>
+                  <td className="py-2"><code className="text-purple-300">QWEN_IDE_TIMEOUT</code></td>
                   <td className="py-2">MCP 请求超时时间（毫秒）</td>
                   <td className="py-2"><code>30000</code></td>
                 </tr>
@@ -775,15 +775,15 @@ this.client.setNotificationHandler(
             <h4 className="font-semibold text-cyan-400 mb-3">VS Code 插件配置</h4>
             <ul className="text-sm text-gray-300 space-y-2">
               <li>
-                <strong className="text-purple-300">innies.enableDiffMode</strong>
+                <strong className="text-purple-300">qwen.enableDiffMode</strong>
                 <p className="text-gray-400 mt-1">启用/禁用 Diff View 功能（默认：true）</p>
               </li>
               <li>
-                <strong className="text-purple-300">innies.autoAcceptDiff</strong>
+                <strong className="text-purple-300">qwen.autoAcceptDiff</strong>
                 <p className="text-gray-400 mt-1">自动接受所有 Diff（不推荐，默认：false）</p>
               </li>
               <li>
-                <strong className="text-purple-300">innies.diffTimeout</strong>
+                <strong className="text-purple-300">qwen.diffTimeout</strong>
                 <p className="text-gray-400 mt-1">Diff View 超时自动关闭时间（秒，默认：300）</p>
               </li>
             </ul>
@@ -812,7 +812,7 @@ this.client.setNotificationHandler(
       {/* 技术细节补充 */}
       <Layer title="技术细节补充" icon="🔍">
         <div className="space-y-4">
-          <CodeBlock code={diffSchemeCode} title="innies-diff:// URI Scheme 实现" />
+          <CodeBlock code={diffSchemeCode} title="qwen-diff:// URI Scheme 实现" />
 
           <div className="bg-black/30 rounded-lg p-4">
             <h4 className="text-cyan-400 font-bold mb-2">URI 结构示例</h4>
@@ -823,7 +823,7 @@ this.client.setNotificationHandler(
               </div>
               <div className="flex items-start gap-2">
                 <span className="text-gray-400">右侧 (修改):</span>
-                <code className="text-purple-400">innies-diff:///Users/dev/project/src/app.ts?rand=0.123</code>
+                <code className="text-purple-400">qwen-diff:///Users/dev/project/src/app.ts?rand=0.123</code>
               </div>
             </div>
           </div>

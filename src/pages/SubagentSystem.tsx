@@ -79,12 +79,12 @@ export function SubagentSystem() {
           <div className="bg-white/5 rounded-lg p-4 border border-white/10 text-center">
             <div className="text-3xl mb-2">📂</div>
             <h4 className="text-cyan-400 font-bold">项目级</h4>
-            <p className="text-sm text-gray-400">.innies/agents/*.md</p>
+            <p className="text-sm text-gray-400">.qwen/agents/*.md</p>
           </div>
           <div className="bg-white/5 rounded-lg p-4 border border-white/10 text-center">
             <div className="text-3xl mb-2">🏠</div>
             <h4 className="text-cyan-400 font-bold">用户级</h4>
-            <p className="text-sm text-gray-400">~/.innies/agents/*.md</p>
+            <p className="text-sm text-gray-400">~/.qwen/agents/*.md</p>
           </div>
           <div className="bg-white/5 rounded-lg p-4 border border-white/10 text-center">
             <div className="text-3xl mb-2">📦</div>
@@ -109,8 +109,8 @@ export function SubagentSystem() {
             <tbody className="text-gray-300">
               <tr>
                 <td className="border border-gray-700 p-3 font-semibold">存储位置</td>
-                <td className="border border-gray-700 p-3 text-center"><code>.innies/agents/*.md</code></td>
-                <td className="border border-gray-700 p-3 text-center"><code>~/.innies/agents/*.md</code></td>
+                <td className="border border-gray-700 p-3 text-center"><code>.qwen/agents/*.md</code></td>
+                <td className="border border-gray-700 p-3 text-center"><code>~/.qwen/agents/*.md</code></td>
                 <td className="border border-gray-700 p-3 text-center">内存 (代码嵌入)</td>
               </tr>
               <tr className="bg-gray-800/30">
@@ -326,7 +326,7 @@ export class ContextState {
 const context = new ContextState();
 context.set('task_prompt', '审查 src/utils.ts 的代码质量');
 context.set('language', 'TypeScript');
-context.set('project_name', 'innies-cli');
+context.set('project_name', 'qwen-cli');
 
 await subagent.runNonInteractive(context);`}
         />
@@ -786,11 +786,11 @@ toolsList.push(
 # Task 工具会启动对应的子代理来处理
 
 # 3. 子代理配置位置
-~/.innies/agents/         # 用户级子代理（全局可用）
-.innies/agents/           # 项目级子代理（仅当前项目）
+~/.qwen/agents/         # 用户级子代理（全局可用）
+.qwen/agents/           # 项目级子代理（仅当前项目）
 
 # 4. 示例：创建代码审查子代理
-# 创建文件: .innies/agents/reviewer.md
+# 创建文件: .qwen/agents/reviewer.md
 ---
 name: reviewer
 description: 代码审查专家
@@ -809,8 +809,8 @@ runConfig:
 
         <HighlightBox title="优先级规则" icon="📋" variant="green">
           <ol className="pl-5 list-decimal space-y-1">
-            <li><strong>项目级</strong> - .innies/agents/ 下的子代理优先</li>
-            <li><strong>用户级</strong> - ~/.innies/agents/ 下的子代理次之</li>
+            <li><strong>项目级</strong> - .qwen/agents/ 下的子代理优先</li>
+            <li><strong>用户级</strong> - ~/.qwen/agents/ 下的子代理次之</li>
             <li><strong>内置</strong> - 代码中定义的内置子代理最后</li>
           </ol>
           <p className="text-sm text-gray-400 mt-2">

@@ -458,7 +458,7 @@ exclude = [
     "run_shell_command(sudo *)",    # 提权命令
 ]
 
-# 工作区允许列表 (在 .innies/settings.toml)
+# 工作区允许列表 (在 .qwen/settings.toml)
 allowed = [
     "run_shell_command(./scripts/*)",  # 项目脚本
 ]`}

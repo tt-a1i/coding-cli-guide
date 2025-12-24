@@ -122,7 +122,7 @@ function parseAllAtCommands(query: string): AtCommandPart[] {
 
             <div className="bg-purple-400/20 border border-purple-400 rounded-lg px-4 py-2 text-center w-full max-w-md">
               <strong>2. 检查忽略规则</strong>
-              <div className="text-xs text-gray-400">.gitignore / .inniesignore</div>
+              <div className="text-xs text-gray-400">.gitignore / .qwenignore</div>
             </div>
             <div className="text-cyan-400">↓</div>
 
@@ -175,9 +175,9 @@ async function handleAtCommand({
         const gitIgnored = respectFileIgnore.respectGitIgnore &&
             fileDiscovery.shouldIgnoreFile(pathName, { respectGitIgnore: true });
 
-        // 检查 .inniesignore
-        const qwenIgnored = respectFileIgnore.respectInniesIgnore &&
-            fileDiscovery.shouldIgnoreFile(pathName, { respectInniesIgnore: true });
+        // 检查 .qwenignore
+        const qwenIgnored = respectFileIgnore.respectQwenIgnore &&
+            fileDiscovery.shouldIgnoreFile(pathName, { respectQwenIgnore: true });
 
         if (gitIgnored || qwenIgnored) {
             continue;  // 跳过被忽略的文件
@@ -264,7 +264,7 @@ async function handleAtCommand({
         <HighlightBox title="忽略文件来源" icon="📋" variant="orange">
           <ul className="pl-5 list-disc space-y-1">
             <li><strong>.gitignore</strong> - Git 忽略的文件</li>
-            <li><strong>.inniesignore</strong> - CLI 特定忽略规则</li>
+            <li><strong>.qwenignore</strong> - CLI 特定忽略规则</li>
           </ul>
         </HighlightBox>
 
@@ -274,13 +274,13 @@ async function handleAtCommand({
 const gitIgnored = respectFileIgnore.respectGitIgnore &&
     fileDiscovery.shouldIgnoreFile(pathName, {
         respectGitIgnore: true,
-        respectInniesIgnore: false
+        respectQwenIgnore: false
     });
 
-const qwenIgnored = respectFileIgnore.respectInniesIgnore &&
+const qwenIgnored = respectFileIgnore.respectQwenIgnore &&
     fileDiscovery.shouldIgnoreFile(pathName, {
         respectGitIgnore: false,
-        respectInniesIgnore: true
+        respectQwenIgnore: true
     });
 
 if (gitIgnored || qwenIgnored) {
@@ -362,7 +362,7 @@ if (totalIgnored > 0) {
 
         <HighlightBox title="注意事项" icon="⚠️" variant="orange">
           <ul className="pl-5 list-disc space-y-1">
-            <li>被 .gitignore 或 .inniesignore 忽略的文件不会被读取</li>
+            <li>被 .gitignore 或 .qwenignore 忽略的文件不会被读取</li>
             <li>目录会自动展开为 ** glob 模式</li>
             <li>找不到的文件会尝试模糊搜索</li>
             <li>大文件可能会被截断以避免超出 Token 限制</li>
@@ -385,7 +385,7 @@ if (totalIgnored > 0) {
             <h4 className="text-purple-400 font-bold mb-2">FileDiscoveryService</h4>
             <p className="text-sm text-gray-300">
               用于检查文件是否应该被忽略，
-              统一管理 .gitignore 和 .inniesignore 规则。
+              统一管理 .gitignore 和 .qwenignore 规则。
             </p>
           </div>
           <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">

@@ -5,7 +5,7 @@ import { CodeBlock } from '../components/CodeBlock';
 export function NonInteractiveMode() {
   const nonInteractiveFlow = `
 flowchart TD
-    start["命令行启动<br/>innies -p &quot;prompt&quot;"]
+    start["命令行启动<br/>qwen -p &quot;prompt&quot;"]
     parse_args["解析命令行参数"]
     check_stdin{"检查 stdin<br/>输入"}
     read_stdin["读取 stdin<br/>内容"]
@@ -76,46 +76,46 @@ type OutputFormat =
   const usageExamplesCode = `# 非交互模式使用示例
 
 # 基本用法：单次请求
-innies -p "解释这段代码的作用" @src/main.ts
+qwen -p "解释这段代码的作用" @src/main.ts
 
 # 从 stdin 读取输入
-cat error.log | innies -p "分析这个错误日志"
-git diff | innies -p "为这些更改写一个提交信息"
+cat error.log | qwen -p "分析这个错误日志"
+git diff | qwen -p "为这些更改写一个提交信息"
 
 # 输出到文件
-innies -p "生成 API 文档" @src/api.ts -o docs/api.md
+qwen -p "生成 API 文档" @src/api.ts -o docs/api.md
 
 # JSON 格式输出
-innies -p "列出所有 TODO 项" --json > todos.json
+qwen -p "列出所有 TODO 项" --json > todos.json
 
 # 多轮对话模式
-innies -p "重构这个函数" @func.ts --max-turns 5
+qwen -p "重构这个函数" @func.ts --max-turns 5
 
 # 自动确认所有操作
-innies -p "修复所有 lint 错误" --yes
+qwen -p "修复所有 lint 错误" --yes
 
 # 指定系统提示词
-innies -p "review code" --system "你是一个严格的代码审查员"
+qwen -p "review code" --system "你是一个严格的代码审查员"
 
 # 恢复之前的会话
-innies -p "继续之前的任务" --resume session-abc123
+qwen -p "继续之前的任务" --resume session-abc123
 
 # 限制可用工具
-innies -p "只分析代码，不要修改" --tools "Read,Grep,Glob"
+qwen -p "只分析代码，不要修改" --tools "Read,Grep,Glob"
 
 # 禁用危险工具
-innies -p "清理项目" --no-tools "run_shell_command"
+qwen -p "清理项目" --no-tools "run_shell_command"
 
 # 使用沙箱执行
-innies -p "运行测试" --sandbox
+qwen -p "运行测试" --sandbox
 
 # 设置超时
-innies -p "分析大型代码库" --timeout 300
+qwen -p "分析大型代码库" --timeout 300
 
 # 管道链式调用
-innies -p "提取函数列表" @src/*.ts --json | \\
+qwen -p "提取函数列表" @src/*.ts --json | \\
   jq '.functions[]' | \\
-  innies -p "为每个函数生成测试"`;
+  qwen -p "为每个函数生成测试"`;
 
   const implementationCode = `// 非交互模式主函数
 // packages/cli/src/nonInteractiveCli.ts
@@ -387,8 +387,8 @@ function getExitCode(error: Error): number {
 }
 
 // 在脚本中使用退出码
-// $ innies -p "test" && echo "success" || echo "failed"
-// $ if innies -p "check"; then deploy; fi`;
+// $ qwen -p "test" && echo "success" || echo "failed"
+// $ if qwen -p "check"; then deploy; fi`;
 
   const ciIntegrationCode = `# CI/CD 集成示例
 
@@ -404,7 +404,7 @@ jobs:
       - name: AI Code Review
         run: |
           git diff origin/main...HEAD | \\
-            innies -p "审查这些代码更改，指出潜在问题" \\
+            qwen -p "审查这些代码更改，指出潜在问题" \\
             --json > review.json
 
       - name: Check Review Result
@@ -418,7 +418,7 @@ jobs:
 code-review:
   script:
     - |
-      innies -p "检查代码质量" @src/ \\
+      qwen -p "检查代码质量" @src/ \\
         --tools "Read,Grep,Glob" \\
         --timeout 120 \\
         --yes
@@ -429,7 +429,7 @@ pipeline {
     stage('AI Analysis') {
       steps {
         sh '''
-          innies -p "分析测试覆盖率并建议改进" \\
+          qwen -p "分析测试覆盖率并建议改进" \\
             @coverage/lcov.info \\
             -o reports/ai-analysis.md
         '''
@@ -444,7 +444,7 @@ pipeline {
 
 staged_files=$(git diff --cached --name-only --diff-filter=ACM)
 if [ -n "$staged_files" ]; then
-  echo "$staged_files" | xargs innies -p "快速检查这些文件" --quiet
+  echo "$staged_files" | xargs qwen -p "快速检查这些文件" --quiet
   if [ $? -ne 0 ]; then
     echo "AI 检查未通过"
     exit 1
@@ -463,22 +463,22 @@ fi`;
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <HighlightBox title="单次请求" color="blue">
-            <code className="text-sm">innies -p "prompt"</code>
+            <code className="text-sm">qwen -p "prompt"</code>
             <p className="text-xs text-gray-400 mt-1">执行一次请求后退出</p>
           </HighlightBox>
 
           <HighlightBox title="管道输入" color="green">
-            <code className="text-sm">cat file | innies</code>
+            <code className="text-sm">cat file | qwen</code>
             <p className="text-xs text-gray-400 mt-1">从 stdin 读取内容</p>
           </HighlightBox>
 
           <HighlightBox title="文件输出" color="yellow">
-            <code className="text-sm">innies -p "..." -o out.md</code>
+            <code className="text-sm">qwen -p "..." -o out.md</code>
             <p className="text-xs text-gray-400 mt-1">结果写入文件</p>
           </HighlightBox>
 
           <HighlightBox title="JSON 格式" color="purple">
-            <code className="text-sm">innies --json</code>
+            <code className="text-sm">qwen --json</code>
             <p className="text-xs text-gray-400 mt-1">结构化输出</p>
           </HighlightBox>
         </div>
@@ -657,7 +657,7 @@ fi`;
 {`┌──────────────────────────────────────────────────────────────────┐
 │                    Command Line Interface                        │
 │                                                                  │
-│  $ innies -p "prompt" @file.ts --json -o output.json            │
+│  $ qwen -p "prompt" @file.ts --json -o output.json            │
 │                                                                  │
 └───────────────────────────────┬──────────────────────────────────┘
                                 │
@@ -680,7 +680,7 @@ fi`;
 │  │  stdin Reader  │  │  @ Reference   │  │   Context      │     │
 │  │                │  │   Resolver     │  │   Loader       │     │
 │  │  cat file |    │  │   @path →      │  │   --context    │     │
-│  │  innies        │  │   content      │  │   files        │     │
+│  │  qwen        │  │   content      │  │   files        │     │
 │  └───────┬────────┘  └───────┬────────┘  └───────┬────────┘     │
 │          └───────────────────┴───────────────────┘               │
 │                              │                                   │

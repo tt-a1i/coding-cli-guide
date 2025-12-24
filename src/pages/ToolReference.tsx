@@ -12,7 +12,7 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 export function ToolReference() {
   // 工具注册和发现流程
   const toolRegistrationFlow = `flowchart TD
-    start([启动 Innies CLI])
+    start([启动 Qwen CLI])
     init_config[初始化 Config]
     register_tools[registerTools]
     create_instances[创建工具实例]
@@ -99,7 +99,7 @@ export function ToolReference() {
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold text-cyan-400">工具系统参考手册</h2>
         <p className="text-gray-400 mt-2">
-          Innies CLI 内置工具分类、参数规范与注册机制完整指南
+          Qwen CLI 内置工具分类、参数规范与注册机制完整指南
         </p>
       </div>
 
@@ -107,7 +107,7 @@ export function ToolReference() {
       <Layer title="目标" icon="🎯">
         <div className="space-y-3 text-gray-300">
           <p>
-            工具系统是 Innies CLI 的核心能力，提供了 AI 与本地环境交互的标准化接口。
+            工具系统是 Qwen CLI 的核心能力，提供了 AI 与本地环境交互的标准化接口。
             主要解决以下问题：
           </p>
           <ul className="list-disc list-inside space-y-2 ml-4">
@@ -135,7 +135,7 @@ export function ToolReference() {
       <Layer title="工具来源说明" icon="🔍">
         <div className="space-y-4">
           <p className="text-gray-300">
-            Innies CLI 的工具系统由三种来源组成,提供了从核心功能到动态扩展的完整能力：
+            Qwen CLI 的工具系统由三种来源组成,提供了从核心功能到动态扩展的完整能力：
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -301,7 +301,7 @@ export function ToolReference() {
 
         <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-3 mt-4">
           <p className="text-sm text-yellow-300">
-            <strong>重要：</strong> Innies CLI 内部统一使用 Gemini 格式，
+            <strong>重要：</strong> Qwen CLI 内部统一使用 Gemini 格式，
             仅在与 OpenAI 兼容 API 通信时才进行格式转换。
           </p>
         </div>
@@ -935,10 +935,10 @@ To exit Plan Mode, use the exit_plan_mode tool.
                   <td className="py-1 px-2 font-sans">尊重 .gitignore (默认 true)</td>
                 </tr>
                 <tr>
-                  <td className="py-1 px-2 text-cyan-400">respect_innies_ignore</td>
+                  <td className="py-1 px-2 text-cyan-400">respect_qwen_ignore</td>
                   <td className="py-1 px-2">boolean</td>
                   <td className="py-1 px-2 text-gray-400">No</td>
-                  <td className="py-1 px-2 font-sans">尊重 .inniesignore (默认 true)</td>
+                  <td className="py-1 px-2 font-sans">尊重 .qwenignore (默认 true)</td>
                 </tr>
               </tbody>
             </table>

@@ -79,8 +79,8 @@ export function getSandboxType(): SandboxType {
   const dockerConfigCode = `// Docker 容器配置
 interface DockerSandboxConfig {
   // 镜像配置
-  image: string;           // 默认: ghcr.io/zhimanai/innies-cli:{version}
-  dockerfile?: string;     // 自定义: .innies/sandbox.Dockerfile
+  image: string;           // 默认: ghcr.io/zhimanai/qwen-cli:{version}
+  dockerfile?: string;     // 自定义: .qwen/sandbox.Dockerfile
 
   // 挂载配置
   workdir: string;         // 工作目录挂载
@@ -160,7 +160,7 @@ function executeSeatbelt(
 */`;
 
   const customSandboxCode = `// 自定义沙箱配置
-// .innies/sandbox.Dockerfile
+// .qwen/sandbox.Dockerfile
 
 FROM node:20-slim
 
@@ -181,7 +181,7 @@ RUN groupadd -g \${GID} developer && \\
     useradd -u \${UID} -g \${GID} -m developer
 USER developer
 
-# .innies/sandbox.bashrc
+# .qwen/sandbox.bashrc
 # 容器启动时执行的初始化脚本
 export PATH="$PATH:/workspace/node_modules/.bin"
 alias ll='ls -la'
@@ -189,7 +189,7 @@ alias ll='ls -la'
 # 项目检测到这些文件时会使用自定义沙箱
 // packages/cli/src/utils/sandbox.ts
 function getCustomDockerfile(): string | null {
-  const customPath = path.join(process.cwd(), '.innies', 'sandbox.Dockerfile');
+  const customPath = path.join(process.cwd(), '.qwen', 'sandbox.Dockerfile');
   if (fs.existsSync(customPath)) {
     return customPath;
   }
@@ -452,8 +452,8 @@ async function startContainer(config: DockerSandboxConfig) {
 
         <HighlightBox title="自定义沙箱文件" color="yellow" className="mt-4">
           <div className="text-sm space-y-2">
-            <p><code className="text-yellow-300">.innies/sandbox.Dockerfile</code> - 自定义容器镜像</p>
-            <p><code className="text-yellow-300">.innies/sandbox.bashrc</code> - 容器初始化脚本</p>
+            <p><code className="text-yellow-300">.qwen/sandbox.Dockerfile</code> - 自定义容器镜像</p>
+            <p><code className="text-yellow-300">.qwen/sandbox.bashrc</code> - 容器初始化脚本</p>
             <p className="text-gray-400 mt-2">
               当项目根目录存在这些文件时，CLI 会自动使用自定义沙箱配置而不是默认镜像。
             </p>
@@ -501,7 +501,7 @@ async function startContainer(config: DockerSandboxConfig) {
         <div className="bg-gray-800/50 rounded-lg p-6">
           <pre className="text-sm text-gray-300 overflow-x-auto">
 {`┌──────────────────────────────────────────────────────────────┐
-│                        Innies CLI                            │
+│                        Qwen CLI                            │
 │  ┌────────────────────────────────────────────────────────┐  │
 │  │                   Shell Tool                           │  │
 │  │  runShellCommand(command, options)                     │  │

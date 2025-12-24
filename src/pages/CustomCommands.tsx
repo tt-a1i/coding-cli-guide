@@ -9,8 +9,8 @@ export function CustomCommands() {
     start([CLI 启动])
     loader_init[FileCommandLoader 初始化]
     check_trust{工作区是否受信任?}
-    load_user[加载用户级命令<br/>~/.innies/commands/]
-    load_project[加载项目级命令<br/>.innies/commands/]
+    load_user[加载用户级命令<br/>~/.qwen/commands/]
+    load_project[加载项目级命令<br/>.qwen/commands/]
     skip_project[跳过项目级命令]
     load_ext[加载扩展命令]
     merge[合并命令列表]
@@ -182,7 +182,7 @@ export function CustomCommands() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-4">
             <h5 className="text-cyan-400 font-bold mb-2">🏠 用户级命令</h5>
-            <code className="text-xs text-gray-400 block mb-2">~/.innies/commands/*.toml</code>
+            <code className="text-xs text-gray-400 block mb-2">~/.qwen/commands/*.toml</code>
             <p className="text-sm text-gray-300">
               跨所有项目可用的个人命令
             </p>
@@ -190,7 +190,7 @@ export function CustomCommands() {
 
           <div className="bg-purple-500/10 border-2 border-purple-500/30 rounded-lg p-4">
             <h5 className="text-purple-400 font-bold mb-2">📂 项目级命令</h5>
-            <code className="text-xs text-gray-400 block mb-2">.innies/commands/*.toml</code>
+            <code className="text-xs text-gray-400 block mb-2">.qwen/commands/*.toml</code>
             <p className="text-sm text-gray-300">
               项目特定命令，可提交到版本控制共享给团队
             </p>
@@ -293,9 +293,9 @@ description = "命令描述（显示在 /help 中）"`}
         <CodeBlock
           title="命名规则示例"
           code={`# 文件路径 → 命令名称
-~/.innies/commands/test.toml          → /test
-.innies/commands/git/commit.toml      → /git:commit
-.innies/commands/refactor/pure.toml   → /refactor:pure
+~/.qwen/commands/test.toml          → /test
+.qwen/commands/git/commit.toml      → /git:commit
+.qwen/commands/refactor/pure.toml   → /refactor:pure
 
 # 子目录作为命名空间，路径分隔符 / 转换为 :`}
         />
@@ -501,7 +501,7 @@ if (!allAllowed && isHardDenial) {
 
         <h4 className="text-lg text-cyan-400 font-bold mb-3 mt-5">安全配置</h4>
         <CodeBlock
-          title="~/.innies/config.toml"
+          title="~/.qwen/config.toml"
           code={`# 工作区信任
 [security.folderTrust]
 enabled = true  # 启用工作区信任检查
@@ -598,7 +598,7 @@ mode = "DEFAULT"  # DEFAULT | YOLO | AUTO_EDIT | PLAN`}
 
           <CodeBlock
             title="示例：代码审查命令"
-            code={`# .innies/commands/review.toml
+            code={`# .qwen/commands/review.toml
 
 description = "使用最佳实践指南审查代码"
 
@@ -626,7 +626,7 @@ prompt = """
 
         <h4 className="text-lg text-cyan-400 font-bold mb-3 mt-5">完整示例</h4>
         <CodeBlock
-          title=".innies/commands/git/commit.toml"
+          title=".qwen/commands/git/commit.toml"
           code={`# 调用方式: /git:commit
 
 description = "根据暂存的更改生成 Git 提交消息"
@@ -639,7 +639,7 @@ prompt = """
 \`\`\`
 
 提交消息格式要求:
-@{.innies/commit-template.md}
+@{.qwen/commit-template.md}
 
 额外说明: {{args}}
 """`}

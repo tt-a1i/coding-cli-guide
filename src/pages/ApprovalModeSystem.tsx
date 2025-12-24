@@ -656,7 +656,7 @@ export class ExitPlanModeTool extends Tool {
           <div>
             <h4 className="text-cyan-400 font-semibold mb-2">审批模式配置</h4>
             <CodeBlock
-              code={`// .innies/settings.json
+              code={`// .qwen/settings.json
 
 {
   // 默认审批模式（会话启动时的初始模式）

@@ -126,7 +126,7 @@ export function MCPIntegration() {
       {/* MCP 配置 */}
       <Layer title="MCP 服务器配置" icon="⚙️">
         <JsonBlock
-          code={`// ~/.innies/mcp/servers.json
+          code={`// ~/.qwen/mcp/servers.json
 {
     "servers": [
         {

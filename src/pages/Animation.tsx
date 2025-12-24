@@ -74,7 +74,7 @@ const animSteps = [
     to: '🔧 工具',
     message: '返回文件内容',
     messageColor: 'bg-orange-500/10',
-    extra: `{ llmContent: "{\\"name\\": \\"@innies/innies-cli\\", ...}" }`,
+    extra: `{ llmContent: "{\\"name\\": \\"@qwen/qwen-cli\\", ...}" }`,
   },
   {
     from: '🖥️ CLI',
@@ -97,7 +97,7 @@ const animSteps = [
     message: '最终回复 (finish_reason: stop)',
     messageColor: 'bg-pink-500/10',
     extra: `{
-    content: "package.json 的 name 是 @innies/innies-cli",
+    content: "package.json 的 name 是 @qwen/qwen-cli",
     finish_reason: "stop"
 }`,
   },
@@ -105,7 +105,7 @@ const animSteps = [
     from: '👤 用户',
     fromColor: 'text-green-500',
     to: '← CLI',
-    message: '看到回复: "name 是 @innies/innies-cli"',
+    message: '看到回复: "name 是 @qwen/qwen-cli"',
     messageColor: 'bg-green-500/10',
   },
 ];

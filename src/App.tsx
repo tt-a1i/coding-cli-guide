@@ -97,7 +97,7 @@ function App() {
 
   const activeTabLabel = useMemo(() => {
     const item = flatNavItems.find((i) => i.id === activeTab);
-    return item?.label ?? 'Innies CLI';
+    return item?.label ?? 'Qwen CLI';
   }, [activeTab]);
 
   useEffect(() => {

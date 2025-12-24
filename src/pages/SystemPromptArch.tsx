@@ -25,7 +25,7 @@ export function SystemPromptArch() {
               </p>
             </HighlightBox>
             <HighlightBox title="3. 记忆注入" icon="🧠" variant="purple">
-              <p className="text-sm">读取 <code>INNIES.md</code> 和用户偏好。</p>
+              <p className="text-sm">读取 <code>QWEN.md</code> 和用户偏好。</p>
             </HighlightBox>
           </div>
           
@@ -41,7 +41,7 @@ export function SystemPromptArch() {
                 <div className="space-y-2">
                   <div className="p-2 bg-blue-500/10 rounded border-l-2 border-blue-500">
                     <span className="text-blue-300"># Core Mandates</span><br/>
-                    You are Innies CLI... adhering strictly to project conventions...
+                    You are Qwen CLI... adhering strictly to project conventions...
                   </div>
                   <div className="p-2 bg-orange-500/10 rounded border-l-2 border-orange-500">
                     <span className="text-orange-300"># Git Context</span><br/>
@@ -81,7 +81,7 @@ export function SystemPromptArch() {
     basePrompt += "\n# Git Repository\nAlways propose draft commit messages...";
   }
 
-  // 4. Inject User Memory (INNIES.md)
+  // 4. Inject User Memory (QWEN.md)
   if (userMemory) {
     basePrompt += \`\\n\\n---\\n\\n\${userMemory.trim()}\`;
   }

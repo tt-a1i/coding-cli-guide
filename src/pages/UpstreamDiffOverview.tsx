@@ -5,7 +5,7 @@ import { ComparisonTable } from '../components/ComparisonTable';
 export function UpstreamDiffOverview() {
   return (
     <div>
-      <h2 className="text-2xl text-cyan-400 mb-5">Innies 改造总览</h2>
+      <h2 className="text-2xl text-cyan-400 mb-5">Qwen 改造总览</h2>
 
       <Layer title="改造目标" icon="🎯">
         <HighlightBox title="一句话" variant="blue">

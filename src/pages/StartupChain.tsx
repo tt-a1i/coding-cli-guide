@@ -5,7 +5,7 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 
 export function StartupChain() {
   const startupFlowDiagram = `flowchart TD
-    start([执行 innies 命令])
+    start([执行 qwen 命令])
     main_entry[main 入口<br/>index.ts:14]
     load_settings[loadSettings<br/>settings.ts:583]
     parse_args[parseArguments<br/>config.ts:130]
@@ -86,7 +86,7 @@ export function StartupChain() {
     participant App as initializeApp
 
     Main->>LS: 加载配置文件
-    Note right of LS: 1. systemDefaults.json<br/>2. ~/.innies/settings.json<br/>3. .innies/settings.json<br/>4. /etc/qwen-code/settings.json
+    Note right of LS: 1. systemDefaults.json<br/>2. ~/.qwen/settings.json<br/>3. .qwen/settings.json<br/>4. /etc/qwen-code/settings.json
     LS-->>Main: LoadedSettings
 
     Main->>LA: 解析命令行参数
@@ -115,7 +115,7 @@ export function StartupChain() {
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold text-cyan-400">CLI 启动链路</h2>
         <p className="text-gray-400 mt-2">
-          从执行 innies 命令到进入交互会话的完整流程分析
+          从执行 qwen 命令到进入交互会话的完整流程分析
         </p>
       </div>
 
@@ -123,7 +123,7 @@ export function StartupChain() {
       <Layer title="目标" icon="🎯">
         <div className="text-gray-300 space-y-3">
           <p>
-            CLI 启动链路负责完成从用户执行 <code>innies</code> 命令到应用完全初始化的整个过程。
+            CLI 启动链路负责完成从用户执行 <code>qwen</code> 命令到应用完全初始化的整个过程。
             主要目标包括：
           </p>
           <ul className="list-disc list-inside space-y-2 ml-4">
@@ -141,7 +141,7 @@ export function StartupChain() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <HighlightBox title="触发条件" icon="🚀" variant="blue">
             <ul className="text-sm space-y-1">
-              <li>• 用户在终端执行 <code>innies</code> 命令</li>
+              <li>• 用户在终端执行 <code>qwen</code> 命令</li>
               <li>• 可选的 CLI 参数（--model, --prompt, --sandbox 等）</li>
               <li>• 可选的 stdin 输入（管道或重定向）</li>
             </ul>
@@ -150,7 +150,7 @@ export function StartupChain() {
           <HighlightBox title="环境依赖" icon="🌍" variant="green">
             <ul className="text-sm space-y-1">
               <li>• Node.js &gt;= 20 运行时</li>
-              <li>• 配置文件（可选）：~/.innies/settings.json</li>
+              <li>• 配置文件（可选）：~/.qwen/settings.json</li>
               <li>• 环境变量（可选）：OPENAI_API_KEY, GEMINI_SANDBOX 等</li>
               <li>• Git 可用（如启用 checkpointing）</li>
             </ul>
@@ -303,8 +303,8 @@ return customDeepMerge(
   getMergeStrategyForPath,
   {},
   systemDefaults,      // 1. 基础默认值
-  user,                // 2. 用户设置覆盖 (~/.innies/settings.json)
-  safeWorkspace,       // 3. 工作区覆盖 (.innies/settings.json, 需信任)
+  user,                // 2. 用户设置覆盖 (~/.qwen/settings.json)
+  safeWorkspace,       // 3. 工作区覆盖 (.qwen/settings.json, 需信任)
   system,              // 4. 系统覆盖 (/etc/qwen-code/settings.json, 最高优先)
 ) as Settings;`}
         />
@@ -339,7 +339,7 @@ return customDeepMerge(
               <div className="text-sm space-y-2">
                 <p className="text-gray-300">容器化隔离</p>
                 <p className="text-xs text-gray-500">
-                  镜像: ghcr.io/zhimanai/innies-cli:VERSION
+                  镜像: ghcr.io/zhimanai/qwen-cli:VERSION
                 </p>
                 <p className="text-xs text-gray-500">
                   检测: docker/podman 命令可用
@@ -563,11 +563,11 @@ main().catch((error) => {
               <h5 className="font-semibold text-blue-400 mb-2">用户/项目级配置</h5>
               <ul className="text-sm space-y-1 text-gray-300">
                 <li>
-                  <code className="text-cyan-300">~/.innies/settings.json</code>
+                  <code className="text-cyan-300">~/.qwen/settings.json</code>
                   <span className="text-gray-500 ml-2">(用户)</span>
                 </li>
                 <li>
-                  <code className="text-green-300">.innies/settings.json</code>
+                  <code className="text-green-300">.qwen/settings.json</code>
                   <span className="text-gray-500 ml-2">(项目, 需信任)</span>
                 </li>
               </ul>

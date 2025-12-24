@@ -197,7 +197,7 @@ async execute(): Promise<TResult> {
         {
             "role": "tool",
             "tool_call_id": "call_abc123",
-            "content": "{ \\"name\\": \\"@innies/innies-cli\\", ... }"
+            "content": "{ \\"name\\": \\"@qwen/qwen-cli\\", ... }"
         }
     ]
 }`} />
@@ -224,7 +224,7 @@ async execute(): Promise<TResult> {
         {
             "message": {
                 "role": "assistant",
-                "content": "package.json 的 name 字段是 @innies/innies-cli",
+                "content": "package.json 的 name 字段是 @qwen/qwen-cli",
                 "tool_calls": null  // 这次没有工具调用
             },
             "finish_reason": "stop"  // 正常结束

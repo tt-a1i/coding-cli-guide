@@ -420,7 +420,7 @@ export class ErrorReporter {
     const filename = \`error-\${Date.now()}.json\`;
     const filepath = path.join(
       os.homedir(),
-      '.innies',
+      '.qwen',
       'crash-reports',
       filename
     );
@@ -458,7 +458,7 @@ export class ErrorReporter {
         {classification.suggestedAction === 'contact_support' && (
           <Text color="cyan">
             如需帮助，请提交 issue:
-            https://github.com/zhimanai/innies-cli/issues
+            https://github.com/zhimanai/qwen-cli/issues
           </Text>
         )}
       </Box>
