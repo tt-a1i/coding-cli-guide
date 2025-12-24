@@ -35,8 +35,8 @@ export function InteractionLoop() {
     convert --> continuation
     continuation --> collect
 
-    style start fill:#22d3ee,color:#000
-    style complete fill:#22c55e,color:#000
+    style start fill:#00ff41,color:#000
+    style complete fill:#00ff41,color:#000
     style has_tools fill:#a855f7,color:#fff
     style finished fill:#a855f7,color:#fff
     style continuation fill:#f59e0b,color:#000`;
@@ -72,8 +72,8 @@ export function InteractionLoop() {
     error --> retry
     token --> counter
 
-    style api fill:#22d3ee,color:#000
-    style trigger fill:#22c55e,color:#000
+    style api fill:#00d4ff,color:#000
+    style trigger fill:#00ff41,color:#000
     style retry fill:#ef4444,color:#fff`;
 
   // Continuation机制流程
@@ -108,23 +108,23 @@ export function InteractionLoop() {
   return (
     <div className="space-y-8 animate-fadeIn">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-cyan-400">交互主循环</h2>
-        <p className="text-gray-400 mt-2">
-          用户输入 → AI 思考 → 工具执行 → 继续循环的核心流程
+        <h2 className="text-2xl font-bold font-mono text-[var(--terminal-green)]">交互主循环</h2>
+        <p className="text-[var(--text-secondary)] mt-2 font-mono">
+          // 用户输入 → AI 思考 → 工具执行 → 继续循环的核心流程
         </p>
       </div>
 
       {/* 1. 目标 */}
       <Layer title="目标" icon="🎯">
         <div className="space-y-4">
-          <p className="text-gray-300">
+          <p className="text-[var(--text-secondary)]">
             交互主循环（Interactive Main Loop）是 CLI 的核心机制，负责协调用户输入、AI 响应和工具执行的完整流程。
             它通过流式 API 和 Continuation 机制创造出流畅的对话体验。
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <HighlightBox title="流式响应" icon="⚡" variant="blue">
-              <div className="text-sm text-gray-300 space-y-1">
+              <div className="text-sm text-[var(--text-secondary)] space-y-1">
                 <div>• 实时显示 AI 思考过程</div>
                 <div>• 渐进式内容呈现</div>
                 <div>• 收集工具调用请求</div>
@@ -132,7 +132,7 @@ export function InteractionLoop() {
             </HighlightBox>
 
             <HighlightBox title="工具集成" icon="🔧" variant="green">
-              <div className="text-sm text-gray-300 space-y-1">
+              <div className="text-sm text-[var(--text-secondary)] space-y-1">
                 <div>• 自动调度和验证</div>
                 <div>• 并行执行优化</div>
                 <div>• 结果转换和反馈</div>
@@ -140,7 +140,7 @@ export function InteractionLoop() {
             </HighlightBox>
 
             <HighlightBox title="循环迭代" icon="🔄" variant="purple">
-              <div className="text-sm text-gray-300 space-y-1">
+              <div className="text-sm text-[var(--text-secondary)] space-y-1">
                 <div>• Continuation 机制</div>
                 <div>• 多轮对话支持</div>
                 <div>• 上下文保持</div>
@@ -153,10 +153,10 @@ export function InteractionLoop() {
       {/* 2. 输入 */}
       <Layer title="输入" icon="📥">
         <div className="space-y-4">
-          <h4 className="text-cyan-400 font-semibold">触发条件</h4>
+          <h4 className="text-[var(--terminal-green)] font-semibold font-mono">触发条件</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <HighlightBox title="初始触发" icon="1️⃣" variant="blue">
-              <div className="text-sm text-gray-300 space-y-1">
+              <div className="text-sm text-[var(--text-secondary)] space-y-1">
                 <div>• 用户在 TextInput 中按 Enter</div>
                 <div>• 用户消息 (Part[])</div>
                 <div>• 可选的文件 @ 引用</div>
@@ -165,7 +165,7 @@ export function InteractionLoop() {
             </HighlightBox>
 
             <HighlightBox title="Continuation 触发" icon="2️⃣" variant="green">
-              <div className="text-sm text-gray-300 space-y-1">
+              <div className="text-sm text-[var(--text-secondary)] space-y-1">
                 <div>• 工具执行完成后</div>
                 <div>• functionResponse Parts</div>
                 <div>• isContinuation: true</div>
@@ -174,7 +174,7 @@ export function InteractionLoop() {
             </HighlightBox>
           </div>
 
-          <h4 className="text-cyan-400 font-semibold mt-6">上下文收集</h4>
+          <h4 className="text-[var(--terminal-green)] font-semibold font-mono mt-6">上下文收集</h4>
           <CodeBlock
             title="useGeminiStream.ts:786 - 上下文收集"
             code={`// 收集 IDE 上下文增量
@@ -198,10 +198,10 @@ const request = await prepareRequest(userParts, ideContextDelta);
       {/* 3. 输出 */}
       <Layer title="输出" icon="📤">
         <div className="space-y-4">
-          <h4 className="text-cyan-400 font-semibold">产出物</h4>
+          <h4 className="text-[var(--terminal-green)] font-semibold font-mono">产出物</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <HighlightBox title="UI 显示" icon="💬" variant="blue">
-              <div className="text-sm text-gray-300 space-y-1">
+              <div className="text-sm text-[var(--text-secondary)] space-y-1">
                 <div>• 流式文本内容</div>
                 <div>• 思考过程标记</div>
                 <div>• 工具调用卡片</div>
@@ -210,7 +210,7 @@ const request = await prepareRequest(userParts, ideContextDelta);
             </HighlightBox>
 
             <HighlightBox title="状态变化" icon="📊" variant="green">
-              <div className="text-sm text-gray-300 space-y-1">
+              <div className="text-sm text-[var(--text-secondary)] space-y-1">
                 <div>• 对话历史更新</div>
                 <div>• Token 计数累积</div>
                 <div>• 工具调用队列</div>
@@ -219,7 +219,7 @@ const request = await prepareRequest(userParts, ideContextDelta);
             </HighlightBox>
 
             <HighlightBox title="副作用" icon="⚙️" variant="purple">
-              <div className="text-sm text-gray-300 space-y-1">
+              <div className="text-sm text-[var(--text-secondary)] space-y-1">
                 <div>• 文件系统修改</div>
                 <div>• Shell 命令执行</div>
                 <div>• 网络请求发送</div>
@@ -233,37 +233,37 @@ const request = await prepareRequest(userParts, ideContextDelta);
       {/* 4. 关键文件与入口 */}
       <Layer title="关键文件与入口" icon="📁">
         <div className="space-y-4">
-          <h4 className="text-cyan-400 font-semibold mb-3">核心源文件</h4>
+          <h4 className="text-[var(--terminal-green)] font-semibold font-mono mb-3">核心源文件</h4>
 
-          <div className="bg-gray-900 rounded-lg p-4 space-y-2 font-mono text-sm">
-            <div className="text-cyan-400 font-bold">packages/cli/src/ui/hooks/useGeminiStream.ts</div>
-            <div className="pl-4 space-y-1 text-gray-400">
-              <div>:786 - <span className="text-yellow-300">submitQuery()</span> - 主循环入口</div>
-              <div>:702 - <span className="text-yellow-300">流事件处理循环</span> - 处理 13 种事件类型</div>
-              <div>:994 - <span className="text-yellow-300">handleCompletedTools()</span> - Continuation 触发</div>
-              <div>:488 - <span className="text-yellow-300">getIdeContextDelta()</span> - IDE 上下文增量</div>
+          <div className="bg-[var(--bg-terminal)] rounded-lg p-4 space-y-2 font-mono text-sm border border-[var(--border-subtle)]">
+            <div className="text-[var(--cyber-blue)] font-bold">packages/cli/src/ui/hooks/useGeminiStream.ts</div>
+            <div className="pl-4 space-y-1 text-[var(--text-muted)]">
+              <div>:786 - <span className="text-[var(--amber)]">submitQuery()</span> - 主循环入口</div>
+              <div>:702 - <span className="text-[var(--amber)]">流事件处理循环</span> - 处理 13 种事件类型</div>
+              <div>:994 - <span className="text-[var(--amber)]">handleCompletedTools()</span> - Continuation 触发</div>
+              <div>:488 - <span className="text-[var(--amber)]">getIdeContextDelta()</span> - IDE 上下文增量</div>
             </div>
 
-            <div className="text-cyan-400 font-bold mt-4">packages/core/src/core/client.ts</div>
-            <div className="pl-4 space-y-1 text-gray-400">
-              <div>:396 - <span className="text-yellow-300">sendMessageStream()</span> - API 流式请求</div>
-              <div>:155 - <span className="text-yellow-300">AsyncGenerator&lt;TurnEvent&gt;</span> - 事件流生成器</div>
+            <div className="text-[var(--cyber-blue)] font-bold mt-4">packages/core/src/core/client.ts</div>
+            <div className="pl-4 space-y-1 text-[var(--text-muted)]">
+              <div>:396 - <span className="text-[var(--amber)]">sendMessageStream()</span> - API 流式请求</div>
+              <div>:155 - <span className="text-[var(--amber)]">AsyncGenerator&lt;TurnEvent&gt;</span> - 事件流生成器</div>
             </div>
 
-            <div className="text-cyan-400 font-bold mt-4">packages/core/src/core/coreToolScheduler.ts</div>
-            <div className="pl-4 space-y-1 text-gray-400">
-              <div>:625 - <span className="text-yellow-300">schedule()</span> - 工具调度入口</div>
-              <div>:970 - <span className="text-yellow-300">并行执行逻辑</span> - Promise.then() 链</div>
-              <div>:340 - <span className="text-yellow-300">checkAndNotifyCompletion()</span> - 完成检测</div>
+            <div className="text-[var(--cyber-blue)] font-bold mt-4">packages/core/src/core/coreToolScheduler.ts</div>
+            <div className="pl-4 space-y-1 text-[var(--text-muted)]">
+              <div>:625 - <span className="text-[var(--amber)]">schedule()</span> - 工具调度入口</div>
+              <div>:970 - <span className="text-[var(--amber)]">并行执行逻辑</span> - Promise.then() 链</div>
+              <div>:340 - <span className="text-[var(--amber)]">checkAndNotifyCompletion()</span> - 完成检测</div>
             </div>
 
-            <div className="text-cyan-400 font-bold mt-4">packages/core/src/core/turn.ts</div>
-            <div className="pl-4 space-y-1 text-gray-400">
+            <div className="text-[var(--cyber-blue)] font-bold mt-4">packages/core/src/core/turn.ts</div>
+            <div className="pl-4 space-y-1 text-[var(--text-muted)]">
               <div>事件类型定义 - Content, ToolCallRequest, Thought, Finished 等</div>
             </div>
 
-            <div className="text-cyan-400 font-bold mt-4">packages/core/src/core/geminiChat.ts</div>
-            <div className="pl-4 space-y-1 text-gray-400">
+            <div className="text-[var(--cyber-blue)] font-bold mt-4">packages/core/src/core/geminiChat.ts</div>
+            <div className="pl-4 space-y-1 text-[var(--text-muted)]">
               <div>对话历史管理 - conversationHistory 维护</div>
             </div>
           </div>
@@ -274,58 +274,58 @@ const request = await prepareRequest(userParts, ideContextDelta);
       <Layer title="流程图" icon="📊">
         <div className="space-y-6">
           <div>
-            <h4 className="text-cyan-400 font-semibold mb-3">主循环完整流程</h4>
+            <h4 className="text-[var(--terminal-green)] font-semibold font-mono mb-3">主循环完整流程</h4>
             <MermaidDiagram chart={mainLoopFlowChart} title="交互主循环流程" />
           </div>
 
           <div>
-            <h4 className="text-cyan-400 font-semibold mb-3">Stream 事件处理</h4>
+            <h4 className="text-[var(--terminal-green)] font-semibold font-mono mb-3">Stream 事件处理</h4>
             <MermaidDiagram chart={streamEventsChart} title="流事件处理流程" />
 
             <div className="mt-4">
-              <h5 className="text-gray-300 font-semibold mb-2">13 种事件类型</h5>
+              <h5 className="text-[var(--text-primary)] font-semibold font-mono mb-2">13 种事件类型</h5>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="text-left text-gray-400 border-b border-gray-700">
+                    <tr className="text-left text-[var(--text-muted)] border-b border-[var(--border-subtle)]">
                       <th className="py-2 px-3">事件类型</th>
                       <th className="py-2 px-3">触发时机</th>
                       <th className="py-2 px-3">处理方式</th>
                     </tr>
                   </thead>
-                  <tbody className="text-gray-300">
-                    <tr className="border-b border-gray-800">
-                      <td className="py-2 px-3 font-mono text-cyan-400">Content</td>
+                  <tbody className="text-[var(--text-secondary)]">
+                    <tr className="border-b border-[var(--border-subtle)]/50">
+                      <td className="py-2 px-3 font-mono text-[var(--cyber-blue)]">Content</td>
                       <td className="py-2 px-3">模型生成文本</td>
                       <td className="py-2 px-3">追加到 UI 显示</td>
                     </tr>
-                    <tr className="border-b border-gray-800">
-                      <td className="py-2 px-3 font-mono text-yellow-400">ToolCallRequest</td>
+                    <tr className="border-b border-[var(--border-subtle)]/50">
+                      <td className="py-2 px-3 font-mono text-[var(--amber)]">ToolCallRequest</td>
                       <td className="py-2 px-3">模型请求工具</td>
                       <td className="py-2 px-3">收集到队列，流结束后调度</td>
                     </tr>
-                    <tr className="border-b border-gray-800">
-                      <td className="py-2 px-3 font-mono text-green-400">Finished</td>
+                    <tr className="border-b border-[var(--border-subtle)]/50">
+                      <td className="py-2 px-3 font-mono text-[var(--terminal-green)]">Finished</td>
                       <td className="py-2 px-3">响应完成</td>
                       <td className="py-2 px-3">触发工具调度</td>
                     </tr>
-                    <tr className="border-b border-gray-800">
+                    <tr className="border-b border-[var(--border-subtle)]/50">
                       <td className="py-2 px-3 font-mono text-red-400">Error</td>
                       <td className="py-2 px-3">API 错误</td>
                       <td className="py-2 px-3">重试或显示错误</td>
                     </tr>
-                    <tr className="border-b border-gray-800">
-                      <td className="py-2 px-3 font-mono text-purple-400">Thought</td>
+                    <tr className="border-b border-[var(--border-subtle)]/50">
+                      <td className="py-2 px-3 font-mono text-[var(--purple)]">Thought</td>
                       <td className="py-2 px-3">思考过程 (think mode)</td>
                       <td className="py-2 px-3">记录但不加入历史</td>
                     </tr>
-                    <tr className="border-b border-gray-800">
+                    <tr className="border-b border-[var(--border-subtle)]/50">
                       <td className="py-2 px-3 font-mono text-orange-400">TokenUsage</td>
                       <td className="py-2 px-3">Token 使用统计</td>
                       <td className="py-2 px-3">更新计数器</td>
                     </tr>
                     <tr>
-                      <td className="py-2 px-3 font-mono text-gray-400">InputTokenCount</td>
+                      <td className="py-2 px-3 font-mono text-[var(--text-muted)]">InputTokenCount</td>
                       <td className="py-2 px-3">输入 token 数</td>
                       <td className="py-2 px-3">缓存用于截断</td>
                     </tr>
@@ -336,13 +336,13 @@ const request = await prepareRequest(userParts, ideContextDelta);
           </div>
 
           <div>
-            <h4 className="text-cyan-400 font-semibold mb-3">Continuation 机制（核心创新）</h4>
-            <div className="bg-gradient-to-r from-cyan-900/20 to-purple-900/20 border border-cyan-500/30 rounded-lg p-4 mb-4">
-              <h5 className="text-cyan-400 font-bold mb-2">关键洞察</h5>
-              <p className="text-gray-300 text-sm">
-                工具执行结果会被转换为 <code>functionResponse</code>，作为<strong className="text-yellow-400">下一条用户消息</strong>
-                重新进入 <code>submitQuery</code>，创造出"单次请求即可使用工具"的错觉。
-                实际上是多次 API 调用，由相同的 <code>prompt_id</code> 关联。
+            <h4 className="text-[var(--terminal-green)] font-semibold font-mono mb-3">Continuation 机制（核心创新）</h4>
+            <div className="bg-gradient-to-r from-[var(--cyber-blue)]/10 to-[var(--purple)]/10 border border-[var(--cyber-blue)]/30 rounded-lg p-4 mb-4">
+              <h5 className="text-[var(--cyber-blue)] font-bold font-mono mb-2">关键洞察</h5>
+              <p className="text-[var(--text-secondary)] text-sm">
+                工具执行结果会被转换为 <code className="text-[var(--amber)]">functionResponse</code>，作为<strong className="text-[var(--amber)]">下一条用户消息</strong>
+                重新进入 <code className="text-[var(--amber)]">submitQuery</code>，创造出"单次请求即可使用工具"的错觉。
+                实际上是多次 API 调用，由相同的 <code className="text-[var(--amber)]">prompt_id</code> 关联。
               </p>
             </div>
             <MermaidDiagram chart={continuationChart} title="Continuation 循环序列" />
@@ -353,19 +353,19 @@ const request = await prepareRequest(userParts, ideContextDelta);
       {/* 6. 关键分支与边界条件 */}
       <Layer title="关键分支与边界条件" icon="⚡">
         <div className="space-y-4">
-          <h4 className="text-cyan-400 font-semibold">并发控制</h4>
+          <h4 className="text-[var(--terminal-green)] font-semibold font-mono">并发控制</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <HighlightBox title="防重提交" icon="🔒" variant="red">
               <div className="text-sm space-y-2">
                 <div className="flex justify-between">
-                  <code className="text-yellow-400">isSubmittingQueryRef</code>
-                  <span className="text-gray-400">防止并发提交</span>
+                  <code className="text-[var(--amber)]">isSubmittingQueryRef</code>
+                  <span className="text-[var(--text-muted)]">防止并发提交</span>
                 </div>
                 <div className="flex justify-between">
-                  <code className="text-yellow-400">sendPromise</code>
-                  <span className="text-gray-400">API 调用串行化</span>
+                  <code className="text-[var(--amber)]">sendPromise</code>
+                  <span className="text-[var(--text-muted)]">API 调用串行化</span>
                 </div>
-                <div className="text-gray-400 text-xs mt-2">
+                <div className="text-[var(--text-muted)] text-xs mt-2">
                   如果正在提交查询，新的提交会被忽略，确保一次只有一个 API 请求在处理
                 </div>
               </div>
@@ -374,40 +374,40 @@ const request = await prepareRequest(userParts, ideContextDelta);
             <HighlightBox title="循环保护" icon="🛡️" variant="yellow">
               <div className="text-sm space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-gray-300">最大轮次</span>
-                  <code className="text-cyan-400">100 turns</code>
+                  <span className="text-[var(--text-secondary)]">最大轮次</span>
+                  <code className="text-[var(--cyber-blue)]">100 turns</code>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-300">循环检测</span>
-                  <code className="text-cyan-400">模式匹配</code>
+                  <span className="text-[var(--text-secondary)]">循环检测</span>
+                  <code className="text-[var(--cyber-blue)]">模式匹配</code>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-300">prompt_id</span>
-                  <code className="text-cyan-400">相同值关联</code>
+                  <span className="text-[var(--text-secondary)]">prompt_id</span>
+                  <code className="text-[var(--cyber-blue)]">相同值关联</code>
                 </div>
               </div>
             </HighlightBox>
           </div>
 
-          <h4 className="text-cyan-400 font-semibold mt-6">Token 管理</h4>
+          <h4 className="text-[var(--terminal-green)] font-semibold font-mono mt-6">Token 管理</h4>
           <HighlightBox title="上下文窗口策略" icon="📊" variant="blue">
             <div className="grid grid-cols-3 gap-4 text-sm">
               <div>
-                <h5 className="font-semibold text-blue-300 mb-1">动态截断</h5>
-                <p className="text-gray-400">当历史消息超过上下文窗口时，自动移除最旧的消息</p>
+                <h5 className="font-semibold text-[var(--cyber-blue)] mb-1">动态截断</h5>
+                <p className="text-[var(--text-muted)]">当历史消息超过上下文窗口时，自动移除最旧的消息</p>
               </div>
               <div>
-                <h5 className="font-semibold text-blue-300 mb-1">历史压缩</h5>
-                <p className="text-gray-400">使用摘要替换过长的历史对话，保留关键信息</p>
+                <h5 className="font-semibold text-[var(--cyber-blue)] mb-1">历史压缩</h5>
+                <p className="text-[var(--text-muted)]">使用摘要替换过长的历史对话，保留关键信息</p>
               </div>
               <div>
-                <h5 className="font-semibold text-blue-300 mb-1">思考记录</h5>
-                <p className="text-gray-400">Thought 事件不计入对话历史，节省 Token</p>
+                <h5 className="font-semibold text-[var(--cyber-blue)] mb-1">思考记录</h5>
+                <p className="text-[var(--text-muted)]">Thought 事件不计入对话历史，节省 Token</p>
               </div>
             </div>
           </HighlightBox>
 
-          <h4 className="text-cyan-400 font-semibold mt-6">IDE 上下文增量</h4>
+          <h4 className="text-[var(--terminal-green)] font-semibold font-mono mt-6">IDE 上下文增量</h4>
           <CodeBlock
             title="client.ts:488 - IDE 上下文增量计算"
             code={`async function getIdeContextDelta(): Promise<IdeContextDelta | null> {
@@ -443,10 +443,10 @@ const request = await prepareRequest(userParts, ideContextDelta);
       {/* 7. 失败与恢复 */}
       <Layer title="失败与恢复" icon="🔧">
         <div className="space-y-4">
-          <h4 className="text-cyan-400 font-semibold">错误处理策略</h4>
+          <h4 className="text-[var(--terminal-green)] font-semibold font-mono">错误处理策略</h4>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <HighlightBox title="API 错误重试" icon="🔄" variant="blue">
-              <div className="text-sm text-gray-300 space-y-1">
+              <div className="text-sm text-[var(--text-secondary)] space-y-1">
                 <div>• 指数退避 (100ms → 200ms → 400ms)</div>
                 <div>• 最大 3 次重试</div>
                 <div>• 429 配额错误特殊处理</div>
@@ -455,7 +455,7 @@ const request = await prepareRequest(userParts, ideContextDelta);
             </HighlightBox>
 
             <HighlightBox title="工具执行错误" icon="🔧" variant="orange">
-              <div className="text-sm text-gray-300 space-y-1">
+              <div className="text-sm text-[var(--text-secondary)] space-y-1">
                 <div>• 错误结果返回给模型</div>
                 <div>• 模型可选择重试或放弃</div>
                 <div>• 错误不中断对话</div>
@@ -464,7 +464,7 @@ const request = await prepareRequest(userParts, ideContextDelta);
             </HighlightBox>
 
             <HighlightBox title="用户中断" icon="🛑" variant="red">
-              <div className="text-sm text-gray-300 space-y-1">
+              <div className="text-sm text-[var(--text-secondary)] space-y-1">
                 <div>• Ctrl+C 处理</div>
                 <div>• AbortController 传播</div>
                 <div>• 清理进行中的工具</div>
@@ -473,7 +473,7 @@ const request = await prepareRequest(userParts, ideContextDelta);
             </HighlightBox>
           </div>
 
-          <h4 className="text-cyan-400 font-semibold mt-6">降级策略</h4>
+          <h4 className="text-[var(--terminal-green)] font-semibold font-mono mt-6">降级策略</h4>
           <CodeBlock
             title="错误处理与重试逻辑"
             code={`// API 错误重试
@@ -542,56 +542,56 @@ function setupAbortHandler(signal: AbortSignal) {
       {/* 8. 相关配置项 */}
       <Layer title="相关配置项" icon="⚙️">
         <div className="space-y-4">
-          <h4 className="text-cyan-400 font-semibold">环境变量</h4>
-          <div className="bg-gray-900 rounded-lg p-4 space-y-2 font-mono text-sm">
-            <div className="text-yellow-400">GEMINI_API_KEY</div>
-            <div className="pl-4 text-gray-400">Gemini API 密钥</div>
+          <h4 className="text-[var(--terminal-green)] font-semibold font-mono">环境变量</h4>
+          <div className="bg-[var(--bg-terminal)] rounded-lg p-4 space-y-2 font-mono text-sm border border-[var(--border-subtle)]">
+            <div className="text-[var(--amber)]">GEMINI_API_KEY</div>
+            <div className="pl-4 text-[var(--text-muted)]">Gemini API 密钥</div>
 
-            <div className="text-yellow-400 mt-2">OPENAI_API_KEY / OPENAI_BASE_URL / OPENAI_MODEL</div>
-            <div className="pl-4 text-gray-400">OpenAI 兼容 API 配置</div>
+            <div className="text-[var(--amber)] mt-2">OPENAI_API_KEY / OPENAI_BASE_URL / OPENAI_MODEL</div>
+            <div className="pl-4 text-[var(--text-muted)]">OpenAI 兼容 API 配置</div>
 
-            <div className="text-yellow-400 mt-2">DEBUG=1</div>
-            <div className="pl-4 text-gray-400">启用详细日志输出</div>
+            <div className="text-[var(--amber)] mt-2">DEBUG=1</div>
+            <div className="pl-4 text-[var(--text-muted)]">启用详细日志输出</div>
           </div>
 
-          <h4 className="text-cyan-400 font-semibold mt-6">配置选项</h4>
+          <h4 className="text-[var(--terminal-green)] font-semibold font-mono mt-6">配置选项</h4>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-gray-400 border-b border-gray-700">
+                <tr className="text-left text-[var(--text-muted)] border-b border-[var(--border-subtle)]">
                   <th className="py-2 px-3">配置项</th>
                   <th className="py-2 px-3">默认值</th>
                   <th className="py-2 px-3">说明</th>
                 </tr>
               </thead>
-              <tbody className="text-gray-300">
-                <tr className="border-b border-gray-800">
-                  <td className="py-2 px-3 font-mono text-cyan-400">maxTurns</td>
+              <tbody className="text-[var(--text-secondary)]">
+                <tr className="border-b border-[var(--border-subtle)]/50">
+                  <td className="py-2 px-3 font-mono text-[var(--cyber-blue)]">maxTurns</td>
                   <td className="py-2 px-3">100</td>
                   <td className="py-2 px-3">最大循环轮次</td>
                 </tr>
-                <tr className="border-b border-gray-800">
-                  <td className="py-2 px-3 font-mono text-cyan-400">contextWindowSize</td>
+                <tr className="border-b border-[var(--border-subtle)]/50">
+                  <td className="py-2 px-3 font-mono text-[var(--cyber-blue)]">contextWindowSize</td>
                   <td className="py-2 px-3">模型默认</td>
                   <td className="py-2 px-3">上下文窗口大小</td>
                 </tr>
-                <tr className="border-b border-gray-800">
-                  <td className="py-2 px-3 font-mono text-cyan-400">ideContextMaxFiles</td>
+                <tr className="border-b border-[var(--border-subtle)]/50">
+                  <td className="py-2 px-3 font-mono text-[var(--cyber-blue)]">ideContextMaxFiles</td>
                   <td className="py-2 px-3">10</td>
                   <td className="py-2 px-3">IDE 上下文最大文件数</td>
                 </tr>
-                <tr className="border-b border-gray-800">
-                  <td className="py-2 px-3 font-mono text-cyan-400">ideContextMaxFileSize</td>
+                <tr className="border-b border-[var(--border-subtle)]/50">
+                  <td className="py-2 px-3 font-mono text-[var(--cyber-blue)]">ideContextMaxFileSize</td>
                   <td className="py-2 px-3">16KB</td>
                   <td className="py-2 px-3">单个文件最大大小</td>
                 </tr>
-                <tr className="border-b border-gray-800">
-                  <td className="py-2 px-3 font-mono text-cyan-400">streamTimeout</td>
+                <tr className="border-b border-[var(--border-subtle)]/50">
+                  <td className="py-2 px-3 font-mono text-[var(--cyber-blue)]">streamTimeout</td>
                   <td className="py-2 px-3">60s</td>
                   <td className="py-2 px-3">流式响应超时时间</td>
                 </tr>
                 <tr>
-                  <td className="py-2 px-3 font-mono text-cyan-400">retryAttempts</td>
+                  <td className="py-2 px-3 font-mono text-[var(--cyber-blue)]">retryAttempts</td>
                   <td className="py-2 px-3">3</td>
                   <td className="py-2 px-3">API 错误重试次数</td>
                 </tr>
@@ -603,8 +603,8 @@ function setupAbortHandler(signal: AbortSignal) {
 
       {/* 执行时间线示例 */}
       <Layer title="执行时间线示例" icon="⏱️">
-        <div className="bg-gray-900 rounded-lg p-4 font-mono text-xs overflow-x-auto">
-          <pre className="text-gray-300 whitespace-pre">{`
+        <div className="bg-[var(--bg-terminal)] rounded-lg p-4 font-mono text-xs overflow-x-auto border border-[var(--border-subtle)]">
+          <pre className="text-[var(--text-secondary)] whitespace-pre">{`
 典型交互时间线 (用户请求: "读取 package.json 并分析依赖"):
 ────────────────────────────────────────────────────────────────────
 
@@ -694,53 +694,53 @@ Token 消耗: ~4,000 (估算)
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-gray-400 border-b border-gray-700">
+              <tr className="text-left text-[var(--text-muted)] border-b border-[var(--border-subtle)]">
                 <th className="py-2 px-3">变量</th>
                 <th className="py-2 px-3">位置</th>
                 <th className="py-2 px-3">类型</th>
                 <th className="py-2 px-3">用途</th>
               </tr>
             </thead>
-            <tbody className="text-gray-300">
-              <tr className="border-b border-gray-800">
-                <td className="py-2 px-3 font-mono text-cyan-400">isSubmittingQueryRef</td>
-                <td className="py-2 px-3 text-gray-500">useGeminiStream</td>
+            <tbody className="text-[var(--text-secondary)]">
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--cyber-blue)]">isSubmittingQueryRef</td>
+                <td className="py-2 px-3 text-[var(--text-muted)]">useGeminiStream</td>
                 <td className="py-2 px-3">useRef&lt;boolean&gt;</td>
                 <td className="py-2 px-3">防止并发提交</td>
               </tr>
-              <tr className="border-b border-gray-800">
-                <td className="py-2 px-3 font-mono text-cyan-400">sendPromise</td>
-                <td className="py-2 px-3 text-gray-500">geminiChat.ts</td>
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--cyber-blue)]">sendPromise</td>
+                <td className="py-2 px-3 text-[var(--text-muted)]">geminiChat.ts</td>
                 <td className="py-2 px-3">Promise&lt;void&gt;</td>
                 <td className="py-2 px-3">串行化多个 API 调用</td>
               </tr>
-              <tr className="border-b border-gray-800">
-                <td className="py-2 px-3 font-mono text-cyan-400">requestQueue</td>
-                <td className="py-2 px-3 text-gray-500">coreToolScheduler</td>
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--cyber-blue)]">requestQueue</td>
+                <td className="py-2 px-3 text-[var(--text-muted)]">coreToolScheduler</td>
                 <td className="py-2 px-3">ToolCallRequest[]</td>
                 <td className="py-2 px-3">缓冲工具调用</td>
               </tr>
-              <tr className="border-b border-gray-800">
-                <td className="py-2 px-3 font-mono text-cyan-400">conversationHistory</td>
-                <td className="py-2 px-3 text-gray-500">geminiChat.ts</td>
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--cyber-blue)]">conversationHistory</td>
+                <td className="py-2 px-3 text-[var(--text-muted)]">geminiChat.ts</td>
                 <td className="py-2 px-3">Message[]</td>
                 <td className="py-2 px-3">对话历史记录</td>
               </tr>
-              <tr className="border-b border-gray-800">
-                <td className="py-2 px-3 font-mono text-cyan-400">turnCount</td>
-                <td className="py-2 px-3 text-gray-500">client.ts</td>
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--cyber-blue)]">turnCount</td>
+                <td className="py-2 px-3 text-[var(--text-muted)]">client.ts</td>
                 <td className="py-2 px-3">number</td>
                 <td className="py-2 px-3">当前轮次计数</td>
               </tr>
-              <tr className="border-b border-gray-800">
-                <td className="py-2 px-3 font-mono text-cyan-400">currentPromptId</td>
-                <td className="py-2 px-3 text-gray-500">useGeminiStream</td>
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--cyber-blue)]">currentPromptId</td>
+                <td className="py-2 px-3 text-[var(--text-muted)]">useGeminiStream</td>
                 <td className="py-2 px-3">string</td>
                 <td className="py-2 px-3">关联同一用户输入的所有轮次</td>
               </tr>
               <tr>
-                <td className="py-2 px-3 font-mono text-cyan-400">lastIdeContext</td>
-                <td className="py-2 px-3 text-gray-500">client.ts</td>
+                <td className="py-2 px-3 font-mono text-[var(--cyber-blue)]">lastIdeContext</td>
+                <td className="py-2 px-3 text-[var(--text-muted)]">client.ts</td>
                 <td className="py-2 px-3">IdeContext</td>
                 <td className="py-2 px-3">上次 IDE 上下文，用于增量计算</td>
               </tr>

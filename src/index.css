@@ -21,6 +21,11 @@
   --cyber-blue-dim: #00a8cc;
   --cyber-blue-glow: rgba(0, 212, 255, 0.3);
 
+  /* Purple */
+  --purple: #a855f7;
+  --purple-dim: #9333ea;
+  --purple-glow: rgba(168, 85, 247, 0.3);
+
   /* Deep Blacks */
   --bg-void: #0a0a0f;
   --bg-terminal: #0d1117;

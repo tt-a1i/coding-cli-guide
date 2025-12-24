@@ -34,12 +34,12 @@ export function RequestLifecycle() {
     node_final_resp --> node_persist
     node_persist --> node_end
 
-    classDef startClass fill:#22d3ee,color:#000;
-    classDef endClass fill:#22c55e,color:#000;
+    classDef startClass fill:#00d4ff,color:#000;
+    classDef endClass fill:#00ff41,color:#000;
     classDef decisionClass fill:#a855f7,color:#fff;
     classDef toolSchedClass fill:#f59e0b,color:#000;
     classDef toolExecClass fill:#3b82f6,color:#fff;
-    classDef finalClass fill:#22c55e,color:#000;
+    classDef finalClass fill:#00ff41,color:#000;
 
     class node_start startClass
     class node_end endClass
@@ -332,15 +332,15 @@ function setupAbortController(): AbortController {
 }`;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-fadeIn">
       {/* 目标 */}
       <section>
         <Layer title="目标" icon="🎯">
           <HighlightBox title="请求生命周期核心目标" variant="blue">
-            <p className="text-gray-300 mb-2">
+            <p className="text-[var(--text-secondary)] mb-2">
               管理从用户输入到 AI 响应的完整流程，包括：
             </p>
-            <ul className="text-sm text-gray-300 space-y-1">
+            <ul className="text-sm text-[var(--text-secondary)] space-y-1">
               <li>• 预处理用户输入（@file、@memory、@url 等引用）</li>
               <li>• 维护完整的对话历史记录</li>
               <li>• 处理流式 API 响应和工具调用</li>
@@ -356,7 +356,7 @@ function setupAbortController(): AbortController {
         <Layer title="输入" icon="📥">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <HighlightBox title="用户输入" variant="green">
-              <ul className="text-sm text-gray-300 space-y-1">
+              <ul className="text-sm text-[var(--text-secondary)] space-y-1">
                 <li>• 纯文本请求</li>
                 <li>• @file 文件引用</li>
                 <li>• @memory 记忆引用</li>
@@ -366,7 +366,7 @@ function setupAbortController(): AbortController {
             </HighlightBox>
 
             <HighlightBox title="上下文依赖" variant="purple">
-              <ul className="text-sm text-gray-300 space-y-1">
+              <ul className="text-sm text-[var(--text-secondary)] space-y-1">
                 <li>• 完整对话历史（history 数组）</li>
                 <li>• 工具定义列表（tools）</li>
                 <li>• 系统提示词配置</li>
@@ -383,7 +383,7 @@ function setupAbortController(): AbortController {
         <Layer title="输出" icon="📤">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <HighlightBox title="AI 响应" variant="blue">
-              <ul className="text-sm text-gray-300 space-y-1">
+              <ul className="text-sm text-[var(--text-secondary)] space-y-1">
                 <li>• 流式文本内容</li>
                 <li>• 工具调用请求</li>
                 <li>• finish_reason 标记</li>
@@ -392,7 +392,7 @@ function setupAbortController(): AbortController {
             </HighlightBox>
 
             <HighlightBox title="状态变化" variant="yellow">
-              <ul className="text-sm text-gray-300 space-y-1">
+              <ul className="text-sm text-[var(--text-secondary)] space-y-1">
                 <li>• 历史记录更新</li>
                 <li>• 工具调用状态转换</li>
                 <li>• UI 渲染更新</li>
@@ -401,7 +401,7 @@ function setupAbortController(): AbortController {
             </HighlightBox>
 
             <HighlightBox title="副作用" variant="green">
-              <ul className="text-sm text-gray-300 space-y-1">
+              <ul className="text-sm text-[var(--text-secondary)] space-y-1">
                 <li>• 聊天日志文件写入</li>
                 <li>• 工具执行（文件修改等）</li>
                 <li>• 遥测数据上报</li>
@@ -417,34 +417,34 @@ function setupAbortController(): AbortController {
         <Layer title="关键文件与入口" icon="📁">
           <div className="space-y-3 text-sm">
             <div className="flex items-center gap-2">
-              <code className="bg-black/30 px-2 py-1 rounded text-cyan-300">
+              <code className="bg-[var(--bg-terminal)] px-2 py-1 rounded text-[var(--cyber-blue)] border border-[var(--border-subtle)]">
                 packages/cli/src/ui/hooks/useGeminiStream.ts:520
               </code>
-              <span className="text-gray-400">消息预处理和 @ 命令解析</span>
+              <span className="text-[var(--text-muted)]">消息预处理和 @ 命令解析</span>
             </div>
             <div className="flex items-center gap-2">
-              <code className="bg-black/30 px-2 py-1 rounded text-cyan-300">
+              <code className="bg-[var(--bg-terminal)] px-2 py-1 rounded text-[var(--cyber-blue)] border border-[var(--border-subtle)]">
                 packages/cli/src/ui/hooks/useGeminiStream.ts:800
               </code>
-              <span className="text-gray-400">主循环 - processStream 流式响应处理</span>
+              <span className="text-[var(--text-muted)]">主循环 - processStream 流式响应处理</span>
             </div>
             <div className="flex items-center gap-2">
-              <code className="bg-black/30 px-2 py-1 rounded text-cyan-300">
+              <code className="bg-[var(--bg-terminal)] px-2 py-1 rounded text-[var(--cyber-blue)] border border-[var(--border-subtle)]">
                 packages/core/src/core/contentGenerator.ts:145
               </code>
-              <span className="text-gray-400">generateContentStream API 调用</span>
+              <span className="text-[var(--text-muted)]">generateContentStream API 调用</span>
             </div>
             <div className="flex items-center gap-2">
-              <code className="bg-black/30 px-2 py-1 rounded text-cyan-300">
+              <code className="bg-[var(--bg-terminal)] px-2 py-1 rounded text-[var(--cyber-blue)] border border-[var(--border-subtle)]">
                 packages/core/src/core/coreToolScheduler.ts:625
               </code>
-              <span className="text-gray-400">工具调度主入口 schedule()</span>
+              <span className="text-[var(--text-muted)]">工具调度主入口 schedule()</span>
             </div>
             <div className="flex items-center gap-2">
-              <code className="bg-black/30 px-2 py-1 rounded text-cyan-300">
+              <code className="bg-[var(--bg-terminal)] px-2 py-1 rounded text-[var(--cyber-blue)] border border-[var(--border-subtle)]">
                 packages/cli/src/services/chatRecordingService.ts
               </code>
-              <span className="text-gray-400">聊天日志持久化</span>
+              <span className="text-[var(--text-muted)]">聊天日志持久化</span>
             </div>
           </div>
         </Layer>
@@ -453,13 +453,13 @@ function setupAbortController(): AbortController {
       {/* 流程图 */}
       <section>
         <Layer title="流程图" icon="📊">
-          <h3 className="text-xl font-semibold text-cyan-400 mb-4">完整请求生命周期</h3>
+          <h3 className="text-xl font-semibold font-mono text-[var(--terminal-green)] mb-4">完整请求生命周期</h3>
           <MermaidDiagram chart={requestLifecycleFlowChart} title="请求生命周期流程" />
 
-          <h3 className="text-xl font-semibold text-cyan-400 mb-4 mt-8">多轮交互序列</h3>
+          <h3 className="text-xl font-semibold font-mono text-[var(--terminal-green)] mb-4 mt-8">多轮交互序列</h3>
           <MermaidDiagram chart={multiRoundSequenceChart} title="多轮交互序列图" />
 
-          <h3 className="text-xl font-semibold text-cyan-400 mb-4 mt-8">请求状态机</h3>
+          <h3 className="text-xl font-semibold font-mono text-[var(--terminal-green)] mb-4 mt-8">请求状态机</h3>
           <MermaidDiagram chart={stateFlowChart} title="请求处理状态转换" />
         </Layer>
       </section>
@@ -470,24 +470,24 @@ function setupAbortController(): AbortController {
           <div className="space-y-4">
             <HighlightBox title="finish_reason 判断" variant="purple">
               <div className="text-sm space-y-2">
-                <p className="text-gray-300">
-                  <strong>stop</strong>: AI 完成响应，结束当前轮次
+                <p className="text-[var(--text-secondary)]">
+                  <strong className="text-[var(--terminal-green)]">stop</strong>: AI 完成响应，结束当前轮次
                 </p>
-                <p className="text-gray-300">
-                  <strong>tool_calls</strong>: 需要执行工具，继续下一轮
+                <p className="text-[var(--text-secondary)]">
+                  <strong className="text-[var(--amber)]">tool_calls</strong>: 需要执行工具，继续下一轮
                 </p>
-                <p className="text-gray-300">
-                  <strong>length</strong>: 达到 token 上限，可能需要续写
+                <p className="text-[var(--text-secondary)]">
+                  <strong className="text-[var(--cyber-blue)]">length</strong>: 达到 token 上限，可能需要续写
                 </p>
-                <p className="text-gray-300">
-                  <strong>safety</strong>: 内容安全拦截，终止响应
+                <p className="text-[var(--text-secondary)]">
+                  <strong className="text-red-400">safety</strong>: 内容安全拦截，终止响应
                 </p>
               </div>
             </HighlightBox>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <HighlightBox title="工具调用分支" variant="blue">
-                <ul className="text-sm text-gray-300 space-y-1">
+                <ul className="text-sm text-[var(--text-secondary)] space-y-1">
                   <li>• 单个工具 vs 多个工具（并行执行）</li>
                   <li>• 自动批准 vs 需要用户确认</li>
                   <li>• 只读工具 vs 修改类工具</li>
@@ -496,7 +496,7 @@ function setupAbortController(): AbortController {
               </HighlightBox>
 
               <HighlightBox title="边界条件" variant="yellow">
-                <ul className="text-sm text-gray-300 space-y-1">
+                <ul className="text-sm text-[var(--text-secondary)] space-y-1">
                   <li>• 空输入：拒绝或提示</li>
                   <li>• 超长输入：截断或分段处理</li>
                   <li>• 网络中断：重试机制</li>
@@ -552,31 +552,31 @@ if (input.length > MAX_INPUT_LENGTH) {
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
-                <h4 className="text-red-400 font-bold mb-2">工具执行失败</h4>
-                <p className="text-sm text-gray-300 mb-2">
+                <h4 className="text-red-400 font-bold font-mono mb-2">工具执行失败</h4>
+                <p className="text-sm text-[var(--text-secondary)] mb-2">
                   工具返回错误时，错误信息作为 functionResponse 发送给 AI
                 </p>
-                <code className="text-xs text-gray-400">
+                <code className="text-xs text-[var(--text-muted)]">
                   AI 可能会尝试其他方法或报告错误
                 </code>
               </div>
 
-              <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4">
-                <h4 className="text-orange-400 font-bold mb-2">API 调用失败</h4>
-                <p className="text-sm text-gray-300 mb-2">
+              <div className="bg-[var(--amber)]/10 border border-[var(--amber)]/30 rounded-lg p-4">
+                <h4 className="text-[var(--amber)] font-bold font-mono mb-2">API 调用失败</h4>
+                <p className="text-sm text-[var(--text-secondary)] mb-2">
                   网络错误或 API 错误触发重试机制
                 </p>
-                <code className="text-xs text-gray-400">
+                <code className="text-xs text-[var(--text-muted)]">
                   最多重试 3 次，使用指数退避
                 </code>
               </div>
 
-              <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
-                <h4 className="text-yellow-400 font-bold mb-2">用户取消</h4>
-                <p className="text-sm text-gray-300 mb-2">
+              <div className="bg-[var(--amber)]/10 border border-[var(--amber)]/30 rounded-lg p-4">
+                <h4 className="text-[var(--amber)] font-bold font-mono mb-2">用户取消</h4>
+                <p className="text-sm text-[var(--text-secondary)] mb-2">
                   Ctrl+C 触发 AbortController，优雅终止当前操作
                 </p>
-                <code className="text-xs text-gray-400">
+                <code className="text-xs text-[var(--text-muted)]">
                   保留历史记录，可以继续对话
                 </code>
               </div>
@@ -590,14 +590,14 @@ if (input.length > MAX_INPUT_LENGTH) {
 
             <HighlightBox title="降级策略" variant="green">
               <div className="text-sm space-y-2">
-                <p className="text-gray-300">
-                  <strong>工具不可用</strong>: 禁用该工具，通知 AI 使用其他方法
+                <p className="text-[var(--text-secondary)]">
+                  <strong className="text-[var(--terminal-green)]">工具不可用</strong>: 禁用该工具，通知 AI 使用其他方法
                 </p>
-                <p className="text-gray-300">
-                  <strong>API 不可用</strong>: 切换到备用模型或离线模式
+                <p className="text-[var(--text-secondary)]">
+                  <strong className="text-[var(--terminal-green)]">API 不可用</strong>: 切换到备用模型或离线模式
                 </p>
-                <p className="text-gray-300">
-                  <strong>存储失败</strong>: 内存缓存，稍后重试持久化
+                <p className="text-[var(--text-secondary)]">
+                  <strong className="text-[var(--terminal-green)]">存储失败</strong>: 内存缓存，稍后重试持久化
                 </p>
               </div>
             </HighlightBox>
@@ -609,68 +609,68 @@ if (input.length > MAX_INPUT_LENGTH) {
       <section>
         <Layer title="相关配置项" icon="⚙️">
           <div className="space-y-4">
-            <div className="bg-gray-800/50 rounded-lg p-4">
-              <h4 className="font-semibold text-cyan-400 mb-3">模型配置</h4>
+            <div className="bg-[var(--bg-terminal)] rounded-lg p-4 border border-[var(--border-subtle)]">
+              <h4 className="font-semibold font-mono text-[var(--terminal-green)] mb-3">模型配置</h4>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <code className="text-yellow-300">OPENAI_MODEL</code>
-                  <p className="text-gray-400">使用的 AI 模型名称</p>
+                  <code className="text-[var(--amber)]">OPENAI_MODEL</code>
+                  <p className="text-[var(--text-muted)]">使用的 AI 模型名称</p>
                 </div>
                 <div>
-                  <code className="text-yellow-300">OPENAI_API_KEY</code>
-                  <p className="text-gray-400">API 认证密钥</p>
+                  <code className="text-[var(--amber)]">OPENAI_API_KEY</code>
+                  <p className="text-[var(--text-muted)]">API 认证密钥</p>
                 </div>
                 <div>
-                  <code className="text-yellow-300">OPENAI_BASE_URL</code>
-                  <p className="text-gray-400">API 端点地址</p>
+                  <code className="text-[var(--amber)]">OPENAI_BASE_URL</code>
+                  <p className="text-[var(--text-muted)]">API 端点地址</p>
                 </div>
                 <div>
-                  <code className="text-yellow-300">temperature</code>
-                  <p className="text-gray-400">生成随机性（0.0-1.0）</p>
+                  <code className="text-[var(--amber)]">temperature</code>
+                  <p className="text-[var(--text-muted)]">生成随机性（0.0-1.0）</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-gray-800/50 rounded-lg p-4">
-              <h4 className="font-semibold text-cyan-400 mb-3">工具配置</h4>
+            <div className="bg-[var(--bg-terminal)] rounded-lg p-4 border border-[var(--border-subtle)]">
+              <h4 className="font-semibold font-mono text-[var(--terminal-green)] mb-3">工具配置</h4>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <code className="text-yellow-300">approvalMode</code>
-                  <p className="text-gray-400">工具批准模式（YOLO/STANDARD/PLAN）</p>
+                  <code className="text-[var(--amber)]">approvalMode</code>
+                  <p className="text-[var(--text-muted)]">工具批准模式（YOLO/STANDARD/PLAN）</p>
                 </div>
                 <div>
-                  <code className="text-yellow-300">allowedTools</code>
-                  <p className="text-gray-400">白名单工具列表</p>
+                  <code className="text-[var(--amber)]">allowedTools</code>
+                  <p className="text-[var(--text-muted)]">白名单工具列表</p>
                 </div>
                 <div>
-                  <code className="text-yellow-300">checkpointing</code>
-                  <p className="text-gray-400">是否启用检查点</p>
+                  <code className="text-[var(--amber)]">checkpointing</code>
+                  <p className="text-[var(--text-muted)]">是否启用检查点</p>
                 </div>
                 <div>
-                  <code className="text-yellow-300">maxToolOutputLength</code>
-                  <p className="text-gray-400">工具输出截断阈值</p>
+                  <code className="text-[var(--amber)]">maxToolOutputLength</code>
+                  <p className="text-[var(--text-muted)]">工具输出截断阈值</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-gray-800/50 rounded-lg p-4">
-              <h4 className="font-semibold text-cyan-400 mb-3">流式响应配置</h4>
+            <div className="bg-[var(--bg-terminal)] rounded-lg p-4 border border-[var(--border-subtle)]">
+              <h4 className="font-semibold font-mono text-[var(--terminal-green)] mb-3">流式响应配置</h4>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <code className="text-yellow-300">maxOutputTokens</code>
-                  <p className="text-gray-400">单次响应最大 token 数</p>
+                  <code className="text-[var(--amber)]">maxOutputTokens</code>
+                  <p className="text-[var(--text-muted)]">单次响应最大 token 数</p>
                 </div>
                 <div>
-                  <code className="text-yellow-300">streamTimeout</code>
-                  <p className="text-gray-400">流式响应超时时间</p>
+                  <code className="text-[var(--amber)]">streamTimeout</code>
+                  <p className="text-[var(--text-muted)]">流式响应超时时间</p>
                 </div>
                 <div>
-                  <code className="text-yellow-300">retryAttempts</code>
-                  <p className="text-gray-400">API 重试次数</p>
+                  <code className="text-[var(--amber)]">retryAttempts</code>
+                  <p className="text-[var(--text-muted)]">API 重试次数</p>
                 </div>
                 <div>
-                  <code className="text-yellow-300">retryDelay</code>
-                  <p className="text-gray-400">重试延迟（指数退避）</p>
+                  <code className="text-[var(--amber)]">retryDelay</code>
+                  <p className="text-[var(--text-muted)]">重试延迟（指数退避）</p>
                 </div>
               </div>
             </div>
@@ -681,23 +681,23 @@ if (input.length > MAX_INPUT_LENGTH) {
       {/* 详细步骤展开 */}
       <section>
         <Layer title="详细实现步骤" icon="📋">
-          <h3 className="text-xl font-semibold text-cyan-400 mb-4">1. 消息预处理</h3>
+          <h3 className="text-xl font-semibold font-mono text-[var(--terminal-green)] mb-4">1. 消息预处理</h3>
           <CodeBlock
             code={messagePreprocessCode}
             language="typescript"
             title="@ 命令预处理实现"
           />
 
-          <h3 className="text-xl font-semibold text-cyan-400 mb-4 mt-8">2. API 请求</h3>
+          <h3 className="text-xl font-semibold font-mono text-[var(--terminal-green)] mb-4 mt-8">2. API 请求</h3>
           <CodeBlock
             code={apiRequestCode}
             language="typescript"
             title="流式 API 请求实现"
           />
 
-          <h3 className="text-xl font-semibold text-cyan-400 mb-4 mt-8">3. 并行工具调用</h3>
+          <h3 className="text-xl font-semibold font-mono text-[var(--terminal-green)] mb-4 mt-8">3. 并行工具调用</h3>
           <HighlightBox title="AI 可以并行请求多个工具" variant="green">
-            <p className="text-gray-300 mb-2">
+            <p className="text-[var(--text-secondary)] mb-2">
               在一次响应中，AI 可以同时请求多个独立的工具调用，CLI 会并行执行它们以提高效率。
             </p>
           </HighlightBox>
@@ -746,7 +746,7 @@ await Promise.all([
       {/* 多工具调用场景 */}
       <section>
         <Layer title="复杂场景示例" icon="🔗">
-          <h3 className="text-xl font-semibold text-cyan-400 mb-4">多工具调用任务</h3>
+          <h3 className="text-xl font-semibold font-mono text-[var(--terminal-green)] mb-4">多工具调用任务</h3>
           <CodeBlock
             code={`用户: "读取 package.json 并更新版本号为 2.0.0"
 
@@ -778,7 +778,7 @@ await Promise.all([
         <Layer title="性能优化" icon="🚀">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <HighlightBox title="流式响应优化" variant="blue">
-              <ul className="text-sm text-gray-300 space-y-1">
+              <ul className="text-sm text-[var(--text-secondary)] space-y-1">
                 <li>• 实时渲染文本，不等完整响应</li>
                 <li>• 使用 ReadableStream 降低内存占用</li>
                 <li>• 分块处理，避免阻塞 UI</li>
@@ -786,7 +786,7 @@ await Promise.all([
             </HighlightBox>
 
             <HighlightBox title="工具调用优化" variant="green">
-              <ul className="text-sm text-gray-300 space-y-1">
+              <ul className="text-sm text-[var(--text-secondary)] space-y-1">
                 <li>• 并行执行独立工具调用</li>
                 <li>• 缓存工具验证结果</li>
                 <li>• 截断大输出，保存到文件</li>
@@ -794,7 +794,7 @@ await Promise.all([
             </HighlightBox>
 
             <HighlightBox title="历史记录优化" variant="purple">
-              <ul className="text-sm text-gray-300 space-y-1">
+              <ul className="text-sm text-[var(--text-secondary)] space-y-1">
                 <li>• 定期压缩旧消息</li>
                 <li>• 移除重复的系统提示</li>
                 <li>• 限制历史长度（token 预算）</li>
@@ -802,7 +802,7 @@ await Promise.all([
             </HighlightBox>
 
             <HighlightBox title="网络优化" variant="yellow">
-              <ul className="text-sm text-gray-300 space-y-1">
+              <ul className="text-sm text-[var(--text-secondary)] space-y-1">
                 <li>• 复用 HTTP 连接</li>
                 <li>• 启用压缩（gzip）</li>
                 <li>• 智能重试（指数退避）</li>
