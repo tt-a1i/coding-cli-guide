@@ -3,6 +3,48 @@ import { flatNavItems } from '../nav';
 import { useOutline } from './OutlineContext';
 import { OutlineProvider } from './OutlineProvider';
 
+function BackToTop() {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const main = document.querySelector('main');
+    if (!main) return;
+
+    const handleScroll = () => {
+      setVisible(main.scrollTop > 400);
+    };
+
+    main.addEventListener('scroll', handleScroll);
+    return () => main.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = useCallback(() => {
+    const main = document.querySelector('main');
+    if (main) {
+      main.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, []);
+
+  if (!visible) return null;
+
+  return (
+    <button
+      onClick={scrollToTop}
+      className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-10 h-10 rounded-lg bg-[var(--bg-panel)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--terminal-green)] hover:text-[var(--terminal-green)] hover:shadow-[0_0_15px_var(--terminal-green-glow)] transition-all duration-200 group"
+      title="回到顶部"
+    >
+      <svg
+        className="w-5 h-5 transition-transform group-hover:-translate-y-0.5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+      </svg>
+    </button>
+  );
+}
+
 function ShareButtons({ activeSectionId }: { activeSectionId: string | null }) {
   const [copied, setCopied] = useState<'page' | 'section' | null>(null);
 
@@ -42,38 +84,38 @@ function ShareButtons({ activeSectionId }: { activeSectionId: string | null }) {
     <div className="flex items-center gap-2 mb-4">
       <button
         onClick={copyPageLink}
-        className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-gray-900/30 border border-gray-700 text-gray-300 hover:bg-gray-800/40 hover:border-gray-600 hover:text-cyan-300 transition-colors"
+        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono rounded-md bg-[var(--bg-panel)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] hover:border-[var(--terminal-green-dim)] hover:text-[var(--terminal-green)] transition-all duration-200"
       >
         {copied === 'page' ? (
           <>
-            <span className="text-green-400">✓</span>
-            <span>已复制</span>
+            <span className="text-[var(--terminal-green)]">✓</span>
+            <span className="text-[var(--terminal-green)]">copied!</span>
           </>
         ) : (
           <>
-            <span>🔗</span>
-            <span>复制本页链接</span>
+            <span className="opacity-60">$</span>
+            <span>cp link</span>
           </>
         )}
       </button>
       <button
         onClick={copySectionLink}
         disabled={!activeSectionId}
-        className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-lg border transition-colors ${
+        className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono rounded-md border transition-all duration-200 ${
           activeSectionId
-            ? 'bg-gray-900/30 border-gray-700 text-gray-300 hover:bg-gray-800/40 hover:border-gray-600 hover:text-cyan-300'
-            : 'bg-gray-900/10 border-gray-800 text-gray-600 cursor-not-allowed'
+            ? 'bg-[var(--bg-panel)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] hover:border-[var(--amber-dim)] hover:text-[var(--amber)]'
+            : 'bg-[var(--bg-void)] border-[var(--border-subtle)] text-[var(--text-muted)] cursor-not-allowed opacity-50'
         }`}
       >
         {copied === 'section' ? (
           <>
-            <span className="text-green-400">✓</span>
-            <span>已复制</span>
+            <span className="text-[var(--terminal-green)]">✓</span>
+            <span className="text-[var(--terminal-green)]">copied!</span>
           </>
         ) : (
           <>
-            <span>#</span>
-            <span>复制当前章节链接</span>
+            <span className="opacity-60">#</span>
+            <span>cp section</span>
           </>
         )}
       </button>
@@ -98,13 +140,22 @@ function PageOutline({
   if (items.length === 0) return null;
 
   return (
-    <div className="bg-gray-900/30 border border-gray-700 rounded-xl p-4 mb-6">
-      <div className="flex items-center justify-between gap-3 mb-3">
-        <div className="text-sm font-semibold text-cyan-300">本页目录</div>
-        <div className="text-xs text-gray-500">点击快速跳转</div>
+    <div className="bg-[var(--bg-panel)] border border-[var(--border-subtle)] rounded-lg p-4 mb-6 relative overflow-hidden">
+      {/* Decorative corner accent */}
+      <div className="absolute top-0 left-0 w-16 h-16 opacity-20">
+        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-[var(--terminal-green)] to-transparent" />
+        <div className="absolute top-0 left-0 w-[1px] h-full bg-gradient-to-b from-[var(--terminal-green)] to-transparent" />
+      </div>
+
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <div className="text-sm font-mono text-[var(--terminal-green)] flex items-center gap-2">
+          <span className="opacity-60">▸</span>
+          <span>目录索引</span>
+        </div>
+        <div className="text-xs text-[var(--text-muted)] font-mono">// 点击跳转</div>
       </div>
       <div className="flex flex-wrap gap-2">
-        {items.map((s) => (
+        {items.map((s, index) => (
           <a
             key={s.id}
             href={`#${s.id}`}
@@ -112,12 +163,14 @@ function PageOutline({
               e.preventDefault();
               onSelectSection(s.id);
             }}
-            className={`px-3 py-1.5 rounded-lg text-sm border transition-colors ${
+            className={`px-3 py-1.5 rounded-md text-sm font-mono border transition-all duration-200 ${
               activeSectionId === s.id
-                ? 'bg-cyan-500/10 border-cyan-500/40 text-cyan-200'
-                : 'bg-gray-950/40 border-gray-700 text-gray-200 hover:bg-gray-800/40 hover:border-gray-600'
+                ? 'bg-[var(--terminal-green)]/10 border-[var(--terminal-green)]/40 text-[var(--terminal-green)] shadow-[0_0_10px_var(--terminal-green-glow)]'
+                : 'bg-[var(--bg-void)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] hover:border-[var(--border-default)] hover:text-[var(--text-primary)]'
             }`}
+            style={{ animationDelay: `${index * 30}ms` }}
           >
+            <span className="opacity-50 mr-1">{String(index + 1).padStart(2, '0')}.</span>
             {s.title}
           </a>
         ))}
@@ -181,6 +234,7 @@ export function PageLayout({
 
   return (
     <OutlineProvider key={activeTab}>
+      <BackToTop />
       <OutlineHeader
         activeSectionId={activeSectionId}
         setActiveSectionId={setActiveSectionId}
@@ -188,29 +242,37 @@ export function PageLayout({
       />
       {children}
 
-      <div className="mt-10 flex items-center justify-between gap-4">
-        <button
-          disabled={!prev}
-          onClick={() => prev && onNavigate(prev.id)}
-          className={`px-4 py-2 rounded-lg text-sm border transition-colors ${
-            prev
-              ? 'bg-gray-900/30 border-gray-700 text-gray-200 hover:bg-gray-800/40 hover:border-gray-600'
-              : 'bg-gray-900/10 border-gray-800 text-gray-600 cursor-not-allowed'
-          }`}
-        >
-          {prev ? `← ${prev.label}` : '← 没有上一页'}
-        </button>
-        <button
-          disabled={!next}
-          onClick={() => next && onNavigate(next.id)}
-          className={`px-4 py-2 rounded-lg text-sm border transition-colors ${
-            next
-              ? 'bg-gray-900/30 border-gray-700 text-gray-200 hover:bg-gray-800/40 hover:border-gray-600'
-              : 'bg-gray-900/10 border-gray-800 text-gray-600 cursor-not-allowed'
-          }`}
-        >
-          {next ? `${next.label} →` : '没有下一页 →'}
-        </button>
+      {/* Navigation Footer */}
+      <div className="mt-12 pt-6 border-t border-[var(--border-subtle)]">
+        <div className="flex items-center justify-between gap-4">
+          <button
+            disabled={!prev}
+            onClick={() => prev && onNavigate(prev.id)}
+            className={`group flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-mono border transition-all duration-200 ${
+              prev
+                ? 'bg-[var(--bg-panel)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] hover:border-[var(--cyber-blue-dim)] hover:text-[var(--cyber-blue)]'
+                : 'bg-[var(--bg-void)] border-[var(--border-subtle)] text-[var(--text-muted)] cursor-not-allowed opacity-50'
+            }`}
+          >
+            <span className={`transition-transform duration-200 ${prev ? 'group-hover:-translate-x-1' : ''}`}>←</span>
+            <span className="max-w-[120px] truncate">{prev ? prev.label : 'EOF'}</span>
+          </button>
+          <div className="text-xs text-[var(--text-muted)] font-mono hidden sm:block">
+            // navigate
+          </div>
+          <button
+            disabled={!next}
+            onClick={() => next && onNavigate(next.id)}
+            className={`group flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-mono border transition-all duration-200 ${
+              next
+                ? 'bg-[var(--bg-panel)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] hover:border-[var(--terminal-green-dim)] hover:text-[var(--terminal-green)]'
+                : 'bg-[var(--bg-void)] border-[var(--border-subtle)] text-[var(--text-muted)] cursor-not-allowed opacity-50'
+            }`}
+          >
+            <span className="max-w-[120px] truncate">{next ? next.label : 'EOF'}</span>
+            <span className={`transition-transform duration-200 ${next ? 'group-hover:translate-x-1' : ''}`}>→</span>
+          </button>
+        </div>
       </div>
     </OutlineProvider>
   );

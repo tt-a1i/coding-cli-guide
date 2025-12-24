@@ -232,7 +232,7 @@ function App() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-950">
+    <div className="flex h-screen overflow-hidden bg-gray-950">
       {/* Desktop Sidebar */}
       <div className="hidden md:block">
         <Sidebar activeTab={activeTab} onTabChange={(tab) => navigateToTab(tab)} />
