@@ -14,16 +14,6 @@ export interface NavGroup {
 
 export const navGroups: NavGroup[] = [
   {
-    id: 'guide',
-    title: '学习导读',
-    icon: '🧭',
-    defaultOpen: true,
-    items: [
-      { id: 'e2e', label: '端到端走读', highlight: true },
-      { id: 'upstream-diff', label: 'Qwen 改造总览', highlight: true },
-    ],
-  },
-  {
     id: 'start',
     title: '快速入门',
     icon: '🚀',
