@@ -73,6 +73,15 @@ const ContentConverterAnimation = lazy(() => import('./pages/ContentConverterAni
 const SmartEditAnimation = lazy(() => import('./pages/SmartEditAnimation').then(m => ({ default: m.SmartEditAnimation })));
 const VimBufferAnimation = lazy(() => import('./pages/VimBufferAnimation').then(m => ({ default: m.VimBufferAnimation })));
 const ChatCompressionAnimation = lazy(() => import('./pages/ChatCompressionAnimation').then(m => ({ default: m.ChatCompressionAnimation })));
+const PromptTemplateAnimation = lazy(() => import('./pages/PromptTemplateAnimation'));
+const MessageFormatPipelineAnimation = lazy(() => import('./pages/MessageFormatPipelineAnimation'));
+const StreamingDecoderAnimation = lazy(() => import('./pages/StreamingDecoderAnimation'));
+const ToolSchedulerQueueAnimation = lazy(() => import('./pages/ToolSchedulerQueueAnimation'));
+const SessionStateMachineAnimation = lazy(() => import('./pages/SessionStateMachineAnimation'));
+const SandboxPolicyAnimation = lazy(() => import('./pages/SandboxPolicyAnimation'));
+const CommandInjectionDetectionAnimation = lazy(() => import('./pages/CommandInjectionDetectionAnimation'));
+const LoopDetectionEngineAnimation = lazy(() => import('./pages/LoopDetectionEngineAnimation'));
+const ContentGenerationPipelineAnimation = lazy(() => import('./pages/ContentGenerationPipelineAnimation'));
 const CoreCode = lazy(() => import('./pages/CoreCode').then(m => ({ default: m.CoreCode })));
 const LoopMechanism = lazy(() => import('./pages/LoopMechanism').then(m => ({ default: m.LoopMechanism })));
 
@@ -291,6 +300,24 @@ function App() {
         return <VimBufferAnimation />;
       case 'chat-compression-anim':
         return <ChatCompressionAnimation />;
+      case 'prompt-template-anim':
+        return <PromptTemplateAnimation />;
+      case 'message-format-anim':
+        return <MessageFormatPipelineAnimation />;
+      case 'streaming-decoder-anim':
+        return <StreamingDecoderAnimation />;
+      case 'tool-scheduler-queue-anim':
+        return <ToolSchedulerQueueAnimation />;
+      case 'session-state-anim':
+        return <SessionStateMachineAnimation />;
+      case 'sandbox-policy-anim':
+        return <SandboxPolicyAnimation />;
+      case 'command-injection-anim':
+        return <CommandInjectionDetectionAnimation />;
+      case 'loop-detection-engine-anim':
+        return <LoopDetectionEngineAnimation />;
+      case 'content-pipeline-anim':
+        return <ContentGenerationPipelineAnimation />;
       case 'code':
         return <CoreCode />;
       case 'loop':
