@@ -50,6 +50,16 @@ const UIRenderingLayer = lazy(() => import('./pages/UIRenderingLayer').then(m =>
 const ThemeSystem = lazy(() => import('./pages/ThemeSystem').then(m => ({ default: m.ThemeSystem })));
 const TelemetrySystem = lazy(() => import('./pages/TelemetrySystem').then(m => ({ default: m.TelemetrySystem })));
 const Animation = lazy(() => import('./pages/Animation').then(m => ({ default: m.Animation })));
+const ToolSchedulerAnimation = lazy(() => import('./pages/ToolSchedulerAnimation').then(m => ({ default: m.ToolSchedulerAnimation })));
+const StreamingParserAnimation = lazy(() => import('./pages/StreamingParserAnimation').then(m => ({ default: m.StreamingParserAnimation })));
+const MCPDiscoveryAnimation = lazy(() => import('./pages/MCPDiscoveryAnimation').then(m => ({ default: m.MCPDiscoveryAnimation })));
+const ContextCompressionAnimation = lazy(() => import('./pages/ContextCompressionAnimation').then(m => ({ default: m.ContextCompressionAnimation })));
+const SubagentAnimation = lazy(() => import('./pages/SubagentAnimation').then(m => ({ default: m.SubagentAnimation })));
+const TurnInternalAnimation = lazy(() => import('./pages/TurnInternalAnimation').then(m => ({ default: m.TurnInternalAnimation })));
+const FormatConverterAnimation = lazy(() => import('./pages/FormatConverterAnimation').then(m => ({ default: m.FormatConverterAnimation })));
+const ChunkAssemblyAnimation = lazy(() => import('./pages/ChunkAssemblyAnimation').then(m => ({ default: m.ChunkAssemblyAnimation })));
+const TokenCountingAnimation = lazy(() => import('./pages/TokenCountingAnimation').then(m => ({ default: m.TokenCountingAnimation })));
+const FunctionResponseAnimation = lazy(() => import('./pages/FunctionResponseAnimation').then(m => ({ default: m.FunctionResponseAnimation })));
 const CoreCode = lazy(() => import('./pages/CoreCode').then(m => ({ default: m.CoreCode })));
 const LoopMechanism = lazy(() => import('./pages/LoopMechanism').then(m => ({ default: m.LoopMechanism })));
 
@@ -222,6 +232,26 @@ function App() {
         return <TelemetrySystem />;
       case 'animation':
         return <Animation />;
+      case 'tool-scheduler-anim':
+        return <ToolSchedulerAnimation />;
+      case 'streaming-parser-anim':
+        return <StreamingParserAnimation />;
+      case 'mcp-discovery-anim':
+        return <MCPDiscoveryAnimation />;
+      case 'context-compression-anim':
+        return <ContextCompressionAnimation />;
+      case 'subagent-anim':
+        return <SubagentAnimation />;
+      case 'turn-internal-anim':
+        return <TurnInternalAnimation />;
+      case 'format-converter-anim':
+        return <FormatConverterAnimation />;
+      case 'chunk-assembly-anim':
+        return <ChunkAssemblyAnimation />;
+      case 'token-counting-anim':
+        return <TokenCountingAnimation />;
+      case 'function-response-anim':
+        return <FunctionResponseAnimation />;
       case 'code':
         return <CoreCode />;
       case 'loop':
