@@ -6,6 +6,100 @@ import { useState, useCallback, useRef, useEffect } from 'react';
  * 展示字符级深度跟踪、字符串状态、碰撞检测和自动修复
  */
 
+// 介绍内容组件
+function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
+  return (
+    <div className="mb-6 bg-gray-800 rounded-lg overflow-hidden">
+      <button
+        onClick={onToggle}
+        className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-gray-700 transition-colors"
+      >
+        <span className="text-lg font-semibold">📖 什么是流式 JSON 解析器？</span>
+        <span className={`transform transition-transform ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
+      </button>
+
+      {isExpanded && (
+        <div className="px-4 pb-4 space-y-4 text-sm">
+          {/* 核心概念 */}
+          <div>
+            <h3 className="text-cyan-400 font-semibold mb-2">🎯 核心概念</h3>
+            <p className="text-gray-300">
+              当 AI 返回工具调用时，JSON 参数是<strong>流式传输</strong>的——一次只收到几个字符。
+              解析器需要在数据不完整时就开始解析，并能处理多个并发的工具调用。
+            </p>
+          </div>
+
+          {/* 为什么需要 */}
+          <div>
+            <h3 className="text-cyan-400 font-semibold mb-2">❓ 解决什么问题？</h3>
+            <ul className="text-gray-300 space-y-1 list-disc list-inside">
+              <li><strong>流式解析</strong>：不等待完整 JSON，边收边解析</li>
+              <li><strong>索引碰撞</strong>：多个工具调用可能使用相同索引</li>
+              <li><strong>字符串修复</strong>：自动闭合未完成的引号</li>
+              <li><strong>深度跟踪</strong>：精确判断 JSON 何时完整</li>
+            </ul>
+          </div>
+
+          {/* 触发场景 */}
+          <div>
+            <h3 className="text-cyan-400 font-semibold mb-2">⚡ 何时触发？</h3>
+            <div className="bg-gray-900 p-3 rounded font-mono text-xs">
+              <div className="text-gray-400"># AI 决定调用工具</div>
+              <div className="text-blue-400">AI: 我需要读取文件...</div>
+              <div className="text-gray-400"># 流式返回 tool_call</div>
+              <div className="text-yellow-400">chunk1: {'{"file":'}</div>
+              <div className="text-yellow-400">chunk2: {'"src/in'}</div>
+              <div className="text-yellow-400">chunk3: {'dex.ts"}'}</div>
+              <div className="text-gray-400"># 解析器逐字符跟踪深度</div>
+            </div>
+          </div>
+
+          {/* 关键算法 */}
+          <div>
+            <h3 className="text-cyan-400 font-semibold mb-2">🔧 关键算法</h3>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-gray-900 p-2 rounded">
+                <div className="text-yellow-400">深度计数</div>
+                <div className="text-gray-400">{'{ [ → depth++, } ] → depth--'}</div>
+              </div>
+              <div className="bg-gray-900 p-2 rounded">
+                <div className="text-yellow-400">字符串状态</div>
+                <div className="text-gray-400">" 翻转 inString（除非转义）</div>
+              </div>
+              <div className="bg-gray-900 p-2 rounded">
+                <div className="text-yellow-400">完成检测</div>
+                <div className="text-gray-400">depth == 0 且 buffer 非空</div>
+              </div>
+              <div className="bg-gray-900 p-2 rounded">
+                <div className="text-yellow-400">碰撞处理</div>
+                <div className="text-gray-400">同索引不同ID → 分配新索引</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 源码位置 */}
+          <div>
+            <h3 className="text-cyan-400 font-semibold mb-2">📁 源码位置</h3>
+            <code className="text-xs bg-gray-900 p-2 rounded block">
+              packages/core/src/core/openaiContentGenerator/streamingToolCallParser.ts
+            </code>
+          </div>
+
+          {/* 相关机制 */}
+          <div>
+            <h3 className="text-cyan-400 font-semibold mb-2">🔗 相关机制</h3>
+            <div className="flex flex-wrap gap-2">
+              <span className="px-2 py-1 bg-blue-900/50 text-blue-300 rounded text-xs">OpenAI 管道</span>
+              <span className="px-2 py-1 bg-purple-900/50 text-purple-300 rounded text-xs">工具调度器</span>
+              <span className="px-2 py-1 bg-green-900/50 text-green-300 rounded text-xs">流式响应</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 type ParseState = 'idle' | 'parsing' | 'complete' | 'repaired' | 'error';
 
 interface ToolCallBuffer {
@@ -69,6 +163,7 @@ export default function StreamingJsonParserAnimation() {
   const [highlightChar, setHighlightChar] = useState<{ index: number; pos: number } | null>(null);
   const [parseState, setParseState] = useState<ParseState>('idle');
   const [log, setLog] = useState<string[]>([]);
+  const [isIntroExpanded, setIsIntroExpanded] = useState(true);
 
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -252,9 +347,12 @@ export default function StreamingJsonParserAnimation() {
   return (
     <div className="p-6 bg-gray-900 text-white min-h-screen">
       <h1 className="text-2xl font-bold mb-2">流式 JSON 解析器动画</h1>
-      <p className="text-gray-400 mb-6">
+      <p className="text-gray-400 mb-4">
         基于 streamingToolCallParser.ts | 字符级深度跟踪、碰撞检测、自动修复
       </p>
+
+      {/* 介绍部分 */}
+      <Introduction isExpanded={isIntroExpanded} onToggle={() => setIsIntroExpanded(!isIntroExpanded)} />
 
       {/* 控制面板 */}
       <div className="flex gap-4 mb-6 flex-wrap">

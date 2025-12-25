@@ -1,6 +1,87 @@
 import { useState, useEffect, useCallback } from 'react';
 import { JsonBlock } from '../components/JsonBlock';
 
+// 介绍内容组件
+function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
+  return (
+    <div className="mb-6 bg-[var(--bg-elevated)] rounded-lg overflow-hidden border border-[var(--border-subtle)]">
+      <button
+        onClick={onToggle}
+        className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-[var(--bg-panel)] transition-colors"
+      >
+        <span className="text-lg font-semibold text-[var(--text-primary)]">📖 什么是 Turn 状态流转？</span>
+        <span className={`transform transition-transform text-[var(--text-muted)] ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
+      </button>
+
+      {isExpanded && (
+        <div className="px-4 pb-4 space-y-4 text-sm">
+          {/* 核心概念 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">🎯 核心概念</h3>
+            <p className="text-[var(--text-secondary)]">
+              <strong>Turn</strong> 代表一次完整的 AI 响应周期。从收到第一个流式 chunk 开始，
+              到收到 finish_reason 结束，中间经历思考提取、内容输出、工具调用检测等多个事件。
+            </p>
+          </div>
+
+          {/* 为什么需要 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">❓ 为什么需要 Turn 状态？</h3>
+            <ul className="text-[var(--text-secondary)] space-y-1 list-disc list-inside">
+              <li><strong>状态管理</strong>：追踪一次响应的完整生命周期</li>
+              <li><strong>工具调用收集</strong>：积累流式解析出的工具调用</li>
+              <li><strong>引用收集</strong>：收集 AI 提及的文件、URL 等</li>
+              <li><strong>完成检测</strong>：判断 AI 响应是否真正结束</li>
+            </ul>
+          </div>
+
+          {/* 事件类型 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">📊 关键事件</h3>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
+                <div className="text-[var(--cyber-blue)]">stream_start</div>
+                <div className="text-[var(--text-muted)]">流式响应开始</div>
+              </div>
+              <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
+                <div className="text-[var(--amber)]">tool_call_detected</div>
+                <div className="text-[var(--text-muted)]">检测到工具调用</div>
+              </div>
+              <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
+                <div className="text-[var(--purple)]">content_emitted</div>
+                <div className="text-[var(--text-muted)]">输出文本内容</div>
+              </div>
+              <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
+                <div className="text-[var(--terminal-green)]">turn_complete</div>
+                <div className="text-[var(--text-muted)]">Turn 完成</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 源码位置 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">📁 源码位置</h3>
+            <code className="text-xs bg-[var(--bg-void)] p-2 rounded block border border-[var(--border-subtle)]">
+              packages/core/src/core/turn.ts
+            </code>
+          </div>
+
+          {/* 相关机制 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">🔗 相关机制</h3>
+            <div className="flex flex-wrap gap-2">
+              <span className="px-2 py-1 bg-[var(--cyber-blue)]/20 text-[var(--cyber-blue)] rounded text-xs">流式解析</span>
+              <span className="px-2 py-1 bg-[var(--purple)]/20 text-[var(--purple)] rounded text-xs">工具调度</span>
+              <span className="px-2 py-1 bg-[var(--amber)]/20 text-[var(--amber)] rounded text-xs">Continuation</span>
+              <span className="px-2 py-1 bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] rounded text-xs">主循环</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // Turn 内部事件类型
 type TurnEventType =
   | 'stream_start'
@@ -493,6 +574,7 @@ function TurnStateVisual({ state }: { state: TurnState }) {
 export function TurnInternalAnimation() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isIntroExpanded, setIsIntroExpanded] = useState(true);
   const [turnState, setTurnState] = useState<TurnState>({
     pendingToolCalls: [],
     pendingCitations: new Set(),
@@ -590,9 +672,10 @@ export function TurnInternalAnimation() {
 
       <p className="text-sm text-[var(--text-muted)] font-mono mb-6">
         // 展示单个 Turn 执行过程中的事件流和状态变化
-        <br />
-        // 源码位置: packages/core/src/core/turn.ts (run 方法)
       </p>
+
+      {/* 介绍部分 */}
+      <Introduction isExpanded={isIntroExpanded} onToggle={() => setIsIntroExpanded(!isIntroExpanded)} />
 
       {/* Controls */}
       <div className="flex gap-3 mb-6 flex-wrap">

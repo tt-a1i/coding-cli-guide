@@ -1,6 +1,83 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { JsonBlock } from '../components/JsonBlock';
 
+// 介绍内容组件
+function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
+  return (
+    <div className="mb-6 bg-[var(--bg-elevated)] rounded-lg overflow-hidden border border-[var(--border-subtle)]">
+      <button
+        onClick={onToggle}
+        className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-[var(--bg-panel)] transition-colors"
+      >
+        <span className="text-lg font-semibold text-[var(--text-primary)]">📖 什么是子代理系统？</span>
+        <span className={`transform transition-transform text-[var(--text-muted)] ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
+      </button>
+
+      {isExpanded && (
+        <div className="px-4 pb-4 space-y-4 text-sm">
+          {/* 核心概念 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">🎯 核心概念</h3>
+            <p className="text-[var(--text-secondary)]">
+              <strong>子代理 (Subagent)</strong> 是主 AI 可以委派任务的专家助手。当主 AI 需要执行特定领域任务
+              （如代码审查、安全扫描）时，会启动对应的子代理，让它们并行处理任务，最后汇总结果。
+            </p>
+          </div>
+
+          {/* 为什么需要 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">❓ 为什么需要子代理？</h3>
+            <ul className="text-[var(--text-secondary)] space-y-1 list-disc list-inside">
+              <li><strong>专业化</strong>：每个子代理专注于特定领域，效果更好</li>
+              <li><strong>并行处理</strong>：多个子代理同时工作，提高效率</li>
+              <li><strong>上下文隔离</strong>：子代理有独立上下文，不污染主对话</li>
+              <li><strong>可扩展</strong>：用户可以添加自定义子代理</li>
+            </ul>
+          </div>
+
+          {/* 子代理类型 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">📊 子代理类型</h3>
+            <div className="grid grid-cols-3 gap-2 text-xs">
+              <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
+                <div className="text-[var(--cyber-blue)]">内置代理</div>
+                <div className="text-[var(--text-muted)]">CodeReview, Security...</div>
+              </div>
+              <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
+                <div className="text-[var(--purple)]">用户代理</div>
+                <div className="text-[var(--text-muted)]">~/.innies/agents/</div>
+              </div>
+              <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
+                <div className="text-[var(--terminal-green)]">项目代理</div>
+                <div className="text-[var(--text-muted)]">.innies/agents/</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 源码位置 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">📁 源码位置</h3>
+            <code className="text-xs bg-[var(--bg-void)] p-2 rounded block border border-[var(--border-subtle)]">
+              packages/core/src/subagents/subagentManager.ts
+            </code>
+          </div>
+
+          {/* 相关机制 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">🔗 相关机制</h3>
+            <div className="flex flex-wrap gap-2">
+              <span className="px-2 py-1 bg-[var(--cyber-blue)]/20 text-[var(--cyber-blue)] rounded text-xs">工具调度</span>
+              <span className="px-2 py-1 bg-[var(--purple)]/20 text-[var(--purple)] rounded text-xs">Token 管理</span>
+              <span className="px-2 py-1 bg-[var(--amber)]/20 text-[var(--amber)] rounded text-xs">配置系统</span>
+              <span className="px-2 py-1 bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] rounded text-xs">进程隔离</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // 子代理类型
 type SubagentType = 'builtin' | 'user' | 'project';
 type SubagentStatus = 'idle' | 'spawning' | 'running' | 'thinking' | 'completed' | 'error';
@@ -406,6 +483,7 @@ export function SubagentAnimation() {
   const [activeType, setActiveType] = useState<SubagentType | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const [isIntroExpanded, setIsIntroExpanded] = useState(true);
 
   const phases: AnimationPhase[] = [
     'idle',
@@ -543,9 +621,10 @@ export function SubagentAnimation() {
 
       <p className="text-sm text-[var(--text-muted)] font-mono mb-6">
         // 复杂任务分解与并行子代理执行机制
-        <br />
-        // 源码位置: packages/core/src/subagents/subagent-manager.ts
       </p>
+
+      {/* 介绍部分 */}
+      <Introduction isExpanded={isIntroExpanded} onToggle={() => setIsIntroExpanded(!isIntroExpanded)} />
 
       {/* Controls */}
       <div className="flex gap-3 mb-6 flex-wrap">

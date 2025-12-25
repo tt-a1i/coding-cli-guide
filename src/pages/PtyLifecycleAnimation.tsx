@@ -1,10 +1,105 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, Fragment } from 'react';
 
 /**
  * PTY 生命周期动画
  * 基于 shellExecutionService.ts 的实现
  * 展示 PTY 的 spawn → 数据处理 → 渲染 → 退出 完整流程
  */
+
+// 介绍内容组件
+function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
+  return (
+    <div className="mb-6 bg-gray-800 rounded-lg overflow-hidden">
+      <button
+        onClick={onToggle}
+        className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-gray-700 transition-colors"
+      >
+        <span className="text-lg font-semibold">📖 什么是 PTY 生命周期？</span>
+        <span className={`transform transition-transform ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
+      </button>
+
+      {isExpanded && (
+        <div className="px-4 pb-4 space-y-4 text-sm">
+          {/* 核心概念 */}
+          <div>
+            <h3 className="text-cyan-400 font-semibold mb-2">🎯 核心概念</h3>
+            <p className="text-gray-300">
+              <strong>PTY (Pseudo-Terminal)</strong> 是一个虚拟终端设备，让 CLI 能够像真实终端一样执行命令。
+              当你在 Qwen CLI 中使用 Bash 工具执行 <code className="bg-gray-700 px-1 rounded">ls</code>、
+              <code className="bg-gray-700 px-1 rounded">git status</code> 等命令时，背后就是 PTY 在工作。
+            </p>
+          </div>
+
+          {/* 为什么需要 */}
+          <div>
+            <h3 className="text-cyan-400 font-semibold mb-2">❓ 为什么需要 PTY？</h3>
+            <ul className="text-gray-300 space-y-1 list-disc list-inside">
+              <li><strong>彩色输出</strong>：支持 ANSI 转义序列，显示彩色的命令输出</li>
+              <li><strong>交互式命令</strong>：支持需要终端的命令（如 vim、top）</li>
+              <li><strong>信号处理</strong>：正确处理 Ctrl+C 等中断信号</li>
+              <li><strong>输出格式</strong>：保持命令输出的原始格式（列对齐等）</li>
+            </ul>
+          </div>
+
+          {/* 触发场景 */}
+          <div>
+            <h3 className="text-cyan-400 font-semibold mb-2">⚡ 何时触发？</h3>
+            <div className="bg-gray-900 p-3 rounded font-mono text-xs">
+              <div className="text-gray-400"># 用户请求 AI 执行命令</div>
+              <div className="text-green-400">User: 帮我查看当前目录的文件</div>
+              <div className="text-gray-400"># AI 调用 Bash 工具</div>
+              <div className="text-blue-400">→ Bash tool: ls -la</div>
+              <div className="text-gray-400"># 触发 PTY 生命周期</div>
+              <div className="text-yellow-400">→ shellExecutionService.execute()</div>
+            </div>
+          </div>
+
+          {/* 关键设计 */}
+          <div>
+            <h3 className="text-cyan-400 font-semibold mb-2">🔧 关键设计决策</h3>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-gray-900 p-2 rounded">
+                <div className="text-yellow-400">执行方法回退</div>
+                <div className="text-gray-400">lydell-node-pty → node-pty → child_process</div>
+              </div>
+              <div className="bg-gray-900 p-2 rounded">
+                <div className="text-yellow-400">Binary 检测</div>
+                <div className="text-gray-400">前 4KB 嗅探，避免乱码输出</div>
+              </div>
+              <div className="bg-gray-900 p-2 rounded">
+                <div className="text-yellow-400">渲染节流</div>
+                <div className="text-gray-400">17ms 间隔 ≈ 60fps，避免闪烁</div>
+              </div>
+              <div className="bg-gray-900 p-2 rounded">
+                <div className="text-yellow-400">优雅中止</div>
+                <div className="text-gray-400">SIGINT → 200ms → SIGKILL</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 源码位置 */}
+          <div>
+            <h3 className="text-cyan-400 font-semibold mb-2">📁 源码位置</h3>
+            <code className="text-xs bg-gray-900 p-2 rounded block">
+              packages/core/src/services/shellExecutionService.ts
+            </code>
+          </div>
+
+          {/* 相关机制 */}
+          <div>
+            <h3 className="text-cyan-400 font-semibold mb-2">🔗 相关机制</h3>
+            <div className="flex flex-wrap gap-2">
+              <span className="px-2 py-1 bg-blue-900/50 text-blue-300 rounded text-xs">Bash 工具</span>
+              <span className="px-2 py-1 bg-purple-900/50 text-purple-300 rounded text-xs">工具调度器</span>
+              <span className="px-2 py-1 bg-green-900/50 text-green-300 rounded text-xs">终端序列化</span>
+              <span className="px-2 py-1 bg-orange-900/50 text-orange-300 rounded text-xs">沙箱系统</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 type PtyPhase = 'idle' | 'spawning' | 'running' | 'processing' | 'rendering' | 'aborting' | 'exiting' | 'done';
 
@@ -66,6 +161,7 @@ export default function PtyLifecycleAnimation() {
   const [lastRenderTime, setLastRenderTime] = useState(0);
   const [exitCode, setExitCode] = useState<number | null>(null);
   const [signal, setSignal] = useState<string | null>(null);
+  const [isIntroExpanded, setIsIntroExpanded] = useState(true);
 
   const animationRef = useRef<number | undefined>(undefined);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -247,9 +343,12 @@ export default function PtyLifecycleAnimation() {
   return (
     <div className="p-6 bg-gray-900 text-white min-h-screen">
       <h1 className="text-2xl font-bold mb-2">PTY 生命周期动画</h1>
-      <p className="text-gray-400 mb-6">
+      <p className="text-gray-400 mb-4">
         基于 shellExecutionService.ts | 展示 PTY spawn → 数据处理 → 渲染 → 退出 流程
       </p>
+
+      {/* 介绍部分 */}
+      <Introduction isExpanded={isIntroExpanded} onToggle={() => setIsIntroExpanded(!isIntroExpanded)} />
 
       {/* 控制面板 */}
       <div className="flex gap-4 mb-6">
@@ -295,7 +394,7 @@ export default function PtyLifecycleAnimation() {
         <h2 className="text-lg font-semibold mb-3">状态流程</h2>
         <div className="flex items-center gap-2 flex-wrap">
           {(['idle', 'spawning', 'running', 'processing', 'rendering', 'exiting', 'done'] as PtyPhase[]).map((p, i) => (
-            <React.Fragment key={p}>
+            <Fragment key={p}>
               <div
                 className={`px-3 py-2 rounded ${
                   phase === p ? getPhaseColor(p) + ' ring-2 ring-white' : 'bg-gray-700'
@@ -304,7 +403,7 @@ export default function PtyLifecycleAnimation() {
                 {getPhaseLabel(p)}
               </div>
               {i < 6 && <span className="text-gray-500">→</span>}
-            </React.Fragment>
+            </Fragment>
           ))}
         </div>
         {phase === 'aborting' && (
@@ -436,7 +535,7 @@ export default function PtyLifecycleAnimation() {
         <h2 className="text-lg font-semibold mb-3">执行方法回退链</h2>
         <div className="flex items-center gap-4">
           {['lydell-node-pty', 'node-pty', 'child_process'].map((method, i) => (
-            <React.Fragment key={method}>
+            <Fragment key={method}>
               <div
                 className={`px-4 py-2 rounded ${
                   executionMethod === method
@@ -451,7 +550,7 @@ export default function PtyLifecycleAnimation() {
                   <span className="text-red-400">fail</span> →
                 </span>
               )}
-            </React.Fragment>
+            </Fragment>
           ))}
         </div>
       </div>

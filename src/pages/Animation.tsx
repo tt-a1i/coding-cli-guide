@@ -1,6 +1,90 @@
 import { useState, useEffect } from 'react';
 import { JsonBlock } from '../components/JsonBlock';
 
+// 介绍内容组件
+function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
+  return (
+    <div className="mb-6 bg-[var(--bg-elevated)] rounded-lg overflow-hidden border border-[var(--border-subtle)]">
+      <button
+        onClick={onToggle}
+        className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-[var(--bg-panel)] transition-colors"
+      >
+        <span className="text-lg font-semibold text-[var(--text-primary)]">📖 什么是核心交互循环？</span>
+        <span className={`transform transition-transform text-[var(--text-muted)] ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
+      </button>
+
+      {isExpanded && (
+        <div className="px-4 pb-4 space-y-4 text-sm">
+          {/* 核心概念 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">🎯 核心概念</h3>
+            <p className="text-[var(--text-secondary)]">
+              <strong>核心交互循环</strong>是 Qwen CLI 的心跳。当用户发送消息后，CLI 会与 AI 进行多轮交互，
+              直到 AI 完成任务或需要用户输入。这个循环包括：消息发送 → AI 思考 → 工具调用 → 用户审批 → 执行 → 继续对话。
+            </p>
+          </div>
+
+          {/* 为什么需要 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">❓ 为什么需要理解这个循环？</h3>
+            <ul className="text-[var(--text-secondary)] space-y-1 list-disc list-inside">
+              <li><strong>掌控全局</strong>：理解 CLI 每一步在做什么，不再黑箱操作</li>
+              <li><strong>排查问题</strong>：当 CLI 卡住或行为异常时，知道从哪里入手</li>
+              <li><strong>安全意识</strong>：理解工具审批机制，知道何时 CLI 会询问你</li>
+              <li><strong>性能优化</strong>：理解 Continuation 机制，知道多轮对话的开销</li>
+            </ul>
+          </div>
+
+          {/* 关键参与者 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">👥 关键参与者</h3>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
+                <div className="text-[var(--terminal-green)]">👤 用户</div>
+                <div className="text-[var(--text-muted)]">发起请求、审批工具、接收结果</div>
+              </div>
+              <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
+                <div className="text-[var(--cyber-blue)]">🖥️ CLI</div>
+                <div className="text-[var(--text-muted)]">协调各方、执行工具、管理状态</div>
+              </div>
+              <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
+                <div className="text-[var(--purple)]">☁️ AI API</div>
+                <div className="text-[var(--text-muted)]">理解意图、生成回复、调用工具</div>
+              </div>
+              <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
+                <div className="text-[var(--amber)]">🔧 工具</div>
+                <div className="text-[var(--text-muted)]">读写文件、执行命令、搜索代码</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 源码位置 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">📁 核心源码</h3>
+            <div className="bg-[var(--bg-void)] p-2 rounded font-mono text-xs border border-[var(--border-subtle)]">
+              <div className="text-[var(--text-muted)]">// 主循环入口</div>
+              <div>packages/core/src/core/geminiChat.ts</div>
+              <div className="text-[var(--text-muted)] mt-1">// 工具调度</div>
+              <div>packages/core/src/tools/toolScheduler.ts</div>
+            </div>
+          </div>
+
+          {/* 相关机制 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">🔗 相关机制</h3>
+            <div className="flex flex-wrap gap-2">
+              <span className="px-2 py-1 bg-[var(--cyber-blue)]/20 text-[var(--cyber-blue)] rounded text-xs">工具调度器</span>
+              <span className="px-2 py-1 bg-[var(--purple)]/20 text-[var(--purple)] rounded text-xs">流式解析</span>
+              <span className="px-2 py-1 bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] rounded text-xs">权限审批</span>
+              <span className="px-2 py-1 bg-[var(--amber)]/20 text-[var(--amber)] rounded text-xs">上下文管理</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface AnimStepProps {
   visible: boolean;
   from: string;
@@ -160,6 +244,7 @@ const stepDescriptions = [
 export function Animation() {
   const [step, setStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isIntroExpanded, setIsIntroExpanded] = useState(true);
   const maxSteps = animSteps.length;
 
   useEffect(() => {
@@ -211,6 +296,9 @@ export function Animation() {
       <p className="text-sm text-[var(--text-muted)] font-mono mb-6">
         // 展示 innies-cli 的核心交互循环：用户输入 → AI 思考 → 工具审批 → 执行 → Continuation
       </p>
+
+      {/* 介绍部分 */}
+      <Introduction isExpanded={isIntroExpanded} onToggle={() => setIsIntroExpanded(!isIntroExpanded)} />
 
       {/* Controls */}
       <div className="flex gap-3 mb-6 flex-wrap">

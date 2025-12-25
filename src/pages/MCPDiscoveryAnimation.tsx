@@ -1,6 +1,87 @@
 import { useState, useEffect, useCallback } from 'react';
 import { JsonBlock } from '../components/JsonBlock';
 
+// 介绍内容组件
+function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
+  return (
+    <div className="mb-6 bg-[var(--bg-elevated)] rounded-lg overflow-hidden border border-[var(--border-subtle)]">
+      <button
+        onClick={onToggle}
+        className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-[var(--bg-panel)] transition-colors"
+      >
+        <span className="text-lg font-semibold text-[var(--text-primary)]">📖 什么是 MCP 服务发现？</span>
+        <span className={`transform transition-transform text-[var(--text-muted)] ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
+      </button>
+
+      {isExpanded && (
+        <div className="px-4 pb-4 space-y-4 text-sm">
+          {/* 核心概念 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">🎯 核心概念</h3>
+            <p className="text-[var(--text-secondary)]">
+              <strong>MCP (Model Context Protocol)</strong> 是一种扩展 AI 能力的协议。通过 MCP 服务器，
+              CLI 可以连接外部工具（如数据库、API、文件系统）。服务发现流程负责找到、连接并注册这些扩展服务。
+            </p>
+          </div>
+
+          {/* 为什么需要 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">❓ 为什么需要服务发现？</h3>
+            <ul className="text-[var(--text-secondary)] space-y-1 list-disc list-inside">
+              <li><strong>扩展能力</strong>：无需修改核心代码，插件式扩展功能</li>
+              <li><strong>隔离错误</strong>：一个服务失败不影响其他服务</li>
+              <li><strong>并行启动</strong>：多个服务同时连接，加快启动速度</li>
+              <li><strong>动态工具</strong>：每个服务提供的工具自动注册到 AI</li>
+            </ul>
+          </div>
+
+          {/* 发现阶段 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">📊 发现阶段</h3>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
+                <div className="text-[var(--cyber-blue)]">1. 加载配置</div>
+                <div className="text-[var(--text-muted)]">读取内置/用户/项目级配置</div>
+              </div>
+              <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
+                <div className="text-[var(--cyber-blue)]">2. 并行连接</div>
+                <div className="text-[var(--text-muted)]">spawn 进程，建立 stdio 通道</div>
+              </div>
+              <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
+                <div className="text-[var(--amber)]">3. 能力协商</div>
+                <div className="text-[var(--text-muted)]">交换版本和能力信息</div>
+              </div>
+              <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
+                <div className="text-[var(--terminal-green)]">4. 工具注册</div>
+                <div className="text-[var(--text-muted)]">将工具列表合并到 AI 上下文</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 源码位置 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">📁 源码位置</h3>
+            <code className="text-xs bg-[var(--bg-void)] p-2 rounded block border border-[var(--border-subtle)]">
+              packages/core/src/tools/mcp-client-manager.ts
+            </code>
+          </div>
+
+          {/* 相关机制 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">🔗 相关机制</h3>
+            <div className="flex flex-wrap gap-2">
+              <span className="px-2 py-1 bg-[var(--cyber-blue)]/20 text-[var(--cyber-blue)] rounded text-xs">工具系统</span>
+              <span className="px-2 py-1 bg-[var(--purple)]/20 text-[var(--purple)] rounded text-xs">扩展系统</span>
+              <span className="px-2 py-1 bg-[var(--amber)]/20 text-[var(--amber)] rounded text-xs">配置管理</span>
+              <span className="px-2 py-1 bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] rounded text-xs">进程管理</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // MCP Server 状态
 type ServerStatus = 'pending' | 'connecting' | 'negotiating' | 'ready' | 'error';
 
@@ -300,6 +381,7 @@ export function MCPDiscoveryAnimation() {
   const [servers, setServers] = useState<MCPServer[]>(initialServers);
   const [activeServerId, setActiveServerId] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isIntroExpanded, setIsIntroExpanded] = useState(true);
 
   // 模拟服务器状态更新
   const updateServersForPhase = useCallback((phase: number) => {
@@ -403,9 +485,10 @@ export function MCPDiscoveryAnimation() {
 
       <p className="text-sm text-[var(--text-muted)] font-mono mb-6">
         // Model Context Protocol 服务器的并行发现与工具注册
-        <br />
-        // 源码位置: packages/core/src/tools/mcp-client-manager.ts
       </p>
+
+      {/* 介绍部分 */}
+      <Introduction isExpanded={isIntroExpanded} onToggle={() => setIsIntroExpanded(!isIntroExpanded)} />
 
       {/* Controls */}
       <div className="flex gap-3 mb-6 flex-wrap">

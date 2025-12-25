@@ -1,6 +1,87 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { JsonBlock } from '../components/JsonBlock';
 
+// 介绍内容组件
+function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
+  return (
+    <div className="mb-6 bg-[var(--bg-elevated)] rounded-lg overflow-hidden border border-[var(--border-subtle)]">
+      <button
+        onClick={onToggle}
+        className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-[var(--bg-panel)] transition-colors"
+      >
+        <span className="text-lg font-semibold text-[var(--text-primary)]">📖 什么是工具调度状态机？</span>
+        <span className={`transform transition-transform text-[var(--text-muted)] ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
+      </button>
+
+      {isExpanded && (
+        <div className="px-4 pb-4 space-y-4 text-sm">
+          {/* 核心概念 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">🎯 核心概念</h3>
+            <p className="text-[var(--text-secondary)]">
+              <strong>CoreToolScheduler</strong> 是工具执行的调度中心。当 AI 请求调用工具（如读文件、执行命令）时，
+              调度器负责验证参数、请求用户审批、执行工具、处理结果或错误。每个工具调用都经历一个完整的状态机流转。
+            </p>
+          </div>
+
+          {/* 为什么需要 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">❓ 为什么需要状态机？</h3>
+            <ul className="text-[var(--text-secondary)] space-y-1 list-disc list-inside">
+              <li><strong>可预测性</strong>：每个工具调用的状态清晰可追踪</li>
+              <li><strong>错误隔离</strong>：一个工具失败不影响其他工具</li>
+              <li><strong>可取消</strong>：用户可以在任意阶段取消等待中的工具</li>
+              <li><strong>并发控制</strong>：同时调度多个工具时保持状态一致</li>
+            </ul>
+          </div>
+
+          {/* 状态说明 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">📊 状态说明</h3>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
+                <div className="text-gray-400">idle → validating</div>
+                <div className="text-[var(--text-muted)]">验证工具参数格式</div>
+              </div>
+              <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
+                <div className="text-[var(--amber)]">awaiting_approval</div>
+                <div className="text-[var(--text-muted)]">等待用户审批执行</div>
+              </div>
+              <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
+                <div className="text-[var(--cyber-blue)]">scheduled → executing</div>
+                <div className="text-[var(--text-muted)]">排队后执行工具</div>
+              </div>
+              <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
+                <div className="text-[var(--terminal-green)]">success / error</div>
+                <div className="text-[var(--text-muted)]">执行成功或失败</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 源码位置 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">📁 源码位置</h3>
+            <code className="text-xs bg-[var(--bg-void)] p-2 rounded block border border-[var(--border-subtle)]">
+              packages/core/src/core/coreToolScheduler.ts
+            </code>
+          </div>
+
+          {/* 相关机制 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">🔗 相关机制</h3>
+            <div className="flex flex-wrap gap-2">
+              <span className="px-2 py-1 bg-[var(--amber)]/20 text-[var(--amber)] rounded text-xs">权限审批</span>
+              <span className="px-2 py-1 bg-[var(--purple)]/20 text-[var(--purple)] rounded text-xs">工具执行</span>
+              <span className="px-2 py-1 bg-[var(--cyber-blue)]/20 text-[var(--cyber-blue)] rounded text-xs">错误处理</span>
+              <span className="px-2 py-1 bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] rounded text-xs">重试机制</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ToolCall 状态类型
 type ToolCallState =
   | 'idle'
@@ -335,6 +416,7 @@ export function ToolSchedulerAnimation() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [showError, setShowError] = useState(false);
   const [showCancel, setShowCancel] = useState(false);
+  const [isIntroExpanded, setIsIntroExpanded] = useState(true);
 
   const allSteps = useMemo(() => {
     if (showError) {
@@ -425,7 +507,12 @@ export function ToolSchedulerAnimation() {
 
       <p className="text-sm text-[var(--text-muted)] font-mono mb-6">
         // 展示工具调用从接收到执行完成的完整状态流转过程
-        <br />
+      </p>
+
+      {/* 介绍部分 */}
+      <Introduction isExpanded={isIntroExpanded} onToggle={() => setIsIntroExpanded(!isIntroExpanded)} />
+
+      <p className="text-sm text-[var(--text-muted)] font-mono mb-6">
         // 源码位置: packages/core/src/core/coreToolScheduler.ts
       </p>
 

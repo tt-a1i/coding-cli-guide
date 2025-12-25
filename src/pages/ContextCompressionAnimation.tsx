@@ -1,6 +1,87 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { JsonBlock } from '../components/JsonBlock';
 
+// 介绍内容组件
+function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
+  return (
+    <div className="mb-6 bg-[var(--bg-elevated)] rounded-lg overflow-hidden border border-[var(--border-subtle)]">
+      <button
+        onClick={onToggle}
+        className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-[var(--bg-panel)] transition-colors"
+      >
+        <span className="text-lg font-semibold text-[var(--text-primary)]">📖 什么是上下文压缩？</span>
+        <span className={`transform transition-transform text-[var(--text-muted)] ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
+      </button>
+
+      {isExpanded && (
+        <div className="px-4 pb-4 space-y-4 text-sm">
+          {/* 核心概念 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">🎯 核心概念</h3>
+            <p className="text-[var(--text-secondary)]">
+              <strong>上下文压缩</strong>是 CLI 保持长对话能力的关键机制。当对话历史超过 Token 限制时，
+              系统会智能压缩旧消息，保留最重要的信息，让 AI 能够继续理解上下文。
+            </p>
+          </div>
+
+          {/* 为什么需要 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">❓ 为什么需要压缩？</h3>
+            <ul className="text-[var(--text-secondary)] space-y-1 list-disc list-inside">
+              <li><strong>Token 限制</strong>：每个 AI 模型都有最大上下文长度限制</li>
+              <li><strong>成本控制</strong>：Token 越多，API 调用成本越高</li>
+              <li><strong>响应速度</strong>：更少的 Token 意味着更快的响应</li>
+              <li><strong>信息密度</strong>：压缩保留关键信息，丢弃冗余内容</li>
+            </ul>
+          </div>
+
+          {/* 压缩策略 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">📊 压缩策略</h3>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
+                <div className="text-[var(--amber)]">阈值触发</div>
+                <div className="text-[var(--text-muted)]">Token 超过限制时自动触发</div>
+              </div>
+              <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
+                <div className="text-[var(--cyber-blue)]">分割点选择</div>
+                <div className="text-[var(--text-muted)]">寻找最佳压缩位置</div>
+              </div>
+              <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
+                <div className="text-[var(--purple)]">AI 摘要</div>
+                <div className="text-[var(--text-muted)]">用 AI 生成历史摘要</div>
+              </div>
+              <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
+                <div className="text-[var(--terminal-green)]">重建上下文</div>
+                <div className="text-[var(--text-muted)]">摘要 + 最近消息组成新上下文</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 源码位置 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">📁 源码位置</h3>
+            <code className="text-xs bg-[var(--bg-void)] p-2 rounded block border border-[var(--border-subtle)]">
+              packages/core/src/core/chatHistory.ts
+            </code>
+          </div>
+
+          {/* 相关机制 */}
+          <div>
+            <h3 className="text-[var(--terminal-green)] font-semibold mb-2">🔗 相关机制</h3>
+            <div className="flex flex-wrap gap-2">
+              <span className="px-2 py-1 bg-[var(--amber)]/20 text-[var(--amber)] rounded text-xs">Token 计数</span>
+              <span className="px-2 py-1 bg-[var(--purple)]/20 text-[var(--purple)] rounded text-xs">消息格式</span>
+              <span className="px-2 py-1 bg-[var(--cyber-blue)]/20 text-[var(--cyber-blue)] rounded text-xs">会话管理</span>
+              <span className="px-2 py-1 bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] rounded text-xs">记忆系统</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // 消息类型
 interface Message {
   id: number;
@@ -295,6 +376,7 @@ export function ContextCompressionAnimation() {
   const [splitPoint, setSplitPoint] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const [isIntroExpanded, setIsIntroExpanded] = useState(true);
 
   const totalTokens = useMemo(
     () => messages.reduce((sum, m) => sum + m.tokens, 0),
@@ -414,9 +496,10 @@ export function ContextCompressionAnimation() {
 
       <p className="text-sm text-[var(--text-muted)] font-mono mb-6">
         // 当 Token 使用量超过阈值时，自动压缩历史消息以释放空间
-        <br />
-        // 源码位置: packages/core/src/services/chatCompressionService.ts
       </p>
+
+      {/* 介绍部分 */}
+      <Introduction isExpanded={isIntroExpanded} onToggle={() => setIsIntroExpanded(!isIntroExpanded)} />
 
       {/* Controls */}
       <div className="flex gap-3 mb-6 flex-wrap">
