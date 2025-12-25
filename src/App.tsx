@@ -82,6 +82,16 @@ const SandboxPolicyAnimation = lazy(() => import('./pages/SandboxPolicyAnimation
 const CommandInjectionDetectionAnimation = lazy(() => import('./pages/CommandInjectionDetectionAnimation'));
 const LoopDetectionEngineAnimation = lazy(() => import('./pages/LoopDetectionEngineAnimation'));
 const ContentGenerationPipelineAnimation = lazy(() => import('./pages/ContentGenerationPipelineAnimation'));
+const StreamingResponseAnimation = lazy(() => import('./pages/StreamingResponseAnimation'));
+const OAuthDeviceFlowAnimation = lazy(() => import('./pages/OAuthDeviceFlowAnimation'));
+const MCPClientConnectionAnimation = lazy(() => import('./pages/MCPClientConnectionAnimation'));
+const ReactToolSchedulerAnimation = lazy(() => import('./pages/ReactToolSchedulerAnimation'));
+const SessionMetricsAnimation = lazy(() => import('./pages/SessionMetricsAnimation'));
+const GeminiChatFlowAnimation = lazy(() => import('./pages/GeminiChatFlowAnimation'));
+const TokenLimitMatcherAnimation = lazy(() => import('./pages/TokenLimitMatcherAnimation'));
+const SharedTokenManagerAnimation = lazy(() => import('./pages/SharedTokenManagerAnimation'));
+const ShellInjectionProcessorAnimation = lazy(() => import('./pages/ShellInjectionProcessorAnimation'));
+const AtFileProcessorAnimation = lazy(() => import('./pages/AtFileProcessorAnimation'));
 const CoreCode = lazy(() => import('./pages/CoreCode').then(m => ({ default: m.CoreCode })));
 const LoopMechanism = lazy(() => import('./pages/LoopMechanism').then(m => ({ default: m.LoopMechanism })));
 
@@ -318,6 +328,26 @@ function App() {
         return <LoopDetectionEngineAnimation />;
       case 'content-pipeline-anim':
         return <ContentGenerationPipelineAnimation />;
+      case 'streaming-response-anim':
+        return <StreamingResponseAnimation />;
+      case 'oauth-device-flow-anim':
+        return <OAuthDeviceFlowAnimation />;
+      case 'mcp-client-connection-anim':
+        return <MCPClientConnectionAnimation />;
+      case 'react-tool-scheduler-anim':
+        return <ReactToolSchedulerAnimation />;
+      case 'session-metrics-anim':
+        return <SessionMetricsAnimation />;
+      case 'gemini-chat-flow-anim':
+        return <GeminiChatFlowAnimation />;
+      case 'token-limit-matcher-anim':
+        return <TokenLimitMatcherAnimation />;
+      case 'shared-token-manager-anim':
+        return <SharedTokenManagerAnimation />;
+      case 'shell-injection-anim':
+        return <ShellInjectionProcessorAnimation />;
+      case 'at-file-processor-anim':
+        return <AtFileProcessorAnimation />;
       case 'code':
         return <CoreCode />;
       case 'loop':
