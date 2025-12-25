@@ -1,9 +1,103 @@
+import { useState } from 'react';
 import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 
+// 快速摘要组件
+function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
+  return (
+    <div className="mb-8 bg-gradient-to-r from-[var(--cyber-blue)]/10 to-[var(--purple)]/10 rounded-xl border border-[var(--border-subtle)] overflow-hidden">
+      <button
+        onClick={onToggle}
+        className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-[var(--bg-elevated)]/50 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">⚡</span>
+          <span className="text-xl font-bold text-[var(--text-primary)]">30秒快速理解</span>
+        </div>
+        <span className={`transform transition-transform text-[var(--text-muted)] ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
+      </button>
+
+      {isExpanded && (
+        <div className="px-6 pb-6 space-y-5">
+          {/* 一句话总结 */}
+          <div className="p-4 bg-[var(--bg-void)] rounded-lg border-l-4 border-[var(--terminal-green)]">
+            <p className="text-[var(--text-primary)] font-medium">
+              请求生命周期是 CLI 的核心循环：<span className="text-[var(--terminal-green)]">用户输入 → 预处理 → API调用 → 流式响应 → 工具执行 → 继续循环直到完成</span>
+            </p>
+          </div>
+
+          {/* 关键数字 */}
+          <div className="grid grid-cols-4 gap-3">
+            <div className="text-center p-3 bg-[var(--bg-void)] rounded-lg">
+              <div className="text-2xl font-bold text-[var(--cyber-blue)]">6</div>
+              <div className="text-xs text-[var(--text-muted)]">核心阶段</div>
+            </div>
+            <div className="text-center p-3 bg-[var(--bg-void)] rounded-lg">
+              <div className="text-2xl font-bold text-[var(--amber)]">N</div>
+              <div className="text-xs text-[var(--text-muted)]">多轮交互</div>
+            </div>
+            <div className="text-center p-3 bg-[var(--bg-void)] rounded-lg">
+              <div className="text-2xl font-bold text-[var(--purple)]">3</div>
+              <div className="text-xs text-[var(--text-muted)]">终止条件</div>
+            </div>
+            <div className="text-center p-3 bg-[var(--bg-void)] rounded-lg">
+              <div className="text-2xl font-bold text-[var(--terminal-green)]">∞</div>
+              <div className="text-xs text-[var(--text-muted)]">流式chunk</div>
+            </div>
+          </div>
+
+          {/* 核心流程 */}
+          <div>
+            <h4 className="text-sm font-semibold text-[var(--text-muted)] mb-3">📍 核心流程</h4>
+            <div className="flex items-center gap-2 flex-wrap text-sm">
+              <span className="px-3 py-1.5 bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] rounded-full">用户输入</span>
+              <span className="text-[var(--text-muted)]">→</span>
+              <span className="px-3 py-1.5 bg-[var(--cyber-blue)]/20 text-[var(--cyber-blue)] rounded-full">@预处理</span>
+              <span className="text-[var(--text-muted)]">→</span>
+              <span className="px-3 py-1.5 bg-[var(--purple)]/20 text-[var(--purple)] rounded-full">API请求</span>
+              <span className="text-[var(--text-muted)]">→</span>
+              <span className="px-3 py-1.5 bg-[var(--amber)]/20 text-[var(--amber)] rounded-full">工具调用?</span>
+              <span className="text-[var(--text-muted)]">→</span>
+              <span className="px-3 py-1.5 bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] rounded-full">完成/继续</span>
+            </div>
+          </div>
+
+          {/* 何时终止 */}
+          <div>
+            <h4 className="text-sm font-semibold text-[var(--text-muted)] mb-3">🛑 何时终止循环？</h4>
+            <div className="grid grid-cols-3 gap-2 text-xs">
+              <div className="p-2 bg-[var(--bg-void)] rounded border border-[var(--terminal-green)]/30">
+                <div className="text-[var(--terminal-green)] font-medium">finish_reason: stop</div>
+                <div className="text-[var(--text-muted)]">AI 完成回答</div>
+              </div>
+              <div className="p-2 bg-[var(--bg-void)] rounded border border-[var(--amber)]/30">
+                <div className="text-[var(--amber)] font-medium">用户取消</div>
+                <div className="text-[var(--text-muted)]">Ctrl+C 中断</div>
+              </div>
+              <div className="p-2 bg-[var(--bg-void)] rounded border border-[var(--error)]/30">
+                <div className="text-[var(--error)] font-medium">错误发生</div>
+                <div className="text-[var(--text-muted)]">API/工具失败</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 源码入口 */}
+          <div className="flex items-center gap-4 text-xs">
+            <span className="text-[var(--text-muted)]">📁 核心源码:</span>
+            <code className="px-2 py-1 bg-[var(--bg-void)] rounded text-[var(--cyber-blue)]">
+              packages/core/src/core/geminiChat.ts → chat()
+            </code>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function RequestLifecycle() {
+  const [isSummaryExpanded, setIsSummaryExpanded] = useState(true);
   // 完整请求生命周期流程图
   const requestLifecycleFlowChart = `flowchart TD
     node_start(["用户输入请求"])
@@ -333,6 +427,9 @@ function setupAbortController(): AbortController {
 
   return (
     <div className="space-y-8 animate-fadeIn">
+      {/* 快速摘要 */}
+      <QuickSummary isExpanded={isSummaryExpanded} onToggle={() => setIsSummaryExpanded(!isSummaryExpanded)} />
+
       {/* 目标 */}
       <section>
         <Layer title="目标" icon="🎯">

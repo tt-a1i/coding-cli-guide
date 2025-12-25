@@ -57,7 +57,103 @@ const QUERY_PHASES: QueryPhase[] = [
   { name: 'processEvents', description: '处理流事件', status: 'pending' },
 ];
 
+function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
+  return (
+    <div className="mb-6 bg-gradient-to-r from-[var(--terminal-green)]/10 to-[var(--amber)]/10 rounded-xl border border-[var(--border-subtle)] overflow-hidden">
+      <button
+        onClick={onToggle}
+        className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">🌊</span>
+          <span className="text-xl font-bold text-[var(--text-primary)]">核心概念介绍</span>
+        </div>
+        <span className={`transform transition-transform text-[var(--text-muted)] ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
+      </button>
+
+      {isExpanded && (
+        <div className="px-6 pb-6 space-y-4">
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
+            <h4 className="text-[var(--terminal-green)] font-bold mb-2">🎯 核心概念</h4>
+            <p className="text-[var(--text-secondary)] text-sm">
+              useGeminiStream 是 CLI 交互的核心 Hook，负责管理用户查询的完整生命周期：
+              从输入预处理到流式响应接收、工具调度和结果展示。
+            </p>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
+            <h4 className="text-[var(--amber)] font-bold mb-2">🔧 为什么需要</h4>
+            <p className="text-[var(--text-secondary)] text-sm">
+              LLM 响应是异步流式的，包含多种事件类型（内容、工具调用、思考过程）。
+              需要统一状态机管理 Idle/Responding/WaitingForConfirmation 三态转换。
+            </p>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
+            <h4 className="text-[var(--cyber-blue)] font-bold mb-2">🏗️ 处理流程</h4>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-2">
+              <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--cyber-blue)]/30">
+                <div className="text-[var(--cyber-blue)] font-semibold text-sm">1. 预处理</div>
+                <div className="text-xs text-[var(--text-muted)] mt-1">
+                  检测 /命令、@引用<br/>
+                  VLM 模型切换
+                </div>
+              </div>
+              <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--terminal-green)]/30">
+                <div className="text-[var(--terminal-green)] font-semibold text-sm">2. 发送请求</div>
+                <div className="text-xs text-[var(--text-muted)] mt-1">
+                  sendMessageStream<br/>
+                  建立 SSE 连接
+                </div>
+              </div>
+              <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--amber)]/30">
+                <div className="text-[var(--amber)] font-semibold text-sm">3. 事件处理</div>
+                <div className="text-xs text-[var(--text-muted)] mt-1">
+                  Content/ToolCall<br/>
+                  Thought/Finished
+                </div>
+              </div>
+              <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--purple)]/30">
+                <div className="text-[var(--purple)] font-semibold text-sm">4. 工具调度</div>
+                <div className="text-xs text-[var(--text-muted)] mt-1">
+                  scheduleToolCalls<br/>
+                  Continuation 机制
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+            <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--border-subtle)]">
+              <div className="text-xl font-bold text-[var(--terminal-green)]">13</div>
+              <div className="text-xs text-[var(--text-muted)]">事件类型</div>
+            </div>
+            <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--border-subtle)]">
+              <div className="text-xl font-bold text-[var(--amber)]">6</div>
+              <div className="text-xs text-[var(--text-muted)]">预处理阶段</div>
+            </div>
+            <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--border-subtle)]">
+              <div className="text-xl font-bold text-[var(--cyber-blue)]">3</div>
+              <div className="text-xs text-[var(--text-muted)]">状态机状态</div>
+            </div>
+            <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--border-subtle)]">
+              <div className="text-xl font-bold text-[var(--purple)]">∞</div>
+              <div className="text-xs text-[var(--text-muted)]">Continuation 循环</div>
+            </div>
+          </div>
+
+          <div className="text-xs text-[var(--text-muted)] bg-[var(--bg-card)] px-3 py-2 rounded flex items-center gap-2">
+            <span>📁</span>
+            <code>packages/cli/src/ui/hooks/useGeminiStream.ts</code>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function StreamingResponseAnimation() {
+  const [isIntroExpanded, setIsIntroExpanded] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
   const [streamingState, setStreamingState] = useState<StreamingState>('Idle');
   const [phases, setPhases] = useState<QueryPhase[]>(QUERY_PHASES);
@@ -197,6 +293,8 @@ export default function StreamingResponseAnimation() {
 
   return (
     <div className="p-6 space-y-6">
+      <Introduction isExpanded={isIntroExpanded} onToggle={() => setIsIntroExpanded(!isIntroExpanded)} />
+
       {/* 标题区 */}
       <div className="flex items-center justify-between">
         <div>

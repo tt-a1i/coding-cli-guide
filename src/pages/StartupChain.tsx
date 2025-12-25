@@ -1,9 +1,112 @@
+import { useState } from 'react';
 import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 
+function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
+  return (
+    <div className="mb-8 bg-gradient-to-r from-[var(--terminal-green)]/10 to-[var(--cyber-blue)]/10 rounded-xl border border-[var(--border-subtle)] overflow-hidden">
+      <button
+        onClick={onToggle}
+        className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">🚀</span>
+          <span className="text-xl font-bold text-[var(--text-primary)]">30秒快速理解</span>
+        </div>
+        <span className={`transform transition-transform text-[var(--text-muted)] ${isExpanded ? 'rotate-180' : ''}`}>
+          ▼
+        </span>
+      </button>
+
+      {isExpanded && (
+        <div className="px-6 pb-6 space-y-5">
+          {/* 一句话总结 */}
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
+            <p className="text-[var(--text-primary)] font-medium">
+              <span className="text-[var(--terminal-green)] font-bold">一句话：</span>
+              从执行 <code className="text-[var(--cyber-blue)]">qwen</code> 命令到进入会话，经过配置加载 → 沙箱检测 → 认证验证 → 模式选择 4 个阶段
+            </p>
+          </div>
+
+          {/* 关键数字 */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
+              <div className="text-2xl font-bold text-[var(--terminal-green)]">4</div>
+              <div className="text-xs text-[var(--text-muted)]">配置层级</div>
+            </div>
+            <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
+              <div className="text-2xl font-bold text-[var(--cyber-blue)]">3</div>
+              <div className="text-xs text-[var(--text-muted)]">沙箱类型</div>
+            </div>
+            <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
+              <div className="text-2xl font-bold text-[var(--purple)]">3</div>
+              <div className="text-xs text-[var(--text-muted)]">运行模式</div>
+            </div>
+            <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
+              <div className="text-2xl font-bold text-[var(--amber)]">7</div>
+              <div className="text-xs text-[var(--text-muted)]">关键入口</div>
+            </div>
+          </div>
+
+          {/* 核心流程 */}
+          <div>
+            <h4 className="text-sm font-semibold text-[var(--text-muted)] mb-2">核心流程</h4>
+            <div className="flex items-center gap-2 flex-wrap text-sm">
+              <span className="px-3 py-1.5 bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] rounded-lg border border-[var(--terminal-green)]/30">
+                qwen 命令
+              </span>
+              <span className="text-[var(--text-muted)]">→</span>
+              <span className="px-3 py-1.5 bg-[var(--cyber-blue)]/20 text-[var(--cyber-blue)] rounded-lg border border-[var(--cyber-blue)]/30">
+                loadSettings
+              </span>
+              <span className="text-[var(--text-muted)]">→</span>
+              <span className="px-3 py-1.5 bg-[var(--amber)]/20 text-[var(--amber)] rounded-lg border border-[var(--amber)]/30">
+                沙箱检测
+              </span>
+              <span className="text-[var(--text-muted)]">→</span>
+              <span className="px-3 py-1.5 bg-[var(--purple)]/20 text-[var(--purple)] rounded-lg border border-[var(--purple)]/30">
+                initializeApp
+              </span>
+              <span className="text-[var(--text-muted)]">→</span>
+              <span className="px-3 py-1.5 bg-green-500/20 text-green-400 rounded-lg border border-green-500/30">
+                模式分流
+              </span>
+            </div>
+          </div>
+
+          {/* 配置优先级 */}
+          <div>
+            <h4 className="text-sm font-semibold text-[var(--text-muted)] mb-2">配置优先级（从高到低）</h4>
+            <div className="flex items-center gap-2 flex-wrap text-xs">
+              <span className="px-2 py-1 bg-red-500/20 text-red-400 rounded border border-red-500/30">CLI 参数</span>
+              <span className="text-[var(--text-muted)]">&gt;</span>
+              <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded border border-yellow-500/30">/etc/qwen-code/</span>
+              <span className="text-[var(--text-muted)]">&gt;</span>
+              <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded border border-green-500/30">.qwen/</span>
+              <span className="text-[var(--text-muted)]">&gt;</span>
+              <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded border border-blue-500/30">~/.qwen/</span>
+              <span className="text-[var(--text-muted)]">&gt;</span>
+              <span className="px-2 py-1 bg-gray-500/20 text-gray-400 rounded border border-gray-500/30">默认值</span>
+            </div>
+          </div>
+
+          {/* 源码入口 */}
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-[var(--text-muted)]">📍 源码入口:</span>
+            <code className="px-2 py-1 bg-[var(--bg-terminal)] rounded text-[var(--terminal-green)] text-xs">
+              packages/cli/index.ts:14 → main()
+            </code>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function StartupChain() {
+  const [isSummaryExpanded, setIsSummaryExpanded] = useState(true);
   const startupFlowDiagram = `flowchart TD
     start([执行 qwen 命令])
     main_entry[main 入口<br/>index.ts:14]
@@ -112,6 +215,11 @@ export function StartupChain() {
 
   return (
     <div className="space-y-8 animate-fadeIn">
+      <QuickSummary
+        isExpanded={isSummaryExpanded}
+        onToggle={() => setIsSummaryExpanded(!isSummaryExpanded)}
+      />
+
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold text-cyan-400">CLI 启动链路</h2>
         <p className="text-gray-400 mt-2">

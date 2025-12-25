@@ -2,6 +2,84 @@
 import { useState, useEffect, useCallback } from 'react';
 import { JsonBlock } from '../components/JsonBlock';
 
+// Introduction component for context
+function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
+  return (
+    <div className="mb-8 bg-gradient-to-r from-red-500/10 to-[var(--purple)]/10 rounded-xl border border-[var(--border-subtle)] overflow-hidden">
+      <button
+        onClick={onToggle}
+        className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">🔄</span>
+          <span className="text-xl font-bold text-[var(--text-primary)]">核心概念介绍</span>
+        </div>
+        <span className={`transform transition-transform text-[var(--text-muted)] ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
+      </button>
+
+      {isExpanded && (
+        <div className="px-6 pb-6 space-y-4">
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-red-500">
+            <h4 className="text-red-400 font-bold mb-2">🎯 核心概念</h4>
+            <p className="text-[var(--text-secondary)] text-sm">
+              循环检测服务 (LoopDetectionService) 是防止 AI 陷入无限循环的安全机制。
+              当 AI 重复执行相同操作或产生重复内容时，系统会自动检测并中断。
+            </p>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
+            <h4 className="text-[var(--amber)] font-bold mb-2">🛡️ 为什么需要</h4>
+            <p className="text-[var(--text-secondary)] text-sm">
+              AI 可能陷入循环模式：反复调用相同工具、生成重复内容、或进入认知死循环。
+              三层检测机制在不同粒度上捕获这些问题，确保系统稳定性。
+            </p>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
+            <h4 className="text-[var(--terminal-green)] font-bold mb-2">🏗️ 三层检测策略</h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
+              <div className="bg-[var(--bg-card)] p-3 rounded border border-green-500/30">
+                <div className="text-green-400 font-semibold text-sm">Layer 1: 工具调用</div>
+                <div className="text-xs text-[var(--text-muted)] mt-1">
+                  SHA256 哈希检测相同工具调用<br/>
+                  阈值: 连续 5 次触发
+                </div>
+              </div>
+              <div className="bg-[var(--bg-card)] p-3 rounded border border-blue-500/30">
+                <div className="text-blue-400 font-semibold text-sm">Layer 2: 内容流</div>
+                <div className="text-xs text-[var(--text-muted)] mt-1">
+                  滑动窗口检测重复内容块<br/>
+                  阈值: 10 次相同块
+                </div>
+              </div>
+              <div className="bg-[var(--bg-card)] p-3 rounded border border-purple-500/30">
+                <div className="text-purple-400 font-semibold text-sm">Layer 3: LLM 分析</div>
+                <div className="text-xs text-[var(--text-muted)] mt-1">
+                  AI 自我评估是否陷入循环<br/>
+                  每 3-15 turns 自适应检查
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-4 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="text-[var(--text-muted)]">📍 源码:</span>
+              <code className="px-2 py-1 bg-[var(--bg-terminal)] rounded text-[var(--terminal-green)] text-xs">
+                packages/core/src/services/loopDetectionService.ts
+              </code>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[var(--text-muted)]">🔗 相关:</span>
+              <span className="text-[var(--cyber-blue)] text-xs">GeminiChat, CoreToolScheduler</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // 检测层级
 type DetectionLayer = 'tool_call' | 'content_stream' | 'llm_analysis';
 
@@ -726,6 +804,7 @@ function LLMAnalysisVisualizer({
 export function LoopDetectionAnimation() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isIntroExpanded, setIsIntroExpanded] = useState(true);
 
   const step = detectionSequence[currentStep];
 
@@ -764,6 +843,10 @@ export function LoopDetectionAnimation() {
 
   return (
     <div className="min-h-screen p-8" style={{ backgroundColor: 'var(--bg-primary)' }}>
+      <div className="max-w-6xl mx-auto">
+        <Introduction isExpanded={isIntroExpanded} onToggle={() => setIsIntroExpanded(!isIntroExpanded)} />
+      </div>
+
       {/* 标题 */}
       <div className="max-w-6xl mx-auto mb-8">
         <h1 className="text-3xl font-bold text-[var(--terminal-green)] mb-2 font-mono">

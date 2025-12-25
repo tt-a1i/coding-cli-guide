@@ -11,6 +11,96 @@ import { useState, useCallback } from 'react';
  * 源码位置: packages/core/src/core/tokenLimits.ts
  */
 
+function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
+  return (
+    <div className="mb-8 bg-gradient-to-r from-[var(--cyber-blue)]/10 to-[var(--terminal-green)]/10 rounded-xl border border-[var(--border-subtle)] overflow-hidden">
+      <button
+        onClick={onToggle}
+        className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">📊</span>
+          <span className="text-xl font-bold text-[var(--text-primary)]">核心概念介绍</span>
+        </div>
+        <span className={`transform transition-transform text-[var(--text-muted)] ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
+      </button>
+
+      {isExpanded && (
+        <div className="px-6 pb-6 space-y-4">
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
+            <h4 className="text-[var(--cyber-blue)] font-bold mb-2">🎯 核心概念</h4>
+            <p className="text-[var(--text-secondary)] text-sm">
+              Token 限制匹配器负责确定每个 AI 模型的上下文窗口大小和输出限制。
+              不同模型有不同的 token 容量，从 32K 到 10M 不等。
+            </p>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
+            <h4 className="text-[var(--amber)] font-bold mb-2">🔧 为什么需要</h4>
+            <p className="text-[var(--text-secondary)] text-sm">
+              多厂商 API 集成需要正确识别每个模型的能力：Google Gemini 2M、OpenAI GPT-4o 128K、
+              Claude 200K、Qwen 1M 等。模型名称可能带有版本后缀、提供商前缀，需要标准化处理。
+            </p>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
+            <h4 className="text-[var(--terminal-green)] font-bold mb-2">🏗️ 匹配流程</h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
+              <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--cyber-blue)]/30">
+                <div className="text-[var(--cyber-blue)] font-semibold text-sm">1. normalize()</div>
+                <div className="text-xs text-[var(--text-muted)] mt-1">
+                  小写、去前缀、去版本号<br/>
+                  "gpt-4o-2024" → "gpt-4o"
+                </div>
+              </div>
+              <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--purple)]/30">
+                <div className="text-[var(--purple)] font-semibold text-sm">2. PATTERNS 匹配</div>
+                <div className="text-xs text-[var(--text-muted)] mt-1">
+                  50+ 正则模式<br/>
+                  按厂商分组匹配
+                </div>
+              </div>
+              <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--terminal-green)]/30">
+                <div className="text-[var(--terminal-green)] font-semibold text-sm">3. 返回限制</div>
+                <div className="text-xs text-[var(--text-muted)] mt-1">
+                  input/output 分别返回<br/>
+                  未匹配返回 undefined
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+            <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--border-subtle)]">
+              <div className="text-xl font-bold text-[var(--terminal-green)]">2M</div>
+              <div className="text-xs text-[var(--text-muted)]">Gemini 1.5 Pro</div>
+            </div>
+            <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--border-subtle)]">
+              <div className="text-xl font-bold text-[var(--cyber-blue)]">1M</div>
+              <div className="text-xs text-[var(--text-muted)]">Qwen3 Coder</div>
+            </div>
+            <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--border-subtle)]">
+              <div className="text-xl font-bold text-[var(--purple)]">200K</div>
+              <div className="text-xs text-[var(--text-muted)]">Claude Sonnet</div>
+            </div>
+            <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--border-subtle)]">
+              <div className="text-xl font-bold text-[var(--amber)]">128K</div>
+              <div className="text-xs text-[var(--text-muted)]">GPT-4o</div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-[var(--text-muted)]">📍 源码:</span>
+            <code className="px-2 py-1 bg-[var(--bg-terminal)] rounded text-[var(--terminal-green)] text-xs">
+              packages/core/src/core/tokenLimits.ts
+            </code>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface PatternMatch {
   pattern: string;
   limit: number;
@@ -50,6 +140,7 @@ const OUTPUT_PATTERNS: PatternMatch[] = [
 
 export default function TokenLimitMatcherAnimation() {
   const [inputModel, setInputModel] = useState('qwen3-coder-plus-20250101');
+  const [isIntroExpanded, setIsIntroExpanded] = useState(true);
   const [normalizedModel, setNormalizedModel] = useState('');
   const [normalizationSteps, setNormalizationSteps] = useState<NormalizationStep[]>([]);
   const [inputPatterns, setInputPatterns] = useState<PatternMatch[]>(SAMPLE_PATTERNS);
@@ -227,6 +318,8 @@ export default function TokenLimitMatcherAnimation() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-orange-900 to-slate-900 p-8">
       <div className="max-w-7xl mx-auto">
+        <Introduction isExpanded={isIntroExpanded} onToggle={() => setIsIntroExpanded(!isIntroExpanded)} />
+
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-amber-400 mb-2">

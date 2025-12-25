@@ -1,9 +1,106 @@
+import { useState } from 'react';
 import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 
+function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
+  return (
+    <div className="mb-8 bg-gradient-to-r from-[var(--cyber-blue)]/10 to-[var(--purple)]/10 rounded-xl border border-[var(--border-subtle)] overflow-hidden">
+      <button
+        onClick={onToggle}
+        className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">🔄</span>
+          <span className="text-xl font-bold text-[var(--text-primary)]">30秒快速理解</span>
+        </div>
+        <span className={`transform transition-transform text-[var(--text-muted)] ${isExpanded ? 'rotate-180' : ''}`}>
+          ▼
+        </span>
+      </button>
+
+      {isExpanded && (
+        <div className="px-6 pb-6 space-y-5">
+          {/* 一句话总结 */}
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
+            <p className="text-[var(--text-primary)] font-medium">
+              <span className="text-[var(--cyber-blue)] font-bold">一句话：</span>
+              用户输入 → AI 流式响应 → 收集工具调用 → 执行工具 → Continuation 循环，直到无工具调用时结束
+            </p>
+          </div>
+
+          {/* 关键数字 */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
+              <div className="text-2xl font-bold text-[var(--terminal-green)]">13</div>
+              <div className="text-xs text-[var(--text-muted)]">事件类型</div>
+            </div>
+            <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
+              <div className="text-2xl font-bold text-[var(--cyber-blue)]">100</div>
+              <div className="text-xs text-[var(--text-muted)]">最大轮次</div>
+            </div>
+            <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
+              <div className="text-2xl font-bold text-[var(--purple)]">3</div>
+              <div className="text-xs text-[var(--text-muted)]">重试次数</div>
+            </div>
+            <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
+              <div className="text-2xl font-bold text-[var(--amber)]">10</div>
+              <div className="text-xs text-[var(--text-muted)]">IDE 最大文件</div>
+            </div>
+          </div>
+
+          {/* 核心流程 */}
+          <div>
+            <h4 className="text-sm font-semibold text-[var(--text-muted)] mb-2">核心循环</h4>
+            <div className="flex items-center gap-2 flex-wrap text-sm">
+              <span className="px-3 py-1.5 bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] rounded-lg border border-[var(--terminal-green)]/30">
+                用户输入
+              </span>
+              <span className="text-[var(--text-muted)]">→</span>
+              <span className="px-3 py-1.5 bg-[var(--cyber-blue)]/20 text-[var(--cyber-blue)] rounded-lg border border-[var(--cyber-blue)]/30">
+                submitQuery
+              </span>
+              <span className="text-[var(--text-muted)]">→</span>
+              <span className="px-3 py-1.5 bg-[var(--purple)]/20 text-[var(--purple)] rounded-lg border border-[var(--purple)]/30">
+                流式响应
+              </span>
+              <span className="text-[var(--text-muted)]">→</span>
+              <span className="px-3 py-1.5 bg-[var(--amber)]/20 text-[var(--amber)] rounded-lg border border-[var(--amber)]/30">
+                工具调度
+              </span>
+              <span className="text-[var(--text-muted)]">→</span>
+              <span className="px-3 py-1.5 bg-orange-500/20 text-orange-400 rounded-lg border border-orange-500/30">
+                Continuation
+              </span>
+              <span className="text-[var(--text-muted)]">↻</span>
+            </div>
+          </div>
+
+          {/* 关键洞察 */}
+          <div className="bg-[var(--amber)]/10 rounded-lg p-3 border border-[var(--amber)]/30">
+            <h4 className="text-sm font-semibold text-[var(--amber)] mb-1">💡 核心机制：Continuation</h4>
+            <p className="text-xs text-[var(--text-secondary)]">
+              工具执行结果被转换为 <code className="text-[var(--cyber-blue)]">functionResponse</code>，
+              作为下一条消息重新进入 submitQuery，创造"单次请求即可使用工具"的错觉
+            </p>
+          </div>
+
+          {/* 源码入口 */}
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-[var(--text-muted)]">📍 源码入口:</span>
+            <code className="px-2 py-1 bg-[var(--bg-terminal)] rounded text-[var(--terminal-green)] text-xs">
+              packages/cli/src/ui/hooks/useGeminiStream.ts:786 → submitQuery()
+            </code>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function InteractionLoop() {
+  const [isSummaryExpanded, setIsSummaryExpanded] = useState(true);
   // 主循环流程图
   const mainLoopFlowChart = `flowchart TD
     start([用户输入<br/>TextInput])
@@ -107,6 +204,11 @@ export function InteractionLoop() {
 
   return (
     <div className="space-y-8 animate-fadeIn">
+      <QuickSummary
+        isExpanded={isSummaryExpanded}
+        onToggle={() => setIsSummaryExpanded(!isSummaryExpanded)}
+      />
+
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold font-mono text-[var(--terminal-green)]">交互主循环</h2>
         <p className="text-[var(--text-secondary)] mt-2 font-mono">

@@ -1,9 +1,109 @@
+import { useState } from 'react';
 import { HighlightBox } from '../components/HighlightBox';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
 
+function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
+  return (
+    <div className="mb-8 bg-gradient-to-r from-[var(--purple)]/10 to-red-500/10 rounded-xl border border-[var(--border-subtle)] overflow-hidden">
+      <button
+        onClick={onToggle}
+        className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">🛡️</span>
+          <span className="text-xl font-bold text-[var(--text-primary)]">30秒快速理解</span>
+        </div>
+        <span className={`transform transition-transform text-[var(--text-muted)] ${isExpanded ? 'rotate-180' : ''}`}>
+          ▼
+        </span>
+      </button>
+
+      {isExpanded && (
+        <div className="px-6 pb-6 space-y-5">
+          {/* 一句话总结 */}
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
+            <p className="text-[var(--text-primary)] font-medium">
+              <span className="text-[var(--purple)] font-bold">一句话：</span>
+              通过 4 种模式（Plan → Default → Auto-Edit → YOLO）控制 AI 执行工具的权限，平衡安全性与便利性
+            </p>
+          </div>
+
+          {/* 关键数字 */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
+              <div className="text-2xl font-bold text-[var(--purple)]">4</div>
+              <div className="text-xs text-[var(--text-muted)]">审批模式</div>
+            </div>
+            <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
+              <div className="text-2xl font-bold text-[var(--terminal-green)]">6</div>
+              <div className="text-xs text-[var(--text-muted)]">工具 Kind</div>
+            </div>
+            <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
+              <div className="text-2xl font-bold text-[var(--amber)]">6</div>
+              <div className="text-xs text-[var(--text-muted)]">确认结果类型</div>
+            </div>
+            <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
+              <div className="text-2xl font-bold text-[var(--cyber-blue)]">7</div>
+              <div className="text-xs text-[var(--text-muted)]">工具状态</div>
+            </div>
+          </div>
+
+          {/* 模式切换 */}
+          <div>
+            <h4 className="text-sm font-semibold text-[var(--text-muted)] mb-2">模式切换（Shift+Tab）</h4>
+            <div className="flex items-center gap-2 flex-wrap text-sm">
+              <span className="px-3 py-1.5 bg-[var(--purple)]/20 text-[var(--purple)] rounded-lg border border-[var(--purple)]/30">
+                Plan 🔒
+              </span>
+              <span className="text-[var(--text-muted)]">→</span>
+              <span className="px-3 py-1.5 bg-[var(--cyber-blue)]/20 text-[var(--cyber-blue)] rounded-lg border border-[var(--cyber-blue)]/30">
+                Default ⚠️
+              </span>
+              <span className="text-[var(--text-muted)]">→</span>
+              <span className="px-3 py-1.5 bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] rounded-lg border border-[var(--terminal-green)]/30">
+                Auto-Edit ✏️
+              </span>
+              <span className="text-[var(--text-muted)]">→</span>
+              <span className="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-lg border border-red-500/30">
+                YOLO 🚀
+              </span>
+              <span className="text-[var(--text-muted)]">↻</span>
+            </div>
+          </div>
+
+          {/* 关键规则 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="bg-green-500/10 rounded-lg p-3 border border-green-500/30">
+              <h4 className="text-sm font-semibold text-green-400 mb-1">✅ 自动批准</h4>
+              <p className="text-xs text-[var(--text-secondary)]">
+                Read、Glob、Grep、WebSearch 等只读工具在所有模式下自动执行
+              </p>
+            </div>
+            <div className="bg-red-500/10 rounded-lg p-3 border border-red-500/30">
+              <h4 className="text-sm font-semibold text-red-400 mb-1">🚫 不可信文件夹</h4>
+              <p className="text-xs text-[var(--text-secondary)]">
+                只能使用 Plan 或 Default 模式，Auto-Edit 和 YOLO 被禁用
+              </p>
+            </div>
+          </div>
+
+          {/* 源码入口 */}
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-[var(--text-muted)]">📍 源码入口:</span>
+            <code className="px-2 py-1 bg-[var(--bg-terminal)] rounded text-[var(--terminal-green)] text-xs">
+              packages/core/src/core/coreToolScheduler.ts:740 → shouldConfirmExecute()
+            </code>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ApprovalModeSystem() {
+  const [isSummaryExpanded, setIsSummaryExpanded] = useState(true);
   // 工具审批决策流程 - Mermaid flowchart
   const approvalDecisionFlowChart = `flowchart TD
     start([AI 请求执行工具])
@@ -183,6 +283,11 @@ In plan mode:
 
   return (
     <div className="space-y-8">
+      <QuickSummary
+        isExpanded={isSummaryExpanded}
+        onToggle={() => setIsSummaryExpanded(!isSummaryExpanded)}
+      />
+
       {/* 页面标题 */}
       <section>
         <h2 className="text-2xl font-bold text-cyan-400 mb-4">审批模式系统</h2>
