@@ -60,6 +60,19 @@ const FormatConverterAnimation = lazy(() => import('./pages/FormatConverterAnima
 const ChunkAssemblyAnimation = lazy(() => import('./pages/ChunkAssemblyAnimation').then(m => ({ default: m.ChunkAssemblyAnimation })));
 const TokenCountingAnimation = lazy(() => import('./pages/TokenCountingAnimation').then(m => ({ default: m.TokenCountingAnimation })));
 const FunctionResponseAnimation = lazy(() => import('./pages/FunctionResponseAnimation').then(m => ({ default: m.FunctionResponseAnimation })));
+const MCPHandshakeAnimation = lazy(() => import('./pages/MCPHandshakeAnimation').then(m => ({ default: m.MCPHandshakeAnimation })));
+const PermissionApprovalAnimation = lazy(() => import('./pages/PermissionApprovalAnimation').then(m => ({ default: m.PermissionApprovalAnimation })));
+const SubagentConfigAnimation = lazy(() => import('./pages/SubagentConfigAnimation').then(m => ({ default: m.SubagentConfigAnimation })));
+const HistoryCompressionAnimation = lazy(() => import('./pages/HistoryCompressionAnimation').then(m => ({ default: m.HistoryCompressionAnimation })));
+const StreamingToolCallParserAnimation = lazy(() => import('./pages/StreamingToolCallParserAnimation').then(m => ({ default: m.StreamingToolCallParserAnimation })));
+const LoopDetectionAnimation = lazy(() => import('./pages/LoopDetectionAnimation').then(m => ({ default: m.LoopDetectionAnimation })));
+const RequestTokenizerAnimation = lazy(() => import('./pages/RequestTokenizerAnimation').then(m => ({ default: m.RequestTokenizerAnimation })));
+const ResultCacheAnimation = lazy(() => import('./pages/ResultCacheAnimation').then(m => ({ default: m.ResultCacheAnimation })));
+const TerminalSerializerAnimation = lazy(() => import('./pages/TerminalSerializerAnimation').then(m => ({ default: m.TerminalSerializerAnimation })));
+const ContentConverterAnimation = lazy(() => import('./pages/ContentConverterAnimation').then(m => ({ default: m.ContentConverterAnimation })));
+const SmartEditAnimation = lazy(() => import('./pages/SmartEditAnimation').then(m => ({ default: m.SmartEditAnimation })));
+const VimBufferAnimation = lazy(() => import('./pages/VimBufferAnimation').then(m => ({ default: m.VimBufferAnimation })));
+const ChatCompressionAnimation = lazy(() => import('./pages/ChatCompressionAnimation').then(m => ({ default: m.ChatCompressionAnimation })));
 const CoreCode = lazy(() => import('./pages/CoreCode').then(m => ({ default: m.CoreCode })));
 const LoopMechanism = lazy(() => import('./pages/LoopMechanism').then(m => ({ default: m.LoopMechanism })));
 
@@ -252,6 +265,32 @@ function App() {
         return <TokenCountingAnimation />;
       case 'function-response-anim':
         return <FunctionResponseAnimation />;
+      case 'mcp-handshake-anim':
+        return <MCPHandshakeAnimation />;
+      case 'permission-approval-anim':
+        return <PermissionApprovalAnimation />;
+      case 'subagent-config-anim':
+        return <SubagentConfigAnimation />;
+      case 'history-compression-anim':
+        return <HistoryCompressionAnimation />;
+      case 'streaming-tool-parser-anim':
+        return <StreamingToolCallParserAnimation />;
+      case 'loop-detection-anim':
+        return <LoopDetectionAnimation />;
+      case 'request-tokenizer-anim':
+        return <RequestTokenizerAnimation />;
+      case 'result-cache-anim':
+        return <ResultCacheAnimation />;
+      case 'terminal-serializer-anim':
+        return <TerminalSerializerAnimation />;
+      case 'content-converter-anim':
+        return <ContentConverterAnimation />;
+      case 'smart-edit-anim':
+        return <SmartEditAnimation />;
+      case 'vim-buffer-anim':
+        return <VimBufferAnimation />;
+      case 'chat-compression-anim':
+        return <ChatCompressionAnimation />;
       case 'code':
         return <CoreCode />;
       case 'loop':
