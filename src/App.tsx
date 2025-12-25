@@ -92,6 +92,11 @@ const TokenLimitMatcherAnimation = lazy(() => import('./pages/TokenLimitMatcherA
 const SharedTokenManagerAnimation = lazy(() => import('./pages/SharedTokenManagerAnimation'));
 const ShellInjectionProcessorAnimation = lazy(() => import('./pages/ShellInjectionProcessorAnimation'));
 const AtFileProcessorAnimation = lazy(() => import('./pages/AtFileProcessorAnimation'));
+const ImageTokenizerAnimation = lazy(() => import('./pages/ImageTokenizerAnimation'));
+const ExponentialBackoffAnimation = lazy(() => import('./pages/ExponentialBackoffAnimation'));
+const BfsFileSearchAnimation = lazy(() => import('./pages/BfsFileSearchAnimation'));
+const InjectionParserAnimation = lazy(() => import('./pages/InjectionParserAnimation'));
+const LruCacheAnimation = lazy(() => import('./pages/LruCacheAnimation'));
 const CoreCode = lazy(() => import('./pages/CoreCode').then(m => ({ default: m.CoreCode })));
 const LoopMechanism = lazy(() => import('./pages/LoopMechanism').then(m => ({ default: m.LoopMechanism })));
 
@@ -348,6 +353,16 @@ function App() {
         return <ShellInjectionProcessorAnimation />;
       case 'at-file-processor-anim':
         return <AtFileProcessorAnimation />;
+      case 'image-tokenizer-anim':
+        return <ImageTokenizerAnimation />;
+      case 'exponential-backoff-anim':
+        return <ExponentialBackoffAnimation />;
+      case 'bfs-file-search-anim':
+        return <BfsFileSearchAnimation />;
+      case 'injection-parser-anim':
+        return <InjectionParserAnimation />;
+      case 'lru-cache-anim':
+        return <LruCacheAnimation />;
       case 'code':
         return <CoreCode />;
       case 'loop':

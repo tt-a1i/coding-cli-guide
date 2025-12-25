@@ -171,6 +171,11 @@ export const navGroups: NavGroup[] = [
       { id: 'shared-token-manager-anim', label: 'Token 管理器', highlight: true },
       { id: 'shell-injection-anim', label: 'Shell 注入处理', highlight: true },
       { id: 'at-file-processor-anim', label: '@File 处理器', highlight: true },
+      { id: 'image-tokenizer-anim', label: 'Image Tokenizer 解析', highlight: true },
+      { id: 'exponential-backoff-anim', label: '指数退避重试', highlight: true },
+      { id: 'bfs-file-search-anim', label: 'BFS 文件搜索', highlight: true },
+      { id: 'injection-parser-anim', label: 'Injection 解析器', highlight: true },
+      { id: 'lru-cache-anim', label: 'LRU 缓存淘汰', highlight: true },
     ],
   },
   {
