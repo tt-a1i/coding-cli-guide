@@ -176,6 +176,9 @@ export const navGroups: NavGroup[] = [
       { id: 'bfs-file-search-anim', label: 'BFS 文件搜索', highlight: true },
       { id: 'injection-parser-anim', label: 'Injection 解析器', highlight: true },
       { id: 'lru-cache-anim', label: 'LRU 缓存淘汰', highlight: true },
+      { id: 'pty-lifecycle-anim', label: 'PTY 生命周期', highlight: true },
+      { id: 'streaming-json-parser-anim', label: '流式 JSON 解析', highlight: true },
+      { id: 'vim-composite-actions-anim', label: 'Vim 复合操作', highlight: true },
     ],
   },
   {

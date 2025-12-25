@@ -97,6 +97,9 @@ const ExponentialBackoffAnimation = lazy(() => import('./pages/ExponentialBackof
 const BfsFileSearchAnimation = lazy(() => import('./pages/BfsFileSearchAnimation'));
 const InjectionParserAnimation = lazy(() => import('./pages/InjectionParserAnimation'));
 const LruCacheAnimation = lazy(() => import('./pages/LruCacheAnimation'));
+const PtyLifecycleAnimation = lazy(() => import('./pages/PtyLifecycleAnimation'));
+const StreamingJsonParserAnimation = lazy(() => import('./pages/StreamingJsonParserAnimation'));
+const VimCompositeActionsAnimation = lazy(() => import('./pages/VimCompositeActionsAnimation'));
 const CoreCode = lazy(() => import('./pages/CoreCode').then(m => ({ default: m.CoreCode })));
 const LoopMechanism = lazy(() => import('./pages/LoopMechanism').then(m => ({ default: m.LoopMechanism })));
 
@@ -363,6 +366,12 @@ function App() {
         return <InjectionParserAnimation />;
       case 'lru-cache-anim':
         return <LruCacheAnimation />;
+      case 'pty-lifecycle-anim':
+        return <PtyLifecycleAnimation />;
+      case 'streaming-json-parser-anim':
+        return <StreamingJsonParserAnimation />;
+      case 'vim-composite-actions-anim':
+        return <VimCompositeActionsAnimation />;
       case 'code':
         return <CoreCode />;
       case 'loop':
