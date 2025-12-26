@@ -1,123 +1,638 @@
+import { useState } from 'react';
 import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 
+function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
+  return (
+    <div className="mb-8 bg-gradient-to-r from-[var(--terminal-green)]/10 via-[var(--cyber-blue)]/10 to-[var(--purple)]/10 rounded-xl border border-[var(--terminal-green)]/30 overflow-hidden">
+      <button
+        onClick={onToggle}
+        className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-white/5 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">📜</span>
+          <div>
+            <h3 className="text-lg font-bold text-[var(--terminal-green)]">System Prompt 动态构建机制</h3>
+            <p className="text-sm text-gray-400">理解 AI 的"灵魂"是如何根据上下文动态生成的</p>
+          </div>
+        </div>
+        <span className={`text-xl transition-transform ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
+      </button>
+
+      {isExpanded && (
+        <div className="px-6 pb-6 space-y-4 border-t border-white/10 mt-2 pt-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-black/30 rounded-lg p-4 border border-[var(--terminal-green)]/20">
+              <h4 className="font-semibold text-[var(--terminal-green)] mb-2">🎯 核心概念</h4>
+              <ul className="text-sm text-gray-300 space-y-1">
+                <li>• <strong>System Prompt</strong>: AI 的行为指令和人格定义</li>
+                <li>• <strong>动态注入</strong>: 根据环境实时组装 Prompt 内容</li>
+                <li>• <strong>Context Injection</strong>: Git/Sandbox/Memory 上下文</li>
+                <li>• <strong>Tool Examples</strong>: 模型特定的工具调用示例</li>
+                <li>• <strong>System Reminder</strong>: 运行时状态提醒注入</li>
+              </ul>
+            </div>
+            <div className="bg-black/30 rounded-lg p-4 border border-[var(--cyber-blue)]/20">
+              <h4 className="font-semibold text-[var(--cyber-blue)] mb-2">📁 关键文件</h4>
+              <ul className="text-sm text-gray-300 space-y-1">
+                <li>• <code>packages/core/src/core/prompts.ts</code></li>
+                <li className="text-xs text-gray-500 ml-4">getCoreSystemPrompt, getCompressionPrompt</li>
+                <li>• <code>packages/core/src/tools/tool-names.ts</code></li>
+                <li className="text-xs text-gray-500 ml-4">工具名称常量定义</li>
+                <li>• <code>.innies/system.md</code></li>
+                <li className="text-xs text-gray-500 ml-4">用户自定义 System Prompt 覆盖</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="bg-[var(--purple)]/10 rounded-lg p-4 border border-[var(--purple)]/30">
+            <h4 className="font-semibold text-[var(--purple)] mb-2">💡 设计理念</h4>
+            <p className="text-sm text-gray-300">
+              System Prompt 不是静态文本，而是一个<strong>动态组装的指令集</strong>。
+              它根据当前环境（是否在 Git 仓库、是否启用沙箱）、用户记忆（QWEN.md）、
+              以及目标模型（Qwen-Coder/Qwen-VL）实时拼接不同的内容块。
+              这种设计让同一个 CLI 工具能够适配多种场景，同时保持行为的一致性。
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function SystemPromptArch() {
+  const [isIntroExpanded, setIsIntroExpanded] = useState(true);
+
   return (
     <div className="space-y-8 animate-fadeIn">
-      <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-cyan-400">System Prompt 动态构建机制</h2>
-        <p className="text-gray-400 mt-2">
-          Innise CLI 的"灵魂"不仅仅是一段静态文本，而是根据环境动态组装的指令集。
+      <Introduction
+        isExpanded={isIntroExpanded}
+        onToggle={() => setIsIntroExpanded(!isIntroExpanded)}
+      />
+
+      <Layer title="构建流水线总览 (Pipeline Overview)" icon="🏭">
+        <p className="text-gray-300 mb-4">
+          <code>getCoreSystemPrompt()</code> 函数负责组装完整的 System Prompt。
+          整个流水线按顺序执行以下步骤：
         </p>
-      </div>
 
-      <Layer title="构建流水线 (Pipeline)" icon="🏭">
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-center">
-          <div className="flex flex-col gap-2 w-full md:w-1/3">
-            <HighlightBox title="1. 基础指令" icon="📜" variant="blue">
-              <p className="text-sm">定义核心角色、Mandates (规范)、工具使用规则。</p>
-            </HighlightBox>
-            <HighlightBox title="2. 环境感知" icon="🌍" variant="orange">
-              <p className="text-sm">
-                检测是否在 <strong>Git 仓库</strong>? <br/>
-                检测是否在 <strong>Sandbox</strong>?
-              </p>
-            </HighlightBox>
-            <HighlightBox title="3. 记忆注入" icon="🧠" variant="purple">
-              <p className="text-sm">读取 <code>QWEN.md</code> 和用户偏好。</p>
-            </HighlightBox>
-          </div>
-          
-          <div className="hidden md:flex flex-col items-center justify-center text-cyan-400 text-3xl">
-            ➜ 
-            <span className="text-sm text-gray-500 my-2">Concatenation</span>
-            ➜
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-4">
+            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold">1</div>
+            <div className="flex-1 bg-blue-500/10 rounded-lg p-3 border-l-2 border-blue-500">
+              <div className="font-semibold text-blue-300">加载基础 Prompt (Base Prompt)</div>
+              <p className="text-sm text-gray-400">检查 QWEN_SYSTEM_MD 环境变量，决定使用默认内置 Prompt 还是从文件加载</p>
+            </div>
           </div>
 
-          <div className="w-full md:w-2/3">
-             <div className="bg-gray-900 border border-cyan-500/30 rounded-lg p-4 font-mono text-xs text-gray-300 shadow-[0_0_15px_rgba(6,182,212,0.1)]">
-                <div className="text-cyan-400 mb-2">FINAL SYSTEM PROMPT</div>
-                <div className="space-y-2">
-                  <div className="p-2 bg-blue-500/10 rounded border-l-2 border-blue-500">
-                    <span className="text-blue-300"># Core Mandates</span><br/>
-                    You are Qwen CLI... adhering strictly to project conventions...
-                  </div>
-                  <div className="p-2 bg-orange-500/10 rounded border-l-2 border-orange-500">
-                    <span className="text-orange-300"># Git Context</span><br/>
-                    Current directory is a git repo. Always check `git status` before...
-                  </div>
-                  <div className="p-2 bg-purple-500/10 rounded border-l-2 border-purple-500">
-                    <span className="text-purple-300"># Memory</span><br/>
-                    User prefers TypeScript over JavaScript...
-                  </div>
-                  <div className="p-2 bg-green-500/10 rounded border-l-2 border-green-500">
-                    <span className="text-green-300"># Tool Definitions</span><br/>
-                    Available tools: read_file, write_file, todo_write...
-                  </div>
-                </div>
-             </div>
+          <div className="flex items-center gap-4">
+            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center text-orange-400 font-bold">2</div>
+            <div className="flex-1 bg-orange-500/10 rounded-lg p-3 border-l-2 border-orange-500">
+              <div className="font-semibold text-orange-300">环境上下文注入 (Environment Injection)</div>
+              <p className="text-sm text-gray-400">检测 Sandbox 模式、Git 仓库状态，注入相应的行为指令</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-400 font-bold">3</div>
+            <div className="flex-1 bg-purple-500/10 rounded-lg p-3 border-l-2 border-purple-500">
+              <div className="font-semibold text-purple-300">工具调用示例注入 (Tool Examples)</div>
+              <p className="text-sm text-gray-400">根据目标模型选择适配的工具调用格式示例</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 font-bold">4</div>
+            <div className="flex-1 bg-green-500/10 rounded-lg p-3 border-l-2 border-green-500">
+              <div className="font-semibold text-green-300">用户记忆追加 (User Memory)</div>
+              <p className="text-sm text-gray-400">将 QWEN.md 中的用户偏好和知识追加到 Prompt 末尾</p>
+            </div>
           </div>
         </div>
       </Layer>
 
-      <Layer title="关键代码解析" icon="💻">
+      <Layer title="基础 Prompt 加载逻辑" icon="📄">
         <p className="text-gray-300 mb-4">
-          位于 <code>packages/core/src/core/prompts.ts</code> 的 <code>getCoreSystemPrompt</code> 函数负责这一过程。
+          系统支持两种 Prompt 来源：内置默认值或用户自定义文件。通过环境变量 <code>QWEN_SYSTEM_MD</code> 控制：
         </p>
-        <CodeBlock 
-          title="prompts.ts (Simplified Logic)"
-          code={`export function getCoreSystemPrompt(userMemory?: string, model?: string): string {
-  // 1. Load Base Prompt (or override from file)
-  let basePrompt = loadBasePrompt(); 
 
-  // 2. Inject Sandbox Instructions
-  if (process.env['SANDBOX']) {
-    basePrompt += "\n# Sandbox Mode\nYou are running in a restricted container...";
+        <CodeBlock
+          title="prompts.ts - Base Prompt Loading"
+          code={`export function getCoreSystemPrompt(
+  userMemory?: string,
+  model?: string,
+): string {
+  // 默认路径：.innies/system.md
+  let systemMdPath = path.resolve(path.join(QWEN_CONFIG_DIR, 'system.md'));
+
+  // 解析环境变量
+  const systemMdResolution = resolvePathFromEnv(process.env['QWEN_SYSTEM_MD']);
+
+  // QWEN_SYSTEM_MD 可以是：
+  // - "true" / "1"    → 启用，使用默认路径
+  // - "/custom/path"  → 启用，使用自定义路径
+  // - "false" / "0"   → 禁用，使用内置 Prompt
+  if (systemMdResolution.value && !systemMdResolution.isDisabled) {
+    systemMdEnabled = true;
+    if (!systemMdResolution.isSwitch) {
+      systemMdPath = systemMdResolution.value;  // 自定义路径
+    }
+    // 文件必须存在
+    if (!fs.existsSync(systemMdPath)) {
+      throw new Error(\`missing system prompt file '\${systemMdPath}'\`);
+    }
   }
 
-  // 3. Inject Git Instructions
-  if (isGitRepository(process.cwd())) {
-    basePrompt += "\n# Git Repository\nAlways propose draft commit messages...";
-  }
-
-  // 4. Inject User Memory (QWEN.md)
-  if (userMemory) {
-    basePrompt += \`\\n\\n---\\n\\n\${userMemory.trim()}\`;
-  }
-
-  // 5. Inject Model-Specific Tool Examples
-  basePrompt += getToolCallExamples(model);
-
-  return basePrompt;
+  const basePrompt = systemMdEnabled
+    ? fs.readFileSync(systemMdPath, 'utf8')  // 从文件加载
+    : \`You are Innies Cli, an interactive CLI agent...\`;  // 内置默认
 }`}
+        />
+
+        <HighlightBox title="设计考量" icon="🎯" variant="blue">
+          <p className="text-sm text-gray-300">
+            <strong>为什么支持自定义 System Prompt？</strong><br/>
+            不同团队可能有特定的代码规范、安全要求或工作流程。
+            通过 <code>.innies/system.md</code> 文件，团队可以定制 AI 的行为，
+            比如强制要求某种注释风格、禁止使用某些命令等。
+            这个文件可以提交到 Git 仓库，让整个团队共享相同的 AI 行为配置。
+          </p>
+        </HighlightBox>
+      </Layer>
+
+      <Layer title="内置 Base Prompt 结构" icon="📋">
+        <p className="text-gray-300 mb-4">
+          内置的默认 System Prompt 包含以下核心部分：
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
+            <h4 className="font-semibold text-cyan-400 mb-2">🎭 身份定义</h4>
+            <div className="text-sm text-gray-300 font-mono bg-black/30 p-2 rounded">
+              "You are Innies Cli, an interactive CLI agent developed by Zhiman Tech, specializing in software engineering tasks..."
+            </div>
+          </div>
+
+          <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
+            <h4 className="font-semibold text-yellow-400 mb-2">📜 Core Mandates</h4>
+            <ul className="text-sm text-gray-300 space-y-1">
+              <li>• 遵循项目现有代码规范</li>
+              <li>• 验证库/框架的使用是否合理</li>
+              <li>• 模仿现有代码风格和结构</li>
+              <li>• 注释只说"为什么"不说"什么"</li>
+              <li>• 使用绝对路径访问文件</li>
+            </ul>
+          </div>
+
+          <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
+            <h4 className="font-semibold text-green-400 mb-2">✅ Task Management</h4>
+            <ul className="text-sm text-gray-300 space-y-1">
+              <li>• 强制使用 todo_write 工具</li>
+              <li>• 计划阶段分解任务</li>
+              <li>• 完成即标记 completed</li>
+              <li>• 防止 AI "迷路"</li>
+            </ul>
+          </div>
+
+          <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
+            <h4 className="font-semibold text-purple-400 mb-2">🔧 Primary Workflows</h4>
+            <ul className="text-sm text-gray-300 space-y-1">
+              <li>• Plan → Implement → Adapt → Verify</li>
+              <li>• 软件工程任务流程</li>
+              <li>• 新应用开发流程</li>
+              <li>• 测试和验证规范</li>
+            </ul>
+          </div>
+        </div>
+
+        <CodeBlock
+          title="Base Prompt 核心片段"
+          code={`# Core Mandates
+
+- **Conventions:** Rigorously adhere to existing project conventions
+  when reading or modifying code.
+- **Libraries/Frameworks:** NEVER assume a library/framework is available.
+  Verify its established usage within the project first.
+- **Path Construction:** Always use absolute paths with file system tools.
+- **Do Not revert changes:** Do not revert changes unless asked.
+
+# Task Management
+You have access to the todo_write tool. Use these tools VERY frequently.
+If you do not use this tool when planning, you may forget important
+tasks - and that is unacceptable.
+
+# Operational Guidelines
+## Tone and Style (CLI Interaction)
+- **Concise & Direct:** Professional, direct, and concise tone.
+- **Minimal Output:** Aim for fewer than 3 lines of text output.
+- **No Chitchat:** Avoid conversational filler, preambles.`}
         />
       </Layer>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Layer title="特殊机制：Plan Mode" icon="🛡️">
-          <p className="text-gray-300 text-sm mb-3">
-            当用户暂不希望执行修改时，系统会注入一段特殊的 <code>&lt;system-reminder&gt;</code>，强制 AI 进入"只读计划模式"。
-          </p>
-          <div className="bg-red-900/20 border border-red-500/30 p-3 rounded text-xs font-mono text-red-200">
-            &lt;system-reminder&gt;<br/>
-            Plan mode is active. You MUST NOT make any edits...
-            Instead, present your plan using <code>exit_plan_mode</code> tool.
-            &lt;/system-reminder&gt;
-          </div>
-        </Layer>
+      <Layer title="环境上下文注入 (Dynamic Injections)" icon="🌍">
+        <p className="text-gray-300 mb-4">
+          根据运行时环境，动态注入不同的指令块。这些是通过 IIFE (立即执行函数) 实现的：
+        </p>
 
-        <Layer title="特殊机制：Task Management" icon="✅">
-          <p className="text-gray-300 text-sm mb-3">
-            System Prompt 强制 AI 频繁使用 <code>todo_write</code> 工具来管理任务，防止 AI 在长任务中"迷路"。
-          </p>
-          <div className="bg-green-900/20 border border-green-500/30 p-3 rounded text-xs font-mono text-green-200">
-            # Task Management<br/>
-            You have access to <code>todo_write</code>...<br/>
-            If you do not use this tool when planning, you may forget important tasks - and that is unacceptable.
+        <div className="space-y-4">
+          <div className="bg-orange-900/20 border border-orange-500/30 rounded-lg p-4">
+            <h4 className="font-semibold text-orange-400 mb-2">🛡️ Sandbox 模式检测</h4>
+            <CodeBlock
+              title="Sandbox Injection Logic"
+              code={`\${(function () {
+  const isSandboxExec = process.env['SANDBOX'] === 'sandbox-exec';
+  const isGenericSandbox = !!process.env['SANDBOX'];
+
+  if (isSandboxExec) {
+    return \`
+# macOS Seatbelt
+You are running under macos seatbelt with limited access to files
+outside the project directory or system temp directory...
+\`;
+  } else if (isGenericSandbox) {
+    return \`
+# Sandbox
+You are running in a sandbox container with limited access...
+\`;
+  } else {
+    return \`
+# Outside of Sandbox
+You are running outside of a sandbox container, directly on the
+user's system. For critical commands, remind the user to consider
+enabling sandboxing.
+\`;
+  }
+})()}`}
+            />
+            <p className="text-sm text-gray-400 mt-2">
+              <strong>三种模式</strong>: macOS Seatbelt (sandbox-exec)、Docker/Podman 容器、无沙箱直接运行
+            </p>
           </div>
-        </Layer>
-      </div>
+
+          <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
+            <h4 className="font-semibold text-blue-400 mb-2">📁 Git 仓库检测</h4>
+            <CodeBlock
+              title="Git Repository Injection"
+              code={`\${(function () {
+  if (isGitRepository(process.cwd())) {
+    return \`
+# Git Repository
+- The current working directory is being managed by a git repository.
+- When asked to commit changes:
+  - \\\`git status\\\` to check file states
+  - \\\`git diff HEAD\\\` to review all changes
+  - \\\`git log -n 3\\\` to match commit message style
+- Always propose a draft commit message.
+- Never push changes without explicit user request.
+\`;
+  }
+  return '';
+})()}`}
+            />
+            <p className="text-sm text-gray-400 mt-2">
+              <strong>注入条件</strong>: 使用 <code>isGitRepository()</code> 检测 .git 目录是否存在
+            </p>
+          </div>
+        </div>
+
+        <HighlightBox title="为什么使用动态注入？" icon="💡" variant="purple">
+          <p className="text-sm text-gray-300">
+            <strong>Token 优化</strong>: 如果不在 Git 仓库中，就没必要让 AI 知道 Git 相关指令。
+            动态注入避免了发送无关内容，节省了 Token 消耗。<br/><br/>
+            <strong>上下文相关性</strong>: AI 接收到的指令与当前环境完全匹配，减少了误解和错误行为的可能性。
+          </p>
+        </HighlightBox>
+      </Layer>
+
+      <Layer title="模型特定工具调用示例" icon="🔧">
+        <p className="text-gray-300 mb-4">
+          不同模型使用不同的工具调用格式。通过 <code>getToolCallExamples(model)</code> 函数选择适配的示例：
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div className="bg-gray-900/50 rounded-lg p-4 border border-cyan-500/30">
+            <h4 className="font-semibold text-cyan-400 mb-2">General (OpenAI 兼容)</h4>
+            <div className="text-xs font-mono bg-black/40 p-2 rounded text-gray-300">
+              [tool_call: Bash for 'npm run build']
+            </div>
+            <p className="text-xs text-gray-500 mt-2">适用于大多数模型</p>
+          </div>
+
+          <div className="bg-gray-900/50 rounded-lg p-4 border border-green-500/30">
+            <h4 className="font-semibold text-green-400 mb-2">Qwen-Coder 格式</h4>
+            <div className="text-xs font-mono bg-black/40 p-2 rounded text-gray-300">
+              {'<tool_call>'}<br/>
+              {'<function=Bash>'}<br/>
+              {'<parameter=command>'}<br/>
+              npm run build<br/>
+              {'</parameter>'}<br/>
+              {'</function>'}<br/>
+              {'</tool_call>'}
+            </div>
+            <p className="text-xs text-gray-500 mt-2">匹配 /qwen.*-coder/i</p>
+          </div>
+
+          <div className="bg-gray-900/50 rounded-lg p-4 border border-purple-500/30">
+            <h4 className="font-semibold text-purple-400 mb-2">Qwen-VL 格式</h4>
+            <div className="text-xs font-mono bg-black/40 p-2 rounded text-gray-300">
+              {'<tool_call>'}<br/>
+              {'{"name": "Bash", "arguments": {"command": "npm run build"}}'}<br/>
+              {'</tool_call>'}
+            </div>
+            <p className="text-xs text-gray-500 mt-2">匹配 /qwen.*-vl/i</p>
+          </div>
+        </div>
+
+        <CodeBlock
+          title="getToolCallExamples() - Model Detection"
+          code={`function getToolCallExamples(model?: string): string {
+  // 1. 先检查环境变量覆盖
+  const toolCallStyle = process.env['QWEN_CODE_TOOL_CALL_STYLE'];
+  if (toolCallStyle) {
+    switch (toolCallStyle.toLowerCase()) {
+      case 'qwen-coder': return qwenCoderToolCallExamples;
+      case 'qwen-vl':    return qwenVlToolCallExamples;
+      case 'general':    return generalToolCallExamples;
+    }
+  }
+
+  // 2. 基于模型名称的正则匹配
+  if (model && model.length < 100) {
+    // qwen3-coder, qwen2.5-coder, etc.
+    if (/qwen[^-]*-coder/i.test(model)) {
+      return qwenCoderToolCallExamples;
+    }
+    // qwen-vl, qwen2-vl, qwen3-vl, etc.
+    if (/qwen[^-]*-vl/i.test(model)) {
+      return qwenVlToolCallExamples;
+    }
+  }
+
+  return generalToolCallExamples;
+}`}
+        />
+
+        <HighlightBox title="环境变量覆盖" icon="⚙️" variant="orange">
+          <p className="text-sm text-gray-300">
+            用户可以通过设置 <code>QWEN_CODE_TOOL_CALL_STYLE</code> 环境变量来强制指定格式，
+            这在使用自定义模型或调试时非常有用。支持的值：<code>qwen-coder</code>、<code>qwen-vl</code>、<code>general</code>
+          </p>
+        </HighlightBox>
+      </Layer>
+
+      <Layer title="用户记忆注入 (User Memory)" icon="🧠">
+        <p className="text-gray-300 mb-4">
+          用户记忆（来自 QWEN.md 文件）会被追加到 System Prompt 的末尾：
+        </p>
+
+        <CodeBlock
+          title="Memory Injection"
+          code={`// 在 getCoreSystemPrompt 函数末尾
+const memorySuffix =
+  userMemory && userMemory.trim().length > 0
+    ? \`\\n\\n---\\n\\n\${userMemory.trim()}\`
+    : '';
+
+return \`\${basePrompt}\${memorySuffix}\`;
+
+// 最终格式：
+// [Base Prompt Content]
+// ---
+// [User Memory from QWEN.md]`}
+        />
+
+        <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-4 mt-4">
+          <h4 className="font-semibold text-purple-400 mb-2">📝 QWEN.md 示例内容</h4>
+          <div className="text-sm font-mono bg-black/30 p-3 rounded text-gray-300">
+            <div className="text-purple-300"># 用户偏好</div>
+            - 使用 TypeScript 而非 JavaScript<br/>
+            - 使用 pnpm 作为包管理器<br/>
+            - 偏好函数式编程风格<br/>
+            <br/>
+            <div className="text-purple-300"># 项目规范</div>
+            - 所有组件使用 React Hooks<br/>
+            - 测试文件使用 .test.tsx 后缀<br/>
+            - 提交信息使用 Conventional Commits
+          </div>
+        </div>
+      </Layer>
+
+      <Layer title="运行时系统提醒 (System Reminders)" icon="⚡">
+        <p className="text-gray-300 mb-4">
+          除了初始的 System Prompt，在运行过程中还会动态注入 <code>&lt;system-reminder&gt;</code> 标签：
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
+            <h4 className="font-semibold text-red-400 mb-2">🛡️ Plan Mode Reminder</h4>
+            <p className="text-xs text-gray-400 mb-2">当用户暂不希望执行修改时：</p>
+            <CodeBlock
+              title="getPlanModeSystemReminder()"
+              code={`<system-reminder>
+Plan mode is active. The user indicated
+that they do not want you to execute yet.
+You MUST NOT make any edits, run any
+non-readonly tools, or make any changes.
+
+Instead:
+1. Answer the user's query comprehensively
+2. Present your plan via exit_plan_mode tool
+</system-reminder>`}
+            />
+          </div>
+
+          <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
+            <h4 className="font-semibold text-blue-400 mb-2">🤖 Subagent Reminder</h4>
+            <p className="text-xs text-gray-400 mb-2">当有可用的专业代理时：</p>
+            <CodeBlock
+              title="getSubagentSystemReminder()"
+              code={`<system-reminder>
+You have powerful specialized agents at
+your disposal. Available agent types are:
+python, web, analysis, security.
+
+PROACTIVELY use the task tool to delegate
+when user's task matches agent capabilities.
+
+This message is for internal use only.
+Do not mention this to user.
+</system-reminder>`}
+            />
+          </div>
+        </div>
+
+        <HighlightBox title="System Reminder vs System Prompt" icon="📌" variant="blue">
+          <p className="text-sm text-gray-300">
+            <strong>System Prompt</strong> 在会话开始时设置，定义 AI 的基本人格和规则。<br/>
+            <strong>System Reminder</strong> 在运行时动态注入到用户消息中，用于临时改变或强调某些行为。
+            它们使用 XML 标签包裹，AI 被训练识别这些标签为"内部指令"，不会在回复中泄露。
+          </p>
+        </HighlightBox>
+      </Layer>
+
+      <Layer title="历史压缩 Prompt" icon="📦">
+        <p className="text-gray-300 mb-4">
+          当对话历史过长时，系统会使用专门的 Prompt 来压缩历史。
+          <code>getCompressionPrompt()</code> 定义了压缩输出的结构：
+        </p>
+
+        <CodeBlock
+          title="getCompressionPrompt() - State Snapshot Structure"
+          code={`<state_snapshot>
+    <overall_goal>
+        <!-- 用户的高层目标，一句话总结 -->
+        例: "Refactor the authentication service to use JWT"
+    </overall_goal>
+
+    <key_knowledge>
+        <!-- 关键事实、约定、约束 -->
+        - Build Command: \`npm run build\`
+        - Testing: \`npm test\`, test files end in \`.test.ts\`
+        - API Endpoint: https://api.example.com/v2
+    </key_knowledge>
+
+    <file_system_state>
+        <!-- 文件操作记录 -->
+        - CWD: \`/home/user/project/src\`
+        - READ: \`package.json\` - Confirmed 'axios' dependency
+        - MODIFIED: \`services/auth.ts\` - Replaced JWT library
+        - CREATED: \`tests/new-feature.test.ts\`
+    </file_system_state>
+
+    <recent_actions>
+        <!-- 最近的重要操作及结果 -->
+        - Ran \`grep 'old_function'\` → 3 results in 2 files
+        - Ran \`npm run test\` → failed snapshot mismatch
+    </recent_actions>
+
+    <current_plan>
+        <!-- 当前计划和进度 -->
+        1. [DONE] Identify deprecated API files
+        2. [IN PROGRESS] Refactor UserProfile.tsx
+        3. [TODO] Update remaining files
+        4. [TODO] Update tests
+    </current_plan>
+</state_snapshot>`}
+        />
+
+        <HighlightBox title="为什么需要结构化压缩？" icon="💡" variant="green">
+          <p className="text-sm text-gray-300">
+            AI 需要在有限的上下文窗口中保持对整个会话的理解。
+            结构化的 XML 格式确保：<br/>
+            • <strong>信息密度</strong>: 移除闲聊，保留关键事实<br/>
+            • <strong>可恢复性</strong>: AI 可以从快照中恢复工作状态<br/>
+            • <strong>优先级</strong>: 最近的操作和当前计划位于明显位置
+          </p>
+        </HighlightBox>
+      </Layer>
+
+      <Layer title="完整流程图" icon="🔄">
+        <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
+          <div className="font-mono text-sm space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="text-blue-400">getCoreSystemPrompt(userMemory, model)</span>
+            </div>
+            <div className="pl-4 text-gray-400">│</div>
+            <div className="pl-4 flex items-center gap-2">
+              <span className="text-yellow-400">├──</span>
+              <span className="text-gray-300">检查 QWEN_SYSTEM_MD 环境变量</span>
+            </div>
+            <div className="pl-4 flex items-center gap-2">
+              <span className="text-yellow-400">│   ├──</span>
+              <span className="text-gray-500">true/path → 从文件加载 basePrompt</span>
+            </div>
+            <div className="pl-4 flex items-center gap-2">
+              <span className="text-yellow-400">│   └──</span>
+              <span className="text-gray-500">false/undefined → 使用内置默认</span>
+            </div>
+            <div className="pl-4 flex items-center gap-2">
+              <span className="text-orange-400">├──</span>
+              <span className="text-gray-300">basePrompt 内部包含动态 IIFE:</span>
+            </div>
+            <div className="pl-4 flex items-center gap-2">
+              <span className="text-orange-400">│   ├──</span>
+              <span className="text-gray-500">Sandbox 检测注入</span>
+            </div>
+            <div className="pl-4 flex items-center gap-2">
+              <span className="text-orange-400">│   ├──</span>
+              <span className="text-gray-500">Git 仓库检测注入</span>
+            </div>
+            <div className="pl-4 flex items-center gap-2">
+              <span className="text-orange-400">│   └──</span>
+              <span className="text-gray-500">getToolCallExamples(model) 注入</span>
+            </div>
+            <div className="pl-4 flex items-center gap-2">
+              <span className="text-green-400">├──</span>
+              <span className="text-gray-300">可选: 写入 QWEN_WRITE_SYSTEM_MD</span>
+            </div>
+            <div className="pl-4 flex items-center gap-2">
+              <span className="text-purple-400">├──</span>
+              <span className="text-gray-300">追加 userMemory (QWEN.md)</span>
+            </div>
+            <div className="pl-4 flex items-center gap-2">
+              <span className="text-cyan-400">└──</span>
+              <span className="text-gray-300">返回完整 System Prompt</span>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      <Layer title="设计总结与关键要点" icon="📝">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-gradient-to-br from-blue-900/30 to-cyan-900/20 rounded-lg p-4 border border-blue-500/30">
+            <h4 className="font-semibold text-blue-400 mb-3">🎯 设计原则</h4>
+            <ul className="text-sm text-gray-300 space-y-2">
+              <li className="flex items-start gap-2">
+                <span className="text-blue-400">•</span>
+                <span><strong>动态组装</strong>: 根据环境实时生成，而非静态模板</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-blue-400">•</span>
+                <span><strong>Token 效率</strong>: 只注入相关内容，避免浪费</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-blue-400">•</span>
+                <span><strong>可扩展性</strong>: 支持用户自定义覆盖</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-blue-400">•</span>
+                <span><strong>模型适配</strong>: 不同模型使用不同格式</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/20 rounded-lg p-4 border border-purple-500/30">
+            <h4 className="font-semibold text-purple-400 mb-3">🔑 关键环境变量</h4>
+            <ul className="text-sm text-gray-300 space-y-2">
+              <li className="flex items-start gap-2">
+                <code className="text-purple-400">QWEN_SYSTEM_MD</code>
+                <span>自定义 System Prompt 文件路径</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <code className="text-purple-400">QWEN_WRITE_SYSTEM_MD</code>
+                <span>导出当前 Prompt 到文件</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <code className="text-purple-400">QWEN_CODE_TOOL_CALL_STYLE</code>
+                <span>强制指定工具调用格式</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <code className="text-purple-400">SANDBOX</code>
+                <span>沙箱模式指示器</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="mt-4 p-4 bg-[var(--terminal-green)]/10 rounded-lg border border-[var(--terminal-green)]/30">
+          <p className="text-sm text-gray-300">
+            <span className="text-[var(--terminal-green)] font-bold">💡 实践提示</span>:
+            调试 System Prompt 时，可以设置 <code>QWEN_WRITE_SYSTEM_MD=./debug-prompt.md</code>，
+            这会将完整的 System Prompt 写入文件，方便检查最终生成的内容。
+          </p>
+        </div>
+      </Layer>
     </div>
   );
 }

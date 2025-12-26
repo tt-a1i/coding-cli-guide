@@ -153,6 +153,7 @@ export const navGroups: NavGroup[] = [
       { id: 'result-cache-anim', label: '文件搜索缓存', highlight: true },
       { id: 'terminal-serializer-anim', label: '终端序列化器', highlight: true },
       { id: 'content-converter-anim', label: 'OpenAI 内容转换', highlight: true },
+      { id: 'multi-provider-pipeline-anim', label: '多厂商内容管道', highlight: true },
       { id: 'smart-edit-anim', label: 'Smart Edit 替换引擎', highlight: true },
       { id: 'vim-buffer-anim', label: 'Vim 文本缓冲区', highlight: true },
       { id: 'chat-compression-anim', label: '聊天压缩分割点', highlight: true },

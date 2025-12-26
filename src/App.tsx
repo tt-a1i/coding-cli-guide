@@ -73,6 +73,7 @@ const RequestTokenizerAnimation = lazy(() => import('./pages/RequestTokenizerAni
 const ResultCacheAnimation = lazy(() => import('./pages/ResultCacheAnimation').then(m => ({ default: m.ResultCacheAnimation })));
 const TerminalSerializerAnimation = lazy(() => import('./pages/TerminalSerializerAnimation').then(m => ({ default: m.TerminalSerializerAnimation })));
 const ContentConverterAnimation = lazy(() => import('./pages/ContentConverterAnimation').then(m => ({ default: m.ContentConverterAnimation })));
+const MultiProviderPipelineAnimation = lazy(() => import('./pages/MultiProviderPipelineAnimation'));
 const SmartEditAnimation = lazy(() => import('./pages/SmartEditAnimation').then(m => ({ default: m.SmartEditAnimation })));
 const VimBufferAnimation = lazy(() => import('./pages/VimBufferAnimation').then(m => ({ default: m.VimBufferAnimation })));
 const ChatCompressionAnimation = lazy(() => import('./pages/ChatCompressionAnimation').then(m => ({ default: m.ChatCompressionAnimation })));
@@ -325,6 +326,8 @@ function App() {
         return <TerminalSerializerAnimation />;
       case 'content-converter-anim':
         return <ContentConverterAnimation />;
+      case 'multi-provider-pipeline-anim':
+        return <MultiProviderPipelineAnimation />;
       case 'smart-edit-anim':
         return <SmartEditAnimation />;
       case 'vim-buffer-anim':
