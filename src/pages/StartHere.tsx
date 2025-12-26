@@ -73,11 +73,11 @@ export function StartHere({ onNavigate }: StartHereProps) {
         <div className="relative">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--bg-panel)] border border-[var(--border-subtle)] rounded-full text-sm font-mono text-[var(--text-muted)] mb-6">
             <span className="w-2 h-2 rounded-full bg-[var(--terminal-green)] animate-pulse shadow-[0_0_6px_var(--terminal-green-glow)]" />
-            <span>$ innies --deep-dive</span>
+            <span>$ qwen --deep-dive</span>
           </div>
 
           <h1 className="text-4xl md:text-5xl font-bold font-mono mb-4 tracking-tight">
-            <span className="text-[var(--terminal-green)]">Innies CLI</span>
+            <span className="text-[var(--terminal-green)]">Qwen CLI</span>
             <span className="text-[var(--text-primary)]"> 架构深度解析</span>
           </h1>
 
@@ -383,7 +383,7 @@ export function StartHere({ onNavigate }: StartHereProps) {
         </div>
         <h2 className="text-lg font-bold font-mono text-[var(--text-primary)] mb-3">关于本文档</h2>
         <p className="text-sm text-[var(--text-secondary)] mb-6 font-mono">
-          基于 <a href="https://github.com/zhimanai/innies-cli" className="text-[var(--terminal-green)] hover:underline hover:text-[var(--terminal-green)] transition-colors">innies-cli</a> 源码分析，
+          基于 <a href="https://github.com/zhimanai/qwen-cli" className="text-[var(--terminal-green)] hover:underline hover:text-[var(--terminal-green)] transition-colors">qwen-cli</a> 源码分析，
           所有结论均附带源文件路径和行号引用。
         </p>
         <div className="flex justify-center gap-8 text-xs font-mono text-[var(--text-muted)]">

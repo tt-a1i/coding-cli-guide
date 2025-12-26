@@ -56,7 +56,7 @@ function Introduction({
             </h4>
             <p className="text-[var(--text-secondary)] text-sm">
               本指南根据不同的学习目标提供了多条学习路径。每条路径都有清晰的里程碑和检查点，
-              帮助你系统性地理解 Innies CLI 的架构。<strong>选择一条路径，按顺序学习</strong>
+              帮助你系统性地理解 Qwen CLI 的架构。<strong>选择一条路径，按顺序学习</strong>
               是最高效的方式。
             </p>
           </div>
@@ -380,7 +380,7 @@ const learningPaths: LearningPath[] = [
           '了解依赖注入模式',
         ],
         estimatedTime: '1.5 小时',
-        checkpoint: '能描述从 innies 命令到 interactionLoop 的启动过程吗？',
+        checkpoint: '能描述从 qwen 命令到 interactionLoop 的启动过程吗？',
       },
       {
         title: 'Turn 状态机',
@@ -593,7 +593,7 @@ export function LearningPathGuide() {
         <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2">
           <span>🗺️</span> 架构全景图
         </h2>
-        <MermaidDiagram chart={architectureMap} title="Innies CLI 架构层次" />
+        <MermaidDiagram chart={architectureMap} title="Qwen CLI 架构层次" />
         <p className="text-sm text-[var(--text-muted)] mt-2 text-center">
           每条学习路径都会覆盖上图的不同部分
         </p>

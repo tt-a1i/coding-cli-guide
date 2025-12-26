@@ -3,7 +3,7 @@ import { useState } from 'react';
 // ============================================================
 // Token Accounting System - 深度解析页面
 // ============================================================
-// 本页面详细解释 Innies CLI 中的 Token 计算与管理系统
+// 本页面详细解释 Qwen CLI 中的 Token 计算与管理系统
 // 涵盖：Token 限制匹配、文本/图像 Token 计算、设计原理
 
 // 可折叠章节组件
@@ -294,7 +294,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
       {isExpanded && (
         <div className="space-y-4 text-gray-300 animate-fadeIn">
           <p className="text-lg">
-            Token 是 AI 模型计费和上下文管理的基本单位。Innies CLI 实现了一套精确的 Token 计算系统，
+            Token 是 AI 模型计费和上下文管理的基本单位。Qwen CLI 实现了一套精确的 Token 计算系统，
             用于：<strong className="text-purple-300">模型能力匹配</strong>、<strong className="text-cyan-300">成本估算</strong>、
             <strong className="text-yellow-300">上下文压缩决策</strong>。
           </p>
@@ -327,7 +327,7 @@ function TokenLimitSection() {
   return (
     <div className="pt-6 space-y-4">
       <p className="text-gray-300">
-        不同的 AI 模型有不同的上下文窗口大小。Innies CLI 使用<strong className="text-purple-300">正则模式匹配</strong>来
+        不同的 AI 模型有不同的上下文窗口大小。Qwen CLI 使用<strong className="text-purple-300">正则模式匹配</strong>来
         自动识别模型并返回正确的 Token 限制。
       </p>
 

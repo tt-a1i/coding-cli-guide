@@ -51,11 +51,11 @@ function Introduction({
             <div className="grid grid-cols-3 gap-2 mt-2">
               <div className="bg-[var(--bg-card)] p-2 rounded text-center">
                 <div className="text-xs text-[var(--terminal-green)]">项目级</div>
-                <div className="text-[10px] text-[var(--text-muted)]">.innies/agents/</div>
+                <div className="text-[10px] text-[var(--text-muted)]">.qwen/agents/</div>
               </div>
               <div className="bg-[var(--bg-card)] p-2 rounded text-center">
                 <div className="text-xs text-[var(--cyber-blue)]">用户级</div>
-                <div className="text-[10px] text-[var(--text-muted)]">~/.innies/agents/</div>
+                <div className="text-[10px] text-[var(--text-muted)]">~/.qwen/agents/</div>
               </div>
               <div className="bg-[var(--bg-card)] p-2 rounded text-center">
                 <div className="text-xs text-[var(--amber)]">内置</div>

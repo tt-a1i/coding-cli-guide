@@ -114,7 +114,7 @@ function AnimStep({ visible, from, fromColor, to, message, messageColor, extra }
   );
 }
 
-// 动画步骤数据 - 对应 innies-cli 实际流程
+// 动画步骤数据 - 对应 qwen-cli 实际流程
 const animSteps = [
   {
     from: '👤 用户',
@@ -188,7 +188,7 @@ ReadFileToolInvocation.execute({
     message: '返回 ToolResult',
     messageColor: 'bg-[var(--amber)]/10',
     extra: `{
-  llmContent: "{\\"name\\": \\"@innies/innies-cli\\", ...}",
+  llmContent: "{\\"name\\": \\"@qwen/qwen-cli\\", ...}",
   returnDisplay: "package.json (1.2KB)"
 }`,
   },
@@ -214,7 +214,7 @@ ReadFileToolInvocation.execute({
     message: '最终回复 (finishReason: STOP)',
     messageColor: 'bg-[var(--purple)]/10',
     extra: `{
-  content: "package.json 的 name 是 @innies/innies-cli",
+  content: "package.json 的 name 是 @qwen/qwen-cli",
   finishReason: "STOP"  // 无更多工具调用
 }`,
   },
@@ -294,7 +294,7 @@ export function Animation() {
       </div>
 
       <p className="text-sm text-[var(--text-muted)] font-mono mb-6">
-        // 展示 innies-cli 的核心交互循环：用户输入 → AI 思考 → 工具审批 → 执行 → Continuation
+        // 展示 qwen-cli 的核心交互循环：用户输入 → AI 思考 → 工具审批 → 执行 → Continuation
       </p>
 
       {/* 介绍部分 */}

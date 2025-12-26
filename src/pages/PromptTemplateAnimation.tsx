@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 /**
  * Prompt 模板引擎动画
  *
- * 可视化 innies-cli 的系统提示词构建流程
+ * 可视化 qwen-cli 的系统提示词构建流程
  * 源码: packages/core/src/core/prompts.ts
  *
  * 核心函数:
@@ -209,7 +209,7 @@ export default function PromptTemplateAnimation() {
       case 'memory-append':
         addLog('💾 追加用户记忆 - User Memory Suffix');
         timers.push(setTimeout(() => {
-          addLog('  📂 Loading ~/.config/innies/CLAUDE.md');
+          addLog('  📂 Loading ~/.config/qwen/CLAUDE.md');
         }, 300));
 
         timers.push(setTimeout(() => {

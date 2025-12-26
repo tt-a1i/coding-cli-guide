@@ -183,8 +183,8 @@ const builtinCommands = [
     description: 'FileCommandLoader 扫描 TOML 文件',
     code: `// 搜索路径
 const searchPaths = [
-  '~/.innies/commands/',      // 用户目录
-  '.innies/commands/',         // 项目目录
+  '~/.qwen/commands/',      // 用户目录
+  '.qwen/commands/',         // 项目目录
   '{extension}/commands/',     // 扩展目录
 ];
 
@@ -443,8 +443,8 @@ function CommandLoadersComparison() {
         '!{} Shell 执行',
       ],
       examples: [
-        '~/.innies/commands/review.toml → /review',
-        '.innies/commands/deploy.toml → /deploy',
+        '~/.qwen/commands/review.toml → /review',
+        '.qwen/commands/deploy.toml → /deploy',
       ],
     },
     {

@@ -40,7 +40,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
                 <li className="text-xs text-gray-500 ml-4">getCoreSystemPrompt, getCompressionPrompt</li>
                 <li>• <code>packages/core/src/tools/tool-names.ts</code></li>
                 <li className="text-xs text-gray-500 ml-4">工具名称常量定义</li>
-                <li>• <code>.innies/system.md</code></li>
+                <li>• <code>.qwen/system.md</code></li>
                 <li className="text-xs text-gray-500 ml-4">用户自定义 System Prompt 覆盖</li>
               </ul>
             </div>
@@ -123,7 +123,7 @@ export function SystemPromptArch() {
   userMemory?: string,
   model?: string,
 ): string {
-  // 默认路径：.innies/system.md
+  // 默认路径：.qwen/system.md
   let systemMdPath = path.resolve(path.join(QWEN_CONFIG_DIR, 'system.md'));
 
   // 解析环境变量
@@ -146,7 +146,7 @@ export function SystemPromptArch() {
 
   const basePrompt = systemMdEnabled
     ? fs.readFileSync(systemMdPath, 'utf8')  // 从文件加载
-    : \`You are Innies Cli, an interactive CLI agent...\`;  // 内置默认
+    : \`You are Qwen Cli, an interactive CLI agent...\`;  // 内置默认
 }`}
         />
 
@@ -154,7 +154,7 @@ export function SystemPromptArch() {
           <p className="text-sm text-gray-300">
             <strong>为什么支持自定义 System Prompt？</strong><br/>
             不同团队可能有特定的代码规范、安全要求或工作流程。
-            通过 <code>.innies/system.md</code> 文件，团队可以定制 AI 的行为，
+            通过 <code>.qwen/system.md</code> 文件，团队可以定制 AI 的行为，
             比如强制要求某种注释风格、禁止使用某些命令等。
             这个文件可以提交到 Git 仓库，让整个团队共享相同的 AI 行为配置。
           </p>
@@ -170,7 +170,7 @@ export function SystemPromptArch() {
           <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
             <h4 className="font-semibold text-cyan-400 mb-2">🎭 身份定义</h4>
             <div className="text-sm text-gray-300 font-mono bg-black/30 p-2 rounded">
-              "You are Innies Cli, an interactive CLI agent developed by Zhiman Tech, specializing in software engineering tasks..."
+              "You are Qwen Cli, an interactive CLI agent developed by Zhiman Tech, specializing in software engineering tasks..."
             </div>
           </div>
 

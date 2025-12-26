@@ -61,7 +61,7 @@ class McpClient {
 
   constructor(serverConfig: MCPServerConfig) {
     this.serverConfig = serverConfig;
-    this.client = new Client({ name: 'innies-cli' });
+    this.client = new Client({ name: 'qwen-cli' });
   }
 }`,
   },

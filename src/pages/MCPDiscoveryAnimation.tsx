@@ -268,7 +268,7 @@ const discoveryPhases = [
 ];
 
 const phaseDescriptions = [
-  '从 .innies/mcp.json 和用户配置加载服务器定义',
+  '从 .qwen/mcp.json 和用户配置加载服务器定义',
   '使用 Promise.all() 并行启动所有服务器进程',
   '与每个服务器进行 MCP 协议握手，交换能力信息',
   '将发现的工具注册到工具注册表，供 AI 调用',
@@ -283,11 +283,11 @@ async loadServerConfigs(): Promise<MCPServerConfig[]> {
   // 1. 内置服务器
   configs.push(...BUILTIN_SERVERS);
 
-  // 2. 用户全局配置 ~/.innies/mcp.json
+  // 2. 用户全局配置 ~/.qwen/mcp.json
   const userConfig = await this.loadUserConfig();
   configs.push(...userConfig.mcpServers);
 
-  // 3. 项目配置 .innies/mcp.json
+  // 3. 项目配置 .qwen/mcp.json
   const projectConfig = await this.loadProjectConfig();
   configs.push(...projectConfig.mcpServers);
 
@@ -329,7 +329,7 @@ async negotiate(): Promise<ServerCapabilities> {
       sampling: {},
     },
     clientInfo: {
-      name: 'innies-cli',
+      name: 'qwen-cli',
       version: VERSION,
     },
   });
@@ -598,7 +598,7 @@ export function MCPDiscoveryAnimation() {
               <div className="text-center">
                 <div className="text-2xl mb-1">👤</div>
                 <div className="text-xs font-mono text-[var(--cyber-blue)]">user</div>
-                <div className="text-xs font-mono text-[var(--text-muted)]">~/.innies/</div>
+                <div className="text-xs font-mono text-[var(--text-muted)]">~/.qwen/</div>
               </div>
             </div>
             <span className="text-[var(--text-muted)]">→</span>
@@ -606,7 +606,7 @@ export function MCPDiscoveryAnimation() {
               <div className="text-center">
                 <div className="text-2xl mb-1">📁</div>
                 <div className="text-xs font-mono text-[var(--amber)]">project</div>
-                <div className="text-xs font-mono text-[var(--text-muted)]">.innies/</div>
+                <div className="text-xs font-mono text-[var(--text-muted)]">.qwen/</div>
               </div>
             </div>
           </div>

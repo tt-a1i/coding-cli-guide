@@ -7,7 +7,7 @@ import { useState, useCallback } from 'react';
  * 1. @{...} 文件引用语法解析
  * 2. 文件路径提取与验证
  * 3. 文件内容读取
- * 4. 忽略规则检查 (.gitignore, .inniesignore)
+ * 4. 忽略规则检查 (.gitignore, .qwenignore)
  * 5. 内容注入到 Prompt
  *
  * 源码位置:
@@ -209,7 +209,7 @@ export default function AtFileProcessorAnimation() {
       ...s,
       currentStep: 2,
       steps: s.steps.map((step, i) => i === 2 ? { ...step, status: 'active' } : step),
-      message: '检查 .gitignore 和 .inniesignore 规则...',
+      message: '检查 .gitignore 和 .qwenignore 规则...',
     }));
     await sleep(800);
 
@@ -573,7 +573,7 @@ export default function AtFileProcessorAnimation() {
             </div>
             <div className="flex items-center gap-2">
               <span className="text-yellow-400">⚠️</span>
-              <span className="text-gray-300">.inniesignore 匹配的文件会被跳过</span>
+              <span className="text-gray-300">.qwenignore 匹配的文件会被跳过</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-blue-400">ℹ️</span>

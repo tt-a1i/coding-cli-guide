@@ -54,7 +54,7 @@ const sampleAgents: Record<SubagentLevel, SubagentConfig[]> = {
       description: '审查 API 设计规范',
       tools: ['read_file', 'search_code'],
       level: 'project',
-      filePath: '.innies/agents/api-reviewer.md',
+      filePath: '.qwen/agents/api-reviewer.md',
     },
   ],
   user: [
@@ -63,14 +63,14 @@ const sampleAgents: Record<SubagentLevel, SubagentConfig[]> = {
       description: '解释代码逻辑',
       tools: ['read_file', 'web_search'],
       level: 'user',
-      filePath: '~/.innies/agents/code-explainer.md',
+      filePath: '~/.qwen/agents/code-explainer.md',
     },
     {
       name: 'api-reviewer',
       description: '用户级 API 审查器',
       tools: ['read_file'],
       level: 'user',
-      filePath: '~/.innies/agents/api-reviewer.md',
+      filePath: '~/.qwen/agents/api-reviewer.md',
     },
   ],
   builtin: [
@@ -113,15 +113,15 @@ class SubagentManager {
   constructor(workspaceDir: string) {
     this.subagentsCache = new Map();
     this.changeListeners = new Set();
-    this.projectDir = path.join(workspaceDir, '.innies/agents');
-    this.userDir = path.join(os.homedir(), '.innies/agents');
+    this.projectDir = path.join(workspaceDir, '.qwen/agents');
+    this.userDir = path.join(os.homedir(), '.qwen/agents');
   }
 }`,
   },
   {
     phase: 'scan_project',
     title: '扫描项目级配置',
-    description: '读取 .innies/agents/*.md 文件',
+    description: '读取 .qwen/agents/*.md 文件',
     stateChange: {
       currentLevel: 'project',
       projectAgents: sampleAgents.project,
@@ -129,7 +129,7 @@ class SubagentManager {
     codeSnippet: `// subagent-manager.ts:200-230
 async listSubagentsAtLevel(level: SubagentLevel): Promise<SubagentConfig[]> {
   if (level === 'project') {
-    const agentDir = path.join(this.workspaceDir, '.innies/agents');
+    const agentDir = path.join(this.workspaceDir, '.qwen/agents');
 
     if (!fs.existsSync(agentDir)) {
       return [];
@@ -152,14 +152,14 @@ async listSubagentsAtLevel(level: SubagentLevel): Promise<SubagentConfig[]> {
   {
     phase: 'scan_user',
     title: '扫描用户级配置',
-    description: '读取 ~/.innies/agents/*.md 文件',
+    description: '读取 ~/.qwen/agents/*.md 文件',
     stateChange: {
       currentLevel: 'user',
       userAgents: sampleAgents.user,
     },
     codeSnippet: `// subagent-manager.ts:232-260
 if (level === 'user') {
-  const userAgentDir = path.join(os.homedir(), '.innies/agents');
+  const userAgentDir = path.join(os.homedir(), '.qwen/agents');
 
   if (!fs.existsSync(userAgentDir)) {
     return [];
@@ -433,8 +433,8 @@ function LevelHierarchy({
   builtinAgents: SubagentConfig[];
 }) {
   const levels: { level: SubagentLevel; label: string; path: string; agents: SubagentConfig[] }[] = [
-    { level: 'project', label: 'Project', path: '.innies/agents/', agents: projectAgents },
-    { level: 'user', label: 'User', path: '~/.innies/agents/', agents: userAgents },
+    { level: 'project', label: 'Project', path: '.qwen/agents/', agents: projectAgents },
+    { level: 'user', label: 'User', path: '~/.qwen/agents/', agents: userAgents },
     { level: 'builtin', label: 'Builtin', path: 'builtin://', agents: builtinAgents },
   ];
 

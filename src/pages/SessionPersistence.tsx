@@ -94,7 +94,7 @@ function SessionFileVisualization() {
     <div className="my-6 p-6 bg-gray-900/50 rounded-xl border border-gray-700/50">
       <h4 className="text-lg font-semibold text-gray-200 mb-4">📁 会话存储结构</h4>
       <div className="font-mono text-sm space-y-1">
-        <div className="text-gray-400">~/.innies/</div>
+        <div className="text-gray-400">~/.qwen/</div>
         <div className="pl-4 text-gray-400">└── tmp/</div>
         <div className="pl-8 text-cyan-400">└── {'<project_hash>'}/ <span className="text-gray-500">← 项目唯一标识</span></div>
         <div className="pl-12 text-emerald-400">└── chats/</div>
@@ -300,7 +300,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
       {isExpanded && (
         <div className="space-y-4 text-gray-300 animate-fadeIn">
           <p className="text-lg">
-            Innies CLI 实现了完整的会话持久化系统，用于<strong className="text-emerald-300">记录对话历史</strong>、
+            Qwen CLI 实现了完整的会话持久化系统，用于<strong className="text-emerald-300">记录对话历史</strong>、
             <strong className="text-cyan-300">恢复中断会话</strong>、以及<strong className="text-orange-300">智能压缩上下文</strong>。
           </p>
 
@@ -536,7 +536,7 @@ function SessionResumeSection() {
   return (
     <div className="pt-6 space-y-4">
       <p className="text-gray-300">
-        Innies CLI 支持从历史会话恢复，让用户可以继续之前中断的对话。
+        Qwen CLI 支持从历史会话恢复，让用户可以继续之前中断的对话。
       </p>
 
       <DesignRationaleCard

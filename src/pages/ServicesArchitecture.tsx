@@ -38,7 +38,7 @@ function Introduction({
               🎯 什么是服务层？
             </h4>
             <p className="text-[var(--text-secondary)] text-sm">
-              服务层是 Innies CLI 的<strong>中间抽象层</strong>，位于 Core
+              服务层是 Qwen CLI 的<strong>中间抽象层</strong>，位于 Core
               循环和底层系统之间。
               它封装了文件系统、Shell 执行、Git 操作等复杂逻辑，提供干净的
               API 供上层调用。
@@ -733,7 +733,7 @@ export function ServicesArchitecture() {
             icon="📁"
             name="FileDiscoveryService"
             path="packages/core/src/services"
-            description="基于 .gitignore 和 .inniesignore 过滤文件"
+            description="基于 .gitignore 和 .qwenignore 过滤文件"
           />
           <Module
             icon="💻"
@@ -818,8 +818,8 @@ export function ServicesArchitecture() {
             language="typescript"
             code={`// 加载优先级（后加载覆盖前面）
 const loadOrder = [
-  "~/.innies/commands/",      // 1. 用户命令（最低优先级）
-  ".innies/commands/",        // 2. 项目命令
+  "~/.qwen/commands/",      // 1. 用户命令（最低优先级）
+  ".qwen/commands/",        // 2. 项目命令
   "<extension>/commands/"     // 3. 扩展命令（按字母排序）
 ];
 
@@ -962,7 +962,7 @@ const shell = process.platform === 'win32'
           </p>
           <ul className="space-y-1 text-sm">
             <li>
-              • 存储位置: <code>.innies/git/</code>
+              • 存储位置: <code>.qwen/git/</code>
             </li>
             <li>• 隔离用户配置（name、email、GPG 签名）</li>
             <li>• 自动复制 .gitignore 规则</li>
@@ -1281,7 +1281,7 @@ function processOutput(data: string): string {
                   ⚙️ 隔离如何实现？
                 </div>
                 <p className="text-sm text-[var(--text-secondary)]">
-                  使用 GIT_DIR 指向 .innies/git/，GIT_WORK_TREE
+                  使用 GIT_DIR 指向 .qwen/git/，GIT_WORK_TREE
                   指向项目根目录。还覆盖 user.name/email 防止泄露用户信息。
                 </p>
               </div>
@@ -1300,11 +1300,11 @@ function processOutput(data: string): string {
               language="typescript"
               code={`// GitService - 影子仓库管理
 class GitService {
-  private shadowGitDir: string;  // .innies/git/
+  private shadowGitDir: string;  // .qwen/git/
   private workTree: string;       // 项目根目录
 
   constructor(projectRoot: string) {
-    this.shadowGitDir = path.join(projectRoot, '.innies', 'git');
+    this.shadowGitDir = path.join(projectRoot, '.qwen', 'git');
     this.workTree = projectRoot;
   }
 
@@ -1317,8 +1317,8 @@ class GitService {
     await this.git('init', '--bare');
 
     // 设置隔离的用户配置（不影响用户全局配置）
-    await this.git('config', 'user.name', 'Innies CLI');
-    await this.git('config', 'user.email', 'noreply@innies.local');
+    await this.git('config', 'user.name', 'Qwen CLI');
+    await this.git('config', 'user.email', 'noreply@qwen.local');
 
     // 禁用 GPG 签名
     await this.git('config', 'commit.gpgSign', 'false');
@@ -1451,7 +1451,7 @@ function isSafeSplitPoint(
       <Layer title="服务依赖注入模式" icon="💉">
         <HighlightBox title="Config 对象模式" icon="🔧" variant="blue">
           <p className="mb-3 text-sm">
-            Innies CLI 使用 <strong>Config 对象</strong> 作为依赖注入的载体，而非传统的 DI 容器。
+            Qwen CLI 使用 <strong>Config 对象</strong> 作为依赖注入的载体，而非传统的 DI 容器。
             这种轻量级方案减少了复杂度，同时保持了可测试性。
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

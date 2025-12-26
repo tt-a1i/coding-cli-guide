@@ -298,7 +298,7 @@ function ProcessorCards() {
       },
       features: [
         '支持相对/绝对路径',
-        '尊重 .gitignore/.inniesignore',
+        '尊重 .gitignore/.qwenignore',
         '支持图片等多模态内容',
         '文件不存在时保留原文',
       ],

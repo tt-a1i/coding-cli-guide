@@ -158,9 +158,9 @@ function ProviderRoutingAnimation() {
       icon: '🐧',
     },
     {
-      id: 'innies-oauth',
-      name: 'Innies OAuth',
-      provider: 'InniesContentGenerator',
+      id: 'qwen-oauth',
+      name: 'Qwen OAuth',
+      provider: 'QwenContentGenerator',
       color: 'var(--cyber-blue)',
       icon: '🏠',
     },
@@ -636,7 +636,7 @@ export function MultiProviderArchitecture() {
   CLOUD_SHELL = 'cloud-shell',            // Google Cloud Shell
   USE_OPENAI = 'openai',                  // OpenAI-compatible
   QWEN_OAUTH = 'qwen-oauth',              // Qwen OAuth (推荐)
-  INNIES_OAUTH = 'innies-oauth',          // Innies OAuth
+  QWEN_OAUTH = 'qwen-oauth',          // Qwen OAuth
 }`}
           />
         </div>
@@ -653,8 +653,8 @@ export function MultiProviderArchitecture() {
           />
           <Module
             icon="🏠"
-            name="InniesContentGenerator"
-            path="packages/core/src/innies"
+            name="QwenContentGenerator"
+            path="packages/core/src/qwen"
             description="继承 OpenAI，模型配置缓存"
           />
           <Module
@@ -695,7 +695,7 @@ export function MultiProviderArchitecture() {
               ├─ QwenContentGenerator
             </div>
             <div className="ml-8 text-[var(--cyber-blue)]">
-              └─ InniesContentGenerator
+              └─ QwenContentGenerator
             </div>
           </div>
         </HighlightBox>
@@ -810,7 +810,7 @@ normalize("gemini-2.5-pro-preview") → "gemini-2.5-pro"`}
 
           <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-[var(--cyber-blue)]/30">
             <div className="text-[var(--cyber-blue)] font-bold mb-2">
-              Innies 双重回退
+              Qwen 双重回退
             </div>
             <ul className="text-sm text-[var(--text-secondary)] space-y-1">
               <li>• 模型特定配置优先</li>

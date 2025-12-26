@@ -45,11 +45,11 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
               </div>
               <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
                 <div className="text-[var(--purple)]">用户代理</div>
-                <div className="text-[var(--text-muted)]">~/.innies/agents/</div>
+                <div className="text-[var(--text-muted)]">~/.qwen/agents/</div>
               </div>
               <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
                 <div className="text-[var(--terminal-green)]">项目代理</div>
-                <div className="text-[var(--text-muted)]">.innies/agents/</div>
+                <div className="text-[var(--text-muted)]">.qwen/agents/</div>
               </div>
             </div>
           </div>
@@ -272,8 +272,8 @@ function HierarchyDiagram({ activeType }: { activeType: SubagentType | null }) {
                     {config.label}
                   </div>
                   <div className="text-xs font-mono text-[var(--text-muted)]">
-                    {type === 'project' && '.innies/agents/'}
-                    {type === 'user' && '~/.innies/agents/'}
+                    {type === 'project' && '.qwen/agents/'}
+                    {type === 'user' && '~/.qwen/agents/'}
                     {type === 'builtin' && '内置定义'}
                   </div>
                 </div>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 // ============================================================
-// 工具开发者指南 - 如何为 Innies CLI 开发自定义工具
+// 工具开发者指南 - 如何为 Qwen CLI 开发自定义工具
 // ============================================================
 
 // 可折叠章节组件
@@ -229,7 +229,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
       {isExpanded && (
         <div className="space-y-4 text-gray-300 animate-fadeIn">
           <p className="text-lg">
-            Innies CLI 的工具系统采用<strong className="text-amber-300">声明式架构</strong>，
+            Qwen CLI 的工具系统采用<strong className="text-amber-300">声明式架构</strong>，
             将工具定义、参数验证和执行逻辑分离。本指南将教你如何开发自定义工具。
           </p>
 
