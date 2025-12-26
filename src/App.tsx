@@ -10,6 +10,7 @@ import { Overview } from './pages/Overview';
 
 // 懒加载的页面
 const Glossary = lazy(() => import('./pages/Glossary'));
+const LearningPathGuide = lazy(() => import('./pages/LearningPathGuide').then(m => ({ default: m.LearningPathGuide })));
 const EndToEndWalkthrough = lazy(() => import('./pages/EndToEndWalkthrough').then(m => ({ default: m.EndToEndWalkthrough })));
 const UpstreamDiffOverview = lazy(() => import('./pages/UpstreamDiffOverview').then(m => ({ default: m.UpstreamDiffOverview })));
 const StartupFlow = lazy(() => import('./pages/StartupFlow').then(m => ({ default: m.StartupFlow })));
@@ -204,6 +205,8 @@ function App() {
         return <UpstreamDiffOverview />;
       case 'overview':
         return <Overview />;
+      case 'learning-path':
+        return <LearningPathGuide />;
       case 'glossary':
         return <Glossary onNavigate={(tab) => navigateToTab(tab)} />;
       case 'startup':

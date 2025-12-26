@@ -20,6 +20,7 @@ export const navGroups: NavGroup[] = [
     defaultOpen: true,
     items: [
       { id: 'start-here', label: 'Start Here', highlight: true },
+      { id: 'learning-path', label: '学习路径指南', highlight: true },
       { id: 'overview', label: '架构概览' },
       { id: 'glossary', label: '术语表' },
     ],

@@ -1043,6 +1043,504 @@ const currentHash = await gitService.getCurrentCommitHash();`}
           </div>
         </div>
       </Layer>
+
+      {/* Design Rationale Deep Dive */}
+      <Layer title="设计原理深度解析" icon="🧠">
+        <div className="space-y-6">
+          {/* FileSystemService Rationale */}
+          <div className="bg-gradient-to-r from-[var(--terminal-green)]/5 to-transparent rounded-xl p-6 border border-[var(--terminal-green)]/30">
+            <h4 className="text-lg font-bold text-[var(--terminal-green)] mb-4 flex items-center gap-2">
+              <span>📁</span> FileSystemService 接口设计
+            </h4>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div className="bg-[var(--bg-terminal)] rounded-lg p-4">
+                <div className="text-xs text-[var(--terminal-green)] font-bold mb-2">
+                  🤔 为什么需要接口？
+                </div>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  测试时需要 Mock 文件系统操作，避免真实 I/O。接口使得可以注入
+                  MockFileSystemService 进行隔离测试。
+                </p>
+              </div>
+              <div className="bg-[var(--bg-terminal)] rounded-lg p-4">
+                <div className="text-xs text-[var(--cyber-blue)] font-bold mb-2">
+                  ⚙️ 如何实现？
+                </div>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  定义 readTextFile / writeTextFile / findFiles 三个核心方法。
+                  StandardFileSystemService 实现实际操作，测试时替换为 Mock。
+                </p>
+              </div>
+              <div className="bg-[var(--bg-terminal)] rounded-lg p-4">
+                <div className="text-xs text-[var(--amber)] font-bold mb-2">
+                  ✨ 带来的好处
+                </div>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  单元测试无需触碰真实文件系统，测试速度快 10 倍以上。可模拟各种边界情况（权限错误、文件不存在等）。
+                </p>
+              </div>
+            </div>
+
+            <CodeBlock
+              title="FileSystemService 接口定义"
+              language="typescript"
+              code={`interface FileSystemService {
+  // 读取文本文件 - 返回 Promise 支持异步
+  readTextFile(filePath: string): Promise<string>;
+
+  // 写入文本文件 - 原子操作语义
+  writeTextFile(filePath: string, content: string): Promise<void>;
+
+  // 查找文件 - 使用 glob 模式匹配
+  findFiles(fileName: string, searchPaths: readonly string[]): string[];
+}
+
+// 真实实现 - 生产环境使用
+class StandardFileSystemService implements FileSystemService {
+  async readTextFile(filePath: string) {
+    return fs.readFile(filePath, 'utf-8');
+  }
+  // ...
+}
+
+// Mock 实现 - 测试环境使用
+class MockFileSystemService implements FileSystemService {
+  private files = new Map<string, string>();
+
+  async readTextFile(filePath: string) {
+    if (!this.files.has(filePath)) {
+      throw new Error(\`File not found: \${filePath}\`);
+    }
+    return this.files.get(filePath)!;
+  }
+  // ...
+}`}
+            />
+          </div>
+
+          {/* Loop Detection Rationale */}
+          <div className="bg-gradient-to-r from-[var(--amber)]/5 to-transparent rounded-xl p-6 border border-[var(--amber)]/30">
+            <h4 className="text-lg font-bold text-[var(--amber)] mb-4 flex items-center gap-2">
+              <span>🔄</span> LoopDetectionService 阈值设计
+            </h4>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div className="bg-[var(--bg-terminal)] rounded-lg p-4">
+                <div className="text-xs text-[var(--terminal-green)] font-bold mb-2">
+                  🤔 为什么是 5 次工具调用？
+                </div>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  低于 5 次可能误判（如连续读取多个类似文件）。高于 5 次会浪费资源。5
+                  次是实验得出的平衡点。
+                </p>
+              </div>
+              <div className="bg-[var(--bg-terminal)] rounded-lg p-4">
+                <div className="text-xs text-[var(--cyber-blue)] font-bold mb-2">
+                  🤔 为什么是 10 次内容重复？
+                </div>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  代码中常有重复结构（import 语句、模板代码）。10 次 + 50 字符阈值能区分正常重复和真正的循环。
+                </p>
+              </div>
+              <div className="bg-[var(--bg-terminal)] rounded-lg p-4">
+                <div className="text-xs text-[var(--amber)] font-bold mb-2">
+                  🤔 为什么 30 轮后 LLM 检测？
+                </div>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  30 轮足够积累模式识别数据，同时避免频繁调用 LLM。使用 LLM
+                  能检测"思维循环"这类高级模式。
+                </p>
+              </div>
+            </div>
+
+            <CodeBlock
+              title="循环检测三层策略"
+              language="typescript"
+              code={`// 阈值常量 - 经过实验调优
+const TOOL_CALL_LOOP_THRESHOLD = 5;     // 工具调用循环
+const CONTENT_LOOP_THRESHOLD = 10;      // 内容重复循环
+const CONTENT_SIMILARITY_LENGTH = 50;   // 相似性检测字符数
+const LLM_CHECK_AFTER_TURNS = 30;       // LLM 检测触发点
+
+// 层级检测策略
+// Level 1: 快速检测 (O(1)) - 检查是否连续调用完全相同的工具
+function checkToolCallLoop(history: ToolCall[]): boolean {
+  const recent = history.slice(-TOOL_CALL_LOOP_THRESHOLD);
+  if (recent.length < TOOL_CALL_LOOP_THRESHOLD) return false;
+  return recent.every(call =>
+    call.name === recent[0].name &&
+    JSON.stringify(call.args) === JSON.stringify(recent[0].args)
+  );
+}
+
+// Level 2: 中速检测 (O(n)) - 检查内容重复模式
+function checkContentLoop(responses: string[]): boolean {
+  const chunks = extractChunks(responses, CONTENT_SIMILARITY_LENGTH);
+  return countOccurrences(chunks) >= CONTENT_LOOP_THRESHOLD;
+}
+
+// Level 3: 深度检测 (LLM) - 检测高级思维循环
+async function checkCognitiveLoop(context: Context): Promise<boolean> {
+  if (context.turnCount < LLM_CHECK_AFTER_TURNS) return false;
+  return await askLLM("分析以下对话是否陷入认知循环", context);
+}`}
+            />
+          </div>
+
+          {/* Shell Execution Rationale */}
+          <div className="bg-gradient-to-r from-[var(--cyber-blue)]/5 to-transparent rounded-xl p-6 border border-[var(--cyber-blue)]/30">
+            <h4 className="text-lg font-bold text-[var(--cyber-blue)] mb-4 flex items-center gap-2">
+              <span>💻</span> ShellExecutionService 降级策略
+            </h4>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div className="bg-[var(--bg-terminal)] rounded-lg p-4">
+                <div className="text-xs text-[var(--terminal-green)] font-bold mb-2">
+                  🤔 为什么需要 PTY？
+                </div>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  PTY 提供真实终端体验：ANSI 颜色、窗口调整、信号处理。不使用
+                  PTY 时，交互式程序（如 vim、top）无法正常工作。
+                </p>
+              </div>
+              <div className="bg-[var(--bg-terminal)] rounded-lg p-4">
+                <div className="text-xs text-[var(--cyber-blue)] font-bold mb-2">
+                  ⚙️ 降级链如何工作？
+                </div>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  首选 lydell-node-pty（最完整），失败则尝试
+                  node-pty，最后降级到 child_process（无 PTY 支持）。
+                </p>
+              </div>
+              <div className="bg-[var(--bg-terminal)] rounded-lg p-4">
+                <div className="text-xs text-[var(--amber)] font-bold mb-2">
+                  ✨ xterm/headless 的作用
+                </div>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  使用 @xterm/headless 终端仿真器处理 ANSI 转义序列。可以正确渲染颜色输出，同时保持 CLI 轻量。
+                </p>
+              </div>
+            </div>
+
+            <CodeBlock
+              title="PTY 执行与降级"
+              language="typescript"
+              code={`// PTY 执行服务 - 分层降级策略
+async function executeWithPty(command: string, options: PtyOptions) {
+  // 尝试 1: lydell-node-pty (最完整的功能支持)
+  try {
+    const lydellPty = await import('@lydell/node-pty');
+    return createPtyProcess(lydellPty, command, options);
+  } catch {
+    console.debug('lydell-node-pty not available');
+  }
+
+  // 尝试 2: node-pty (备选实现)
+  try {
+    const nodePty = await import('node-pty');
+    return createPtyProcess(nodePty, command, options);
+  } catch {
+    console.debug('node-pty not available');
+  }
+
+  // 尝试 3: child_process (最后降级，无 PTY)
+  console.warn('Falling back to child_process, PTY features disabled');
+  return executeWithChildProcess(command, options);
+}
+
+// ANSI 处理 - 使用 xterm 终端仿真器
+function processOutput(data: string): string {
+  const terminal = new Terminal({ cols: 120, rows: 24 });
+  terminal.write(data);
+
+  // 序列化终端缓冲区，保留颜色信息
+  return serializeTerminalBuffer(terminal.buffer);
+}`}
+            />
+          </div>
+
+          {/* Git Service Rationale */}
+          <div className="bg-gradient-to-r from-[var(--purple)]/5 to-transparent rounded-xl p-6 border border-[var(--purple)]/30">
+            <h4 className="text-lg font-bold text-[var(--purple)] mb-4 flex items-center gap-2">
+              <span>📂</span> GitService 影子仓库设计
+            </h4>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div className="bg-[var(--bg-terminal)] rounded-lg p-4">
+                <div className="text-xs text-[var(--terminal-green)] font-bold mb-2">
+                  🤔 为什么用影子仓库？
+                </div>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  直接操作用户仓库会污染 git history。影子仓库完全隔离，用户的
+                  commit、branch 不受影响，可安全回滚。
+                </p>
+              </div>
+              <div className="bg-[var(--bg-terminal)] rounded-lg p-4">
+                <div className="text-xs text-[var(--cyber-blue)] font-bold mb-2">
+                  ⚙️ 隔离如何实现？
+                </div>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  使用 GIT_DIR 指向 .innies/git/，GIT_WORK_TREE
+                  指向项目根目录。还覆盖 user.name/email 防止泄露用户信息。
+                </p>
+              </div>
+              <div className="bg-[var(--bg-terminal)] rounded-lg p-4">
+                <div className="text-xs text-[var(--amber)] font-bold mb-2">
+                  ✨ 快照的价值
+                </div>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  每次危险操作前自动快照。用户可随时回滚到任意快照点。比文件备份更高效（只存储差异）。
+                </p>
+              </div>
+            </div>
+
+            <CodeBlock
+              title="影子 Git 仓库实现"
+              language="typescript"
+              code={`// GitService - 影子仓库管理
+class GitService {
+  private shadowGitDir: string;  // .innies/git/
+  private workTree: string;       // 项目根目录
+
+  constructor(projectRoot: string) {
+    this.shadowGitDir = path.join(projectRoot, '.innies', 'git');
+    this.workTree = projectRoot;
+  }
+
+  // 初始化影子仓库
+  async initialize() {
+    // 创建隔离的 git 目录
+    await fs.mkdir(this.shadowGitDir, { recursive: true });
+
+    // 初始化 bare 仓库
+    await this.git('init', '--bare');
+
+    // 设置隔离的用户配置（不影响用户全局配置）
+    await this.git('config', 'user.name', 'Innies CLI');
+    await this.git('config', 'user.email', 'noreply@innies.local');
+
+    // 禁用 GPG 签名
+    await this.git('config', 'commit.gpgSign', 'false');
+
+    // 复制项目的 .gitignore
+    await this.copyGitignore();
+  }
+
+  // 创建快照
+  async createSnapshot(message: string): Promise<string> {
+    await this.git('add', '-A');
+    const result = await this.git('commit', '-m', message);
+    return this.getCurrentHash();
+  }
+
+  // 恢复到快照
+  async restoreSnapshot(hash: string) {
+    await this.git('checkout', hash, '--', '.');
+  }
+
+  // 执行 git 命令（使用环境变量隔离）
+  private async git(...args: string[]) {
+    return execFile('git', args, {
+      env: {
+        ...process.env,
+        GIT_DIR: this.shadowGitDir,        // 使用影子目录
+        GIT_WORK_TREE: this.workTree,       // 指向项目
+        GIT_CONFIG_NOSYSTEM: '1',           // 忽略系统配置
+      },
+    });
+  }
+}`}
+            />
+          </div>
+
+          {/* Compression Service Rationale */}
+          <div className="bg-gradient-to-r from-red-500/5 to-transparent rounded-xl p-6 border border-red-500/30">
+            <h4 className="text-lg font-bold text-red-400 mb-4 flex items-center gap-2">
+              <span>📦</span> ChatCompressionService 压缩策略
+            </h4>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div className="bg-[var(--bg-terminal)] rounded-lg p-4">
+                <div className="text-xs text-[var(--terminal-green)] font-bold mb-2">
+                  🤔 为什么是 70% 触发？
+                </div>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  70% 留有 30% 余量应对峰值。太早压缩浪费上下文；太晚压缩可能无法完成（LLM
+                  需要生成摘要的空间）。
+                </p>
+              </div>
+              <div className="bg-[var(--bg-terminal)] rounded-lg p-4">
+                <div className="text-xs text-[var(--cyber-blue)] font-bold mb-2">
+                  🤔 为什么保留 30%？
+                </div>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  30% 保留最近的上下文，包括当前任务的关键信息。少于 30%
+                  可能丢失重要工具调用结果。
+                </p>
+              </div>
+              <div className="bg-[var(--bg-terminal)] rounded-lg p-4">
+                <div className="text-xs text-[var(--amber)] font-bold mb-2">
+                  ⚙️ 分割点如何选择？
+                </div>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  必须在用户消息边界分割，不能切断 AI 的工具调用链（否则会丢失上下文）。使用
+                  findCompressSplitPoint 算法。
+                </p>
+              </div>
+            </div>
+
+            <CodeBlock
+              title="压缩分割点算法"
+              language="typescript"
+              code={`// 找到安全的压缩分割点
+function findCompressSplitPoint(
+  messages: Message[],
+  targetPercentage: number  // 通常是 0.7
+): number {
+  const totalTokens = countTotalTokens(messages);
+  const targetTokens = totalTokens * targetPercentage;
+
+  let tokenCount = 0;
+  let lastSafeIndex = 0;
+
+  for (let i = 0; i < messages.length; i++) {
+    const msg = messages[i];
+    tokenCount += msg.tokenCount;
+
+    // 安全点条件:
+    // 1. 是用户消息 (role === 'user')
+    // 2. 不在工具调用链中间 (没有待处理的 function_call)
+    // 3. 不是系统消息 (role !== 'system')
+    if (isSafeSplitPoint(msg, messages, i)) {
+      lastSafeIndex = i;
+    }
+
+    // 超过目标 token 数后，返回最后一个安全点
+    if (tokenCount >= targetTokens) {
+      return lastSafeIndex;
+    }
+  }
+
+  return lastSafeIndex;
+}
+
+// 判断是否是安全分割点
+function isSafeSplitPoint(
+  msg: Message,
+  allMessages: Message[],
+  index: number
+): boolean {
+  // 必须是用户消息
+  if (msg.role !== 'user') return false;
+
+  // 检查后续消息是否有待处理的工具响应
+  const nextMsg = allMessages[index + 1];
+  if (nextMsg?.role === 'assistant' && nextMsg.function_call) {
+    return false;  // 不能在工具调用之前分割
+  }
+
+  return true;
+}`}
+            />
+          </div>
+        </div>
+      </Layer>
+
+      {/* Service Dependency Injection Pattern */}
+      <Layer title="服务依赖注入模式" icon="💉">
+        <HighlightBox title="Config 对象模式" icon="🔧" variant="blue">
+          <p className="mb-3 text-sm">
+            Innies CLI 使用 <strong>Config 对象</strong> 作为依赖注入的载体，而非传统的 DI 容器。
+            这种轻量级方案减少了复杂度，同时保持了可测试性。
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <div className="text-xs text-[var(--terminal-green)] font-bold mb-2">
+                优点
+              </div>
+              <ul className="text-sm text-[var(--text-secondary)] space-y-1">
+                <li>• 无需 DI 框架，减少依赖</li>
+                <li>• 类型安全，IDE 支持好</li>
+                <li>• 测试时可轻松替换 Mock</li>
+              </ul>
+            </div>
+            <div>
+              <div className="text-xs text-[var(--amber)] font-bold mb-2">
+                权衡
+              </div>
+              <ul className="text-sm text-[var(--text-secondary)] space-y-1">
+                <li>• Config 对象可能变得臃肿</li>
+                <li>• 需要手动传递依赖</li>
+                <li>• 不支持自动生命周期管理</li>
+              </ul>
+            </div>
+          </div>
+        </HighlightBox>
+
+        <div className="mt-4">
+          <CodeBlock
+            title="Config 对象依赖注入示例"
+            language="typescript"
+            code={`// Config 对象定义 (packages/core/src/config/config.ts)
+export interface Config {
+  // 核心服务
+  fileSystem: FileSystemService;
+  chatRecording: ChatRecordingService;
+  loopDetection: LoopDetectionService;
+
+  // 配置值
+  model: string;
+  timeout: number;
+  sandbox: SandboxConfig;
+
+  // 可选服务（延迟加载）
+  git?: GitService;
+}
+
+// 创建生产环境 Config
+function createProductionConfig(): Config {
+  return {
+    fileSystem: new StandardFileSystemService(),
+    chatRecording: new ChatRecordingService(),
+    loopDetection: new LoopDetectionService(),
+    model: 'qwen-coder',
+    timeout: 30000,
+    sandbox: loadSandboxConfig(),
+  };
+}
+
+// 创建测试环境 Config
+function createTestConfig(overrides?: Partial<Config>): Config {
+  return {
+    fileSystem: new MockFileSystemService(),
+    chatRecording: new MockChatRecordingService(),
+    loopDetection: new MockLoopDetectionService(),
+    model: 'test-model',
+    timeout: 1000,
+    sandbox: { enabled: false },
+    ...overrides,  // 允许覆盖特定服务
+  };
+}
+
+// 在工具中使用 Config
+async function executeTool(
+  tool: Tool,
+  config: Config  // 通过参数注入
+): Promise<ToolResult> {
+  // 使用 config 中的服务
+  const content = await config.fileSystem.readTextFile(tool.path);
+
+  // 检测循环
+  if (config.loopDetection.isLooping(tool)) {
+    throw new LoopError('Tool execution loop detected');
+  }
+
+  return { success: true, content };
+}`}
+          />
+        </div>
+      </Layer>
     </div>
   );
 }
