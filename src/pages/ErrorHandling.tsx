@@ -920,6 +920,240 @@ function attemptJSONFix(
         </div>
       </section>
 
+      {/* 失败场景速查表 */}
+      <section className="bg-gray-800/30 rounded-xl border border-gray-700/50 p-6">
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">失败场景速查表</h3>
+        <p className="text-gray-400 text-sm mb-4">
+          常见失败场景的症状、原因和恢复策略一览：
+        </p>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left border-b border-gray-700 text-gray-400">
+                <th className="py-3 px-2 w-[15%]">场景</th>
+                <th className="py-3 px-2 w-[20%]">症状</th>
+                <th className="py-3 px-2 w-[25%]">可能原因</th>
+                <th className="py-3 px-2 w-[25%]">恢复策略</th>
+                <th className="py-3 px-2 w-[15%]">源码位置</th>
+              </tr>
+            </thead>
+            <tbody className="text-gray-300">
+              {/* API 错误 */}
+              <tr className="border-b border-gray-700/50">
+                <td className="py-3 px-2">
+                  <span className="px-2 py-1 bg-red-900/30 text-red-400 rounded text-xs">401</span>
+                  <div className="text-xs text-gray-500 mt-1">认证失败</div>
+                </td>
+                <td className="py-3 px-2 text-xs">Token 无效或过期</td>
+                <td className="py-3 px-2 text-xs">API Key 错误、OAuth Token 过期、环境变量未设置</td>
+                <td className="py-3 px-2 text-xs">
+                  <code className="text-amber-400">重新登录</code>：
+                  <code className="block mt-1 text-gray-400">innies logout && innies</code>
+                </td>
+                <td className="py-3 px-2 text-xs font-mono text-cyan-400">core/src/errors</td>
+              </tr>
+
+              <tr className="border-b border-gray-700/50">
+                <td className="py-3 px-2">
+                  <span className="px-2 py-1 bg-orange-900/30 text-orange-400 rounded text-xs">429</span>
+                  <div className="text-xs text-gray-500 mt-1">限流</div>
+                </td>
+                <td className="py-3 px-2 text-xs">请求过于频繁</td>
+                <td className="py-3 px-2 text-xs">超出 API 配额、短时间内请求过多</td>
+                <td className="py-3 px-2 text-xs">
+                  <code className="text-green-400">自动重试</code>：
+                  指数退避等待 (1s, 2s, 4s...)
+                </td>
+                <td className="py-3 px-2 text-xs font-mono text-cyan-400">core/src/core/retry.ts</td>
+              </tr>
+
+              <tr className="border-b border-gray-700/50">
+                <td className="py-3 px-2">
+                  <span className="px-2 py-1 bg-purple-900/30 text-purple-400 rounded text-xs">500</span>
+                  <div className="text-xs text-gray-500 mt-1">服务端错误</div>
+                </td>
+                <td className="py-3 px-2 text-xs">服务暂时不可用</td>
+                <td className="py-3 px-2 text-xs">后端部署、负载过高、临时故障</td>
+                <td className="py-3 px-2 text-xs">
+                  <code className="text-green-400">自动重试</code>：
+                  最多 3 次，可回退模型
+                </td>
+                <td className="py-3 px-2 text-xs font-mono text-cyan-400">core/src/core/fallback.ts</td>
+              </tr>
+
+              {/* 网络错误 */}
+              <tr className="border-b border-gray-700/50">
+                <td className="py-3 px-2">
+                  <span className="px-2 py-1 bg-yellow-900/30 text-yellow-400 rounded text-xs">ETIMEDOUT</span>
+                  <div className="text-xs text-gray-500 mt-1">连接超时</div>
+                </td>
+                <td className="py-3 px-2 text-xs">请求无响应</td>
+                <td className="py-3 px-2 text-xs">网络不稳定、代理配置错误、DNS 解析失败</td>
+                <td className="py-3 px-2 text-xs">
+                  <code className="text-green-400">自动重试</code>：
+                  检查网络设置
+                </td>
+                <td className="py-3 px-2 text-xs font-mono text-cyan-400">core/src/errors/network.ts</td>
+              </tr>
+
+              <tr className="border-b border-gray-700/50">
+                <td className="py-3 px-2">
+                  <span className="px-2 py-1 bg-yellow-900/30 text-yellow-400 rounded text-xs">ECONNREFUSED</span>
+                  <div className="text-xs text-gray-500 mt-1">连接拒绝</div>
+                </td>
+                <td className="py-3 px-2 text-xs">无法连接服务</td>
+                <td className="py-3 px-2 text-xs">服务未启动、端口错误、防火墙阻止</td>
+                <td className="py-3 px-2 text-xs">
+                  <code className="text-amber-400">检查配置</code>：
+                  验证 BASE_URL 设置
+                </td>
+                <td className="py-3 px-2 text-xs font-mono text-cyan-400">core/src/errors/network.ts</td>
+              </tr>
+
+              {/* 工具错误 */}
+              <tr className="border-b border-gray-700/50">
+                <td className="py-3 px-2">
+                  <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs">TOOL</span>
+                  <div className="text-xs text-gray-500 mt-1">Bash 失败</div>
+                </td>
+                <td className="py-3 px-2 text-xs">命令执行返回非零</td>
+                <td className="py-3 px-2 text-xs">命令不存在、权限不足、语法错误</td>
+                <td className="py-3 px-2 text-xs">
+                  <code className="text-green-400">AI 自动处理</code>：
+                  错误返回给模型重新决策
+                </td>
+                <td className="py-3 px-2 text-xs font-mono text-cyan-400">core/src/tools/bash.ts</td>
+              </tr>
+
+              <tr className="border-b border-gray-700/50">
+                <td className="py-3 px-2">
+                  <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs">TOOL</span>
+                  <div className="text-xs text-gray-500 mt-1">Read 失败</div>
+                </td>
+                <td className="py-3 px-2 text-xs">无法读取文件</td>
+                <td className="py-3 px-2 text-xs">文件不存在、权限不足、路径错误</td>
+                <td className="py-3 px-2 text-xs">
+                  <code className="text-green-400">AI 自动处理</code>：
+                  提示文件不存在
+                </td>
+                <td className="py-3 px-2 text-xs font-mono text-cyan-400">core/src/tools/read.ts</td>
+              </tr>
+
+              <tr className="border-b border-gray-700/50">
+                <td className="py-3 px-2">
+                  <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs">TOOL</span>
+                  <div className="text-xs text-gray-500 mt-1">Edit 失败</div>
+                </td>
+                <td className="py-3 px-2 text-xs">old_string 未找到</td>
+                <td className="py-3 px-2 text-xs">文件已被修改、匹配字符串错误、编码问题</td>
+                <td className="py-3 px-2 text-xs">
+                  <code className="text-green-400">AI 自动处理</code>：
+                  重新读取文件后重试
+                </td>
+                <td className="py-3 px-2 text-xs font-mono text-cyan-400">core/src/tools/edit.ts</td>
+              </tr>
+
+              {/* 配置错误 */}
+              <tr className="border-b border-gray-700/50">
+                <td className="py-3 px-2">
+                  <span className="px-2 py-1 bg-gray-700 text-gray-300 rounded text-xs">CONFIG</span>
+                  <div className="text-xs text-gray-500 mt-1">配置无效</div>
+                </td>
+                <td className="py-3 px-2 text-xs">启动时报错</td>
+                <td className="py-3 px-2 text-xs">settings.json 语法错误、无效的配置值</td>
+                <td className="py-3 px-2 text-xs">
+                  <code className="text-amber-400">手动修复</code>：
+                  检查 ~/.innies/settings.json
+                </td>
+                <td className="py-3 px-2 text-xs font-mono text-cyan-400">cli/src/config</td>
+              </tr>
+
+              {/* 上下文错误 */}
+              <tr className="border-b border-gray-700/50">
+                <td className="py-3 px-2">
+                  <span className="px-2 py-1 bg-pink-900/30 text-pink-400 rounded text-xs">CONTEXT</span>
+                  <div className="text-xs text-gray-500 mt-1">上下文溢出</div>
+                </td>
+                <td className="py-3 px-2 text-xs">消息被截断</td>
+                <td className="py-3 px-2 text-xs">对话过长、文件内容过大</td>
+                <td className="py-3 px-2 text-xs">
+                  <code className="text-green-400">自动压缩</code>：
+                  触发历史压缩，保留最近对话
+                </td>
+                <td className="py-3 px-2 text-xs font-mono text-cyan-400">core/src/core/compression.ts</td>
+              </tr>
+
+              {/* MCP 错误 */}
+              <tr className="border-b border-gray-700/50">
+                <td className="py-3 px-2">
+                  <span className="px-2 py-1 bg-indigo-900/30 text-indigo-400 rounded text-xs">MCP</span>
+                  <div className="text-xs text-gray-500 mt-1">服务启动失败</div>
+                </td>
+                <td className="py-3 px-2 text-xs">MCP 工具不可用</td>
+                <td className="py-3 px-2 text-xs">命令不存在、依赖缺失、配置错误</td>
+                <td className="py-3 px-2 text-xs">
+                  <code className="text-amber-400">降级运行</code>：
+                  禁用该 MCP 服务器继续
+                </td>
+                <td className="py-3 px-2 text-xs font-mono text-cyan-400">core/src/mcp</td>
+              </tr>
+
+              {/* IDE 错误 */}
+              <tr className="border-b border-gray-700/50">
+                <td className="py-3 px-2">
+                  <span className="px-2 py-1 bg-teal-900/30 text-teal-400 rounded text-xs">IDE</span>
+                  <div className="text-xs text-gray-500 mt-1">连接失败</div>
+                </td>
+                <td className="py-3 px-2 text-xs">无法使用 Native Diff</td>
+                <td className="py-3 px-2 text-xs">扩展未安装、端口冲突、目录不匹配</td>
+                <td className="py-3 px-2 text-xs">
+                  <code className="text-amber-400">降级运行</code>：
+                  使用 CLI 内置 Diff
+                </td>
+                <td className="py-3 px-2 text-xs font-mono text-cyan-400">cli/src/ide</td>
+              </tr>
+
+              {/* 沙箱错误 */}
+              <tr>
+                <td className="py-3 px-2">
+                  <span className="px-2 py-1 bg-green-900/30 text-green-400 rounded text-xs">SANDBOX</span>
+                  <div className="text-xs text-gray-500 mt-1">沙箱启动失败</div>
+                </td>
+                <td className="py-3 px-2 text-xs">容器无法创建</td>
+                <td className="py-3 px-2 text-xs">Docker 未安装、权限不足、镜像拉取失败</td>
+                <td className="py-3 px-2 text-xs">
+                  <code className="text-amber-400">提示用户</code>：
+                  检查 Docker 环境
+                </td>
+                <td className="py-3 px-2 text-xs font-mono text-cyan-400">core/src/sandbox</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
+            <h4 className="text-green-400 font-semibold mb-2">自动恢复</h4>
+            <p className="text-xs text-gray-400">
+              429、500、网络超时等可恢复错误，系统自动指数退避重试，最多 3 次。
+            </p>
+          </div>
+          <div className="bg-amber-900/20 border border-amber-500/30 rounded-lg p-4">
+            <h4 className="text-amber-400 font-semibold mb-2">优雅降级</h4>
+            <p className="text-xs text-gray-400">
+              MCP、IDE 等可选功能失败时，禁用该功能继续运行核心流程。
+            </p>
+          </div>
+          <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
+            <h4 className="text-red-400 font-semibold mb-2">用户干预</h4>
+            <p className="text-xs text-gray-400">
+              401 认证、配置错误等需要用户修复后重试。
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* 最佳实践 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">最佳实践</h3>

@@ -117,6 +117,7 @@ const ToolDeveloperGuide = lazy(() => import('./pages/ToolDeveloperGuide').then(
 const FileDiscovery = lazy(() => import('./pages/FileDiscovery').then(m => ({ default: m.FileDiscovery })));
 const CoreCode = lazy(() => import('./pages/CoreCode').then(m => ({ default: m.CoreCode })));
 const LoopMechanism = lazy(() => import('./pages/LoopMechanism').then(m => ({ default: m.LoopMechanism })));
+const EnterpriseDeployment = lazy(() => import('./pages/EnterpriseDeployment').then(m => ({ default: m.EnterpriseDeployment })));
 
 // 页面加载 fallback
 function PageLoading() {
@@ -421,6 +422,8 @@ function App() {
         return <CoreCode />;
       case 'loop':
         return <LoopMechanism />;
+      case 'enterprise-deployment':
+        return <EnterpriseDeployment />;
       default:
         return <StartHere onNavigate={(tab) => navigateToTab(tab)} />;
     }

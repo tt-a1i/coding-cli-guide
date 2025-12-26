@@ -102,32 +102,207 @@ export function IDEIntegration() {
         </div>
       </section>
 
+      {/* 集成边界：什么能做/不能做 */}
+      <section className="bg-gray-800/30 rounded-xl border border-gray-700/50 p-6">
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">集成边界：什么能做/不能做</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
+            <h4 className="text-green-400 font-semibold mb-3">✓ IDE 集成能做</h4>
+            <ul className="text-sm text-gray-300 space-y-2">
+              <li className="flex items-start gap-2">
+                <span className="text-green-400">•</span>
+                <span><strong>原生 Diff 视图</strong> — 在 IDE 中查看/编辑/接受修改</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-green-400">•</span>
+                <span><strong>上下文同步</strong> — 获取打开的文件、光标位置、选中文本</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-green-400">•</span>
+                <span><strong>信任状态</strong> — 继承 IDE 工作区信任设置</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-green-400">•</span>
+                <span><strong>终端内启动</strong> — 在 IDE 集成终端直接运行</span>
+              </li>
+            </ul>
+          </div>
+          <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
+            <h4 className="text-red-400 font-semibold mb-3">✗ IDE 集成不能做</h4>
+            <ul className="text-sm text-gray-300 space-y-2">
+              <li className="flex items-start gap-2">
+                <span className="text-red-400">•</span>
+                <span><strong>代码补全</strong> — 没有 inline completion provider</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-red-400">•</span>
+                <span><strong>实时诊断</strong> — 不提供 diagnostics/linting</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-red-400">•</span>
+                <span><strong>代码导航</strong> — 不实现 go-to-definition 等</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-red-400">•</span>
+                <span><strong>重构工具</strong> — 没有 rename/extract method 等</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-red-400">•</span>
+                <span><strong>调试集成</strong> — 不与 debugger 交互</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div className="mt-4 bg-amber-900/20 border border-amber-500/30 rounded-lg p-4">
+          <h4 className="text-amber-400 font-semibold mb-2">💡 设计哲学</h4>
+          <p className="text-sm text-gray-300">
+            IDE 集成的定位是<strong>增强 CLI 体验</strong>，而非替代传统 IDE 插件。核心价值是
+            <span className="text-cyan-400 mx-1">Native Diff</span>和
+            <span className="text-cyan-400 mx-1">Context Sync</span>，让用户在熟悉的 IDE 环境中审查 AI 修改。
+            代码补全、诊断等功能由专业语言服务器提供，不在 CLI 集成范围内。
+          </p>
+        </div>
+      </section>
+
       {/* 支持的 IDE */}
       <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">支持的 IDE</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">IDE 支持矩阵</h3>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4 text-center">
             <span className="text-3xl">📘</span>
             <p className="text-blue-400 font-semibold mt-2">VS Code</p>
             <p className="text-gray-400 text-xs">完全支持</p>
+            <div className="mt-2 px-2 py-1 bg-green-600/30 text-green-400 text-xs rounded">Official</div>
           </div>
           <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4 text-center">
             <span className="text-3xl">📗</span>
             <p className="text-green-400 font-semibold mt-2">VSCodium</p>
             <p className="text-gray-400 text-xs">通过 Open VSX</p>
+            <div className="mt-2 px-2 py-1 bg-green-600/30 text-green-400 text-xs rounded">Compatible</div>
           </div>
           <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-4 text-center">
             <span className="text-3xl">📕</span>
             <p className="text-purple-400 font-semibold mt-2">Cursor</p>
             <p className="text-gray-400 text-xs">兼容 VSCode 扩展</p>
+            <div className="mt-2 px-2 py-1 bg-green-600/30 text-green-400 text-xs rounded">Compatible</div>
+          </div>
+          <div className="bg-amber-900/20 border border-amber-500/30 rounded-lg p-4 text-center">
+            <span className="text-3xl">⚡</span>
+            <p className="text-amber-400 font-semibold mt-2">Zed</p>
+            <p className="text-gray-400 text-xs">Terminal + Context</p>
+            <div className="mt-2 px-2 py-1 bg-amber-600/30 text-amber-400 text-xs rounded">Partial</div>
           </div>
           <div className="bg-gray-800/50 border border-gray-600 rounded-lg p-4 text-center">
             <span className="text-3xl">📓</span>
-            <p className="text-gray-400 font-semibold mt-2">其他</p>
-            <p className="text-gray-500 text-xs">VSCode 兼容编辑器</p>
+            <p className="text-gray-400 font-semibold mt-2">JetBrains</p>
+            <p className="text-gray-500 text-xs">需自定义集成</p>
+            <div className="mt-2 px-2 py-1 bg-gray-600/30 text-gray-400 text-xs rounded">Manual</div>
           </div>
         </div>
       </section>
+
+      {/* Zed 集成详情 */}
+      <Layer title="Zed 集成" icon="⚡">
+        <HighlightBox title="Zed 支持状态" icon="⚡" variant="yellow">
+          <p className="text-sm mb-2">
+            <strong className="text-amber-400">Zed</strong> 是一款高性能的现代编辑器。
+            Qwen CLI 可在 Zed 的集成终端中运行，但原生 Diff 功能需要额外配置。
+          </p>
+        </HighlightBox>
+
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
+            <h4 className="text-green-400 font-semibold mb-2">✓ Zed 中可用</h4>
+            <ul className="text-sm text-gray-300 space-y-1">
+              <li>• 在集成终端中运行 CLI</li>
+              <li>• 使用 CLI 内置 Diff 视图</li>
+              <li>• 读取/写入文件</li>
+              <li>• 执行 shell 命令</li>
+              <li>• 使用 MCP 服务器 (通过 Zed MCP 支持)</li>
+            </ul>
+          </div>
+          <div className="bg-amber-900/20 border border-amber-500/30 rounded-lg p-4">
+            <h4 className="text-amber-400 font-semibold mb-2">⚠️ Zed 限制</h4>
+            <ul className="text-sm text-gray-300 space-y-1">
+              <li>• 无 Companion 扩展 — Zed 扩展 API 不同</li>
+              <li>• 无原生 Diff — 需使用 CLI 内置 Diff</li>
+              <li>• 无上下文同步 — 无法获取打开文件列表</li>
+              <li>• 无信任状态继承</li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="mt-4 bg-gray-800/50 rounded-lg p-4">
+          <h4 className="text-cyan-400 font-semibold mb-3">Zed 使用方式</h4>
+          <CodeBlock
+            title="在 Zed 中使用 Qwen CLI"
+            language="bash"
+            code={`# 1. 在 Zed 中打开项目
+zed ~/my-project
+
+# 2. 打开集成终端 (Cmd+J 或 Ctrl+J)
+# 3. 运行 CLI
+innies
+
+# 4. CLI 使用内置 Diff 视图 (自动检测到非 VSCode 环境)
+# AI 修改会在终端内显示 Diff，而不是打开 IDE Diff 视图
+
+# 5. (可选) 配置 Zed 的 MCP 支持
+# 在 ~/.config/zed/settings.json 中配置 MCP 服务器
+{
+  "language_models": {
+    "mcp_servers": {
+      "innies-context": {
+        "command": "innies",
+        "args": ["mcp-server"]
+      }
+    }
+  }
+}`}
+          />
+        </div>
+
+        <HighlightBox title="未来展望" icon="🔮" variant="purple" className="mt-4">
+          <p className="text-sm text-gray-300">
+            Zed 的扩展系统正在快速发展。当 Zed 支持类似 VS Code 的扩展 API 时，
+            可以开发 Zed 专用的 Companion 扩展，提供原生 Diff 和上下文同步功能。
+            目前建议 Zed 用户依赖 CLI 内置功能。
+          </p>
+        </HighlightBox>
+      </Layer>
+
+      {/* JetBrains 集成状态 */}
+      <Layer title="JetBrains IDE 集成" icon="🧠">
+        <HighlightBox title="JetBrains 支持状态" icon="🧠" variant="purple">
+          <p className="text-sm mb-2">
+            JetBrains IDE (IntelliJ IDEA, WebStorm, PyCharm 等) 使用不同的插件架构，
+            目前没有官方 Companion 插件。CLI 可以在 JetBrains 终端中运行。
+          </p>
+        </HighlightBox>
+
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
+            <h4 className="text-green-400 font-semibold mb-2">✓ 可用功能</h4>
+            <ul className="text-sm text-gray-300 space-y-1">
+              <li>• 在终端工具窗口运行 CLI</li>
+              <li>• 使用 CLI 内置 Diff</li>
+              <li>• 文件读写操作</li>
+              <li>• 所有 CLI 核心功能</li>
+            </ul>
+          </div>
+          <div className="bg-gray-800/50 border border-gray-600 rounded-lg p-4">
+            <h4 className="text-gray-400 font-semibold mb-2">社区贡献</h4>
+            <p className="text-sm text-gray-300">
+              欢迎开发 JetBrains 插件！需要实现：
+            </p>
+            <ul className="text-xs text-gray-400 mt-2 space-y-1">
+              <li>• HTTP Server + MCP 协议</li>
+              <li>• Diff 工具接口</li>
+              <li>• 工作区上下文 API</li>
+            </ul>
+          </div>
+        </div>
+      </Layer>
 
       {/* IDEServer 架构 */}
       <Layer title="IDEServer 架构" icon="🏗️">

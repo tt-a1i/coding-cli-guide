@@ -556,6 +556,171 @@ logs/
         </div>
       </section>
 
+      {/* 决策树：文件是否包含 */}
+      <section>
+        <h3 className="text-xl font-semibold text-[var(--terminal-green)] mb-4">
+          核心决策树：这个文件应该被包含吗？
+        </h3>
+        <p className="text-[var(--text-secondary)] mb-4 text-sm">
+          当 CLI 执行 Glob/Grep/Read 等操作时，每个文件都会经过以下决策流程：
+        </p>
+        <MermaidDiagram
+          chart={`flowchart TD
+    start["📁 发现文件"]
+
+    q1{"在内置排除列表？<br/>.git/, node_modules/"}
+    q2{"匹配工具排除参数？<br/>--exclude, ignore 选项"}
+    q3{"被 .gitignore 忽略？<br/>任意层级的 .gitignore"}
+    q4{"被 .qwenignore 忽略？<br/>仅项目根目录"}
+    q5{"是二进制/媒体文件？<br/>*.exe, *.png..."}
+    q6{"文件可读？<br/>权限检查"}
+
+    include["✅ 包含"]
+    exclude1["❌ 排除<br/><small>原因: 内置规则</small>"]
+    exclude2["❌ 排除<br/><small>原因: 工具参数</small>"]
+    exclude3["❌ 排除<br/><small>原因: .gitignore</small>"]
+    exclude4["❌ 排除<br/><small>原因: .qwenignore</small>"]
+    exclude5["❌ 排除<br/><small>原因: 不可处理</small>"]
+    exclude6["❌ 排除<br/><small>原因: 无权限</small>"]
+
+    start --> q1
+    q1 -->|Yes| exclude1
+    q1 -->|No| q2
+    q2 -->|Yes| exclude2
+    q2 -->|No| q3
+    q3 -->|Yes| exclude3
+    q3 -->|No| q4
+    q4 -->|Yes| exclude4
+    q4 -->|No| q5
+    q5 -->|Yes| exclude5
+    q5 -->|No| q6
+    q6 -->|No| exclude6
+    q6 -->|Yes| include
+
+    style start fill:#22d3ee,color:#000
+    style include fill:#22c55e,color:#000
+    style exclude1 fill:#ef4444,color:#fff
+    style exclude2 fill:#ef4444,color:#fff
+    style exclude3 fill:#f59e0b,color:#000
+    style exclude4 fill:#a855f7,color:#fff
+    style exclude5 fill:#6b7280,color:#fff
+    style exclude6 fill:#6b7280,color:#fff
+    style q3 fill:#f59e0b33,stroke:#f59e0b
+    style q4 fill:#a855f733,stroke:#a855f7`}
+          title="文件包含/排除决策树"
+        />
+
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-3">
+            <h4 className="text-red-400 font-semibold text-sm mb-2">🔴 硬性排除</h4>
+            <p className="text-xs text-[var(--text-muted)]">
+              内置规则 + 工具参数。无法覆盖，始终生效。
+            </p>
+          </div>
+          <div className="bg-amber-900/20 border border-amber-500/30 rounded-lg p-3">
+            <h4 className="text-amber-400 font-semibold text-sm mb-2">🟡 Git 排除</h4>
+            <p className="text-xs text-[var(--text-muted)]">
+              支持多级嵌套。可通过 respectGitIgnore=false 禁用。
+            </p>
+          </div>
+          <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-3">
+            <h4 className="text-purple-400 font-semibold text-sm mb-2">🟣 CLI 排除</h4>
+            <p className="text-xs text-[var(--text-muted)]">
+              .qwenignore 专属。适合敏感文件，优先级最高。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 设计哲学 */}
+      <section className="bg-[var(--bg-panel)]/50 rounded-xl border border-[var(--border-subtle)] p-6">
+        <h3 className="text-xl font-semibold text-[var(--terminal-green)] mb-4">
+          设计哲学：为什么这样设计
+        </h3>
+
+        <div className="space-y-4">
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
+            <h4 className="text-[var(--terminal-green)] font-bold mb-2">🎯 为什么需要两层 Ignore？</h4>
+            <p className="text-[var(--text-secondary)] text-sm mb-2">
+              <strong>核心矛盾</strong>：.gitignore 设计目的是排除版本控制，但 AI 需要排除的文件集合不同。
+            </p>
+            <ul className="text-xs text-[var(--text-muted)] space-y-1 ml-4">
+              <li>• <code>.env</code> 通常在 .gitignore 中，但 AI 确实不应该读取</li>
+              <li>• <code>dist/</code> 在 .gitignore 中，但 AI 有时需要分析构建产物</li>
+              <li>• <code>package-lock.json</code> 在 Git 中，但 AI 分析它浪费 token</li>
+            </ul>
+            <p className="text-xs text-[var(--amber)] mt-2">
+              → .qwenignore 给用户一个专门控制 AI 可见性的旋钮
+            </p>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
+            <h4 className="text-[var(--cyber-blue)] font-bold mb-2">🎯 为什么 BFS 而不是 DFS？</h4>
+            <p className="text-[var(--text-secondary)] text-sm mb-2">
+              <strong>核心问题</strong>：用户通常关心的文件在项目浅层，深层目录往往是依赖/缓存。
+            </p>
+            <ul className="text-xs text-[var(--text-muted)] space-y-1 ml-4">
+              <li>• BFS 先遍历浅层 → 更快找到用户关心的文件</li>
+              <li>• DFS 可能先钻进 node_modules 的深渊 → 浪费时间</li>
+              <li>• BFS + maxDirs 限制 → 可预测的最大遍历范围</li>
+            </ul>
+            <p className="text-xs text-[var(--amber)] mt-2">
+              → 广度优先 + 批量并行 = 最快响应用户
+            </p>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
+            <h4 className="text-[var(--purple)] font-bold mb-2">🎯 为什么目录级别提前过滤？</h4>
+            <p className="text-[var(--text-secondary)] text-sm mb-2">
+              <strong>性能关键</strong>：node_modules 可能包含 50,000+ 文件，逐个检查太慢。
+            </p>
+            <ul className="text-xs text-[var(--text-muted)] space-y-1 ml-4">
+              <li>• 在目录级别就跳过 → 完全不进入 node_modules</li>
+              <li>• 文件级别过滤 → 已经遍历完目录才过滤，浪费 I/O</li>
+              <li>• 代价：无法在 node_modules 内部精细控制</li>
+            </ul>
+            <p className="text-xs text-[var(--amber)] mt-2">
+              → 目录剪枝 = O(1) 跳过百万文件
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 bg-[var(--bg-void)]/50 rounded-lg p-4">
+          <h4 className="font-semibold text-[var(--text-primary)] mb-3">设计权衡总结</h4>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-[var(--text-muted)] border-b border-[var(--border-subtle)]">
+                <th className="py-2">决策</th>
+                <th className="py-2">选择</th>
+                <th className="py-2">代价</th>
+              </tr>
+            </thead>
+            <tbody className="text-[var(--text-secondary)]">
+              <tr className="border-b border-[var(--border-subtle)]">
+                <td className="py-2">Ignore 粒度</td>
+                <td className="text-[var(--terminal-green)]">两层（Git + CLI）</td>
+                <td className="text-[var(--text-muted)]">配置复杂度增加</td>
+              </tr>
+              <tr className="border-b border-[var(--border-subtle)]">
+                <td className="py-2">遍历策略</td>
+                <td className="text-[var(--terminal-green)]">BFS + 批量并行</td>
+                <td className="text-[var(--text-muted)]">内存占用略高</td>
+              </tr>
+              <tr className="border-b border-[var(--border-subtle)]">
+                <td className="py-2">过滤时机</td>
+                <td className="text-[var(--terminal-green)]">目录级别提前</td>
+                <td className="text-[var(--text-muted)]">无法精细到文件</td>
+              </tr>
+              <tr>
+                <td className="py-2">.qwenignore 位置</td>
+                <td className="text-[var(--terminal-green)]">仅项目根目录</td>
+                <td className="text-[var(--text-muted)]">不支持嵌套</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       {/* 发现流程 */}
       <section>
         <h3 className="text-xl font-semibold text-[var(--terminal-green)] mb-4">

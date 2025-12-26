@@ -709,6 +709,264 @@ function RequestTokenizerSection() {
   );
 }
 
+// Token 成本全景
+function TokenCostLandscape() {
+  return (
+    <div className="pt-6 space-y-4">
+      <p className="text-gray-300">
+        理解 Token 成本的<strong className="text-yellow-300">流向</strong>是优化的第一步。
+        一次典型的 CLI 会话中，Token 消耗分布如下：
+      </p>
+
+      <div className="my-6 p-6 bg-gray-900/50 rounded-xl border border-yellow-700/50">
+        <h4 className="text-lg font-semibold text-yellow-300 mb-4">💰 Token 成本流向图</h4>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-gradient-to-br from-red-900/40 to-red-800/20 rounded-lg p-4 border border-red-500/30">
+            <div className="text-2xl mb-2">📥</div>
+            <h5 className="font-semibold text-red-300">输入成本 (Input)</h5>
+            <ul className="text-xs text-gray-400 mt-2 space-y-1">
+              <li>• System Prompt (~3K-10K)</li>
+              <li>• 历史对话 (~1K-100K+)</li>
+              <li>• 工具结果 (~0.5K-50K)</li>
+              <li>• 用户提问 (~0.1K-5K)</li>
+            </ul>
+            <div className="mt-3 text-sm text-red-400 font-mono">典型: 5K-50K/轮</div>
+          </div>
+          <div className="bg-gradient-to-br from-blue-900/40 to-blue-800/20 rounded-lg p-4 border border-blue-500/30">
+            <div className="text-2xl mb-2">📤</div>
+            <h5 className="font-semibold text-blue-300">输出成本 (Output)</h5>
+            <ul className="text-xs text-gray-400 mt-2 space-y-1">
+              <li>• AI 回复文本 (~0.5K-2K)</li>
+              <li>• 工具调用参数 (~0.1K-1K)</li>
+              <li>• 思考过程 (~0K-5K)</li>
+            </ul>
+            <div className="mt-3 text-sm text-blue-400 font-mono">典型: 1K-5K/轮</div>
+          </div>
+          <div className="bg-gradient-to-br from-purple-900/40 to-purple-800/20 rounded-lg p-4 border border-purple-500/30">
+            <div className="text-2xl mb-2">🖼️</div>
+            <h5 className="font-semibold text-purple-300">多模态成本</h5>
+            <ul className="text-xs text-gray-400 mt-2 space-y-1">
+              <li>• 截图 1080p (~1.4K)</li>
+              <li>• 4K 大图 (~5.5K)</li>
+              <li>• 小图标 (~4-50)</li>
+            </ul>
+            <div className="mt-3 text-sm text-purple-400 font-mono">极端: 16K/张</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-amber-900/20 border border-amber-500/30 rounded-lg p-4">
+        <h4 className="text-amber-400 font-semibold mb-2">💡 成本洞察</h4>
+        <p className="text-sm text-gray-300">
+          <strong>历史对话</strong>是最大的 Token 消耗来源。一个 10 轮对话，如果不压缩，
+          可能累积到 <span className="text-red-400 font-mono">200K+</span> Token。
+          这就是为什么 Qwen CLI 实现了多层压缩策略。
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// Token 省钱策略
+function TokenSavingStrategies() {
+  return (
+    <div className="pt-6 space-y-4">
+      <p className="text-gray-300">
+        Qwen CLI 在多个层面实现 Token 节省策略，总体可节省 <strong className="text-green-400">40-80%</strong> 的 Token 成本。
+      </p>
+
+      <div className="my-6 space-y-4">
+        {/* 策略 1: 历史压缩 */}
+        <div className="bg-gray-800/50 rounded-xl p-5 border border-green-600/30">
+          <div className="flex items-start gap-4">
+            <div className="text-3xl">📚</div>
+            <div className="flex-1">
+              <h4 className="text-lg font-semibold text-green-300 mb-2">策略 1: 历史对话压缩</h4>
+              <p className="text-sm text-gray-400 mb-3">
+                当上下文超过阈值时，自动触发 AI 总结压缩旧对话。
+              </p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-900/50 rounded-lg p-3">
+                  <div className="text-xs text-gray-500">压缩前</div>
+                  <div className="text-lg font-mono text-red-400">150K tokens</div>
+                  <div className="text-xs text-gray-500">20 轮完整对话</div>
+                </div>
+                <div className="bg-gray-900/50 rounded-lg p-3">
+                  <div className="text-xs text-gray-500">压缩后</div>
+                  <div className="text-lg font-mono text-green-400">15K tokens</div>
+                  <div className="text-xs text-gray-500">摘要 + 最近 3 轮</div>
+                </div>
+              </div>
+              <div className="mt-3 text-xs text-green-400">
+                节省率: ~90% | 触发点: context &gt; 75% of limit
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 策略 2: 工具输出截断 */}
+        <div className="bg-gray-800/50 rounded-xl p-5 border border-cyan-600/30">
+          <div className="flex items-start gap-4">
+            <div className="text-3xl">✂️</div>
+            <div className="flex-1">
+              <h4 className="text-lg font-semibold text-cyan-300 mb-2">策略 2: 工具输出截断</h4>
+              <p className="text-sm text-gray-400 mb-3">
+                Bash/Grep 等工具输出超长时，截断 + 保存到文件。
+              </p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-900/50 rounded-lg p-3">
+                  <div className="text-xs text-gray-500">原始输出</div>
+                  <div className="text-lg font-mono text-red-400">50,000 行</div>
+                  <div className="text-xs text-gray-500">npm install 日志</div>
+                </div>
+                <div className="bg-gray-900/50 rounded-lg p-3">
+                  <div className="text-xs text-gray-500">截断后</div>
+                  <div className="text-lg font-mono text-green-400">前100行 + 后100行</div>
+                  <div className="text-xs text-gray-500">+ 文件路径引用</div>
+                </div>
+              </div>
+              <div className="mt-3 text-xs text-cyan-400">
+                节省率: ~95% | 阈值: 30K 字符 | 参见: ToolScheduler
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 策略 3: 文件读取智能化 */}
+        <div className="bg-gray-800/50 rounded-xl p-5 border border-yellow-600/30">
+          <div className="flex items-start gap-4">
+            <div className="text-3xl">📄</div>
+            <div className="flex-1">
+              <h4 className="text-lg font-semibold text-yellow-300 mb-2">策略 3: 文件读取智能化</h4>
+              <p className="text-sm text-gray-400 mb-3">
+                Read 工具支持行范围、自动截断、二进制检测。
+              </p>
+              <div className="bg-gray-900/50 rounded-lg p-3 text-sm">
+                <div className="flex justify-between text-xs mb-2">
+                  <span className="text-gray-500">功能</span>
+                  <span className="text-gray-500">省 Token 效果</span>
+                </div>
+                <div className="space-y-1 font-mono text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">offset + limit 分页</span>
+                    <span className="text-green-400">只读需要的部分</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">行截断 2000 字符</span>
+                    <span className="text-green-400">超长行不爆炸</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">二进制文件检测</span>
+                    <span className="text-green-400">不浪费 token 读乱码</span>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-3 text-xs text-yellow-400">
+                默认限制: 2000 行 | 行宽: 2000 字符
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 策略 4: Ignore 过滤 */}
+        <div className="bg-gray-800/50 rounded-xl p-5 border border-purple-600/30">
+          <div className="flex items-start gap-4">
+            <div className="text-3xl">🚫</div>
+            <div className="flex-1">
+              <h4 className="text-lg font-semibold text-purple-300 mb-2">策略 4: Ignore 过滤</h4>
+              <p className="text-sm text-gray-400 mb-3">
+                .gitignore + .qwenignore 防止无用文件被读取。
+              </p>
+              <div className="bg-gray-900/50 rounded-lg p-3">
+                <div className="text-xs text-gray-500 mb-2">典型排除效果</div>
+                <div className="space-y-1 font-mono text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">node_modules/</span>
+                    <span className="text-green-400">跳过 50K+ 文件</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">dist/, build/</span>
+                    <span className="text-green-400">跳过构建产物</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">package-lock.json</span>
+                    <span className="text-green-400">省 ~50K tokens</span>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-3 text-xs text-purple-400">
+                参见: FileDiscovery 页面
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 策略 5: 图片智能处理 */}
+        <div className="bg-gray-800/50 rounded-xl p-5 border border-pink-600/30">
+          <div className="flex items-start gap-4">
+            <div className="text-3xl">🖼️</div>
+            <div className="flex-1">
+              <h4 className="text-lg font-semibold text-pink-300 mb-2">策略 5: 图片智能处理</h4>
+              <p className="text-sm text-gray-400 mb-3">
+                大图自动缩放，小图有最小保障。
+              </p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-gray-900/50 rounded-lg p-3">
+                  <div className="text-xs text-gray-500">4K 截图</div>
+                  <div className="text-lg font-mono text-red-400">3840×2160</div>
+                  <div className="text-xs text-gray-500">缩放 → ~16K tokens</div>
+                </div>
+                <div className="bg-gray-900/50 rounded-lg p-3">
+                  <div className="text-xs text-gray-500">小图标</div>
+                  <div className="text-lg font-mono text-green-400">28×28</div>
+                  <div className="text-xs text-gray-500">最小 4 tokens</div>
+                </div>
+              </div>
+              <div className="mt-3 text-xs text-pink-400">
+                范围: 4-16384 tokens/张 | 公式: 像素÷784+2
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
+        <h4 className="text-green-400 font-semibold mb-2">📊 综合节省估算</h4>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-gray-500">
+              <th className="py-2">场景</th>
+              <th className="py-2">无优化</th>
+              <th className="py-2">优化后</th>
+              <th className="py-2">节省</th>
+            </tr>
+          </thead>
+          <tbody className="text-gray-300 font-mono text-xs">
+            <tr className="border-t border-gray-700">
+              <td className="py-2">10 轮对话</td>
+              <td className="text-red-400">200K</td>
+              <td className="text-green-400">40K</td>
+              <td className="text-green-400">80%</td>
+            </tr>
+            <tr className="border-t border-gray-700">
+              <td className="py-2">大文件搜索</td>
+              <td className="text-red-400">500K</td>
+              <td className="text-green-400">50K</td>
+              <td className="text-green-400">90%</td>
+            </tr>
+            <tr className="border-t border-gray-700">
+              <td className="py-2">截图分析</td>
+              <td className="text-red-400">16K/张</td>
+              <td className="text-green-400">1.4K/张</td>
+              <td className="text-green-400">91%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 // 关联页面
 function RelatedPagesSection() {
   const pages = [
@@ -778,6 +1036,24 @@ export function TokenAccountingSystem() {
         defaultOpen={false}
       >
         <RequestTokenizerSection />
+      </CollapsibleSection>
+
+      <CollapsibleSection
+        title="Token 成本全景"
+        icon="💰"
+        defaultOpen={true}
+        highlight
+      >
+        <TokenCostLandscape />
+      </CollapsibleSection>
+
+      <CollapsibleSection
+        title="省 Token 策略"
+        icon="💚"
+        defaultOpen={true}
+        highlight
+      >
+        <TokenSavingStrategies />
       </CollapsibleSection>
 
       <RelatedPagesSection />
