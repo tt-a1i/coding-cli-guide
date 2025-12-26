@@ -21,6 +21,7 @@ export const navGroups: NavGroup[] = [
     items: [
       { id: 'start-here', label: 'Start Here', highlight: true },
       { id: 'overview', label: '架构概览' },
+      { id: 'glossary', label: '术语表' },
     ],
   },
   {
@@ -33,8 +34,10 @@ export const navGroups: NavGroup[] = [
       { id: 'lifecycle', label: '请求生命周期', highlight: true },
       { id: 'interaction-loop', label: '交互主循环', highlight: true },
       { id: 'gemini-chat', label: '核心循环' },
+      { id: 'services-arch', label: '服务层架构', highlight: true },
       { id: 'system-prompt', label: 'Prompt构建' },
       { id: 'content-gen', label: 'API调用层' },
+      { id: 'multi-provider', label: '多厂商架构', highlight: true },
       { id: 'vlm-switch', label: 'VLM切换' },
       { id: 'memory', label: '上下文管理' },
     ],
@@ -121,6 +124,7 @@ export const navGroups: NavGroup[] = [
     defaultOpen: false,
     items: [
       { id: 'animation', label: '完整流程动画', highlight: true },
+      { id: 'slash-cmd-exec-anim', label: '斜杠命令执行', highlight: true },
       { id: 'tool-scheduler-anim', label: '工具调度状态机', highlight: true },
       { id: 'streaming-parser-anim', label: '流式解析器', highlight: true },
       { id: 'mcp-discovery-anim', label: 'MCP服务发现', highlight: true },
@@ -179,6 +183,7 @@ export const navGroups: NavGroup[] = [
       { id: 'pty-lifecycle-anim', label: 'PTY 生命周期', highlight: true },
       { id: 'streaming-json-parser-anim', label: '流式 JSON 解析', highlight: true },
       { id: 'vim-composite-actions-anim', label: 'Vim 复合操作', highlight: true },
+      { id: 'prompt-pipeline-anim', label: 'Prompt 处理管道', highlight: true },
     ],
   },
   {

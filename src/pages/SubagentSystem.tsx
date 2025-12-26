@@ -1,10 +1,110 @@
+import { useState } from 'react';
 import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { JsonBlock } from '../components/JsonBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 
+function Introduction({
+  isExpanded,
+  onToggle,
+}: {
+  isExpanded: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div className="mb-8 bg-gradient-to-r from-[var(--terminal-green)]/10 to-[var(--cyber-blue)]/10 rounded-xl border border-[var(--border-subtle)] overflow-hidden">
+      <button
+        onClick={onToggle}
+        className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">🤖</span>
+          <span className="text-xl font-bold text-[var(--text-primary)]">
+            子代理系统导读
+          </span>
+        </div>
+        <span
+          className={`transform transition-transform text-[var(--text-muted)] ${isExpanded ? 'rotate-180' : ''}`}
+        >
+          ▼
+        </span>
+      </button>
+
+      {isExpanded && (
+        <div className="px-6 pb-6 space-y-4">
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
+            <h4 className="text-[var(--terminal-green)] font-bold mb-2">
+              🎯 什么是子代理？
+            </h4>
+            <p className="text-[var(--text-secondary)] text-sm">
+              子代理是<strong>专门执行特定任务的独立 AI 代理</strong>。
+              每个子代理有自己的系统提示、工具配置和运行参数。
+              通过子代理，可以将<strong>复杂任务分解</strong>并委托给专门的代理处理。
+            </p>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
+            <h4 className="text-[var(--amber)] font-bold mb-2">
+              🔧 三级子代理
+            </h4>
+            <div className="grid grid-cols-3 gap-2 mt-2">
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center">
+                <div className="text-xs text-[var(--terminal-green)]">项目级</div>
+                <div className="text-[10px] text-[var(--text-muted)]">.innies/agents/</div>
+              </div>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center">
+                <div className="text-xs text-[var(--cyber-blue)]">用户级</div>
+                <div className="text-[10px] text-[var(--text-muted)]">~/.innies/agents/</div>
+              </div>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center">
+                <div className="text-xs text-[var(--amber)]">内置</div>
+                <div className="text-[10px] text-[var(--text-muted)]">BuiltinAgentRegistry</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
+            <h4 className="text-[var(--cyber-blue)] font-bold mb-2">
+              🏗️ 核心特性
+            </h4>
+            <ul className="text-[var(--text-secondary)] text-sm space-y-1">
+              <li>• <strong>非交互模式</strong> - 不询问用户，直接完成任务</li>
+              <li>• <strong>工具过滤</strong> - 移除 Task 工具防止递归</li>
+              <li>• <strong>模板变量</strong> - $&#123;key&#125; 占位符替换</li>
+              <li>• <strong>终止条件</strong> - MAX_TURNS、TIMEOUT、GOAL</li>
+            </ul>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
+            <h4 className="text-[var(--purple)] font-bold mb-2">📊 关键数字</h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="text-center">
+                <div className="text-xl font-bold text-[var(--terminal-green)]">3</div>
+                <div className="text-xs text-[var(--text-muted)]">配置层级</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-bold text-[var(--cyber-blue)]">100</div>
+                <div className="text-xs text-[var(--text-muted)]">默认最大轮次</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-bold text-[var(--amber)]">.md</div>
+                <div className="text-xs text-[var(--text-muted)]">配置格式</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-bold text-[var(--purple)]">YAML</div>
+                <div className="text-xs text-[var(--text-muted)]">Frontmatter</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function SubagentSystem() {
+  const [isIntroExpanded, setIsIntroExpanded] = useState(true);
   // 模板变量替换流程 - Mermaid flowchart
   const templateFlowChart = `flowchart TD
     start([System Prompt<br/>模板])
@@ -60,6 +160,11 @@ export function SubagentSystem() {
 
   return (
     <div>
+      <Introduction
+        isExpanded={isIntroExpanded}
+        onToggle={() => setIsIntroExpanded(!isIntroExpanded)}
+      />
+
       <h2 className="text-2xl text-cyan-400 mb-5">子代理系统 (Subagent System)</h2>
 
       {/* 概述 */}

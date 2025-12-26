@@ -1,15 +1,71 @@
+import { useState } from 'react';
 import { HighlightBox } from '../components/HighlightBox';
 
 interface StartHereProps {
   onNavigate?: (tab: string) => void;
 }
 
-export function StartHere(_props: StartHereProps) {
+export function StartHere({ onNavigate }: StartHereProps) {
+  const [selectedPath, setSelectedPath] = useState<'architect' | 'developer' | 'explorer' | null>(null);
+
+  const learningPaths = {
+    architect: {
+      title: '系统架构师',
+      icon: '🏗️',
+      color: 'terminal-green',
+      description: '理解整体架构设计、设计模式和系统边界',
+      steps: [
+        { id: 'overview', label: '架构概览', desc: '整体架构鸟瞰' },
+        { id: 'lifecycle', label: '请求生命周期', desc: '端到端流程' },
+        { id: 'interaction-loop', label: '交互主循环', desc: '核心事件循环' },
+        { id: 'tool-arch', label: '工具架构', desc: '工具系统设计' },
+        { id: 'approval-mode', label: '审批模式', desc: '安全架构' },
+        { id: 'mcp', label: 'MCP集成', desc: '扩展协议' },
+      ],
+    },
+    developer: {
+      title: '功能开发者',
+      icon: '💻',
+      color: 'cyber-blue',
+      description: '快速上手开发新功能、扩展和工具',
+      steps: [
+        { id: 'startup-chain', label: '启动链路', desc: '入口点分析' },
+        { id: 'tool-ref', label: '工具参考', desc: '内置工具列表' },
+        { id: 'custom-cmd', label: '自定义命令', desc: '扩展命令系统' },
+        { id: 'extension', label: '扩展系统', desc: '插件开发' },
+        { id: 'subagent', label: '子代理系统', desc: '任务委托' },
+        { id: 'config', label: '配置系统', desc: '配置管理' },
+      ],
+    },
+    explorer: {
+      title: '源码探索者',
+      icon: '🔬',
+      color: 'amber',
+      description: '深入内部机制、算法实现和细节',
+      steps: [
+        { id: 'gemini-chat', label: '核心循环', desc: 'GeminiChat 详解' },
+        { id: 'tool-scheduler', label: '工具调度详解', desc: '调度算法' },
+        { id: 'loop-detect', label: '循环检测', desc: '防护机制' },
+        { id: 'sandbox', label: '沙箱系统', desc: '隔离实现' },
+        { id: 'animation', label: '动画演示', desc: '可视化流程' },
+        { id: 'code', label: '核心代码', desc: '关键实现' },
+      ],
+    },
+  };
+
+  const coreTerms = [
+    { term: 'Turn', definition: '一次完整的 用户输入→AI响应→工具执行 循环', category: 'core' },
+    { term: 'Continuation', definition: 'AI 完成工具调用后自动继续的机制', category: 'core' },
+    { term: 'StreamingState', definition: '流式响应的三态：Idle/Responding/WaitingForConfirmation', category: 'state' },
+    { term: 'ToolKind', definition: '工具类型分类：Read/Write/Execute/Subagent 等', category: 'tool' },
+    { term: 'ApprovalMode', definition: '审批级别：Plan/Default/AutoEdit/YOLO', category: 'security' },
+    { term: 'MCP', definition: 'Model Context Protocol - 工具动态注册协议', category: 'extension' },
+  ];
+
   return (
-    <div className="space-y-10 max-w-4xl mx-auto animate-fadeIn">
+    <div className="space-y-10 max-w-5xl mx-auto animate-fadeIn">
       {/* Hero Section */}
       <section className="text-center py-10 relative">
-        {/* Decorative background glow */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="w-96 h-96 bg-[var(--terminal-green)]/5 rounded-full blur-3xl" />
         </div>
@@ -17,11 +73,11 @@ export function StartHere(_props: StartHereProps) {
         <div className="relative">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--bg-panel)] border border-[var(--border-subtle)] rounded-full text-sm font-mono text-[var(--text-muted)] mb-6">
             <span className="w-2 h-2 rounded-full bg-[var(--terminal-green)] animate-pulse shadow-[0_0_6px_var(--terminal-green-glow)]" />
-            <span>$ ./qwen-cli --deep-dive</span>
+            <span>$ innies --deep-dive</span>
           </div>
 
           <h1 className="text-4xl md:text-5xl font-bold font-mono mb-4 tracking-tight">
-            <span className="text-[var(--terminal-green)]">Qwen CLI</span>
+            <span className="text-[var(--terminal-green)]">Innies CLI</span>
             <span className="text-[var(--text-primary)]"> 架构深度解析</span>
           </h1>
 
@@ -31,16 +87,114 @@ export function StartHere(_props: StartHereProps) {
 
           <div className="flex flex-wrap justify-center gap-3 text-sm">
             <span className="px-4 py-2 bg-[var(--terminal-green)]/10 text-[var(--terminal-green)] rounded-md font-mono border border-[var(--terminal-green)]/20">
-              <span className="opacity-60 mr-1">$</span> 42+ docs
+              <span className="opacity-60 mr-1">$</span> 95+ 页面
             </span>
             <span className="px-4 py-2 bg-[var(--amber)]/10 text-[var(--amber)] rounded-md font-mono border border-[var(--amber)]/20">
-              <span className="opacity-60 mr-1">#</span> line-refs
+              <span className="opacity-60 mr-1">#</span> 51 动画
             </span>
             <span className="px-4 py-2 bg-[var(--cyber-blue)]/10 text-[var(--cyber-blue)] rounded-md font-mono border border-[var(--cyber-blue)]/20">
-              <span className="opacity-60 mr-1">~</span> mermaid
+              <span className="opacity-60 mr-1">~</span> 行级引用
             </span>
           </div>
         </div>
+      </section>
+
+      {/* Learning Path Selection */}
+      <section className="terminal-panel">
+        <h2 className="text-xl font-bold font-mono text-[var(--text-primary)] mb-2 flex items-center gap-3">
+          <span className="text-[var(--cyber-blue)]">→</span>
+          <span>选择你的学习路径</span>
+        </h2>
+        <p className="text-sm text-[var(--text-muted)] mb-6 font-mono">
+          // 根据你的目标选择推荐的阅读顺序
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          {Object.entries(learningPaths).map(([key, path]) => (
+            <button
+              key={key}
+              onClick={() => setSelectedPath(key as 'architect' | 'developer' | 'explorer')}
+              className={`text-left bg-[var(--bg-void)] rounded-lg p-5 border transition-all group ${
+                selectedPath === key
+                  ? `border-[var(--${path.color})] bg-[var(--${path.color})]/5`
+                  : 'border-[var(--border-subtle)] hover:border-[var(--border)]'
+              }`}
+            >
+              <div className="text-2xl mb-3">{path.icon}</div>
+              <h3 className={`font-semibold font-mono mb-2 ${
+                selectedPath === key ? `text-[var(--${path.color})]` : 'text-[var(--text-primary)]'
+              }`}>
+                {path.title}
+              </h3>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                {path.description}
+              </p>
+            </button>
+          ))}
+        </div>
+
+        {/* Selected Path Details */}
+        {selectedPath && (
+          <div className="bg-[var(--bg-void)] rounded-lg p-6 border border-[var(--border-subtle)] animate-fadeIn">
+            <h4 className="font-semibold font-mono text-[var(--text-primary)] mb-4 flex items-center gap-2">
+              <span>{learningPaths[selectedPath].icon}</span>
+              <span>{learningPaths[selectedPath].title} 推荐路线</span>
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {learningPaths[selectedPath].steps.map((step, index) => (
+                <button
+                  key={step.id}
+                  onClick={() => onNavigate?.(step.id)}
+                  className="flex items-center gap-2 px-3 py-2 bg-[var(--bg-panel)] rounded-lg border border-[var(--border-subtle)] hover:border-[var(--terminal-green)] transition-colors group"
+                >
+                  <span className="text-xs text-[var(--text-muted)] font-mono">{index + 1}.</span>
+                  <span className="text-sm font-mono text-[var(--text-primary)] group-hover:text-[var(--terminal-green)]">
+                    {step.label}
+                  </span>
+                  <span className="text-xs text-[var(--text-muted)]">→</span>
+                </button>
+              ))}
+            </div>
+            <p className="text-xs text-[var(--text-muted)] mt-4 font-mono">
+              💡 点击任意步骤跳转到对应页面
+            </p>
+          </div>
+        )}
+      </section>
+
+      {/* Core Concepts Quick Reference */}
+      <section className="terminal-panel">
+        <h2 className="text-xl font-bold font-mono text-[var(--text-primary)] mb-2 flex items-center gap-3">
+          <span className="text-[var(--amber)]">📖</span>
+          <span>核心概念速览</span>
+        </h2>
+        <p className="text-sm text-[var(--text-muted)] mb-6 font-mono">
+          // 开始阅读前，了解这些关键术语
+        </p>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {coreTerms.map((item) => (
+            <div
+              key={item.term}
+              className="flex items-start gap-3 bg-[var(--bg-void)] rounded-lg p-4 border border-[var(--border-subtle)]"
+            >
+              <code className="shrink-0 px-2 py-1 bg-[var(--terminal-green)]/10 text-[var(--terminal-green)] rounded text-sm font-mono">
+                {item.term}
+              </code>
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                {item.definition}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <button
+          onClick={() => onNavigate?.('glossary')}
+          className="mt-4 text-sm text-[var(--cyber-blue)] hover:underline font-mono flex items-center gap-1"
+        >
+          <span>查看完整术语表</span>
+          <span>→</span>
+        </button>
       </section>
 
       {/* Why This Project */}
@@ -104,13 +258,120 @@ export function StartHere(_props: StartHereProps) {
             </p>
           </HighlightBox>
 
-          <HighlightBox title="⚠️ 已知设计权衡" variant="yellow">
+          <HighlightBox title="⚡ Continuation 机制" variant="yellow">
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              Core 层工具名 <code className="text-[var(--amber)] bg-[var(--amber)]/10 px-1 rounded">edit</code> 与
-              CLI 层 <code className="text-[var(--amber)] bg-[var(--amber)]/10 px-1 rounded">replace</code> 存在命名不一致，
-              影响 AUTO_EDIT 和 Checkpointing 的触发判断。
+              当 AI 返回 <code className="text-[var(--amber)] bg-[var(--amber)]/10 px-1 rounded">finish_reason !== 'STOP'</code> 时，
+              系统自动将工具执行结果反馈给 AI 继续对话，实现多轮自主工作。
             </p>
           </HighlightBox>
+        </div>
+      </section>
+
+      {/* Architecture Overview */}
+      <section className="terminal-panel">
+        <h2 className="text-xl font-bold font-mono text-[var(--text-primary)] mb-6 flex items-center gap-3">
+          <span className="text-[var(--purple)]">◈</span>
+          <span>架构全景图</span>
+        </h2>
+        <div className="bg-[var(--bg-void)] rounded-lg p-6 border border-[var(--border-subtle)]">
+          <div className="grid grid-cols-5 gap-3 text-center text-xs font-mono">
+            {/* Layer 1: User Interface */}
+            <div className="col-span-5 bg-[var(--terminal-green)]/10 rounded-lg p-3 border border-[var(--terminal-green)]/30">
+              <div className="text-[var(--terminal-green)] font-semibold mb-2">UI Layer</div>
+              <div className="flex justify-center gap-4 text-[var(--text-muted)]">
+                <span>Terminal</span>
+                <span>•</span>
+                <span>React/Ink</span>
+                <span>•</span>
+                <span>Prompt</span>
+              </div>
+            </div>
+
+            {/* Layer 2: Core Loop */}
+            <div className="col-span-5 bg-[var(--cyber-blue)]/10 rounded-lg p-3 border border-[var(--cyber-blue)]/30">
+              <div className="text-[var(--cyber-blue)] font-semibold mb-2">Core Loop</div>
+              <div className="flex justify-center gap-4 text-[var(--text-muted)]">
+                <span>useGeminiStream</span>
+                <span>→</span>
+                <span>GeminiChat</span>
+                <span>→</span>
+                <span>ContentGenerator</span>
+              </div>
+            </div>
+
+            {/* Layer 3: Tool & Extension */}
+            <div className="col-span-3 bg-[var(--amber)]/10 rounded-lg p-3 border border-[var(--amber)]/30">
+              <div className="text-[var(--amber)] font-semibold mb-2">Tool System</div>
+              <div className="text-[var(--text-muted)]">
+                Scheduler • Executor • 20+ Tools
+              </div>
+            </div>
+            <div className="col-span-2 bg-[var(--purple)]/10 rounded-lg p-3 border border-[var(--purple)]/30">
+              <div className="text-[var(--purple)] font-semibold mb-2">Extensions</div>
+              <div className="text-[var(--text-muted)]">
+                MCP • Subagent
+              </div>
+            </div>
+
+            {/* Layer 4: Security */}
+            <div className="col-span-5 bg-red-500/10 rounded-lg p-3 border border-red-500/30">
+              <div className="text-red-400 font-semibold mb-2">Security Layer</div>
+              <div className="flex justify-center gap-4 text-[var(--text-muted)]">
+                <span>Approval</span>
+                <span>•</span>
+                <span>Sandbox</span>
+                <span>•</span>
+                <span>Trusted Folders</span>
+                <span>•</span>
+                <span>Checkpointing</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button
+          onClick={() => onNavigate?.('overview')}
+          className="mt-4 text-sm text-[var(--cyber-blue)] hover:underline font-mono flex items-center gap-1"
+        >
+          <span>查看详细架构图</span>
+          <span>→</span>
+        </button>
+      </section>
+
+      {/* Reading Tips */}
+      <section className="terminal-panel">
+        <h2 className="text-xl font-bold font-mono text-[var(--text-primary)] mb-6 flex items-center gap-3">
+          <span className="text-[var(--terminal-green)]">💡</span>
+          <span>阅读建议</span>
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <div className="flex items-start gap-3">
+            <span className="shrink-0 w-6 h-6 rounded-full bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] flex items-center justify-center text-xs">1</span>
+            <div>
+              <strong className="text-[var(--text-primary)]">从宏观到微观</strong>
+              <p className="text-[var(--text-secondary)] mt-1">先看架构概览理解全貌，再深入具体模块</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <span className="shrink-0 w-6 h-6 rounded-full bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] flex items-center justify-center text-xs">2</span>
+            <div>
+              <strong className="text-[var(--text-primary)]">结合动画理解</strong>
+              <p className="text-[var(--text-secondary)] mt-1">51 个交互动画帮助可视化理解复杂流程</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <span className="shrink-0 w-6 h-6 rounded-full bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] flex items-center justify-center text-xs">3</span>
+            <div>
+              <strong className="text-[var(--text-primary)]">跟随源码引用</strong>
+              <p className="text-[var(--text-secondary)] mt-1">每个关键点都有源文件路径和行号，方便对照</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-3">
+            <span className="shrink-0 w-6 h-6 rounded-full bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] flex items-center justify-center text-xs">4</span>
+            <div>
+              <strong className="text-[var(--text-primary)]">使用搜索功能</strong>
+              <p className="text-[var(--text-secondary)] mt-1">按 <kbd className="px-1.5 py-0.5 bg-[var(--bg-void)] rounded text-xs border border-[var(--border-subtle)]">⌘K</kbd> 快速跳转到任意页面</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -122,17 +383,17 @@ export function StartHere(_props: StartHereProps) {
         </div>
         <h2 className="text-lg font-bold font-mono text-[var(--text-primary)] mb-3">关于本文档</h2>
         <p className="text-sm text-[var(--text-secondary)] mb-6 font-mono">
-          基于 <a href="https://github.com/zhimanai/qwen-cli" className="text-[var(--terminal-green)] hover:underline hover:text-[var(--terminal-green)] transition-colors">qwen-cli</a> 源码分析，
+          基于 <a href="https://github.com/zhimanai/innies-cli" className="text-[var(--terminal-green)] hover:underline hover:text-[var(--terminal-green)] transition-colors">innies-cli</a> 源码分析，
           所有结论均附带源文件路径和行号引用。
         </p>
         <div className="flex justify-center gap-8 text-xs font-mono text-[var(--text-muted)]">
           <span className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--terminal-green)]" />
-            42+ 页面
+            95+ 页面
           </span>
           <span className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--amber)]" />
-            30+ 流程图
+            51 动画
           </span>
           <span className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--cyber-blue)]" />

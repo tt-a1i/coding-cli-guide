@@ -1,8 +1,110 @@
+import { useState } from 'react';
 import { HighlightBox } from '../components/HighlightBox';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 
+function Introduction({
+  isExpanded,
+  onToggle,
+}: {
+  isExpanded: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div className="mb-8 bg-gradient-to-r from-[var(--terminal-green)]/10 to-[var(--cyber-blue)]/10 rounded-xl border border-[var(--border-subtle)] overflow-hidden">
+      <button
+        onClick={onToggle}
+        className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">🛡️</span>
+          <span className="text-xl font-bold text-[var(--text-primary)]">
+            错误处理导读
+          </span>
+        </div>
+        <span
+          className={`transform transition-transform text-[var(--text-muted)] ${isExpanded ? 'rotate-180' : ''}`}
+        >
+          ▼
+        </span>
+      </button>
+
+      {isExpanded && (
+        <div className="px-6 pb-6 space-y-4">
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
+            <h4 className="text-[var(--terminal-green)] font-bold mb-2">
+              🎯 错误处理目标
+            </h4>
+            <p className="text-[var(--text-secondary)] text-sm">
+              CLI 的错误处理系统旨在：<strong>分类错误</strong>（可恢复 vs 不可恢复）、
+              <strong>尝试恢复</strong>（重试、回退）、<strong>优雅降级</strong>（用户通知、日志记录）。
+            </p>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
+            <h4 className="text-[var(--amber)] font-bold mb-2">
+              🔧 错误类型层次
+            </h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center">
+                <div className="text-xs text-[var(--terminal-green)]">CLIError</div>
+                <div className="text-[10px] text-[var(--text-muted)]">基础类</div>
+              </div>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center">
+                <div className="text-xs text-[var(--cyber-blue)]">APIError</div>
+                <div className="text-[10px] text-[var(--text-muted)]">网络错误</div>
+              </div>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center">
+                <div className="text-xs text-[var(--amber)]">ToolError</div>
+                <div className="text-[10px] text-[var(--text-muted)]">工具失败</div>
+              </div>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center">
+                <div className="text-xs text-[var(--purple)]">AuthError</div>
+                <div className="text-[10px] text-[var(--text-muted)]">认证失败</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
+            <h4 className="text-[var(--cyber-blue)] font-bold mb-2">
+              🔄 可恢复错误
+            </h4>
+            <ul className="text-[var(--text-secondary)] text-sm space-y-1">
+              <li>• <strong>429 Rate Limit</strong> - 等待后重试</li>
+              <li>• <strong>500/502/503/504</strong> - 服务端临时错误，可重试</li>
+              <li>• <strong>工具执行失败</strong> - 通常可重试或回退</li>
+            </ul>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
+            <h4 className="text-[var(--purple)] font-bold mb-2">📊 关键数字</h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="text-center">
+                <div className="text-xl font-bold text-[var(--terminal-green)]">6+</div>
+                <div className="text-xs text-[var(--text-muted)]">错误类型</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-bold text-[var(--cyber-blue)]">3</div>
+                <div className="text-xs text-[var(--text-muted)]">最大重试</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-bold text-[var(--amber)]">指数</div>
+                <div className="text-xs text-[var(--text-muted)]">退避策略</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-bold text-[var(--purple)]">✓</div>
+                <div className="text-xs text-[var(--text-muted)]">遥测集成</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ErrorHandling() {
+  const [isIntroExpanded, setIsIntroExpanded] = useState(true);
   const errorFlowChart = `flowchart TD
     start["错误发生"]
     capture["错误捕获<br/>Error Boundary"]
@@ -554,6 +656,11 @@ function attemptJSONFix(
 
   return (
     <div className="space-y-8">
+      <Introduction
+        isExpanded={isIntroExpanded}
+        onToggle={() => setIsIntroExpanded(!isIntroExpanded)}
+      />
+
       {/* 概述 */}
       <section>
         <h2 className="text-2xl font-bold text-cyan-400 mb-4">错误处理系统</h2>

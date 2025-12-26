@@ -1,11 +1,100 @@
+import { useState } from 'react';
 import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { JsonBlock } from '../components/JsonBlock';
 
+function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
+  return (
+    <div className="mb-8 bg-gradient-to-r from-[var(--purple)]/10 to-[var(--cyber-blue)]/10 rounded-xl border border-[var(--border-subtle)] overflow-hidden">
+      <button
+        onClick={onToggle}
+        className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">🔌</span>
+          <span className="text-xl font-bold text-[var(--text-primary)]">核心概念介绍</span>
+        </div>
+        <span className={`transform transition-transform text-[var(--text-muted)] ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
+      </button>
+
+      {isExpanded && (
+        <div className="px-6 pb-6 space-y-4">
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
+            <h4 className="text-[var(--purple)] font-bold mb-2">🎯 核心概念</h4>
+            <p className="text-[var(--text-secondary)] text-sm">
+              MCP (Model Context Protocol) 是 Anthropic 提出的开放协议，定义了 AI 应用与外部工具/服务的标准通信方式。
+              通过 MCP，CLI 可以动态发现和调用外部服务提供的工具，无需硬编码集成。
+            </p>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
+            <h4 className="text-[var(--amber)] font-bold mb-2">🔧 为什么需要 MCP</h4>
+            <ul className="text-[var(--text-secondary)] text-sm space-y-1">
+              <li>• <strong>标准化</strong>：统一的工具描述和调用格式，任何 MCP 服务器都可被任何客户端使用</li>
+              <li>• <strong>可扩展</strong>：IDE 集成、数据库访问、API 调用等都可以通过 MCP 服务提供</li>
+              <li>• <strong>安全隔离</strong>：每个 MCP 服务运行在独立进程，权限可控</li>
+            </ul>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
+            <h4 className="text-[var(--cyber-blue)] font-bold mb-2">🏗️ MCP 通信流程</h4>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-2">
+              <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--purple)]/30 text-center">
+                <div className="text-[var(--purple)] font-semibold text-sm">1. 发现</div>
+                <div className="text-xs text-[var(--text-muted)] mt-1">list_tools</div>
+              </div>
+              <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--cyber-blue)]/30 text-center">
+                <div className="text-[var(--cyber-blue)] font-semibold text-sm">2. 注册</div>
+                <div className="text-xs text-[var(--text-muted)] mt-1">Schema 解析</div>
+              </div>
+              <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--terminal-green)]/30 text-center">
+                <div className="text-[var(--terminal-green)] font-semibold text-sm">3. 调用</div>
+                <div className="text-xs text-[var(--text-muted)] mt-1">call_tool</div>
+              </div>
+              <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--amber)]/30 text-center">
+                <div className="text-[var(--amber)] font-semibold text-sm">4. 响应</div>
+                <div className="text-xs text-[var(--text-muted)] mt-1">结果返回</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+            <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--border-subtle)]">
+              <div className="text-xl font-bold text-[var(--purple)]">JSON-RPC</div>
+              <div className="text-xs text-[var(--text-muted)]">通信协议</div>
+            </div>
+            <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--border-subtle)]">
+              <div className="text-xl font-bold text-[var(--terminal-green)]">stdio</div>
+              <div className="text-xs text-[var(--text-muted)]">传输层</div>
+            </div>
+            <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--border-subtle)]">
+              <div className="text-xl font-bold text-[var(--amber)]">∞</div>
+              <div className="text-xs text-[var(--text-muted)]">服务器数量</div>
+            </div>
+            <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--border-subtle)]">
+              <div className="text-xl font-bold text-[var(--cyber-blue)]">IDE</div>
+              <div className="text-xs text-[var(--text-muted)]">典型应用</div>
+            </div>
+          </div>
+
+          <div className="text-xs text-[var(--text-muted)] bg-[var(--bg-card)] px-3 py-2 rounded flex items-center gap-2">
+            <span>📁</span>
+            <code>packages/core/src/mcp/</code>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function MCPIntegration() {
+  const [isIntroExpanded, setIsIntroExpanded] = useState(true);
+
   return (
     <div>
+      <Introduction isExpanded={isIntroExpanded} onToggle={() => setIsIntroExpanded(!isIntroExpanded)} />
+
       <h2 className="text-2xl text-cyan-400 mb-5">MCP (Model Context Protocol) 集成</h2>
 
       {/* MCP 概述 */}

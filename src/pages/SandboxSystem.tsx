@@ -1,8 +1,111 @@
+import { useState } from 'react';
 import { HighlightBox } from '../components/HighlightBox';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 
+function Introduction({
+  isExpanded,
+  onToggle,
+}: {
+  isExpanded: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div className="mb-8 bg-gradient-to-r from-[var(--terminal-green)]/10 to-[var(--cyber-blue)]/10 rounded-xl border border-[var(--border-subtle)] overflow-hidden">
+      <button
+        onClick={onToggle}
+        className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">📦</span>
+          <span className="text-xl font-bold text-[var(--text-primary)]">
+            沙箱系统导读
+          </span>
+        </div>
+        <span
+          className={`transform transition-transform text-[var(--text-muted)] ${isExpanded ? 'rotate-180' : ''}`}
+        >
+          ▼
+        </span>
+      </button>
+
+      {isExpanded && (
+        <div className="px-6 pb-6 space-y-4">
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
+            <h4 className="text-[var(--terminal-green)] font-bold mb-2">
+              🎯 为什么需要沙箱？
+            </h4>
+            <p className="text-[var(--text-secondary)] text-sm">
+              AI 可能执行<strong>危险命令</strong>（如 rm -rf、格式化磁盘）。
+              沙箱通过<strong>隔离执行环境</strong>，限制命令能访问的文件和系统资源，
+              保护用户的主机系统。
+            </p>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
+            <h4 className="text-[var(--amber)] font-bold mb-2">
+              🔧 沙箱类型
+            </h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center">
+                <div className="text-xs text-[var(--terminal-green)]">Docker</div>
+                <div className="text-[10px] text-[var(--text-muted)]">容器隔离</div>
+              </div>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center">
+                <div className="text-xs text-[var(--cyber-blue)]">Podman</div>
+                <div className="text-[10px] text-[var(--text-muted)]">无守护进程</div>
+              </div>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center">
+                <div className="text-xs text-[var(--amber)]">Seatbelt</div>
+                <div className="text-[10px] text-[var(--text-muted)]">macOS 原生</div>
+              </div>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center">
+                <div className="text-xs text-[var(--purple)]">None</div>
+                <div className="text-[10px] text-[var(--text-muted)]">无沙箱</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
+            <h4 className="text-[var(--cyber-blue)] font-bold mb-2">
+              🏗️ 沙箱策略
+            </h4>
+            <ul className="text-[var(--text-secondary)] text-sm space-y-1">
+              <li>• <strong>permissive-open</strong> - 宽松模式，允许大多数操作</li>
+              <li>• <strong>restrictive-closed</strong> - 严格模式，只读访问</li>
+              <li>• <strong>自定义 Dockerfile</strong> - 项目专用沙箱环境</li>
+            </ul>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
+            <h4 className="text-[var(--purple)] font-bold mb-2">📊 关键配置</h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="text-center">
+                <div className="text-xl font-bold text-[var(--terminal-green)]">3</div>
+                <div className="text-xs text-[var(--text-muted)]">沙箱类型</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-bold text-[var(--cyber-blue)]">2</div>
+                <div className="text-xs text-[var(--text-muted)]">Seatbelt 策略</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-bold text-[var(--amber)]">ENV</div>
+                <div className="text-xs text-[var(--text-muted)]">GEMINI_SANDBOX</div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-bold text-[var(--purple)]">UID</div>
+                <div className="text-xs text-[var(--text-muted)]">权限映射</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function SandboxSystem() {
+  const [isIntroExpanded, setIsIntroExpanded] = useState(true);
   const sandboxDecisionFlow = `flowchart TD
     start[启动 run_shell_command]
     check_env[检查 GEMINI_SANDBOX<br/>环境变量]
@@ -297,6 +400,11 @@ async function startContainer(config: DockerSandboxConfig) {
 
   return (
     <div className="space-y-8">
+      <Introduction
+        isExpanded={isIntroExpanded}
+        onToggle={() => setIsIntroExpanded(!isIntroExpanded)}
+      />
+
       {/* 概述 */}
       <section>
         <h2 className="text-2xl font-bold text-cyan-400 mb-4">沙箱安全系统</h2>

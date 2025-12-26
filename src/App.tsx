@@ -9,6 +9,7 @@ import { StartHere } from './pages/StartHere';
 import { Overview } from './pages/Overview';
 
 // 懒加载的页面
+const Glossary = lazy(() => import('./pages/Glossary'));
 const EndToEndWalkthrough = lazy(() => import('./pages/EndToEndWalkthrough').then(m => ({ default: m.EndToEndWalkthrough })));
 const UpstreamDiffOverview = lazy(() => import('./pages/UpstreamDiffOverview').then(m => ({ default: m.UpstreamDiffOverview })));
 const StartupFlow = lazy(() => import('./pages/StartupFlow').then(m => ({ default: m.StartupFlow })));
@@ -18,8 +19,10 @@ const AuthenticationFlow = lazy(() => import('./pages/AuthenticationFlow').then(
 const RequestLifecycle = lazy(() => import('./pages/RequestLifecycle').then(m => ({ default: m.RequestLifecycle })));
 const InteractionLoop = lazy(() => import('./pages/InteractionLoop').then(m => ({ default: m.InteractionLoop })));
 const GeminiChatCore = lazy(() => import('./pages/GeminiChatCore').then(m => ({ default: m.GeminiChatCore })));
+const ServicesArchitecture = lazy(() => import('./pages/ServicesArchitecture').then(m => ({ default: m.ServicesArchitecture })));
 const SystemPromptArch = lazy(() => import('./pages/SystemPromptArch').then(m => ({ default: m.SystemPromptArch })));
 const ContentGeneratorDetails = lazy(() => import('./pages/ContentGeneratorDetails').then(m => ({ default: m.ContentGeneratorDetails })));
+const MultiProviderArchitecture = lazy(() => import('./pages/MultiProviderArchitecture').then(m => ({ default: m.MultiProviderArchitecture })));
 const VisionModelSwitch = lazy(() => import('./pages/VisionModelSwitch').then(m => ({ default: m.VisionModelSwitch })));
 const MemoryManagement = lazy(() => import('./pages/MemoryManagement').then(m => ({ default: m.MemoryManagement })));
 const ToolReference = lazy(() => import('./pages/ToolReference').then(m => ({ default: m.ToolReference })));
@@ -100,6 +103,8 @@ const LruCacheAnimation = lazy(() => import('./pages/LruCacheAnimation'));
 const PtyLifecycleAnimation = lazy(() => import('./pages/PtyLifecycleAnimation'));
 const StreamingJsonParserAnimation = lazy(() => import('./pages/StreamingJsonParserAnimation'));
 const VimCompositeActionsAnimation = lazy(() => import('./pages/VimCompositeActionsAnimation'));
+const PromptProcessingPipelineAnimation = lazy(() => import('./pages/PromptProcessingPipelineAnimation'));
+const SlashCommandExecutionAnimation = lazy(() => import('./pages/SlashCommandExecutionAnimation'));
 const CoreCode = lazy(() => import('./pages/CoreCode').then(m => ({ default: m.CoreCode })));
 const LoopMechanism = lazy(() => import('./pages/LoopMechanism').then(m => ({ default: m.LoopMechanism })));
 
@@ -194,6 +199,8 @@ function App() {
         return <UpstreamDiffOverview />;
       case 'overview':
         return <Overview />;
+      case 'glossary':
+        return <Glossary onNavigate={(tab) => navigateToTab(tab)} />;
       case 'startup':
         return <StartupFlow />;
       case 'startup-chain':
@@ -208,10 +215,14 @@ function App() {
         return <InteractionLoop />;
       case 'gemini-chat':
         return <GeminiChatCore />;
+      case 'services-arch':
+        return <ServicesArchitecture />;
       case 'system-prompt':
         return <SystemPromptArch />;
       case 'content-gen':
         return <ContentGeneratorDetails />;
+      case 'multi-provider':
+        return <MultiProviderArchitecture />;
       case 'vlm-switch':
         return <VisionModelSwitch />;
       case 'memory':
@@ -272,6 +283,8 @@ function App() {
         return <TelemetrySystem />;
       case 'animation':
         return <Animation />;
+      case 'slash-cmd-exec-anim':
+        return <SlashCommandExecutionAnimation />;
       case 'tool-scheduler-anim':
         return <ToolSchedulerAnimation />;
       case 'streaming-parser-anim':
@@ -372,6 +385,8 @@ function App() {
         return <StreamingJsonParserAnimation />;
       case 'vim-composite-actions-anim':
         return <VimCompositeActionsAnimation />;
+      case 'prompt-pipeline-anim':
+        return <PromptProcessingPipelineAnimation />;
       case 'code':
         return <CoreCode />;
       case 'loop':
