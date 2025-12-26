@@ -126,6 +126,166 @@ export function GeminiChatCore() {
         </div>
       </Layer>
 
+      {/* 设计哲学深度解析 */}
+      <Layer title="设计哲学深度解析" icon="💡">
+        <div className="space-y-6">
+          {/* 核心约束 */}
+          <div className="bg-gradient-to-r from-[var(--amber)]/10 to-transparent rounded-xl p-5 border border-[var(--amber)]/30">
+            <h4 className="text-[var(--amber)] font-bold text-lg mb-3 flex items-center gap-2">
+              <span>🧠</span>
+              核心约束：AI 是无状态的
+            </h4>
+            <p className="text-[var(--text-secondary)] text-sm mb-3">
+              每次 API 调用都是独立的 HTTP 请求，AI 不会"记住"之前说过什么。
+              GeminiChat 的存在就是为了解决这个问题 —— 它维护完整的对话历史，
+              让每次请求都携带上下文，使 AI 看起来像是"有记忆"的。
+            </p>
+            <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-3 text-xs font-mono">
+              <span className="text-[var(--text-muted)]">// 每次请求都发送完整历史</span><br/>
+              <span className="text-[var(--cyber-blue)]">generateContent</span>({'{'}
+              <span className="text-[var(--terminal-green)]">history</span>: [...allPreviousMessages]{'}'})
+            </div>
+          </div>
+
+          {/* 为什么是 Continuation */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-[var(--bg-card)] rounded-lg p-4 border border-[var(--terminal-green)]/30">
+              <h5 className="text-[var(--terminal-green)] font-bold mb-2 flex items-center gap-2">
+                <span>🔄</span>
+                为什么需要 Continuation 机制？
+              </h5>
+              <p className="text-sm text-[var(--text-secondary)] mb-2">
+                传统 CLI 是"一问一答"，但 AI Agent 需要<strong>自主决策</strong>：
+              </p>
+              <ul className="text-sm text-[var(--text-muted)] space-y-1 list-disc pl-4">
+                <li>读取文件后，决定是否需要读更多</li>
+                <li>执行命令后，决定下一步操作</li>
+                <li>发现问题后，尝试修复</li>
+              </ul>
+              <div className="mt-3 bg-[var(--terminal-green)]/10 rounded p-2 text-xs">
+                <code>finish_reason: "tool_calls"</code> → 继续<br/>
+                <code>finish_reason: "stop"</code> → 结束
+              </div>
+            </div>
+
+            <div className="bg-[var(--bg-card)] rounded-lg p-4 border border-[var(--cyber-blue)]/30">
+              <h5 className="text-[var(--cyber-blue)] font-bold mb-2 flex items-center gap-2">
+                <span>🌊</span>
+                为什么选择流式响应？
+              </h5>
+              <p className="text-sm text-[var(--text-secondary)] mb-2">
+                批量响应意味着用户要等待整个响应完成，体验很差：
+              </p>
+              <ul className="text-sm text-[var(--text-muted)] space-y-1 list-disc pl-4">
+                <li>用户看到"正在生成..."几十秒</li>
+                <li>无法及时中断错误的方向</li>
+                <li>网络中断意味着全部丢失</li>
+              </ul>
+              <div className="mt-3 bg-[var(--cyber-blue)]/10 rounded p-2 text-xs">
+                流式 = 边生成边显示 + 可中断 + 渐进式反馈
+              </div>
+            </div>
+          </div>
+
+          {/* 历史管理的设计考量 */}
+          <div className="bg-[var(--bg-card)] rounded-lg p-4 border border-[var(--purple)]/30">
+            <h5 className="text-[var(--purple)] font-bold mb-3 flex items-center gap-2">
+              <span>📚</span>
+              为什么有两种历史视图？
+            </h5>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <div className="font-semibold text-[var(--text-primary)] mb-1">Comprehensive（完整历史）</div>
+                <p className="text-[var(--text-muted)]">
+                  包含所有消息，包括失败的尝试、空响应、被中断的调用。
+                  用于<strong>调试</strong>和<strong>重放</strong>，可以精确还原会话状态。
+                </p>
+              </div>
+              <div>
+                <div className="font-semibold text-[var(--text-primary)] mb-1">Curated（精选历史）</div>
+                <p className="text-[var(--text-muted)]">
+                  只保留有效的用户-模型交互。用于<strong>发送给 API</strong>，
+                  避免无效内容消耗 token 配额。
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 设计权衡表格 */}
+          <div className="bg-[var(--bg-terminal)]/30 rounded-lg p-4">
+            <h5 className="text-[var(--text-primary)] font-bold mb-3 flex items-center gap-2">
+              <span>⚖️</span>
+              关键设计权衡
+            </h5>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-[var(--border-subtle)]">
+                    <th className="text-left py-2 text-[var(--text-muted)]">决策</th>
+                    <th className="text-left py-2 text-[var(--terminal-green)]">选择</th>
+                    <th className="text-left py-2 text-[var(--amber)]">代价</th>
+                    <th className="text-left py-2 text-[var(--cyber-blue)]">收益</th>
+                  </tr>
+                </thead>
+                <tbody className="text-[var(--text-secondary)]">
+                  <tr className="border-b border-[var(--border-subtle)]/50">
+                    <td className="py-2">历史发送</td>
+                    <td className="py-2 text-[var(--terminal-green)]">每次全量</td>
+                    <td className="py-2 text-[var(--amber)]">Token 消耗大</td>
+                    <td className="py-2 text-[var(--cyber-blue)]">上下文完整一致</td>
+                  </tr>
+                  <tr className="border-b border-[var(--border-subtle)]/50">
+                    <td className="py-2">工具执行</td>
+                    <td className="py-2 text-[var(--terminal-green)]">串行等待</td>
+                    <td className="py-2 text-[var(--amber)]">速度较慢</td>
+                    <td className="py-2 text-[var(--cyber-blue)]">可控可审批</td>
+                  </tr>
+                  <tr className="border-b border-[var(--border-subtle)]/50">
+                    <td className="py-2">错误处理</td>
+                    <td className="py-2 text-[var(--terminal-green)]">指数退避重试</td>
+                    <td className="py-2 text-[var(--amber)]">延迟增加</td>
+                    <td className="py-2 text-[var(--cyber-blue)]">成功率提高</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2">写操作</td>
+                    <td className="py-2 text-[var(--terminal-green)]">第二个前停止</td>
+                    <td className="py-2 text-[var(--amber)]">需要多轮</td>
+                    <td className="py-2 text-[var(--cyber-blue)]">防止连续破坏</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* 与其他模块的关系 */}
+          <div className="bg-gradient-to-r from-[var(--cyber-blue)]/5 to-[var(--purple)]/5 rounded-lg p-4 border border-[var(--border-subtle)]">
+            <h5 className="text-[var(--text-primary)] font-bold mb-3 flex items-center gap-2">
+              <span>🔗</span>
+              架构定位
+            </h5>
+            <div className="flex flex-wrap gap-2 text-xs">
+              <div className="bg-[var(--cyber-blue)]/20 text-[var(--cyber-blue)] px-3 py-1 rounded-full">
+                上层：InteractionLoop 调用
+              </div>
+              <div className="bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] px-3 py-1 rounded-full">
+                下层：ContentGenerator 生成
+              </div>
+              <div className="bg-[var(--purple)]/20 text-[var(--purple)] px-3 py-1 rounded-full">
+                平级：ToolScheduler 执行工具
+              </div>
+              <div className="bg-[var(--amber)]/20 text-[var(--amber)] px-3 py-1 rounded-full">
+                输出：StreamEvent 事件流
+              </div>
+            </div>
+            <p className="text-[var(--text-muted)] text-sm mt-3">
+              GeminiChat 是连接"用户交互层"和"内容生成层"的桥梁，
+              向上提供简单的 <code className="text-[var(--terminal-green)]">sendMessage()</code> 接口，
+              向下封装复杂的流式处理、重试、历史管理逻辑。
+            </p>
+          </div>
+        </div>
+      </Layer>
+
       {/* sendMessageStream 详解 */}
       <Layer title="sendMessageStream() 核心方法" icon="📤">
         <CodeBlock

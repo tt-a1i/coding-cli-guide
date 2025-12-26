@@ -55,6 +55,7 @@ export const navGroups: NavGroup[] = [
       { id: 'tool-ref', label: '工具参考', highlight: true },
       { id: 'tool-dev-guide', label: '工具开发指南', highlight: true },
       { id: 'tool-scheduler', label: '工具调度详解', highlight: true },
+      { id: 'file-discovery', label: '文件发现系统', highlight: true },
       { id: 'tool-arch', label: '工具架构' },
       { id: 'tool-detail', label: '工具执行' },
       { id: 'ai-tool', label: 'AI工具交互' },

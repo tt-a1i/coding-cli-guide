@@ -87,10 +87,10 @@ export function StartHere({ onNavigate }: StartHereProps) {
 
           <div className="flex flex-wrap justify-center gap-3 text-sm">
             <span className="px-4 py-2 bg-[var(--terminal-green)]/10 text-[var(--terminal-green)] rounded-md font-mono border border-[var(--terminal-green)]/20">
-              <span className="opacity-60 mr-1">$</span> 95+ 页面
+              <span className="opacity-60 mr-1">$</span> 100+ 页面
             </span>
             <span className="px-4 py-2 bg-[var(--amber)]/10 text-[var(--amber)] rounded-md font-mono border border-[var(--amber)]/20">
-              <span className="opacity-60 mr-1">#</span> 51 动画
+              <span className="opacity-60 mr-1">#</span> 54 动画
             </span>
             <span className="px-4 py-2 bg-[var(--cyber-blue)]/10 text-[var(--cyber-blue)] rounded-md font-mono border border-[var(--cyber-blue)]/20">
               <span className="opacity-60 mr-1">~</span> 行级引用
@@ -223,6 +223,50 @@ export function StartHere({ onNavigate }: StartHereProps) {
             <h3 className="font-semibold font-mono text-[var(--cyber-blue)] mb-2">可扩展架构</h3>
             <p className="text-[var(--text-secondary)] leading-relaxed">
               MCP 协议、子代理系统、自定义命令等扩展机制
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Design Philosophy */}
+      <section className="terminal-panel">
+        <h2 className="text-xl font-bold font-mono text-[var(--text-primary)] mb-6 flex items-center gap-3">
+          <span className="text-[var(--purple)]">💭</span>
+          <span>设计哲学</span>
+        </h2>
+        <div className="space-y-4 text-sm">
+          <div className="bg-[var(--bg-void)] rounded-lg p-5 border-l-4 border-[var(--terminal-green)]">
+            <h3 className="font-semibold text-[var(--terminal-green)] mb-2">「AI 是无状态的」</h3>
+            <p className="text-[var(--text-secondary)] leading-relaxed">
+              每次 AI 请求都是独立的 HTTP 调用。AI 不记得之前的对话，所有上下文必须在每次请求时重新发送。
+              这个约束决定了整个系统的架构：CLI 必须管理对话历史、工具状态、会话持久化。
+            </p>
+          </div>
+
+          <div className="bg-[var(--bg-void)] rounded-lg p-5 border-l-4 border-[var(--cyber-blue)]">
+            <h3 className="font-semibold text-[var(--cyber-blue)] mb-2">「工具在本地执行」</h3>
+            <p className="text-[var(--text-secondary)] leading-relaxed">
+              AI 只负责决策「调用什么工具」，实际执行发生在用户机器上。
+              这意味着：用户对敏感操作有完全控制权，不需要将代码或数据发送到云端，
+              同时也意味着 CLI 必须实现完整的权限控制和沙箱隔离。
+            </p>
+          </div>
+
+          <div className="bg-[var(--bg-void)] rounded-lg p-5 border-l-4 border-[var(--amber)]">
+            <h3 className="font-semibold text-[var(--amber)] mb-2">「Continuation 驱动循环」</h3>
+            <p className="text-[var(--text-secondary)] leading-relaxed">
+              当 AI 需要工具时，它返回特殊的 finish_reason。CLI 执行工具后，
+              将结果反馈给 AI 继续对话。这个「请求→工具→反馈→请求」的循环，
+              使 AI 能够自主完成多步骤任务，而不需要用户每一步都参与。
+            </p>
+          </div>
+
+          <div className="bg-[var(--bg-void)] rounded-lg p-5 border-l-4 border-[var(--purple)]">
+            <h3 className="font-semibold text-[var(--purple)] mb-2">「抽象层解耦」</h3>
+            <p className="text-[var(--text-secondary)] leading-relaxed">
+              CLI 层、Core 层、工具层、API 层各司其职。这种分层使得：
+              切换 AI 厂商只需实现新的 API 适配器，添加新工具只需注册到工具系统，
+              扩展功能通过 MCP 协议动态加载。代价是理解成本较高，但换来了极大的灵活性。
             </p>
           </div>
         </div>
@@ -389,11 +433,11 @@ export function StartHere({ onNavigate }: StartHereProps) {
         <div className="flex justify-center gap-8 text-xs font-mono text-[var(--text-muted)]">
           <span className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--terminal-green)]" />
-            95+ 页面
+            100+ 页面
           </span>
           <span className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--amber)]" />
-            51 动画
+            54 动画
           </span>
           <span className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[var(--cyber-blue)]" />

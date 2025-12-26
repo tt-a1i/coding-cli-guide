@@ -554,6 +554,173 @@ export type ToolCall =
         </div>
       </section>
 
+      {/* 设计哲学 */}
+      <section className="bg-gradient-to-r from-amber-500/5 to-transparent rounded-xl p-6 border border-amber-500/20">
+        <h3 className="text-xl font-semibold text-amber-400 mb-4 flex items-center gap-2">
+          <span>💡</span>
+          设计哲学：为什么这样设计
+        </h3>
+
+        {/* 核心问题 */}
+        <div className="bg-gray-900/50 rounded-lg p-4 mb-6 border-l-4 border-amber-500">
+          <h4 className="text-amber-300 font-bold mb-2">🎯 核心问题</h4>
+          <p className="text-gray-300 text-sm">
+            AI 可以调用工具执行任意操作（读写文件、执行命令、网络请求）。
+            如何在<strong className="text-amber-200">保持 AI 自主性</strong>的同时，
+            确保<strong className="text-cyan-300">用户对系统的控制权</strong>？
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          {/* 为什么需要审批机制 */}
+          <div className="bg-gray-800/50 rounded-lg p-4 border border-red-500/30">
+            <h5 className="text-red-400 font-bold mb-2 flex items-center gap-2">
+              <span>🛡️</span>
+              为什么需要审批机制？
+            </h5>
+            <p className="text-gray-400 text-sm mb-2">
+              AI 可能执行破坏性操作：
+            </p>
+            <ul className="text-sm text-gray-400 space-y-1 list-disc pl-4">
+              <li>删除重要文件 <code className="text-red-300">rm -rf /</code></li>
+              <li>泄露敏感信息到网络</li>
+              <li>修改关键配置文件</li>
+              <li>执行恶意代码</li>
+            </ul>
+            <div className="mt-3 bg-red-500/10 rounded p-2 text-xs text-red-200">
+              <strong>解决：</strong>修改类工具默认需要用户确认
+            </div>
+          </div>
+
+          {/* 为什么串行队列 */}
+          <div className="bg-gray-800/50 rounded-lg p-4 border border-blue-500/30">
+            <h5 className="text-blue-400 font-bold mb-2 flex items-center gap-2">
+              <span>📋</span>
+              为什么串行队列执行？
+            </h5>
+            <p className="text-gray-400 text-sm mb-2">
+              并行执行工具会带来问题：
+            </p>
+            <ul className="text-sm text-gray-400 space-y-1 list-disc pl-4">
+              <li>文件读写冲突</li>
+              <li>命令执行顺序不确定</li>
+              <li>用户无法逐个审批</li>
+              <li>错误难以定位</li>
+            </ul>
+            <div className="mt-3 bg-blue-500/10 rounded p-2 text-xs text-blue-200">
+              <strong>解决：</strong>队列保证有序 + 用户可逐个审核
+            </div>
+          </div>
+
+          {/* 为什么输出截断 */}
+          <div className="bg-gray-800/50 rounded-lg p-4 border border-green-500/30">
+            <h5 className="text-green-400 font-bold mb-2 flex items-center gap-2">
+              <span>✂️</span>
+              为什么输出截断 + 保存文件？
+            </h5>
+            <p className="text-gray-400 text-sm mb-2">
+              工具输出可能非常大：
+            </p>
+            <ul className="text-sm text-gray-400 space-y-1 list-disc pl-4">
+              <li>日志文件几十 MB</li>
+              <li>大型代码库搜索结果</li>
+              <li>二进制文件输出</li>
+            </ul>
+            <div className="mt-3 bg-green-500/10 rounded p-2 text-xs text-green-200">
+              <strong>解决：</strong>截断节省 Token + 文件保留完整数据 + 引导 AI 按需读取
+            </div>
+          </div>
+
+          {/* 为什么多种审批模式 */}
+          <div className="bg-gray-800/50 rounded-lg p-4 border border-purple-500/30">
+            <h5 className="text-purple-400 font-bold mb-2 flex items-center gap-2">
+              <span>🎚️</span>
+              为什么需要多种审批模式？
+            </h5>
+            <p className="text-gray-400 text-sm mb-2">
+              不同场景需要不同信任级别：
+            </p>
+            <ul className="text-sm text-gray-400 space-y-1 list-disc pl-4">
+              <li><strong className="text-yellow-300">PLAN</strong>：只分析不执行（最安全）</li>
+              <li><strong className="text-gray-300">DEFAULT</strong>：修改需确认（平衡）</li>
+              <li><strong className="text-blue-300">AUTO_EDIT</strong>：文件编辑自动（效率）</li>
+              <li><strong className="text-red-300">YOLO</strong>：全部自动（最快）</li>
+            </ul>
+            <div className="mt-3 bg-purple-500/10 rounded p-2 text-xs text-purple-200">
+              <strong>解决：</strong>用户按需选择安全 vs 效率的平衡点
+            </div>
+          </div>
+        </div>
+
+        {/* 设计权衡表 */}
+        <div className="bg-gray-900/50 rounded-lg p-4">
+          <h4 className="text-amber-300 font-bold mb-3 flex items-center gap-2">
+            <span>⚖️</span>
+            关键设计权衡
+          </h4>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-700">
+                  <th className="text-left py-2 text-gray-400">决策点</th>
+                  <th className="text-left py-2 text-green-400">选择</th>
+                  <th className="text-left py-2 text-amber-400">代价</th>
+                  <th className="text-left py-2 text-cyan-400">收益</th>
+                </tr>
+              </thead>
+              <tbody className="text-gray-300">
+                <tr className="border-b border-gray-700/50">
+                  <td className="py-2">并发模型</td>
+                  <td className="py-2 text-green-400">串行队列</td>
+                  <td className="py-2 text-amber-400">执行速度较慢</td>
+                  <td className="py-2 text-cyan-400">可预测 + 可审批</td>
+                </tr>
+                <tr className="border-b border-gray-700/50">
+                  <td className="py-2">默认审批</td>
+                  <td className="py-2 text-green-400">修改类需确认</td>
+                  <td className="py-2 text-amber-400">用户需要频繁操作</td>
+                  <td className="py-2 text-cyan-400">防止意外破坏</td>
+                </tr>
+                <tr className="border-b border-gray-700/50">
+                  <td className="py-2">大输出处理</td>
+                  <td className="py-2 text-green-400">截断 + 保存文件</td>
+                  <td className="py-2 text-amber-400">AI 需要额外读取</td>
+                  <td className="py-2 text-cyan-400">节省 Token + 保留完整</td>
+                </tr>
+                <tr className="border-b border-gray-700/50">
+                  <td className="py-2">Plan Mode</td>
+                  <td className="py-2 text-green-400">调度层阻断</td>
+                  <td className="py-2 text-amber-400">无法执行任何修改</td>
+                  <td className="py-2 text-cyan-400">安全探索未知任务</td>
+                </tr>
+                <tr>
+                  <td className="py-2">白名单机制</td>
+                  <td className="py-2 text-green-400">精确 + 模式匹配</td>
+                  <td className="py-2 text-amber-400">配置复杂度增加</td>
+                  <td className="py-2 text-cyan-400">细粒度权限控制</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* 架构定位 */}
+        <div className="mt-6 flex flex-wrap gap-2 text-xs">
+          <div className="bg-cyan-500/20 text-cyan-300 px-3 py-1 rounded-full">
+            上层：GeminiChat 发起调用
+          </div>
+          <div className="bg-green-500/20 text-green-300 px-3 py-1 rounded-full">
+            下层：Tool.execute() 执行
+          </div>
+          <div className="bg-purple-500/20 text-purple-300 px-3 py-1 rounded-full">
+            平级：Config 提供审批配置
+          </div>
+          <div className="bg-amber-500/20 text-amber-300 px-3 py-1 rounded-full">
+            UI 层：展示状态 + 收集用户决策
+          </div>
+        </div>
+      </section>
+
       {/* 调度流程 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">完整调度流程</h3>

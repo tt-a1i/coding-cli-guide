@@ -16,7 +16,7 @@ const glossaryTerms: Term[] = [
   // Core Concepts
   {
     term: 'Turn',
-    definition: '一次完整的交互循环：用户输入 → AI 响应 → 工具执行 → 结果反馈。每个 Turn 可能包含多次工具调用。',
+    definition: '一次完整的交互循环：用户输入 → AI 响应 → 工具执行 → 结果反馈。每个 Turn 可能包含多次工具调用。系统设置最大 100 轮防止无限循环。',
     category: 'core',
     relatedPage: 'interaction-loop',
     example: '用户问"读取 config.json"，AI 调用 Read 工具，返回内容，算一个 Turn',
@@ -188,6 +188,157 @@ const glossaryTerms: Term[] = [
     definition: '以 ! 开头直接执行 shell 命令，绕过 AI 直接在终端运行。如 !ls、!git status。',
     category: 'command',
     relatedPage: 'shell-modes',
+  },
+
+  // Content Generation
+  {
+    term: 'ContentGenerator',
+    definition: 'AI 内容生成器，负责调用 AI API 并处理流式响应。是 CLI 与 AI 服务通信的核心组件。',
+    category: 'core',
+    relatedPage: 'content-gen',
+    example: 'generateContentStream() 发起请求，通过 AsyncIterator 逐块返回响应',
+  },
+  {
+    term: 'PromptPipeline',
+    definition: '提示词处理管道，将系统提示、工具定义、对话历史、用户输入组装成完整的 API 请求。',
+    category: 'prompt',
+    relatedPage: 'prompt-pipeline-anim',
+  },
+  {
+    term: 'MessageFormat',
+    definition: '消息格式转换器，负责不同 AI 厂商格式之间的转换。如 Anthropic 的 content blocks 与 OpenAI 的 messages。',
+    category: 'core',
+    relatedPage: 'message-format-anim',
+  },
+
+  // File System
+  {
+    term: 'FileDiscovery',
+    definition: '文件发现系统，基于 BFS 算法搜索文件，支持 .gitignore、.qwenignore 等 ignore 模式。',
+    category: 'tool',
+    relatedPage: 'bfs-file-search-anim',
+    example: 'Glob 工具使用 FileDiscovery 查找匹配的文件',
+  },
+  {
+    term: 'IgnorePattern',
+    definition: '文件忽略模式，支持 .gitignore 语法。按优先级：.qwenignore > .gitignore > 内置默认。',
+    category: 'tool',
+    example: '*.log, node_modules/, .git/ 等默认忽略',
+  },
+
+  // Provider System
+  {
+    term: 'Provider',
+    definition: 'AI 服务提供商抽象，如 QwenProvider、OpenAIProvider、AnthropicProvider。封装了各厂商的 API 差异。',
+    category: 'core',
+    relatedPage: 'multi-provider',
+  },
+  {
+    term: 'ModelLimit',
+    definition: '模型参数限制，包括 contextWindow（上下文窗口）、outputTokens（输出限制）等。不同模型差异巨大。',
+    category: 'core',
+    relatedPage: 'token-limit-matcher-anim',
+    example: 'Gemini 2M tokens、Claude 200K、GPT-4o 128K',
+  },
+
+  // Internal Mechanisms
+  {
+    term: 'ChunkAssembly',
+    definition: '流式响应的块组装机制，将零散的流式数据块组装成完整的消息或工具调用。',
+    category: 'core',
+    relatedPage: 'chunk-assembly-anim',
+  },
+  {
+    term: 'StreamingParser',
+    definition: '流式解析器，实时解析 AI 响应流，提取文本内容和工具调用请求。',
+    category: 'core',
+    relatedPage: 'streaming-parser-anim',
+  },
+  {
+    term: 'LRUCache',
+    definition: '最近最少使用缓存，用于缓存文件搜索结果、Token 计数等。提高重复操作效率。',
+    category: 'tool',
+    relatedPage: 'lru-cache-anim',
+  },
+  {
+    term: 'ExponentialBackoff',
+    definition: '指数退避重试策略，遇到暂时性错误时等待 1s、2s、4s... 递增时间后重试。',
+    category: 'security',
+    relatedPage: 'exponential-backoff-anim',
+    example: '429 Rate Limit 错误时自动退避重试',
+  },
+
+  // PTY & Shell
+  {
+    term: 'PTY',
+    definition: '伪终端（Pseudo-Terminal），用于运行 shell 命令并捕获输出。支持交互式命令。',
+    category: 'tool',
+    relatedPage: 'pty-lifecycle-anim',
+  },
+  {
+    term: 'ShellInjection',
+    definition: '命令注入检测，防止 AI 构造的命令包含危险操作。如检测 rm -rf、sudo 等。',
+    category: 'security',
+    relatedPage: 'shell-injection-anim',
+  },
+
+  // Memory & Context
+  {
+    term: 'MemoryImport',
+    definition: '记忆导入机制，从 .claude/CLAUDE.md 等文件加载项目级指令。支持循环依赖检测。',
+    category: 'core',
+    relatedPage: 'memory-import-anim',
+    example: '@import ./other-rules.md 支持递归导入',
+  },
+  {
+    term: 'ContextSplit',
+    definition: '上下文分割点计算，决定在哪里截断历史对话进行压缩。保留重要的工具调用结果。',
+    category: 'core',
+    relatedPage: 'chat-compression-anim',
+  },
+
+  // State Management
+  {
+    term: 'TurnState',
+    definition: 'Turn 状态机的状态枚举：idle → preparing → streaming → tool_execution → completion。',
+    category: 'state',
+    relatedPage: 'turn-internal-anim',
+  },
+  {
+    term: 'ToolCallStatus',
+    definition: '工具调用状态：validating → scheduled → executing → awaiting_approval → success/error/cancelled。',
+    category: 'tool',
+    relatedPage: 'tool-confirmation-anim',
+  },
+
+  // OAuth & Auth
+  {
+    term: 'DeviceFlow',
+    definition: 'OAuth 设备授权流程，用户在浏览器中授权，CLI 轮询获取 token。无需用户输入密码。',
+    category: 'security',
+    relatedPage: 'oauth-device-flow-anim',
+  },
+
+  // Editing
+  {
+    term: 'SmartEdit',
+    definition: '智能编辑引擎，支持模糊匹配和自动修复。当 old_string 不完全匹配时尝试智能定位。',
+    category: 'tool',
+    relatedPage: 'smart-edit-anim',
+  },
+  {
+    term: 'LLMEditFixer',
+    definition: 'AI 辅助的编辑修复器，当 Edit 工具失败时调用 AI 分析并修复匹配问题。',
+    category: 'tool',
+    example: '处理缩进差异、空白字符不匹配等常见问题',
+  },
+
+  // Vim Integration
+  {
+    term: 'VimBuffer',
+    definition: 'Vim 模式的文本缓冲区，支持 hjkl 移动、dd 删除、yy 复制等操作。',
+    category: 'ui',
+    relatedPage: 'vim-buffer-anim',
   },
 ];
 

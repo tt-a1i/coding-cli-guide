@@ -114,6 +114,7 @@ const TurnStateMachine = lazy(() => import('./pages/TurnStateMachine').then(m =>
 const TokenAccountingSystem = lazy(() => import('./pages/TokenAccountingSystem').then(m => ({ default: m.TokenAccountingSystem })));
 const SessionPersistence = lazy(() => import('./pages/SessionPersistence').then(m => ({ default: m.SessionPersistence })));
 const ToolDeveloperGuide = lazy(() => import('./pages/ToolDeveloperGuide').then(m => ({ default: m.ToolDeveloperGuide })));
+const FileDiscovery = lazy(() => import('./pages/FileDiscovery').then(m => ({ default: m.FileDiscovery })));
 const CoreCode = lazy(() => import('./pages/CoreCode').then(m => ({ default: m.CoreCode })));
 const LoopMechanism = lazy(() => import('./pages/LoopMechanism').then(m => ({ default: m.LoopMechanism })));
 
@@ -248,6 +249,8 @@ function App() {
         return <ToolReference />;
       case 'tool-dev-guide':
         return <ToolDeveloperGuide />;
+      case 'file-discovery':
+        return <FileDiscovery />;
       case 'tool-scheduler':
         return <ToolSchedulerDetails />;
       case 'tool-arch':

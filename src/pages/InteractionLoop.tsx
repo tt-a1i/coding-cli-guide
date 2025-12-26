@@ -252,6 +252,67 @@ export function InteractionLoop() {
         </div>
       </Layer>
 
+      {/* 1.5 设计理念 */}
+      <Layer title="为什么这样设计" icon="💡">
+        <div className="space-y-4">
+          <div className="bg-gradient-to-r from-[var(--terminal-green)]/10 to-[var(--cyber-blue)]/10 rounded-lg p-5 border border-[var(--terminal-green)]/30">
+            <h4 className="text-[var(--terminal-green)] font-bold font-mono mb-3">核心约束：AI 是无状态的</h4>
+            <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
+              每次 API 调用都是独立的 HTTP 请求。AI 不记得之前发生了什么，
+              所有上下文（对话历史、工具定义、系统提示）必须在每次请求时重新发送。
+              这个约束决定了整个交互循环的设计：CLI 必须管理状态，而 AI 只负责推理。
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-[var(--border-subtle)]">
+              <h5 className="text-[var(--cyber-blue)] font-semibold mb-2">为什么用流式响应？</h5>
+              <ul className="text-sm text-[var(--text-secondary)] space-y-1">
+                <li>• <strong>用户体验</strong>：实时显示 AI 思考过程，避免长时间等待</li>
+                <li>• <strong>早期取消</strong>：用户可以在完成前中断</li>
+                <li>• <strong>渐进收集</strong>：工具调用可以在流式过程中累积</li>
+              </ul>
+            </div>
+
+            <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-[var(--border-subtle)]">
+              <h5 className="text-[var(--amber)] font-semibold mb-2">为什么用 Continuation？</h5>
+              <ul className="text-sm text-[var(--text-secondary)] space-y-1">
+                <li>• <strong>单一入口</strong>：所有请求走同一个 submitQuery</li>
+                <li>• <strong>透明循环</strong>：用户无需感知多次 API 调用</li>
+                <li>• <strong>状态一致</strong>：prompt_id 关联同一次交互</li>
+              </ul>
+            </div>
+
+            <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-[var(--border-subtle)]">
+              <h5 className="text-[var(--purple)] font-semibold mb-2">为什么分离 CLI 和 Core？</h5>
+              <ul className="text-sm text-[var(--text-secondary)] space-y-1">
+                <li>• <strong>可测试性</strong>：Core 层可独立于 UI 测试</li>
+                <li>• <strong>可移植性</strong>：同一个 Core 可用于 IDE 插件</li>
+                <li>• <strong>关注点分离</strong>：UI 负责展示，Core 负责逻辑</li>
+              </ul>
+            </div>
+
+            <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-[var(--border-subtle)]">
+              <h5 className="text-[var(--terminal-green)] font-semibold mb-2">为什么用 Hook 而非 Class？</h5>
+              <ul className="text-sm text-[var(--text-secondary)] space-y-1">
+                <li>• <strong>React 生态</strong>：与 Ink 的 React 组件无缝集成</li>
+                <li>• <strong>状态管理</strong>：useState/useRef 管理复杂状态</li>
+                <li>• <strong>生命周期</strong>：useEffect 处理副作用和清理</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="bg-[var(--amber)]/10 rounded-lg p-4 border border-[var(--amber)]/30">
+            <h5 className="text-[var(--amber)] font-semibold mb-2">⚖️ 设计权衡</h5>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>复杂性 vs 可控性</strong>：useGeminiStream Hook 有 1000+ 行代码，但提供了对整个流程的精细控制。</p>
+              <p><strong>性能 vs 简单</strong>：IDE 上下文增量计算增加了代码复杂度，但避免了每次发送完整文件内容。</p>
+              <p><strong>安全 vs 便利</strong>：100 轮限制可能打断长任务，但防止了失控的 API 费用。</p>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
       {/* 2. 输入 */}
       <Layer title="输入" icon="📥">
         <div className="space-y-4">
