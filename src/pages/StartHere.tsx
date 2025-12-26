@@ -99,6 +99,22 @@ export function StartHere({ onNavigate }: StartHereProps) {
         </div>
       </section>
 
+      {/* Background Note */}
+      <section className="bg-[var(--bg-panel)]/50 rounded-lg p-4 border border-[var(--border-subtle)] text-sm">
+        <div className="flex items-start gap-3">
+          <span className="text-[var(--amber)] text-lg">💡</span>
+          <div>
+            <h3 className="font-semibold text-[var(--text-primary)] mb-1">关于命名</h3>
+            <p className="text-[var(--text-secondary)]">
+              Qwen CLI 基于 <span className="text-[var(--cyber-blue)]">Google Gemini CLI</span> 改造而来。
+              因此源码中会看到 <code className="text-[var(--amber)] bg-[var(--amber)]/10 px-1 rounded">GeminiChat</code>、
+              <code className="text-[var(--amber)] bg-[var(--amber)]/10 px-1 rounded">geminiChat.ts</code> 等命名，
+              以及 <code className="text-[var(--amber)] bg-[var(--amber)]/10 px-1 rounded">Gemini 格式</code> 的消息结构 —— 这些都是历史遗留的内部命名，不影响理解。
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Learning Path Selection */}
       <section className="terminal-panel">
         <h2 className="text-xl font-bold font-mono text-[var(--text-primary)] mb-2 flex items-center gap-3">
