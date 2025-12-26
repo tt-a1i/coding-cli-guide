@@ -190,6 +190,9 @@ export const navGroups: NavGroup[] = [
       { id: 'streaming-json-parser-anim', label: '流式 JSON 解析', highlight: true },
       { id: 'vim-composite-actions-anim', label: 'Vim 复合操作', highlight: true },
       { id: 'prompt-pipeline-anim', label: 'Prompt 处理管道', highlight: true },
+      { id: 'memory-import-anim', label: 'Memory Import 解析', highlight: true },
+      { id: 'command-loading-anim', label: '命令加载冲突解决', highlight: true },
+      { id: 'tool-confirmation-anim', label: '工具确认状态机', highlight: true },
     ],
   },
   {

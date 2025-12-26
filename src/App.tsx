@@ -107,6 +107,9 @@ const StreamingJsonParserAnimation = lazy(() => import('./pages/StreamingJsonPar
 const VimCompositeActionsAnimation = lazy(() => import('./pages/VimCompositeActionsAnimation'));
 const PromptProcessingPipelineAnimation = lazy(() => import('./pages/PromptProcessingPipelineAnimation'));
 const SlashCommandExecutionAnimation = lazy(() => import('./pages/SlashCommandExecutionAnimation'));
+const MemoryImportProcessorAnimation = lazy(() => import('./pages/animations/MemoryImportProcessorAnimation').then(m => ({ default: m.MemoryImportProcessorAnimation })));
+const CommandLoadingAnimation = lazy(() => import('./pages/animations/CommandLoadingAnimation').then(m => ({ default: m.CommandLoadingAnimation })));
+const ToolConfirmationFlowAnimation = lazy(() => import('./pages/animations/ToolConfirmationFlowAnimation').then(m => ({ default: m.ToolConfirmationFlowAnimation })));
 const TurnStateMachine = lazy(() => import('./pages/TurnStateMachine').then(m => ({ default: m.TurnStateMachine })));
 const TokenAccountingSystem = lazy(() => import('./pages/TokenAccountingSystem').then(m => ({ default: m.TokenAccountingSystem })));
 const SessionPersistence = lazy(() => import('./pages/SessionPersistence').then(m => ({ default: m.SessionPersistence })));
@@ -405,6 +408,12 @@ function App() {
         return <VimCompositeActionsAnimation />;
       case 'prompt-pipeline-anim':
         return <PromptProcessingPipelineAnimation />;
+      case 'memory-import-anim':
+        return <MemoryImportProcessorAnimation />;
+      case 'command-loading-anim':
+        return <CommandLoadingAnimation />;
+      case 'tool-confirmation-anim':
+        return <ToolConfirmationFlowAnimation />;
       case 'code':
         return <CoreCode />;
       case 'loop':
