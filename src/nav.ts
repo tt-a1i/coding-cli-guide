@@ -23,6 +23,7 @@ export const navGroups: NavGroup[] = [
       { id: 'learning-path', label: '学习路径指南', highlight: true },
       { id: 'overview', label: '架构概览' },
       { id: 'glossary', label: '术语表' },
+      { id: 'enterprise-deployment', label: '企业部署', highlight: true },
     ],
   },
   {
@@ -203,7 +204,6 @@ export const navGroups: NavGroup[] = [
     defaultOpen: false,
     items: [
       { id: 'upstream-diff', label: '上游改造总览', highlight: true },
-      { id: 'enterprise-deployment', label: '企业部署', highlight: true },
       { id: 'config', label: '配置系统' },
       { id: 'auth', label: '认证流程' },
       { id: 'startup', label: '启动流程' },

@@ -129,7 +129,7 @@ export function StartHere({ onNavigate }: StartHereProps) {
               <li>• <strong>使用教程</strong> — 如何安装、配置、日常使用</li>
               <li>• <strong>命令手册</strong> — 完整的命令行参数说明</li>
               <li>• <strong>API 文档</strong> — 公开接口的调用方式</li>
-              <li>• <strong>故障排除</strong> — 常见问题与解决方案</li>
+              <li>• <strong>使用层 FAQ</strong> — "为什么报错""如何配置"等日常问答</li>
             </ul>
           </div>
         </div>
