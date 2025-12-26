@@ -106,6 +106,10 @@ const StreamingJsonParserAnimation = lazy(() => import('./pages/StreamingJsonPar
 const VimCompositeActionsAnimation = lazy(() => import('./pages/VimCompositeActionsAnimation'));
 const PromptProcessingPipelineAnimation = lazy(() => import('./pages/PromptProcessingPipelineAnimation'));
 const SlashCommandExecutionAnimation = lazy(() => import('./pages/SlashCommandExecutionAnimation'));
+const TurnStateMachine = lazy(() => import('./pages/TurnStateMachine').then(m => ({ default: m.TurnStateMachine })));
+const TokenAccountingSystem = lazy(() => import('./pages/TokenAccountingSystem').then(m => ({ default: m.TokenAccountingSystem })));
+const SessionPersistence = lazy(() => import('./pages/SessionPersistence').then(m => ({ default: m.SessionPersistence })));
+const ToolDeveloperGuide = lazy(() => import('./pages/ToolDeveloperGuide').then(m => ({ default: m.ToolDeveloperGuide })));
 const CoreCode = lazy(() => import('./pages/CoreCode').then(m => ({ default: m.CoreCode })));
 const LoopMechanism = lazy(() => import('./pages/LoopMechanism').then(m => ({ default: m.LoopMechanism })));
 
@@ -216,6 +220,12 @@ function App() {
         return <InteractionLoop />;
       case 'gemini-chat':
         return <GeminiChatCore />;
+      case 'turn-state-machine':
+        return <TurnStateMachine />;
+      case 'token-accounting':
+        return <TokenAccountingSystem />;
+      case 'session-persistence':
+        return <SessionPersistence />;
       case 'services-arch':
         return <ServicesArchitecture />;
       case 'system-prompt':
@@ -230,6 +240,8 @@ function App() {
         return <MemoryManagement />;
       case 'tool-ref':
         return <ToolReference />;
+      case 'tool-dev-guide':
+        return <ToolDeveloperGuide />;
       case 'tool-scheduler':
         return <ToolSchedulerDetails />;
       case 'tool-arch':

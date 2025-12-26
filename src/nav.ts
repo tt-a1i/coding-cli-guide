@@ -34,6 +34,9 @@ export const navGroups: NavGroup[] = [
       { id: 'lifecycle', label: '请求生命周期', highlight: true },
       { id: 'interaction-loop', label: '交互主循环', highlight: true },
       { id: 'gemini-chat', label: '核心循环' },
+      { id: 'turn-state-machine', label: 'Turn状态机', highlight: true },
+      { id: 'token-accounting', label: 'Token计费系统', highlight: true },
+      { id: 'session-persistence', label: '会话持久化', highlight: true },
       { id: 'services-arch', label: '服务层架构', highlight: true },
       { id: 'system-prompt', label: 'Prompt构建' },
       { id: 'content-gen', label: 'API调用层' },
@@ -49,6 +52,7 @@ export const navGroups: NavGroup[] = [
     defaultOpen: false,
     items: [
       { id: 'tool-ref', label: '工具参考', highlight: true },
+      { id: 'tool-dev-guide', label: '工具开发指南', highlight: true },
       { id: 'tool-scheduler', label: '工具调度详解', highlight: true },
       { id: 'tool-arch', label: '工具架构' },
       { id: 'tool-detail', label: '工具执行' },
