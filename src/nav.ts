@@ -202,6 +202,7 @@ export const navGroups: NavGroup[] = [
     icon: '📚',
     defaultOpen: false,
     items: [
+      { id: 'upstream-diff', label: '上游改造总览', highlight: true },
       { id: 'config', label: '配置系统' },
       { id: 'auth', label: '认证流程' },
       { id: 'startup', label: '启动流程' },

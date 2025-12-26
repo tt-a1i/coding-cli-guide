@@ -99,17 +99,73 @@ export function StartHere({ onNavigate }: StartHereProps) {
         </div>
       </section>
 
-      {/* Background Note */}
-      <section className="bg-[var(--bg-panel)]/50 rounded-lg p-4 border border-[var(--border-subtle)] text-sm">
-        <div className="flex items-start gap-3">
-          <span className="text-[var(--amber)] text-lg">💡</span>
-          <div>
-            <h3 className="font-semibold text-[var(--text-primary)] mb-1">关于命名</h3>
-            <p className="text-[var(--text-secondary)]">
-              Qwen CLI 基于 <span className="text-[var(--cyber-blue)]">Google Gemini CLI</span> 改造而来。
-              因此源码中会看到 <code className="text-[var(--amber)] bg-[var(--amber)]/10 px-1 rounded">GeminiChat</code>、
-              <code className="text-[var(--amber)] bg-[var(--amber)]/10 px-1 rounded">geminiChat.ts</code> 等命名，
-              以及 <code className="text-[var(--amber)] bg-[var(--amber)]/10 px-1 rounded">Gemini 格式</code> 的消息结构 —— 这些都是历史遗留的内部命名，不影响理解。
+      {/* Scope Declaration */}
+      <section className="bg-[var(--bg-panel)]/50 rounded-lg p-5 border border-[var(--border-subtle)]">
+        <h3 className="font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2">
+          <span className="text-[var(--terminal-green)]">📖</span>
+          这份指南是什么
+        </h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          {/* What this IS */}
+          <div className="bg-[var(--terminal-green)]/5 rounded-lg p-4 border border-[var(--terminal-green)]/20">
+            <h4 className="text-[var(--terminal-green)] font-semibold mb-2 text-sm flex items-center gap-2">
+              <span>✓</span> 本指南覆盖
+            </h4>
+            <ul className="text-sm text-[var(--text-secondary)] space-y-1">
+              <li>• <strong>架构设计</strong> — 系统如何分层、模块如何协作</li>
+              <li>• <strong>源码导读</strong> — 关键代码的实现细节与行级引用</li>
+              <li>• <strong>设计决策</strong> — 为什么这样设计、有哪些权衡</li>
+              <li>• <strong>内部机制</strong> — 状态机、调度器、格式转换等</li>
+            </ul>
+          </div>
+
+          {/* What this is NOT */}
+          <div className="bg-[var(--red)]/5 rounded-lg p-4 border border-[var(--red)]/20">
+            <h4 className="text-[var(--red)] font-semibold mb-2 text-sm flex items-center gap-2">
+              <span>✗</span> 本指南不覆盖
+            </h4>
+            <ul className="text-sm text-[var(--text-secondary)] space-y-1">
+              <li>• <strong>使用教程</strong> — 如何安装、配置、日常使用</li>
+              <li>• <strong>命令手册</strong> — 完整的命令行参数说明</li>
+              <li>• <strong>API 文档</strong> — 公开接口的调用方式</li>
+              <li>• <strong>故障排除</strong> — 常见问题与解决方案</li>
+            </ul>
+          </div>
+        </div>
+
+        {/* Where to go */}
+        <div className="bg-[var(--bg-void)] rounded-lg p-4 border border-[var(--border-subtle)]">
+          <h4 className="text-[var(--text-primary)] font-semibold mb-3 text-sm">🔗 相关资源</h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+            <div className="flex items-center gap-2 text-[var(--text-secondary)]">
+              <span className="text-[var(--cyber-blue)]">📘</span>
+              <span><strong>用户文档</strong> → <code className="text-[var(--cyber-blue)]">/docs</code> 目录</span>
+            </div>
+            <button
+              onClick={() => onNavigate?.('upstream-diff')}
+              className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--amber)] transition-colors text-left"
+            >
+              <span className="text-[var(--amber)]">🔀</span>
+              <span><strong>上游改造</strong> → <code className="text-[var(--amber)] hover:underline">查看详情</code></span>
+            </button>
+            <div className="flex items-center gap-2 text-[var(--text-secondary)]">
+              <span className="text-[var(--purple)]">🏢</span>
+              <span><strong>版本记录</strong> → <code className="text-[var(--purple)]">CHANGELOG.md</code></span>
+            </div>
+          </div>
+        </div>
+
+        {/* Naming note - simplified */}
+        <div className="mt-4 pt-4 border-t border-[var(--border-subtle)] text-sm">
+          <div className="flex items-start gap-2">
+            <span className="text-[var(--amber)]">💡</span>
+            <p className="text-[var(--text-muted)]">
+              <strong className="text-[var(--text-secondary)]">关于命名：</strong>
+              Qwen CLI 基于 Google Gemini CLI 改造，源码中的
+              <code className="text-[var(--amber)] bg-[var(--amber)]/10 px-1 rounded mx-1">GeminiChat</code>、
+              <code className="text-[var(--amber)] bg-[var(--amber)]/10 px-1 rounded mx-1">Gemini 格式</code>
+              等是历史遗留命名。
             </p>
           </div>
         </div>
