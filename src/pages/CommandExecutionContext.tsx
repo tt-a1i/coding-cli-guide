@@ -11,7 +11,7 @@ export function CommandExecutionContext() {
   const [activeTab, setActiveTab] = useState<'context' | 'loaders' | 'actions' | 'flow'>('context');
 
   return (
-    <div className="page-container">
+    <div className="max-w-4xl mx-auto">
       <h1>🎯 命令执行上下文详解</h1>
 
       <div className="info-box" style={{

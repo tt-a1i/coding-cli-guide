@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { Layer } from '../components/Layer';
+import { HighlightBox } from '../components/HighlightBox';
 
 type TabType = 'overview' | 'safety' | 'performance' | 'correctness' | 'state';
 
@@ -16,31 +18,25 @@ export function DesignTradeoffs() {
   ];
 
   return (
-    <div style={{ maxWidth: 900, margin: '0 auto' }}>
-      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 8, color: '#f1f5f9' }}>
+    <div className="max-w-4xl mx-auto">
+      <h1 className="text-2xl font-bold mb-2 text-[var(--text-primary)]">
         🎭 设计权衡与架构决策
       </h1>
-      <p style={{ color: '#94a3b8', marginBottom: 24, fontSize: 15 }}>
+      <p className="text-[var(--text-secondary)] mb-6 text-sm">
         深入分析 Innies CLI 的关键架构决策及其背后的权衡考量
       </p>
 
       {/* Tab Navigation */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
+      <div className="flex gap-2 mb-6 flex-wrap">
         {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            style={{
-              padding: '8px 16px',
-              borderRadius: 8,
-              border: 'none',
-              background: activeTab === tab.id ? '#3b82f6' : '#1e293b',
-              color: activeTab === tab.id ? '#fff' : '#94a3b8',
-              cursor: 'pointer',
-              fontSize: 14,
-              fontWeight: 500,
-              transition: 'all 0.2s',
-            }}
+            className={`px-4 py-2 rounded-lg border-none cursor-pointer text-sm font-medium transition-all ${
+              activeTab === tab.id
+                ? 'bg-[var(--cyber-blue)] text-white'
+                : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+            }`}
           >
             {tab.icon} {tab.label}
           </button>
@@ -59,13 +55,9 @@ export function DesignTradeoffs() {
 
 function OverviewTab() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          📐 设计哲学总览
-        </h2>
-
-        <p style={{ color: '#94a3b8', marginBottom: 16 }}>
+    <div className="flex flex-col gap-6">
+      <Layer title="📐 设计哲学总览">
+        <p className="text-[var(--text-secondary)] mb-4">
           Innies CLI 的架构遵循以下核心原则，每个原则背后都有明确的权衡决策：
         </p>
 
@@ -89,84 +81,75 @@ mindmap
       单例遥测
       顺序执行
 `} />
-      </div>
+      </Layer>
 
       {/* Key Tradeoff Matrix */}
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          ⚖️ 核心权衡矩阵
-        </h3>
-
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid #334155' }}>
-              <th style={{ padding: 12, textAlign: 'left', color: '#f1f5f9' }}>决策领域</th>
-              <th style={{ padding: 12, textAlign: 'left', color: '#f1f5f9' }}>选择</th>
-              <th style={{ padding: 12, textAlign: 'left', color: '#f1f5f9' }}>取舍</th>
-              <th style={{ padding: 12, textAlign: 'left', color: '#f1f5f9' }}>原因</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr style={{ borderBottom: '1px solid #1e293b' }}>
-              <td style={{ padding: 12, color: '#94a3b8' }}>工具执行</td>
-              <td style={{ padding: 12, color: '#22c55e' }}>顺序队列</td>
-              <td style={{ padding: 12, color: '#f59e0b' }}>牺牲并发吞吐</td>
-              <td style={{ padding: 12, color: '#94a3b8' }}>确保状态一致性</td>
-            </tr>
-            <tr style={{ borderBottom: '1px solid #1e293b' }}>
-              <td style={{ padding: 12, color: '#94a3b8' }}>循环检测</td>
-              <td style={{ padding: 12, color: '#22c55e' }}>三层检测</td>
-              <td style={{ padding: 12, color: '#f59e0b' }}>增加复杂度</td>
-              <td style={{ padding: 12, color: '#94a3b8' }}>避免漏检误判</td>
-            </tr>
-            <tr style={{ borderBottom: '1px solid #1e293b' }}>
-              <td style={{ padding: 12, color: '#94a3b8' }}>编码检测</td>
-              <td style={{ padding: 12, color: '#22c55e' }}>非对称缓存</td>
-              <td style={{ padding: 12, color: '#f59e0b' }}>逻辑不一致</td>
-              <td style={{ padding: 12, color: '#94a3b8' }}>平衡性能与准确</td>
-            </tr>
-            <tr style={{ borderBottom: '1px solid #1e293b' }}>
-              <td style={{ padding: 12, color: '#94a3b8' }}>遥测收集</td>
-              <td style={{ padding: 12, color: '#22c55e' }}>单例模式</td>
-              <td style={{ padding: 12, color: '#f59e0b' }}>测试困难</td>
-              <td style={{ padding: 12, color: '#94a3b8' }}>确保数据一致</td>
-            </tr>
-            <tr>
-              <td style={{ padding: 12, color: '#94a3b8' }}>Shell 执行</td>
-              <td style={{ padding: 12, color: '#22c55e' }}>多层回退</td>
-              <td style={{ padding: 12, color: '#f59e0b' }}>维护成本高</td>
-              <td style={{ padding: 12, color: '#94a3b8' }}>环境兼容性</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <Layer title="⚖️ 核心权衡矩阵">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="border-b border-white/20">
+                <th className="p-3 text-left text-[var(--text-primary)]">决策领域</th>
+                <th className="p-3 text-left text-[var(--text-primary)]">选择</th>
+                <th className="p-3 text-left text-[var(--text-primary)]">取舍</th>
+                <th className="p-3 text-left text-[var(--text-primary)]">原因</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b border-white/10">
+                <td className="p-3 text-[var(--text-secondary)]">工具执行</td>
+                <td className="p-3 text-[var(--terminal-green)]">顺序队列</td>
+                <td className="p-3 text-[var(--amber)]">牺牲并发吞吐</td>
+                <td className="p-3 text-[var(--text-secondary)]">确保状态一致性</td>
+              </tr>
+              <tr className="border-b border-white/10">
+                <td className="p-3 text-[var(--text-secondary)]">循环检测</td>
+                <td className="p-3 text-[var(--terminal-green)]">三层检测</td>
+                <td className="p-3 text-[var(--amber)]">增加复杂度</td>
+                <td className="p-3 text-[var(--text-secondary)]">避免漏检误判</td>
+              </tr>
+              <tr className="border-b border-white/10">
+                <td className="p-3 text-[var(--text-secondary)]">编码检测</td>
+                <td className="p-3 text-[var(--terminal-green)]">非对称缓存</td>
+                <td className="p-3 text-[var(--amber)]">逻辑不一致</td>
+                <td className="p-3 text-[var(--text-secondary)]">平衡性能与准确</td>
+              </tr>
+              <tr className="border-b border-white/10">
+                <td className="p-3 text-[var(--text-secondary)]">遥测收集</td>
+                <td className="p-3 text-[var(--terminal-green)]">单例模式</td>
+                <td className="p-3 text-[var(--amber)]">测试困难</td>
+                <td className="p-3 text-[var(--text-secondary)]">确保数据一致</td>
+              </tr>
+              <tr>
+                <td className="p-3 text-[var(--text-secondary)]">Shell 执行</td>
+                <td className="p-3 text-[var(--terminal-green)]">多层回退</td>
+                <td className="p-3 text-[var(--amber)]">维护成本高</td>
+                <td className="p-3 text-[var(--text-secondary)]">环境兼容性</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Layer>
 
       {/* Core Insight */}
-      <div style={{ padding: 16, background: '#1e3a5f', borderRadius: 8, border: '1px solid #3b82f6' }}>
-        <h4 style={{ color: '#60a5fa', marginBottom: 8, fontSize: 15, fontWeight: 600 }}>
-          💡 核心洞察：拒绝纯并行
-        </h4>
-        <p style={{ color: '#94a3b8', fontSize: 14, margin: 0 }}>
-          Innies CLI 最显著的战略选择是<strong style={{ color: '#f1f5f9' }}>拒绝纯并行</strong>，
-          转而采用<strong style={{ color: '#f1f5f9' }}>顺序请求队列</strong>。
+      <HighlightBox title="💡 核心洞察：拒绝纯并行" variant="blue">
+        <p className="text-[var(--text-secondary)] text-sm">
+          Innies CLI 最显著的战略选择是<strong className="text-[var(--text-primary)]">拒绝纯并行</strong>，
+          转而采用<strong className="text-[var(--text-primary)]">顺序请求队列</strong>。
           这看似反直觉，但实际上是正确的——工具输出必须在下一批次执行前被纳入上下文，
           并行执行会导致状态竞争条件。
         </p>
-      </div>
+      </HighlightBox>
     </div>
   );
 }
 
 function SafetyTab() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          🛡️ 审批模式分层
-        </h2>
-
-        <p style={{ color: '#94a3b8', marginBottom: 16 }}>
-          四层审批模式体现了<strong style={{ color: '#f1f5f9' }}>安全优先</strong>与<strong style={{ color: '#f1f5f9' }}>效率需求</strong>的平衡：
+    <div className="flex flex-col gap-6">
+      <Layer title="🛡️ 审批模式分层">
+        <p className="text-[var(--text-secondary)] mb-4">
+          四层审批模式体现了<strong className="text-[var(--text-primary)]">安全优先</strong>与<strong className="text-[var(--text-primary)]">效率需求</strong>的平衡：
         </p>
 
         <MermaidDiagram chart={`
@@ -198,14 +181,10 @@ graph TD
     style AUTOEDIT fill:#f59e0b,stroke:#d97706,color:#fff
     style YOLO fill:#ef4444,stroke:#dc2626,color:#fff
 `} />
-      </div>
+      </Layer>
 
       {/* Code Example */}
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          📝 信任边界实现
-        </h3>
-
+      <Layer title="📝 信任边界实现">
         <CodeBlock language="typescript" code={`// packages/core/src/config/config.ts
 
 export enum ApprovalMode {
@@ -227,22 +206,18 @@ function validateApprovalMode(mode: ApprovalMode, cwd: string): ApprovalMode {
   return mode;
 }`} />
 
-        <div style={{ marginTop: 16, padding: 12, background: '#1e293b', borderRadius: 8 }}>
-          <p style={{ color: '#f59e0b', fontSize: 14, margin: 0 }}>
-            <strong>权衡</strong>：增加了代码复杂度，但<strong style={{ color: '#22c55e' }}>显著提升安全性</strong>。
+        <HighlightBox title="权衡" variant="yellow">
+          <p className="text-sm">
+            增加了代码复杂度，但<strong className="text-[var(--terminal-green)]">显著提升安全性</strong>。
             在不同信任上下文中提供差异化的用户体验。
           </p>
-        </div>
-      </div>
+        </HighlightBox>
+      </Layer>
 
       {/* Context Compression */}
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          🗜️ 智能压缩分割点
-        </h3>
-
-        <p style={{ color: '#94a3b8', marginBottom: 16 }}>
-          上下文压缩需要选择<strong style={{ color: '#f1f5f9' }}>语义安全</strong>的分割点：
+      <Layer title="🗜️ 智能压缩分割点">
+        <p className="text-[var(--text-secondary)] mb-4">
+          上下文压缩需要选择<strong className="text-[var(--text-primary)]">语义安全</strong>的分割点：
         </p>
 
         <CodeBlock language="typescript" code={`// packages/core/src/services/chatCompressionService.ts
@@ -283,21 +258,17 @@ sequenceDiagram
     C->>H: 保留最近 30% 消息
     Note over H: [摘要] + [近期消息]
 `} />
-      </div>
+      </Layer>
     </div>
   );
 }
 
 function PerformanceTab() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          ⚡ 并行文件发现
-        </h2>
-
-        <p style={{ color: '#94a3b8', marginBottom: 16 }}>
-          BFS 文件搜索采用<strong style={{ color: '#f1f5f9' }}>批量并行</strong>策略：
+    <div className="flex flex-col gap-6">
+      <Layer title="⚡ 并行文件发现">
+        <p className="text-[var(--text-secondary)] mb-4">
+          BFS 文件搜索采用<strong className="text-[var(--text-primary)]">批量并行</strong>策略：
         </p>
 
         <CodeBlock language="typescript" code={`// packages/core/src/utils/bfsFileSearch.ts
@@ -332,24 +303,20 @@ async function bfsFileSearch(startDir: string): Promise<string[]> {
   }
 }`} />
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginTop: 16 }}>
-          <div style={{ padding: 12, background: '#1e293b', borderRadius: 8 }}>
-            <div style={{ color: '#22c55e', fontWeight: 600, marginBottom: 4 }}>✅ 选择</div>
-            <div style={{ color: '#94a3b8', fontSize: 13 }}>指针式队列 + 并行批读</div>
+        <div className="grid grid-cols-2 gap-3 mt-4">
+          <div className="p-3 bg-[var(--bg-elevated)] rounded-lg">
+            <div className="text-[var(--terminal-green)] font-semibold mb-1">✅ 选择</div>
+            <div className="text-[var(--text-secondary)] text-sm">指针式队列 + 并行批读</div>
           </div>
-          <div style={{ padding: 12, background: '#1e293b', borderRadius: 8 }}>
-            <div style={{ color: '#f59e0b', fontWeight: 600, marginBottom: 4 }}>⚠️ 取舍</div>
-            <div style={{ color: '#94a3b8', fontSize: 13 }}>更复杂的队列管理逻辑</div>
+          <div className="p-3 bg-[var(--bg-elevated)] rounded-lg">
+            <div className="text-[var(--amber)] font-semibold mb-1">⚠️ 取舍</div>
+            <div className="text-[var(--text-secondary)] text-sm">更复杂的队列管理逻辑</div>
           </div>
         </div>
-      </div>
+      </Layer>
 
       {/* Encoding Cache Strategy */}
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          🔤 非对称缓存策略
-        </h3>
-
+      <Layer title="🔤 非对称缓存策略">
         <CodeBlock language="typescript" code={`// packages/core/src/utils/systemEncoding.ts
 
 // 系统编码：稳定，缓存永久
@@ -389,20 +356,16 @@ flowchart TD
     style G fill:#f59e0b,stroke:#d97706,color:#fff
 `} />
 
-        <div style={{ marginTop: 16, padding: 12, background: '#1e293b', borderRadius: 8 }}>
-          <p style={{ color: '#94a3b8', fontSize: 14, margin: 0 }}>
-            <strong style={{ color: '#f1f5f9' }}>设计洞察</strong>：系统编码稳定但检测昂贵 → 永久缓存；
-            Buffer 编码可能变化 → 每次检测。非对称缓存正确平衡了性能与准确性。
+        <HighlightBox title="设计洞察" variant="green">
+          <p className="text-sm">
+            系统编码稳定但检测昂贵 → 永久缓存；Buffer 编码可能变化 → 每次检测。
+            非对称缓存正确平衡了性能与准确性。
           </p>
-        </div>
-      </div>
+        </HighlightBox>
+      </Layer>
 
       {/* Model Config Cache */}
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          ⏱️ 模型配置缓存 TTL
-        </h3>
-
+      <Layer title="⏱️ 模型配置缓存 TTL">
         <CodeBlock language="typescript" code={`// packages/core/src/innies/modelConfigCache.ts
 
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 分钟 TTL
@@ -427,35 +390,31 @@ class ModelConfigCache {
   }
 }`} />
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginTop: 16 }}>
-          <div style={{ padding: 12, background: '#1e293b', borderRadius: 8, textAlign: 'center' }}>
-            <div style={{ color: '#3b82f6', fontSize: 20, fontWeight: 700 }}>5 min</div>
-            <div style={{ color: '#64748b', fontSize: 12 }}>TTL 时长</div>
+        <div className="grid grid-cols-3 gap-3 mt-4">
+          <div className="p-3 bg-[var(--bg-elevated)] rounded-lg text-center">
+            <div className="text-[var(--cyber-blue)] text-xl font-bold">5 min</div>
+            <div className="text-[var(--text-muted)] text-xs">TTL 时长</div>
           </div>
-          <div style={{ padding: 12, background: '#1e293b', borderRadius: 8, textAlign: 'center' }}>
-            <div style={{ color: '#22c55e', fontSize: 20, fontWeight: 700 }}>单例</div>
-            <div style={{ color: '#64748b', fontSize: 12 }}>全局共享</div>
+          <div className="p-3 bg-[var(--bg-elevated)] rounded-lg text-center">
+            <div className="text-[var(--terminal-green)] text-xl font-bold">单例</div>
+            <div className="text-[var(--text-muted)] text-xs">全局共享</div>
           </div>
-          <div style={{ padding: 12, background: '#1e293b', borderRadius: 8, textAlign: 'center' }}>
-            <div style={{ color: '#f59e0b', fontSize: 20, fontWeight: 700 }}>惰性</div>
-            <div style={{ color: '#64748b', fontSize: 12 }}>按需加载</div>
+          <div className="p-3 bg-[var(--bg-elevated)] rounded-lg text-center">
+            <div className="text-[var(--amber)] text-xl font-bold">惰性</div>
+            <div className="text-[var(--text-muted)] text-xs">按需加载</div>
           </div>
         </div>
-      </div>
+      </Layer>
     </div>
   );
 }
 
 function CorrectnessTab() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          🔄 工具执行队列
-        </h2>
-
-        <p style={{ color: '#94a3b8', marginBottom: 16 }}>
-          <strong style={{ color: '#ef4444' }}>拒绝并行</strong>是 Innies CLI 最重要的架构决策之一：
+    <div className="flex flex-col gap-6">
+      <Layer title="🔄 工具执行队列">
+        <p className="text-[var(--text-secondary)] mb-4">
+          <strong className="text-[var(--error)]">拒绝并行</strong>是 Innies CLI 最重要的架构决策之一：
         </p>
 
         <CodeBlock language="typescript" code={`// packages/core/src/core/coreToolScheduler.ts
@@ -520,20 +479,16 @@ sequenceDiagram
     Note over C: R2 能看到 R1 的结果
 `} />
 
-        <div style={{ marginTop: 16, padding: 12, background: '#1e3a5f', borderRadius: 8, border: '1px solid #3b82f6' }}>
-          <p style={{ color: '#60a5fa', fontSize: 14, margin: 0 }}>
-            <strong>为什么不并行？</strong>工具结果必须在下一批次执行前被 LLM 纳入上下文。
+        <HighlightBox title="为什么不并行？" variant="blue">
+          <p className="text-sm">
+            工具结果必须在下一批次执行前被 LLM 纳入上下文。
             并行执行会导致竞态条件：后续工具可能基于过时的状态做决策。
           </p>
-        </div>
-      </div>
+        </HighlightBox>
+      </Layer>
 
       {/* Loop Detection */}
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          🔁 三层循环检测
-        </h3>
-
+      <Layer title="🔁 三层循环检测">
         <CodeBlock language="typescript" code={`// packages/core/src/services/loopDetectionService.ts
 
 const TOOL_CALL_LOOP_THRESHOLD = 5;    // 工具调用重复阈值
@@ -577,46 +532,42 @@ class LoopDetectionService {
   }
 }`} />
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginTop: 16 }}>
-          <div style={{ padding: 16, background: '#1e293b', borderRadius: 8 }}>
-            <div style={{ color: '#22c55e', fontWeight: 600, marginBottom: 8 }}>Layer 1: 工具重复</div>
-            <ul style={{ color: '#94a3b8', fontSize: 13, margin: 0, paddingLeft: 16 }}>
+        <div className="grid grid-cols-3 gap-3 mt-4">
+          <div className="p-4 bg-[var(--bg-elevated)] rounded-lg">
+            <div className="text-[var(--terminal-green)] font-semibold mb-2">Layer 1: 工具重复</div>
+            <ul className="text-[var(--text-secondary)] text-sm space-y-1 list-disc list-inside">
               <li>阈值：5 次</li>
               <li>速度：O(1) 哈希</li>
               <li>精度：高（精确匹配）</li>
             </ul>
           </div>
-          <div style={{ padding: 16, background: '#1e293b', borderRadius: 8 }}>
-            <div style={{ color: '#f59e0b', fontWeight: 600, marginBottom: 8 }}>Layer 2: 内容吟唱</div>
-            <ul style={{ color: '#94a3b8', fontSize: 13, margin: 0, paddingLeft: 16 }}>
+          <div className="p-4 bg-[var(--bg-elevated)] rounded-lg">
+            <div className="text-[var(--amber)] font-semibold mb-2">Layer 2: 内容吟唱</div>
+            <ul className="text-[var(--text-secondary)] text-sm space-y-1 list-disc list-inside">
               <li>阈值：10 次</li>
               <li>速度：O(n) 扫描</li>
               <li>精度：中（模糊匹配）</li>
             </ul>
           </div>
-          <div style={{ padding: 16, background: '#1e293b', borderRadius: 8 }}>
-            <div style={{ color: '#ef4444', fontWeight: 600, marginBottom: 8 }}>Layer 3: LLM 检测</div>
-            <ul style={{ color: '#94a3b8', fontSize: 13, margin: 0, paddingLeft: 16 }}>
+          <div className="p-4 bg-[var(--bg-elevated)] rounded-lg">
+            <div className="text-[var(--error)] font-semibold mb-2">Layer 3: LLM 检测</div>
+            <ul className="text-[var(--text-secondary)] text-sm space-y-1 list-disc list-inside">
               <li>触发：30 轮后</li>
               <li>速度：慢（API 调用）</li>
               <li>精度：最高（语义理解）</li>
             </ul>
           </div>
         </div>
-      </div>
+      </Layer>
     </div>
   );
 }
 
 function StateTab() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          📦 延迟应用模式
-        </h2>
-
-        <p style={{ color: '#94a3b8', marginBottom: 16 }}>
+    <div className="flex flex-col gap-6">
+      <Layer title="📦 延迟应用模式">
+        <p className="text-[var(--text-secondary)] mb-4">
           元数据（thoughts、tokens）与消息异步到达，需要队列缓冲：
         </p>
 
@@ -671,14 +622,10 @@ sequenceDiagram
 
     Note over M: 消息 + 元数据
 `} />
-      </div>
+      </Layer>
 
       {/* Singleton Pattern */}
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          🏛️ 单例遥测
-        </h3>
-
+      <Layer title="🏛️ 单例遥测">
         <CodeBlock language="typescript" code={`// packages/core/src/telemetry/qwen-logger/qwen-logger.ts
 
 export class QwenLogger {
@@ -699,32 +646,28 @@ export class QwenLogger {
   // (QwenLogger as any).instance = undefined;
 }`} />
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginTop: 16 }}>
-          <div style={{ padding: 12, background: '#1e293b', borderRadius: 8 }}>
-            <div style={{ color: '#22c55e', fontWeight: 600, marginBottom: 4 }}>✅ 优点</div>
-            <ul style={{ color: '#94a3b8', fontSize: 13, margin: 0, paddingLeft: 16 }}>
+        <div className="grid grid-cols-2 gap-3 mt-4">
+          <div className="p-3 bg-[var(--bg-elevated)] rounded-lg">
+            <div className="text-[var(--terminal-green)] font-semibold mb-1">✅ 优点</div>
+            <ul className="text-[var(--text-secondary)] text-sm space-y-1 list-disc list-inside">
               <li>全局唯一收集点</li>
               <li>防止重复日志</li>
               <li>状态一致性保证</li>
             </ul>
           </div>
-          <div style={{ padding: 12, background: '#1e293b', borderRadius: 8 }}>
-            <div style={{ color: '#f59e0b', fontWeight: 600, marginBottom: 4 }}>⚠️ 缺点</div>
-            <ul style={{ color: '#94a3b8', fontSize: 13, margin: 0, paddingLeft: 16 }}>
+          <div className="p-3 bg-[var(--bg-elevated)] rounded-lg">
+            <div className="text-[var(--amber)] font-semibold mb-1">⚠️ 缺点</div>
+            <ul className="text-[var(--text-secondary)] text-sm space-y-1 list-disc list-inside">
               <li>测试隔离困难</li>
               <li>需要显式重置</li>
               <li>模块耦合度高</li>
             </ul>
           </div>
         </div>
-      </div>
+      </Layer>
 
       {/* Shell Fallback */}
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          🐚 Shell 执行回退链
-        </h3>
-
+      <Layer title="🐚 Shell 执行回退链">
         <MermaidDiagram chart={`
 flowchart TD
     A[Shell 执行请求] --> B{lydell-node-pty<br/>可用?}
@@ -746,27 +689,23 @@ flowchart TD
     style H fill:#ef4444,stroke:#dc2626,color:#fff
 `} />
 
-        <div style={{ marginTop: 16, padding: 12, background: '#1e293b', borderRadius: 8 }}>
-          <p style={{ color: '#94a3b8', fontSize: 14, margin: 0 }}>
-            <strong style={{ color: '#f1f5f9' }}>设计原因</strong>：PTY 提供交互式 shell 体验，
-            但某些环境（容器、CI/CD）不支持。多层回退确保在任何环境下都能执行命令，
-            代价是更多的实现逻辑需要维护。
+        <HighlightBox title="设计原因" variant="green">
+          <p className="text-sm">
+            PTY 提供交互式 shell 体验，但某些环境（容器、CI/CD）不支持。
+            多层回退确保在任何环境下都能执行命令，代价是更多的实现逻辑需要维护。
           </p>
-        </div>
-      </div>
+        </HighlightBox>
+      </Layer>
 
       {/* Summary */}
-      <div style={{ padding: 16, background: '#1e3a5f', borderRadius: 8, border: '1px solid #3b82f6' }}>
-        <h4 style={{ color: '#60a5fa', marginBottom: 8, fontSize: 15, fontWeight: 600 }}>
-          📋 状态管理总结
-        </h4>
-        <ul style={{ color: '#94a3b8', fontSize: 14, margin: 0, paddingLeft: 20 }}>
-          <li><strong style={{ color: '#f1f5f9' }}>队列模式</strong>：处理异步到达的数据流</li>
-          <li><strong style={{ color: '#f1f5f9' }}>单例遥测</strong>：确保全局数据一致性</li>
-          <li><strong style={{ color: '#f1f5f9' }}>顺序执行</strong>：避免状态竞争条件</li>
-          <li><strong style={{ color: '#f1f5f9' }}>优雅降级</strong>：多层回退保证可用性</li>
+      <HighlightBox title="📋 状态管理总结" variant="blue">
+        <ul className="text-[var(--text-secondary)] text-sm space-y-1 list-disc list-inside">
+          <li><strong className="text-[var(--text-primary)]">队列模式</strong>：处理异步到达的数据流</li>
+          <li><strong className="text-[var(--text-primary)]">单例遥测</strong>：确保全局数据一致性</li>
+          <li><strong className="text-[var(--text-primary)]">顺序执行</strong>：避免状态竞争条件</li>
+          <li><strong className="text-[var(--text-primary)]">优雅降级</strong>：多层回退保证可用性</li>
         </ul>
-      </div>
+      </HighlightBox>
     </div>
   );
 }

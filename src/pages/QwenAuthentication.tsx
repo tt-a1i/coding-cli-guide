@@ -11,7 +11,7 @@ export function QwenAuthentication() {
   const [activeTab, setActiveTab] = useState<'flow' | 'pkce' | 'manager' | 'events'>('flow');
 
   return (
-    <div className="page-container">
+    <div className="max-w-4xl mx-auto">
       <h1>🔐 Qwen OAuth2 认证详解</h1>
 
       <div className="info-box" style={{

@@ -361,6 +361,17 @@ const learningPaths: LearningPath[] = [
         estimatedTime: '1 小时',
         checkpoint: '知道如何配置一个 MCP 服务器吗？',
       },
+      {
+        title: 'IDE 集成',
+        pages: ['Zed ACP协议', 'IDE集成', 'IDE Diff协议'],
+        keyConceptsCn: [
+          '理解 ACP 协议双向通信',
+          '掌握文件系统代理机制',
+          '了解 IDE 权限请求流程',
+        ],
+        estimatedTime: '1 小时',
+        checkpoint: '能解释 CLI 如何作为 Zed 代理后端运行吗？',
+      },
     ],
   },
   {
@@ -436,6 +447,17 @@ const learningPaths: LearningPath[] = [
         ],
         estimatedTime: '1.5 小时',
         checkpoint: '能解释三层循环检测的阈值设计吗？',
+      },
+      {
+        title: '流式与配置',
+        pages: ['流式响应处理', '模型配置机制'],
+        keyConceptsCn: [
+          '理解流式 Chunk 解析与合并',
+          '掌握 StreamingToolCallParser 状态追踪',
+          '了解模型配置的分层与缓存机制',
+        ],
+        estimatedTime: '1.5 小时',
+        checkpoint: '能解释流式 JSON 修复策略和模型配置优先级吗？',
       },
     ],
   },
@@ -515,11 +537,11 @@ const learningPaths: LearningPath[] = [
       },
       {
         title: '设计权衡分析',
-        pages: ['所有设计原理章节'],
+        pages: ['设计权衡分析', '错误恢复模式', '并发模式详解'],
         keyConceptsCn: [
-          '理解每个设计决策的 Why/How/Benefit',
-          '掌握常见架构权衡',
-          '形成自己的架构判断力',
+          '理解架构决策的 Why/How/Trade-off',
+          '掌握错误恢复策略和重试模式',
+          '了解并发控制与资源管理',
         ],
         estimatedTime: '3 小时',
         checkpoint: '能评审新功能设计并指出潜在问题吗？',

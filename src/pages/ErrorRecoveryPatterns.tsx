@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { Layer } from '../components/Layer';
+import { HighlightBox } from '../components/HighlightBox';
 
 type TabType = 'overview' | 'retry' | 'fallback' | 'token' | 'timeout';
 
@@ -16,31 +18,25 @@ export function ErrorRecoveryPatterns() {
   ];
 
   return (
-    <div style={{ maxWidth: 900, margin: '0 auto' }}>
-      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 8, color: '#f1f5f9' }}>
+    <div className="max-w-4xl mx-auto">
+      <h1 className="text-2xl font-bold mb-2 text-[var(--text-primary)]">
         🛠️ 错误恢复模式
       </h1>
-      <p style={{ color: '#94a3b8', marginBottom: 24, fontSize: 15 }}>
+      <p className="text-[var(--text-secondary)] mb-6 text-sm">
         Innies CLI 中的错误处理、重试机制与优雅降级策略
       </p>
 
       {/* Tab Navigation */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
+      <div className="flex gap-2 mb-6 flex-wrap">
         {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            style={{
-              padding: '8px 16px',
-              borderRadius: 8,
-              border: 'none',
-              background: activeTab === tab.id ? '#3b82f6' : '#1e293b',
-              color: activeTab === tab.id ? '#fff' : '#94a3b8',
-              cursor: 'pointer',
-              fontSize: 14,
-              fontWeight: 500,
-              transition: 'all 0.2s',
-            }}
+            className={`px-4 py-2 rounded-lg border-none cursor-pointer text-sm font-medium transition-all ${
+              activeTab === tab.id
+                ? 'bg-[var(--cyber-blue)] text-white'
+                : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+            }`}
           >
             {tab.icon} {tab.label}
           </button>
@@ -59,12 +55,8 @@ export function ErrorRecoveryPatterns() {
 
 function OverviewTab() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          📐 错误恢复架构
-        </h2>
-
+    <div className="flex flex-col gap-6">
+      <Layer title="📐 错误恢复架构">
         <MermaidDiagram chart={`
 flowchart TD
     subgraph "错误类型"
@@ -101,84 +93,75 @@ flowchart TD
     style OK fill:#22c55e,stroke:#16a34a,color:#fff
     style FAIL fill:#ef4444,stroke:#dc2626,color:#fff
 `} />
-      </div>
+      </Layer>
 
       {/* Pattern Summary Table */}
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          🗂️ 核心恢复模式
-        </h3>
-
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid #334155' }}>
-              <th style={{ padding: 12, textAlign: 'left', color: '#f1f5f9' }}>模式</th>
-              <th style={{ padding: 12, textAlign: 'left', color: '#f1f5f9' }}>触发条件</th>
-              <th style={{ padding: 12, textAlign: 'left', color: '#f1f5f9' }}>核心机制</th>
-              <th style={{ padding: 12, textAlign: 'left', color: '#f1f5f9' }}>关键代码</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr style={{ borderBottom: '1px solid #1e293b' }}>
-              <td style={{ padding: 12, color: '#22c55e', fontWeight: 600 }}>指数退避</td>
-              <td style={{ padding: 12, color: '#94a3b8' }}>429/5xx 错误</td>
-              <td style={{ padding: 12, color: '#94a3b8' }}>延迟 × 2 + 抖动</td>
-              <td style={{ padding: 12, color: '#60a5fa', fontFamily: 'monospace', fontSize: 12 }}>retry.ts</td>
-            </tr>
-            <tr style={{ borderBottom: '1px solid #1e293b' }}>
-              <td style={{ padding: 12, color: '#f59e0b', fontWeight: 600 }}>模型降级</td>
-              <td style={{ padding: 12, color: '#94a3b8' }}>Pro 配额耗尽</td>
-              <td style={{ padding: 12, color: '#94a3b8' }}>Pro → Flash</td>
-              <td style={{ padding: 12, color: '#60a5fa', fontFamily: 'monospace', fontSize: 12 }}>fallback/handler.ts</td>
-            </tr>
-            <tr style={{ borderBottom: '1px solid #1e293b' }}>
-              <td style={{ padding: 12, color: '#3b82f6', fontWeight: 600 }}>Token 刷新</td>
-              <td style={{ padding: 12, color: '#94a3b8' }}>401/403 认证失败</td>
-              <td style={{ padding: 12, color: '#94a3b8' }}>透明刷新重试</td>
-              <td style={{ padding: 12, color: '#60a5fa', fontFamily: 'monospace', fontSize: 12 }}>sharedTokenManager.ts</td>
-            </tr>
-            <tr style={{ borderBottom: '1px solid #1e293b' }}>
-              <td style={{ padding: 12, color: '#ef4444', fontWeight: 600 }}>配额检测</td>
-              <td style={{ padding: 12, color: '#94a3b8' }}>Qwen 免费额度用尽</td>
-              <td style={{ padding: 12, color: '#94a3b8' }}>立即失败</td>
-              <td style={{ padding: 12, color: '#60a5fa', fontFamily: 'monospace', fontSize: 12 }}>quotaErrorDetection.ts</td>
-            </tr>
-            <tr>
-              <td style={{ padding: 12, color: '#a855f7', fontWeight: 600 }}>MCP 隔离</td>
-              <td style={{ padding: 12, color: '#94a3b8' }}>单服务器失败</td>
-              <td style={{ padding: 12, color: '#94a3b8' }}>继续其他服务器</td>
-              <td style={{ padding: 12, color: '#60a5fa', fontFamily: 'monospace', fontSize: 12 }}>mcp-client-manager.ts</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <Layer title="🗂️ 核心恢复模式">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="border-b border-white/20">
+                <th className="p-3 text-left text-[var(--text-primary)]">模式</th>
+                <th className="p-3 text-left text-[var(--text-primary)]">触发条件</th>
+                <th className="p-3 text-left text-[var(--text-primary)]">核心机制</th>
+                <th className="p-3 text-left text-[var(--text-primary)]">关键代码</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b border-white/10">
+                <td className="p-3 text-[var(--terminal-green)] font-semibold">指数退避</td>
+                <td className="p-3 text-[var(--text-secondary)]">429/5xx 错误</td>
+                <td className="p-3 text-[var(--text-secondary)]">延迟 × 2 + 抖动</td>
+                <td className="p-3 text-[var(--cyber-blue)] font-mono text-xs">retry.ts</td>
+              </tr>
+              <tr className="border-b border-white/10">
+                <td className="p-3 text-[var(--amber)] font-semibold">模型降级</td>
+                <td className="p-3 text-[var(--text-secondary)]">Pro 配额耗尽</td>
+                <td className="p-3 text-[var(--text-secondary)]">Pro → Flash</td>
+                <td className="p-3 text-[var(--cyber-blue)] font-mono text-xs">fallback/handler.ts</td>
+              </tr>
+              <tr className="border-b border-white/10">
+                <td className="p-3 text-[var(--cyber-blue)] font-semibold">Token 刷新</td>
+                <td className="p-3 text-[var(--text-secondary)]">401/403 认证失败</td>
+                <td className="p-3 text-[var(--text-secondary)]">透明刷新重试</td>
+                <td className="p-3 text-[var(--cyber-blue)] font-mono text-xs">sharedTokenManager.ts</td>
+              </tr>
+              <tr className="border-b border-white/10">
+                <td className="p-3 text-[var(--error)] font-semibold">配额检测</td>
+                <td className="p-3 text-[var(--text-secondary)]">Qwen 免费额度用尽</td>
+                <td className="p-3 text-[var(--text-secondary)]">立即失败</td>
+                <td className="p-3 text-[var(--cyber-blue)] font-mono text-xs">quotaErrorDetection.ts</td>
+              </tr>
+              <tr>
+                <td className="p-3 text-[var(--purple)] font-semibold">MCP 隔离</td>
+                <td className="p-3 text-[var(--text-secondary)]">单服务器失败</td>
+                <td className="p-3 text-[var(--text-secondary)]">继续其他服务器</td>
+                <td className="p-3 text-[var(--cyber-blue)] font-mono text-xs">mcp-client-manager.ts</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Layer>
 
       {/* Design Philosophy */}
-      <div style={{ padding: 16, background: '#1e3a5f', borderRadius: 8, border: '1px solid #3b82f6' }}>
-        <h4 style={{ color: '#60a5fa', marginBottom: 8, fontSize: 15, fontWeight: 600 }}>
-          💡 设计哲学
-        </h4>
-        <ul style={{ color: '#94a3b8', fontSize: 14, margin: 0, paddingLeft: 20 }}>
-          <li><strong style={{ color: '#f1f5f9' }}>区分可恢复与不可恢复</strong>：限流可重试，配额耗尽需降级</li>
-          <li><strong style={{ color: '#f1f5f9' }}>透明恢复优先</strong>：用户无感知的自动重试</li>
-          <li><strong style={{ color: '#f1f5f9' }}>优雅降级兜底</strong>：无法恢复时提供有用的错误信息</li>
-          <li><strong style={{ color: '#f1f5f9' }}>进程安全</strong>：多进程场景下的锁和缓存一致性</li>
+      <HighlightBox title="💡 设计哲学" variant="blue">
+        <ul className="text-[var(--text-secondary)] text-sm space-y-1 list-disc list-inside">
+          <li><strong className="text-[var(--text-primary)]">区分可恢复与不可恢复</strong>：限流可重试，配额耗尽需降级</li>
+          <li><strong className="text-[var(--text-primary)]">透明恢复优先</strong>：用户无感知的自动重试</li>
+          <li><strong className="text-[var(--text-primary)]">优雅降级兜底</strong>：无法恢复时提供有用的错误信息</li>
+          <li><strong className="text-[var(--text-primary)]">进程安全</strong>：多进程场景下的锁和缓存一致性</li>
         </ul>
-      </div>
+      </HighlightBox>
     </div>
   );
 }
 
 function RetryTab() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          🔄 指数退避重试
-        </h2>
-
-        <p style={{ color: '#94a3b8', marginBottom: 16 }}>
-          核心重试机制实现了<strong style={{ color: '#f1f5f9' }}>指数退避 + 抖动</strong>，避免雷群效应：
+    <div className="flex flex-col gap-6">
+      <Layer title="🔄 指数退避重试">
+        <p className="text-[var(--text-secondary)] mb-4">
+          核心重试机制实现了<strong className="text-[var(--text-primary)]">指数退避 + 抖动</strong>，避免雷群效应：
         </p>
 
         <CodeBlock language="typescript" code={`// packages/core/src/utils/retry.ts
@@ -241,14 +224,10 @@ export async function retryWithBackoff<T>(
 
   throw lastError;
 }`} />
-      </div>
+      </Layer>
 
       {/* Delay Visualization */}
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          📊 延迟曲线
-        </h3>
-
+      <Layer title="📊 延迟曲线">
         <MermaidDiagram chart={`
 xychart-beta
     title "指数退避延迟（毫秒）"
@@ -257,28 +236,24 @@ xychart-beta
     bar [1000, 2000, 4000, 8000, 16000, 32000]
 `} />
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginTop: 16 }}>
-          <div style={{ padding: 12, background: '#1e293b', borderRadius: 8, textAlign: 'center' }}>
-            <div style={{ color: '#22c55e', fontSize: 18, fontWeight: 700 }}>1s</div>
-            <div style={{ color: '#64748b', fontSize: 12 }}>初始延迟</div>
+        <div className="grid grid-cols-3 gap-3 mt-4">
+          <div className="p-3 bg-[var(--bg-elevated)] rounded-lg text-center">
+            <div className="text-[var(--terminal-green)] text-lg font-bold">1s</div>
+            <div className="text-[var(--text-muted)] text-xs">初始延迟</div>
           </div>
-          <div style={{ padding: 12, background: '#1e293b', borderRadius: 8, textAlign: 'center' }}>
-            <div style={{ color: '#f59e0b', fontSize: 18, fontWeight: 700 }}>×2</div>
-            <div style={{ color: '#64748b', fontSize: 12 }}>指数增长</div>
+          <div className="p-3 bg-[var(--bg-elevated)] rounded-lg text-center">
+            <div className="text-[var(--amber)] text-lg font-bold">×2</div>
+            <div className="text-[var(--text-muted)] text-xs">指数增长</div>
           </div>
-          <div style={{ padding: 12, background: '#1e293b', borderRadius: 8, textAlign: 'center' }}>
-            <div style={{ color: '#ef4444', fontSize: 18, fontWeight: 700 }}>32s</div>
-            <div style={{ color: '#64748b', fontSize: 12 }}>最大延迟</div>
+          <div className="p-3 bg-[var(--bg-elevated)] rounded-lg text-center">
+            <div className="text-[var(--error)] text-lg font-bold">32s</div>
+            <div className="text-[var(--text-muted)] text-xs">最大延迟</div>
           </div>
         </div>
-      </div>
+      </Layer>
 
       {/* Jitter Explanation */}
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          🎲 抖动机制
-        </h3>
-
+      <Layer title="🎲 抖动机制">
         <CodeBlock language="typescript" code={`// 抖动计算：±30% 随机偏移
 const jitter = currentDelay * 0.3 * (Math.random() * 2 - 1);
 const delayWithJitter = Math.max(0, currentDelay + jitter);
@@ -287,20 +262,16 @@ const delayWithJitter = Math.max(0, currentDelay + jitter);
 // 抖动范围：-300ms 到 +300ms
 // 实际延迟：700ms 到 1300ms`} />
 
-        <div style={{ marginTop: 16, padding: 12, background: '#1e3a5f', borderRadius: 8, border: '1px solid #3b82f6' }}>
-          <p style={{ color: '#60a5fa', fontSize: 14, margin: 0 }}>
-            <strong>为什么需要抖动？</strong>当多个客户端同时遇到错误，固定延迟会导致它们同时重试，
+        <HighlightBox title="为什么需要抖动？" variant="blue">
+          <p className="text-sm">
+            当多个客户端同时遇到错误，固定延迟会导致它们同时重试，
             形成"雷群效应"。抖动使重试时间分散，减轻服务器压力。
           </p>
-        </div>
-      </div>
+        </HighlightBox>
+      </Layer>
 
       {/* Retry-After Header */}
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          📬 Retry-After 响应头
-        </h3>
-
+      <Layer title="📬 Retry-After 响应头">
         <CodeBlock language="typescript" code={`function getRetryAfterMs(error: unknown): number {
   // 从 429 响应中提取 Retry-After 头
   const headers = getErrorHeaders(error);
@@ -323,22 +294,18 @@ const delayWithJitter = Math.max(0, currentDelay + jitter);
   return 0;
 }`} />
 
-        <p style={{ color: '#94a3b8', fontSize: 14, marginTop: 12 }}>
-          服务器返回的 <code style={{ color: '#60a5fa' }}>Retry-After</code> 头优先级高于本地计算的退避延迟。
+        <p className="text-[var(--text-secondary)] text-sm mt-3">
+          服务器返回的 <code className="text-[var(--cyber-blue)]">Retry-After</code> 头优先级高于本地计算的退避延迟。
         </p>
-      </div>
+      </Layer>
     </div>
   );
 }
 
 function FallbackTab() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          📉 模型降级策略
-        </h2>
-
+    <div className="flex flex-col gap-6">
+      <Layer title="📉 模型降级策略">
         <MermaidDiagram chart={`
 flowchart TD
     subgraph "配额检测"
@@ -366,14 +333,10 @@ flowchart TD
     style F2 fill:#ef4444,stroke:#dc2626,color:#fff
     style CONTINUE fill:#22c55e,stroke:#16a34a,color:#fff
 `} />
-      </div>
+      </Layer>
 
       {/* Quota Detection */}
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          🔍 配额错误检测
-        </h3>
-
+      <Layer title="🔍 配额错误检测">
         <CodeBlock language="typescript" code={`// packages/core/src/utils/quotaErrorDetection.ts
 
 // Gemini Pro 配额耗尽（可降级）
@@ -414,14 +377,10 @@ export function isQwenThrottlingError(error: unknown): boolean {
   };
   // ...
 }`} />
-      </div>
+      </Layer>
 
       {/* Fallback Handler */}
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          🔄 降级处理器
-        </h3>
-
+      <Layer title="🔄 降级处理器">
         <CodeBlock language="typescript" code={`// packages/core/src/fallback/handler.ts
 
 export async function handleFallback(
@@ -471,28 +430,24 @@ export async function handleFallback(
   }
 }`} />
 
-        <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
-          <div style={{ padding: 12, background: '#1e293b', borderRadius: 8, textAlign: 'center' }}>
-            <div style={{ color: '#22c55e', fontWeight: 600, marginBottom: 4 }}>retry</div>
-            <div style={{ color: '#94a3b8', fontSize: 12 }}>切换模型并继续</div>
+        <div className="grid grid-cols-3 gap-3 mt-4">
+          <div className="p-3 bg-[var(--bg-elevated)] rounded-lg text-center">
+            <div className="text-[var(--terminal-green)] font-semibold mb-1">retry</div>
+            <div className="text-[var(--text-secondary)] text-xs">切换模型并继续</div>
           </div>
-          <div style={{ padding: 12, background: '#1e293b', borderRadius: 8, textAlign: 'center' }}>
-            <div style={{ color: '#f59e0b', fontWeight: 600, marginBottom: 4 }}>stop</div>
-            <div style={{ color: '#94a3b8', fontSize: 12 }}>切换模型但停止</div>
+          <div className="p-3 bg-[var(--bg-elevated)] rounded-lg text-center">
+            <div className="text-[var(--amber)] font-semibold mb-1">stop</div>
+            <div className="text-[var(--text-secondary)] text-xs">切换模型但停止</div>
           </div>
-          <div style={{ padding: 12, background: '#1e293b', borderRadius: 8, textAlign: 'center' }}>
-            <div style={{ color: '#ef4444', fontWeight: 600, marginBottom: 4 }}>auth</div>
-            <div style={{ color: '#94a3b8', fontSize: 12 }}>需要重新认证</div>
+          <div className="p-3 bg-[var(--bg-elevated)] rounded-lg text-center">
+            <div className="text-[var(--error)] font-semibold mb-1">auth</div>
+            <div className="text-[var(--text-secondary)] text-xs">需要重新认证</div>
           </div>
         </div>
-      </div>
+      </Layer>
 
       {/* Model Fallback Chain */}
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          🔗 降级链路
-        </h3>
-
+      <Layer title="🔗 降级链路">
         <MermaidDiagram chart={`
 flowchart LR
     A[Gemini Pro] -->|配额耗尽| B[Gemini Flash]
@@ -508,27 +463,22 @@ flowchart LR
     style C fill:#ef4444,stroke:#dc2626,color:#fff
 `} />
 
-        <div style={{ marginTop: 16, padding: 12, background: '#1e3a5f', borderRadius: 8, border: '1px solid #3b82f6' }}>
-          <p style={{ color: '#60a5fa', fontSize: 14, margin: 0 }}>
-            <strong>Qwen OAuth 特殊处理</strong>：Qwen 免费配额耗尽是不可恢复的，
-            不会尝试降级，而是直接提示用户升级付费计划。
+        <HighlightBox title="Qwen OAuth 特殊处理" variant="blue">
+          <p className="text-sm">
+            Qwen 免费配额耗尽是不可恢复的，不会尝试降级，而是直接提示用户升级付费计划。
           </p>
-        </div>
-      </div>
+        </HighlightBox>
+      </Layer>
     </div>
   );
 }
 
 function TokenTab() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          🔑 分布式 Token 刷新
-        </h2>
-
-        <p style={{ color: '#94a3b8', marginBottom: 16 }}>
-          多进程安全的 Token 管理，支持<strong style={{ color: '#f1f5f9' }}>文件锁</strong>和<strong style={{ color: '#f1f5f9' }}>缓存一致性</strong>：
+    <div className="flex flex-col gap-6">
+      <Layer title="🔑 分布式 Token 刷新">
+        <p className="text-[var(--text-secondary)] mb-4">
+          多进程安全的 Token 管理，支持<strong className="text-[var(--text-primary)]">文件锁</strong>和<strong className="text-[var(--text-primary)]">缓存一致性</strong>：
         </p>
 
         <MermaidDiagram chart={`
@@ -558,14 +508,10 @@ sequenceDiagram
     P2-->>P2: 使用新凭证
     P2->>Lock: 释放锁
 `} />
-      </div>
+      </Layer>
 
       {/* Token Manager Implementation */}
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          📦 SharedTokenManager 实现
-        </h3>
-
+      <Layer title="📦 SharedTokenManager 实现">
         <CodeBlock language="typescript" code={`// packages/core/src/qwen/sharedTokenManager.ts
 
 export class SharedTokenManager {
@@ -612,14 +558,10 @@ export class SharedTokenManager {
     }
   }
 }`} />
-      </div>
+      </Layer>
 
       {/* Transparent Retry */}
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          🔄 透明认证重试
-        </h3>
-
+      <Layer title="🔄 透明认证重试">
         <CodeBlock language="typescript" code={`// packages/core/src/qwen/qwenContentGenerator.ts
 
 private async executeWithCredentialManagement<T>(
@@ -657,20 +599,16 @@ private isAuthError(error: unknown): boolean {
   );
 }`} />
 
-        <div style={{ marginTop: 16, padding: 12, background: '#1e3a5f', borderRadius: 8, border: '1px solid #3b82f6' }}>
-          <p style={{ color: '#60a5fa', fontSize: 14, margin: 0 }}>
-            <strong>单次重试策略</strong>：认证错误只重试一次。如果强制刷新后仍然失败，
+        <HighlightBox title="单次重试策略" variant="blue">
+          <p className="text-sm">
+            认证错误只重试一次。如果强制刷新后仍然失败，
             说明是真正的认证问题（如 refresh token 过期），需要用户重新登录。
           </p>
-        </div>
-      </div>
+        </HighlightBox>
+      </Layer>
 
       {/* Process Cleanup */}
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          🧹 进程退出清理
-        </h3>
-
+      <Layer title="🧹 进程退出清理">
         <CodeBlock language="typescript" code={`// 注册清理处理器
 private registerCleanupHandlers(): void {
   process.on('exit', this.cleanupFunction);
@@ -691,19 +629,15 @@ private cleanupFunction = (): void => {
     }
   }
 };`} />
-      </div>
+      </Layer>
     </div>
   );
 }
 
 function TimeoutTab() {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h2 style={{ fontSize: 20, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          ⏱️ 超时处理
-        </h2>
-
+    <div className="flex flex-col gap-6">
+      <Layer title="⏱️ 超时处理">
         <CodeBlock language="typescript" code={`// packages/core/src/utils/fetch.ts
 
 export async function fetchWithTimeout(
@@ -732,14 +666,10 @@ export async function fetchWithTimeout(
     clearTimeout(timeoutId);
   }
 }`} />
-      </div>
+      </Layer>
 
       {/* Timeout Detection */}
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          🔍 超时错误检测
-        </h3>
-
+      <Layer title="🔍 超时错误检测">
         <CodeBlock language="typescript" code={`// packages/core/src/core/openaiContentGenerator/errorHandler.ts
 
 private isTimeoutError(error: unknown): boolean {
@@ -765,32 +695,28 @@ private isTimeoutError(error: unknown): boolean {
   );
 }`} />
 
-        <div style={{ marginTop: 16, display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
-          <div style={{ padding: 12, background: '#1e293b', borderRadius: 8 }}>
-            <div style={{ color: '#f59e0b', fontWeight: 600, marginBottom: 4 }}>消息模式</div>
-            <ul style={{ color: '#94a3b8', fontSize: 12, margin: 0, paddingLeft: 16 }}>
+        <div className="grid grid-cols-2 gap-3 mt-4">
+          <div className="p-3 bg-[var(--bg-elevated)] rounded-lg">
+            <div className="text-[var(--amber)] font-semibold mb-1">消息模式</div>
+            <ul className="text-[var(--text-secondary)] text-xs space-y-1 list-disc list-inside">
               <li>timeout</li>
               <li>timed out</li>
               <li>deadline exceeded</li>
             </ul>
           </div>
-          <div style={{ padding: 12, background: '#1e293b', borderRadius: 8 }}>
-            <div style={{ color: '#3b82f6', fontWeight: 600, marginBottom: 4 }}>错误码模式</div>
-            <ul style={{ color: '#94a3b8', fontSize: 12, margin: 0, paddingLeft: 16 }}>
+          <div className="p-3 bg-[var(--bg-elevated)] rounded-lg">
+            <div className="text-[var(--cyber-blue)] font-semibold mb-1">错误码模式</div>
+            <ul className="text-[var(--text-secondary)] text-xs space-y-1 list-disc list-inside">
               <li>ETIMEDOUT</li>
               <li>ESOCKETTIMEDOUT</li>
               <li>ABORT_ERR</li>
             </ul>
           </div>
         </div>
-      </div>
+      </Layer>
 
       {/* Troubleshooting Tips */}
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          💡 用户友好的错误提示
-        </h3>
-
+      <Layer title="💡 用户友好的错误提示">
         <CodeBlock language="typescript" code={`private getTimeoutTroubleshootingTips(context: RequestContext): string {
   const baseTips = [
     '- 减少输入长度或复杂度',
@@ -812,11 +738,11 @@ private isTimeoutError(error: unknown): boolean {
   ].join('\\n');
 }`} />
 
-        <div style={{ marginTop: 16, padding: 16, background: '#1e293b', borderRadius: 8, border: '1px solid #334155' }}>
-          <div style={{ color: '#f59e0b', fontWeight: 600, marginBottom: 8 }}>⏱️ 请求超时</div>
-          <div style={{ color: '#94a3b8', fontSize: 13 }}>
+        <div className="mt-4 p-4 bg-[var(--bg-elevated)] rounded-lg border border-white/10">
+          <div className="text-[var(--amber)] font-semibold mb-2">⏱️ 请求超时</div>
+          <div className="text-[var(--text-secondary)] text-sm">
             可能的解决方案：
-            <ul style={{ margin: '8px 0 0 0', paddingLeft: 20 }}>
+            <ul className="mt-2 list-disc list-inside space-y-1">
               <li>减少输入长度或复杂度</li>
               <li>在配置中增加超时时间: contentGenerator.timeout</li>
               <li>检查网络连接</li>
@@ -824,14 +750,10 @@ private isTimeoutError(error: unknown): boolean {
             </ul>
           </div>
         </div>
-      </div>
+      </Layer>
 
       {/* MCP Connection Recovery */}
-      <div style={{ padding: 20, background: '#0f172a', borderRadius: 12, border: '1px solid #1e293b' }}>
-        <h3 style={{ fontSize: 18, fontWeight: 600, marginBottom: 16, color: '#f1f5f9' }}>
-          🔌 MCP 服务器隔离
-        </h3>
-
+      <Layer title="🔌 MCP 服务器隔离">
         <CodeBlock language="typescript" code={`// packages/core/src/tools/mcp-client-manager.ts
 
 // 并行发现，单服务器失败不阻塞其他
@@ -860,13 +782,13 @@ const connectedServers = results
   .filter(r => r.success)
   .map(r => r.client!);`} />
 
-        <div style={{ marginTop: 16, padding: 12, background: '#1e3a5f', borderRadius: 8, border: '1px solid #3b82f6' }}>
-          <p style={{ color: '#60a5fa', fontSize: 14, margin: 0 }}>
-            <strong>容错设计</strong>：单个 MCP 服务器连接失败不会影响其他服务器的发现和使用。
+        <HighlightBox title="容错设计" variant="blue">
+          <p className="text-sm">
+            单个 MCP 服务器连接失败不会影响其他服务器的发现和使用。
             系统会继续使用可用的服务器，提供最大程度的功能可用性。
           </p>
-        </div>
-      </div>
+        </HighlightBox>
+      </Layer>
     </div>
   );
 }

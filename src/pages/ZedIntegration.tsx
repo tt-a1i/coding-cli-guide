@@ -8,36 +8,26 @@
 import { useState } from 'react';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { Layer } from '../components/Layer';
+import { HighlightBox } from '../components/HighlightBox';
 
 export function ZedIntegration() {
   const [activeTab, setActiveTab] = useState<'overview' | 'protocol' | 'classes' | 'permission' | 'fs'>('overview');
 
   return (
-    <div className="page-container">
+    <div className="max-w-4xl mx-auto">
       <h1>🔌 Zed 编辑器集成</h1>
 
-      <div className="info-box" style={{
-        background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1))',
-        borderLeft: '4px solid #8b5cf6',
-        padding: '1.5rem',
-        borderRadius: '0.5rem',
-        marginBottom: '2rem'
-      }}>
-        <h3 style={{ margin: '0 0 0.5rem 0', color: '#a78bfa' }}>ACP 协议概述</h3>
-        <p style={{ margin: 0, color: '#d1d5db' }}>
+      <HighlightBox title="ACP 协议概述" variant="purple">
+        <p className="m-0 text-[var(--text-secondary)]">
           <strong>Agent Connection Protocol</strong> 是一个基于 JSON-RPC 2.0 的实验性协议，
           允许 GUI 应用（如 Zed 编辑器）与 AI 代理进行双向通信。CLI 作为独立进程运行，
           通过 stdin/stdout 与 Zed 交换消息。
         </p>
-      </div>
+      </HighlightBox>
 
       {/* Tab Navigation */}
-      <div className="tab-navigation" style={{
-        display: 'flex',
-        gap: '0.5rem',
-        marginBottom: '1.5rem',
-        flexWrap: 'wrap'
-      }}>
+      <div className="flex gap-2 mb-6 flex-wrap">
         {[
           { id: 'overview', label: '🏗️ 架构概览' },
           { id: 'protocol', label: '📡 协议交互' },
@@ -48,16 +38,11 @@ export function ZedIntegration() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as typeof activeTab)}
-            style={{
-              padding: '0.5rem 1rem',
-              borderRadius: '0.5rem',
-              border: 'none',
-              background: activeTab === tab.id ? '#8b5cf6' : '#374151',
-              color: activeTab === tab.id ? 'white' : '#9ca3af',
-              cursor: 'pointer',
-              fontWeight: activeTab === tab.id ? 600 : 400,
-              transition: 'all 0.2s'
-            }}
+            className={`px-4 py-2 rounded-lg border-none cursor-pointer text-sm font-medium transition-all ${
+              activeTab === tab.id
+                ? 'bg-[var(--purple)] text-white'
+                : 'bg-[var(--bg-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+            }`}
           >
             {tab.label}
           </button>
@@ -69,31 +54,24 @@ export function ZedIntegration() {
         <div className="content-section">
           <h2>集成架构</h2>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '1rem',
-            marginBottom: '2rem'
-          }}>
-            <div className="feature-card" style={{ background: '#1f2937', padding: '1.5rem', borderRadius: '0.5rem' }}>
-              <h3 style={{ color: '#a78bfa', marginTop: 0 }}>什么是 ACP？</h3>
-              <ul style={{ color: '#9ca3af', paddingLeft: '1.2rem' }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <Layer title="什么是 ACP？">
+              <ul className="text-[var(--text-secondary)] pl-5 m-0">
                 <li>双向请求/响应模型</li>
                 <li>支持通知和流式更新</li>
                 <li>标准化的权限请求机制</li>
                 <li>文件系统代理能力</li>
               </ul>
-            </div>
+            </Layer>
 
-            <div className="feature-card" style={{ background: '#1f2937', padding: '1.5rem', borderRadius: '0.5rem' }}>
-              <h3 style={{ color: '#60a5fa', marginTop: 0 }}>集成模式</h3>
-              <ul style={{ color: '#9ca3af', paddingLeft: '1.2rem' }}>
+            <Layer title="集成模式">
+              <ul className="text-[var(--text-secondary)] pl-5 m-0">
                 <li>CLI 作为独立进程运行</li>
                 <li>stdin/stdout 双向通信</li>
                 <li>Zed 控制 UI 和权限决策</li>
                 <li>会话级隔离和管理</li>
               </ul>
-            </div>
+            </Layer>
           </div>
 
           <h3>入口流程</h3>
@@ -145,16 +123,10 @@ sequenceDiagram
         <div className="content-section">
           <h2>协议消息定义</h2>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-            gap: '1rem',
-            marginBottom: '2rem'
-          }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             {/* Agent Methods */}
-            <div style={{ background: '#1f2937', padding: '1.5rem', borderRadius: '0.5rem' }}>
-              <h3 style={{ color: '#fcd34d', marginTop: 0 }}>Agent 方法 (Zed → CLI)</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <Layer title="Agent 方法 (Zed → CLI)" icon="📨">
+              <div className="flex flex-col gap-2">
                 {[
                   { method: 'initialize', desc: '协商协议版本和能力' },
                   { method: 'authenticate', desc: '执行身份验证' },
@@ -162,68 +134,61 @@ sequenceDiagram
                   { method: 'session/prompt', desc: '发送用户消息' },
                   { method: 'session/cancel', desc: '取消正在进行的请求' },
                 ].map(item => (
-                  <div key={item.method} style={{
-                    background: '#111827',
-                    padding: '0.75rem',
-                    borderRadius: '0.375rem'
-                  }}>
-                    <code style={{ color: '#22d3ee' }}>{item.method}</code>
-                    <p style={{ margin: '0.25rem 0 0', color: '#9ca3af', fontSize: '0.875rem' }}>{item.desc}</p>
+                  <div key={item.method} className="bg-black/30 p-3 rounded-md">
+                    <code className="text-[var(--cyber-blue)]">{item.method}</code>
+                    <p className="mt-1 mb-0 text-[var(--text-secondary)] text-sm">{item.desc}</p>
                   </div>
                 ))}
               </div>
-            </div>
+            </Layer>
 
             {/* Client Methods */}
-            <div style={{ background: '#1f2937', padding: '1.5rem', borderRadius: '0.5rem' }}>
-              <h3 style={{ color: '#4ade80', marginTop: 0 }}>Client 方法 (CLI → Zed)</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <Layer title="Client 方法 (CLI → Zed)" icon="📤">
+              <div className="flex flex-col gap-2">
                 {[
                   { method: 'session/update', desc: '流式推送内容更新' },
                   { method: 'session/request_permission', desc: '请求工具执行权限' },
                   { method: 'fs/read_text_file', desc: '通过 Zed 读取文件' },
                   { method: 'fs/write_text_file', desc: '通过 Zed 写入文件' },
                 ].map(item => (
-                  <div key={item.method} style={{
-                    background: '#111827',
-                    padding: '0.75rem',
-                    borderRadius: '0.375rem'
-                  }}>
-                    <code style={{ color: '#a78bfa' }}>{item.method}</code>
-                    <p style={{ margin: '0.25rem 0 0', color: '#9ca3af', fontSize: '0.875rem' }}>{item.desc}</p>
+                  <div key={item.method} className="bg-black/30 p-3 rounded-md">
+                    <code className="text-[var(--purple)]">{item.method}</code>
+                    <p className="mt-1 mb-0 text-[var(--text-secondary)] text-sm">{item.desc}</p>
                   </div>
                 ))}
               </div>
-            </div>
+            </Layer>
           </div>
 
           <h3>Session Update 类型</h3>
-          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '1.5rem' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid #374151' }}>
-                <th style={{ textAlign: 'left', padding: '0.75rem', color: '#9ca3af' }}>类型</th>
-                <th style={{ textAlign: 'left', padding: '0.75rem', color: '#9ca3af' }}>用途</th>
-                <th style={{ textAlign: 'left', padding: '0.75rem', color: '#9ca3af' }}>负载</th>
-              </tr>
-            </thead>
-            <tbody style={{ color: '#d1d5db' }}>
-              {[
-                { type: 'agent_message_chunk', desc: 'AI 回复文本块', payload: 'ContentBlock (text)' },
-                { type: 'agent_thought_chunk', desc: '思考过程 (思维链)', payload: 'ContentBlock (thought=true)' },
-                { type: 'tool_call', desc: '工具调用开始', payload: 'ToolCall (status: pending/in_progress)' },
-                { type: 'tool_call_update', desc: '工具执行结果', payload: 'ToolCall (status: completed/failed)' },
-                { type: 'plan', desc: '计划条目列表', payload: 'PlanEntry[]' },
-              ].map(row => (
-                <tr key={row.type} style={{ borderBottom: '1px solid #1f2937' }}>
-                  <td style={{ padding: '0.75rem' }}>
-                    <code style={{ color: '#22d3ee' }}>{row.type}</code>
-                  </td>
-                  <td style={{ padding: '0.75rem' }}>{row.desc}</td>
-                  <td style={{ padding: '0.75rem', color: '#9ca3af' }}>{row.payload}</td>
+          <div className="overflow-x-auto mb-6">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b border-white/10">
+                  <th className="text-left p-3 text-[var(--text-secondary)]">类型</th>
+                  <th className="text-left p-3 text-[var(--text-secondary)]">用途</th>
+                  <th className="text-left p-3 text-[var(--text-secondary)]">负载</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="text-[var(--text-primary)]">
+                {[
+                  { type: 'agent_message_chunk', desc: 'AI 回复文本块', payload: 'ContentBlock (text)' },
+                  { type: 'agent_thought_chunk', desc: '思考过程 (思维链)', payload: 'ContentBlock (thought=true)' },
+                  { type: 'tool_call', desc: '工具调用开始', payload: 'ToolCall (status: pending/in_progress)' },
+                  { type: 'tool_call_update', desc: '工具执行结果', payload: 'ToolCall (status: completed/failed)' },
+                  { type: 'plan', desc: '计划条目列表', payload: 'PlanEntry[]' },
+                ].map(row => (
+                  <tr key={row.type} className="border-b border-white/5">
+                    <td className="p-3">
+                      <code className="text-[var(--cyber-blue)]">{row.type}</code>
+                    </td>
+                    <td className="p-3">{row.desc}</td>
+                    <td className="p-3 text-[var(--text-secondary)]">{row.payload}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
@@ -233,7 +198,7 @@ sequenceDiagram
           <h2>核心类结构</h2>
 
           <h3>AgentSideConnection</h3>
-          <p style={{ color: '#9ca3af' }}>JSON-RPC 连接管理器，负责消息路由和双向通信</p>
+          <p className="text-[var(--text-secondary)]">JSON-RPC 连接管理器，负责消息路由和双向通信</p>
           <CodeBlock
             code={`class AgentSideConnection implements Client {
   #connection: Connection;
@@ -273,7 +238,7 @@ sequenceDiagram
           />
 
           <h3>GeminiAgent</h3>
-          <p style={{ color: '#9ca3af' }}>Agent 接口实现，管理会话生命周期</p>
+          <p className="text-[var(--text-secondary)]">Agent 接口实现，管理会话生命周期</p>
           <CodeBlock
             code={`class GeminiAgent {
   private sessions: Map<string, Session> = new Map();
@@ -321,7 +286,7 @@ sequenceDiagram
           />
 
           <h3>Session</h3>
-          <p style={{ color: '#9ca3af' }}>会话实例，处理单个对话上下文</p>
+          <p className="text-[var(--text-secondary)]">会话实例，处理单个对话上下文</p>
           <CodeBlock
             code={`class Session {
   private pendingPrompt: AbortController | null = null;
@@ -377,8 +342,8 @@ sequenceDiagram
         <div className="content-section">
           <h2>权限请求机制</h2>
 
-          <p style={{ color: '#d1d5db', marginBottom: '1.5rem' }}>
-            工具执行前，CLI 通过 <code style={{ color: '#22d3ee' }}>request_permission</code> 向 Zed 请求用户授权。
+          <p className="text-[var(--text-primary)] mb-6">
+            工具执行前，CLI 通过 <code className="text-[var(--cyber-blue)]">request_permission</code> 向 Zed 请求用户授权。
             用户可选择一次性允许或永久允许特定操作。
           </p>
 
@@ -447,12 +412,7 @@ flowchart LR
           />
 
           <h3>错误处理</h3>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '0.5rem',
-            marginBottom: '1rem'
-          }}>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
             {[
               { code: -32700, msg: 'Parse error' },
               { code: -32600, msg: 'Invalid request' },
@@ -461,15 +421,9 @@ flowchart LR
               { code: -32603, msg: 'Internal error' },
               { code: -32000, msg: 'Auth required' },
             ].map(err => (
-              <div key={err.code} style={{
-                background: '#1f2937',
-                padding: '0.75rem',
-                borderRadius: '0.375rem',
-                display: 'flex',
-                justifyContent: 'space-between'
-              }}>
-                <code style={{ color: '#f87171' }}>{err.code}</code>
-                <span style={{ color: '#9ca3af' }}>{err.msg}</span>
+              <div key={err.code} className="bg-[var(--bg-elevated)] p-3 rounded-md flex justify-between items-center">
+                <code className="text-[var(--error)]">{err.code}</code>
+                <span className="text-[var(--text-secondary)]">{err.msg}</span>
               </div>
             ))}
           </div>
@@ -481,7 +435,7 @@ flowchart LR
         <div className="content-section">
           <h2>文件系统代理</h2>
 
-          <p style={{ color: '#d1d5db', marginBottom: '1.5rem' }}>
+          <p className="text-[var(--text-primary)] mb-6">
             Zed 可以声明文件系统能力，CLI 将文件操作代理回 IDE，
             使 Zed 可以控制文件访问和显示 diff。
           </p>
@@ -529,65 +483,39 @@ class AcpFileSystemService implements FileSystemService {
             language="typescript"
           />
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '1rem',
-            marginTop: '1.5rem'
-          }}>
-            <div style={{
-              background: 'rgba(34, 197, 94, 0.1)',
-              border: '1px solid rgba(34, 197, 94, 0.3)',
-              padding: '1rem',
-              borderRadius: '0.5rem'
-            }}>
-              <h4 style={{ color: '#4ade80', marginTop: 0 }}>优势</h4>
-              <ul style={{ color: '#9ca3af', paddingLeft: '1.2rem', marginBottom: 0 }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+            <HighlightBox title="优势" variant="green">
+              <ul className="text-[var(--text-secondary)] pl-5 mb-0">
                 <li>Zed 可以显示原生 diff 视图</li>
                 <li>统一的撤销/重做支持</li>
                 <li>文件监视和同步</li>
                 <li>权限控制更精细</li>
               </ul>
-            </div>
+            </HighlightBox>
 
-            <div style={{
-              background: 'rgba(234, 179, 8, 0.1)',
-              border: '1px solid rgba(234, 179, 8, 0.3)',
-              padding: '1rem',
-              borderRadius: '0.5rem'
-            }}>
-              <h4 style={{ color: '#fcd34d', marginTop: 0 }}>降级策略</h4>
-              <ul style={{ color: '#9ca3af', paddingLeft: '1.2rem', marginBottom: 0 }}>
+            <HighlightBox title="降级策略" variant="yellow">
+              <ul className="text-[var(--text-secondary)] pl-5 mb-0">
                 <li>findFiles 始终使用本地实现</li>
                 <li>能力不支持时 fallback</li>
                 <li>保持功能完整性</li>
               </ul>
-            </div>
+            </HighlightBox>
           </div>
 
           <h3>@命令解析</h3>
-          <p style={{ color: '#9ca3af' }}>Zed 发送的 prompt 可能包含文件引用，CLI 负责解析和读取：</p>
+          <p className="text-[var(--text-secondary)]">Zed 发送的 prompt 可能包含文件引用，CLI 负责解析和读取：</p>
 
-          <div style={{
-            display: 'flex',
-            gap: '0.5rem',
-            flexWrap: 'wrap',
-            marginBottom: '1rem'
-          }}>
+          <div className="flex gap-2 flex-wrap mb-4">
             {[
-              { type: 'text', desc: '纯文本内容', color: '#22d3ee' },
-              { type: 'image', desc: 'Base64 图像', color: '#4ade80' },
-              { type: 'audio', desc: 'Base64 音频', color: '#fcd34d' },
-              { type: 'resource_link', desc: '文件 URI 引用', color: '#a78bfa' },
-              { type: 'resource', desc: '嵌入的文件内容', color: '#fb923c' },
+              { type: 'text', desc: '纯文本内容', color: 'var(--cyber-blue)' },
+              { type: 'image', desc: 'Base64 图像', color: 'var(--terminal-green)' },
+              { type: 'audio', desc: 'Base64 音频', color: 'var(--amber)' },
+              { type: 'resource_link', desc: '文件 URI 引用', color: 'var(--purple)' },
+              { type: 'resource', desc: '嵌入的文件内容', color: 'var(--orange)' },
             ].map(item => (
-              <div key={item.type} style={{
-                background: '#1f2937',
-                padding: '0.5rem 0.75rem',
-                borderRadius: '0.375rem'
-              }}>
+              <div key={item.type} className="bg-[var(--bg-elevated)] px-3 py-2 rounded-md">
                 <code style={{ color: item.color }}>{item.type}</code>
-                <span style={{ color: '#6b7280', marginLeft: '0.5rem' }}>- {item.desc}</span>
+                <span className="text-[var(--text-muted)] ml-2">- {item.desc}</span>
               </div>
             ))}
           </div>
@@ -595,64 +523,43 @@ class AcpFileSystemService implements FileSystemService {
       )}
 
       {/* Design Insights */}
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(59, 130, 246, 0.15))',
-        borderRadius: '0.75rem',
-        padding: '1.5rem',
-        marginTop: '2rem'
-      }}>
-        <h2 style={{ color: '#a78bfa', marginTop: 0 }}>设计洞察</h2>
-
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '1rem'
-        }}>
-          <div style={{ background: '#1f2937', padding: '1rem', borderRadius: '0.5rem' }}>
-            <h4 style={{ color: '#a78bfa', marginTop: 0 }}>协议解耦</h4>
-            <p style={{ color: '#9ca3af', fontSize: '0.875rem', marginBottom: 0 }}>
+      <Layer title="设计洞察" icon="💡">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-black/20 p-4 rounded-lg">
+            <h4 className="text-[var(--purple)] mt-0 mb-2">协议解耦</h4>
+            <p className="text-[var(--text-secondary)] text-sm mb-0">
               ACP 协议将 AI 能力与 UI 完全分离。CLI 专注于 AI 交互，
               Zed 专注于用户体验。
             </p>
           </div>
 
-          <div style={{ background: '#1f2937', padding: '1rem', borderRadius: '0.5rem' }}>
-            <h4 style={{ color: '#60a5fa', marginTop: 0 }}>能力协商</h4>
-            <p style={{ color: '#9ca3af', fontSize: '0.875rem', marginBottom: 0 }}>
+          <div className="bg-black/20 p-4 rounded-lg">
+            <h4 className="text-[var(--cyber-blue)] mt-0 mb-2">能力协商</h4>
+            <p className="text-[var(--text-secondary)] text-sm mb-0">
               初始化时双方交换能力声明，支持渐进式功能增强。
             </p>
           </div>
 
-          <div style={{ background: '#1f2937', padding: '1rem', borderRadius: '0.5rem' }}>
-            <h4 style={{ color: '#4ade80', marginTop: 0 }}>用户控制</h4>
-            <p style={{ color: '#9ca3af', fontSize: '0.875rem', marginBottom: 0 }}>
+          <div className="bg-black/20 p-4 rounded-lg">
+            <h4 className="text-[var(--terminal-green)] mt-0 mb-2">用户控制</h4>
+            <p className="text-[var(--text-secondary)] text-sm mb-0">
               权限请求机制确保用户对敏感操作有最终决定权。
             </p>
           </div>
         </div>
-      </div>
+      </Layer>
 
       {/* Source Files */}
-      <div className="source-files" style={{ marginTop: '2rem' }}>
+      <div className="mt-8">
         <h3>源文件索引</h3>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '0.5rem'
-        }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           {[
             'packages/cli/src/zed-integration/zedIntegration.ts',
             'packages/cli/src/zed-integration/acp.ts',
             'packages/cli/src/zed-integration/schema.ts',
             'packages/cli/src/zed-integration/fileSystemService.ts',
           ].map(file => (
-            <code key={file} style={{
-              background: '#1f2937',
-              padding: '0.5rem 0.75rem',
-              borderRadius: '0.375rem',
-              color: '#22d3ee',
-              fontSize: '0.875rem'
-            }}>
+            <code key={file} className="bg-[var(--bg-elevated)] px-3 py-2 rounded-md text-[var(--cyber-blue)] text-sm block">
               {file}
             </code>
           ))}

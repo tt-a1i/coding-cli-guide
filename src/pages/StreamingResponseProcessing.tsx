@@ -6,57 +6,42 @@
 import { useState } from 'react';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { Layer } from '../components/Layer';
+import { HighlightBox } from '../components/HighlightBox';
 
 export function StreamingResponseProcessing() {
   const [activeTab, setActiveTab] = useState<'overview' | 'parser' | 'merge' | 'repair'>('overview');
 
   return (
-    <div className="page-container">
+    <div className="max-w-4xl mx-auto">
       <h1>🌊 流式响应处理详解</h1>
 
-      <div className="info-box" style={{
-        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1))',
-        borderLeft: '4px solid var(--cyber-blue)',
-        padding: '1.5rem',
-        borderRadius: '8px',
-        marginBottom: '2rem'
-      }}>
-        <h3 style={{ margin: '0 0 1rem 0', color: 'var(--cyber-blue)' }}>📌 30秒速览</h3>
-        <ul style={{ margin: 0, lineHeight: 1.8 }}>
+      <HighlightBox title="📌 30秒速览" variant="blue">
+        <ul className="m-0 leading-relaxed">
           <li><strong>核心问题</strong>：流式响应的 Chunk 格式不一致、工具调用分片、Index 冲突</li>
           <li><strong>StreamingToolCallParser</strong>：处理多工具并发的增量 JSON 解析器</li>
           <li><strong>Chunk 合并策略</strong>：finishReason 和 usageMetadata 可能分开到达，需要合并</li>
           <li><strong>JSON 修复</strong>：自动关闭未闭合字符串、容错解析 (safeJsonParse)</li>
           <li><strong>状态追踪</strong>：每个工具调用独立追踪 depth、inString、escape 状态</li>
         </ul>
-      </div>
+      </HighlightBox>
 
       {/* 导航标签 */}
-      <div style={{
-        display: 'flex',
-        gap: '0.5rem',
-        marginBottom: '2rem',
-        flexWrap: 'wrap'
-      }}>
+      <div className="flex gap-2 mb-8 flex-wrap">
         {[
-          { key: 'overview', label: '🔄 流式架构', icon: '🔄' },
-          { key: 'parser', label: '🔧 ToolCall 解析', icon: '🔧' },
-          { key: 'merge', label: '🧩 Chunk 合并', icon: '🧩' },
-          { key: 'repair', label: '🛠️ JSON 修复', icon: '🛠️' }
+          { key: 'overview', label: '🔄 流式架构' },
+          { key: 'parser', label: '🔧 ToolCall 解析' },
+          { key: 'merge', label: '🧩 Chunk 合并' },
+          { key: 'repair', label: '🛠️ JSON 修复' }
         ].map(tab => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key as typeof activeTab)}
-            style={{
-              padding: '0.75rem 1.5rem',
-              border: activeTab === tab.key ? '2px solid var(--terminal-green)' : '1px solid var(--border-dim)',
-              borderRadius: '8px',
-              background: activeTab === tab.key ? 'rgba(0, 255, 136, 0.1)' : 'transparent',
-              color: activeTab === tab.key ? 'var(--terminal-green)' : 'var(--text-secondary)',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              fontWeight: activeTab === tab.key ? 'bold' : 'normal'
-            }}
+            className={`px-6 py-3 rounded-lg cursor-pointer transition-all font-medium ${
+              activeTab === tab.key
+                ? 'border-2 border-[var(--terminal-green)] bg-[rgba(0,255,136,0.1)] text-[var(--terminal-green)]'
+                : 'border border-white/10 bg-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+            }`}
           >
             {tab.label}
           </button>
@@ -68,7 +53,7 @@ export function StreamingResponseProcessing() {
         <section>
           <h2>🔄 流式响应架构</h2>
 
-          <p>
+          <p className="text-[var(--text-primary)]">
             流式响应允许 AI 在生成过程中逐步返回内容，提供更好的用户体验。
             但流式数据带来了新的挑战：Chunk 格式不一致、工具调用分片传输、元数据延迟到达等。
           </p>
@@ -109,36 +94,32 @@ sequenceDiagram
 
           <h3>流式处理面临的挑战</h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
-            <div className="card" style={{ background: 'rgba(239, 68, 68, 0.1)', padding: '1rem', borderRadius: '8px' }}>
-              <h4 style={{ color: '#ef4444', margin: '0 0 0.5rem 0' }}>❌ 问题 1: Chunk 格式不一致</h4>
-              <p style={{ fontSize: '0.9rem', margin: 0 }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <HighlightBox title="❌ 问题 1: Chunk 格式不一致" variant="red">
+              <p className="text-sm m-0">
                 不同的 AI Provider 返回的 Chunk 格式差异很大：
                 有的在最后一个 Chunk 返回 <code>usage</code>，有的单独发送。
               </p>
-            </div>
+            </HighlightBox>
 
-            <div className="card" style={{ background: 'rgba(245, 158, 11, 0.1)', padding: '1rem', borderRadius: '8px' }}>
-              <h4 style={{ color: 'var(--warning-color)', margin: '0 0 0.5rem 0' }}>⚠️ 问题 2: 工具调用分片</h4>
-              <p style={{ fontSize: '0.9rem', margin: 0 }}>
+            <HighlightBox title="⚠️ 问题 2: 工具调用分片" variant="yellow">
+              <p className="text-sm m-0">
                 工具调用的 JSON 参数被拆分成多个 Chunk：
                 <code>{`{"file": "src/ma`}</code> ... <code>{`in.ts"}`}</code>
               </p>
-            </div>
+            </HighlightBox>
 
-            <div className="card" style={{ background: 'rgba(139, 92, 246, 0.1)', padding: '1rem', borderRadius: '8px' }}>
-              <h4 style={{ color: 'var(--purple-accent)', margin: '0 0 0.5rem 0' }}>🔀 问题 3: Index 冲突</h4>
-              <p style={{ fontSize: '0.9rem', margin: 0 }}>
+            <HighlightBox title="🔀 问题 3: Index 冲突" variant="purple">
+              <p className="text-sm m-0">
                 多个工具调用可能使用相同的 index，需要通过 ID 区分并重新分配 index。
               </p>
-            </div>
+            </HighlightBox>
 
-            <div className="card" style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '1rem', borderRadius: '8px' }}>
-              <h4 style={{ color: 'var(--terminal-green)', margin: '0 0 0.5rem 0' }}>🧩 问题 4: 元数据延迟</h4>
-              <p style={{ fontSize: '0.9rem', margin: 0 }}>
+            <HighlightBox title="🧩 问题 4: 元数据延迟" variant="green">
+              <p className="text-sm m-0">
                 <code>finishReason</code> 和 <code>usageMetadata</code> 可能在不同 Chunk 中到达，需要合并。
               </p>
-            </div>
+            </HighlightBox>
           </div>
 
           <h3>Pipeline 核心流程</h3>
@@ -188,8 +169,8 @@ async *executeStreaming(request: GenerateContentParameters) {
         <section>
           <h2>🔧 StreamingToolCallParser</h2>
 
-          <p>
-            <code>StreamingToolCallParser</code> 是处理流式工具调用的核心组件。
+          <p className="text-[var(--text-primary)]">
+            <code className="text-[var(--cyber-blue)]">StreamingToolCallParser</code> 是处理流式工具调用的核心组件。
             它解决了分片 JSON 累积、多工具 Index 冲突、状态追踪等复杂问题。
           </p>
 
@@ -260,7 +241,7 @@ export class StreamingToolCallParser {
 
           <h3>Index 冲突解决</h3>
 
-          <p>
+          <p className="text-[var(--text-secondary)]">
             当新的工具调用 ID 请求一个已被占用的 index 时，解析器会自动分配新的 index。
           </p>
 
@@ -300,9 +281,8 @@ export class StreamingToolCallParser {
 
           <h3>JSON 结构追踪</h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-            <div className="card" style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '1rem', borderRadius: '8px' }}>
-              <h4 style={{ color: 'var(--cyber-blue)', margin: '0 0 0.5rem 0' }}>📊 depth 追踪</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Layer title="📊 depth 追踪">
               <CodeBlock language="typescript" code={`// 只在字符串外计数
 for (const char of chunk) {
   if (!inString) {
@@ -316,10 +296,9 @@ for (const char of chunk) {
 }
 
 // depth === 0 表示 JSON 结构完整`} />
-            </div>
+            </Layer>
 
-            <div className="card" style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '1rem', borderRadius: '8px' }}>
-              <h4 style={{ color: 'var(--terminal-green)', margin: '0 0 0.5rem 0' }}>💬 字符串边界</h4>
+            <Layer title="💬 字符串边界">
               <CodeBlock language="typescript" code={`// 追踪引号切换字符串状态
 if (char === '"' && !escape) {
   inString = !inString;
@@ -328,7 +307,7 @@ if (char === '"' && !escape) {
 // 追踪转义序列
 // \\" 中的第二个引号不切换状态
 escape = char === '\\\\' && !escape;`} />
-            </div>
+            </Layer>
           </div>
 
           <h3>解析完成判定</h3>
@@ -358,10 +337,10 @@ return { complete: false };  // 继续累积`} />
         <section>
           <h2>🧩 Chunk 合并策略</h2>
 
-          <p>
+          <p className="text-[var(--text-primary)]">
             不同的 AI Provider 返回流式响应的方式不同。有些在同一个 Chunk 中返回
-            <code>finishReason</code> 和 <code>usageMetadata</code>，有些分开返回。
-            <code>handleChunkMerging</code> 确保最终响应包含完整信息。
+            <code className="text-[var(--cyber-blue)]">finishReason</code> 和 <code className="text-[var(--cyber-blue)]">usageMetadata</code>，有些分开返回。
+            <code className="text-[var(--terminal-green)]">handleChunkMerging</code> 确保最终响应包含完整信息。
           </p>
 
           <MermaidDiagram chart={`
@@ -444,29 +423,26 @@ private handleChunkMerging(
 
           <h3>设计考量</h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
-            <div className="card" style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '1rem', borderRadius: '8px' }}>
-              <h4 style={{ color: 'var(--terminal-green)', margin: '0 0 0.5rem 0' }}>✅ 为什么等待合并？</h4>
-              <p style={{ fontSize: '0.9rem', margin: 0 }}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Layer title="✅ 为什么等待合并？">
+              <p className="text-sm text-[var(--text-secondary)] m-0">
                 如果立即 yield <code>finishReason</code> Chunk，后续的 <code>usageMetadata</code>
                 将丢失。等待合并确保最终响应信息完整。
               </p>
-            </div>
+            </Layer>
 
-            <div className="card" style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '1rem', borderRadius: '8px' }}>
-              <h4 style={{ color: 'var(--cyber-blue)', margin: '0 0 0.5rem 0' }}>📊 usage 的重要性</h4>
-              <p style={{ fontSize: '0.9rem', margin: 0 }}>
+            <Layer title="📊 usage 的重要性">
+              <p className="text-sm text-[var(--text-secondary)] m-0">
                 <code>usageMetadata</code> 包含 Token 使用量，用于计费、配额管理和 UI 显示。
                 必须确保它被正确传递。
               </p>
-            </div>
+            </Layer>
 
-            <div className="card" style={{ background: 'rgba(139, 92, 246, 0.1)', padding: '1rem', borderRadius: '8px' }}>
-              <h4 style={{ color: 'var(--purple-accent)', margin: '0 0 0.5rem 0' }}>🔄 Provider 兼容</h4>
-              <p style={{ fontSize: '0.9rem', margin: 0 }}>
+            <Layer title="🔄 Provider 兼容">
+              <p className="text-sm text-[var(--text-secondary)] m-0">
                 这种策略兼容所有 Provider：分开发送的会被合并，一起发送的直接通过。
               </p>
-            </div>
+            </Layer>
           </div>
 
           <h3>stream_options 请求</h3>
@@ -487,7 +463,7 @@ const request: OpenAI.Chat.ChatCompletionCreateParams = {
         <section>
           <h2>🛠️ JSON 修复策略</h2>
 
-          <p>
+          <p className="text-[var(--text-primary)]">
             流式传输中，JSON 可能在字符串中间被截断。解析器采用多种修复策略确保数据不丢失。
           </p>
 
@@ -595,28 +571,26 @@ getCompletedToolCalls() {
 
           <h3>实际修复场景</h3>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-            <div className="card" style={{ background: 'rgba(239, 68, 68, 0.1)', padding: '1rem', borderRadius: '8px' }}>
-              <h4 style={{ color: '#ef4444', margin: '0 0 0.5rem 0' }}>❌ 截断的 JSON</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <HighlightBox title="❌ 截断的 JSON" variant="red">
               <CodeBlock language="json" code={`{
   "tool": "Read",
   "file": "/src/main.ts",
   "content": "export function main() {
     console.log("Hello`} />
-            </div>
+            </HighlightBox>
 
-            <div className="card" style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '1rem', borderRadius: '8px' }}>
-              <h4 style={{ color: 'var(--terminal-green)', margin: '0 0 0.5rem 0' }}>✅ 修复后</h4>
+            <HighlightBox title="✅ 修复后" variant="green">
               <CodeBlock language="json" code={`{
   "tool": "Read",
   "file": "/src/main.ts",
   "content": "export function main() {
     console.log(\\"Hello"
 }`} />
-              <p style={{ fontSize: '0.85rem', marginTop: '0.5rem', color: 'var(--text-muted)' }}>
+              <p className="text-sm mt-2 text-[var(--text-muted)]">
                 添加闭合引号 <code>"</code> 后可解析
               </p>
-            </div>
+            </HighlightBox>
           </div>
 
           <h3>状态重置</h3>
@@ -638,25 +612,18 @@ async *executeStreaming(request) {
   // ...
 }`} />
 
-          <div className="info-box" style={{
-            background: 'rgba(245, 158, 11, 0.1)',
-            borderLeft: '4px solid var(--warning-color)',
-            padding: '1rem',
-            borderRadius: '8px',
-            marginTop: '1rem'
-          }}>
-            <h4 style={{ color: 'var(--warning-color)', margin: '0 0 0.5rem 0' }}>⚠️ 修复的局限性</h4>
-            <ul style={{ margin: 0, fontSize: '0.9rem' }}>
+          <HighlightBox title="⚠️ 修复的局限性" variant="yellow">
+            <ul className="m-0 text-sm">
               <li>只能修复简单的字符串截断，复杂的结构损坏无法修复</li>
               <li><code>repaired: true</code> 标记可用于日志和监控，追踪修复频率</li>
               <li>如果修复失败，工具调用可能返回空参数 <code>{`{}`}</code>，上层需要处理</li>
             </ul>
-          </div>
+          </HighlightBox>
         </section>
       )}
 
       {/* 错误处理 */}
-      <section style={{ marginTop: '2rem' }}>
+      <section className="mt-8">
         <h2>🚨 错误处理</h2>
 
         <CodeBlock language="typescript" code={`// Pipeline 中的流式错误处理
@@ -679,48 +646,28 @@ async *executeStreaming(request) {
       </section>
 
       {/* 相关链接 */}
-      <section style={{ marginTop: '2rem' }}>
+      <section className="mt-8">
         <h2>🔗 相关文档</h2>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-          <a href="#content-format-conversion" className="card" style={{
-            padding: '1rem',
-            textDecoration: 'none',
-            background: 'rgba(59, 130, 246, 0.1)',
-            borderRadius: '8px'
-          }}>
-            <h4 style={{ color: 'var(--cyber-blue)', margin: '0 0 0.5rem 0' }}>🔄 格式转换</h4>
-            <p style={{ margin: 0, fontSize: '0.9rem' }}>Gemini ↔ OpenAI 格式</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <a href="#content-format-conversion" className="block p-4 no-underline bg-[rgba(59,130,246,0.1)] rounded-lg hover:bg-[rgba(59,130,246,0.2)] transition-colors">
+            <h4 className="text-[var(--cyber-blue)] m-0 mb-2">🔄 格式转换</h4>
+            <p className="m-0 text-sm text-[var(--text-secondary)]">Gemini ↔ OpenAI 格式</p>
           </a>
 
-          <a href="#streaming-tool-call-parser-anim" className="card" style={{
-            padding: '1rem',
-            textDecoration: 'none',
-            background: 'rgba(139, 92, 246, 0.1)',
-            borderRadius: '8px'
-          }}>
-            <h4 style={{ color: 'var(--purple-accent)', margin: '0 0 0.5rem 0' }}>🎬 解析器动画</h4>
-            <p style={{ margin: 0, fontSize: '0.9rem' }}>可视化解析过程</p>
+          <a href="#streaming-tool-call-parser-anim" className="block p-4 no-underline bg-[rgba(139,92,246,0.1)] rounded-lg hover:bg-[rgba(139,92,246,0.2)] transition-colors">
+            <h4 className="text-[var(--purple)] m-0 mb-2">🎬 解析器动画</h4>
+            <p className="m-0 text-sm text-[var(--text-secondary)]">可视化解析过程</p>
           </a>
 
-          <a href="#tool-scheduler" className="card" style={{
-            padding: '1rem',
-            textDecoration: 'none',
-            background: 'rgba(16, 185, 129, 0.1)',
-            borderRadius: '8px'
-          }}>
-            <h4 style={{ color: 'var(--terminal-green)', margin: '0 0 0.5rem 0' }}>⚙️ 工具调度器</h4>
-            <p style={{ margin: 0, fontSize: '0.9rem' }}>解析后的工具执行</p>
+          <a href="#tool-scheduler" className="block p-4 no-underline bg-[rgba(16,185,129,0.1)] rounded-lg hover:bg-[rgba(16,185,129,0.2)] transition-colors">
+            <h4 className="text-[var(--terminal-green)] m-0 mb-2">⚙️ 工具调度器</h4>
+            <p className="m-0 text-sm text-[var(--text-secondary)]">解析后的工具执行</p>
           </a>
 
-          <a href="#chunk-assembly-anim" className="card" style={{
-            padding: '1rem',
-            textDecoration: 'none',
-            background: 'rgba(245, 158, 11, 0.1)',
-            borderRadius: '8px'
-          }}>
-            <h4 style={{ color: 'var(--warning-color)', margin: '0 0 0.5rem 0' }}>🎬 Chunk 组装动画</h4>
-            <p style={{ margin: 0, fontSize: '0.9rem' }}>Chunk 合并演示</p>
+          <a href="#chunk-assembly-anim" className="block p-4 no-underline bg-[rgba(245,158,11,0.1)] rounded-lg hover:bg-[rgba(245,158,11,0.2)] transition-colors">
+            <h4 className="text-[var(--amber)] m-0 mb-2">🎬 Chunk 组装动画</h4>
+            <p className="m-0 text-sm text-[var(--text-secondary)]">Chunk 合并演示</p>
           </a>
         </div>
       </section>

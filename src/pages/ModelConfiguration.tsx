@@ -5,6 +5,8 @@
  */
 
 import { useState } from 'react';
+import { Layer } from '../components/Layer';
+import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 
@@ -12,30 +14,20 @@ export function ModelConfiguration() {
   const [activeTab, setActiveTab] = useState<'limits' | 'cache' | 'service' | 'normalize'>('limits');
 
   return (
-    <div className="page-container">
-      <h1>🎛️ 模型配置系统</h1>
+    <div className="max-w-4xl mx-auto">
+      <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-2">
+        <span className="mr-2">🎛️</span>模型配置系统
+      </h1>
 
-      <div className="info-box" style={{
-        background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1))',
-        borderLeft: '4px solid #10b981',
-        padding: '1.5rem',
-        borderRadius: '0.5rem',
-        marginBottom: '2rem'
-      }}>
-        <h3 style={{ margin: '0 0 0.5rem 0', color: '#34d399' }}>核心职责</h3>
-        <p style={{ margin: 0, color: '#d1d5db' }}>
+      <HighlightBox title="核心职责" icon="📋" variant="green">
+        <p className="text-[var(--text-secondary)]">
           模型配置系统负责管理 Token 限制匹配、模型元信息缓存、多厂商模型发现，
           确保 CLI 能够正确地与不同模型交互并优化上下文使用。
         </p>
-      </div>
+      </HighlightBox>
 
       {/* Tab Navigation */}
-      <div className="tab-navigation" style={{
-        display: 'flex',
-        gap: '0.5rem',
-        marginBottom: '1.5rem',
-        flexWrap: 'wrap'
-      }}>
+      <div className="flex gap-2 mb-6 flex-wrap">
         {[
           { id: 'limits', label: '📏 Token 限制' },
           { id: 'cache', label: '💾 配置缓存' },
@@ -45,16 +37,11 @@ export function ModelConfiguration() {
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as typeof activeTab)}
-            style={{
-              padding: '0.5rem 1rem',
-              borderRadius: '0.5rem',
-              border: 'none',
-              background: activeTab === tab.id ? '#10b981' : '#374151',
-              color: activeTab === tab.id ? 'white' : '#9ca3af',
-              cursor: 'pointer',
-              fontWeight: activeTab === tab.id ? 600 : 400,
-              transition: 'all 0.2s'
-            }}
+            className={`px-4 py-2 rounded-lg border-none cursor-pointer font-medium transition-all duration-200 ${
+              activeTab === tab.id
+                ? 'bg-[var(--terminal-green)] text-white'
+                : 'bg-[var(--bg-elevated)] text-[var(--text-muted)] hover:bg-[var(--bg-panel)]'
+            }`}
           >
             {tab.label}
           </button>
@@ -63,15 +50,14 @@ export function ModelConfiguration() {
 
       {/* Token Limits Tab */}
       {activeTab === 'limits' && (
-        <div className="content-section">
-          <h2>Token 限制匹配系统</h2>
+        <div className="space-y-6">
+          <Layer title="Token 限制匹配系统" icon="📏">
+            <p className="text-[var(--text-secondary)] mb-4">
+              通过正则模式匹配确定模型的上下文窗口大小和最大输出长度。
+              模型名称先标准化（去除前缀、版本后缀），然后按"最具体→最通用"顺序匹配。
+            </p>
 
-          <p style={{ color: '#d1d5db', marginBottom: '1.5rem' }}>
-            通过正则模式匹配确定模型的上下文窗口大小和最大输出长度。
-            模型名称先标准化（去除前缀、版本后缀），然后按"最具体→最通用"顺序匹配。
-          </p>
-
-          <MermaidDiagram chart={`
+            <MermaidDiagram chart={`
 flowchart LR
     subgraph Input["输入"]
         M[模型名称<br/>"openai/gpt-4.1-20250219"]
@@ -98,77 +84,83 @@ flowchart LR
     style P1 fill:#276749
     style R fill:#1e3a5f
 `} />
+          </Layer>
 
-          <h3>输入上下文限制 (PATTERNS)</h3>
-          <div style={{ overflowX: 'auto', marginBottom: '2rem' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid #374151' }}>
-                  <th style={{ textAlign: 'left', padding: '0.75rem', color: '#9ca3af' }}>模型系列</th>
-                  <th style={{ textAlign: 'left', padding: '0.75rem', color: '#9ca3af' }}>输入上下文</th>
-                  <th style={{ textAlign: 'left', padding: '0.75rem', color: '#9ca3af' }}>匹配模式</th>
-                </tr>
-              </thead>
-              <tbody style={{ color: '#d1d5db' }}>
-                {[
-                  { model: 'Gemini 2.5 Pro', limit: '1M (1,048,576)', pattern: '^gemini-2\\.5-pro.*$' },
-                  { model: 'Gemini 2.0 Flash', limit: '1M (1,048,576)', pattern: '^gemini-2\\.0-flash.*$' },
-                  { model: 'GPT-4.1', limit: '1M (1,048,576)', pattern: '^gpt-4\\.1.*$' },
-                  { model: 'GPT-4o', limit: '128K (131,072)', pattern: '^gpt-4o.*$' },
-                  { model: 'Claude Sonnet 4', limit: '1M (1,048,576)', pattern: '^claude-sonnet-4.*$' },
-                  { model: 'Claude 3.5 Sonnet', limit: '200K (200,000)', pattern: '^claude-3\\.5-sonnet.*$' },
-                  { model: 'Qwen3-Coder-Plus', limit: '1M (1,048,576)', pattern: '^qwen3-coder-plus(-.*)?$' },
-                  { model: 'Qwen3-Max', limit: '256K (262,144)', pattern: '^qwen3-max(-preview)?(-.*)?$' },
-                  { model: 'Qwen2.5', limit: '128K (131,072)', pattern: '^qwen2\\.5.*$' },
-                  { model: 'DeepSeek R1', limit: '128K (131,072)', pattern: '^deepseek-r1(?:-.*)?$' },
-                  { model: 'Kimi K2-0905', limit: '256K (262,144)', pattern: '^kimi-k2-0905$' },
-                  { model: 'Llama 4 Scout', limit: '10M (10,485,760)', pattern: '^llama-4-scout.*$' },
-                  { model: '默认', limit: '128K (131,072)', pattern: '(无匹配时)' },
-                ].map((row, i) => (
-                  <tr key={i} style={{ borderBottom: '1px solid #1f2937' }}>
-                    <td style={{ padding: '0.75rem', color: row.model === '默认' ? '#9ca3af' : '#22d3ee' }}>{row.model}</td>
-                    <td style={{ padding: '0.75rem' }}>{row.limit}</td>
-                    <td style={{ padding: '0.75rem' }}>
-                      <code style={{ color: '#a78bfa', fontSize: '0.8rem' }}>{row.pattern}</code>
-                    </td>
+          <Layer title="输入上下文限制 (PATTERNS)" icon="📊">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-[var(--border-subtle)]">
+                    <th className="text-left p-3 text-[var(--text-muted)]">模型系列</th>
+                    <th className="text-left p-3 text-[var(--text-muted)]">输入上下文</th>
+                    <th className="text-left p-3 text-[var(--text-muted)]">匹配模式</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="text-[var(--text-secondary)]">
+                  {[
+                    { model: 'Gemini 2.5 Pro', limit: '1M (1,048,576)', pattern: '^gemini-2\\.5-pro.*$' },
+                    { model: 'Gemini 2.0 Flash', limit: '1M (1,048,576)', pattern: '^gemini-2\\.0-flash.*$' },
+                    { model: 'GPT-4.1', limit: '1M (1,048,576)', pattern: '^gpt-4\\.1.*$' },
+                    { model: 'GPT-4o', limit: '128K (131,072)', pattern: '^gpt-4o.*$' },
+                    { model: 'Claude Sonnet 4', limit: '1M (1,048,576)', pattern: '^claude-sonnet-4.*$' },
+                    { model: 'Claude 3.5 Sonnet', limit: '200K (200,000)', pattern: '^claude-3\\.5-sonnet.*$' },
+                    { model: 'Qwen3-Coder-Plus', limit: '1M (1,048,576)', pattern: '^qwen3-coder-plus(-.*)?$' },
+                    { model: 'Qwen3-Max', limit: '256K (262,144)', pattern: '^qwen3-max(-preview)?(-.*)?$' },
+                    { model: 'Qwen2.5', limit: '128K (131,072)', pattern: '^qwen2\\.5.*$' },
+                    { model: 'DeepSeek R1', limit: '128K (131,072)', pattern: '^deepseek-r1(?:-.*)?$' },
+                    { model: 'Kimi K2-0905', limit: '256K (262,144)', pattern: '^kimi-k2-0905$' },
+                    { model: 'Llama 4 Scout', limit: '10M (10,485,760)', pattern: '^llama-4-scout.*$' },
+                    { model: '默认', limit: '128K (131,072)', pattern: '(无匹配时)' },
+                  ].map((row, i) => (
+                    <tr key={i} className="border-b border-[var(--border-subtle)]/50">
+                      <td className={`p-3 ${row.model === '默认' ? 'text-[var(--text-muted)]' : 'text-[var(--cyber-blue)]'}`}>
+                        {row.model}
+                      </td>
+                      <td className="p-3">{row.limit}</td>
+                      <td className="p-3">
+                        <code className="text-[var(--purple)] text-xs">{row.pattern}</code>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Layer>
 
-          <h3>输出 Token 限制 (OUTPUT_PATTERNS)</h3>
-          <div style={{ overflowX: 'auto', marginBottom: '1.5rem' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid #374151' }}>
-                  <th style={{ textAlign: 'left', padding: '0.75rem', color: '#9ca3af' }}>模型</th>
-                  <th style={{ textAlign: 'left', padding: '0.75rem', color: '#9ca3af' }}>最大输出</th>
-                  <th style={{ textAlign: 'left', padding: '0.75rem', color: '#9ca3af' }}>匹配模式</th>
-                </tr>
-              </thead>
-              <tbody style={{ color: '#d1d5db' }}>
-                {[
-                  { model: 'Qwen3-Coder-Plus', limit: '64K (65,536)', pattern: '^qwen3-coder-plus(-.*)?$' },
-                  { model: 'Qwen3-Max', limit: '64K (65,536)', pattern: '^qwen3-max(-preview)?(-.*)?$' },
-                  { model: 'Qwen3-VL-Plus', limit: '32K (32,768)', pattern: '^qwen3-vl-plus$' },
-                  { model: 'Qwen-VL-Max-Latest', limit: '8K (8,192)', pattern: '^qwen-vl-max-latest$' },
-                  { model: '默认', limit: '4K (4,096)', pattern: '(无匹配时)' },
-                ].map((row, i) => (
-                  <tr key={i} style={{ borderBottom: '1px solid #1f2937' }}>
-                    <td style={{ padding: '0.75rem', color: row.model === '默认' ? '#9ca3af' : '#fb923c' }}>{row.model}</td>
-                    <td style={{ padding: '0.75rem' }}>{row.limit}</td>
-                    <td style={{ padding: '0.75rem' }}>
-                      <code style={{ color: '#a78bfa', fontSize: '0.8rem' }}>{row.pattern}</code>
-                    </td>
+          <Layer title="输出 Token 限制 (OUTPUT_PATTERNS)" icon="📤">
+            <div className="overflow-x-auto mb-4">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-[var(--border-subtle)]">
+                    <th className="text-left p-3 text-[var(--text-muted)]">模型</th>
+                    <th className="text-left p-3 text-[var(--text-muted)]">最大输出</th>
+                    <th className="text-left p-3 text-[var(--text-muted)]">匹配模式</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="text-[var(--text-secondary)]">
+                  {[
+                    { model: 'Qwen3-Coder-Plus', limit: '64K (65,536)', pattern: '^qwen3-coder-plus(-.*)?$' },
+                    { model: 'Qwen3-Max', limit: '64K (65,536)', pattern: '^qwen3-max(-preview)?(-.*)?$' },
+                    { model: 'Qwen3-VL-Plus', limit: '32K (32,768)', pattern: '^qwen3-vl-plus$' },
+                    { model: 'Qwen-VL-Max-Latest', limit: '8K (8,192)', pattern: '^qwen-vl-max-latest$' },
+                    { model: '默认', limit: '4K (4,096)', pattern: '(无匹配时)' },
+                  ].map((row, i) => (
+                    <tr key={i} className="border-b border-[var(--border-subtle)]/50">
+                      <td className={`p-3 ${row.model === '默认' ? 'text-[var(--text-muted)]' : 'text-[var(--amber)]'}`}>
+                        {row.model}
+                      </td>
+                      <td className="p-3">{row.limit}</td>
+                      <td className="p-3">
+                        <code className="text-[var(--purple)] text-xs">{row.pattern}</code>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-          <CodeBlock
-            code={`// packages/core/src/core/tokenLimits.ts
+            <CodeBlock
+              code={`// packages/core/src/core/tokenLimits.ts
 
 export function tokenLimit(
   model: Model,
@@ -195,22 +187,22 @@ export function tokenLimit(
 // 使用示例
 tokenLimit('gpt-4.1-20250219');           // 1,048,576 (1M)
 tokenLimit('qwen3-coder-plus', 'output'); // 65,536 (64K)`}
-            language="typescript"
-          />
+              language="typescript"
+            />
+          </Layer>
         </div>
       )}
 
       {/* Cache Tab */}
       {activeTab === 'cache' && (
-        <div className="content-section">
-          <h2>模型配置缓存</h2>
+        <div className="space-y-6">
+          <Layer title="模型配置缓存" icon="💾">
+            <p className="text-[var(--text-secondary)] mb-4">
+              <code className="text-[var(--cyber-blue)]">ModelConfigCache</code> 是一个单例类，
+              缓存从后端获取的模型配置（baseURL 和 apiKey），TTL 为 5 分钟。
+            </p>
 
-          <p style={{ color: '#d1d5db', marginBottom: '1.5rem' }}>
-            <code style={{ color: '#22d3ee' }}>ModelConfigCache</code> 是一个单例类，
-            缓存从后端获取的模型配置（baseURL 和 apiKey），TTL 为 5 分钟。
-          </p>
-
-          <MermaidDiagram chart={`
+            <MermaidDiagram chart={`
 sequenceDiagram
     participant App as 应用层
     participant Cache as ModelConfigCache
@@ -227,9 +219,11 @@ sequenceDiagram
         Cache-->>App: 返回新配置
     end
 `} />
+          </Layer>
 
-          <CodeBlock
-            code={`// packages/core/src/innies/modelConfigCache.ts
+          <Layer title="缓存实现" icon="📦">
+            <CodeBlock
+              code={`// packages/core/src/innies/modelConfigCache.ts
 
 export class ModelConfigCache {
   private static instance: ModelConfigCache;
@@ -276,67 +270,42 @@ export class ModelConfigCache {
 
     this.lastFetchTime = Date.now();
   }
-
-  getCacheStats(): { size: number; lastFetchTime: number; isExpired: boolean } {
-    return {
-      size: this.cache.size,
-      lastFetchTime: this.lastFetchTime,
-      isExpired: Date.now() - this.lastFetchTime > this.CACHE_TTL,
-    };
-  }
 }`}
-            language="typescript"
-          />
+              language="typescript"
+            />
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '1rem',
-            marginTop: '1.5rem'
-          }}>
-            <div style={{
-              background: 'rgba(16, 185, 129, 0.1)',
-              border: '1px solid rgba(16, 185, 129, 0.3)',
-              padding: '1rem',
-              borderRadius: '0.5rem'
-            }}>
-              <h4 style={{ color: '#34d399', marginTop: 0 }}>缓存优势</h4>
-              <ul style={{ color: '#9ca3af', paddingLeft: '1.2rem', marginBottom: 0 }}>
-                <li>减少 API 调用次数</li>
-                <li>加快模型切换速度</li>
-                <li>单例模式确保全局一致性</li>
-              </ul>
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+              <HighlightBox title="缓存优势" icon="✅" variant="green">
+                <ul className="text-[var(--text-secondary)] pl-5 mb-0 space-y-1 text-sm">
+                  <li>减少 API 调用次数</li>
+                  <li>加快模型切换速度</li>
+                  <li>单例模式确保全局一致性</li>
+                </ul>
+              </HighlightBox>
 
-            <div style={{
-              background: 'rgba(234, 179, 8, 0.1)',
-              border: '1px solid rgba(234, 179, 8, 0.3)',
-              padding: '1rem',
-              borderRadius: '0.5rem'
-            }}>
-              <h4 style={{ color: '#fcd34d', marginTop: 0 }}>TTL 设计</h4>
-              <ul style={{ color: '#9ca3af', paddingLeft: '1.2rem', marginBottom: 0 }}>
-                <li>5 分钟过期保证新鲜度</li>
-                <li>支持强制刷新 forceRefresh</li>
-                <li>clearCache() 可手动清除</li>
-              </ul>
+              <HighlightBox title="TTL 设计" icon="⏱️" variant="yellow">
+                <ul className="text-[var(--text-secondary)] pl-5 mb-0 space-y-1 text-sm">
+                  <li>5 分钟过期保证新鲜度</li>
+                  <li>支持强制刷新 forceRefresh</li>
+                  <li>clearCache() 可手动清除</li>
+                </ul>
+              </HighlightBox>
             </div>
-          </div>
+          </Layer>
         </div>
       )}
 
       {/* Service Tab */}
       {activeTab === 'service' && (
-        <div className="content-section">
-          <h2>模型服务发现</h2>
+        <div className="space-y-6">
+          <Layer title="模型服务发现" icon="🔍">
+            <p className="text-[var(--text-secondary)] mb-4">
+              <code className="text-[var(--cyber-blue)]">fetchInniesModels</code> 从 Innies 后端获取可用模型列表，
+              支持按 modelType 过滤，返回标准化的模型摘要信息。
+            </p>
 
-          <p style={{ color: '#d1d5db', marginBottom: '1.5rem' }}>
-            <code style={{ color: '#22d3ee' }}>fetchInniesModels</code> 从 Innies 后端获取可用模型列表，
-            支持按 modelType 过滤，返回标准化的模型摘要信息。
-          </p>
-
-          <CodeBlock
-            code={`// packages/core/src/innies/inniesModelService.ts
+            <CodeBlock
+              code={`// packages/core/src/innies/inniesModelService.ts
 
 export interface InniesModelSummary {
   id: string;           // 模型标识符
@@ -381,41 +350,33 @@ export async function fetchInniesModels(
     .map(mapRecordToSummary)
     .filter((entry): entry is InniesModelSummary => entry !== null);
 }`}
-            language="typescript"
-          />
+              language="typescript"
+            />
+          </Layer>
 
-          <h3>字段映射策略</h3>
-          <p style={{ color: '#9ca3af', marginBottom: '1rem' }}>
-            由于不同后端返回的字段名不一致，使用灵活的字段解析策略：
-          </p>
+          <Layer title="字段映射策略" icon="🔗">
+            <p className="text-[var(--text-muted)] mb-4">
+              由于不同后端返回的字段名不一致，使用灵活的字段解析策略：
+            </p>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '0.5rem',
-            marginBottom: '1.5rem'
-          }}>
-            {[
-              { field: 'id', aliases: 'modelCode, modelKey, modelId, code, id, name' },
-              { field: 'label', aliases: 'displayName, modelDisplayName, title' },
-              { field: 'baseURL', aliases: 'baseUrl, endpoint, url, inferenceUrl' },
-              { field: 'apiKey', aliases: 'api_key, key, token, accessKey' },
-            ].map(item => (
-              <div key={item.field} style={{
-                background: '#1f2937',
-                padding: '0.75rem',
-                borderRadius: '0.375rem'
-              }}>
-                <code style={{ color: '#22d3ee' }}>{item.field}</code>
-                <p style={{ color: '#6b7280', fontSize: '0.75rem', margin: '0.25rem 0 0' }}>
-                  {item.aliases}
-                </p>
-              </div>
-            ))}
-          </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-4">
+              {[
+                { field: 'id', aliases: 'modelCode, modelKey, modelId, code, id, name' },
+                { field: 'label', aliases: 'displayName, modelDisplayName, title' },
+                { field: 'baseURL', aliases: 'baseUrl, endpoint, url, inferenceUrl' },
+                { field: 'apiKey', aliases: 'api_key, key, token, accessKey' },
+              ].map(item => (
+                <div key={item.field} className="bg-[var(--bg-elevated)] p-3 rounded-md">
+                  <code className="text-[var(--cyber-blue)]">{item.field}</code>
+                  <p className="text-[var(--text-muted)] text-xs mt-1 mb-0">
+                    {item.aliases}
+                  </p>
+                </div>
+              ))}
+            </div>
 
-          <CodeBlock
-            code={`// 字段解析辅助函数
+            <CodeBlock
+              code={`// 字段解析辅助函数
 function resolveStringField(
   record: RawModelRecord,
   keys: string[],
@@ -435,22 +396,22 @@ const id = resolveStringField(record, [
   'modelCode', 'modelKey', 'modelName',
   'modelId', 'code', 'id', 'name',
 ]);`}
-            language="typescript"
-          />
+              language="typescript"
+            />
+          </Layer>
         </div>
       )}
 
       {/* Normalize Tab */}
       {activeTab === 'normalize' && (
-        <div className="content-section">
-          <h2>模型名称标准化</h2>
+        <div className="space-y-6">
+          <Layer title="模型名称标准化" icon="🔧">
+            <p className="text-[var(--text-secondary)] mb-4">
+              <code className="text-[var(--cyber-blue)]">normalize()</code> 函数将各种格式的模型名称转换为标准形式，
+              以便正则匹配能够正确工作。
+            </p>
 
-          <p style={{ color: '#d1d5db', marginBottom: '1.5rem' }}>
-            <code style={{ color: '#22d3ee' }}>normalize()</code> 函数将各种格式的模型名称转换为标准形式，
-            以便正则匹配能够正确工作。
-          </p>
-
-          <MermaidDiagram chart={`
+            <MermaidDiagram chart={`
 flowchart TD
     subgraph Input["输入示例"]
         I1["openai/gpt-4.1-20250219"]
@@ -475,9 +436,11 @@ flowchart TD
     I2 --> S3 --> O2
     I3 --> S4 --> O3
 `} />
+          </Layer>
 
-          <CodeBlock
-            code={`// packages/core/src/core/tokenLimits.ts
+          <Layer title="标准化实现" icon="📝">
+            <CodeBlock
+              code={`// packages/core/src/core/tokenLimits.ts
 
 export function normalize(model: string): string {
   let s = (model ?? '').toLowerCase().trim();
@@ -500,11 +463,7 @@ export function normalize(model: string): string {
     !s.match(/^qwen-(?:plus|flash|vl-max)-latest$/) &&
     !s.match(/^kimi-k2-\\d{4}$/)
   ) {
-    // 移除版本/日期后缀:
-    // - \\d{4,}      : 4位以上数字 (日期 20250219)
-    // - \\d+x\\d+b    : 参数量 4x8b, 70b
-    // - v\\d+(?:\\.\\d+)* : 版本号 v1, v1.2
-    // - latest|exp   : 字面量
+    // 移除版本/日期后缀
     s = s.replace(
       /-(?:\\d{4,}|\\d+x\\d+b|v\\d+(?:\\.\\d+)*|(?<=-[^-]+-)\d+(?:\\.\\d+)+|latest|exp)$/g,
       '',
@@ -522,55 +481,33 @@ normalize('openai/gpt-4.1-20250219');  // "gpt-4.1"
 normalize('qwen-plus-latest');          // "qwen-plus-latest" (保留)
 normalize('llama-3-70b-int4');          // "llama-3-70b"
 normalize('Claude:sonnet-4');           // "sonnet-4"`}
-            language="typescript"
-          />
+              language="typescript"
+            />
+          </Layer>
 
-          <h3>特殊处理规则</h3>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '1rem',
-            marginTop: '1rem'
-          }}>
-            <div style={{
-              background: 'rgba(139, 92, 246, 0.1)',
-              border: '1px solid rgba(139, 92, 246, 0.3)',
-              padding: '1rem',
-              borderRadius: '0.5rem'
-            }}>
-              <h4 style={{ color: '#a78bfa', marginTop: 0 }}>保留版本标识</h4>
-              <ul style={{ color: '#9ca3af', paddingLeft: '1.2rem', marginBottom: 0, fontSize: '0.875rem' }}>
-                <li><code>qwen-plus-latest</code> - latest 是模型标识的一部分</li>
-                <li><code>kimi-k2-0905</code> - 日期区分不同版本</li>
-              </ul>
-            </div>
+          <Layer title="特殊处理规则" icon="⚡">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <HighlightBox title="保留版本标识" icon="✅" variant="purple">
+                <ul className="text-[var(--text-secondary)] pl-5 mb-0 space-y-1 text-sm">
+                  <li><code>qwen-plus-latest</code> - latest 是模型标识的一部分</li>
+                  <li><code>kimi-k2-0905</code> - 日期区分不同版本</li>
+                </ul>
+              </HighlightBox>
 
-            <div style={{
-              background: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              padding: '1rem',
-              borderRadius: '0.5rem'
-            }}>
-              <h4 style={{ color: '#f87171', marginTop: 0 }}>移除的后缀</h4>
-              <ul style={{ color: '#9ca3af', paddingLeft: '1.2rem', marginBottom: 0, fontSize: '0.875rem' }}>
-                <li>日期: <code>-20250219</code>, <code>-0528</code></li>
-                <li>版本: <code>-v1</code>, <code>-v2.1.3</code></li>
-                <li>量化: <code>-int4</code>, <code>-bf16</code>, <code>-q5</code></li>
-              </ul>
+              <HighlightBox title="移除的后缀" icon="🗑️" variant="red">
+                <ul className="text-[var(--text-secondary)] pl-5 mb-0 space-y-1 text-sm">
+                  <li>日期: <code>-20250219</code>, <code>-0528</code></li>
+                  <li>版本: <code>-v1</code>, <code>-v2.1.3</code></li>
+                  <li>量化: <code>-int4</code>, <code>-bf16</code>, <code>-q5</code></li>
+                </ul>
+              </HighlightBox>
             </div>
-          </div>
+          </Layer>
         </div>
       )}
 
       {/* Architecture Overview */}
-      <div style={{
-        background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(59, 130, 246, 0.15))',
-        borderRadius: '0.75rem',
-        padding: '1.5rem',
-        marginTop: '2rem'
-      }}>
-        <h2 style={{ color: '#34d399', marginTop: 0 }}>系统架构</h2>
-
+      <Layer title="系统架构" icon="🏗️">
         <MermaidDiagram chart={`
 graph TB
     subgraph Usage["使用层"]
@@ -600,34 +537,23 @@ graph TB
     style MC fill:#1e3a5f
     style MS fill:#553c9a
 `} />
-      </div>
+      </Layer>
 
       {/* Source Files */}
-      <div className="source-files" style={{ marginTop: '2rem' }}>
-        <h3>源文件索引</h3>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: '0.5rem'
-        }}>
+      <Layer title="源文件索引" icon="📁">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           {[
             'packages/core/src/core/tokenLimits.ts',
             'packages/core/src/innies/modelConfigCache.ts',
             'packages/core/src/innies/inniesModelService.ts',
             'packages/core/src/config/config.ts',
           ].map(file => (
-            <code key={file} style={{
-              background: '#1f2937',
-              padding: '0.5rem 0.75rem',
-              borderRadius: '0.375rem',
-              color: '#22d3ee',
-              fontSize: '0.875rem'
-            }}>
+            <code key={file} className="bg-[var(--bg-elevated)] px-3 py-2 rounded-md text-[var(--cyber-blue)] text-sm block">
               {file}
             </code>
           ))}
         </div>
-      </div>
+      </Layer>
     </div>
   );
 }
