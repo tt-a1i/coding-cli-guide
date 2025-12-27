@@ -128,6 +128,12 @@ const TokenManagementStrategy = lazy(() => import('./pages/TokenManagementStrate
 const ContentFormatConversion = lazy(() => import('./pages/ContentFormatConversion').then(m => ({ default: m.ContentFormatConversion })));
 const CommandExecutionContext = lazy(() => import('./pages/CommandExecutionContext').then(m => ({ default: m.CommandExecutionContext })));
 const QwenAuthentication = lazy(() => import('./pages/QwenAuthentication').then(m => ({ default: m.QwenAuthentication })));
+const StreamingResponseProcessing = lazy(() => import('./pages/StreamingResponseProcessing').then(m => ({ default: m.StreamingResponseProcessing })));
+const ZedIntegration = lazy(() => import('./pages/ZedIntegration').then(m => ({ default: m.ZedIntegration })));
+const ModelConfiguration = lazy(() => import('./pages/ModelConfiguration').then(m => ({ default: m.ModelConfiguration })));
+const DesignTradeoffs = lazy(() => import('./pages/DesignTradeoffs').then(m => ({ default: m.DesignTradeoffs })));
+const ErrorRecoveryPatterns = lazy(() => import('./pages/ErrorRecoveryPatterns').then(m => ({ default: m.ErrorRecoveryPatterns })));
+const ConcurrencyPatterns = lazy(() => import('./pages/ConcurrencyPatterns').then(m => ({ default: m.ConcurrencyPatterns })));
 
 // 页面加载 fallback
 function PageLoading() {
@@ -454,6 +460,18 @@ function App() {
         return <CommandExecutionContext />;
       case 'qwen-authentication':
         return <QwenAuthentication />;
+      case 'streaming-response-processing':
+        return <StreamingResponseProcessing />;
+      case 'zed-integration':
+        return <ZedIntegration />;
+      case 'model-configuration':
+        return <ModelConfiguration />;
+      case 'design-tradeoffs':
+        return <DesignTradeoffs />;
+      case 'error-recovery-patterns':
+        return <ErrorRecoveryPatterns />;
+      case 'concurrency-patterns':
+        return <ConcurrencyPatterns />;
       default:
         return <StartHere onNavigate={(tab) => navigateToTab(tab)} />;
     }

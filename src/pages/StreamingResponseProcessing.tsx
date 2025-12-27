@@ -1,0 +1,729 @@
+/**
+ * StreamingResponseProcessing - 流式响应处理详解
+ * 深入解析 AI 响应的流式传输、Chunk 解析与工具调用重组机制
+ */
+
+import { useState } from 'react';
+import { CodeBlock } from '../components/CodeBlock';
+import { MermaidDiagram } from '../components/MermaidDiagram';
+
+export function StreamingResponseProcessing() {
+  const [activeTab, setActiveTab] = useState<'overview' | 'parser' | 'merge' | 'repair'>('overview');
+
+  return (
+    <div className="page-container">
+      <h1>🌊 流式响应处理详解</h1>
+
+      <div className="info-box" style={{
+        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(16, 185, 129, 0.1))',
+        borderLeft: '4px solid var(--cyber-blue)',
+        padding: '1.5rem',
+        borderRadius: '8px',
+        marginBottom: '2rem'
+      }}>
+        <h3 style={{ margin: '0 0 1rem 0', color: 'var(--cyber-blue)' }}>📌 30秒速览</h3>
+        <ul style={{ margin: 0, lineHeight: 1.8 }}>
+          <li><strong>核心问题</strong>：流式响应的 Chunk 格式不一致、工具调用分片、Index 冲突</li>
+          <li><strong>StreamingToolCallParser</strong>：处理多工具并发的增量 JSON 解析器</li>
+          <li><strong>Chunk 合并策略</strong>：finishReason 和 usageMetadata 可能分开到达，需要合并</li>
+          <li><strong>JSON 修复</strong>：自动关闭未闭合字符串、容错解析 (safeJsonParse)</li>
+          <li><strong>状态追踪</strong>：每个工具调用独立追踪 depth、inString、escape 状态</li>
+        </ul>
+      </div>
+
+      {/* 导航标签 */}
+      <div style={{
+        display: 'flex',
+        gap: '0.5rem',
+        marginBottom: '2rem',
+        flexWrap: 'wrap'
+      }}>
+        {[
+          { key: 'overview', label: '🔄 流式架构', icon: '🔄' },
+          { key: 'parser', label: '🔧 ToolCall 解析', icon: '🔧' },
+          { key: 'merge', label: '🧩 Chunk 合并', icon: '🧩' },
+          { key: 'repair', label: '🛠️ JSON 修复', icon: '🛠️' }
+        ].map(tab => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key as typeof activeTab)}
+            style={{
+              padding: '0.75rem 1.5rem',
+              border: activeTab === tab.key ? '2px solid var(--terminal-green)' : '1px solid var(--border-dim)',
+              borderRadius: '8px',
+              background: activeTab === tab.key ? 'rgba(0, 255, 136, 0.1)' : 'transparent',
+              color: activeTab === tab.key ? 'var(--terminal-green)' : 'var(--text-secondary)',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              fontWeight: activeTab === tab.key ? 'bold' : 'normal'
+            }}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Overview Tab */}
+      {activeTab === 'overview' && (
+        <section>
+          <h2>🔄 流式响应架构</h2>
+
+          <p>
+            流式响应允许 AI 在生成过程中逐步返回内容，提供更好的用户体验。
+            但流式数据带来了新的挑战：Chunk 格式不一致、工具调用分片传输、元数据延迟到达等。
+          </p>
+
+          <MermaidDiagram chart={`
+sequenceDiagram
+    participant CLI as 🖥️ CLI
+    participant Pipeline as ⚙️ ContentGenerationPipeline
+    participant Converter as 🔄 OpenAIContentConverter
+    participant Parser as 📝 StreamingToolCallParser
+    participant API as 🌐 OpenAI API
+
+    CLI->>Pipeline: executeStreaming(request)
+    Pipeline->>API: POST /chat/completions (stream: true)
+
+    loop 流式接收
+        API-->>Pipeline: Chunk N
+        Pipeline->>Converter: convertOpenAIStreamToGemini(chunk)
+
+        alt 普通文本
+            Converter-->>Pipeline: GenerateContentResponse (text)
+        else 工具调用片段
+            Converter->>Parser: addChunk(index, args, id, name)
+            Parser->>Parser: 累积 buffer，追踪 JSON 状态
+            Parser-->>Converter: { complete: false }
+        else 流结束 (finish_reason)
+            Converter->>Parser: getCompletedToolCalls()
+            Parser-->>Converter: 完整的工具调用列表
+            Converter-->>Pipeline: GenerateContentResponse (tools)
+        end
+
+        Pipeline->>Pipeline: handleChunkMerging()
+        Pipeline-->>CLI: yield response
+    end
+
+    CLI->>CLI: 执行工具，继续对话
+`} />
+
+          <h3>流式处理面临的挑战</h3>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+            <div className="card" style={{ background: 'rgba(239, 68, 68, 0.1)', padding: '1rem', borderRadius: '8px' }}>
+              <h4 style={{ color: '#ef4444', margin: '0 0 0.5rem 0' }}>❌ 问题 1: Chunk 格式不一致</h4>
+              <p style={{ fontSize: '0.9rem', margin: 0 }}>
+                不同的 AI Provider 返回的 Chunk 格式差异很大：
+                有的在最后一个 Chunk 返回 <code>usage</code>，有的单独发送。
+              </p>
+            </div>
+
+            <div className="card" style={{ background: 'rgba(245, 158, 11, 0.1)', padding: '1rem', borderRadius: '8px' }}>
+              <h4 style={{ color: 'var(--warning-color)', margin: '0 0 0.5rem 0' }}>⚠️ 问题 2: 工具调用分片</h4>
+              <p style={{ fontSize: '0.9rem', margin: 0 }}>
+                工具调用的 JSON 参数被拆分成多个 Chunk：
+                <code>{`{"file": "src/ma`}</code> ... <code>{`in.ts"}`}</code>
+              </p>
+            </div>
+
+            <div className="card" style={{ background: 'rgba(139, 92, 246, 0.1)', padding: '1rem', borderRadius: '8px' }}>
+              <h4 style={{ color: 'var(--purple-accent)', margin: '0 0 0.5rem 0' }}>🔀 问题 3: Index 冲突</h4>
+              <p style={{ fontSize: '0.9rem', margin: 0 }}>
+                多个工具调用可能使用相同的 index，需要通过 ID 区分并重新分配 index。
+              </p>
+            </div>
+
+            <div className="card" style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '1rem', borderRadius: '8px' }}>
+              <h4 style={{ color: 'var(--terminal-green)', margin: '0 0 0.5rem 0' }}>🧩 问题 4: 元数据延迟</h4>
+              <p style={{ fontSize: '0.9rem', margin: 0 }}>
+                <code>finishReason</code> 和 <code>usageMetadata</code> 可能在不同 Chunk 中到达，需要合并。
+              </p>
+            </div>
+          </div>
+
+          <h3>Pipeline 核心流程</h3>
+          <CodeBlock language="typescript" code={`// packages/core/src/core/openaiContentGenerator/pipeline.ts
+
+async *executeStreaming(request: GenerateContentParameters) {
+  const openaiRequest = await this.buildRequest(request, userPromptId, true);
+
+  // 调用 OpenAI 流式 API
+  const stream = await this.client.chat.completions.create({
+    ...openaiRequest,
+    stream: true,
+    stream_options: { include_usage: true },  // 请求返回 usage 信息
+  });
+
+  let pendingFinishResponse: GenerateContentResponse | null = null;
+  const collectedChunks: OpenAI.Chat.ChatCompletionChunk[] = [];
+
+  for await (const chunk of stream) {
+    collectedChunks.push(chunk);
+
+    // 转换 OpenAI Chunk → Gemini 格式
+    const response = await this.converter.convertOpenAIStreamToGemini(chunk);
+
+    // 处理 Chunk 合并（finishReason + usageMetadata）
+    const shouldYield = this.handleChunkMerging(
+      response,
+      collectedResponses,
+      (r) => { pendingFinishResponse = r; }
+    );
+
+    if (shouldYield) {
+      yield response;
+    }
+  }
+
+  // 流结束，yield 最终合并的响应（包含完整的 usage）
+  if (pendingFinishResponse) {
+    yield pendingFinishResponse;
+  }
+}`} />
+        </section>
+      )}
+
+      {/* Parser Tab */}
+      {activeTab === 'parser' && (
+        <section>
+          <h2>🔧 StreamingToolCallParser</h2>
+
+          <p>
+            <code>StreamingToolCallParser</code> 是处理流式工具调用的核心组件。
+            它解决了分片 JSON 累积、多工具 Index 冲突、状态追踪等复杂问题。
+          </p>
+
+          <MermaidDiagram chart={`
+stateDiagram-v2
+    [*] --> ReceiveChunk: addChunk(index, chunk, id, name)
+
+    state ReceiveChunk {
+        [*] --> ResolveIndex
+        ResolveIndex --> CheckID: 有 ID?
+
+        CheckID --> MapExistingID: ID 已存在
+        CheckID --> CheckCollision: ID 不存在
+        CheckID --> FindIncomplete: 无 ID (continuation)
+
+        MapExistingID --> UseExistingIndex
+        CheckCollision --> AllocateNewIndex: Index 被占用
+        CheckCollision --> UseRequestedIndex: Index 可用
+        FindIncomplete --> UseIncompleteIndex
+
+        UseExistingIndex --> InitState
+        AllocateNewIndex --> InitState
+        UseRequestedIndex --> InitState
+        UseIncompleteIndex --> InitState
+    }
+
+    ReceiveChunk --> AccumulateBuffer: 确定 actualIndex
+    AccumulateBuffer --> TrackJSONState: 追踪 depth/inString/escape
+
+    state TrackJSONState {
+        [*] --> ScanChars
+        ScanChars --> UpdateDepth: { 或 } 在字符串外
+        ScanChars --> ToggleString: " 且未转义
+        ScanChars --> SetEscape: \\ 字符
+        UpdateDepth --> ScanChars
+        ToggleString --> ScanChars
+        SetEscape --> ScanChars
+    }
+
+    TrackJSONState --> CheckComplete: depth == 0?
+    CheckComplete --> TryParse: 是
+    CheckComplete --> ReturnIncomplete: 否
+
+    TryParse --> ReturnComplete: JSON.parse 成功
+    TryParse --> TryRepair: 解析失败
+    TryRepair --> ReturnComplete: 修复成功
+    TryRepair --> ReturnIncomplete: 修复失败
+
+    ReturnComplete --> [*]
+    ReturnIncomplete --> [*]
+`} />
+
+          <h3>核心状态追踪</h3>
+          <CodeBlock language="typescript" code={`// packages/core/src/core/openaiContentGenerator/streamingToolCallParser.ts
+
+export class StreamingToolCallParser {
+  // 每个工具调用 index 的独立状态
+  private buffers: Map<number, string> = new Map();      // 累积的 JSON 字符串
+  private depths: Map<number, number> = new Map();       // JSON 嵌套深度
+  private inStrings: Map<number, boolean> = new Map();   // 是否在字符串内
+  private escapes: Map<number, boolean> = new Map();     // 下一个字符是否转义
+
+  // ID → Index 映射（解决 Index 冲突）
+  private idToIndexMap: Map<string, number> = new Map();
+  private toolCallMeta: Map<number, { id?: string; name?: string }> = new Map();
+  private nextAvailableIndex: number = 0;
+}`} />
+
+          <h3>Index 冲突解决</h3>
+
+          <p>
+            当新的工具调用 ID 请求一个已被占用的 index 时，解析器会自动分配新的 index。
+          </p>
+
+          <CodeBlock language="typescript" code={`addChunk(index: number, chunk: string, id?: string, name?: string) {
+  let actualIndex = index;
+
+  if (id) {
+    if (this.idToIndexMap.has(id)) {
+      // 已知 ID，使用映射的 index
+      actualIndex = this.idToIndexMap.get(id)!;
+    } else {
+      // 新 ID，检查请求的 index 是否被占用
+      if (this.buffers.has(index)) {
+        const existingBuffer = this.buffers.get(index)!;
+        const existingMeta = this.toolCallMeta.get(index);
+
+        // 如果存在完整的、不同 ID 的工具调用，分配新 index
+        if (existingMeta?.id && existingMeta.id !== id) {
+          try {
+            JSON.parse(existingBuffer);  // 验证是否完整
+            actualIndex = this.findNextAvailableIndex();  // 分配新 index
+          } catch {
+            // 未完整，可以复用这个 index
+          }
+        }
+      }
+      this.idToIndexMap.set(id, actualIndex);
+    }
+  } else {
+    // 无 ID 的 continuation chunk
+    // 尝试找到最近的未完成工具调用
+    actualIndex = this.findMostRecentIncompleteIndex();
+  }
+
+  // 使用 actualIndex 继续处理...
+}`} />
+
+          <h3>JSON 结构追踪</h3>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
+            <div className="card" style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '1rem', borderRadius: '8px' }}>
+              <h4 style={{ color: 'var(--cyber-blue)', margin: '0 0 0.5rem 0' }}>📊 depth 追踪</h4>
+              <CodeBlock language="typescript" code={`// 只在字符串外计数
+for (const char of chunk) {
+  if (!inString) {
+    if (char === '{' || char === '[') {
+      depth++;
+    } else if (char === '}' || char === ']') {
+      depth--;
+    }
+  }
+  // ...
+}
+
+// depth === 0 表示 JSON 结构完整`} />
+            </div>
+
+            <div className="card" style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '1rem', borderRadius: '8px' }}>
+              <h4 style={{ color: 'var(--terminal-green)', margin: '0 0 0.5rem 0' }}>💬 字符串边界</h4>
+              <CodeBlock language="typescript" code={`// 追踪引号切换字符串状态
+if (char === '"' && !escape) {
+  inString = !inString;
+}
+
+// 追踪转义序列
+// \\" 中的第二个引号不切换状态
+escape = char === '\\\\' && !escape;`} />
+            </div>
+          </div>
+
+          <h3>解析完成判定</h3>
+          <CodeBlock language="typescript" code={`// depth === 0 且有内容时尝试解析
+if (depth === 0 && newBuffer.trim().length > 0) {
+  try {
+    const parsed = JSON.parse(newBuffer);
+    return { complete: true, value: parsed };
+  } catch (e) {
+    // 尝试修复（见下一节）
+    if (inString) {
+      try {
+        const repaired = JSON.parse(newBuffer + '"');
+        return { complete: true, value: repaired, repaired: true };
+      } catch { /* 修复失败 */ }
+    }
+    return { complete: false, error: e };
+  }
+}
+
+return { complete: false };  // 继续累积`} />
+        </section>
+      )}
+
+      {/* Merge Tab */}
+      {activeTab === 'merge' && (
+        <section>
+          <h2>🧩 Chunk 合并策略</h2>
+
+          <p>
+            不同的 AI Provider 返回流式响应的方式不同。有些在同一个 Chunk 中返回
+            <code>finishReason</code> 和 <code>usageMetadata</code>，有些分开返回。
+            <code>handleChunkMerging</code> 确保最终响应包含完整信息。
+          </p>
+
+          <MermaidDiagram chart={`
+sequenceDiagram
+    participant API as 🌐 API
+    participant Pipeline as ⚙️ Pipeline
+    participant Collector as 📦 Collector
+
+    Note over API,Collector: 场景 A: 分开返回
+
+    API->>Pipeline: Chunk 1: { text: "Hello" }
+    Pipeline->>Collector: 收集并 yield
+    Pipeline-->>Pipeline: yield chunk1
+
+    API->>Pipeline: Chunk 2: { text: " World" }
+    Pipeline->>Collector: 收集并 yield
+    Pipeline-->>Pipeline: yield chunk2
+
+    API->>Pipeline: Chunk 3: { finishReason: "stop" }
+    Pipeline->>Collector: 收集，设为 pendingFinish
+    Note over Pipeline: 不 yield，等待合并
+
+    API->>Pipeline: Chunk 4: { usageMetadata: {...} }
+    Pipeline->>Collector: 合并到 pendingFinish
+    Note over Pipeline: 合并: finishReason + usage
+    Pipeline-->>Pipeline: yield mergedChunk
+
+    Note over API,Collector: 场景 B: 一起返回
+
+    API->>Pipeline: Chunk: { finishReason: "stop", usage: {...} }
+    Pipeline->>Collector: 收集并 yield
+    Pipeline-->>Pipeline: yield chunk
+`} />
+
+          <h3>合并算法实现</h3>
+          <CodeBlock language="typescript" code={`// packages/core/src/core/openaiContentGenerator/pipeline.ts
+
+private handleChunkMerging(
+  response: GenerateContentResponse,
+  collectedResponses: GenerateContentResponse[],
+  setPendingFinish: (response: GenerateContentResponse) => void,
+): boolean {
+  const isFinishChunk = response.candidates?.[0]?.finishReason;
+  const lastResponse = collectedResponses[collectedResponses.length - 1];
+  const hasPendingFinish = lastResponse?.candidates?.[0]?.finishReason;
+
+  if (isFinishChunk) {
+    // 📍 收到 finishReason Chunk
+    // 不立即 yield，等待可能的 usageMetadata
+    collectedResponses.push(response);
+    setPendingFinish(response);
+    return false;  // 暂不 yield
+  }
+
+  if (hasPendingFinish) {
+    // 📍 已有 pendingFinish，当前 Chunk 需要合并进去
+    const mergedResponse = new GenerateContentResponse();
+
+    // 保留之前的 finishReason
+    mergedResponse.candidates = lastResponse.candidates;
+
+    // 使用当前 Chunk 的 usage（如果有）
+    mergedResponse.usageMetadata = response.usageMetadata
+      || lastResponse.usageMetadata;
+
+    // 复制其他属性
+    mergedResponse.responseId = response.responseId;
+    mergedResponse.modelVersion = response.modelVersion;
+
+    // 更新收集器
+    collectedResponses[collectedResponses.length - 1] = mergedResponse;
+    setPendingFinish(mergedResponse);
+    return true;  // yield 合并后的响应
+  }
+
+  // 📍 普通 Chunk，直接收集并 yield
+  collectedResponses.push(response);
+  return true;
+}`} />
+
+          <h3>设计考量</h3>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+            <div className="card" style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '1rem', borderRadius: '8px' }}>
+              <h4 style={{ color: 'var(--terminal-green)', margin: '0 0 0.5rem 0' }}>✅ 为什么等待合并？</h4>
+              <p style={{ fontSize: '0.9rem', margin: 0 }}>
+                如果立即 yield <code>finishReason</code> Chunk，后续的 <code>usageMetadata</code>
+                将丢失。等待合并确保最终响应信息完整。
+              </p>
+            </div>
+
+            <div className="card" style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '1rem', borderRadius: '8px' }}>
+              <h4 style={{ color: 'var(--cyber-blue)', margin: '0 0 0.5rem 0' }}>📊 usage 的重要性</h4>
+              <p style={{ fontSize: '0.9rem', margin: 0 }}>
+                <code>usageMetadata</code> 包含 Token 使用量，用于计费、配额管理和 UI 显示。
+                必须确保它被正确传递。
+              </p>
+            </div>
+
+            <div className="card" style={{ background: 'rgba(139, 92, 246, 0.1)', padding: '1rem', borderRadius: '8px' }}>
+              <h4 style={{ color: 'var(--purple-accent)', margin: '0 0 0.5rem 0' }}>🔄 Provider 兼容</h4>
+              <p style={{ fontSize: '0.9rem', margin: 0 }}>
+                这种策略兼容所有 Provider：分开发送的会被合并，一起发送的直接通过。
+              </p>
+            </div>
+          </div>
+
+          <h3>stream_options 请求</h3>
+          <CodeBlock language="typescript" code={`// 请求 API 返回 usage 信息
+const request: OpenAI.Chat.ChatCompletionCreateParams = {
+  model: this.contentGeneratorConfig.model,
+  messages,
+  stream: true,
+  stream_options: { include_usage: true },  // 关键！
+};
+
+// 没有这个选项，某些 Provider 不会返回 usage`} />
+        </section>
+      )}
+
+      {/* Repair Tab */}
+      {activeTab === 'repair' && (
+        <section>
+          <h2>🛠️ JSON 修复策略</h2>
+
+          <p>
+            流式传输中，JSON 可能在字符串中间被截断。解析器采用多种修复策略确保数据不丢失。
+          </p>
+
+          <MermaidDiagram chart={`
+flowchart TD
+    A[接收完整 buffer] --> B{depth == 0?}
+    B -- 否 --> C[继续累积]
+    B -- 是 --> D[尝试 JSON.parse]
+
+    D -- 成功 --> E[返回 complete: true]
+    D -- 失败 --> F{inString == true?}
+
+    F -- 是 --> G[尝试 buffer + '"']
+    F -- 否 --> H[尝试 safeJsonParse]
+
+    G -- 成功 --> I[返回 complete: true, repaired: true]
+    G -- 失败 --> H
+
+    H -- 成功 --> J[返回 partial value]
+    H -- 失败 --> K[返回 complete: false, error]
+
+    style E fill:#059669,stroke:#059669,color:#fff
+    style I fill:#d97706,stroke:#d97706,color:#fff
+    style J fill:#7c3aed,stroke:#7c3aed,color:#fff
+    style K fill:#dc2626,stroke:#dc2626,color:#fff
+`} />
+
+          <h3>修复策略 1: 自动关闭字符串</h3>
+          <CodeBlock language="typescript" code={`// 场景: JSON 在字符串中间被截断
+// buffer: {"file": "src/main.ts", "content": "Hello
+
+// 解析器追踪到 inString = true
+if (depth === 0 && newBuffer.trim().length > 0) {
+  try {
+    JSON.parse(newBuffer);
+  } catch {
+    // 标准解析失败，检查是否在字符串内
+    if (inString) {
+      try {
+        // 尝试添加闭合引号
+        const repaired = JSON.parse(newBuffer + '"');
+        return {
+          complete: true,
+          value: repaired,
+          repaired: true,  // 标记为修复过
+        };
+      } catch {
+        // 仍然失败，可能有其他问题
+      }
+    }
+  }
+}`} />
+
+          <h3>修复策略 2: safeJsonParse 容错</h3>
+          <CodeBlock language="typescript" code={`// packages/core/src/utils/safeJsonParse.ts
+
+/**
+ * 容错 JSON 解析器
+ * 处理常见的 JSON 格式问题：
+ * - 尾部逗号
+ * - 未转义的换行符
+ * - 单引号字符串
+ */
+export function safeJsonParse<T>(
+  jsonString: string,
+  defaultValue: T
+): T {
+  try {
+    return JSON.parse(jsonString);
+  } catch {
+    try {
+      // 尝试移除尾部逗号
+      const cleaned = jsonString
+        .replace(/,\\s*}/g, '}')
+        .replace(/,\\s*]/g, ']');
+      return JSON.parse(cleaned);
+    } catch {
+      return defaultValue;
+    }
+  }
+}
+
+// 在 getCompletedToolCalls 中使用
+getCompletedToolCalls() {
+  for (const [index, buffer] of this.buffers.entries()) {
+    let args: Record<string, unknown> = {};
+
+    try {
+      args = JSON.parse(buffer);
+    } catch {
+      // 标准修复
+      if (this.inStrings.get(index)) {
+        try {
+          args = JSON.parse(buffer + '"');
+        } catch {
+          // 最终降级：safeJsonParse
+          args = safeJsonParse(buffer, {});
+        }
+      } else {
+        args = safeJsonParse(buffer, {});
+      }
+    }
+  }
+}`} />
+
+          <h3>实际修复场景</h3>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
+            <div className="card" style={{ background: 'rgba(239, 68, 68, 0.1)', padding: '1rem', borderRadius: '8px' }}>
+              <h4 style={{ color: '#ef4444', margin: '0 0 0.5rem 0' }}>❌ 截断的 JSON</h4>
+              <CodeBlock language="json" code={`{
+  "tool": "Read",
+  "file": "/src/main.ts",
+  "content": "export function main() {
+    console.log("Hello`} />
+            </div>
+
+            <div className="card" style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '1rem', borderRadius: '8px' }}>
+              <h4 style={{ color: 'var(--terminal-green)', margin: '0 0 0.5rem 0' }}>✅ 修复后</h4>
+              <CodeBlock language="json" code={`{
+  "tool": "Read",
+  "file": "/src/main.ts",
+  "content": "export function main() {
+    console.log(\\"Hello"
+}`} />
+              <p style={{ fontSize: '0.85rem', marginTop: '0.5rem', color: 'var(--text-muted)' }}>
+                添加闭合引号 <code>"</code> 后可解析
+              </p>
+            </div>
+          </div>
+
+          <h3>状态重置</h3>
+          <CodeBlock language="typescript" code={`// 每次新的流式请求前重置解析器状态
+reset(): void {
+  this.buffers.clear();
+  this.depths.clear();
+  this.inStrings.clear();
+  this.escapes.clear();
+  this.toolCallMeta.clear();
+  this.idToIndexMap.clear();
+  this.nextAvailableIndex = 0;
+}
+
+// 在 Pipeline 中调用
+async *executeStreaming(request) {
+  // 清理可能残留的状态
+  this.converter.resetStreamingToolCalls();
+  // ...
+}`} />
+
+          <div className="info-box" style={{
+            background: 'rgba(245, 158, 11, 0.1)',
+            borderLeft: '4px solid var(--warning-color)',
+            padding: '1rem',
+            borderRadius: '8px',
+            marginTop: '1rem'
+          }}>
+            <h4 style={{ color: 'var(--warning-color)', margin: '0 0 0.5rem 0' }}>⚠️ 修复的局限性</h4>
+            <ul style={{ margin: 0, fontSize: '0.9rem' }}>
+              <li>只能修复简单的字符串截断，复杂的结构损坏无法修复</li>
+              <li><code>repaired: true</code> 标记可用于日志和监控，追踪修复频率</li>
+              <li>如果修复失败，工具调用可能返回空参数 <code>{`{}`}</code>，上层需要处理</li>
+            </ul>
+          </div>
+        </section>
+      )}
+
+      {/* 错误处理 */}
+      <section style={{ marginTop: '2rem' }}>
+        <h2>🚨 错误处理</h2>
+
+        <CodeBlock language="typescript" code={`// Pipeline 中的流式错误处理
+async *executeStreaming(request) {
+  try {
+    for await (const chunk of stream) {
+      // 处理 chunk...
+    }
+  } catch (error) {
+    // 🔴 关键：错误时清理状态，防止数据污染下一次请求
+    this.converter.resetStreamingToolCalls();
+
+    // 记录遥测
+    await this.config.telemetryService.logStreamingError(error, context);
+
+    // 使用共享错误处理逻辑
+    await this.handleError(error, context, request);
+  }
+}`} />
+      </section>
+
+      {/* 相关链接 */}
+      <section style={{ marginTop: '2rem' }}>
+        <h2>🔗 相关文档</h2>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+          <a href="#content-format-conversion" className="card" style={{
+            padding: '1rem',
+            textDecoration: 'none',
+            background: 'rgba(59, 130, 246, 0.1)',
+            borderRadius: '8px'
+          }}>
+            <h4 style={{ color: 'var(--cyber-blue)', margin: '0 0 0.5rem 0' }}>🔄 格式转换</h4>
+            <p style={{ margin: 0, fontSize: '0.9rem' }}>Gemini ↔ OpenAI 格式</p>
+          </a>
+
+          <a href="#streaming-tool-call-parser-anim" className="card" style={{
+            padding: '1rem',
+            textDecoration: 'none',
+            background: 'rgba(139, 92, 246, 0.1)',
+            borderRadius: '8px'
+          }}>
+            <h4 style={{ color: 'var(--purple-accent)', margin: '0 0 0.5rem 0' }}>🎬 解析器动画</h4>
+            <p style={{ margin: 0, fontSize: '0.9rem' }}>可视化解析过程</p>
+          </a>
+
+          <a href="#tool-scheduler" className="card" style={{
+            padding: '1rem',
+            textDecoration: 'none',
+            background: 'rgba(16, 185, 129, 0.1)',
+            borderRadius: '8px'
+          }}>
+            <h4 style={{ color: 'var(--terminal-green)', margin: '0 0 0.5rem 0' }}>⚙️ 工具调度器</h4>
+            <p style={{ margin: 0, fontSize: '0.9rem' }}>解析后的工具执行</p>
+          </a>
+
+          <a href="#chunk-assembly-anim" className="card" style={{
+            padding: '1rem',
+            textDecoration: 'none',
+            background: 'rgba(245, 158, 11, 0.1)',
+            borderRadius: '8px'
+          }}>
+            <h4 style={{ color: 'var(--warning-color)', margin: '0 0 0.5rem 0' }}>🎬 Chunk 组装动画</h4>
+            <p style={{ margin: 0, fontSize: '0.9rem' }}>Chunk 合并演示</p>
+          </a>
+        </div>
+      </section>
+    </div>
+  );
+}
