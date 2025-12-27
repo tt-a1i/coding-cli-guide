@@ -3,6 +3,7 @@ import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { Module } from '../components/Module';
+import { MermaidDiagram } from '../components/MermaidDiagram';
 
 // ===== Introduction Component =====
 function Introduction({
@@ -831,6 +832,251 @@ const loadOrder = [
       {/* Service Dependency Graph */}
       <Layer title="服务依赖关系" icon="🕸️">
         <ServiceDependencyGraph />
+
+        {/* Comprehensive Architecture Diagram */}
+        <div className="mt-6 bg-[var(--bg-panel)] rounded-xl p-6 border border-[var(--border-subtle)]">
+          <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2">
+            <span>🏗️</span> 服务架构全景图
+          </h3>
+
+          <MermaidDiagram chart={`
+graph TB
+    subgraph CLI["📱 CLI 层 (packages/cli)"]
+        subgraph Commands["命令系统"]
+            CS[CommandService]
+            BCL[BuiltinCommandLoader]
+            FCL[FileCommandLoader]
+            MPL[McpPromptLoader]
+        end
+
+        subgraph Processors["处理器链"]
+            AFP[AtFileProcessor]
+            SP[ShellProcessor]
+            AP[ArgumentProcessor]
+        end
+
+        subgraph UI["UI 组件"]
+            SCP[SlashCommandProcessor]
+            HM[HistoryManager]
+            SC[SessionContext]
+        end
+    end
+
+    subgraph Core["⚙️ Core 层 (packages/core)"]
+        subgraph Generation["内容生成"]
+            CGP[ContentGenerationPipeline]
+            TSR[ToolSchedulerRunner]
+            RT[RequestTokenizer]
+        end
+
+        subgraph Services["核心服务"]
+            FDS[FileDiscoveryService]
+            SES[ShellExecutionService]
+            CRS[ChatRecordingService]
+            CCS[ChatCompressionService]
+            LDS[LoopDetectionService]
+            GS[GitService]
+        end
+
+        subgraph MCP["MCP 集成"]
+            MCPClient[MCPClient]
+            MCPServer[MCPServer]
+        end
+
+        subgraph Tokenizer["Token 计算"]
+            IT[ImageTokenizer]
+            TT[TextTokenizer]
+        end
+    end
+
+    subgraph External["🌐 外部依赖"]
+        AI[AI API]
+        FS[文件系统]
+        PTY[PTY/Shell]
+        Git[Git]
+    end
+
+    %% 命令系统依赖
+    CS --> BCL
+    CS --> FCL
+    CS --> MPL
+    FCL --> AFP
+    FCL --> SP
+    FCL --> AP
+
+    %% UI 层依赖
+    SCP --> CS
+    SCP --> HM
+    SCP --> SC
+
+    %% 处理器依赖核心服务
+    SP --> SES
+
+    %% 内容生成依赖
+    CGP --> TSR
+    CGP --> RT
+    CGP --> LDS
+    TSR --> CRS
+
+    %% Token 计算
+    RT --> IT
+    RT --> TT
+
+    %% 核心服务依赖外部
+    SES --> PTY
+    FDS --> FS
+    GS --> Git
+    CGP --> AI
+
+    %% MCP 集成
+    MPL --> MCPClient
+    TSR --> MCPServer
+
+    style CLI fill:#1a1a2e,stroke:#3b82f6
+    style Core fill:#1a1a2e,stroke:#00ff88
+    style External fill:#1a1a2e,stroke:#f59e0b
+`} />
+
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-[var(--cyber-blue)]/10 rounded-lg p-4 border border-[var(--cyber-blue)]/30">
+              <h4 className="font-bold text-[var(--cyber-blue)] mb-2">📱 CLI 层职责</h4>
+              <ul className="text-sm text-[var(--text-secondary)] space-y-1">
+                <li>• 命令发现与加载编排</li>
+                <li>• 用户输入预处理</li>
+                <li>• UI 状态管理</li>
+                <li>• 会话生命周期</li>
+              </ul>
+            </div>
+            <div className="bg-[var(--terminal-green)]/10 rounded-lg p-4 border border-[var(--terminal-green)]/30">
+              <h4 className="font-bold text-[var(--terminal-green)] mb-2">⚙️ Core 层职责</h4>
+              <ul className="text-sm text-[var(--text-secondary)] space-y-1">
+                <li>• AI 交互与内容生成</li>
+                <li>• 工具执行调度</li>
+                <li>• Token 计算与优化</li>
+                <li>• 底层服务封装</li>
+              </ul>
+            </div>
+            <div className="bg-[var(--amber)]/10 rounded-lg p-4 border border-[var(--amber)]/30">
+              <h4 className="font-bold text-[var(--warning-color)] mb-2">🌐 外部依赖</h4>
+              <ul className="text-sm text-[var(--text-secondary)] space-y-1">
+                <li>• AI API (Qwen/OpenAI)</li>
+                <li>• 文件系统操作</li>
+                <li>• PTY/Shell 执行</li>
+                <li>• Git 版本控制</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Data Flow Diagram */}
+        <div className="mt-6 bg-[var(--bg-panel)] rounded-xl p-6 border border-[var(--border-subtle)]">
+          <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2">
+            <span>🔄</span> 服务间数据流
+          </h3>
+
+          <MermaidDiagram chart={`
+sequenceDiagram
+    participant User as 👤 用户
+    participant CLI as 📱 CLI 层
+    participant Cmd as 📋 CommandService
+    participant Proc as ⚙️ PromptProcessor
+    participant Core as 🧠 Core 层
+    participant Tool as 🔧 工具服务
+    participant AI as 🤖 AI API
+
+    User->>CLI: /review @src/main.ts
+    CLI->>Cmd: parseSlashCommand()
+    Cmd->>Cmd: 匹配 FileCommandLoader 命令
+    Cmd->>Proc: process(prompt, context)
+
+    rect rgb(40, 40, 80)
+        Note over Proc: 处理器链执行
+        Proc->>Proc: AtFileProcessor: 读取文件
+        Proc->>Proc: ShellProcessor: 执行命令
+        Proc->>Proc: ArgumentProcessor: 替换占位符
+    end
+
+    Proc-->>Cmd: 处理后的 prompt
+    Cmd-->>CLI: { type: 'submit_prompt', content }
+    CLI->>Core: submitToAI(content)
+
+    rect rgb(40, 80, 40)
+        Note over Core,AI: 内容生成循环
+        Core->>AI: 发送请求
+        AI-->>Core: 响应 (可能含工具调用)
+        Core->>Tool: 执行工具
+        Tool-->>Core: 工具结果
+        Core->>AI: 发送工具结果
+    end
+
+    AI-->>Core: 最终响应
+    Core-->>CLI: 显示结果
+    CLI-->>User: 渲染输出
+`} />
+        </div>
+
+        {/* Package Dependency Matrix */}
+        <div className="mt-6 bg-[var(--bg-panel)] rounded-xl p-6 border border-[var(--border-subtle)]">
+          <h3 className="text-lg font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2">
+            <span>📦</span> 包依赖矩阵
+          </h3>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-[var(--border-subtle)]">
+                  <th className="text-left py-2 px-3 text-[var(--text-muted)]">服务</th>
+                  <th className="text-center py-2 px-3 text-[var(--text-muted)]">所在包</th>
+                  <th className="text-center py-2 px-3 text-[var(--text-muted)]">依赖服务</th>
+                  <th className="text-center py-2 px-3 text-[var(--text-muted)]">被依赖</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-b border-[var(--border-subtle)]/50">
+                  <td className="py-2 px-3 font-mono text-[var(--terminal-green)]">CommandService</td>
+                  <td className="py-2 px-3 text-center text-[var(--cyber-blue)]">cli</td>
+                  <td className="py-2 px-3 text-center">Loaders × 3</td>
+                  <td className="py-2 px-3 text-center">SlashCommandProcessor</td>
+                </tr>
+                <tr className="border-b border-[var(--border-subtle)]/50">
+                  <td className="py-2 px-3 font-mono text-[var(--terminal-green)]">FileCommandLoader</td>
+                  <td className="py-2 px-3 text-center text-[var(--cyber-blue)]">cli</td>
+                  <td className="py-2 px-3 text-center">PromptProcessors</td>
+                  <td className="py-2 px-3 text-center">CommandService</td>
+                </tr>
+                <tr className="border-b border-[var(--border-subtle)]/50">
+                  <td className="py-2 px-3 font-mono text-[var(--terminal-green)]">ContentGenerationPipeline</td>
+                  <td className="py-2 px-3 text-center text-[var(--terminal-green)]">core</td>
+                  <td className="py-2 px-3 text-center">Tokenizer, LoopDetection</td>
+                  <td className="py-2 px-3 text-center">GeminiChat</td>
+                </tr>
+                <tr className="border-b border-[var(--border-subtle)]/50">
+                  <td className="py-2 px-3 font-mono text-[var(--terminal-green)]">ToolSchedulerRunner</td>
+                  <td className="py-2 px-3 text-center text-[var(--terminal-green)]">core</td>
+                  <td className="py-2 px-3 text-center">ChatRecording, MCP</td>
+                  <td className="py-2 px-3 text-center">Pipeline</td>
+                </tr>
+                <tr className="border-b border-[var(--border-subtle)]/50">
+                  <td className="py-2 px-3 font-mono text-[var(--terminal-green)]">ShellExecutionService</td>
+                  <td className="py-2 px-3 text-center text-[var(--terminal-green)]">core</td>
+                  <td className="py-2 px-3 text-center">node-pty, xterm</td>
+                  <td className="py-2 px-3 text-center">BashTool, ShellProcessor</td>
+                </tr>
+                <tr>
+                  <td className="py-2 px-3 font-mono text-[var(--terminal-green)]">GitService</td>
+                  <td className="py-2 px-3 text-center text-[var(--terminal-green)]">core</td>
+                  <td className="py-2 px-3 text-center">simple-git</td>
+                  <td className="py-2 px-3 text-center">RestoreCommand, Checkpointing</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="mt-4 p-3 bg-[var(--bg-card)] rounded-lg text-xs text-[var(--text-muted)]">
+            <strong>设计原则</strong>：Core 层服务不依赖 CLI 层，保证核心逻辑可独立测试和复用。
+            CLI 层单向依赖 Core 层，形成清晰的层次结构。
+          </div>
+        </div>
       </Layer>
 
       {/* Prompt Processor Pipeline */}

@@ -123,6 +123,11 @@ const ModelConfigCacheAnimation = lazy(() => import('./pages/ModelConfigCacheAni
 const SubagentResolutionAnimation = lazy(() => import('./pages/SubagentResolutionAnimation'));
 const ShadowGitCheckpointAnimation = lazy(() => import('./pages/ShadowGitCheckpointAnimation'));
 const ChatRecordingAnimation = lazy(() => import('./pages/ChatRecordingAnimation'));
+const SubagentArchitecture = lazy(() => import('./pages/SubagentArchitecture').then(m => ({ default: m.SubagentArchitecture })));
+const TokenManagementStrategy = lazy(() => import('./pages/TokenManagementStrategy').then(m => ({ default: m.TokenManagementStrategy })));
+const ContentFormatConversion = lazy(() => import('./pages/ContentFormatConversion').then(m => ({ default: m.ContentFormatConversion })));
+const CommandExecutionContext = lazy(() => import('./pages/CommandExecutionContext').then(m => ({ default: m.CommandExecutionContext })));
+const QwenAuthentication = lazy(() => import('./pages/QwenAuthentication').then(m => ({ default: m.QwenAuthentication })));
 
 // 页面加载 fallback
 function PageLoading() {
@@ -439,6 +444,16 @@ function App() {
         return <LoopMechanism />;
       case 'enterprise-deployment':
         return <EnterpriseDeployment />;
+      case 'subagent-architecture':
+        return <SubagentArchitecture />;
+      case 'token-management-strategy':
+        return <TokenManagementStrategy />;
+      case 'content-format-conversion':
+        return <ContentFormatConversion />;
+      case 'command-execution-context':
+        return <CommandExecutionContext />;
+      case 'qwen-authentication':
+        return <QwenAuthentication />;
       default:
         return <StartHere onNavigate={(tab) => navigateToTab(tab)} />;
     }
