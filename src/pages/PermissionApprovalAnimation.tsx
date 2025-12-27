@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { JsonBlock } from '../components/JsonBlock';
 import { Layer } from '../components/Layer';
-import { Mermaid } from '../components/Mermaid';
+import { MermaidDiagram } from '../components/MermaidDiagram';
 
 // 权限检查结果
 type PermissionResult = 'allowed' | 'denied' | 'ask' | 'pending';
@@ -1752,7 +1752,7 @@ async function initializePermissionSystem(): Promise<void> {
         {/* 依赖关系图 */}
         <div className="bg-[var(--bg-elevated)] rounded-lg p-4 border border-[var(--border-subtle)] mb-4">
           <h4 className="text-sm font-bold text-[var(--text-primary)] mb-3">模块依赖关系图</h4>
-          <Mermaid chart={`graph TB
+          <MermaidDiagram chart={`graph TB
     subgraph "用户交互层"
         UI[Terminal UI]
         Confirm[Confirmation Dialog]
@@ -1969,7 +1969,7 @@ export interface PermissionConfig {
         {/* 数据流向 */}
         <div className="bg-[var(--bg-elevated)] rounded-lg p-4 border border-[var(--border-subtle)] mb-4">
           <h4 className="text-sm font-bold text-[var(--purple)] mb-3">权限检查数据流</h4>
-          <Mermaid chart={`sequenceDiagram
+          <MermaidDiagram chart={`sequenceDiagram
     participant AI as AI Model
     participant Scheduler as Tool Scheduler
     participant Shell as Shell Tool

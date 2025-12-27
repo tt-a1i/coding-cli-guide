@@ -134,6 +134,11 @@ const ModelConfiguration = lazy(() => import('./pages/ModelConfiguration').then(
 const DesignTradeoffs = lazy(() => import('./pages/DesignTradeoffs').then(m => ({ default: m.DesignTradeoffs })));
 const ErrorRecoveryPatterns = lazy(() => import('./pages/ErrorRecoveryPatterns').then(m => ({ default: m.ErrorRecoveryPatterns })));
 const ConcurrencyPatterns = lazy(() => import('./pages/ConcurrencyPatterns').then(m => ({ default: m.ConcurrencyPatterns })));
+const GitServiceDeep = lazy(() => import('./pages/GitServiceDeep').then(m => ({ default: m.GitServiceDeep })));
+const ShellExecutionServiceDeep = lazy(() => import('./pages/ShellExecutionServiceDeep').then(m => ({ default: m.ShellExecutionServiceDeep })));
+const TokenLifecycleOverview = lazy(() => import('./pages/TokenLifecycleOverview').then(m => ({ default: m.TokenLifecycleOverview })));
+const ErrorRecoveryDecisionTree = lazy(() => import('./pages/ErrorRecoveryDecisionTree').then(m => ({ default: m.ErrorRecoveryDecisionTree })));
+const IDEIntegrationOverview = lazy(() => import('./pages/IDEIntegrationOverview').then(m => ({ default: m.IDEIntegrationOverview })));
 
 // 页面加载 fallback
 function PageLoading() {
@@ -250,10 +255,16 @@ function App() {
         return <TurnStateMachine />;
       case 'token-accounting':
         return <TokenAccountingSystem />;
+      case 'token-lifecycle-overview':
+        return <TokenLifecycleOverview />;
       case 'session-persistence':
         return <SessionPersistence />;
       case 'services-arch':
         return <ServicesArchitecture />;
+      case 'git-service-deep':
+        return <GitServiceDeep />;
+      case 'shell-execution-service-deep':
+        return <ShellExecutionServiceDeep />;
       case 'system-prompt':
         return <SystemPromptArch />;
       case 'content-gen':
@@ -296,6 +307,8 @@ function App() {
         return <ExtensionSystem />;
       case 'ide-integration':
         return <IDEIntegration />;
+      case 'ide-integration-overview':
+        return <IDEIntegrationOverview />;
       case 'ide-diff':
         return <IDEDiffProtocol />;
       case 'approval-mode':
@@ -312,6 +325,8 @@ function App() {
         return <RetryFallback />;
       case 'error':
         return <ErrorHandling />;
+      case 'error-recovery-decision-tree':
+        return <ErrorRecoveryDecisionTree />;
       case 'non-interactive':
         return <NonInteractiveMode />;
       case 'welcome-back':
