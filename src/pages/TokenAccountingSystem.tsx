@@ -968,6 +968,932 @@ function TokenSavingStrategies() {
   );
 }
 
+// ==================== 深化内容组件 ====================
+
+// 边界条件深度解析
+function EdgeCaseAnalysis() {
+  return (
+    <div className="pt-6 space-y-6">
+      <p className="text-gray-300">
+        Token 计算系统在实际运行中会遇到各种边界情况。理解这些边界有助于诊断问题和优化系统稳定性。
+      </p>
+
+      {/* 边界 1: tiktoken WASM 加载失败 */}
+      <div className="bg-gray-800/50 rounded-xl p-5 border-l-4 border-yellow-500">
+        <h4 className="text-lg font-semibold text-yellow-300 mb-3">边界 1: tiktoken WASM 加载失败</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <h5 className="text-sm font-semibold text-gray-300 mb-2">触发条件</h5>
+            <ul className="text-sm text-gray-400 space-y-1">
+              <li>• Node.js 版本不兼容（需要 &gt;= 18）</li>
+              <li>• WASM 文件加载失败（网络/权限）</li>
+              <li>• 内存不足无法初始化编码器</li>
+              <li>• Edge Runtime 等受限环境</li>
+            </ul>
+          </div>
+          <div>
+            <h5 className="text-sm font-semibold text-gray-300 mb-2">降级行为</h5>
+            <ul className="text-sm text-gray-400 space-y-1">
+              <li>• 自动切换到字符估算模式</li>
+              <li>• 使用 <code className="text-cyan-300">Math.ceil(text.length / 4)</code></li>
+              <li>• 控制台输出警告但不中断</li>
+              <li>• 估算误差约 ±20%</li>
+            </ul>
+          </div>
+        </div>
+        <CodeBlock
+          code={`// textTokenizer.ts - 降级逻辑
+async calculateTokens(text: string): Promise<number> {
+  await this.ensureEncoding();
+
+  if (this.encoding) {
+    try {
+      return this.encoding.encode(text).length;
+    } catch (error) {
+      console.warn('tiktoken encode failed:', error);
+    }
+  }
+
+  // Fallback: 1 token ≈ 4 chars (保守估算)
+  return Math.ceil(text.length / 4);
+}`}
+          language="typescript"
+          title="降级逻辑代码"
+        />
+      </div>
+
+      {/* 边界 2: 图片格式无法识别 */}
+      <div className="bg-gray-800/50 rounded-xl p-5 border-l-4 border-purple-500">
+        <h4 className="text-lg font-semibold text-purple-300 mb-3">边界 2: 图片格式无法识别</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <h5 className="text-sm font-semibold text-gray-300 mb-2">触发条件</h5>
+            <ul className="text-sm text-gray-400 space-y-1">
+              <li>• 损坏的图片文件（头部被截断）</li>
+              <li>• 不支持的格式（如 AVIF、JPEG XL）</li>
+              <li>• Base64 解码失败</li>
+              <li>• MIME type 与实际格式不匹配</li>
+            </ul>
+          </div>
+          <div>
+            <h5 className="text-sm font-semibold text-gray-300 mb-2">降级行为</h5>
+            <ul className="text-sm text-gray-400 space-y-1">
+              <li>• 使用默认尺寸 <code className="text-cyan-300">512×512</code></li>
+              <li>• 计算结果: <code className="text-green-300">335 + 2 = 337 tokens</code></li>
+              <li>• 记录警告到日志</li>
+              <li>• 不影响请求继续执行</li>
+            </ul>
+          </div>
+        </div>
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-gray-500 border-b border-gray-700">
+                <th className="py-2">场景</th>
+                <th className="py-2">检测方法</th>
+                <th className="py-2">降级结果</th>
+              </tr>
+            </thead>
+            <tbody className="text-gray-300 font-mono text-xs">
+              <tr className="border-t border-gray-700/50">
+                <td className="py-2">PNG 签名不匹配</td>
+                <td className="text-gray-400">前 8 字节校验失败</td>
+                <td className="text-yellow-400">337 tokens</td>
+              </tr>
+              <tr className="border-t border-gray-700/50">
+                <td className="py-2">JPEG 无 SOF marker</td>
+                <td className="text-gray-400">扫描 0xC0-0xCF 失败</td>
+                <td className="text-yellow-400">337 tokens</td>
+              </tr>
+              <tr className="border-t border-gray-700/50">
+                <td className="py-2">WebP 格式未知</td>
+                <td className="text-gray-400">VP8/VP8L/VP8X 均不匹配</td>
+                <td className="text-yellow-400">337 tokens</td>
+              </tr>
+              <tr className="border-t border-gray-700/50">
+                <td className="py-2">Buffer 过短</td>
+                <td className="text-gray-400">长度 &lt; 24 字节</td>
+                <td className="text-yellow-400">337 tokens</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* 边界 3: 模型名称匹配失败 */}
+      <div className="bg-gray-800/50 rounded-xl p-5 border-l-4 border-cyan-500">
+        <h4 className="text-lg font-semibold text-cyan-300 mb-3">边界 3: 模型名称匹配失败</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <h5 className="text-sm font-semibold text-gray-300 mb-2">触发条件</h5>
+            <ul className="text-sm text-gray-400 space-y-1">
+              <li>• 全新模型尚未添加到模式列表</li>
+              <li>• 模型名称格式变化（如加密 ID）</li>
+              <li>• 私有部署使用自定义名称</li>
+              <li>• 空字符串或 undefined</li>
+            </ul>
+          </div>
+          <div>
+            <h5 className="text-sm font-semibold text-gray-300 mb-2">降级行为</h5>
+            <ul className="text-sm text-gray-400 space-y-1">
+              <li>• 返回默认值 <code className="text-cyan-300">128K</code></li>
+              <li>• 输出限制默认 <code className="text-cyan-300">4K</code></li>
+              <li>• 不会抛出异常</li>
+              <li>• 可能导致上下文意外截断</li>
+            </ul>
+          </div>
+        </div>
+        <div className="mt-4 p-4 bg-amber-900/20 rounded-lg border border-amber-600/30">
+          <h5 className="text-amber-400 font-semibold mb-2">⚠️ 潜在风险</h5>
+          <p className="text-sm text-gray-300">
+            如果实际模型上下文窗口 &lt; 128K，可能导致 API 报错；
+            如果实际窗口 &gt; 128K，会浪费潜在的上下文空间。
+          </p>
+          <p className="text-sm text-gray-400 mt-2">
+            <strong>建议：</strong>在使用新模型前，先检查 tokenLimits.ts 是否包含对应模式。
+          </p>
+        </div>
+      </div>
+
+      {/* 边界 4: Token 计数与 API 不一致 */}
+      <div className="bg-gray-800/50 rounded-xl p-5 border-l-4 border-red-500">
+        <h4 className="text-lg font-semibold text-red-300 mb-3">边界 4: Token 计数与实际 API 消耗不一致</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <h5 className="text-sm font-semibold text-gray-300 mb-2">可能原因</h5>
+            <ul className="text-sm text-gray-400 space-y-1">
+              <li>• 模型使用不同的 tokenizer（非 cl100k_base）</li>
+              <li>• 系统 prompt 被 API 自动添加</li>
+              <li>• 特殊 token（BOS/EOS）未计入</li>
+              <li>• 多模态内容计算公式差异</li>
+            </ul>
+          </div>
+          <div>
+            <h5 className="text-sm font-semibold text-gray-300 mb-2">典型误差范围</h5>
+            <ul className="text-sm text-gray-400 space-y-1">
+              <li>• 文本: <span className="text-green-400">±5%</span></li>
+              <li>• 图片: <span className="text-yellow-400">±15%</span></li>
+              <li>• 音频: <span className="text-yellow-400">±20%</span></li>
+              <li>• 总体: <span className="text-green-400">±10%</span></li>
+            </ul>
+          </div>
+        </div>
+        <CodeBlock
+          code={`// 常见模型的实际 tokenizer
+GPT-4o, GPT-4: cl100k_base ✓ (兼容)
+Claude 3.x:    claude-tokenizer (略有差异)
+Gemini:        SentencePiece (差异较大)
+Qwen:          Qwen-tokenizer (接近 cl100k)
+DeepSeek:      custom (接近 cl100k)
+
+// 图片 Token 差异示例
+// 我们的计算: 28×28 = 1 token
+// Gemini 实际: 可能使用不同的 patch size`}
+          language="typescript"
+          title="tokenizer 差异说明"
+        />
+      </div>
+
+      {/* 边界 5: 超大请求处理 */}
+      <div className="bg-gray-800/50 rounded-xl p-5 border-l-4 border-green-500">
+        <h4 className="text-lg font-semibold text-green-300 mb-3">边界 5: 超大请求的处理策略</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <h5 className="text-sm font-semibold text-gray-300 mb-2">场景描述</h5>
+            <ul className="text-sm text-gray-400 space-y-1">
+              <li>• 请求包含 100+ 张图片</li>
+              <li>• 单次对话历史超过 1M tokens</li>
+              <li>• 单个文本块超过 100K 字符</li>
+              <li>• 混合内容复杂度极高</li>
+            </ul>
+          </div>
+          <div>
+            <h5 className="text-sm font-semibold text-gray-300 mb-2">处理策略</h5>
+            <ul className="text-sm text-gray-400 space-y-1">
+              <li>• Token 计算本身不会失败</li>
+              <li>• 超限检测发生在计算之后</li>
+              <li>• 触发压缩策略或错误提示</li>
+              <li>• 分批计算避免阻塞主线程</li>
+            </ul>
+          </div>
+        </div>
+        <div className="mt-4 p-4 bg-green-900/20 rounded-lg border border-green-600/30">
+          <h5 className="text-green-400 font-semibold mb-2">✅ 安全保障</h5>
+          <p className="text-sm text-gray-300">
+            Token 计算是纯计算过程，不会因为内容过大而崩溃。
+            超限处理由上层 GeminiChat 负责，会触发压缩或拒绝发送。
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// 常见问题与调试技巧
+function DebuggingTips() {
+  return (
+    <div className="pt-6 space-y-6">
+      <p className="text-gray-300">
+        Token 计算问题通常表现为：成本估算不准确、上下文意外截断、压缩触发时机不当等。
+        以下是常见问题的诊断方法。
+      </p>
+
+      {/* 问题 1 */}
+      <div className="bg-gray-800/50 rounded-xl p-5">
+        <div className="flex items-start gap-4">
+          <span className="text-3xl">🔴</span>
+          <div className="flex-1">
+            <h4 className="text-lg font-semibold text-red-300 mb-2">问题：Token 计数与账单差异很大</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h5 className="text-sm font-semibold text-gray-300 mb-2">症状</h5>
+                <ul className="text-sm text-gray-400 space-y-1">
+                  <li>• CLI 显示使用 10K tokens</li>
+                  <li>• API 账单显示 15K tokens</li>
+                  <li>• 差异超过 30%</li>
+                </ul>
+              </div>
+              <div>
+                <h5 className="text-sm font-semibold text-gray-300 mb-2">可能原因</h5>
+                <ul className="text-sm text-gray-400 space-y-1">
+                  <li>• 1. API 添加了隐藏的系统 prompt</li>
+                  <li>• 2. 输出 token 未被正确统计</li>
+                  <li>• 3. 重试请求被多次计费</li>
+                  <li>• 4. 使用了不同的 tokenizer</li>
+                </ul>
+              </div>
+            </div>
+            <CodeBlock
+              code={`# 调试方法 1: 检查实际 API 响应
+DEBUG=innies:tokens innies
+
+# 调试方法 2: 对比 usage 字段
+# API 响应中的 usage.prompt_tokens 和 usage.completion_tokens
+# 与本地计算值进行对比
+
+# 调试方法 3: 单独测试 tokenizer
+import { getDefaultTokenizer } from '@innies/innies-core';
+const tokenizer = getDefaultTokenizer();
+const result = await tokenizer.calculateTokens(yourContent);
+console.log(result.breakdown);`}
+              language="bash"
+              title="调试命令"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* 问题 2 */}
+      <div className="bg-gray-800/50 rounded-xl p-5">
+        <div className="flex items-start gap-4">
+          <span className="text-3xl">🟡</span>
+          <div className="flex-1">
+            <h4 className="text-lg font-semibold text-yellow-300 mb-2">问题：上下文突然被压缩，丢失重要信息</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h5 className="text-sm font-semibold text-gray-300 mb-2">症状</h5>
+                <ul className="text-sm text-gray-400 space-y-1">
+                  <li>• AI 突然"忘记"之前的对话</li>
+                  <li>• 显示"Compressing context..."</li>
+                  <li>• 压缩后回答质量下降</li>
+                </ul>
+              </div>
+              <div>
+                <h5 className="text-sm font-semibold text-gray-300 mb-2">可能原因</h5>
+                <ul className="text-sm text-gray-400 space-y-1">
+                  <li>• 1. 图片 Token 占用过多</li>
+                  <li>• 2. 工具输出累积过快</li>
+                  <li>• 3. 模型 Token 限制匹配错误</li>
+                  <li>• 4. 压缩阈值设置过低</li>
+                </ul>
+              </div>
+            </div>
+            <CodeBlock
+              code={`# 检查当前 Token 使用情况
+# 在 CLI 界面中查看状态栏的 Token 计数
+
+# 检查模型限制是否正确匹配
+import { getTokenLimits } from '@innies/innies-core';
+console.log(getTokenLimits('your-model-name'));
+
+# 调整压缩阈值（在 settings.json）
+{
+  "memory": {
+    "compressionThreshold": 0.85  // 默认 0.75
+  }
+}
+
+# 查看压缩日志
+DEBUG=innies:compress innies`}
+              language="bash"
+              title="调试命令"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* 问题 3 */}
+      <div className="bg-gray-800/50 rounded-xl p-5">
+        <div className="flex items-start gap-4">
+          <span className="text-3xl">🟠</span>
+          <div className="flex-1">
+            <h4 className="text-lg font-semibold text-orange-300 mb-2">问题：图片 Token 计算结果为 0 或异常值</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h5 className="text-sm font-semibold text-gray-300 mb-2">症状</h5>
+                <ul className="text-sm text-gray-400 space-y-1">
+                  <li>• breakdown.imageTokens = 0</li>
+                  <li>• 或者值远超预期（如 100K）</li>
+                  <li>• 图片明明很大但 Token 很少</li>
+                </ul>
+              </div>
+              <div>
+                <h5 className="text-sm font-semibold text-gray-300 mb-2">可能原因</h5>
+                <ul className="text-sm text-gray-400 space-y-1">
+                  <li>• 1. Base64 编码不正确</li>
+                  <li>• 2. MIME type 设置错误</li>
+                  <li>• 3. 图片格式头部损坏</li>
+                  <li>• 4. 使用了数据 URI 格式</li>
+                </ul>
+              </div>
+            </div>
+            <CodeBlock
+              code={`# 验证图片数据
+const buffer = Buffer.from(base64Data, 'base64');
+console.log('Buffer length:', buffer.length);
+console.log('First 8 bytes:', buffer.subarray(0, 8));
+
+# 检查 PNG 签名: 89 50 4E 47 0D 0A 1A 0A
+# 检查 JPEG 签名: FF D8 FF
+# 检查 WebP 签名: 52 49 46 46 xx xx xx xx 57 45 42 50
+
+# 手动测试图片 tokenizer
+import { ImageTokenizer } from '@innies/innies-core';
+const tokenizer = new ImageTokenizer();
+const tokens = await tokenizer.calculateTokens(base64Data, 'image/png');`}
+              language="bash"
+              title="调试命令"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* 问题 4 */}
+      <div className="bg-gray-800/50 rounded-xl p-5">
+        <div className="flex items-start gap-4">
+          <span className="text-3xl">🔵</span>
+          <div className="flex-1">
+            <h4 className="text-lg font-semibold text-blue-300 mb-2">问题：新模型返回默认 128K 限制</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h5 className="text-sm font-semibold text-gray-300 mb-2">症状</h5>
+                <ul className="text-sm text-gray-400 space-y-1">
+                  <li>• 使用 1M 上下文模型</li>
+                  <li>• 但只能使用 128K 内容</li>
+                  <li>• 频繁触发压缩</li>
+                </ul>
+              </div>
+              <div>
+                <h5 className="text-sm font-semibold text-gray-300 mb-2">解决方案</h5>
+                <ul className="text-sm text-gray-400 space-y-1">
+                  <li>• 1. 检查模型名称格式</li>
+                  <li>• 2. 更新 tokenLimits.ts 模式</li>
+                  <li>• 3. 使用环境变量覆盖</li>
+                  <li>• 4. 提交 PR 添加新模式</li>
+                </ul>
+              </div>
+            </div>
+            <CodeBlock
+              code={`# 检查归一化后的模型名称
+import { normalizeModelName } from '@innies/innies-core';
+console.log(normalizeModelName('openai/gpt-4o-2024-08-06'));
+// 输出: gpt-4o
+
+# 验证模式匹配结果
+import { getTokenLimits } from '@innies/innies-core';
+console.log(getTokenLimits('gpt-4o'));
+// 输出: { input: 128000, output: 16384 }
+
+# 临时覆盖（环境变量）
+export INNIES_TOKEN_LIMIT=1000000
+export INNIES_OUTPUT_LIMIT=8192`}
+              language="bash"
+              title="调试命令"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* 调试工具速查 */}
+      <div className="bg-gray-900/50 rounded-xl p-5 border border-gray-700">
+        <h4 className="text-lg font-semibold text-gray-200 mb-4">🔧 调试工具速查表</h4>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-gray-500 border-b border-gray-700">
+              <th className="py-2">场景</th>
+              <th className="py-2">环境变量</th>
+              <th className="py-2">输出内容</th>
+            </tr>
+          </thead>
+          <tbody className="text-gray-300 font-mono text-xs">
+            <tr className="border-t border-gray-700/50">
+              <td className="py-2">Token 计算详情</td>
+              <td className="text-cyan-400">DEBUG=innies:tokens</td>
+              <td>每次计算的 breakdown</td>
+            </tr>
+            <tr className="border-t border-gray-700/50">
+              <td className="py-2">上下文压缩</td>
+              <td className="text-cyan-400">DEBUG=innies:compress</td>
+              <td>压缩触发时机和效果</td>
+            </tr>
+            <tr className="border-t border-gray-700/50">
+              <td className="py-2">模型限制匹配</td>
+              <td className="text-cyan-400">DEBUG=innies:limits</td>
+              <td>模式匹配过程</td>
+            </tr>
+            <tr className="border-t border-gray-700/50">
+              <td className="py-2">图片处理</td>
+              <td className="text-cyan-400">DEBUG=innies:image</td>
+              <td>尺寸解析和缩放</td>
+            </tr>
+            <tr className="border-t border-gray-700/50">
+              <td className="py-2">全部信息</td>
+              <td className="text-cyan-400">DEBUG=innies:*</td>
+              <td>所有调试输出</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// 性能优化建议
+function PerformanceOptimization() {
+  return (
+    <div className="pt-6 space-y-6">
+      <p className="text-gray-300">
+        Token 计算是高频操作，每次请求和响应都会触发。以下是优化 Token 计算性能的关键策略。
+      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* 优化 1 */}
+        <div className="bg-gray-800/50 rounded-xl p-5 border border-green-600/30">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-2xl">⚡</span>
+            <h4 className="text-lg font-semibold text-green-300">tiktoken 编码器复用</h4>
+          </div>
+          <p className="text-sm text-gray-400 mb-3">
+            tiktoken 编码器初始化耗时 50-200ms，必须复用实例。
+          </p>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-green-400">✓</span>
+              <span className="text-gray-300">使用单例模式全局共享</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-green-400">✓</span>
+              <span className="text-gray-300">懒加载避免启动开销</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-green-400">✓</span>
+              <span className="text-gray-300">dispose() 释放 WASM 内存</span>
+            </div>
+          </div>
+          <div className="mt-4 p-3 bg-gray-900/50 rounded-lg">
+            <div className="text-xs text-gray-500">性能数据</div>
+            <div className="text-sm text-gray-300 mt-1">
+              首次加载: <span className="text-yellow-400">~150ms</span><br />
+              后续计算: <span className="text-green-400">&lt; 1ms / 1K tokens</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 优化 2 */}
+        <div className="bg-gray-800/50 rounded-xl p-5 border border-cyan-600/30">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-2xl">📦</span>
+            <h4 className="text-lg font-semibold text-cyan-300">批量计算合并</h4>
+          </div>
+          <p className="text-sm text-gray-400 mb-3">
+            多个文本块合并后一次性编码，减少函数调用开销。
+          </p>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-red-400">✗</span>
+              <span className="text-gray-400">每个消息单独 encode()</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-green-400">✓</span>
+              <span className="text-gray-300">合并后批量 encode()</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-green-400">✓</span>
+              <span className="text-gray-300">减少 70% 的函数调用</span>
+            </div>
+          </div>
+          <CodeBlock
+            code={`// 批量计算优化
+const allTexts = messages.join('\\n');
+const totalTokens = await tokenizer.calculateTokens(allTexts);`}
+            language="typescript"
+          />
+        </div>
+
+        {/* 优化 3 */}
+        <div className="bg-gray-800/50 rounded-xl p-5 border border-yellow-600/30">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-2xl">🖼️</span>
+            <h4 className="text-lg font-semibold text-yellow-300">图片尺寸快速解析</h4>
+          </div>
+          <p className="text-sm text-gray-400 mb-3">
+            只解析图片头部获取尺寸，不加载完整图片到内存。
+          </p>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-green-400">✓</span>
+              <span className="text-gray-300">PNG: 只读前 24 字节</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-green-400">✓</span>
+              <span className="text-gray-300">JPEG: 扫描 SOF marker</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-green-400">✓</span>
+              <span className="text-gray-300">无需图像解码库</span>
+            </div>
+          </div>
+          <div className="mt-4 p-3 bg-gray-900/50 rounded-lg">
+            <div className="text-xs text-gray-500">性能对比</div>
+            <div className="text-sm text-gray-300 mt-1">
+              头部解析: <span className="text-green-400">&lt; 0.1ms</span><br />
+              完整解码: <span className="text-red-400">10-100ms</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 优化 4 */}
+        <div className="bg-gray-800/50 rounded-xl p-5 border border-purple-600/30">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="text-2xl">💾</span>
+            <h4 className="text-lg font-semibold text-purple-300">计算结果缓存</h4>
+          </div>
+          <p className="text-sm text-gray-400 mb-3">
+            相同内容的 Token 计数结果可以缓存复用。
+          </p>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-green-400">✓</span>
+              <span className="text-gray-300">System prompt 只计算一次</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-green-400">✓</span>
+              <span className="text-gray-300">工具定义 Token 缓存</span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-yellow-400">△</span>
+              <span className="text-gray-300">历史消息可增量计算</span>
+            </div>
+          </div>
+          <div className="mt-4 p-3 bg-gray-900/50 rounded-lg">
+            <div className="text-xs text-gray-500">缓存命中率</div>
+            <div className="text-sm text-gray-300 mt-1">
+              System prompt: <span className="text-green-400">100%</span><br />
+              历史消息: <span className="text-green-400">~90%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 性能基准 */}
+      <div className="bg-gray-900/50 rounded-xl p-5 border border-gray-700">
+        <h4 className="text-lg font-semibold text-gray-200 mb-4">📊 Token 计算性能基准</h4>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left text-gray-500 border-b border-gray-700">
+              <th className="py-2">操作</th>
+              <th className="py-2">内容大小</th>
+              <th className="py-2">耗时</th>
+              <th className="py-2">备注</th>
+            </tr>
+          </thead>
+          <tbody className="text-gray-300 text-xs">
+            <tr className="border-t border-gray-700/50">
+              <td className="py-2">tiktoken 初始化</td>
+              <td className="text-gray-400">N/A</td>
+              <td className="text-yellow-400">50-200ms</td>
+              <td className="text-gray-500">仅首次</td>
+            </tr>
+            <tr className="border-t border-gray-700/50">
+              <td className="py-2">文本 Token 计算</td>
+              <td className="text-gray-400">1K tokens</td>
+              <td className="text-green-400">&lt; 1ms</td>
+              <td className="text-gray-500">线性增长</td>
+            </tr>
+            <tr className="border-t border-gray-700/50">
+              <td className="py-2">文本 Token 计算</td>
+              <td className="text-gray-400">100K tokens</td>
+              <td className="text-green-400">~10ms</td>
+              <td className="text-gray-500">大文件</td>
+            </tr>
+            <tr className="border-t border-gray-700/50">
+              <td className="py-2">图片尺寸解析</td>
+              <td className="text-gray-400">任意大小</td>
+              <td className="text-green-400">&lt; 0.1ms</td>
+              <td className="text-gray-500">只读头部</td>
+            </tr>
+            <tr className="border-t border-gray-700/50">
+              <td className="py-2">完整请求计算</td>
+              <td className="text-gray-400">50K + 5张图</td>
+              <td className="text-green-400">~15ms</td>
+              <td className="text-gray-500">典型场景</td>
+            </tr>
+            <tr className="border-t border-gray-700/50">
+              <td className="py-2">模型限制匹配</td>
+              <td className="text-gray-400">N/A</td>
+              <td className="text-green-400">&lt; 0.5ms</td>
+              <td className="text-gray-500">正则匹配</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* 优化建议总结 */}
+      <div className="bg-green-900/20 rounded-xl p-5 border border-green-600/30">
+        <h4 className="text-lg font-semibold text-green-300 mb-3">✅ 优化要点总结</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <div className="space-y-2">
+            <h5 className="text-gray-300 font-semibold">必须做到</h5>
+            <ul className="text-gray-400 space-y-1">
+              <li>• 全局单例复用 tokenizer</li>
+              <li>• 懒加载 tiktoken 编码器</li>
+              <li>• 只解析图片头部获取尺寸</li>
+              <li>• 释放不再使用的编码器</li>
+            </ul>
+          </div>
+          <div className="space-y-2">
+            <h5 className="text-gray-300 font-semibold">进阶优化</h5>
+            <ul className="text-gray-400 space-y-1">
+              <li>• 缓存静态内容的 Token 数</li>
+              <li>• 增量计算历史消息</li>
+              <li>• 批量合并文本后计算</li>
+              <li>• 使用 Worker 异步计算</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// 与其他模块的交互关系
+function ModuleDependencies() {
+  return (
+    <div className="pt-6 space-y-6">
+      <p className="text-gray-300">
+        Token 计算系统是 CLI 的基础设施层，被多个核心模块依赖。理解这些依赖关系有助于定位问题和优化性能。
+      </p>
+
+      {/* 依赖关系图 */}
+      <div className="bg-gray-900/50 rounded-xl p-6 border border-gray-700">
+        <h4 className="text-lg font-semibold text-gray-200 mb-4">📊 模块依赖关系</h4>
+        <div className="grid grid-cols-4 gap-2 text-center text-xs">
+          {/* 第一行 - 消费者 */}
+          <div className="col-span-4 mb-4">
+            <div className="text-gray-500 mb-2">↑ 消费者层</div>
+            <div className="flex justify-center gap-4">
+              <div className="bg-cyan-900/30 border border-cyan-600/30 rounded-lg px-4 py-2">
+                <div className="text-cyan-400 font-semibold">GeminiChat</div>
+                <div className="text-gray-500">上下文管理</div>
+              </div>
+              <div className="bg-purple-900/30 border border-purple-600/30 rounded-lg px-4 py-2">
+                <div className="text-purple-400 font-semibold">Compressor</div>
+                <div className="text-gray-500">压缩决策</div>
+              </div>
+              <div className="bg-green-900/30 border border-green-600/30 rounded-lg px-4 py-2">
+                <div className="text-green-400 font-semibold">StatusBar</div>
+                <div className="text-gray-500">用量展示</div>
+              </div>
+              <div className="bg-yellow-900/30 border border-yellow-600/30 rounded-lg px-4 py-2">
+                <div className="text-yellow-400 font-semibold">ToolScheduler</div>
+                <div className="text-gray-500">输出截断</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 箭头 */}
+          <div className="col-span-4 text-gray-600 text-lg">
+            ↓ ↓ ↓ ↓
+          </div>
+
+          {/* 第二行 - Token 系统 */}
+          <div className="col-span-4 my-4">
+            <div className="bg-gradient-to-r from-blue-900/50 to-purple-900/50 border border-blue-500/50 rounded-xl p-4">
+              <div className="text-blue-300 font-bold text-lg mb-2">Token Accounting System</div>
+              <div className="grid grid-cols-3 gap-2">
+                <div className="bg-gray-800/50 rounded-lg p-2">
+                  <div className="text-gray-300">TextTokenizer</div>
+                  <div className="text-gray-500 text-xs">tiktoken</div>
+                </div>
+                <div className="bg-gray-800/50 rounded-lg p-2">
+                  <div className="text-gray-300">ImageTokenizer</div>
+                  <div className="text-gray-500 text-xs">尺寸解析</div>
+                </div>
+                <div className="bg-gray-800/50 rounded-lg p-2">
+                  <div className="text-gray-300">TokenLimitMatcher</div>
+                  <div className="text-gray-500 text-xs">模式匹配</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 箭头 */}
+          <div className="col-span-4 text-gray-600 text-lg">
+            ↓ ↓
+          </div>
+
+          {/* 第三行 - 底层依赖 */}
+          <div className="col-span-4">
+            <div className="text-gray-500 mb-2">↓ 底层依赖</div>
+            <div className="flex justify-center gap-4">
+              <div className="bg-gray-800/50 border border-gray-600/30 rounded-lg px-4 py-2">
+                <div className="text-gray-400">tiktoken (WASM)</div>
+              </div>
+              <div className="bg-gray-800/50 border border-gray-600/30 rounded-lg px-4 py-2">
+                <div className="text-gray-400">Buffer API</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 调用链说明 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* 上游调用者 */}
+        <div className="bg-gray-800/50 rounded-xl p-5">
+          <h4 className="text-lg font-semibold text-purple-300 mb-4">上游调用者</h4>
+          <div className="space-y-4">
+            <div className="border-l-2 border-cyan-500 pl-3">
+              <h5 className="font-semibold text-cyan-300">GeminiChat</h5>
+              <p className="text-xs text-gray-400 mt-1">
+                每次发送请求前计算总 Token，决定是否需要压缩上下文
+              </p>
+              <code className="text-xs text-gray-500 block mt-1">
+                gemini-chat.ts:submitQuery()
+              </code>
+            </div>
+            <div className="border-l-2 border-purple-500 pl-3">
+              <h5 className="font-semibold text-purple-300">Compressor</h5>
+              <p className="text-xs text-gray-400 mt-1">
+                检查压缩效果，验证摘要后的 Token 是否在限制内
+              </p>
+              <code className="text-xs text-gray-500 block mt-1">
+                memory/compressor.ts
+              </code>
+            </div>
+            <div className="border-l-2 border-green-500 pl-3">
+              <h5 className="font-semibold text-green-300">StatusBar UI</h5>
+              <p className="text-xs text-gray-400 mt-1">
+                实时显示当前会话的 Token 使用量和剩余空间
+              </p>
+              <code className="text-xs text-gray-500 block mt-1">
+                cli/src/ui/StatusBar.tsx
+              </code>
+            </div>
+            <div className="border-l-2 border-yellow-500 pl-3">
+              <h5 className="font-semibold text-yellow-300">ToolScheduler</h5>
+              <p className="text-xs text-gray-400 mt-1">
+                评估工具输出是否需要截断，计算截断后的 Token 节省量
+              </p>
+              <code className="text-xs text-gray-500 block mt-1">
+                coreToolScheduler.ts:truncateAndSaveToFile()
+              </code>
+            </div>
+          </div>
+        </div>
+
+        {/* 核心数据流 */}
+        <div className="bg-gray-800/50 rounded-xl p-5">
+          <h4 className="text-lg font-semibold text-cyan-300 mb-4">核心数据流</h4>
+          <div className="space-y-3 text-sm">
+            <div className="flex items-start gap-3">
+              <span className="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span>
+              <div>
+                <div className="text-gray-300">用户发送消息</div>
+                <div className="text-xs text-gray-500">触发 submitQuery()</div>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">2</span>
+              <div>
+                <div className="text-gray-300">计算当前请求 Token</div>
+                <div className="text-xs text-gray-500">tokenizer.calculateTokens(request)</div>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">3</span>
+              <div>
+                <div className="text-gray-300">获取模型 Token 限制</div>
+                <div className="text-xs text-gray-500">getTokenLimits(modelName)</div>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">4</span>
+              <div>
+                <div className="text-gray-300">检查是否超限</div>
+                <div className="text-xs text-gray-500">currentTokens &gt; limit * threshold</div>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="bg-yellow-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">5</span>
+              <div>
+                <div className="text-yellow-300">触发压缩（如需要）</div>
+                <div className="text-xs text-gray-500">compressor.compress(history)</div>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <span className="bg-green-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">6</span>
+              <div>
+                <div className="text-green-300">发送请求到 API</div>
+                <div className="text-xs text-gray-500">确保在 Token 限制内</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 关键接口 */}
+      <div className="bg-gray-800/50 rounded-xl p-5">
+        <h4 className="text-lg font-semibold text-gray-200 mb-4">关键公开接口</h4>
+        <CodeBlock
+          code={`// Token 计算器接口
+interface RequestTokenizer {
+  calculateTokens(request: CountTokensParameters): Promise<TokenCalculationResult>;
+  dispose(): void;
+}
+
+// 计算结果
+interface TokenCalculationResult {
+  totalTokens: number;
+  breakdown: {
+    textTokens: number;
+    imageTokens: number;
+    audioTokens: number;
+    otherTokens: number;
+  };
+  processingTime?: number;
+}
+
+// Token 限制接口
+function getTokenLimits(modelName: string): { input: number; output: number };
+function normalizeModelName(model: string): string;
+
+// 单例访问
+function getDefaultTokenizer(): RequestTokenizer;
+function disposeDefaultTokenizer(): Promise<void>;`}
+          language="typescript"
+          title="公开接口定义"
+        />
+      </div>
+
+      {/* 扩展点 */}
+      <div className="bg-purple-900/20 rounded-xl p-5 border border-purple-600/30">
+        <h4 className="text-lg font-semibold text-purple-300 mb-3">🔧 扩展点</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <div className="space-y-2">
+            <h5 className="text-gray-300 font-semibold">添加新模型限制</h5>
+            <p className="text-gray-400">
+              编辑 <code className="text-cyan-300">tokenLimits.ts</code> 的 PATTERNS 数组，
+              添加新的正则模式和对应限制值。
+            </p>
+          </div>
+          <div className="space-y-2">
+            <h5 className="text-gray-300 font-semibold">支持新图片格式</h5>
+            <p className="text-gray-400">
+              在 <code className="text-cyan-300">imageTokenizer.ts</code> 添加
+              extractXxxDimensions() 方法，解析新格式的头部。
+            </p>
+          </div>
+          <div className="space-y-2">
+            <h5 className="text-gray-300 font-semibold">自定义 Tokenizer</h5>
+            <p className="text-gray-400">
+              实现 <code className="text-cyan-300">RequestTokenizer</code> 接口，
+              替换默认的 cl100k_base 编码器。
+            </p>
+          </div>
+          <div className="space-y-2">
+            <h5 className="text-gray-300 font-semibold">覆盖 Token 限制</h5>
+            <p className="text-gray-400">
+              使用环境变量 <code className="text-cyan-300">INNIES_TOKEN_LIMIT</code>
+              临时覆盖自动检测的限制值。
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // 关联页面
 function RelatedPagesSection() {
   const { navigate } = useNavigation();
@@ -1060,6 +1986,41 @@ export function TokenAccountingSystem() {
       </CollapsibleSection>
 
       <RelatedPagesSection />
+
+      {/* ==================== 深化内容 ==================== */}
+
+      <CollapsibleSection
+        title="边界条件深度解析"
+        icon="🔬"
+        defaultOpen={false}
+      >
+        <EdgeCaseAnalysis />
+      </CollapsibleSection>
+
+      <CollapsibleSection
+        title="常见问题与调试技巧"
+        icon="🐛"
+        defaultOpen={false}
+      >
+        <DebuggingTips />
+      </CollapsibleSection>
+
+      <CollapsibleSection
+        title="性能优化建议"
+        icon="⚡"
+        defaultOpen={false}
+        highlight
+      >
+        <PerformanceOptimization />
+      </CollapsibleSection>
+
+      <CollapsibleSection
+        title="与其他模块的交互关系"
+        icon="🔗"
+        defaultOpen={false}
+      >
+        <ModuleDependencies />
+      </CollapsibleSection>
     </div>
   );
 }

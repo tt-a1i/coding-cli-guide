@@ -1005,6 +1005,599 @@ Token 消耗: ~4,000 (估算)
           />
         </div>
       </Layer>
+
+      {/* 边界条件深度解析 */}
+      <Layer title="边界条件深度解析" icon="🔬">
+        <div className="space-y-6">
+          <div className="bg-gradient-to-r from-red-500/10 to-[var(--amber)]/10 rounded-lg p-4 border border-red-500/30">
+            <h4 className="text-red-400 font-bold mb-2">为什么边界条件如此重要？</h4>
+            <p className="text-[var(--text-secondary)] text-sm">
+              交互循环是 CLI 的核心路径，任何边界条件处理不当都会导致用户体验下降或资源浪费。
+              以下是实际运行中会遇到的各种边界情况及其处理策略。
+            </p>
+          </div>
+
+          {/* 边界条件1: Token 耗尽 */}
+          <div className="bg-[var(--bg-panel)] rounded-lg p-5 border border-[var(--border-subtle)]">
+            <h5 className="text-[var(--amber)] font-semibold mb-3 flex items-center gap-2">
+              <span className="text-xl">📊</span> 边界条件 1: Token 上下文窗口耗尽
+            </h5>
+            <div className="space-y-3 text-sm">
+              <div className="bg-[var(--bg-terminal)]/50 rounded p-3">
+                <div className="text-[var(--text-muted)] mb-2">触发场景：</div>
+                <ul className="text-[var(--text-secondary)] space-y-1 list-disc list-inside">
+                  <li>长对话累积了大量历史消息</li>
+                  <li>工具返回了大量数据（如读取大文件）</li>
+                  <li>用户使用 @folder 引用了大量文件</li>
+                </ul>
+              </div>
+              <div className="bg-[var(--bg-terminal)]/50 rounded p-3">
+                <div className="text-[var(--text-muted)] mb-2">处理策略（按优先级）：</div>
+                <ol className="text-[var(--text-secondary)] space-y-2 list-decimal list-inside">
+                  <li><strong>预防阶段</strong>：prepareRequest() 在发送前计算 Token，如果超出会触发压缩</li>
+                  <li><strong>历史压缩</strong>：使用 AI 生成摘要替换旧消息，保留关键信息</li>
+                  <li><strong>工具输出截断</strong>：超过阈值的工具输出会被截断并保存到文件</li>
+                  <li><strong>用户通知</strong>：显示"上下文已压缩"提示，让用户知道发生了什么</li>
+                </ol>
+              </div>
+              <CodeBlock
+                title="压缩触发逻辑"
+                code={`// packages/core/src/core/chatHistory.ts
+if (totalTokens > contextWindowSize * 0.9) {
+  // 触发压缩阈值: 90%
+  const oldMessages = history.slice(0, splitPoint);
+  const summary = await generateSummary(oldMessages);
+
+  // 替换旧消息为摘要
+  history = [
+    { role: 'system', content: '[历史对话摘要]\\n' + summary },
+    ...history.slice(splitPoint)
+  ];
+}`}
+              />
+            </div>
+          </div>
+
+          {/* 边界条件2: 网络中断 */}
+          <div className="bg-[var(--bg-panel)] rounded-lg p-5 border border-[var(--border-subtle)]">
+            <h5 className="text-[var(--cyber-blue)] font-semibold mb-3 flex items-center gap-2">
+              <span className="text-xl">🌐</span> 边界条件 2: 网络中断与恢复
+            </h5>
+            <div className="space-y-3 text-sm">
+              <div className="bg-[var(--bg-terminal)]/50 rounded p-3">
+                <div className="text-[var(--text-muted)] mb-2">中断类型：</div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-[var(--bg-void)] p-2 rounded">
+                    <div className="text-[var(--amber)]">ECONNRESET</div>
+                    <div className="text-[var(--text-muted)] text-xs">连接被重置，可重试</div>
+                  </div>
+                  <div className="bg-[var(--bg-void)] p-2 rounded">
+                    <div className="text-[var(--amber)]">ETIMEDOUT</div>
+                    <div className="text-[var(--text-muted)] text-xs">连接超时，可重试</div>
+                  </div>
+                  <div className="bg-[var(--bg-void)] p-2 rounded">
+                    <div className="text-red-400">ENOTFOUND</div>
+                    <div className="text-[var(--text-muted)] text-xs">DNS 解析失败，检查网络</div>
+                  </div>
+                  <div className="bg-[var(--bg-void)] p-2 rounded">
+                    <div className="text-red-400">流中断</div>
+                    <div className="text-[var(--text-muted)] text-xs">响应流意外结束</div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-[var(--bg-terminal)]/50 rounded p-3">
+                <div className="text-[var(--text-muted)] mb-2">恢复策略：</div>
+                <ul className="text-[var(--text-secondary)] space-y-1 list-disc list-inside">
+                  <li><strong>流中断恢复</strong>：如果已收到部分内容，显示已有内容并提示用户重试</li>
+                  <li><strong>指数退避</strong>：重试间隔 100ms → 200ms → 400ms，最多 3 次</li>
+                  <li><strong>部分结果保留</strong>：流中断时已收集的工具调用仍然有效</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* 边界条件3: 工具执行超时 */}
+          <div className="bg-[var(--bg-panel)] rounded-lg p-5 border border-[var(--border-subtle)]">
+            <h5 className="text-[var(--purple)] font-semibold mb-3 flex items-center gap-2">
+              <span className="text-xl">⏱️</span> 边界条件 3: 工具执行超时
+            </h5>
+            <div className="space-y-3 text-sm">
+              <div className="bg-[var(--bg-terminal)]/50 rounded p-3">
+                <div className="text-[var(--text-muted)] mb-2">超时设置：</div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="bg-[var(--bg-void)] p-2 rounded text-center">
+                    <div className="text-[var(--terminal-green)] font-bold">2 分钟</div>
+                    <div className="text-[var(--text-muted)] text-xs">Shell 命令默认</div>
+                  </div>
+                  <div className="bg-[var(--bg-void)] p-2 rounded text-center">
+                    <div className="text-[var(--cyber-blue)] font-bold">10 分钟</div>
+                    <div className="text-[var(--text-muted)] text-xs">Shell 命令最大</div>
+                  </div>
+                  <div className="bg-[var(--bg-void)] p-2 rounded text-center">
+                    <div className="text-[var(--amber)] font-bold">30 秒</div>
+                    <div className="text-[var(--text-muted)] text-xs">WebFetch 超时</div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-[var(--bg-terminal)]/50 rounded p-3">
+                <div className="text-[var(--text-muted)] mb-2">超时后果：</div>
+                <ul className="text-[var(--text-secondary)] space-y-1 list-disc list-inside">
+                  <li>工具返回超时错误，但对话继续</li>
+                  <li>AI 会看到超时错误，可能选择重试或换一种方式</li>
+                  <li>PTY 进程会被 SIGTERM → SIGKILL 终止</li>
+                  <li>部分输出会被保留并返回给 AI</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* 边界条件4: 循环检测触发 */}
+          <div className="bg-[var(--bg-panel)] rounded-lg p-5 border border-[var(--border-subtle)]">
+            <h5 className="text-red-400 font-semibold mb-3 flex items-center gap-2">
+              <span className="text-xl">🔄</span> 边界条件 4: 循环检测触发
+            </h5>
+            <div className="space-y-3 text-sm">
+              <div className="bg-[var(--bg-terminal)]/50 rounded p-3">
+                <div className="text-[var(--text-muted)] mb-2">检测阈值：</div>
+                <ul className="text-[var(--text-secondary)] space-y-1 list-disc list-inside">
+                  <li><strong>工具调用循环</strong>：同一工具+参数组合执行 ≥5 次</li>
+                  <li><strong>内容重复循环</strong>：相同内容哈希出现 ≥10 次</li>
+                  <li><strong>轮次限制</strong>：单次用户输入超过 100 轮 Continuation</li>
+                </ul>
+              </div>
+              <div className="bg-red-500/10 rounded p-3 border border-red-500/30">
+                <div className="text-red-400 font-semibold mb-1">循环触发后的行为：</div>
+                <ul className="text-[var(--text-secondary)] space-y-1 list-disc list-inside">
+                  <li>立即中断当前 Continuation 循环</li>
+                  <li>向用户显示循环检测警告</li>
+                  <li>将循环信息注入下一次 AI 请求，让 AI 知道自己在循环</li>
+                  <li>用户可选择继续或中止</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* 边界条件5: 并发竞态 */}
+          <div className="bg-[var(--bg-panel)] rounded-lg p-5 border border-[var(--border-subtle)]">
+            <h5 className="text-[var(--terminal-green)] font-semibold mb-3 flex items-center gap-2">
+              <span className="text-xl">🏃</span> 边界条件 5: 并发竞态条件
+            </h5>
+            <div className="space-y-3 text-sm">
+              <div className="bg-[var(--bg-terminal)]/50 rounded p-3">
+                <div className="text-[var(--text-muted)] mb-2">潜在竞态：</div>
+                <ul className="text-[var(--text-secondary)] space-y-1 list-disc list-inside">
+                  <li>用户快速连续按 Enter（双重提交）</li>
+                  <li>Continuation 过程中用户尝试新输入</li>
+                  <li>多个工具同时完成，同时触发 Continuation</li>
+                  <li>中断信号与工具执行完成同时到达</li>
+                </ul>
+              </div>
+              <div className="bg-[var(--bg-terminal)]/50 rounded p-3">
+                <div className="text-[var(--text-muted)] mb-2">防护机制：</div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-[var(--bg-void)] p-2 rounded">
+                    <code className="text-[var(--amber)]">isSubmittingQueryRef</code>
+                    <div className="text-[var(--text-muted)] text-xs mt-1">防止并发 submitQuery 调用</div>
+                  </div>
+                  <div className="bg-[var(--bg-void)] p-2 rounded">
+                    <code className="text-[var(--amber)]">sendPromise</code>
+                    <div className="text-[var(--text-muted)] text-xs mt-1">串行化 API 请求</div>
+                  </div>
+                  <div className="bg-[var(--bg-void)] p-2 rounded">
+                    <code className="text-[var(--amber)]">completionCount</code>
+                    <div className="text-[var(--text-muted)] text-xs mt-1">工具完成计数器</div>
+                  </div>
+                  <div className="bg-[var(--bg-void)] p-2 rounded">
+                    <code className="text-[var(--amber)]">AbortController</code>
+                    <div className="text-[var(--text-muted)] text-xs mt-1">统一中断信号</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      {/* 常见问题与调试 */}
+      <Layer title="常见问题与调试技巧" icon="🐛">
+        <div className="space-y-6">
+          {/* 问题1 */}
+          <div className="bg-[var(--bg-panel)] rounded-lg p-5 border border-[var(--border-subtle)]">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">❓</span>
+              <div className="flex-1">
+                <h5 className="text-[var(--text-primary)] font-semibold mb-2">
+                  问题：AI 响应突然中断，显示"流意外结束"
+                </h5>
+                <div className="space-y-3 text-sm">
+                  <div className="bg-[var(--bg-terminal)]/50 rounded p-3">
+                    <div className="text-[var(--text-muted)] mb-2">可能原因：</div>
+                    <ul className="text-[var(--text-secondary)] space-y-1 list-disc list-inside">
+                      <li>网络不稳定导致 HTTP 流中断</li>
+                      <li>API 服务端超时（请求处理时间过长）</li>
+                      <li>Token 限制触发了服务端截断</li>
+                      <li>代理/防火墙中断了长连接</li>
+                    </ul>
+                  </div>
+                  <div className="bg-[var(--terminal-green)]/10 rounded p-3 border border-[var(--terminal-green)]/30">
+                    <div className="text-[var(--terminal-green)] mb-2">调试步骤：</div>
+                    <ol className="text-[var(--text-secondary)] space-y-1 list-decimal list-inside">
+                      <li>启用 <code className="text-[var(--amber)]">DEBUG=1</code> 查看详细日志</li>
+                      <li>检查 <code className="text-[var(--amber)]">~/.qwen/logs/</code> 中的错误日志</li>
+                      <li>确认 Token 使用量是否接近模型上限</li>
+                      <li>尝试使用 <code className="text-[var(--amber)]">/compress</code> 压缩历史后重试</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 问题2 */}
+          <div className="bg-[var(--bg-panel)] rounded-lg p-5 border border-[var(--border-subtle)]">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">❓</span>
+              <div className="flex-1">
+                <h5 className="text-[var(--text-primary)] font-semibold mb-2">
+                  问题：工具执行结果没有反馈给 AI，AI 说"我无法执行这个操作"
+                </h5>
+                <div className="space-y-3 text-sm">
+                  <div className="bg-[var(--bg-terminal)]/50 rounded p-3">
+                    <div className="text-[var(--text-muted)] mb-2">可能原因：</div>
+                    <ul className="text-[var(--text-secondary)] space-y-1 list-disc list-inside">
+                      <li>Continuation 机制未正确触发</li>
+                      <li>工具执行时发生异常但未正确捕获</li>
+                      <li>functionResponse 格式不正确</li>
+                      <li>prompt_id 不匹配导致 AI 认为是新对话</li>
+                    </ul>
+                  </div>
+                  <div className="bg-[var(--terminal-green)]/10 rounded p-3 border border-[var(--terminal-green)]/30">
+                    <div className="text-[var(--terminal-green)] mb-2">调试步骤：</div>
+                    <ol className="text-[var(--text-secondary)] space-y-1 list-decimal list-inside">
+                      <li>检查工具执行日志，确认工具确实完成了</li>
+                      <li>使用 <code className="text-[var(--amber)]">/stats</code> 查看 API 调用次数</li>
+                      <li>确认 Turn 计数是否增加（应该 +1）</li>
+                      <li>检查 Continuation 是否被循环检测误触发拦截</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 问题3 */}
+          <div className="bg-[var(--bg-panel)] rounded-lg p-5 border border-[var(--border-subtle)]">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">❓</span>
+              <div className="flex-1">
+                <h5 className="text-[var(--text-primary)] font-semibold mb-2">
+                  问题：AI 陷入循环，不断重复执行同一个工具
+                </h5>
+                <div className="space-y-3 text-sm">
+                  <div className="bg-[var(--bg-terminal)]/50 rounded p-3">
+                    <div className="text-[var(--text-muted)] mb-2">可能原因：</div>
+                    <ul className="text-[var(--text-secondary)] space-y-1 list-disc list-inside">
+                      <li>工具返回的错误信息不够清晰，AI 不理解失败原因</li>
+                      <li>任务目标与工具能力不匹配</li>
+                      <li>系统提示中缺少对特定情况的指导</li>
+                      <li>循环检测阈值未触发（变化参数逃避检测）</li>
+                    </ul>
+                  </div>
+                  <div className="bg-[var(--terminal-green)]/10 rounded p-3 border border-[var(--terminal-green)]/30">
+                    <div className="text-[var(--terminal-green)] mb-2">解决方案：</div>
+                    <ol className="text-[var(--text-secondary)] space-y-1 list-decimal list-inside">
+                      <li>按 <code className="text-[var(--amber)]">Ctrl+C</code> 中断当前循环</li>
+                      <li>使用 <code className="text-[var(--amber)]">/restore</code> 回退到之前的状态</li>
+                      <li>重新描述任务，提供更具体的指导</li>
+                      <li>如果是工具 bug，报告到 GitHub Issues</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 问题4 */}
+          <div className="bg-[var(--bg-panel)] rounded-lg p-5 border border-[var(--border-subtle)]">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">❓</span>
+              <div className="flex-1">
+                <h5 className="text-[var(--text-primary)] font-semibold mb-2">
+                  问题：响应速度很慢，每次都要等很久
+                </h5>
+                <div className="space-y-3 text-sm">
+                  <div className="bg-[var(--bg-terminal)]/50 rounded p-3">
+                    <div className="text-[var(--text-muted)] mb-2">可能原因：</div>
+                    <ul className="text-[var(--text-secondary)] space-y-1 list-disc list-inside">
+                      <li>对话历史太长，每次请求携带大量 Token</li>
+                      <li>IDE 上下文包含大量文件</li>
+                      <li>使用了较慢的模型（如 think 模式）</li>
+                      <li>网络延迟高</li>
+                    </ul>
+                  </div>
+                  <div className="bg-[var(--terminal-green)]/10 rounded p-3 border border-[var(--terminal-green)]/30">
+                    <div className="text-[var(--terminal-green)] mb-2">优化建议：</div>
+                    <ol className="text-[var(--text-secondary)] space-y-1 list-decimal list-inside">
+                      <li>使用 <code className="text-[var(--amber)]">/compress</code> 手动压缩历史</li>
+                      <li>关闭不需要的 IDE 文件</li>
+                      <li>使用 <code className="text-[var(--amber)]">/stats</code> 查看 Token 使用情况</li>
+                      <li>考虑使用更快的模型进行简单任务</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 调试工具速查 */}
+          <div className="bg-gradient-to-r from-[var(--cyber-blue)]/10 to-[var(--purple)]/10 rounded-lg p-5 border border-[var(--cyber-blue)]/30">
+            <h4 className="text-[var(--cyber-blue)] font-bold mb-3">🔧 调试工具速查</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+              <div className="bg-[var(--bg-card)] p-3 rounded">
+                <code className="text-[var(--amber)]">DEBUG=1 innies</code>
+                <div className="text-[var(--text-muted)] text-xs mt-1">启用详细调试日志</div>
+              </div>
+              <div className="bg-[var(--bg-card)] p-3 rounded">
+                <code className="text-[var(--amber)]">/stats</code>
+                <div className="text-[var(--text-muted)] text-xs mt-1">查看会话统计（Token、时长、API 调用）</div>
+              </div>
+              <div className="bg-[var(--bg-card)] p-3 rounded">
+                <code className="text-[var(--amber)]">/memory show</code>
+                <div className="text-[var(--text-muted)] text-xs mt-1">查看当前加载的上下文</div>
+              </div>
+              <div className="bg-[var(--bg-card)] p-3 rounded">
+                <code className="text-[var(--amber)]">/tools</code>
+                <div className="text-[var(--text-muted)] text-xs mt-1">查看可用工具列表</div>
+              </div>
+              <div className="bg-[var(--bg-card)] p-3 rounded">
+                <code className="text-[var(--amber)]">/restore</code>
+                <div className="text-[var(--text-muted)] text-xs mt-1">列出/恢复文件检查点</div>
+              </div>
+              <div className="bg-[var(--bg-card)] p-3 rounded">
+                <code className="text-[var(--amber)]">/compress</code>
+                <div className="text-[var(--text-muted)] text-xs mt-1">手动压缩对话历史</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      {/* 性能优化建议 */}
+      <Layer title="性能优化建议" icon="⚡">
+        <div className="space-y-6">
+          <div className="bg-gradient-to-r from-[var(--terminal-green)]/10 to-[var(--cyber-blue)]/10 rounded-lg p-4 border border-[var(--terminal-green)]/30">
+            <h4 className="text-[var(--terminal-green)] font-bold mb-2">性能关键路径</h4>
+            <p className="text-[var(--text-secondary)] text-sm">
+              交互循环的性能主要受三个因素影响：<strong>API 延迟</strong>（不可控）、<strong>Token 数量</strong>（可优化）、
+              <strong>工具执行时间</strong>（部分可优化）。以下是针对可优化部分的建议。
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* 优化1 */}
+            <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-[var(--border-subtle)]">
+              <h5 className="text-[var(--cyber-blue)] font-semibold mb-2 flex items-center gap-2">
+                <span>📉</span> 减少 Token 消耗
+              </h5>
+              <ul className="text-sm text-[var(--text-secondary)] space-y-2">
+                <li className="flex items-start gap-2">
+                  <span className="text-[var(--terminal-green)]">✓</span>
+                  <span>定期使用 <code className="text-[var(--amber)]">/compress</code> 压缩历史</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[var(--terminal-green)]">✓</span>
+                  <span>使用 @ 引用具体文件而非整个目录</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[var(--terminal-green)]">✓</span>
+                  <span>配置合理的 .qwenignore 排除大文件</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[var(--terminal-green)]">✓</span>
+                  <span>避免在对话中传递大量日志/数据</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* 优化2 */}
+            <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-[var(--border-subtle)]">
+              <h5 className="text-[var(--amber)] font-semibold mb-2 flex items-center gap-2">
+                <span>🚀</span> 加速工具执行
+              </h5>
+              <ul className="text-sm text-[var(--text-secondary)] space-y-2">
+                <li className="flex items-start gap-2">
+                  <span className="text-[var(--terminal-green)]">✓</span>
+                  <span>使用 SSD 存储提升文件读写速度</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[var(--terminal-green)]">✓</span>
+                  <span>确保 Git 仓库健康（避免巨大的 .git）</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[var(--terminal-green)]">✓</span>
+                  <span>MCP 服务器使用本地进程而非网络</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[var(--terminal-green)]">✓</span>
+                  <span>Shell 命令避免不必要的网络调用</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* 优化3 */}
+            <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-[var(--border-subtle)]">
+              <h5 className="text-[var(--purple)] font-semibold mb-2 flex items-center gap-2">
+                <span>🎯</span> IDE 上下文优化
+              </h5>
+              <ul className="text-sm text-[var(--text-secondary)] space-y-2">
+                <li className="flex items-start gap-2">
+                  <span className="text-[var(--terminal-green)]">✓</span>
+                  <span>只打开正在处理的相关文件</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[var(--terminal-green)]">✓</span>
+                  <span>关闭大型生成文件（如 bundle.js）</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[var(--terminal-green)]">✓</span>
+                  <span>利用增量更新，避免全量发送</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[var(--terminal-green)]">✓</span>
+                  <span>使用 VS Code 的"固定标签页"功能</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* 优化4 */}
+            <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-[var(--border-subtle)]">
+              <h5 className="text-[var(--terminal-green)] font-semibold mb-2 flex items-center gap-2">
+                <span>📊</span> 模型选择策略
+              </h5>
+              <ul className="text-sm text-[var(--text-secondary)] space-y-2">
+                <li className="flex items-start gap-2">
+                  <span className="text-[var(--terminal-green)]">✓</span>
+                  <span>简单任务使用 Flash 模型（更快）</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[var(--terminal-green)]">✓</span>
+                  <span>复杂推理使用 Pro/think 模式</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[var(--terminal-green)]">✓</span>
+                  <span>代码生成优先选择 Coder 变体</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[var(--terminal-green)]">✓</span>
+                  <span>配置自动降级策略处理配额限制</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* 性能基准 */}
+          <div className="bg-[var(--bg-terminal)] rounded-lg p-4 border border-[var(--border-subtle)]">
+            <h5 className="text-[var(--text-primary)] font-semibold mb-3">参考性能基准</h5>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-[var(--text-muted)] border-b border-[var(--border-subtle)]">
+                    <th className="py-2 px-3">场景</th>
+                    <th className="py-2 px-3">Token 数</th>
+                    <th className="py-2 px-3">预期延迟</th>
+                    <th className="py-2 px-3">优化空间</th>
+                  </tr>
+                </thead>
+                <tbody className="text-[var(--text-secondary)]">
+                  <tr className="border-b border-[var(--border-subtle)]/50">
+                    <td className="py-2 px-3">简单问答</td>
+                    <td className="py-2 px-3">~2K</td>
+                    <td className="py-2 px-3 text-[var(--terminal-green)]">&lt;1s</td>
+                    <td className="py-2 px-3">低</td>
+                  </tr>
+                  <tr className="border-b border-[var(--border-subtle)]/50">
+                    <td className="py-2 px-3">单文件读取+分析</td>
+                    <td className="py-2 px-3">~5K</td>
+                    <td className="py-2 px-3 text-[var(--terminal-green)]">1-2s</td>
+                    <td className="py-2 px-3">中</td>
+                  </tr>
+                  <tr className="border-b border-[var(--border-subtle)]/50">
+                    <td className="py-2 px-3">多文件重构</td>
+                    <td className="py-2 px-3">~15K</td>
+                    <td className="py-2 px-3 text-[var(--amber)]">3-5s</td>
+                    <td className="py-2 px-3">高</td>
+                  </tr>
+                  <tr className="border-b border-[var(--border-subtle)]/50">
+                    <td className="py-2 px-3">大型代码库分析</td>
+                    <td className="py-2 px-3">~50K</td>
+                    <td className="py-2 px-3 text-[var(--amber)]">10-20s</td>
+                    <td className="py-2 px-3">高</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 px-3">历史压缩后继续</td>
+                    <td className="py-2 px-3">~8K</td>
+                    <td className="py-2 px-3 text-[var(--terminal-green)]">2-3s</td>
+                    <td className="py-2 px-3">已优化</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      {/* 与其他模块的交互关系 */}
+      <Layer title="与其他模块的交互关系" icon="🔗">
+        <div className="space-y-4">
+          <MermaidDiagram
+            title="交互循环与其他模块的依赖关系"
+            chart={`flowchart LR
+    subgraph CLI["CLI 层"]
+      useGeminiStream["useGeminiStream<br/>交互循环 Hook"]
+      TextInput["TextInput<br/>用户输入"]
+      MessageDisplay["MessageDisplay<br/>消息展示"]
+    end
+
+    subgraph Core["Core 层"]
+      GeminiChat["GeminiChat<br/>对话管理"]
+      ToolScheduler["CoreToolScheduler<br/>工具调度"]
+      ContentGenerator["ContentGenerator<br/>AI 接口"]
+    end
+
+    subgraph Services["服务层"]
+      TokenManager["TokenManager<br/>Token 计算"]
+      GitService["GitService<br/>检查点"]
+      LoopDetection["LoopDetection<br/>循环检测"]
+      IdeClient["IdeClient<br/>IDE 连接"]
+    end
+
+    subgraph External["外部系统"]
+      API["AI API"]
+      FileSystem["文件系统"]
+      IDE["VS Code/Zed"]
+    end
+
+    TextInput --> useGeminiStream
+    useGeminiStream --> MessageDisplay
+    useGeminiStream --> GeminiChat
+    useGeminiStream --> ToolScheduler
+    GeminiChat --> ContentGenerator
+    ContentGenerator --> API
+    ToolScheduler --> FileSystem
+    useGeminiStream --> IdeClient
+    IdeClient --> IDE
+    GeminiChat --> TokenManager
+    ToolScheduler --> GitService
+    useGeminiStream --> LoopDetection
+
+    style useGeminiStream fill:#22d3ee,color:#000
+    style ToolScheduler fill:#a855f7,color:#fff
+    style API fill:#f59e0b,color:#000`}
+          />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-[var(--border-subtle)]">
+              <h5 className="text-[var(--cyber-blue)] font-semibold mb-2">上游依赖</h5>
+              <ul className="text-sm text-[var(--text-secondary)] space-y-1">
+                <li>• <strong>TextInput</strong> - 提供用户输入触发</li>
+                <li>• <strong>ConfigSystem</strong> - 提供模型、Token 限制等配置</li>
+                <li>• <strong>AuthService</strong> - 提供 API 认证凭据</li>
+                <li>• <strong>MemorySystem</strong> - 提供 QWEN.md 上下文</li>
+              </ul>
+            </div>
+
+            <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-[var(--border-subtle)]">
+              <h5 className="text-[var(--purple)] font-semibold mb-2">下游消费者</h5>
+              <ul className="text-sm text-[var(--text-secondary)] space-y-1">
+                <li>• <strong>MessageDisplay</strong> - 消费流式内容展示</li>
+                <li>• <strong>ToolCard</strong> - 消费工具调用状态</li>
+                <li>• <strong>StatsPanel</strong> - 消费 Token 使用统计</li>
+                <li>• <strong>TelemetryService</strong> - 消费交互事件</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </Layer>
     </div>
   );
 }

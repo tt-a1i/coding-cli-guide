@@ -1143,6 +1143,1125 @@ if (isPlanMode && !isExitPlanModeTool) {
           </div>
         </div>
       </section>
+
+      {/* ==================== 深化内容 ==================== */}
+
+      {/* 边界条件深度解析 */}
+      <section className="bg-gradient-to-r from-red-500/5 to-transparent rounded-xl p-6 border border-red-500/20">
+        <h3 className="text-xl font-semibold text-red-400 mb-4 flex items-center gap-2">
+          <span>🔬</span>
+          边界条件深度解析
+        </h3>
+        <p className="text-gray-300 mb-6">
+          工具调度系统面临复杂的边界条件。理解这些边界情况有助于诊断调度异常和优化系统稳定性。
+        </p>
+
+        {/* 边界条件 1: 用户快速批准/拒绝 */}
+        <div className="bg-gray-900/50 rounded-lg p-4 mb-4 border-l-4 border-yellow-500">
+          <h4 className="text-yellow-400 font-bold mb-2">边界 1: 用户批准期间 AbortSignal 被触发</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h5 className="text-sm font-semibold text-gray-300 mb-2">场景描述</h5>
+              <p className="text-sm text-gray-400">
+                工具等待用户批准 (awaiting_approval) 时，用户按 Ctrl+C 或切换会话触发 AbortSignal。
+              </p>
+              <div className="mt-2 bg-yellow-500/10 p-2 rounded text-xs">
+                <strong className="text-yellow-300">触发条件：</strong>
+                <code className="text-gray-300 block mt-1">
+                  status = 'awaiting_approval' && signal.aborted = true
+                </code>
+              </div>
+            </div>
+            <div>
+              <h5 className="text-sm font-semibold text-gray-300 mb-2">系统行为</h5>
+              <ul className="text-sm text-gray-400 space-y-1">
+                <li>• 立即将状态转为 <code className="text-red-300">cancelled</code></li>
+                <li>• 从队列中移除等待的请求</li>
+                <li>• 调用 <code className="text-cyan-300">reject(new Error('cancelled'))</code></li>
+                <li>• 触发 <code className="text-cyan-300">checkAndNotifyCompletion()</code></li>
+              </ul>
+              <div className="mt-2 bg-green-500/10 p-2 rounded text-xs">
+                <strong className="text-green-300">安全保障：</strong> 不会执行任何半途工具
+              </div>
+            </div>
+          </div>
+          <CodeBlock
+            code={`// packages/core/src/core/coreToolScheduler.ts:653-662
+signal.addEventListener('abort', abortHandler, { once: true });
+
+const abortHandler = () => {
+  const index = this.requestQueue.findIndex(
+    (item) => item.request === request,
+  );
+  if (index > -1) {
+    this.requestQueue.splice(index, 1);
+    reject(new Error('Tool call cancelled while in queue.'));
+  }
+};`}
+            language="typescript"
+            title="AbortSignal 处理逻辑"
+          />
+        </div>
+
+        {/* 边界条件 2: 多个工具同时请求批准 */}
+        <div className="bg-gray-900/50 rounded-lg p-4 mb-4 border-l-4 border-blue-500">
+          <h4 className="text-blue-400 font-bold mb-2">边界 2: AI 一次返回多个工具调用</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h5 className="text-sm font-semibold text-gray-300 mb-2">场景描述</h5>
+              <p className="text-sm text-gray-400">
+                AI 在一次响应中返回多个工具调用（如同时调用 read_file、edit、run_shell_command）。
+                这些工具需要以正确的顺序处理。
+              </p>
+              <div className="mt-2 bg-blue-500/10 p-2 rounded text-xs">
+                <strong className="text-blue-300">典型场景：</strong>
+                <span className="text-gray-300 block mt-1">
+                  AI 返回 [read_file, edit, run_shell_command(npm test)]
+                </span>
+              </div>
+            </div>
+            <div>
+              <h5 className="text-sm font-semibold text-gray-300 mb-2">调度行为</h5>
+              <ul className="text-sm text-gray-400 space-y-1">
+                <li>• 接收数组形式的 <code className="text-cyan-300">ToolCallRequestInfo[]</code></li>
+                <li>• 按数组顺序依次验证和调度</li>
+                <li>• 只读工具 (read_file) 立即标记为 scheduled</li>
+                <li>• 修改类工具逐个等待批准</li>
+                <li>• 所有工具完成后一次性返回结果</li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-4 bg-gray-800/50 rounded-lg p-3">
+            <h5 className="text-sm font-semibold text-cyan-300 mb-2">批量调度时序图</h5>
+            <MermaidDiagram chart={`sequenceDiagram
+    participant AI as AI Model
+    participant Scheduler as CoreToolScheduler
+    participant User as User UI
+
+    AI->>Scheduler: [read_file, edit, bash]
+    Scheduler->>Scheduler: validate read_file
+    Note right of Scheduler: Kind=Read, auto-approve
+    Scheduler->>Scheduler: validate edit
+    Note right of Scheduler: Kind=Edit, need confirm
+    Scheduler-->>User: await_approval (edit)
+    User-->>Scheduler: approve
+    Scheduler->>Scheduler: validate bash
+    Note right of Scheduler: Kind=Execute, need confirm
+    Scheduler-->>User: await_approval (bash)
+    User-->>Scheduler: approve
+    Scheduler->>Scheduler: execute all tools
+    Scheduler-->>AI: [results...]`} />
+          </div>
+        </div>
+
+        {/* 边界条件 3: 工具执行超时 */}
+        <div className="bg-gray-900/50 rounded-lg p-4 mb-4 border-l-4 border-orange-500">
+          <h4 className="text-orange-400 font-bold mb-2">边界 3: 工具执行超时</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h5 className="text-sm font-semibold text-gray-300 mb-2">场景描述</h5>
+              <p className="text-sm text-gray-400">
+                Shell 命令执行时间过长（如编译大项目、运行长时测试），超过配置的超时阈值。
+              </p>
+              <div className="mt-2 bg-orange-500/10 p-2 rounded text-xs">
+                <strong className="text-orange-300">超时配置：</strong>
+                <ul className="text-gray-300 mt-1 space-y-1">
+                  <li>• Bash 工具默认: 120s (2分钟)</li>
+                  <li>• 网络请求工具: 30s</li>
+                  <li>• 文件操作: 无超时</li>
+                </ul>
+              </div>
+            </div>
+            <div>
+              <h5 className="text-sm font-semibold text-gray-300 mb-2">超时处理</h5>
+              <ul className="text-sm text-gray-400 space-y-1">
+                <li>• 工具内部实现 AbortController 超时逻辑</li>
+                <li>• 超时时发送 SIGTERM 给子进程</li>
+                <li>• 状态转为 <code className="text-red-300">error</code></li>
+                <li>• 返回部分输出 + 超时错误信息</li>
+                <li>• AI 收到错误后可决定重试或换方案</li>
+              </ul>
+            </div>
+          </div>
+          <CodeBlock
+            code={`// 工具执行超时处理示例
+// packages/core/src/tools/bash/bash-tool.ts
+
+async execute(params: BashParams, signal: AbortSignal) {
+  const timeout = params.timeout || 120000; // 默认 2 分钟
+
+  const timeoutController = new AbortController();
+  const timeoutId = setTimeout(() => {
+    timeoutController.abort();
+    // 向子进程发送终止信号
+    if (this.childProcess) {
+      this.childProcess.kill('SIGTERM');
+    }
+  }, timeout);
+
+  try {
+    const result = await this.runCommand(params.command, {
+      signal: AbortSignal.any([signal, timeoutController.signal]),
+    });
+    return result;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}`}
+            language="typescript"
+            title="Bash 工具超时实现"
+          />
+        </div>
+
+        {/* 边界条件 4: 输出截断边界 */}
+        <div className="bg-gray-900/50 rounded-lg p-4 mb-4 border-l-4 border-green-500">
+          <h4 className="text-green-400 font-bold mb-2">边界 4: 输出刚好在截断阈值附近</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h5 className="text-sm font-semibold text-gray-300 mb-2">场景描述</h5>
+              <p className="text-sm text-gray-400">
+                工具输出长度接近 50000 字符阈值（49900-50100），截断行为需要精确处理。
+              </p>
+              <div className="mt-2 bg-green-500/10 p-2 rounded text-xs">
+                <strong className="text-green-300">边界计算：</strong>
+                <ul className="text-gray-300 mt-1 space-y-1">
+                  <li>• 阈值: 50000 字符</li>
+                  <li>• 保留行数: 100 行</li>
+                  <li>• 头部比例: 20% (20 行)</li>
+                  <li>• 尾部比例: 80% (80 行)</li>
+                </ul>
+              </div>
+            </div>
+            <div>
+              <h5 className="text-sm font-semibold text-gray-300 mb-2">截断策略细节</h5>
+              <ul className="text-sm text-gray-400 space-y-1">
+                <li>• <strong>行数少但单行很长：</strong> 先按 120 字符自动换行</li>
+                <li>• <strong>超长单行：</strong> 换行后再计算截断点</li>
+                <li>• <strong>刚好 50000 字符：</strong> 不截断，直接返回</li>
+                <li>• <strong>50001+ 字符：</strong> 执行截断 + 保存文件</li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-700 text-gray-400">
+                  <th className="text-left p-2">输出特征</th>
+                  <th className="text-left p-2">处理方式</th>
+                  <th className="text-left p-2">文件保存</th>
+                </tr>
+              </thead>
+              <tbody className="text-gray-300">
+                <tr className="border-b border-gray-700/50">
+                  <td className="p-2">100 行 x 400 字符 = 40000</td>
+                  <td className="p-2 text-green-400">不截断</td>
+                  <td className="p-2">否</td>
+                </tr>
+                <tr className="border-b border-gray-700/50">
+                  <td className="p-2">100 行 x 600 字符 = 60000</td>
+                  <td className="p-2 text-yellow-400">换行后截断</td>
+                  <td className="p-2">是</td>
+                </tr>
+                <tr className="border-b border-gray-700/50">
+                  <td className="p-2">10 行 x 6000 字符 = 60000</td>
+                  <td className="p-2 text-yellow-400">先换行再截断</td>
+                  <td className="p-2">是</td>
+                </tr>
+                <tr>
+                  <td className="p-2">1 行 x 100000 字符</td>
+                  <td className="p-2 text-red-400">强制换行并截断</td>
+                  <td className="p-2">是</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* 边界条件 5: Plan Mode 边界 */}
+        <div className="bg-gray-900/50 rounded-lg p-4 mb-4 border-l-4 border-purple-500">
+          <h4 className="text-purple-400 font-bold mb-2">边界 5: Plan Mode 下的 MCP 工具调用</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h5 className="text-sm font-semibold text-gray-300 mb-2">场景描述</h5>
+              <p className="text-sm text-gray-400">
+                Plan Mode 阻断内置工具，但 MCP 外部工具如何处理？
+                MCP 工具没有统一的 Kind 定义。
+              </p>
+              <div className="mt-2 bg-purple-500/10 p-2 rounded text-xs">
+                <strong className="text-purple-300">复杂场景：</strong>
+                <span className="text-gray-300 block mt-1">
+                  MCP 工具可能是只读查询，也可能是修改操作
+                </span>
+              </div>
+            </div>
+            <div>
+              <h5 className="text-sm font-semibold text-gray-300 mb-2">处理策略</h5>
+              <ul className="text-sm text-gray-400 space-y-1">
+                <li>• MCP 工具默认被视为<strong className="text-red-300">需要确认</strong></li>
+                <li>• Plan Mode 下 MCP 工具<strong className="text-red-300">会被阻断</strong></li>
+                <li>• 可通过 allowedTools 白名单单独放行</li>
+                <li>• MCP 工具的 Kind 由 MCP Server 声明</li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-4 bg-gray-800/50 rounded-lg p-3">
+            <h5 className="text-sm font-semibold text-gray-400 mb-2">MCP 工具 Kind 声明</h5>
+            <CodeBlock
+              code={`// MCP Server 工具声明中包含 Kind 信息
+{
+  "name": "search_documents",
+  "description": "Search documents in the database",
+  "inputSchema": { ... },
+  // MCP 规范中的安全标记
+  "annotations": {
+    "readOnly": true,  // 表示只读操作
+    "dangerous": false // 表示非危险操作
+  }
+}
+
+// CoreToolScheduler 对 MCP 工具的 Kind 推断
+function getMcpToolKind(tool: McpTool): Kind {
+  if (tool.annotations?.readOnly) return Kind.Read;
+  if (tool.annotations?.dangerous) return Kind.Delete;
+  return Kind.Execute; // 默认视为执行类
+}`}
+              language="typescript"
+              title="MCP 工具 Kind 推断"
+            />
+          </div>
+        </div>
+
+        {/* 边界条件 6: 白名单模式匹配 */}
+        <div className="bg-gray-900/50 rounded-lg p-4 border-l-4 border-cyan-500">
+          <h4 className="text-cyan-400 font-bold mb-2">边界 6: 白名单模式匹配的安全边界</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h5 className="text-sm font-semibold text-gray-300 mb-2">潜在风险</h5>
+              <p className="text-sm text-gray-400 mb-2">
+                模式匹配使用前缀匹配，可能存在安全漏洞：
+              </p>
+              <div className="bg-red-500/10 p-2 rounded text-xs">
+                <strong className="text-red-300">危险示例：</strong>
+                <ul className="text-gray-300 mt-1 space-y-1">
+                  <li>• 配置: <code>run_shell_command(git)</code></li>
+                  <li>• 攻击: <code>git; rm -rf /</code> (命令注入)</li>
+                  <li>• 结果: 前缀 "git" 匹配，自动通过</li>
+                </ul>
+              </div>
+            </div>
+            <div>
+              <h5 className="text-sm font-semibold text-gray-300 mb-2">安全建议</h5>
+              <ul className="text-sm text-gray-400 space-y-1">
+                <li>• 使用精确命令匹配而非前缀匹配</li>
+                <li>• 配置: <code>run_shell_command(git status)</code></li>
+                <li>• 避免匹配可组合命令</li>
+                <li>• Sandbox 环境提供底层保护</li>
+                <li>• 定期审计 allowedTools 配置</li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-4 bg-gray-800/50 rounded-lg p-3">
+            <h5 className="text-sm font-semibold text-gray-400 mb-2">安全配置示例</h5>
+            <CodeBlock
+              code={`// 危险配置 - 不建议
+{
+  "tools": {
+    "allowed": [
+      "run_shell_command(git)",     // 可被 "git; malicious" 绕过
+      "run_shell_command(npm)"       // 可被 "npm install malware" 利用
+    ]
+  }
+}
+
+// 安全配置 - 推荐
+{
+  "tools": {
+    "allowed": [
+      "run_shell_command(git status)",    // 精确匹配
+      "run_shell_command(git diff)",
+      "run_shell_command(git log)",
+      "run_shell_command(npm test)",      // 精确匹配
+      "run_shell_command(npm run lint)"
+    ]
+  }
+}`}
+              language="json"
+              title="allowedTools 安全配置对比"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* 常见问题与调试技巧 */}
+      <section className="bg-gradient-to-r from-amber-500/5 to-transparent rounded-xl p-6 border border-amber-500/20 mt-8">
+        <h3 className="text-xl font-semibold text-amber-400 mb-4 flex items-center gap-2">
+          <span>🐛</span>
+          常见问题与调试技巧
+        </h3>
+
+        <div className="space-y-4">
+          {/* 问题 1 */}
+          <div className="bg-gray-900/50 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">🔴</span>
+              <div className="flex-1">
+                <h4 className="text-red-400 font-bold mb-2">问题：工具卡在 awaiting_approval 状态不响应</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h5 className="text-sm font-semibold text-gray-300 mb-2">症状</h5>
+                    <ul className="text-sm text-gray-400 space-y-1">
+                      <li>• 工具状态显示 awaiting_approval</li>
+                      <li>• 用户按 Y/N 无反应</li>
+                      <li>• UI 看似卡死</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h5 className="text-sm font-semibold text-gray-300 mb-2">可能原因</h5>
+                    <ul className="text-sm text-gray-400 space-y-1">
+                      <li>• 1. UI 层 onApprove 回调未正确绑定</li>
+                      <li>• 2. 键盘事件被其他组件截获</li>
+                      <li>• 3. Scheduler 实例被意外销毁</li>
+                      <li>• 4. 状态同步延迟 (React 状态未更新)</li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="mt-3 bg-gray-800/50 rounded p-3">
+                  <h5 className="text-sm font-semibold text-cyan-300 mb-2">调试步骤</h5>
+                  <CodeBlock
+                    code={`# 1. 检查 Scheduler 状态
+DEBUG=innies:scheduler innies
+
+# 2. 查看工具调用日志
+# 日志会显示每个工具的状态转换
+
+# 3. 在代码中添加调试点
+// packages/cli/src/ui/ToolApproval.tsx
+console.log('Current tool status:', toolCall.status);
+console.log('onApprove bound:', typeof onApprove);
+
+# 4. 检查 React 状态
+// 使用 React DevTools 检查 useGeminiStream hook 状态`}
+                    language="bash"
+                    title="调试命令"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 问题 2 */}
+          <div className="bg-gray-900/50 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">🟡</span>
+              <div className="flex-1">
+                <h4 className="text-yellow-400 font-bold mb-2">问题：YOLO 模式下某些工具仍需确认</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h5 className="text-sm font-semibold text-gray-300 mb-2">症状</h5>
+                    <ul className="text-sm text-gray-400 space-y-1">
+                      <li>• 已设置 <code>--dangerously-skip-permissions</code></li>
+                      <li>• 但某些工具仍显示确认提示</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h5 className="text-sm font-semibold text-gray-300 mb-2">可能原因</h5>
+                    <ul className="text-sm text-gray-400 space-y-1">
+                      <li>• 1. MCP 工具未正确声明 annotations</li>
+                      <li>• 2. 工具实现的 shouldConfirmExecute 逻辑有误</li>
+                      <li>• 3. ApprovalMode 未正确传递到 Scheduler</li>
+                      <li>• 4. 存在硬编码的确认逻辑</li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="mt-3 bg-gray-800/50 rounded p-3">
+                  <h5 className="text-sm font-semibold text-cyan-300 mb-2">调试步骤</h5>
+                  <CodeBlock
+                    code={`# 1. 确认 ApprovalMode 设置正确
+# 在 ~/.config/innies/settings.json 检查
+{
+  "approval_mode": "yolo"
+}
+
+# 2. 检查工具的 shouldConfirmExecute 实现
+// packages/core/src/tools/[tool]/[tool].ts
+async shouldConfirmExecute(signal: AbortSignal) {
+  // 检查这里的逻辑
+  console.log('ApprovalMode:', this.config.getApprovalMode());
+  // 如果返回非 null，就需要确认
+}
+
+# 3. 检查 MCP 工具配置
+// MCP Server 的 tool annotations
+{
+  "annotations": {
+    "readOnly": true  // 确保设置正确
+  }
+}`}
+                    language="bash"
+                    title="调试命令"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 问题 3 */}
+          <div className="bg-gray-900/50 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">🟠</span>
+              <div className="flex-1">
+                <h4 className="text-orange-400 font-bold mb-2">问题：工具输出被截断但找不到完整文件</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h5 className="text-sm font-semibold text-gray-300 mb-2">症状</h5>
+                    <ul className="text-sm text-gray-400 space-y-1">
+                      <li>• 输出显示 "[CONTENT TRUNCATED]"</li>
+                      <li>• 提示的文件路径不存在</li>
+                      <li>• <code>.qwen/tmp/</code> 目录为空</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h5 className="text-sm font-semibold text-gray-300 mb-2">可能原因</h5>
+                    <ul className="text-sm text-gray-400 space-y-1">
+                      <li>• 1. 临时目录创建失败 (权限问题)</li>
+                      <li>• 2. 文件被清理脚本删除</li>
+                      <li>• 3. 磁盘空间不足</li>
+                      <li>• 4. 路径中含特殊字符</li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="mt-3 bg-gray-800/50 rounded p-3">
+                  <h5 className="text-sm font-semibold text-cyan-300 mb-2">调试步骤</h5>
+                  <CodeBlock
+                    code={`# 1. 检查临时目录
+ls -la .qwen/tmp/
+
+# 2. 检查目录权限
+ls -la .qwen/
+
+# 3. 手动创建目录测试
+mkdir -p .qwen/tmp && touch .qwen/tmp/test.txt
+
+# 4. 检查磁盘空间
+df -h .
+
+# 5. 查看完整日志中的文件保存路径
+DEBUG=innies:truncate innies`}
+                    language="bash"
+                    title="调试命令"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 问题 4 */}
+          <div className="bg-gray-900/50 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">🔵</span>
+              <div className="flex-1">
+                <h4 className="text-blue-400 font-bold mb-2">问题：Plan Mode 无法阻止 MCP 工具执行</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h5 className="text-sm font-semibold text-gray-300 mb-2">症状</h5>
+                    <ul className="text-sm text-gray-400 space-y-1">
+                      <li>• 已启用 Plan Mode</li>
+                      <li>• MCP 修改类工具仍被执行</li>
+                      <li>• 未看到 Plan Mode 阻断提示</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h5 className="text-sm font-semibold text-gray-300 mb-2">可能原因</h5>
+                    <ul className="text-sm text-gray-400 space-y-1">
+                      <li>• 1. MCP 工具被标记为 readOnly</li>
+                      <li>• 2. MCP 工具在 allowedTools 白名单中</li>
+                      <li>• 3. MCP 工具的 shouldConfirmExecute 返回 null</li>
+                      <li>• 4. Plan Mode 配置未生效</li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="mt-3 bg-gray-800/50 rounded p-3">
+                  <h5 className="text-sm font-semibold text-cyan-300 mb-2">调试步骤</h5>
+                  <CodeBlock
+                    code={`# 1. 确认 Plan Mode 状态
+# 在 UI 中查看当前模式
+
+# 2. 检查 MCP 工具的 annotations
+# 在 MCP Server 日志中查看工具声明
+
+# 3. 检查 allowedTools 配置
+cat ~/.config/innies/settings.json | jq '.tools.allowed'
+
+# 4. 添加调试日志
+// packages/core/src/core/coreToolScheduler.ts:752
+console.log('Plan Mode check:', {
+  isPlanMode,
+  isExitPlanModeTool,
+  confirmationDetails,
+  toolName: reqInfo.name,
+});`}
+                    language="bash"
+                    title="调试命令"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 调试工具速查 */}
+        <div className="mt-6 bg-gray-800/50 rounded-lg p-4">
+          <h4 className="text-amber-300 font-bold mb-3">调试工具速查表</h4>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-700 text-gray-400">
+                  <th className="text-left p-2">调试场景</th>
+                  <th className="text-left p-2">环境变量</th>
+                  <th className="text-left p-2">输出内容</th>
+                </tr>
+              </thead>
+              <tbody className="text-gray-300">
+                <tr className="border-b border-gray-700/50">
+                  <td className="p-2">工具调度流程</td>
+                  <td className="p-2"><code className="text-cyan-300">DEBUG=innies:scheduler</code></td>
+                  <td className="p-2">调度入口、状态转换、队列操作</td>
+                </tr>
+                <tr className="border-b border-gray-700/50">
+                  <td className="p-2">确认决策逻辑</td>
+                  <td className="p-2"><code className="text-cyan-300">DEBUG=innies:approval</code></td>
+                  <td className="p-2">shouldConfirmExecute 返回值、模式判断</td>
+                </tr>
+                <tr className="border-b border-gray-700/50">
+                  <td className="p-2">输出截断</td>
+                  <td className="p-2"><code className="text-cyan-300">DEBUG=innies:truncate</code></td>
+                  <td className="p-2">截断阈值、文件保存路径</td>
+                </tr>
+                <tr className="border-b border-gray-700/50">
+                  <td className="p-2">MCP 工具调用</td>
+                  <td className="p-2"><code className="text-cyan-300">DEBUG=innies:mcp</code></td>
+                  <td className="p-2">MCP 工具声明、annotations 解析</td>
+                </tr>
+                <tr>
+                  <td className="p-2">全部调试信息</td>
+                  <td className="p-2"><code className="text-cyan-300">DEBUG=innies:*</code></td>
+                  <td className="p-2">所有模块的调试输出</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* 性能优化建议 */}
+      <section className="bg-gradient-to-r from-green-500/5 to-transparent rounded-xl p-6 border border-green-500/20 mt-8">
+        <h3 className="text-xl font-semibold text-green-400 mb-4 flex items-center gap-2">
+          <span>⚡</span>
+          性能优化建议
+        </h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* 优化 1: 减少确认次数 */}
+          <div className="bg-gray-900/50 rounded-lg p-4 border border-green-500/20">
+            <h4 className="text-green-400 font-bold mb-3 flex items-center gap-2">
+              <span>🎯</span>
+              减少人工确认次数
+            </h4>
+            <p className="text-sm text-gray-400 mb-3">
+              频繁确认是影响交互效率的主要因素。通过合理配置可大幅减少确认次数。
+            </p>
+            <div className="space-y-2">
+              <div className="bg-gray-800/50 rounded p-2">
+                <h5 className="text-xs font-semibold text-gray-300 mb-1">策略 1: 使用 AUTO_EDIT 模式</h5>
+                <p className="text-xs text-gray-400">
+                  自动批准 Edit/Write 类工具，只对 Shell 命令需要确认。
+                </p>
+                <code className="text-xs text-cyan-300">innies --auto-edit</code>
+              </div>
+              <div className="bg-gray-800/50 rounded p-2">
+                <h5 className="text-xs font-semibold text-gray-300 mb-1">策略 2: 配置常用命令白名单</h5>
+                <p className="text-xs text-gray-400">
+                  将常用的安全命令加入 allowedTools。
+                </p>
+                <CodeBlock
+                  code={`{
+  "tools": {
+    "allowed": [
+      "run_shell_command(git status)",
+      "run_shell_command(git diff)",
+      "run_shell_command(npm test)",
+      "run_shell_command(npm run build)"
+    ]
+  }
+}`}
+                  language="json"
+                  title="settings.json"
+                />
+              </div>
+              <div className="bg-gray-800/50 rounded p-2">
+                <h5 className="text-xs font-semibold text-gray-300 mb-1">策略 3: Sandbox 环境使用 YOLO 模式</h5>
+                <p className="text-xs text-gray-400">
+                  在隔离的 Sandbox 中可安全使用 YOLO 模式。
+                </p>
+                <code className="text-xs text-cyan-300">GEMINI_SANDBOX=docker innies --yolo</code>
+              </div>
+            </div>
+          </div>
+
+          {/* 优化 2: 减少输出截断开销 */}
+          <div className="bg-gray-900/50 rounded-lg p-4 border border-green-500/20">
+            <h4 className="text-green-400 font-bold mb-3 flex items-center gap-2">
+              <span>✂️</span>
+              减少输出截断开销
+            </h4>
+            <p className="text-sm text-gray-400 mb-3">
+              输出截断涉及文件 I/O，可通过调整阈值和策略优化性能。
+            </p>
+            <div className="space-y-2">
+              <div className="bg-gray-800/50 rounded p-2">
+                <h5 className="text-xs font-semibold text-gray-300 mb-1">策略 1: 调整截断阈值</h5>
+                <p className="text-xs text-gray-400">
+                  根据使用场景调整截断阈值，减少不必要的文件保存。
+                </p>
+                <CodeBlock
+                  code={`{
+  "output": {
+    "truncateThreshold": 100000,  // 提高到 100K
+    "truncateLines": 200           // 保留更多行
+  }
+}`}
+                  language="json"
+                  title="settings.json"
+                />
+              </div>
+              <div className="bg-gray-800/50 rounded p-2">
+                <h5 className="text-xs font-semibold text-gray-300 mb-1">策略 2: 使用 SSD 存储临时文件</h5>
+                <p className="text-xs text-gray-400">
+                  确保 .qwen/tmp 目录在 SSD 上，加速文件写入。
+                </p>
+              </div>
+              <div className="bg-gray-800/50 rounded p-2">
+                <h5 className="text-xs font-semibold text-gray-300 mb-1">策略 3: 定期清理临时文件</h5>
+                <p className="text-xs text-gray-400">
+                  避免临时文件积累影响磁盘性能。
+                </p>
+                <code className="text-xs text-cyan-300">find .qwen/tmp -mtime +7 -delete</code>
+              </div>
+            </div>
+          </div>
+
+          {/* 优化 3: 加速批量工具执行 */}
+          <div className="bg-gray-900/50 rounded-lg p-4 border border-green-500/20">
+            <h4 className="text-green-400 font-bold mb-3 flex items-center gap-2">
+              <span>📦</span>
+              加速批量工具执行
+            </h4>
+            <p className="text-sm text-gray-400 mb-3">
+              当 AI 返回多个工具调用时，可通过优化批准策略加速执行。
+            </p>
+            <div className="space-y-2">
+              <div className="bg-gray-800/50 rounded p-2">
+                <h5 className="text-xs font-semibold text-gray-300 mb-1">策略 1: 使用 "Proceed Always" 选项</h5>
+                <p className="text-xs text-gray-400">
+                  批准时选择 "Proceed Always"，后续相同工具自动通过。
+                </p>
+              </div>
+              <div className="bg-gray-800/50 rounded p-2">
+                <h5 className="text-xs font-semibold text-gray-300 mb-1">策略 2: 批量只读工具不阻塞</h5>
+                <p className="text-xs text-gray-400">
+                  确保只读工具 (read_file, grep 等) 不被意外拦截。
+                </p>
+              </div>
+              <div className="bg-gray-800/50 rounded p-2">
+                <h5 className="text-xs font-semibold text-gray-300 mb-1">策略 3: 预热 MCP 连接</h5>
+                <p className="text-xs text-gray-400">
+                  MCP 工具首次调用有连接延迟，可在会话开始时预热。
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 优化 4: 队列管理优化 */}
+          <div className="bg-gray-900/50 rounded-lg p-4 border border-green-500/20">
+            <h4 className="text-green-400 font-bold mb-3 flex items-center gap-2">
+              <span>📋</span>
+              队列管理优化
+            </h4>
+            <p className="text-sm text-gray-400 mb-3">
+              串行队列保证安全但可能成为瓶颈，可通过策略优化。
+            </p>
+            <div className="space-y-2">
+              <div className="bg-gray-800/50 rounded p-2">
+                <h5 className="text-xs font-semibold text-gray-300 mb-1">策略 1: 减少队列积压</h5>
+                <p className="text-xs text-gray-400">
+                  快速响应确认请求，避免队列堆积。
+                </p>
+              </div>
+              <div className="bg-gray-800/50 rounded p-2">
+                <h5 className="text-xs font-semibold text-gray-300 mb-1">策略 2: 避免长时间工具</h5>
+                <p className="text-xs text-gray-400">
+                  将长时间工具（如大型编译）拆分为多个小步骤。
+                </p>
+              </div>
+              <div className="bg-gray-800/50 rounded p-2">
+                <h5 className="text-xs font-semibold text-gray-300 mb-1">策略 3: 监控队列状态</h5>
+                <p className="text-xs text-gray-400">
+                  启用调试日志查看队列积压情况。
+                </p>
+                <code className="text-xs text-cyan-300">DEBUG=innies:queue innies</code>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 性能基准测试 */}
+        <div className="mt-6 bg-gray-800/50 rounded-lg p-4">
+          <h4 className="text-green-300 font-bold mb-3">工具调度性能基准</h4>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-700 text-gray-400">
+                  <th className="text-left p-2">操作</th>
+                  <th className="text-left p-2">典型耗时</th>
+                  <th className="text-left p-2">影响因素</th>
+                  <th className="text-left p-2">优化建议</th>
+                </tr>
+              </thead>
+              <tbody className="text-gray-300">
+                <tr className="border-b border-gray-700/50">
+                  <td className="p-2">工具参数验证</td>
+                  <td className="p-2 text-green-400">&lt; 1ms</td>
+                  <td className="p-2">参数复杂度</td>
+                  <td className="p-2">无需优化</td>
+                </tr>
+                <tr className="border-b border-gray-700/50">
+                  <td className="p-2">确认决策判断</td>
+                  <td className="p-2 text-green-400">&lt; 1ms</td>
+                  <td className="p-2">白名单大小</td>
+                  <td className="p-2">保持白名单简洁</td>
+                </tr>
+                <tr className="border-b border-gray-700/50">
+                  <td className="p-2">用户确认等待</td>
+                  <td className="p-2 text-yellow-400">100ms - 10s</td>
+                  <td className="p-2">用户响应速度</td>
+                  <td className="p-2">合理配置自动批准</td>
+                </tr>
+                <tr className="border-b border-gray-700/50">
+                  <td className="p-2">文件读取工具</td>
+                  <td className="p-2 text-green-400">1 - 50ms</td>
+                  <td className="p-2">文件大小、磁盘类型</td>
+                  <td className="p-2">使用 SSD</td>
+                </tr>
+                <tr className="border-b border-gray-700/50">
+                  <td className="p-2">文件编辑工具</td>
+                  <td className="p-2 text-green-400">5 - 100ms</td>
+                  <td className="p-2">编辑范围</td>
+                  <td className="p-2">精确匹配编辑范围</td>
+                </tr>
+                <tr className="border-b border-gray-700/50">
+                  <td className="p-2">Shell 命令执行</td>
+                  <td className="p-2 text-yellow-400">10ms - 120s</td>
+                  <td className="p-2">命令复杂度</td>
+                  <td className="p-2">设置合理超时</td>
+                </tr>
+                <tr className="border-b border-gray-700/50">
+                  <td className="p-2">输出截断 + 保存</td>
+                  <td className="p-2 text-yellow-400">5 - 500ms</td>
+                  <td className="p-2">输出大小</td>
+                  <td className="p-2">调整截断阈值</td>
+                </tr>
+                <tr>
+                  <td className="p-2">MCP 工具调用</td>
+                  <td className="p-2 text-yellow-400">50 - 5000ms</td>
+                  <td className="p-2">网络延迟、服务器性能</td>
+                  <td className="p-2">本地 MCP Server</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* 与其他模块的交互关系 */}
+      <section className="bg-gradient-to-r from-purple-500/5 to-transparent rounded-xl p-6 border border-purple-500/20 mt-8">
+        <h3 className="text-xl font-semibold text-purple-400 mb-4 flex items-center gap-2">
+          <span>🔗</span>
+          与其他模块的交互关系
+        </h3>
+
+        <MermaidDiagram chart={`flowchart TB
+    subgraph CLI["CLI Layer"]
+        UI[UI Components]
+        Approval[ToolApproval Component]
+        useStream[useGeminiStream Hook]
+    end
+
+    subgraph Core["Core Layer"]
+        GeminiChat[GeminiChat]
+        Scheduler[CoreToolScheduler]
+        ToolRegistry[Tool Registry]
+        Config[CoreConfig]
+    end
+
+    subgraph Tools["Tool Layer"]
+        BaseTool[BaseTool]
+        ReadTool[ReadFileTool]
+        EditTool[EditFileTool]
+        BashTool[BashTool]
+        McpTool[MCP Tool Wrapper]
+    end
+
+    subgraph External["External Systems"]
+        FS[File System]
+        Shell[Shell Process]
+        McpServer[MCP Servers]
+    end
+
+    GeminiChat -->|"tool_calls"| Scheduler
+    Scheduler -->|"shouldConfirmExecute"| Config
+    Config -->|"ApprovalMode + allowedTools"| Scheduler
+    Scheduler -->|"validate"| ToolRegistry
+    ToolRegistry -->|"getToolByName"| BaseTool
+
+    Scheduler -->|"status updates"| UI
+    UI -->|"render"| Approval
+    Approval -->|"user decision"| useStream
+    useStream -->|"setToolCallOutcome"| Scheduler
+
+    Scheduler -->|"execute"| ReadTool
+    Scheduler -->|"execute"| EditTool
+    Scheduler -->|"execute"| BashTool
+    Scheduler -->|"execute"| McpTool
+
+    ReadTool -->|"read"| FS
+    EditTool -->|"write"| FS
+    BashTool -->|"spawn"| Shell
+    McpTool -->|"request"| McpServer
+
+    style Scheduler fill:#22d3ee,color:#000
+    style Config fill:#a855f7,color:#fff
+    style GeminiChat fill:#22c55e,color:#000
+    style McpServer fill:#f59e0b,color:#000`} title="CoreToolScheduler 依赖关系图" />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+          {/* 上游依赖 */}
+          <div className="bg-gray-900/50 rounded-lg p-4">
+            <h4 className="text-purple-300 font-bold mb-3">上游依赖 (调用 Scheduler 的模块)</h4>
+            <div className="space-y-3">
+              <div className="border-l-2 border-cyan-500 pl-3">
+                <h5 className="text-sm font-semibold text-cyan-300">GeminiChat</h5>
+                <p className="text-xs text-gray-400">
+                  主交互循环，解析 AI 响应中的 tool_calls，调用 schedule() 调度执行。
+                </p>
+                <code className="text-xs text-gray-500">packages/core/src/gemini-chat/gemini-chat.ts</code>
+              </div>
+              <div className="border-l-2 border-green-500 pl-3">
+                <h5 className="text-sm font-semibold text-green-300">useGeminiStream Hook</h5>
+                <p className="text-xs text-gray-400">
+                  React 层状态管理，监听工具状态变化，触发 UI 更新。
+                </p>
+                <code className="text-xs text-gray-500">packages/cli/src/ui/hooks/useGeminiStream.ts</code>
+              </div>
+              <div className="border-l-2 border-yellow-500 pl-3">
+                <h5 className="text-sm font-semibold text-yellow-300">ToolApproval Component</h5>
+                <p className="text-xs text-gray-400">
+                  UI 组件，显示确认对话框，收集用户决策后调用 setToolCallOutcome()。
+                </p>
+                <code className="text-xs text-gray-500">packages/cli/src/ui/ToolApproval.tsx</code>
+              </div>
+            </div>
+          </div>
+
+          {/* 下游依赖 */}
+          <div className="bg-gray-900/50 rounded-lg p-4">
+            <h4 className="text-purple-300 font-bold mb-3">下游依赖 (Scheduler 调用的模块)</h4>
+            <div className="space-y-3">
+              <div className="border-l-2 border-blue-500 pl-3">
+                <h5 className="text-sm font-semibold text-blue-300">CoreConfig</h5>
+                <p className="text-xs text-gray-400">
+                  提供 ApprovalMode、allowedTools 等配置，决定确认策略。
+                </p>
+                <code className="text-xs text-gray-500">packages/core/src/config/core-config.ts</code>
+              </div>
+              <div className="border-l-2 border-orange-500 pl-3">
+                <h5 className="text-sm font-semibold text-orange-300">Tool Registry</h5>
+                <p className="text-xs text-gray-400">
+                  工具注册表，通过名称查找工具实例，验证参数 schema。
+                </p>
+                <code className="text-xs text-gray-500">packages/core/src/tools/registry.ts</code>
+              </div>
+              <div className="border-l-2 border-red-500 pl-3">
+                <h5 className="text-sm font-semibold text-red-300">具体工具实现</h5>
+                <p className="text-xs text-gray-400">
+                  ReadFileTool、EditFileTool、BashTool 等，执行实际操作。
+                </p>
+                <code className="text-xs text-gray-500">packages/core/src/tools/</code>
+              </div>
+              <div className="border-l-2 border-purple-500 pl-3">
+                <h5 className="text-sm font-semibold text-purple-300">MCP Client</h5>
+                <p className="text-xs text-gray-400">
+                  MCP 协议客户端，与外部 MCP Server 通信。
+                </p>
+                <code className="text-xs text-gray-500">packages/core/src/mcp/client.ts</code>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 数据流图 */}
+        <div className="mt-6 bg-gray-800/50 rounded-lg p-4">
+          <h4 className="text-purple-300 font-bold mb-3">核心数据流</h4>
+          <MermaidDiagram chart={`sequenceDiagram
+    participant AI as AI Model
+    participant Chat as GeminiChat
+    participant Scheduler as CoreToolScheduler
+    participant Config as CoreConfig
+    participant Tool as Tool Instance
+    participant UI as ToolApproval UI
+
+    AI->>Chat: Response with tool_calls
+    Chat->>Scheduler: schedule(tool_calls, signal)
+
+    loop For each tool_call
+        Scheduler->>Scheduler: validateParams()
+        Scheduler->>Scheduler: buildInvocation()
+        Scheduler->>Tool: shouldConfirmExecute()
+        Tool-->>Scheduler: ConfirmationDetails | null
+
+        alt No confirmation needed
+            Scheduler->>Scheduler: setStatus('scheduled')
+        else Confirmation needed
+            Scheduler->>Config: getApprovalMode()
+            Config-->>Scheduler: PLAN | DEFAULT | AUTO_EDIT | YOLO
+
+            alt PLAN mode (non-exit tool)
+                Scheduler->>Scheduler: setStatus('error')
+                Scheduler-->>Chat: Plan Mode blocked
+            else YOLO or in allowedTools
+                Scheduler->>Scheduler: setStatus('scheduled')
+            else Need user approval
+                Scheduler->>UI: setStatus('awaiting_approval')
+                UI-->>Scheduler: User decision
+                Scheduler->>Scheduler: setStatus('scheduled')
+            end
+        end
+    end
+
+    loop Execute scheduled tools
+        Scheduler->>Tool: execute(params, signal)
+        Tool-->>Scheduler: Result
+        Scheduler->>Scheduler: truncateIfNeeded()
+        Scheduler->>Scheduler: convertToFunctionResponse()
+    end
+
+    Scheduler->>Scheduler: checkAndNotifyCompletion()
+    Scheduler-->>Chat: CompletedToolCall[]
+    Chat-->>AI: FunctionResponse[]`} title="工具调度完整数据流" />
+        </div>
+
+        {/* 关键接口 */}
+        <div className="mt-6 bg-gray-800/50 rounded-lg p-4">
+          <h4 className="text-purple-300 font-bold mb-3">关键接口定义</h4>
+          <CodeBlock
+            code={`// CoreToolScheduler 的核心公开接口
+interface CoreToolScheduler {
+  // 调度工具执行（主入口）
+  schedule(
+    request: ToolCallRequestInfo | ToolCallRequestInfo[],
+    signal: AbortSignal,
+  ): Promise<void>;
+
+  // 获取当前所有工具调用状态
+  getToolCalls(): ToolCall[];
+
+  // 设置用户确认决策
+  setToolCallOutcome(
+    callId: string,
+    outcome: ToolConfirmationOutcome,
+  ): void;
+
+  // 检查是否有工具正在执行
+  isRunning(): boolean;
+
+  // 注册工具调用完成回调
+  onAllToolCallsComplete?: (
+    calls: CompletedToolCall[],
+  ) => Promise<void>;
+}
+
+// 工具确认决策枚举
+enum ToolConfirmationOutcome {
+  Proceed = 'proceed',           // 本次通过
+  ProceedAlways = 'proceedAlways', // 始终通过
+  Reject = 'reject',             // 拒绝
+  Cancel = 'cancel',             // 取消
+}
+
+// 工具调用请求信息
+interface ToolCallRequestInfo {
+  callId: string;                 // 唯一调用 ID
+  name: string;                   // 工具名称
+  args: Record<string, unknown>;  // 工具参数
+}`}
+            language="typescript"
+            title="CoreToolScheduler 公开接口"
+          />
+        </div>
+      </section>
+
+      {/* 设计演进与未来方向 */}
+      <section className="bg-gradient-to-r from-indigo-500/5 to-transparent rounded-xl p-6 border border-indigo-500/20 mt-8">
+        <h3 className="text-xl font-semibold text-indigo-400 mb-4 flex items-center gap-2">
+          <span>🔮</span>
+          设计演进与未来方向
+        </h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-gray-900/50 rounded-lg p-4">
+            <h4 className="text-indigo-300 font-bold mb-3">当前限制</h4>
+            <ul className="text-sm text-gray-400 space-y-2">
+              <li className="flex items-start gap-2">
+                <span className="text-red-400">•</span>
+                <span><strong>串行执行：</strong>多个独立工具无法并行执行</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-red-400">•</span>
+                <span><strong>工具名不一致：</strong>Core 层与 CLI 层的工具名定义有差异</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-red-400">•</span>
+                <span><strong>MCP Kind 推断：</strong>依赖 MCP Server 的 annotations，缺少统一标准</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-red-400">•</span>
+                <span><strong>白名单前缀匹配：</strong>存在安全漏洞风险</span>
+              </li>
+            </ul>
+          </div>
+
+          <div className="bg-gray-900/50 rounded-lg p-4">
+            <h4 className="text-indigo-300 font-bold mb-3">潜在改进方向</h4>
+            <ul className="text-sm text-gray-400 space-y-2">
+              <li className="flex items-start gap-2">
+                <span className="text-green-400">•</span>
+                <span><strong>并行执行：</strong>识别无依赖的只读工具，支持并行执行</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-green-400">•</span>
+                <span><strong>智能批准：</strong>基于历史行为学习，自动调整批准策略</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-green-400">•</span>
+                <span><strong>正则白名单：</strong>支持正则表达式匹配，提升安全性</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-green-400">•</span>
+                <span><strong>工具链优化：</strong>识别常见工具链模式，一次性批准</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

@@ -960,6 +960,1176 @@ runConfig:
           </div>
         </div>
       </Layer>
+
+      {/* ==================== 深化内容 ==================== */}
+
+      {/* 边界条件深度解析 */}
+      <Layer title="边界条件深度解析" icon="🔬">
+        <div className="space-y-6">
+          {/* 边界 1: 模板变量缺失 */}
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg border border-[var(--border-subtle)] overflow-hidden">
+            <div className="bg-red-500/10 px-4 py-2 border-b border-[var(--border-subtle)]">
+              <h4 className="text-red-400 font-bold">边界 1: 模板变量缺失</h4>
+            </div>
+            <div className="p-4 space-y-3">
+              <div className="bg-[var(--bg-card)] p-3 rounded">
+                <h5 className="text-[var(--text-secondary)] text-sm font-semibold mb-2">🎯 触发场景</h5>
+                <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                  <li>• 子代理模板中使用了 <code className="bg-black/30 px-1 rounded">${'{task_prompt}'}</code>，但调用时未提供</li>
+                  <li>• Task 工具传入的 prompt 参数中缺少必需的上下文变量</li>
+                  <li>• 模板中的变量名拼写错误（如 <code>${'{task_promtp}'}</code>）</li>
+                </ul>
+              </div>
+              <CodeBlock
+                title="模板变量验证"
+                code={`// packages/core/src/subagents/subagent.ts
+
+function templateString(template: string, context: ContextState): string {
+  const placeholderRegex = /\\$\\{(\\w+)\\}/g;
+
+  // 提取所有占位符
+  const requiredKeys = new Set(
+    Array.from(template.matchAll(placeholderRegex), (match) => match[1])
+  );
+
+  // 检查缺失的键
+  const contextKeys = new Set(context.get_keys());
+  const missingKeys = Array.from(requiredKeys).filter(
+    (key) => !contextKeys.has(key)
+  );
+
+  if (missingKeys.length > 0) {
+    // 关键：抛出异常而非静默失败
+    throw new Error(
+      \`Missing context values for: \${missingKeys.join(', ')}\\n\` +
+      \`Available keys: \${context.get_keys().join(', ')}\`
+    );
+  }
+
+  return template.replace(placeholderRegex, (_, key) =>
+    String(context.get(key))
+  );
+}`}
+              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="bg-red-500/10 border border-red-500/30 rounded p-3">
+                  <h5 className="text-red-400 text-sm font-semibold mb-1">❌ 错误示例</h5>
+                  <pre className="text-xs text-[var(--text-muted)] whitespace-pre-wrap">{`// 模板
+请完成: \${task_prompt}
+语言: \${language}
+
+// 调用
+context.set('task_prompt', '...');
+// 缺少 language！
+// Error: Missing context values for: language`}</pre>
+                </div>
+                <div className="bg-green-500/10 border border-green-500/30 rounded p-3">
+                  <h5 className="text-green-400 text-sm font-semibold mb-1">✅ 正确做法</h5>
+                  <pre className="text-xs text-[var(--text-muted)] whitespace-pre-wrap">{`// 方案 1: 提供所有变量
+context.set('task_prompt', '...');
+context.set('language', 'TypeScript');
+
+// 方案 2: 使用可选语法（如果支持）
+请完成: \${task_prompt}
+\${language ? '语言: ' + language : ''}`}</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 边界 2: 子代理递归防护 */}
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg border border-[var(--border-subtle)] overflow-hidden">
+            <div className="bg-amber-500/10 px-4 py-2 border-b border-[var(--border-subtle)]">
+              <h4 className="text-amber-400 font-bold">边界 2: 子代理递归调用防护</h4>
+            </div>
+            <div className="p-4 space-y-3">
+              <div className="bg-[var(--bg-card)] p-3 rounded">
+                <h5 className="text-[var(--text-secondary)] text-sm font-semibold mb-2">🎯 设计考虑</h5>
+                <p className="text-xs text-[var(--text-muted)]">
+                  如果子代理可以调用 Task 工具，可能导致无限递归：
+                  <br />
+                  <code>主代理 → Task → 子代理A → Task → 子代理B → Task → ...</code>
+                </p>
+              </div>
+              <CodeBlock
+                title="Task 工具过滤实现"
+                code={`// packages/core/src/subagents/subagent.ts:296-313
+
+// 准备工具列表时，始终排除 Task 工具
+private prepareToolsList(): FunctionDeclaration[] {
+  const toolsList: FunctionDeclaration[] = [];
+
+  if (hasWildcard || asStrings.length === 0) {
+    // 继承所有工具，但必须过滤 Task
+    toolsList.push(
+      ...toolRegistry
+        .getFunctionDeclarations()
+        .filter((t) => t.name !== TaskTool.Name)  // 关键！
+    );
+  } else {
+    // 使用指定工具列表
+    const filtered = asStrings.filter(name => name !== TaskTool.Name);
+    toolsList.push(
+      ...toolRegistry.getFunctionDeclarationsFiltered(filtered)
+    );
+  }
+
+  return toolsList;
+}
+
+// 即使配置中显式指定了 Task，也会被过滤
+// tools: ['read_file', 'Task']  →  实际只有 ['read_file']`}
+              />
+              <div className="bg-cyan-500/10 border border-cyan-500/30 rounded p-3">
+                <h5 className="text-cyan-400 text-sm font-semibold mb-1">💡 设计决策</h5>
+                <p className="text-xs text-[var(--text-muted)]">
+                  通过在工具准备阶段就过滤 Task 工具，而非运行时检查，确保子代理
+                  <strong>绝对无法</strong>调用 Task 工具，从根本上防止递归。
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 边界 3: 终止条件竞争 */}
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg border border-[var(--border-subtle)] overflow-hidden">
+            <div className="bg-purple-500/10 px-4 py-2 border-b border-[var(--border-subtle)]">
+              <h4 className="text-purple-400 font-bold">边界 3: 终止条件竞争</h4>
+            </div>
+            <div className="p-4 space-y-3">
+              <div className="bg-[var(--bg-card)] p-3 rounded">
+                <h5 className="text-[var(--text-secondary)] text-sm font-semibold mb-2">🎯 触发场景</h5>
+                <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                  <li>• 子代理在第 100 轮（max_turns 限制）返回了最终答案</li>
+                  <li>• 执行超时的同时，用户触发了取消操作</li>
+                  <li>• 工具执行失败与 GOAL 状态同时发生</li>
+                </ul>
+              </div>
+              <CodeBlock
+                title="终止条件优先级处理"
+                code={`// packages/core/src/subagents/subagent.ts
+
+async runNonInteractive(context: ContextState, signal?: AbortSignal) {
+  while (true) {
+    // 1. 最高优先级：用户取消
+    if (signal?.aborted) {
+      this.terminateMode = SubagentTerminateMode.CANCELLED;
+      return;  // 立即返回，不保存任何结果
+    }
+
+    // 2. 次高优先级：超时
+    if (durationMin >= this.runConfig.max_time_minutes) {
+      this.terminateMode = SubagentTerminateMode.TIMEOUT;
+      break;  // 保存当前状态，但标记为超时
+    }
+
+    // 3. 轮次限制
+    if (turnCounter >= this.runConfig.max_turns) {
+      this.terminateMode = SubagentTerminateMode.MAX_TURNS;
+      break;  // 保存当前状态
+    }
+
+    // ... 执行逻辑 ...
+
+    // 4. 正常完成
+    if (functionCalls.length === 0) {
+      this.finalText = roundText.trim();
+      this.terminateMode = SubagentTerminateMode.GOAL;
+      break;
+    }
+  }
+}
+
+// 优先级总结：CANCELLED > TIMEOUT > MAX_TURNS > GOAL > ERROR`}
+              />
+              <div className="grid grid-cols-5 gap-2 text-center text-xs">
+                <div className="bg-purple-500/20 p-2 rounded">
+                  <div className="font-bold text-purple-400">1</div>
+                  <div className="text-[var(--text-muted)]">CANCELLED</div>
+                </div>
+                <div className="bg-yellow-500/20 p-2 rounded">
+                  <div className="font-bold text-yellow-400">2</div>
+                  <div className="text-[var(--text-muted)]">TIMEOUT</div>
+                </div>
+                <div className="bg-orange-500/20 p-2 rounded">
+                  <div className="font-bold text-orange-400">3</div>
+                  <div className="text-[var(--text-muted)]">MAX_TURNS</div>
+                </div>
+                <div className="bg-green-500/20 p-2 rounded">
+                  <div className="font-bold text-green-400">4</div>
+                  <div className="text-[var(--text-muted)]">GOAL</div>
+                </div>
+                <div className="bg-red-500/20 p-2 rounded">
+                  <div className="font-bold text-red-400">5</div>
+                  <div className="text-[var(--text-muted)]">ERROR</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 边界 4: 工具全部失败 */}
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg border border-[var(--border-subtle)] overflow-hidden">
+            <div className="bg-cyan-500/10 px-4 py-2 border-b border-[var(--border-subtle)]">
+              <h4 className="text-cyan-400 font-bold">边界 4: 工具调用全部失败</h4>
+            </div>
+            <div className="p-4 space-y-3">
+              <div className="bg-[var(--bg-card)] p-3 rounded">
+                <h5 className="text-[var(--text-secondary)] text-sm font-semibold mb-2">🎯 触发场景</h5>
+                <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                  <li>• 所有文件操作都因权限不足失败</li>
+                  <li>• 网络工具全部超时</li>
+                  <li>• 参数验证全部失败</li>
+                </ul>
+              </div>
+              <CodeBlock
+                title="全失败处理逻辑"
+                code={`// packages/core/src/subagents/subagent.ts
+
+private async processFunctionCalls(functionCalls: FunctionCall[]) {
+  // 执行所有工具调用
+  const results = await scheduler.schedule(requests, signal);
+
+  // 检查是否全部失败
+  const allFailed = results.every(r => r.status !== 'success');
+
+  if (allFailed) {
+    // 不是直接 ERROR，而是让 AI 知道情况
+    const errorMessage = \`All \${results.length} tool calls failed. \\n\` +
+      \`Errors: \${results.map(r => r.error?.message).join('; ')}\\n\` +
+      \`Please try alternative approaches or complete the task with available information.\`;
+
+    // 将错误信息作为工具结果返回给 AI
+    return [{
+      role: 'user',
+      parts: [{
+        functionResponse: {
+          name: 'system_notification',
+          response: { error: errorMessage }
+        }
+      }]
+    }];
+  }
+
+  // 正常返回工具结果
+  return toolResults;
+}`}
+              />
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded p-3">
+                <h5 className="text-amber-400 text-sm font-semibold mb-1">⚠️ 设计要点</h5>
+                <p className="text-xs text-[var(--text-muted)]">
+                  工具全部失败<strong>不会</strong>立即终止子代理，而是给 AI 一次机会
+                  使用替代方案或基于已有信息完成任务。只有在多轮失败后才会真正终止。
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 边界 5: 子代理配置冲突 */}
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg border border-[var(--border-subtle)] overflow-hidden">
+            <div className="bg-green-500/10 px-4 py-2 border-b border-[var(--border-subtle)]">
+              <h4 className="text-green-400 font-bold">边界 5: 多级配置冲突</h4>
+            </div>
+            <div className="p-4 space-y-3">
+              <div className="bg-[var(--bg-card)] p-3 rounded">
+                <h5 className="text-[var(--text-secondary)] text-sm font-semibold mb-2">🎯 触发场景</h5>
+                <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                  <li>• 项目级和用户级都定义了同名子代理 <code>reviewer</code></li>
+                  <li>• 用户级子代理覆盖了内置子代理 <code>general-purpose</code></li>
+                  <li>• 子代理引用了不存在的工具</li>
+                </ul>
+              </div>
+              <CodeBlock
+                title="子代理解析优先级"
+                code={`// packages/core/src/subagents/registry.ts
+
+class SubagentRegistry {
+  private projectAgents: Map<string, Subagent> = new Map();
+  private userAgents: Map<string, Subagent> = new Map();
+  private builtinAgents: Map<string, Subagent> = new Map();
+
+  // 按优先级解析子代理
+  resolve(name: string): Subagent | undefined {
+    // 1. 项目级最优先
+    if (this.projectAgents.has(name)) {
+      return this.projectAgents.get(name);
+    }
+
+    // 2. 用户级次之
+    if (this.userAgents.has(name)) {
+      return this.userAgents.get(name);
+    }
+
+    // 3. 内置最后
+    if (this.builtinAgents.has(name)) {
+      return this.builtinAgents.get(name);
+    }
+
+    return undefined;
+  }
+
+  // 列出所有可用子代理（去重）
+  listAll(): SubagentInfo[] {
+    const seen = new Set<string>();
+    const result: SubagentInfo[] = [];
+
+    // 按优先级顺序添加
+    for (const [name, agent] of this.projectAgents) {
+      if (!seen.has(name)) {
+        seen.add(name);
+        result.push({ ...agent, level: 'project' });
+      }
+    }
+    for (const [name, agent] of this.userAgents) {
+      if (!seen.has(name)) {
+        seen.add(name);
+        result.push({ ...agent, level: 'user' });
+      }
+    }
+    for (const [name, agent] of this.builtinAgents) {
+      if (!seen.has(name)) {
+        seen.add(name);
+        result.push({ ...agent, level: 'builtin' });
+      }
+    }
+
+    return result;
+  }
+}`}
+              />
+            </div>
+          </div>
+
+          {/* 边界 6: Home 目录特殊处理 */}
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg border border-[var(--border-subtle)] overflow-hidden">
+            <div className="bg-orange-500/10 px-4 py-2 border-b border-[var(--border-subtle)]">
+              <h4 className="text-orange-400 font-bold">边界 6: Home 目录项目</h4>
+            </div>
+            <div className="p-4 space-y-3">
+              <div className="bg-[var(--bg-card)] p-3 rounded">
+                <h5 className="text-[var(--text-secondary)] text-sm font-semibold mb-2">🎯 触发场景</h5>
+                <p className="text-xs text-[var(--text-muted)]">
+                  当用户在 Home 目录 (<code>~</code>) 下运行 CLI 时，
+                  <code>.qwen/agents/</code> 和 <code>~/.qwen/agents/</code> 指向同一位置。
+                </p>
+              </div>
+              <CodeBlock
+                title="Home 目录检测"
+                code={`// packages/core/src/subagents/loader.ts
+
+async loadProjectAgents(projectRoot: string): Promise<Map<string, Subagent>> {
+  // 检查是否是 Home 目录
+  const homeDir = os.homedir();
+  if (path.resolve(projectRoot) === path.resolve(homeDir)) {
+    // 在 Home 目录下，禁用项目级子代理
+    // 避免与用户级子代理冲突
+    console.debug('[Subagent] Project root is home directory, skipping project agents');
+    return new Map();
+  }
+
+  // 正常加载项目级子代理
+  const agentsDir = path.join(projectRoot, '.qwen', 'agents');
+  return this.loadFromDirectory(agentsDir, 'project');
+}`}
+              />
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded p-3">
+                <h5 className="text-amber-400 text-sm font-semibold mb-1">⚠️ 影响</h5>
+                <p className="text-xs text-[var(--text-muted)]">
+                  在 Home 目录下运行 CLI 时，只有用户级和内置子代理可用。
+                  这避免了同一子代理被加载两次导致的行为不确定性。
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      {/* 常见问题与调试技巧 */}
+      <Layer title="常见问题与调试技巧" icon="🐛">
+        <div className="space-y-6">
+          {/* 问题 1 */}
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg border border-[var(--border-subtle)] overflow-hidden">
+            <div className="bg-red-500/10 px-4 py-2 border-b border-[var(--border-subtle)]">
+              <h4 className="text-red-400 font-bold">问题 1: 子代理未被识别</h4>
+            </div>
+            <div className="p-4 space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="bg-[var(--bg-card)] p-3 rounded">
+                  <h5 className="text-[var(--text-secondary)] text-sm font-semibold mb-2">🔍 常见原因</h5>
+                  <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                    <li>• 文件名不是 <code>.md</code> 结尾</li>
+                    <li>• YAML Frontmatter 格式错误</li>
+                    <li>• <code>name</code> 或 <code>description</code> 字段缺失</li>
+                    <li>• 文件放错目录</li>
+                  </ul>
+                </div>
+                <div className="bg-[var(--bg-card)] p-3 rounded">
+                  <h5 className="text-[var(--text-secondary)] text-sm font-semibold mb-2">🛠️ 排查步骤</h5>
+                  <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                    <li>1. 检查文件路径是否正确</li>
+                    <li>2. 验证 YAML 语法（使用在线验证器）</li>
+                    <li>3. 确认必需字段存在</li>
+                    <li>4. 运行 <code>/agents list</code> 查看加载结果</li>
+                  </ul>
+                </div>
+              </div>
+              <CodeBlock
+                title="检查子代理配置"
+                code={`# 1. 确认文件位置
+ls -la ~/.qwen/agents/          # 用户级
+ls -la .qwen/agents/            # 项目级
+
+# 2. 验证 YAML 格式
+cat ~/.qwen/agents/reviewer.md | head -20
+
+# 正确格式：
+---
+name: reviewer
+description: 代码审查专家
+---
+系统提示内容...
+
+# 错误格式（注意 --- 必须在文件开头）：
+# 这行注释会破坏 frontmatter
+---
+name: reviewer
+---
+
+# 3. 在 CLI 中检查
+/agents list`}
+              />
+            </div>
+          </div>
+
+          {/* 问题 2 */}
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg border border-[var(--border-subtle)] overflow-hidden">
+            <div className="bg-amber-500/10 px-4 py-2 border-b border-[var(--border-subtle)]">
+              <h4 className="text-amber-400 font-bold">问题 2: 子代理执行后无输出</h4>
+            </div>
+            <div className="p-4 space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="bg-[var(--bg-card)] p-3 rounded">
+                  <h5 className="text-[var(--text-secondary)] text-sm font-semibold mb-2">🔍 常见原因</h5>
+                  <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                    <li>• 子代理因 MAX_TURNS 或 TIMEOUT 终止</li>
+                    <li>• 工具调用循环未正确退出</li>
+                    <li>• 系统提示导致 AI 只调用工具不返回文本</li>
+                    <li>• AbortSignal 提前取消</li>
+                  </ul>
+                </div>
+                <div className="bg-[var(--bg-card)] p-3 rounded">
+                  <h5 className="text-[var(--text-secondary)] text-sm font-semibold mb-2">🛠️ 排查步骤</h5>
+                  <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                    <li>1. 检查终止原因（terminateReason）</li>
+                    <li>2. 查看执行统计（rounds、toolCalls）</li>
+                    <li>3. 增加 max_turns 限制测试</li>
+                    <li>4. 检查系统提示是否明确要求返回最终答案</li>
+                  </ul>
+                </div>
+              </div>
+              <CodeBlock
+                title="调试子代理执行"
+                code={`// 在系统提示中明确要求返回最终答案
+---
+name: analyzer
+description: 代码分析专家
+runConfig:
+  max_turns: 20  # 增加轮次限制
+  max_time_minutes: 10
+---
+你是代码分析专家。
+
+重要规则：
+1. 完成分析后，必须用纯文本返回分析结果
+2. 不要在最后一步调用工具
+3. 如果无法完成任务，也要返回文本说明原因
+
+// 检查执行结果
+const result = await subagent.runNonInteractive(context);
+console.log('Terminate reason:', subagent.terminateMode);
+console.log('Stats:', subagent.getStatsSummary());
+console.log('Final text:', subagent.getFinalText());`}
+              />
+            </div>
+          </div>
+
+          {/* 问题 3 */}
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg border border-[var(--border-subtle)] overflow-hidden">
+            <div className="bg-purple-500/10 px-4 py-2 border-b border-[var(--border-subtle)]">
+              <h4 className="text-purple-400 font-bold">问题 3: 模板变量替换失败</h4>
+            </div>
+            <div className="p-4 space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="bg-[var(--bg-card)] p-3 rounded">
+                  <h5 className="text-[var(--text-secondary)] text-sm font-semibold mb-2">🔍 常见原因</h5>
+                  <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                    <li>• 变量名拼写错误</li>
+                    <li>• 使用了不支持的语法（如 <code>${'{foo.bar}'}</code>）</li>
+                    <li>• 变量值包含特殊字符</li>
+                    <li>• 变量未在 ContextState 中设置</li>
+                  </ul>
+                </div>
+                <div className="bg-[var(--bg-card)] p-3 rounded">
+                  <h5 className="text-[var(--text-secondary)] text-sm font-semibold mb-2">🛠️ 排查步骤</h5>
+                  <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                    <li>1. 检查错误消息中的 missing keys</li>
+                    <li>2. 确认变量名只包含 <code>\\w+</code> 字符</li>
+                    <li>3. 打印 context.get_keys() 检查已设置的变量</li>
+                    <li>4. 测试简化的模板</li>
+                  </ul>
+                </div>
+              </div>
+              <CodeBlock
+                title="模板变量调试"
+                code={`// 支持的语法
+\${task_prompt}     // ✅ 简单变量
+\${user_name}       // ✅ 下划线分隔
+\${taskId123}       // ✅ 包含数字
+
+// 不支持的语法
+\${task.prompt}     // ❌ 不支持点号
+\${task-prompt}     // ❌ 不支持连字符
+\${task prompt}     // ❌ 不支持空格
+\$task_prompt       // ❌ 必须有花括号
+
+// 调试技巧
+const context = new ContextState();
+context.set('task_prompt', 'Review code');
+
+// 检查所有已设置的变量
+console.log('Available keys:', context.get_keys());
+
+// 手动测试替换
+const template = 'Please: \${task_prompt}';
+try {
+  const result = templateString(template, context);
+  console.log('Result:', result);
+} catch (e) {
+  console.error('Missing keys:', e.message);
+}`}
+              />
+            </div>
+          </div>
+
+          {/* 问题 4 */}
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg border border-[var(--border-subtle)] overflow-hidden">
+            <div className="bg-cyan-500/10 px-4 py-2 border-b border-[var(--border-subtle)]">
+              <h4 className="text-cyan-400 font-bold">问题 4: 子代理工具不可用</h4>
+            </div>
+            <div className="p-4 space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="bg-[var(--bg-card)] p-3 rounded">
+                  <h5 className="text-[var(--text-secondary)] text-sm font-semibold mb-2">🔍 常见原因</h5>
+                  <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                    <li>• 配置中指定的工具名称错误</li>
+                    <li>• 工具未在 ToolRegistry 中注册</li>
+                    <li>• MCP 工具服务器未连接</li>
+                    <li>• 显式指定了 Task 工具（会被过滤）</li>
+                  </ul>
+                </div>
+                <div className="bg-[var(--bg-card)] p-3 rounded">
+                  <h5 className="text-[var(--text-secondary)] text-sm font-semibold mb-2">🛠️ 排查步骤</h5>
+                  <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                    <li>1. 检查工具名称是否正确</li>
+                    <li>2. 使用 <code>tools: ['*']</code> 测试</li>
+                    <li>3. 确认 MCP 服务器状态</li>
+                    <li>4. 查看子代理实际可用的工具列表</li>
+                  </ul>
+                </div>
+              </div>
+              <CodeBlock
+                title="检查子代理工具"
+                code={`# 常见工具名称
+tools:
+  - Read           # 读取文件
+  - Write          # 写入文件
+  - Edit           # 编辑文件
+  - Bash           # 执行命令
+  - Grep           # 搜索内容
+  - Glob           # 搜索文件
+  - WebFetch       # 获取网页
+  - WebSearch      # 网页搜索
+  # - Task         # ❌ 会被自动过滤！
+
+# 使用通配符继承所有工具
+tools:
+  - '*'
+
+# 检查实际可用的工具
+# 在 CLI 中查看
+/tools list        # 列出所有可用工具`}
+              />
+            </div>
+          </div>
+
+          {/* 调试工具参考表 */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="bg-[var(--bg-card)]">
+                  <th className="border border-[var(--border-subtle)] px-3 py-2 text-left text-[var(--text-primary)]">调试场景</th>
+                  <th className="border border-[var(--border-subtle)] px-3 py-2 text-left text-[var(--text-primary)]">命令/方法</th>
+                  <th className="border border-[var(--border-subtle)] px-3 py-2 text-left text-[var(--text-primary)]">说明</th>
+                </tr>
+              </thead>
+              <tbody className="text-[var(--text-secondary)]">
+                <tr>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2">列出所有子代理</td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2"><code className="text-xs bg-black/30 px-1 rounded">/agents list</code></td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2">显示所有级别的子代理</td>
+                </tr>
+                <tr>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2">查看子代理详情</td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2"><code className="text-xs bg-black/30 px-1 rounded">/agents show [name]</code></td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2">显示配置和系统提示</td>
+                </tr>
+                <tr>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2">检查执行统计</td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2"><code className="text-xs bg-black/30 px-1 rounded">subagent.getStatsSummary()</code></td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2">获取轮次、工具调用等统计</td>
+                </tr>
+                <tr>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2">查看终止原因</td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2"><code className="text-xs bg-black/30 px-1 rounded">subagent.terminateMode</code></td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2">GOAL/MAX_TURNS/TIMEOUT 等</td>
+                </tr>
+                <tr>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2">获取最终输出</td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2"><code className="text-xs bg-black/30 px-1 rounded">subagent.getFinalText()</code></td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2">获取子代理最终文本输出</td>
+                </tr>
+                <tr>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2">启用调试日志</td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2"><code className="text-xs bg-black/30 px-1 rounded">DEBUG=subagent:* innies</code></td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2">输出详细的子代理日志</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </Layer>
+
+      {/* 性能优化建议 */}
+      <Layer title="性能优化建议" icon="⚡">
+        <div className="space-y-6">
+          {/* 优化 1: 工具列表精简 */}
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg border border-[var(--border-subtle)] overflow-hidden">
+            <div className="bg-cyan-500/10 px-4 py-2 border-b border-[var(--border-subtle)]">
+              <h4 className="text-cyan-400 font-bold">优化 1: 精简工具列表</h4>
+            </div>
+            <div className="p-4 space-y-3">
+              <p className="text-sm text-[var(--text-secondary)]">
+                每个工具的 schema 都会消耗 token，精简工具列表可以显著减少每轮请求的 token 消耗。
+              </p>
+              <CodeBlock
+                title="工具列表优化对比"
+                code={`# ❌ 不推荐：继承所有工具
+tools:
+  - '*'
+# 结果：30+ 工具 schema，每轮消耗 ~3000 tokens
+
+# ✅ 推荐：只保留必需工具
+tools:
+  - Read
+  - Grep
+  - Glob
+# 结果：3 工具 schema，每轮消耗 ~300 tokens
+
+# 省了 2700 tokens/轮 × 10 轮 = 27000 tokens`}
+              />
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--border-subtle)]">
+                  <div className="text-xl font-bold text-red-400">~3000</div>
+                  <div className="text-xs text-[var(--text-muted)]">全部工具 tokens/轮</div>
+                </div>
+                <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--border-subtle)]">
+                  <div className="text-xl font-bold text-green-400">~300</div>
+                  <div className="text-xs text-[var(--text-muted)]">精简工具 tokens/轮</div>
+                </div>
+                <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--border-subtle)]">
+                  <div className="text-xl font-bold text-cyan-400">90%</div>
+                  <div className="text-xs text-[var(--text-muted)]">Token 节省</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 优化 2: 合理的终止条件 */}
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg border border-[var(--border-subtle)] overflow-hidden">
+            <div className="bg-purple-500/10 px-4 py-2 border-b border-[var(--border-subtle)]">
+              <h4 className="text-purple-400 font-bold">优化 2: 合理设置终止条件</h4>
+            </div>
+            <div className="p-4 space-y-3">
+              <p className="text-sm text-[var(--text-secondary)]">
+                根据任务复杂度设置合适的 max_turns 和 max_time_minutes，避免资源浪费。
+              </p>
+              <CodeBlock
+                title="终止条件配置指南"
+                code={`# 简单任务（单文件操作）
+runConfig:
+  max_turns: 5          # 读取 + 分析 + 返回
+  max_time_minutes: 2
+
+# 中等任务（多文件分析）
+runConfig:
+  max_turns: 15         # 多次读取和搜索
+  max_time_minutes: 5
+
+# 复杂任务（全项目扫描）
+runConfig:
+  max_turns: 30         # 大量文件操作
+  max_time_minutes: 10
+
+# 危险配置（避免）
+runConfig:
+  max_turns: 100        # 太多！
+  max_time_minutes: 30  # 太长！`}
+              />
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded p-3">
+                <h5 className="text-amber-400 text-sm font-semibold mb-1">⚠️ 经验法则</h5>
+                <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                  <li>• 每个工具调用大约需要 1-2 轮</li>
+                  <li>• 预估任务需要多少个工具调用</li>
+                  <li>• max_turns = 预估工具调用数 × 2 + 5（缓冲）</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* 优化 3: 系统提示优化 */}
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg border border-[var(--border-subtle)] overflow-hidden">
+            <div className="bg-green-500/10 px-4 py-2 border-b border-[var(--border-subtle)]">
+              <h4 className="text-green-400 font-bold">优化 3: 精简系统提示</h4>
+            </div>
+            <div className="p-4 space-y-3">
+              <p className="text-sm text-[var(--text-secondary)]">
+                系统提示每轮都会发送，精简系统提示可以显著减少 token 消耗。
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="bg-red-500/10 border border-red-500/30 rounded p-3">
+                  <h5 className="text-red-400 text-sm font-semibold mb-1">❌ 冗长的系统提示</h5>
+                  <pre className="text-xs text-[var(--text-muted)] whitespace-pre-wrap">{`你是一个专业的代码审查专家，拥有多年的软件开发经验。
+你精通各种编程语言和框架...
+（500+ 字描述）
+你需要检查以下方面：
+1. 代码质量...
+2. 性能问题...
+（详细列举 20+ 点）
+~2000 tokens`}</pre>
+                </div>
+                <div className="bg-green-500/10 border border-green-500/30 rounded p-3">
+                  <h5 className="text-green-400 text-sm font-semibold mb-1">✅ 精简的系统提示</h5>
+                  <pre className="text-xs text-[var(--text-muted)] whitespace-pre-wrap">{`代码审查专家。检查：
+- 代码质量和可读性
+- 潜在 bug 和安全问题
+- 性能优化机会
+
+完成后返回简洁的审查报告。
+~100 tokens`}</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 优化 4: 并行工具执行 */}
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg border border-[var(--border-subtle)] overflow-hidden">
+            <div className="bg-amber-500/10 px-4 py-2 border-b border-[var(--border-subtle)]">
+              <h4 className="text-amber-400 font-bold">优化 4: 利用并行工具执行</h4>
+            </div>
+            <div className="p-4 space-y-3">
+              <p className="text-sm text-[var(--text-secondary)]">
+                子代理默认支持并行工具执行。编写系统提示时，引导 AI 一次请求多个独立的工具调用。
+              </p>
+              <CodeBlock
+                title="并行执行提示示例"
+                code={`---
+name: file-analyzer
+description: 文件分析专家
+---
+文件分析专家。
+
+执行策略：
+1. 对于独立的文件操作，一次请求多个工具调用
+   ✅ 同时读取 file1.ts, file2.ts, file3.ts
+   ❌ 依次读取每个文件
+
+2. 等所有文件读取完成后再分析
+3. 返回统一的分析报告
+
+# AI 会生成类似这样的请求：
+# {
+#   "tool_calls": [
+#     { "name": "Read", "args": { "path": "file1.ts" } },
+#     { "name": "Read", "args": { "path": "file2.ts" } },
+#     { "name": "Read", "args": { "path": "file3.ts" } }
+#   ]
+# }
+# 三个文件同时读取，而非串行`}
+              />
+            </div>
+          </div>
+
+          {/* 性能基准表 */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="bg-[var(--bg-card)]">
+                  <th className="border border-[var(--border-subtle)] px-3 py-2 text-left text-[var(--text-primary)]">优化项</th>
+                  <th className="border border-[var(--border-subtle)] px-3 py-2 text-left text-[var(--text-primary)]">优化前</th>
+                  <th className="border border-[var(--border-subtle)] px-3 py-2 text-left text-[var(--text-primary)]">优化后</th>
+                  <th className="border border-[var(--border-subtle)] px-3 py-2 text-left text-[var(--text-primary)]">节省</th>
+                </tr>
+              </thead>
+              <tbody className="text-[var(--text-secondary)]">
+                <tr>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2">工具 schema tokens/轮</td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2 text-red-400">~3000</td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2 text-green-400">~300</td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2 text-cyan-400">90%</td>
+                </tr>
+                <tr>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2">系统提示 tokens</td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2 text-red-400">~2000</td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2 text-green-400">~100</td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2 text-cyan-400">95%</td>
+                </tr>
+                <tr>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2">10 轮任务总 tokens</td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2 text-red-400">~50000</td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2 text-green-400">~8000</td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2 text-cyan-400">84%</td>
+                </tr>
+                <tr>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2">并行读取 5 文件耗时</td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2 text-red-400">~5000ms</td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2 text-green-400">~1200ms</td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2 text-cyan-400">76%</td>
+                </tr>
+                <tr>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2">预计成本 (10 轮)</td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2 text-red-400">~$0.25</td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2 text-green-400">~$0.04</td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2 text-cyan-400">84%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </Layer>
+
+      {/* 与其他模块的交互关系 */}
+      <Layer title="与其他模块的交互关系" icon="🔗">
+        <div className="space-y-6">
+          {/* 依赖关系图 */}
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border border-[var(--border-subtle)]">
+            <h4 className="text-[var(--text-primary)] font-bold mb-3">📊 Subagent 系统依赖关系图</h4>
+            <CodeBlock
+              title="Mermaid 依赖图"
+              code={`graph TB
+    subgraph CLI["CLI 层"]
+        AgentCmd["/agents 命令"]
+        TaskUI["Task 工具 UI"]
+    end
+
+    subgraph Core["Core 层"]
+        TaskTool["Task 工具"]
+        Registry["SubagentRegistry"]
+        Subagent["Subagent 实例"]
+        ContextState["ContextState"]
+        Scheduler["CoreToolScheduler"]
+    end
+
+    subgraph Storage["存储层"]
+        ProjectDir[".qwen/agents/"]
+        UserDir["~/.qwen/agents/"]
+        Builtin["内置代理"]
+    end
+
+    subgraph External["外部依赖"]
+        AI["AI 模型"]
+        Tools["工具系统"]
+    end
+
+    AgentCmd --> Registry
+    TaskUI --> TaskTool
+    TaskTool --> Registry
+    Registry --> ProjectDir
+    Registry --> UserDir
+    Registry --> Builtin
+    TaskTool --> Subagent
+    Subagent --> ContextState
+    Subagent --> Scheduler
+    Scheduler --> Tools
+    Subagent --> AI
+
+    style TaskTool fill:#9333ea,color:#fff
+    style Subagent fill:#3b82f6,color:#fff
+    style Registry fill:#10b981,color:#fff`}
+            />
+          </div>
+
+          {/* 上下游模块说明 */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border border-[var(--border-subtle)]">
+              <h4 className="text-[var(--purple)] font-bold mb-3">⬆️ 上游依赖</h4>
+              <div className="space-y-2">
+                <div className="bg-[var(--bg-card)] p-3 rounded border-l-4 border-purple-500">
+                  <h5 className="text-sm font-semibold text-[var(--text-primary)]">SubagentRegistry</h5>
+                  <p className="text-xs text-[var(--text-muted)]">
+                    从三级目录加载子代理配置，提供解析和列表功能
+                  </p>
+                </div>
+                <div className="bg-[var(--bg-card)] p-3 rounded border-l-4 border-purple-500">
+                  <h5 className="text-sm font-semibold text-[var(--text-primary)]">ToolRegistry</h5>
+                  <p className="text-xs text-[var(--text-muted)]">
+                    提供子代理可用的工具列表和 schema
+                  </p>
+                </div>
+                <div className="bg-[var(--bg-card)] p-3 rounded border-l-4 border-purple-500">
+                  <h5 className="text-sm font-semibold text-[var(--text-primary)]">AI 模型服务</h5>
+                  <p className="text-xs text-[var(--text-muted)]">
+                    提供聊天接口，支持流式响应和工具调用
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border border-[var(--border-subtle)]">
+              <h4 className="text-[var(--terminal-green)] font-bold mb-3">⬇️ 下游消费者</h4>
+              <div className="space-y-2">
+                <div className="bg-[var(--bg-card)] p-3 rounded border-l-4 border-green-500">
+                  <h5 className="text-sm font-semibold text-[var(--text-primary)]">Task 工具</h5>
+                  <p className="text-xs text-[var(--text-muted)]">
+                    主要入口，AI 通过 Task 工具调用子代理
+                  </p>
+                </div>
+                <div className="bg-[var(--bg-card)] p-3 rounded border-l-4 border-green-500">
+                  <h5 className="text-sm font-semibold text-[var(--text-primary)]">/agents 命令</h5>
+                  <p className="text-xs text-[var(--text-muted)]">
+                    CLI 命令，用于列出、创建、删除子代理
+                  </p>
+                </div>
+                <div className="bg-[var(--bg-card)] p-3 rounded border-l-4 border-green-500">
+                  <h5 className="text-sm font-semibold text-[var(--text-primary)]">事件监听器</h5>
+                  <p className="text-xs text-[var(--text-muted)]">
+                    监听子代理事件，用于 UI 更新和日志记录
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 关键接口 */}
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border border-[var(--border-subtle)]">
+            <h4 className="text-[var(--text-primary)] font-bold mb-3">🔌 关键接口定义</h4>
+            <CodeBlock
+              title="Subagent 模块导出接口"
+              code={`// packages/core/src/subagents/index.ts
+
+// 核心类
+export { Subagent } from './subagent';
+export { ContextState } from './subagent';
+export { SubagentRegistry } from './registry';
+
+// 类型定义
+export interface SubagentConfig {
+  name: string;                    // 代理名称
+  description: string;             // 代理描述
+  tools?: string[];                // 可用工具列表
+  modelConfig?: {                  // 模型配置
+    model?: string;
+    temp?: number;
+    top_p?: number;
+  };
+  runConfig?: {                    // 运行配置
+    max_turns?: number;            // 最大轮次 (默认 100)
+    max_time_minutes?: number;     // 最大时间 (默认 10)
+  };
+  color?: string;                  // UI 颜色
+}
+
+export interface SubagentPromptConfig {
+  systemPrompt: string;            // 系统提示（Markdown 内容）
+}
+
+export enum SubagentTerminateMode {
+  GOAL = 'GOAL',                   // 任务完成
+  MAX_TURNS = 'MAX_TURNS',         // 达到轮次限制
+  TIMEOUT = 'TIMEOUT',             // 超时
+  ERROR = 'ERROR',                 // 错误
+  CANCELLED = 'CANCELLED'          // 用户取消
+}
+
+export interface SubagentStatsSummary {
+  rounds: number;
+  totalDurationMs: number;
+  totalToolCalls: number;
+  successfulToolCalls: number;
+  failedToolCalls: number;
+  inputTokens: number;
+  outputTokens: number;
+  totalTokens: number;
+  estimatedCost: number;
+  toolUsage: ToolUsageStat[];
+}
+
+// 事件类型
+export enum SubAgentEventType {
+  START = 'start',
+  ROUND_START = 'round_start',
+  ROUND_END = 'round_end',
+  STREAM_TEXT = 'stream_text',
+  TOOL_CALL = 'tool_call',
+  TOOL_RESULT = 'tool_result',
+  FINISH = 'finish',
+  ERROR = 'error'
+}`}
+            />
+          </div>
+
+          {/* 数据流 */}
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border border-[var(--border-subtle)]">
+            <h4 className="text-[var(--text-primary)] font-bold mb-3">🔄 子代理调用数据流</h4>
+            <CodeBlock
+              title="完整调用流程"
+              code={`sequenceDiagram
+    participant User as 用户
+    participant AI as 主 AI
+    participant Task as Task 工具
+    participant Registry as SubagentRegistry
+    participant Subagent as Subagent
+    participant SubAI as 子代理 AI
+    participant Tools as 工具系统
+
+    User->>AI: 复杂任务请求
+    AI->>Task: 调用 Task 工具
+    Task->>Registry: 解析子代理名称
+    Registry-->>Task: Subagent 配置
+    Task->>Subagent: 创建实例
+
+    loop 非交互执行
+        Subagent->>SubAI: 发送消息
+        SubAI-->>Subagent: 流式响应
+
+        alt 有工具调用
+            Subagent->>Tools: 执行工具
+            Tools-->>Subagent: 工具结果
+        else 无工具调用
+            Subagent->>Subagent: 设置 GOAL 终止
+        end
+
+        alt 检查终止条件
+            Subagent->>Subagent: MAX_TURNS?
+            Subagent->>Subagent: TIMEOUT?
+        end
+    end
+
+    Subagent-->>Task: 最终结果
+    Task-->>AI: 子代理输出
+    AI-->>User: 整合响应`}
+            />
+          </div>
+
+          {/* 扩展点 */}
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border border-[var(--border-subtle)]">
+            <h4 className="text-[var(--text-primary)] font-bold mb-3">🧩 扩展点</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-[var(--bg-card)] p-4 rounded border border-[var(--border-subtle)]">
+                <h5 className="text-[var(--cyber-blue)] font-semibold mb-2">自定义子代理加载器</h5>
+                <p className="text-xs text-[var(--text-muted)] mb-2">
+                  除了文件系统，可以从其他来源加载子代理：
+                </p>
+                <CodeBlock
+                  code={`interface SubagentLoader {
+  load(): Promise<SubagentConfig[]>;
+  watch?(callback: (event: 'add' | 'remove', name: string) => void): void;
+}
+
+// 示例：从远程 API 加载
+class RemoteSubagentLoader implements SubagentLoader {
+  async load() {
+    const response = await fetch('https://api.example.com/agents');
+    return response.json();
+  }
+}`}
+                />
+              </div>
+
+              <div className="bg-[var(--bg-card)] p-4 rounded border border-[var(--border-subtle)]">
+                <h5 className="text-[var(--amber)] font-semibold mb-2">自定义钩子</h5>
+                <p className="text-xs text-[var(--text-muted)] mb-2">
+                  在子代理执行的各个阶段注入自定义逻辑：
+                </p>
+                <CodeBlock
+                  code={`interface SubagentHooks {
+  preToolUse?(payload: ToolUsePayload): Promise<void>;
+  postToolUse?(payload: ToolResultPayload): Promise<void>;
+  onStop?(payload: StopPayload): Promise<void>;
+}
+
+// 示例：工具调用计费
+class BillingHook implements SubagentHooks {
+  async postToolUse(payload) {
+    await billingService.record({
+      tool: payload.toolName,
+      duration: payload.durationMs,
+      success: payload.success
+    });
+  }
+}`}
+                />
+              </div>
+
+              <div className="bg-[var(--bg-card)] p-4 rounded border border-[var(--border-subtle)]">
+                <h5 className="text-[var(--terminal-green)] font-semibold mb-2">自定义终止条件</h5>
+                <p className="text-xs text-[var(--text-muted)] mb-2">
+                  除了内置的终止条件，可以添加自定义判断：
+                </p>
+                <CodeBlock
+                  code={`interface TerminationChecker {
+  shouldTerminate(context: {
+    rounds: number;
+    duration: number;
+    tokens: number;
+    toolCalls: ToolCallResult[];
+  }): { terminate: boolean; reason?: string };
+}
+
+// 示例：Token 预算终止
+class TokenBudgetChecker implements TerminationChecker {
+  constructor(private budget: number) {}
+
+  shouldTerminate(ctx) {
+    if (ctx.tokens > this.budget) {
+      return { terminate: true, reason: 'TOKEN_BUDGET' };
+    }
+    return { terminate: false };
+  }
+}`}
+                />
+              </div>
+
+              <div className="bg-[var(--bg-card)] p-4 rounded border border-[var(--border-subtle)]">
+                <h5 className="text-[var(--purple)] font-semibold mb-2">模板引擎扩展</h5>
+                <p className="text-xs text-[var(--text-muted)] mb-2">
+                  扩展模板变量语法支持更复杂的表达式：
+                </p>
+                <CodeBlock
+                  code={`interface TemplateEngine {
+  render(template: string, context: ContextState): string;
+  registerHelper(name: string, fn: HelperFn): void;
+}
+
+// 示例：添加条件语法支持
+engine.registerHelper('if', (condition, thenVal, elseVal) => {
+  return condition ? thenVal : elseVal;
+});
+
+// 使用: \${if(hasTests, "运行测试", "跳过测试")}`}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </Layer>
     </div>
   );
 }
