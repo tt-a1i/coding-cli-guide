@@ -1,6 +1,7 @@
 import { HighlightBox } from '../components/HighlightBox';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
+import { RelatedPages } from '../components/RelatedPages';
 
 export function TelemetrySystem() {
   // 30秒速览
@@ -1139,27 +1140,15 @@ export const EVENT_PERFORMANCE_REGRESSION = 'qwen-code.performance.regression';`
       </section>
 
       {/* 相关页面 */}
-      <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">相关页面</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-          <div className="bg-gray-800/50 rounded p-3 text-center">
-            <span className="text-cyan-400">配置系统</span>
-            <p className="text-xs text-gray-400 mt-1">遥测配置选项</p>
-          </div>
-          <div className="bg-gray-800/50 rounded p-3 text-center">
-            <span className="text-cyan-400">上下文管理</span>
-            <p className="text-xs text-gray-400 mt-1">压缩事件记录</p>
-          </div>
-          <div className="bg-gray-800/50 rounded p-3 text-center">
-            <span className="text-cyan-400">工具系统</span>
-            <p className="text-xs text-gray-400 mt-1">工具调用指标</p>
-          </div>
-          <div className="bg-gray-800/50 rounded p-3 text-center">
-            <span className="text-cyan-400">子代理系统</span>
-            <p className="text-xs text-gray-400 mt-1">子代理执行指标</p>
-          </div>
-        </div>
-      </section>
+      <RelatedPages
+        title="🔗 相关页面"
+        pages={[
+          { id: 'config', label: '配置系统', description: '遥测配置选项' },
+          { id: 'memory', label: '上下文管理', description: '压缩事件记录' },
+          { id: 'tool-arch', label: '工具架构', description: '工具调用指标' },
+          { id: 'subagent', label: '子代理系统', description: '子代理执行指标' },
+        ]}
+      />
     </div>
   );
 }

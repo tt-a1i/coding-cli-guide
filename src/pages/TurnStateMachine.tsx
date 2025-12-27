@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { CodeBlock } from '../components/CodeBlock';
+import { RelatedPages } from '../components/RelatedPages';
 
 /**
  * Turn 状态机深度解析
@@ -682,38 +683,15 @@ function CompressionStatusSection() {
   );
 }
 
-// ===== Related Pages Section =====
-function RelatedPagesSection() {
-  const relatedPages = [
-    { id: 'gemini-chat', label: 'GeminiChat 核心循环', icon: '🔄' },
-    { id: 'lifecycle', label: '请求生命周期', icon: '🔁' },
-    { id: 'tool-scheduler', label: '工具调度详解', icon: '🔧' },
-    { id: 'context-compression-anim', label: '上下文压缩动画', icon: '📦' },
-    { id: 'turn-internal-anim', label: 'Turn 状态流转动画', icon: '🎬' },
-    { id: 'loop-detect', label: '循环检测', icon: '🔁' },
-  ];
-
-  return (
-    <div className="mb-8">
-      <h2 className="text-xl font-bold text-gray-100 mb-4 flex items-center gap-2">
-        <span>🔗</span> 相关页面
-      </h2>
-
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-        {relatedPages.map((page) => (
-          <a
-            key={page.id}
-            href={`?tab=${page.id}`}
-            className="flex items-center gap-2 p-3 bg-gray-800/50 rounded-lg border border-gray-700 hover:border-purple-500/50 hover:bg-purple-900/20 transition-all"
-          >
-            <span className="text-xl">{page.icon}</span>
-            <span className="text-sm text-gray-300">{page.label}</span>
-          </a>
-        ))}
-      </div>
-    </div>
-  );
-}
+// 关联页面配置
+const turnRelatedPages = [
+  { id: 'gemini-chat', label: '🔄 GeminiChat 核心循环' },
+  { id: 'lifecycle', label: '🔁 请求生命周期' },
+  { id: 'tool-scheduler', label: '🔧 工具调度详解' },
+  { id: 'context-compression-anim', label: '📦 上下文压缩动画' },
+  { id: 'turn-internal-anim', label: '🎬 Turn 状态流转动画' },
+  { id: 'loop-detect', label: '🔁 循环检测' },
+];
 
 // ===== Main Component =====
 export function TurnStateMachine() {
@@ -739,7 +717,7 @@ export function TurnStateMachine() {
       <DesignRationaleSection />
       <CompressionStatusSection />
       <CoreCodeSection />
-      <RelatedPagesSection />
+      <RelatedPages title="🔗 相关页面" pages={turnRelatedPages} />
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { ComparisonTable } from '../components/ComparisonTable';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { RelatedPages } from '../components/RelatedPages';
 
 // ============================================================
 // 上游改造总览 - Innies CLI 企业化适配深度解析
@@ -389,27 +390,15 @@ innies`}
       </Layer>
 
       {/* 相关页面 */}
-      <div className="mt-8 p-6 rounded-xl bg-gray-800/30 border border-gray-700">
-        <h3 className="text-lg font-semibold text-gray-200 mb-4">相关页面</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-          <div className="p-3 bg-gray-800/50 rounded border border-gray-700 text-center">
-            <div className="text-cyan-400">企业部署</div>
-            <div className="text-gray-500 text-xs">部署指南</div>
-          </div>
-          <div className="p-3 bg-gray-800/50 rounded border border-gray-700 text-center">
-            <div className="text-cyan-400">Token 共享机制</div>
-            <div className="text-gray-500 text-xs">SharedTokenManager</div>
-          </div>
-          <div className="p-3 bg-gray-800/50 rounded border border-gray-700 text-center">
-            <div className="text-cyan-400">认证流程</div>
-            <div className="text-gray-500 text-xs">OAuth2 详解</div>
-          </div>
-          <div className="p-3 bg-gray-800/50 rounded border border-gray-700 text-center">
-            <div className="text-cyan-400">多厂商架构</div>
-            <div className="text-gray-500 text-xs">API 适配</div>
-          </div>
-        </div>
-      </div>
+      <RelatedPages
+        title="🔗 相关页面"
+        pages={[
+          { id: 'enterprise-deployment', label: '企业部署', description: '部署指南' },
+          { id: 'shared-token-manager', label: 'Token 共享机制', description: 'SharedTokenManager' },
+          { id: 'auth', label: '认证流程', description: 'OAuth2 详解' },
+          { id: 'multi-provider', label: '多厂商架构', description: 'API 适配' },
+        ]}
+      />
     </div>
   );
 }

@@ -1,4 +1,6 @@
-interface RelatedPage {
+import { useNavigation } from '../contexts/NavigationContext';
+
+export interface RelatedPage {
   id: string;
   label: string;
   description?: string;
@@ -7,10 +9,11 @@ interface RelatedPage {
 interface RelatedPagesProps {
   title?: string;
   pages: RelatedPage[];
-  onNavigate?: (id: string) => void;
 }
 
-export function RelatedPages({ title = '🔗 相关阅读', pages, onNavigate }: RelatedPagesProps) {
+export function RelatedPages({ title = '🔗 相关阅读', pages }: RelatedPagesProps) {
+  const { navigate } = useNavigation();
+
   return (
     <div className="mt-8 p-5 bg-[var(--bg-panel)] rounded-xl border border-[var(--border-subtle)]">
       <h3 className="text-sm font-bold font-mono text-[var(--text-muted)] mb-4 flex items-center gap-2">
@@ -20,7 +23,7 @@ export function RelatedPages({ title = '🔗 相关阅读', pages, onNavigate }:
         {pages.map((page) => (
           <button
             key={page.id}
-            onClick={() => onNavigate?.(page.id)}
+            onClick={() => navigate(page.id)}
             className="text-left p-3 bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)] hover:border-[var(--terminal-green)] hover:bg-[var(--terminal-green)]/5 transition-all group"
           >
             <div className="font-mono text-sm text-[var(--text-primary)] group-hover:text-[var(--terminal-green)] flex items-center gap-2">

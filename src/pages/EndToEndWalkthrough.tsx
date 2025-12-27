@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { RelatedPages } from '../components/RelatedPages';
 
 // ============================================================
 // 端到端走读 - 一次完整请求的全流程解析
@@ -527,26 +528,19 @@ data: [DONE]`}
       </Layer>
 
       {/* 相关页面 */}
-      <div className="mt-8 p-6 rounded-xl bg-gray-800/30 border border-gray-700">
-        <h3 className="text-lg font-semibold text-gray-200 mb-4">细节页建议配合阅读</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-          {[
-            { title: '请求生命周期', desc: '详细流程' },
-            { title: '交互主循环', desc: '核心循环' },
-            { title: '工具调度详解', desc: '调度逻辑' },
-            { title: '审批模式', desc: '安全门禁' },
-            { title: '沙箱系统', desc: '隔离执行' },
-            { title: 'Token 计费', desc: '成本控制' },
-            { title: '循环检测', desc: '防死循环' },
-            { title: '会话持久化', desc: '状态保存' },
-          ].map((item, i) => (
-            <div key={i} className="p-3 bg-gray-800/50 rounded border border-gray-700 text-center">
-              <div className="text-cyan-400">{item.title}</div>
-              <div className="text-gray-500 text-xs">{item.desc}</div>
-            </div>
-          ))}
-        </div>
-      </div>
+      <RelatedPages
+        title="📚 细节页建议配合阅读"
+        pages={[
+          { id: 'lifecycle', label: '请求生命周期', description: '详细流程' },
+          { id: 'interaction-loop', label: '交互主循环', description: '核心循环' },
+          { id: 'tool-scheduler', label: '工具调度详解', description: '调度逻辑' },
+          { id: 'approval-mode', label: '审批模式', description: '安全门禁' },
+          { id: 'sandbox', label: '沙箱系统', description: '隔离执行' },
+          { id: 'token-accounting', label: 'Token 计费', description: '成本控制' },
+          { id: 'loop-detect', label: '循环检测', description: '防死循环' },
+          { id: 'session-persistence', label: '会话持久化', description: '状态保存' },
+        ]}
+      />
     </div>
   );
 }

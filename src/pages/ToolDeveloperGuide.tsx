@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { RelatedPages } from '../components/RelatedPages';
 
 // ============================================================
 // 工具开发者指南 - 如何为 Qwen CLI 开发自定义工具
@@ -625,34 +626,14 @@ describe('WordCountTool', () => {
   );
 }
 
-// 关联页面
-function RelatedPagesSection() {
-  const pages = [
-    { id: 'tool-ref', label: '工具参考', desc: '所有内置工具的完整文档' },
-    { id: 'tool-scheduler', label: '工具调度详解', desc: '了解工具如何被调度执行' },
-    { id: 'tool-arch', label: '工具架构', desc: '工具系统的整体架构' },
-    { id: 'approval-mode', label: '审批模式', desc: '了解权限审批机制' },
-    { id: 'tool-scheduler-anim', label: '工具调度动画', desc: '可视化调度过程' },
-  ];
-
-  return (
-    <div className="mt-8 p-6 bg-gray-800/30 rounded-xl border border-gray-700/50">
-      <h3 className="text-lg font-semibold text-gray-200 mb-4">📚 相关页面</h3>
-      <div className="grid grid-cols-2 gap-3">
-        {pages.map((page) => (
-          <a
-            key={page.id}
-            href={`?tab=${page.id}`}
-            className="p-3 bg-gray-900/50 rounded-lg hover:bg-gray-700/50 transition-colors group"
-          >
-            <div className="text-cyan-400 group-hover:text-cyan-300 font-medium">{page.label}</div>
-            <div className="text-xs text-gray-500 mt-1">{page.desc}</div>
-          </a>
-        ))}
-      </div>
-    </div>
-  );
-}
+// 关联页面配置
+const toolDevRelatedPages = [
+  { id: 'tool-ref', label: '工具参考', description: '所有内置工具的完整文档' },
+  { id: 'tool-scheduler', label: '工具调度详解', description: '了解工具如何被调度执行' },
+  { id: 'tool-arch', label: '工具架构', description: '工具系统的整体架构' },
+  { id: 'approval-mode', label: '审批模式', description: '了解权限审批机制' },
+  { id: 'tool-scheduler-anim', label: '工具调度动画', description: '可视化调度过程' },
+];
 
 // 主组件
 export function ToolDeveloperGuide() {
@@ -696,7 +677,7 @@ export function ToolDeveloperGuide() {
         <BestPracticesSection />
       </CollapsibleSection>
 
-      <RelatedPagesSection />
+      <RelatedPages title="📚 相关页面" pages={toolDevRelatedPages} />
     </div>
   );
 }

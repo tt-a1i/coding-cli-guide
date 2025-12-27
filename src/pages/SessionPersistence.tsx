@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { RelatedPages } from '../components/RelatedPages';
 
 // ============================================================
 // Session 持久化与上下文压缩 - 深度解析页面
@@ -635,35 +636,15 @@ function BestPracticesSection() {
   );
 }
 
-// 关联页面
-function RelatedPagesSection() {
-  const pages = [
-    { id: 'turn-state-machine', label: 'Turn 状态机', desc: '了解 CompressionStatus 的来源' },
-    { id: 'token-accounting', label: 'Token 计费系统', desc: '了解 Token 计数机制' },
-    { id: 'memory', label: '上下文管理', desc: '了解整体内存管理策略' },
-    { id: 'checkpointing', label: '检查点恢复', desc: '了解 Git 级别的恢复机制' },
-    { id: 'history-compression-anim', label: '历史压缩动画', desc: '可视化压缩过程' },
-    { id: 'chat-compression-anim', label: '聊天压缩动画', desc: '分割点选择可视化' },
-  ];
-
-  return (
-    <div className="mt-8 p-6 bg-gray-800/30 rounded-xl border border-gray-700/50">
-      <h3 className="text-lg font-semibold text-gray-200 mb-4">📚 相关页面</h3>
-      <div className="grid grid-cols-2 gap-3">
-        {pages.map((page) => (
-          <a
-            key={page.id}
-            href={`?tab=${page.id}`}
-            className="p-3 bg-gray-900/50 rounded-lg hover:bg-gray-700/50 transition-colors group"
-          >
-            <div className="text-cyan-400 group-hover:text-cyan-300 font-medium">{page.label}</div>
-            <div className="text-xs text-gray-500 mt-1">{page.desc}</div>
-          </a>
-        ))}
-      </div>
-    </div>
-  );
-}
+// 关联页面配置
+const sessionRelatedPages = [
+  { id: 'turn-state-machine', label: 'Turn 状态机', description: '了解 CompressionStatus 的来源' },
+  { id: 'token-accounting', label: 'Token 计费系统', description: '了解 Token 计数机制' },
+  { id: 'memory', label: '上下文管理', description: '了解整体内存管理策略' },
+  { id: 'checkpointing', label: '检查点恢复', description: '了解 Git 级别的恢复机制' },
+  { id: 'history-compression-anim', label: '历史压缩动画', description: '可视化压缩过程' },
+  { id: 'chat-compression-anim', label: '聊天压缩动画', description: '分割点选择可视化' },
+];
 
 // 主组件
 export function SessionPersistence() {
@@ -707,7 +688,7 @@ export function SessionPersistence() {
         <BestPracticesSection />
       </CollapsibleSection>
 
-      <RelatedPagesSection />
+      <RelatedPages title="📚 相关页面" pages={sessionRelatedPages} />
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { RelatedPages } from '../components/RelatedPages';
 
 export function SubagentArchitecture() {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
@@ -934,34 +935,14 @@ const estimatedCost = this.inputTokens * 3e-5 + this.outputTokens * 6e-5;
       </section>
 
       {/* 相关页面 */}
-      <section className="bg-[var(--bg-card)] rounded-xl p-6 border border-[var(--border-subtle)]">
-        <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4">
-          🔗 相关页面
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <a
-            href="?tab=subagent"
-            className="block p-4 bg-[var(--bg-terminal)]/50 rounded-lg hover:bg-[var(--bg-terminal)] transition-colors"
-          >
-            <div className="text-[var(--terminal-green)] font-bold">子代理系统概览</div>
-            <div className="text-xs text-[var(--text-muted)]">基础概念和快速入门</div>
-          </a>
-          <a
-            href="?tab=subagent-anim"
-            className="block p-4 bg-[var(--bg-terminal)]/50 rounded-lg hover:bg-[var(--bg-terminal)] transition-colors"
-          >
-            <div className="text-[var(--cyber-blue)] font-bold">子代理执行动画</div>
-            <div className="text-xs text-[var(--text-muted)]">可视化执行流程</div>
-          </a>
-          <a
-            href="?tab=subagent-resolution-anim"
-            className="block p-4 bg-[var(--bg-terminal)]/50 rounded-lg hover:bg-[var(--bg-terminal)] transition-colors"
-          >
-            <div className="text-[var(--amber)] font-bold">优先级解析动画</div>
-            <div className="text-xs text-[var(--text-muted)]">三级优先级可视化</div>
-          </a>
-        </div>
-      </section>
+      <RelatedPages
+        title="🔗 相关页面"
+        pages={[
+          { id: 'subagent', label: '子代理系统概览', description: '基础概念和快速入门' },
+          { id: 'subagent-anim', label: '子代理执行动画', description: '可视化执行流程' },
+          { id: 'subagent-resolution-anim', label: '优先级解析动画', description: '三级优先级可视化' },
+        ]}
+      />
     </div>
   );
 }
