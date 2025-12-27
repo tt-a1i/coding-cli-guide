@@ -82,8 +82,8 @@ export function WelcomeBack() {
 - [DONE] 用户认证
 - [DONE] 仪表板布局
 - [IN PROGRESS] 实时数据组件
-- [TODO] 通知系统
-- [TODO] 单元测试
+- [PENDING] 通知系统
+- [PENDING] 单元测试
 
 ---
 
@@ -121,7 +121,7 @@ export function WelcomeBack() {
 // - Overall Goal: 高层目标
 // - Key Knowledge: 技术决策、架构、约束
 // - Recent Actions: 最近完成的工作
-// - Current Plan: 任务状态 ([DONE], [IN PROGRESS], [TODO])`;
+// - Current Plan: 任务状态 ([DONE], [IN PROGRESS], [PENDING])`;
 
   const quitConfirmCode = `// /quit-confirm 命令 - 安全退出
 
@@ -164,8 +164,8 @@ export function WelcomeBack() {
 │  ✓ [DONE] 用户认证                                       │
 │  ✓ [DONE] 仪表板布局                                     │
 │  ⏳ [IN PROGRESS] 实时数据组件                           │
-│  ○ [TODO] 通知系统                                       │
-│  ○ [TODO] 单元测试                                       │
+│  ○ [PENDING] 通知系统                                    │
+│  ○ [PENDING] 单元测试                                    │
 │                                                          │
 │  Tasks: 5 total | 2 done | 1 in progress | 2 pending     │
 │                                                          │
@@ -320,7 +320,7 @@ your-project/
             <span className="text-gray-400">进行中</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-gray-400">[TODO]</span>
+            <span className="text-gray-400">[PENDING]</span>
             <span className="text-gray-400">待办</span>
           </div>
         </div>

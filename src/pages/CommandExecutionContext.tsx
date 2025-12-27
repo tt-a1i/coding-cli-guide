@@ -6,9 +6,11 @@
 import { useState } from 'react';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { useNavigation } from '../contexts/NavigationContext';
 
 export function CommandExecutionContext() {
   const [activeTab, setActiveTab] = useState<'context' | 'loaders' | 'actions' | 'flow'>('context');
+  const { navigate } = useNavigation();
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -933,49 +935,61 @@ export const chatCommand: SlashCommand = {
         <h2>🔗 相关文档</h2>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-          <a href="#slash-cmd" className="card" style={{
+          <button onClick={() => navigate('slash-cmd')} className="card" style={{
             padding: '1rem',
             textDecoration: 'none',
             background: 'rgba(59, 130, 246, 0.1)',
             borderRadius: '8px',
-            transition: 'transform 0.2s'
+            transition: 'transform 0.2s',
+            border: 'none',
+            cursor: 'pointer',
+            textAlign: 'left'
           }}>
             <h4 style={{ color: 'var(--cyber-blue)', margin: '0 0 0.5rem 0' }}>💻 斜杠命令</h4>
             <p style={{ margin: 0, fontSize: '0.9rem' }}>命令系统概述</p>
-          </a>
+          </button>
 
-          <a href="#custom-cmd" className="card" style={{
+          <button onClick={() => navigate('custom-cmd')} className="card" style={{
             padding: '1rem',
             textDecoration: 'none',
             background: 'rgba(139, 92, 246, 0.1)',
             borderRadius: '8px',
-            transition: 'transform 0.2s'
+            transition: 'transform 0.2s',
+            border: 'none',
+            cursor: 'pointer',
+            textAlign: 'left'
           }}>
             <h4 style={{ color: 'var(--purple-accent)', margin: '0 0 0.5rem 0' }}>📝 自定义命令</h4>
             <p style={{ margin: 0, fontSize: '0.9rem' }}>TOML 文件格式详解</p>
-          </a>
+          </button>
 
-          <a href="#mcp" className="card" style={{
+          <button onClick={() => navigate('mcp')} className="card" style={{
             padding: '1rem',
             textDecoration: 'none',
             background: 'rgba(16, 185, 129, 0.1)',
             borderRadius: '8px',
-            transition: 'transform 0.2s'
+            transition: 'transform 0.2s',
+            border: 'none',
+            cursor: 'pointer',
+            textAlign: 'left'
           }}>
             <h4 style={{ color: 'var(--terminal-green)', margin: '0 0 0.5rem 0' }}>🌐 MCP 集成</h4>
             <p style={{ margin: 0, fontSize: '0.9rem' }}>MCP 提示加载机制</p>
-          </a>
+          </button>
 
-          <a href="#approval-mode" className="card" style={{
+          <button onClick={() => navigate('approval-mode')} className="card" style={{
             padding: '1rem',
             textDecoration: 'none',
             background: 'rgba(245, 158, 11, 0.1)',
             borderRadius: '8px',
-            transition: 'transform 0.2s'
+            transition: 'transform 0.2s',
+            border: 'none',
+            cursor: 'pointer',
+            textAlign: 'left'
           }}>
             <h4 style={{ color: 'var(--warning-color)', margin: '0 0 0.5rem 0' }}>🛡️ 审批模式</h4>
             <p style={{ margin: 0, fontSize: '0.9rem' }}>Shell 命令确认流程</p>
-          </a>
+          </button>
         </div>
       </section>
     </div>

@@ -510,8 +510,8 @@ Do not mention this to user.
         <!-- 当前计划和进度 -->
         1. [DONE] Identify deprecated API files
         2. [IN PROGRESS] Refactor UserProfile.tsx
-        3. [TODO] Update remaining files
-        4. [TODO] Update tests
+        3. [PENDING] Update remaining 2 files
+        4. [PENDING] Run test suite
     </current_plan>
 </state_snapshot>`}
         />

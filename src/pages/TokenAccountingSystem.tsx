@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigation } from '../contexts/NavigationContext';
 
 // ============================================================
 // Token Accounting System - 深度解析页面
@@ -969,12 +970,14 @@ function TokenSavingStrategies() {
 
 // 关联页面
 function RelatedPagesSection() {
+  const { navigate } = useNavigation();
   const pages = [
-    { id: 'turn-state-machine', label: 'Turn 状态机', desc: '了解 Turn 如何使用 Token 信息' },
+    { id: 'token-management-strategy', label: 'Token 计算策略', desc: '计算策略详解' },
+    { id: 'shared-token-manager', label: 'Token 共享机制', desc: 'SharedTokenManager 实现' },
     { id: 'memory', label: '上下文管理', desc: '了解基于 Token 的压缩策略' },
-    { id: 'multi-provider', label: '多厂商架构', desc: '了解不同厂商的 Token 限制差异' },
     { id: 'token-counting-anim', label: 'Token 计数动画', desc: '可视化 Token 计算过程' },
     { id: 'token-limit-matcher-anim', label: 'Token 限制匹配动画', desc: '模式匹配过程可视化' },
+    { id: 'shared-token-manager-anim', label: 'Token 管理器动画', desc: '并发控制可视化' },
   ];
 
   return (
@@ -982,14 +985,14 @@ function RelatedPagesSection() {
       <h3 className="text-lg font-semibold text-gray-200 mb-4">📚 相关页面</h3>
       <div className="grid grid-cols-2 gap-3">
         {pages.map((page) => (
-          <a
+          <button
             key={page.id}
-            href={`?tab=${page.id}`}
-            className="p-3 bg-gray-900/50 rounded-lg hover:bg-gray-700/50 transition-colors group"
+            onClick={() => navigate(page.id)}
+            className="p-3 bg-gray-900/50 rounded-lg hover:bg-gray-700/50 transition-colors group text-left border-none cursor-pointer"
           >
             <div className="text-cyan-400 group-hover:text-cyan-300 font-medium">{page.label}</div>
             <div className="text-xs text-gray-500 mt-1">{page.desc}</div>
-          </a>
+          </button>
         ))}
       </div>
     </div>

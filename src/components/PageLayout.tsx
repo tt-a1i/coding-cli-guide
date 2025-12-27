@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react
 import { flatNavItems } from '../nav';
 import { useOutline } from './OutlineContext';
 import { OutlineProvider } from './OutlineProvider';
+import { NavigationContext } from '../contexts/NavigationContext';
 
 function BackToTop() {
   const [visible, setVisible] = useState(false);
@@ -232,49 +233,53 @@ export function PageLayout({
     setActiveSectionId(id);
   }, []);
 
-  return (
-    <OutlineProvider key={activeTab}>
-      <BackToTop />
-      <OutlineHeader
-        activeSectionId={activeSectionId}
-        setActiveSectionId={setActiveSectionId}
-        onSelectSection={onSelectSection}
-      />
-      {children}
+  const navigationValue = useMemo(() => ({ navigate: onNavigate }), [onNavigate]);
 
-      {/* Navigation Footer */}
-      <div className="mt-12 pt-6 border-t border-[var(--border-subtle)]">
-        <div className="flex items-center justify-between gap-4">
-          <button
-            disabled={!prev}
-            onClick={() => prev && onNavigate(prev.id)}
-            className={`group flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-mono border transition-all duration-200 ${
-              prev
-                ? 'bg-[var(--bg-panel)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] hover:border-[var(--cyber-blue-dim)] hover:text-[var(--cyber-blue)]'
-                : 'bg-[var(--bg-void)] border-[var(--border-subtle)] text-[var(--text-muted)] cursor-not-allowed opacity-50'
-            }`}
-          >
-            <span className={`transition-transform duration-200 ${prev ? 'group-hover:-translate-x-1' : ''}`}>←</span>
-            <span className="max-w-[120px] truncate">{prev ? prev.label : 'EOF'}</span>
-          </button>
-          <div className="text-xs text-[var(--text-muted)] font-mono hidden sm:block">
-            // navigate
+  return (
+    <NavigationContext.Provider value={navigationValue}>
+      <OutlineProvider key={activeTab}>
+        <BackToTop />
+        <OutlineHeader
+          activeSectionId={activeSectionId}
+          setActiveSectionId={setActiveSectionId}
+          onSelectSection={onSelectSection}
+        />
+        {children}
+
+        {/* Navigation Footer */}
+        <div className="mt-12 pt-6 border-t border-[var(--border-subtle)]">
+          <div className="flex items-center justify-between gap-4">
+            <button
+              disabled={!prev}
+              onClick={() => prev && onNavigate(prev.id)}
+              className={`group flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-mono border transition-all duration-200 ${
+                prev
+                  ? 'bg-[var(--bg-panel)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] hover:border-[var(--cyber-blue-dim)] hover:text-[var(--cyber-blue)]'
+                  : 'bg-[var(--bg-void)] border-[var(--border-subtle)] text-[var(--text-muted)] cursor-not-allowed opacity-50'
+              }`}
+            >
+              <span className={`transition-transform duration-200 ${prev ? 'group-hover:-translate-x-1' : ''}`}>←</span>
+              <span className="max-w-[120px] truncate">{prev ? prev.label : 'EOF'}</span>
+            </button>
+            <div className="text-xs text-[var(--text-muted)] font-mono hidden sm:block">
+              // navigate
+            </div>
+            <button
+              disabled={!next}
+              onClick={() => next && onNavigate(next.id)}
+              className={`group flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-mono border transition-all duration-200 ${
+                next
+                  ? 'bg-[var(--bg-panel)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] hover:border-[var(--terminal-green-dim)] hover:text-[var(--terminal-green)]'
+                  : 'bg-[var(--bg-void)] border-[var(--border-subtle)] text-[var(--text-muted)] cursor-not-allowed opacity-50'
+              }`}
+            >
+              <span className="max-w-[120px] truncate">{next ? next.label : 'EOF'}</span>
+              <span className={`transition-transform duration-200 ${next ? 'group-hover:translate-x-1' : ''}`}>→</span>
+            </button>
           </div>
-          <button
-            disabled={!next}
-            onClick={() => next && onNavigate(next.id)}
-            className={`group flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-mono border transition-all duration-200 ${
-              next
-                ? 'bg-[var(--bg-panel)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] hover:border-[var(--terminal-green-dim)] hover:text-[var(--terminal-green)]'
-                : 'bg-[var(--bg-void)] border-[var(--border-subtle)] text-[var(--text-muted)] cursor-not-allowed opacity-50'
-            }`}
-          >
-            <span className="max-w-[120px] truncate">{next ? next.label : 'EOF'}</span>
-            <span className={`transition-transform duration-200 ${next ? 'group-hover:translate-x-1' : ''}`}>→</span>
-          </button>
         </div>
-      </div>
-    </OutlineProvider>
+      </OutlineProvider>
+    </NavigationContext.Provider>
   );
 }
 

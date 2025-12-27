@@ -6,9 +6,11 @@
 import { useState } from 'react';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { useNavigation } from '../contexts/NavigationContext';
 
 export function QwenAuthentication() {
   const [activeTab, setActiveTab] = useState<'flow' | 'pkce' | 'manager' | 'events'>('flow');
+  const { navigate } = useNavigation();
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -716,45 +718,57 @@ await fs.writeFile(filePath, content, { mode: 0o600 });     // 文件: rw-------
         <h2>🔗 相关文档</h2>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-          <a href="#auth" className="card" style={{
+          <button onClick={() => navigate('auth')} className="card" style={{
             padding: '1rem',
             textDecoration: 'none',
             background: 'rgba(59, 130, 246, 0.1)',
-            borderRadius: '8px'
+            borderRadius: '8px',
+            border: 'none',
+            cursor: 'pointer',
+            textAlign: 'left'
           }}>
             <h4 style={{ color: 'var(--cyber-blue)', margin: '0 0 0.5rem 0' }}>🔑 认证流程</h4>
             <p style={{ margin: 0, fontSize: '0.9rem' }}>多认证方式概览</p>
-          </a>
+          </button>
 
-          <a href="#config" className="card" style={{
+          <button onClick={() => navigate('config')} className="card" style={{
             padding: '1rem',
             textDecoration: 'none',
             background: 'rgba(139, 92, 246, 0.1)',
-            borderRadius: '8px'
+            borderRadius: '8px',
+            border: 'none',
+            cursor: 'pointer',
+            textAlign: 'left'
           }}>
             <h4 style={{ color: 'var(--purple-accent)', margin: '0 0 0.5rem 0' }}>⚙️ 配置系统</h4>
             <p style={{ margin: 0, fontSize: '0.9rem' }}>设置和环境变量</p>
-          </a>
+          </button>
 
-          <a href="#shared-token-manager-anim" className="card" style={{
+          <button onClick={() => navigate('shared-token-manager-anim')} className="card" style={{
             padding: '1rem',
             textDecoration: 'none',
             background: 'rgba(16, 185, 129, 0.1)',
-            borderRadius: '8px'
+            borderRadius: '8px',
+            border: 'none',
+            cursor: 'pointer',
+            textAlign: 'left'
           }}>
             <h4 style={{ color: 'var(--terminal-green)', margin: '0 0 0.5rem 0' }}>🎬 Token 管理器动画</h4>
             <p style={{ margin: 0, fontSize: '0.9rem' }}>可视化流程演示</p>
-          </a>
+          </button>
 
-          <a href="#oauth-device-flow-anim" className="card" style={{
+          <button onClick={() => navigate('oauth-device-flow-anim')} className="card" style={{
             padding: '1rem',
             textDecoration: 'none',
             background: 'rgba(245, 158, 11, 0.1)',
-            borderRadius: '8px'
+            borderRadius: '8px',
+            border: 'none',
+            cursor: 'pointer',
+            textAlign: 'left'
           }}>
             <h4 style={{ color: 'var(--warning-color)', margin: '0 0 0.5rem 0' }}>🎬 OAuth 设备授权动画</h4>
             <p style={{ margin: 0, fontSize: '0.9rem' }}>Device Flow 演示</p>
-          </a>
+          </button>
         </div>
       </section>
     </div>

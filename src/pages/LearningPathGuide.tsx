@@ -297,6 +297,17 @@ const learningPaths: LearningPath[] = [
         checkpoint: '能列举 5 个常用工具并说明用途吗？',
       },
       {
+        title: '格式转换与流式',
+        pages: ['格式转换详解', '流式响应处理'],
+        keyConceptsCn: [
+          '理解 Gemini/OpenAI 消息格式差异',
+          '认识流式 Chunk 的解析过程',
+          '了解 Tool Call 的流式组装',
+        ],
+        estimatedTime: '40 分钟',
+        checkpoint: '能解释 AI 响应如何从流式变成完整消息吗？',
+      },
+      {
         title: '动画演示观看',
         pages: ['完整流程动画', '工具调度状态机动画'],
         keyConceptsCn: [
@@ -406,13 +417,14 @@ const learningPaths: LearningPath[] = [
       },
       {
         title: 'Token 计费系统',
-        pages: ['Token计费系统', 'Token 计数动画', 'Token 限制匹配动画'],
+        pages: ['Token计费系统', 'Token 计数动画', 'Token 限制匹配动画', 'Token 共享机制'],
         keyConceptsCn: [
           '理解 tokenLimits 匹配机制',
           '掌握文本和图像 Token 计算',
           '了解模型名归一化',
+          '理解 SharedTokenManager 并发控制',
         ],
-        estimatedTime: '1.5 小时',
+        estimatedTime: '2 小时',
         checkpoint: '知道如何计算一次请求的 Token 数吗？',
       },
       {
@@ -482,13 +494,14 @@ const learningPaths: LearningPath[] = [
       },
       {
         title: '多厂商架构',
-        pages: ['多厂商架构', 'API调用层'],
+        pages: ['多厂商架构', 'API调用层', 'Qwen OAuth 详解'],
         keyConceptsCn: [
           '理解 Provider 抽象',
           '掌握格式转换管道',
           '了解 API 兼容性处理',
+          '认识 OAuth Device Flow 和 PKCE',
         ],
-        estimatedTime: '2 小时',
+        estimatedTime: '2.5 小时',
         checkpoint: '能解释如何添加新的 AI 厂商支持吗？',
       },
       {

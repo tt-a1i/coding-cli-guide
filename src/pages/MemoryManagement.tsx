@@ -4,6 +4,7 @@ import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { JsonBlock } from '../components/JsonBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { useNavigation } from '../contexts/NavigationContext';
 
 function CollapsibleSection({
   title,
@@ -36,6 +37,8 @@ function CollapsibleSection({
 }
 
 export function MemoryManagement() {
+  const { navigate } = useNavigation();
+
   return (
     <div>
       <h2 className="text-2xl text-cyan-400 mb-5">内存与上下文管理</h2>
@@ -735,18 +738,18 @@ uiTelemetryService.updateTokenStats(tokens);`}
       <div className="mt-8 p-4 bg-gray-800/50 rounded-lg">
         <h3 className="text-lg font-semibold text-cyan-400 mb-3">相关页面</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <a href="#token-accounting" className="block p-3 bg-gray-700/50 rounded hover:bg-gray-700 transition-colors">
+          <button onClick={() => navigate('token-accounting')} className="block p-3 bg-gray-700/50 rounded hover:bg-gray-700 transition-colors text-left border-none cursor-pointer">
             <div className="text-purple-400 font-semibold">Token 计费系统</div>
             <div className="text-sm text-gray-400">Token 统计和计费详解</div>
-          </a>
-          <a href="#telemetry" className="block p-3 bg-gray-700/50 rounded hover:bg-gray-700 transition-colors">
+          </button>
+          <button onClick={() => navigate('telemetry')} className="block p-3 bg-gray-700/50 rounded hover:bg-gray-700 transition-colors text-left border-none cursor-pointer">
             <div className="text-blue-400 font-semibold">遥测系统</div>
             <div className="text-sm text-gray-400">性能指标采集</div>
-          </a>
-          <a href="#session-persistence" className="block p-3 bg-gray-700/50 rounded hover:bg-gray-700 transition-colors">
+          </button>
+          <button onClick={() => navigate('session-persistence')} className="block p-3 bg-gray-700/50 rounded hover:bg-gray-700 transition-colors text-left border-none cursor-pointer">
             <div className="text-green-400 font-semibold">会话持久化</div>
             <div className="text-sm text-gray-400">完整的会话管理</div>
-          </a>
+          </button>
         </div>
       </div>
     </div>

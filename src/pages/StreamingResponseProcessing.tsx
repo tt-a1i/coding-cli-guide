@@ -8,9 +8,11 @@ import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
+import { useNavigation } from '../contexts/NavigationContext';
 
 export function StreamingResponseProcessing() {
   const [activeTab, setActiveTab] = useState<'overview' | 'parser' | 'merge' | 'repair'>('overview');
+  const { navigate } = useNavigation();
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -649,26 +651,36 @@ async *executeStreaming(request) {
       <section className="mt-8">
         <h2>🔗 相关文档</h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <a href="#content-format-conversion" className="block p-4 no-underline bg-[rgba(59,130,246,0.1)] rounded-lg hover:bg-[rgba(59,130,246,0.2)] transition-colors">
-            <h4 className="text-[var(--cyber-blue)] m-0 mb-2">🔄 格式转换</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <button onClick={() => navigate('content-format-conversion')} className="block p-4 text-left bg-[rgba(59,130,246,0.1)] rounded-lg hover:bg-[rgba(59,130,246,0.2)] transition-colors border-none cursor-pointer">
+            <h4 className="text-[var(--cyber-blue)] m-0 mb-2">🔄 格式转换详解</h4>
             <p className="m-0 text-sm text-[var(--text-secondary)]">Gemini ↔ OpenAI 格式</p>
-          </a>
+          </button>
 
-          <a href="#streaming-tool-call-parser-anim" className="block p-4 no-underline bg-[rgba(139,92,246,0.1)] rounded-lg hover:bg-[rgba(139,92,246,0.2)] transition-colors">
-            <h4 className="text-[var(--purple)] m-0 mb-2">🎬 解析器动画</h4>
-            <p className="m-0 text-sm text-[var(--text-secondary)]">可视化解析过程</p>
-          </a>
+          <button onClick={() => navigate('streaming-json-parser-anim')} className="block p-4 text-left bg-[rgba(139,92,246,0.1)] rounded-lg hover:bg-[rgba(139,92,246,0.2)] transition-colors border-none cursor-pointer">
+            <h4 className="text-[var(--purple)] m-0 mb-2">🎬 流式 JSON 解析</h4>
+            <p className="m-0 text-sm text-[var(--text-secondary)]">深度跟踪与碰撞检测</p>
+          </button>
 
-          <a href="#tool-scheduler" className="block p-4 no-underline bg-[rgba(16,185,129,0.1)] rounded-lg hover:bg-[rgba(16,185,129,0.2)] transition-colors">
-            <h4 className="text-[var(--terminal-green)] m-0 mb-2">⚙️ 工具调度器</h4>
-            <p className="m-0 text-sm text-[var(--text-secondary)]">解析后的工具执行</p>
-          </a>
+          <button onClick={() => navigate('streaming-tool-parser-anim')} className="block p-4 text-left bg-[rgba(236,72,153,0.1)] rounded-lg hover:bg-[rgba(236,72,153,0.2)] transition-colors border-none cursor-pointer">
+            <h4 className="text-pink-400 m-0 mb-2">🎬 工具调用解析</h4>
+            <p className="m-0 text-sm text-[var(--text-secondary)]">ToolCallParser 动画</p>
+          </button>
 
-          <a href="#chunk-assembly-anim" className="block p-4 no-underline bg-[rgba(245,158,11,0.1)] rounded-lg hover:bg-[rgba(245,158,11,0.2)] transition-colors">
-            <h4 className="text-[var(--amber)] m-0 mb-2">🎬 Chunk 组装动画</h4>
-            <p className="m-0 text-sm text-[var(--text-secondary)]">Chunk 合并演示</p>
-          </a>
+          <button onClick={() => navigate('chunk-assembly-anim')} className="block p-4 text-left bg-[rgba(245,158,11,0.1)] rounded-lg hover:bg-[rgba(245,158,11,0.2)] transition-colors border-none cursor-pointer">
+            <h4 className="text-[var(--amber)] m-0 mb-2">🎬 Chunk 组装</h4>
+            <p className="m-0 text-sm text-[var(--text-secondary)]">数据块合并演示</p>
+          </button>
+
+          <button onClick={() => navigate('streaming-decoder-anim')} className="block p-4 text-left bg-[rgba(16,185,129,0.1)] rounded-lg hover:bg-[rgba(16,185,129,0.2)] transition-colors border-none cursor-pointer">
+            <h4 className="text-[var(--terminal-green)] m-0 mb-2">🎬 流式解码器</h4>
+            <p className="m-0 text-sm text-[var(--text-secondary)]">响应解码过程</p>
+          </button>
+
+          <button onClick={() => navigate('error-recovery-patterns')} className="block p-4 text-left bg-[rgba(239,68,68,0.1)] rounded-lg hover:bg-[rgba(239,68,68,0.2)] transition-colors border-none cursor-pointer">
+            <h4 className="text-red-400 m-0 mb-2">🛡️ 错误恢复模式</h4>
+            <p className="m-0 text-sm text-[var(--text-secondary)]">流式错误处理策略</p>
+          </button>
         </div>
       </section>
     </div>

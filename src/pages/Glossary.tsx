@@ -102,6 +102,19 @@ const glossaryTerms: Term[] = [
     relatedPage: 'mcp',
   },
   {
+    term: 'JSON-RPC 2.0',
+    definition: 'MCP 协议底层使用的远程过程调用协议。通过 JSON 格式传输请求和响应，支持批量调用和通知。',
+    category: 'extension',
+    relatedPage: 'mcp-handshake-anim',
+    example: '{"jsonrpc":"2.0","method":"tools/list","id":1}',
+  },
+  {
+    term: 'ACP',
+    definition: 'Agent Connection Protocol，IDE 与 CLI 之间的通信协议。用于 Zed/VS Code 等编辑器集成，支持文件操作、诊断信息等。',
+    category: 'extension',
+    relatedPage: 'zed-integration',
+  },
+  {
     term: 'Subagent',
     definition: '子代理系统，将复杂任务委托给专门的 Agent 处理。支持 Task、Plan、Explore 等多种代理类型。',
     category: 'extension',
@@ -225,6 +238,19 @@ const glossaryTerms: Term[] = [
     category: 'tool',
     example: '*.log, node_modules/, .git/ 等默认忽略',
   },
+  {
+    term: 'mtime',
+    definition: '文件修改时间戳（modification time），用于检测文件变化和缓存失效判断。',
+    category: 'tool',
+    relatedPage: 'file-discovery',
+    example: '文件 mtime 变化 → 缓存失效 → 重新读取',
+  },
+  {
+    term: 'FileLock',
+    definition: '文件锁机制，防止多进程同时写入同一文件导致数据损坏。CLI 在写文件前获取锁。',
+    category: 'tool',
+    example: 'Write 工具先获取锁 → 写入内容 → 释放锁',
+  },
 
   // Provider System
   {
@@ -255,6 +281,26 @@ const glossaryTerms: Term[] = [
     relatedPage: 'streaming-parser-anim',
   },
   {
+    term: 'ChunkMerging',
+    definition: '流式响应块合并策略，将同一工具调用的多个 delta 块合并为完整参数。处理网络分片和部分 JSON。',
+    category: 'core',
+    relatedPage: 'streaming-json-parser-anim',
+  },
+  {
+    term: 'IndexCollision',
+    definition: '流式工具调用时多个调用使用相同索引的冲突情况。解析器通过 ID 映射和自动分配新索引解决。',
+    category: 'core',
+    relatedPage: 'streaming-json-parser-anim',
+    example: 'call_1 和 call_2 都用 index:0 → 解析器为 call_2 分配 index:1',
+  },
+  {
+    term: 'safeJsonParse',
+    definition: '安全 JSON 解析函数，自动修复不完整的流式 JSON（如未闭合的引号、缺失的括号）。',
+    category: 'core',
+    relatedPage: 'streaming-json-parser-anim',
+    example: '输入 `{"content":"hello` 时自动补全闭合引号和括号 → `{"content":"hello"}`',
+  },
+  {
     term: 'LRUCache',
     definition: '最近最少使用缓存，用于缓存文件搜索结果、Token 计数等。提高重复操作效率。',
     category: 'tool',
@@ -266,6 +312,34 @@ const glossaryTerms: Term[] = [
     category: 'security',
     relatedPage: 'exponential-backoff-anim',
     example: '429 Rate Limit 错误时自动退避重试',
+  },
+  {
+    term: 'Jitter',
+    definition: '重试时添加的随机延迟，防止多个客户端同时重试导致"惊群效应"。通常为 0-30% 的随机偏移。',
+    category: 'security',
+    relatedPage: 'error-recovery-patterns',
+    example: 'delay = baseDelay * 2^attempt + random(0, baseDelay * 0.3)',
+  },
+  {
+    term: 'RetryBudget',
+    definition: '重试预算，限制单位时间内的最大重试次数。防止失败请求消耗过多资源。',
+    category: 'security',
+    relatedPage: 'error-recovery-patterns',
+    example: '每分钟最多 10 次重试，超过则直接失败',
+  },
+  {
+    term: 'FallbackModel',
+    definition: '降级模型策略，当主模型不可用时自动切换到备选模型。保证服务可用性。',
+    category: 'core',
+    relatedPage: 'error-recovery-patterns',
+    example: 'qwen-coder-plus 失败 → 降级到 qwen-coder',
+  },
+  {
+    term: 'CircuitBreaker',
+    definition: '熔断器模式，当错误率超过阈值时暂时停止请求，避免雪崩效应。一段时间后自动恢复。',
+    category: 'security',
+    relatedPage: 'error-recovery-patterns',
+    example: '连续 5 次失败 → 熔断 30s → 半开状态尝试恢复',
   },
 
   // PTY & Shell
@@ -318,6 +392,31 @@ const glossaryTerms: Term[] = [
     category: 'security',
     relatedPage: 'oauth-device-flow-anim',
   },
+  {
+    term: 'PKCE',
+    definition: 'Proof Key for Code Exchange，OAuth 2.0 安全扩展。通过 code_verifier 和 code_challenge 防止授权码拦截攻击，CLI 等公开客户端必须使用。',
+    category: 'security',
+    relatedPage: 'qwen-authentication',
+    example: '生成随机 code_verifier → SHA256 哈希得到 code_challenge → 授权时验证',
+  },
+  {
+    term: 'device_code',
+    definition: 'OAuth 设备流中的设备标识码，CLI 用于轮询授权状态。与 user_code（用户在浏览器输入的短码）配对使用。',
+    category: 'security',
+    relatedPage: 'oauth-device-flow-anim',
+  },
+  {
+    term: 'authorization_pending',
+    definition: 'OAuth 设备流轮询状态，表示用户尚未完成授权。CLI 应继续按 interval 间隔轮询。',
+    category: 'security',
+    example: '轮询返回 authorization_pending → 等待 5s → 继续轮询',
+  },
+  {
+    term: 'slow_down',
+    definition: 'OAuth 设备流轮询错误，表示轮询过快。CLI 应增加轮询间隔（通常 +5s）后重试。',
+    category: 'security',
+    example: '收到 slow_down → interval = interval + 5 → 继续轮询',
+  },
 
   // Editing
   {
@@ -330,7 +429,15 @@ const glossaryTerms: Term[] = [
     term: 'LLMEditFixer',
     definition: 'AI 辅助的编辑修复器，当 Edit 工具失败时调用 AI 分析并修复匹配问题。',
     category: 'tool',
+    relatedPage: 'smart-edit-anim',
     example: '处理缩进差异、空白字符不匹配等常见问题',
+  },
+  {
+    term: 'TodoWrite',
+    definition: 'TODO_WRITE 工具名的别名。用于创建和管理任务列表，帮助 AI 跟踪复杂任务的进度。',
+    category: 'tool',
+    relatedPage: 'tool-ref',
+    example: 'TODO_WRITE { todos: [{ content: "修复 Bug", status: "in_progress" }] }',
   },
 
   // Vim Integration

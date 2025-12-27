@@ -17,10 +17,10 @@ export function StartHere({ onNavigate }: StartHereProps) {
       steps: [
         { id: 'overview', label: '架构概览', desc: '整体架构鸟瞰' },
         { id: 'lifecycle', label: '请求生命周期', desc: '端到端流程' },
-        { id: 'interaction-loop', label: '交互主循环', desc: '核心事件循环' },
+        { id: 'multi-provider', label: '多厂商架构', desc: 'Provider 抽象' },
         { id: 'tool-arch', label: '工具架构', desc: '工具系统设计' },
-        { id: 'approval-mode', label: '审批模式', desc: '安全架构' },
-        { id: 'mcp', label: 'MCP集成', desc: '扩展协议' },
+        { id: 'design-tradeoffs', label: '设计权衡', desc: '架构决策分析' },
+        { id: 'error-recovery-patterns', label: '错误恢复', desc: '容错设计' },
       ],
     },
     developer: {
@@ -33,8 +33,8 @@ export function StartHere({ onNavigate }: StartHereProps) {
         { id: 'tool-ref', label: '工具参考', desc: '内置工具列表' },
         { id: 'custom-cmd', label: '自定义命令', desc: '扩展命令系统' },
         { id: 'extension', label: '扩展系统', desc: '插件开发' },
-        { id: 'subagent', label: '子代理系统', desc: '任务委托' },
-        { id: 'config', label: '配置系统', desc: '配置管理' },
+        { id: 'zed-integration', label: 'IDE 集成', desc: 'Zed ACP 协议' },
+        { id: 'mcp', label: 'MCP集成', desc: '扩展协议' },
       ],
     },
     explorer: {
@@ -44,11 +44,12 @@ export function StartHere({ onNavigate }: StartHereProps) {
       description: '深入内部机制、算法实现和细节',
       steps: [
         { id: 'gemini-chat', label: '核心循环', desc: 'GeminiChat 详解' },
-        { id: 'tool-scheduler', label: '工具调度详解', desc: '调度算法' },
+        { id: 'interaction-loop', label: '交互循环', desc: 'Turn 状态机' },
+        { id: 'streaming-response-processing', label: '流式响应', desc: 'Chunk 解析' },
+        { id: 'content-format-conversion', label: '格式转换', desc: 'OpenAI/Gemini' },
+        { id: 'concurrency-patterns', label: '并发模式', desc: '资源控制' },
         { id: 'loop-detect', label: '循环检测', desc: '防护机制' },
-        { id: 'sandbox', label: '沙箱系统', desc: '隔离实现' },
         { id: 'animation', label: '动画演示', desc: '可视化流程' },
-        { id: 'code', label: '核心代码', desc: '关键实现' },
       ],
     },
   };

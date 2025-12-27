@@ -3,6 +3,7 @@ import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { useNavigation } from '../contexts/NavigationContext';
 
 function CollapsibleSection({
   title,
@@ -35,6 +36,8 @@ function CollapsibleSection({
 }
 
 export function AuthenticationFlow() {
+  const { navigate } = useNavigation();
+
   return (
     <div>
       <h2 className="text-2xl text-cyan-400 mb-5">认证流程详解</h2>
@@ -635,9 +638,9 @@ private async acquireLock(lockPath: string): Promise<void> {
           <h4 className="text-cyan-400 font-semibold mb-2">相关页面</h4>
           <p className="text-sm text-gray-300">
             详细的 SharedTokenManager 架构和实现请参考：
-            <a href="#shared-token-manager" className="text-cyan-400 hover:underline ml-2">
+            <button onClick={() => navigate('shared-token-manager')} className="text-cyan-400 hover:underline ml-2 bg-transparent border-none cursor-pointer">
               → Token 共享机制
-            </a>
+            </button>
           </p>
         </div>
       </CollapsibleSection>
@@ -870,18 +873,18 @@ try {
       <div className="mt-8 p-4 bg-gray-800/50 rounded-lg">
         <h3 className="text-lg font-semibold text-cyan-400 mb-3">相关页面</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <a href="#shared-token-manager" className="block p-3 bg-gray-700/50 rounded hover:bg-gray-700 transition-colors">
+          <button onClick={() => navigate('shared-token-manager')} className="block p-3 bg-gray-700/50 rounded hover:bg-gray-700 transition-colors text-left border-none cursor-pointer">
             <div className="text-purple-400 font-semibold">Token 共享机制</div>
             <div className="text-sm text-gray-400">SharedTokenManager 完整架构</div>
-          </a>
-          <a href="#startup-chain" className="block p-3 bg-gray-700/50 rounded hover:bg-gray-700 transition-colors">
+          </button>
+          <button onClick={() => navigate('startup-chain')} className="block p-3 bg-gray-700/50 rounded hover:bg-gray-700 transition-colors text-left border-none cursor-pointer">
             <div className="text-blue-400 font-semibold">启动链路</div>
             <div className="text-sm text-gray-400">认证如何触发</div>
-          </a>
-          <a href="#config" className="block p-3 bg-gray-700/50 rounded hover:bg-gray-700 transition-colors">
+          </button>
+          <button onClick={() => navigate('config')} className="block p-3 bg-gray-700/50 rounded hover:bg-gray-700 transition-colors text-left border-none cursor-pointer">
             <div className="text-green-400 font-semibold">配置系统</div>
             <div className="text-sm text-gray-400">认证相关配置项</div>
-          </a>
+          </button>
         </div>
       </div>
     </div>
