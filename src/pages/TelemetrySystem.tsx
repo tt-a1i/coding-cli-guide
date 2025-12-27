@@ -3,791 +3,1111 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 
 export function TelemetrySystem() {
-  const telemetryFlowChart = `flowchart TD
-    start([事件发生])
-    collect[收集事件数据]
-    enrich[丰富上下文<br/>添加元数据]
-    check_consent{用户同意?}
-    buffer[缓冲事件]
-    batch_ready{批次就绪?}
-    send[发送到后端<br/>OpenTelemetry]
-    drop([丢弃数据])
-    stored([存储/分析])
+  // 30秒速览
+  const quickSummary = `🎯 核心要点
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 双通道架构    OpenTelemetry (OTLP) + QwenLogger (RUM)
+⏱️ 刷新间隔      OTLP: 10秒  |  RUM: 60秒
+📦 事件缓冲      最大 1000 事件，超出时 FIFO 淘汰
+🔄 重试机制      最多 3 次，指数退避，最多保留 100 条失败事件
+📈 指标类型      Counter (计数) / Histogram (分布) / Gauge (当前值)
+🎭 事件分类      session / ai / tool / error / extension / misc
+🔐 隐私保护      用户ID哈希 + 敏感字段过滤 + 内容脱敏`;
 
-    start --> collect
-    collect --> enrich
-    enrich --> check_consent
-    check_consent -->|Yes| buffer
-    check_consent -->|No| drop
-    buffer --> batch_ready
-    batch_ready -->|Yes| send
-    batch_ready -->|No| buffer
-    send --> stored
+  // 双通道架构图
+  const dualChannelArchChart = `flowchart TB
+    subgraph sources["事件源"]
+        session["会话事件"]
+        api["API事件"]
+        tool["工具事件"]
+        error["错误事件"]
+        ext["扩展事件"]
+    end
+
+    subgraph telemetry["遥测服务层"]
+        direction TB
+        loggers["loggers.ts"]
+
+        subgraph otel["OpenTelemetry 通道"]
+            sdk["NodeSDK"]
+            span["BatchSpanProcessor"]
+            log["BatchLogRecordProcessor"]
+            metric["PeriodicExportingMetricReader"]
+        end
+
+        subgraph rum["QwenLogger 通道"]
+            queue["FixedDeque&lt;RumEvent&gt;"]
+            flush["flushToRum()"]
+            retry["retryWithBackoff"]
+        end
+    end
+
+    subgraph backends["后端"]
+        otlp["OTLP Endpoint<br/>gRPC / HTTP"]
+        aliyun["Aliyun RUM<br/>gb4w8c3ygj-default-sea.rum.aliyuncs.com"]
+        file["File Exporter<br/>本地文件"]
+        console["Console Exporter<br/>调试输出"]
+    end
+
+    sources --> loggers
+    loggers --> otel
+    loggers --> rum
+
+    otel --> otlp
+    otel --> file
+    otel --> console
+
+    rum --> aliyun
+
+    style sources fill:#3b82f6,color:#fff
+    style otel fill:#22c55e,color:#fff
+    style rum fill:#f59e0b,color:#000
+    style backends fill:#8b5cf6,color:#fff`;
+
+  // SDK 初始化流程图
+  const sdkInitChart = `flowchart TD
+    start([initializeTelemetry])
+    check_init{已初始化?}
+    check_enabled{遥测启用?}
+    create_resource[创建 Resource<br/>SERVICE_NAME + session.id]
+
+    check_endpoint{有 OTLP Endpoint?}
+    check_outfile{有输出文件?}
+
+    use_otlp[配置 OTLP Exporters<br/>gRPC / HTTP]
+    use_file[配置 File Exporters]
+    use_console[配置 Console Exporters]
+
+    create_sdk[创建 NodeSDK<br/>spanProcessors<br/>logRecordProcessors<br/>metricReader]
+
+    start_sdk[sdk.start]
+    init_metrics[initializeMetrics]
+    register_handlers[注册进程退出处理器<br/>SIGTERM / SIGINT / exit]
+
+    done([初始化完成])
+    skip([跳过])
+
+    start --> check_init
+    check_init -->|是| skip
+    check_init -->|否| check_enabled
+    check_enabled -->|否| skip
+    check_enabled -->|是| create_resource
+    create_resource --> check_endpoint
+
+    check_endpoint -->|是| use_otlp
+    check_endpoint -->|否| check_outfile
+    check_outfile -->|是| use_file
+    check_outfile -->|否| use_console
+
+    use_otlp --> create_sdk
+    use_file --> create_sdk
+    use_console --> create_sdk
+
+    create_sdk --> start_sdk
+    start_sdk --> init_metrics
+    init_metrics --> register_handlers
+    register_handlers --> done
 
     style start fill:#22d3ee,color:#000
-    style collect fill:#3b82f6,color:#fff
-    style enrich fill:#3b82f6,color:#fff
-    style check_consent fill:#f59e0b,color:#000
-    style buffer fill:#3b82f6,color:#fff
-    style batch_ready fill:#f59e0b,color:#000
-    style send fill:#3b82f6,color:#fff
-    style drop fill:#ef4444,color:#fff
-    style stored fill:#22c55e,color:#000`;
+    style done fill:#22c55e,color:#fff
+    style skip fill:#6b7280,color:#fff`;
 
-  const telemetryConfigCode = `// 遥测配置
-// packages/core/src/telemetry/config.ts
+  // 指标定义代码
+  const metricsDefinitionCode = `// packages/core/src/telemetry/metrics.ts
+// 服务名称前缀
+const SERVICE_NAME = 'qwen-code';
 
-interface TelemetryConfig {
-  // 基本配置
-  enabled: boolean;              // 是否启用遥测
-  endpoint: string;              // 遥测后端地址
-  serviceName: string;           // 服务名称
+// ═══════════════════════════════════════════════════════════════
+// Counter 指标定义 (累计计数)
+// ═══════════════════════════════════════════════════════════════
 
-  // 采样配置
-  sampleRate: number;            // 采样率 (0-1)
-  tracesSampleRate: number;      // 追踪采样率
-  profilesSampleRate: number;    // 性能分析采样率
+const COUNTER_DEFINITIONS = {
+  // 工具调用计数
+  [\`\${SERVICE_NAME}.tool.call.count\`]: {
+    description: 'Counts tool calls, tagged by function name and success.',
+    attributes: {
+      function_name: string;     // 工具名称
+      success: boolean;          // 是否成功
+      decision?: 'accept' | 'reject' | 'modify' | 'auto_accept';
+      tool_type?: 'native' | 'mcp';
+    },
+  },
 
-  // 批处理配置
-  batchSize: number;             // 批次大小
-  flushInterval: number;         // 刷新间隔 (ms)
-  maxQueueSize: number;          // 最大队列大小
+  // API 请求计数
+  [\`\${SERVICE_NAME}.api.request.count\`]: {
+    description: 'Counts API requests, tagged by model and status.',
+    attributes: {
+      model: string;
+      status_code?: number | string;
+      error_type?: string;
+    },
+  },
 
-  // 隐私配置
-  anonymizeUserId: boolean;      // 匿名化用户 ID
-  excludePersonalData: boolean;  // 排除个人数据
-  excludeContentData: boolean;   // 排除内容数据
-}
+  // Token 使用计数
+  [\`\${SERVICE_NAME}.token.usage\`]: {
+    description: 'Counts the total number of tokens used.',
+    attributes: {
+      model: string;
+      type: 'input' | 'output' | 'thought' | 'cache' | 'tool';
+    },
+  },
 
-// 默认配置
-const DEFAULT_TELEMETRY_CONFIG: TelemetryConfig = {
-  enabled: true,
-  endpoint: 'https://telemetry.qwen.dev',
-  serviceName: 'qwen-cli',
+  // 会话计数、文件操作计数、重试计数等...
+  [\`\${SERVICE_NAME}.session.count\`]: { /* ... */ },
+  [\`\${SERVICE_NAME}.file.operation.count\`]: { /* ... */ },
+  [\`\${SERVICE_NAME}.chat.invalid_chunk.count\`]: { /* ... */ },
+  [\`\${SERVICE_NAME}.chat.content_retry.count\`]: { /* ... */ },
+  [\`\${SERVICE_NAME}.chat.content_retry_failure.count\`]: { /* ... */ },
+  [\`\${SERVICE_NAME}.slash_command.model.call_count\`]: { /* ... */ },
+  [\`\${SERVICE_NAME}.chat_compression\`]: { /* ... */ },
+  [\`\${SERVICE_NAME}.subagent.execution.count\`]: { /* ... */ },
+};
 
-  sampleRate: 1.0,
-  tracesSampleRate: 0.1,
-  profilesSampleRate: 0.01,
+// ═══════════════════════════════════════════════════════════════
+// Histogram 指标定义 (延迟分布)
+// ═══════════════════════════════════════════════════════════════
 
-  batchSize: 100,
-  flushInterval: 30000,  // 30 秒
-  maxQueueSize: 1000,
+const HISTOGRAM_DEFINITIONS = {
+  // 工具调用延迟
+  [\`\${SERVICE_NAME}.tool.call.latency\`]: {
+    description: 'Latency of tool calls in milliseconds.',
+    unit: 'ms',
+    attributes: { function_name: string },
+  },
 
-  anonymizeUserId: true,
-  excludePersonalData: true,
-  excludeContentData: true,
+  // API 请求延迟
+  [\`\${SERVICE_NAME}.api.request.latency\`]: {
+    description: 'Latency of API requests in milliseconds.',
+    unit: 'ms',
+    attributes: { model: string },
+  },
 };`;
 
-  const eventTypesCode = `// 遥测事件类型
-// packages/core/src/telemetry/events.ts
+  // 性能监控指标代码
+  const performanceMetricsCode = `// packages/core/src/telemetry/metrics.ts
+// 性能监控指标 (需要 telemetry 启用时自动激活)
 
-// 事件类别
-enum TelemetryEventCategory {
-  SESSION = 'session',       // 会话事件
-  AI = 'ai',                 // AI 交互
-  TOOL = 'tool',             // 工具执行
-  ERROR = 'error',           // 错误事件
-  PERFORMANCE = 'perf',      // 性能指标
-  USER = 'user',             // 用户行为
+const PERFORMANCE_HISTOGRAM_DEFINITIONS = {
+  // 启动时间
+  [\`\${SERVICE_NAME}.startup.duration\`]: {
+    description: 'CLI startup time in milliseconds, broken down by initialization phase.',
+    unit: 'ms',
+    attributes: {
+      phase: string;  // 'config_load' | 'auth_check' | 'mcp_init' | ...
+      details?: Record<string, string | number | boolean>;
+    },
+  },
+
+  // 内存使用
+  [\`\${SERVICE_NAME}.memory.usage\`]: {
+    description: 'Memory usage in bytes.',
+    unit: 'bytes',
+    attributes: {
+      memory_type: MemoryMetricType;  // HEAP_USED | HEAP_TOTAL | EXTERNAL | RSS
+      component?: string;
+    },
+  },
+
+  // CPU 使用
+  [\`\${SERVICE_NAME}.cpu.usage\`]: {
+    description: 'CPU usage percentage.',
+    unit: 'percent',
+    attributes: { component?: string },
+  },
+
+  // 工具队列深度
+  [\`\${SERVICE_NAME}.tool.queue.depth\`]: {
+    description: 'Number of tools in execution queue.',
+    unit: 'count',
+  },
+
+  // 工具执行分解
+  [\`\${SERVICE_NAME}.tool.execution.breakdown\`]: {
+    description: 'Tool execution time breakdown by phase.',
+    unit: 'ms',
+    attributes: {
+      function_name: string;
+      phase: ToolExecutionPhase;  // VALIDATION | PREPARATION | EXECUTION | RESULT_PROCESSING
+    },
+  },
+
+  // Token 效率
+  [\`\${SERVICE_NAME}.token.efficiency\`]: {
+    description: 'Token efficiency metrics (tokens per operation, cache hit rate).',
+    unit: 'ratio',
+    attributes: {
+      model: string;
+      metric: string;
+      context?: string;
+    },
+  },
+
+  // API 请求分解
+  [\`\${SERVICE_NAME}.api.request.breakdown\`]: {
+    description: 'API request time breakdown by phase.',
+    unit: 'ms',
+    attributes: {
+      model: string;
+      phase: ApiRequestPhase;  // REQUEST_PREPARATION | NETWORK_LATENCY | RESPONSE_PROCESSING | TOKEN_PROCESSING
+    },
+  },
+
+  // 性能回归检测
+  [\`\${SERVICE_NAME}.performance.regression\`]: {
+    description: 'Performance regression detection events.',
+    attributes: {
+      metric: string;
+      severity: 'low' | 'medium' | 'high';
+      current_value: number;
+      baseline_value: number;
+    },
+  },
+};
+
+// 枚举定义
+enum MemoryMetricType {
+  HEAP_USED = 'heap_used',
+  HEAP_TOTAL = 'heap_total',
+  EXTERNAL = 'external',
+  RSS = 'rss',
 }
 
-// 会话事件
-interface SessionEvents {
-  'session.start': {
-    sessionId: string;
-    cliVersion: string;
-    platform: string;
-    nodeVersion: string;
-  };
-  'session.end': {
-    sessionId: string;
-    duration: number;
-    turnCount: number;
-    exitCode: number;
-  };
-  'session.resume': {
-    sessionId: string;
-    previousDuration: number;
-  };
+enum ToolExecutionPhase {
+  VALIDATION = 'validation',
+  PREPARATION = 'preparation',
+  EXECUTION = 'execution',
+  RESULT_PROCESSING = 'result_processing',
 }
 
-// AI 交互事件
-interface AIEvents {
-  'ai.request': {
-    model: string;
-    promptTokens: number;
-    maxTokens: number;
-  };
-  'ai.response': {
-    model: string;
-    responseTokens: number;
-    latency: number;
-    finishReason: string;
-  };
-  'ai.tool_call': {
-    toolName: string;
-    model: string;
-  };
-  'ai.fallback': {
-    fromModel: string;
-    toModel: string;
-    reason: string;
-  };
-}
-
-// 工具事件
-interface ToolEvents {
-  'tool.execute': {
-    toolName: string;
-    duration: number;
-    success: boolean;
-    exitCode?: number;
-  };
-  'tool.permission': {
-    toolName: string;
-    action: 'granted' | 'denied' | 'auto';
-  };
-  'tool.timeout': {
-    toolName: string;
-    timeoutMs: number;
-  };
-}
-
-// 错误事件
-interface ErrorEvents {
-  'error.api': {
-    statusCode: number;
-    errorCode: string;
-    retryCount: number;
-  };
-  'error.tool': {
-    toolName: string;
-    errorType: string;
-  };
-  'error.unhandled': {
-    errorType: string;
-    stack?: string;
-  };
-}
-
-// 性能事件
-interface PerformanceEvents {
-  'perf.startup': {
-    totalTime: number;
-    configLoadTime: number;
-    authCheckTime: number;
-    mcpInitTime: number;
-  };
-  'perf.memory': {
-    heapUsed: number;
-    heapTotal: number;
-    external: number;
-    rss: number;
-  };
-  'perf.context_window': {
-    tokensUsed: number;
-    contextLimit: number;
-    summarizationTriggered: boolean;
-  };
+enum ApiRequestPhase {
+  REQUEST_PREPARATION = 'request_preparation',
+  NETWORK_LATENCY = 'network_latency',
+  RESPONSE_PROCESSING = 'response_processing',
+  TOKEN_PROCESSING = 'token_processing',
 }`;
 
-  const openTelemetryCode = `// OpenTelemetry 集成
-// packages/core/src/telemetry/opentelemetry.ts
+  // 事件类型定义
+  const eventTypesCode = `// packages/core/src/telemetry/types.ts
+// 遥测事件类型定义
 
-import {
-  trace,
-  metrics,
-  SpanStatusCode,
-  context,
-} from '@opentelemetry/api';
+// 基础事件接口
+export interface BaseTelemetryEvent {
+  'event.name': string;
+  'event.timestamp': string;  // ISO 8601 格式
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 会话事件
+// ═══════════════════════════════════════════════════════════════
+
+export class StartSessionEvent implements BaseTelemetryEvent {
+  'event.name': 'cli_config';
+  model: string;                              // 使用的模型
+  embedding_model: string;                    // 嵌入模型
+  sandbox_enabled: boolean;                   // 沙箱状态
+  core_tools_enabled: string;                 // 启用的核心工具
+  approval_mode: string;                      // 审批模式
+  mcp_servers: string;                        // MCP 服务器列表
+  mcp_servers_count: number;                  // MCP 服务器数量
+  mcp_tools_count?: number;                   // MCP 工具数量
+  output_format: OutputFormat;                // 输出格式
+  // ... 更多配置字段
+}
+
+export class EndSessionEvent implements BaseTelemetryEvent {
+  'event.name': 'end_session';
+  session_id?: string;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// API 事件
+// ═══════════════════════════════════════════════════════════════
+
+export class ApiResponseEvent implements BaseTelemetryEvent {
+  'event.name': 'api_response';
+  response_id: string;
+  model: string;
+  duration_ms: number;
+  status_code?: number | string;
+
+  // Token 统计 (关键!)
+  input_token_count: number;           // 输入 token
+  output_token_count: number;          // 输出 token
+  cached_content_token_count: number;  // 缓存 token
+  thoughts_token_count: number;        // 思考 token (thinking models)
+  tool_token_count: number;            // 工具 token
+  total_token_count: number;           // 总计
+
+  prompt_id: string;
+  auth_type?: string;
+}
+
+export class ApiErrorEvent implements BaseTelemetryEvent {
+  'event.name': 'api_error';
+  model: string;
+  error: string;
+  error_type?: string;
+  status_code?: number | string;
+  duration_ms: number;
+  prompt_id: string;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 工具事件
+// ═══════════════════════════════════════════════════════════════
+
+export class ToolCallEvent implements BaseTelemetryEvent {
+  'event.name': 'tool_call';
+  function_name: string;
+  function_args: Record<string, unknown>;
+  duration_ms: number;
+  status: 'success' | 'error' | 'cancelled';
+  success: boolean;
+  decision?: ToolCallDecision;
+  error?: string;
+  error_type?: string;
+  prompt_id: string;
+  tool_type: 'native' | 'mcp';
+  mcp_server_name?: string;
+
+  // Diff 统计元数据
+  metadata?: {
+    model_added_lines: number;
+    model_removed_lines: number;
+    user_added_lines: number;
+    user_removed_lines: number;
+    // ...
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// 其他事件类型
+// ═══════════════════════════════════════════════════════════════
+
+export class ChatCompressionEvent { tokens_before: number; tokens_after: number; }
+export class SubagentExecutionEvent { subagent_name: string; status: 'started' | 'completed' | 'failed' | 'cancelled'; }
+export class LoopDetectedEvent { loop_type: LoopType; prompt_id: string; }
+export class ExtensionInstallEvent { extension_name: string; extension_version: string; status: 'success' | 'error'; }
+// ... 更多事件类型`;
+
+  // QwenLogger 实现代码
+  const qwenLoggerCode = `// packages/core/src/telemetry/qwen-logger/qwen-logger.ts
+// Qwen RUM 日志记录器
+
+const USAGE_STATS_HOSTNAME = 'gb4w8c3ygj-default-sea.rum.aliyuncs.com';
+const RUN_APP_ID = 'gb4w8c3ygj@851d5d500f08f92';
+
+// ═══════════════════════════════════════════════════════════════
+// 核心常量
+// ═══════════════════════════════════════════════════════════════
+
+const FLUSH_INTERVAL_MS = 1000 * 60;   // 60秒刷新间隔
+const MAX_EVENTS = 1000;                // 最大事件数量
+const MAX_RETRY_EVENTS = 100;           // 重试队列最大事件数
+
+export class QwenLogger {
+  private static instance: QwenLogger;
+
+  // 事件队列 (固定大小双端队列)
+  private readonly events: FixedDeque<RumEvent>;
+  private lastFlushTime: number = Date.now();
+  private isFlushInProgress: boolean = false;
+  private pendingFlush: boolean = false;
+
+  // ═══════════════════════════════════════════════════════════════
+  // 事件入队 (FIFO 淘汰策略)
+  // ═══════════════════════════════════════════════════════════════
+
+  enqueueLogEvent(event: RumEvent): void {
+    const wasAtCapacity = this.events.size >= MAX_EVENTS;
+
+    if (wasAtCapacity) {
+      this.events.shift();  // 淘汰最旧的事件
+    }
+
+    this.events.push(event);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // 条件刷新
+  // ═══════════════════════════════════════════════════════════════
+
+  flushIfNeeded(): void {
+    // 距离上次刷新不足 60 秒，跳过
+    if (Date.now() - this.lastFlushTime < FLUSH_INTERVAL_MS) {
+      return;
+    }
+    this.flushToRum();
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // 刷新到 RUM
+  // ═══════════════════════════════════════════════════════════════
+
+  async flushToRum(): Promise<LogResponse> {
+    // 防止并发刷新
+    if (this.isFlushInProgress) {
+      this.pendingFlush = true;
+      return {};
+    }
+    this.isFlushInProgress = true;
+
+    const eventsToSend = this.events.toArray();
+    this.events.clear();
+
+    const rumPayload = await this.createRumPayload();
+    rumPayload.events = eventsToSend;
+
+    try {
+      // 带重试的 HTTP POST
+      await retryWithBackoff(
+        () => this.sendToRum(rumPayload),
+        {
+          maxAttempts: 3,
+          initialDelayMs: 200,
+          shouldRetryOnError: (err) => {
+            const status = (err as HttpError).status;
+            // 仅重试 429 和 5xx 错误
+            return status === 429 || (status >= 500 && status < 600);
+          },
+        }
+      );
+      this.lastFlushTime = Date.now();
+    } catch (error) {
+      // 失败时重新入队 (最多 MAX_RETRY_EVENTS 条)
+      this.requeueFailedEvents(eventsToSend);
+    } finally {
+      this.isFlushInProgress = false;
+
+      // 处理等待中的刷新请求
+      if (this.pendingFlush) {
+        this.pendingFlush = false;
+        this.flushToRum();
+      }
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // 失败重试入队
+  // ═══════════════════════════════════════════════════════════════
+
+  private requeueFailedEvents(eventsToSend: RumEvent[]): void {
+    // 只保留最近的 MAX_RETRY_EVENTS 条
+    const eventsToRetry = eventsToSend.slice(-MAX_RETRY_EVENTS);
+
+    // 计算可用空间
+    const availableSpace = MAX_EVENTS - this.events.size;
+    const numEventsToRequeue = Math.min(eventsToRetry.length, availableSpace);
+
+    // 倒序插入到队列头部 (保持原始顺序)
+    for (let i = numEventsToRequeue - 1; i >= 0; i--) {
+      this.events.unshift(eventsToRetry[i]);
+    }
+  }
+}`;
+
+  // SDK 初始化代码
+  const sdkInitCode = `// packages/core/src/telemetry/sdk.ts
+// OpenTelemetry SDK 初始化
+
 import { NodeSDK } from '@opentelemetry/sdk-node';
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
-import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
+import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-grpc';
+import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-grpc';
+import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-node';
+import { BatchLogRecordProcessor } from '@opentelemetry/sdk-logs';
+import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
+import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 
-// 初始化 OpenTelemetry SDK
-export function initTelemetry(config: TelemetryConfig): void {
-  const sdk = new NodeSDK({
-    serviceName: config.serviceName,
-    traceExporter: new OTLPTraceExporter({
-      url: \`\${config.endpoint}/v1/traces\`,
-    }),
-    metricReader: new PeriodicExportingMetricReader({
-      exporter: new OTLPMetricExporter({
-        url: \`\${config.endpoint}/v1/metrics\`,
-      }),
-      exportIntervalMillis: config.flushInterval,
-    }),
-    sampler: new TraceIdRatioBasedSampler(config.tracesSampleRate),
+export function initializeTelemetry(config: Config): void {
+  if (telemetryInitialized || !config.getTelemetryEnabled()) {
+    return;
+  }
+
+  // 创建 Resource (服务元数据)
+  const resource = resourceFromAttributes({
+    [SemanticResourceAttributes.SERVICE_NAME]: 'qwen-code',
+    [SemanticResourceAttributes.SERVICE_VERSION]: process.version,
+    'session.id': config.getSessionId(),
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // 选择 Exporter (优先级: OTLP > File > Console)
+  // ═══════════════════════════════════════════════════════════════
+
+  const otlpEndpoint = config.getTelemetryOtlpEndpoint();
+  const otlpProtocol = config.getTelemetryOtlpProtocol();  // 'grpc' | 'http'
+  const telemetryOutfile = config.getTelemetryOutfile();
+
+  let spanExporter, logExporter, metricReader;
+
+  if (otlpEndpoint && !telemetryOutfile) {
+    // 使用 OTLP Exporter
+    if (otlpProtocol === 'http') {
+      spanExporter = new OTLPTraceExporterHttp({ url: otlpEndpoint });
+      logExporter = new OTLPLogExporterHttp({ url: otlpEndpoint });
+      metricReader = new PeriodicExportingMetricReader({
+        exporter: new OTLPMetricExporterHttp({ url: otlpEndpoint }),
+        exportIntervalMillis: 10000,  // 10 秒
+      });
+    } else {
+      // gRPC (默认)
+      spanExporter = new OTLPTraceExporter({
+        url: otlpEndpoint,
+        compression: CompressionAlgorithm.GZIP,
+      });
+      logExporter = new OTLPLogExporter({
+        url: otlpEndpoint,
+        compression: CompressionAlgorithm.GZIP,
+      });
+      metricReader = new PeriodicExportingMetricReader({
+        exporter: new OTLPMetricExporter({
+          url: otlpEndpoint,
+          compression: CompressionAlgorithm.GZIP,
+        }),
+        exportIntervalMillis: 10000,
+      });
+    }
+  } else if (telemetryOutfile) {
+    // 使用 File Exporter
+    spanExporter = new FileSpanExporter(telemetryOutfile);
+    logExporter = new FileLogExporter(telemetryOutfile);
+    metricReader = new PeriodicExportingMetricReader({
+      exporter: new FileMetricExporter(telemetryOutfile),
+      exportIntervalMillis: 10000,
+    });
+  } else {
+    // 使用 Console Exporter (调试)
+    spanExporter = new ConsoleSpanExporter();
+    logExporter = new ConsoleLogRecordExporter();
+    metricReader = new PeriodicExportingMetricReader({
+      exporter: new ConsoleMetricExporter(),
+      exportIntervalMillis: 10000,
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // 创建并启动 SDK
+  // ═══════════════════════════════════════════════════════════════
+
+  sdk = new NodeSDK({
+    resource,
+    spanProcessors: [new BatchSpanProcessor(spanExporter)],
+    logRecordProcessors: [new BatchLogRecordProcessor(logExporter)],
+    metricReader,
+    instrumentations: [new HttpInstrumentation()],  // 自动 HTTP 追踪
   });
 
   sdk.start();
+  initializeMetrics(config);  // 初始化指标
 
-  // 优雅关闭
-  process.on('SIGTERM', () => {
-    sdk.shutdown()
-      .then(() => console.log('Telemetry shutdown complete'))
-      .catch(console.error);
+  // 注册优雅关闭
+  process.on('SIGTERM', () => shutdownTelemetry(config));
+  process.on('SIGINT', () => shutdownTelemetry(config));
+  process.on('exit', () => shutdownTelemetry(config));
+}`;
+
+  // loggers.ts 采集点代码
+  const loggersCode = `// packages/core/src/telemetry/loggers.ts
+// 遥测日志记录函数 (采集点)
+
+// 双通道记录：OpenTelemetry + QwenLogger (RUM)
+
+export function logToolCall(config: Config, event: ToolCallEvent): void {
+  // 1. UI 遥测 (本地状态)
+  const uiEvent = { ...event, 'event.name': EVENT_TOOL_CALL };
+  uiTelemetryService.addEvent(uiEvent);
+
+  // 2. QwenLogger (RUM 通道)
+  QwenLogger.getInstance(config)?.logToolCallEvent(event);
+
+  // 3. OpenTelemetry (OTLP 通道)
+  if (!isTelemetrySdkInitialized()) return;
+
+  const attributes: LogAttributes = {
+    ...getCommonAttributes(config),
+    ...event,
+    'event.name': EVENT_TOOL_CALL,
+    'event.timestamp': new Date().toISOString(),
+    function_args: safeJsonStringify(event.function_args, 2),
+  };
+
+  const logger = logs.getLogger(SERVICE_NAME);
+  logger.emit({
+    body: \`Tool call: \${event.function_name}. Success: \${event.success}. Duration: \${event.duration_ms}ms.\`,
+    attributes,
+  });
+
+  // 4. 指标记录
+  recordToolCallMetrics(config, event.duration_ms, {
+    function_name: event.function_name,
+    success: event.success,
+    decision: event.decision,
+    tool_type: event.tool_type,
   });
 }
 
-// 追踪器
-const tracer = trace.getTracer('qwen-cli');
+export function logApiResponse(config: Config, event: ApiResponseEvent): void {
+  // UI 遥测
+  uiTelemetryService.addEvent({ ...event, 'event.name': EVENT_API_RESPONSE });
 
-// 创建 Span
-export function createSpan(name: string) {
-  return tracer.startSpan(name);
+  // QwenLogger
+  QwenLogger.getInstance(config)?.logApiResponseEvent(event);
+
+  // OpenTelemetry
+  if (!isTelemetrySdkInitialized()) return;
+
+  // 记录日志
+  const logger = logs.getLogger(SERVICE_NAME);
+  logger.emit({
+    body: \`API response from \${event.model}. Duration: \${event.duration_ms}ms.\`,
+    attributes: { ...getCommonAttributes(config), ...event },
+  });
+
+  // 记录指标
+  recordApiResponseMetrics(config, event.duration_ms, {
+    model: event.model,
+    status_code: event.status_code,
+  });
+
+  // Token 使用指标 (5 种类型)
+  recordTokenUsageMetrics(config, event.input_token_count, { model: event.model, type: 'input' });
+  recordTokenUsageMetrics(config, event.output_token_count, { model: event.model, type: 'output' });
+  recordTokenUsageMetrics(config, event.cached_content_token_count, { model: event.model, type: 'cache' });
+  recordTokenUsageMetrics(config, event.thoughts_token_count, { model: event.model, type: 'thought' });
+  recordTokenUsageMetrics(config, event.tool_token_count, { model: event.model, type: 'tool' });
 }
 
-// 使用示例
-async function executeToolWithTracing(tool: Tool, args: any) {
-  const span = tracer.startSpan(\`tool.\${tool.name}\`);
+export function logChatCompression(config: Config, event: ChatCompressionEvent): void {
+  QwenLogger.getInstance(config)?.logChatCompressionEvent(event);
 
-  try {
-    span.setAttributes({
-      'tool.name': tool.name,
-      'tool.args_size': JSON.stringify(args).length,
-    });
+  const logger = logs.getLogger(SERVICE_NAME);
+  logger.emit({
+    body: \`Chat compression (Saved \${event.tokens_before - event.tokens_after} tokens)\`,
+    attributes: { ...getCommonAttributes(config), ...event },
+  });
 
-    const result = await tool.execute(args);
-
-    span.setStatus({ code: SpanStatusCode.OK });
-    return result;
-
-  } catch (error) {
-    span.setStatus({
-      code: SpanStatusCode.ERROR,
-      message: (error as Error).message,
-    });
-    span.recordException(error as Error);
-    throw error;
-
-  } finally {
-    span.end();
-  }
+  recordChatCompressionMetrics(config, {
+    tokens_before: event.tokens_before,
+    tokens_after: event.tokens_after,
+  });
 }`;
 
-  const metricsCode = `// 指标收集
-// packages/core/src/telemetry/metrics.ts
+  // RUM 事件结构
+  const rumEventStructureCode = `// packages/core/src/telemetry/qwen-logger/event-types.ts
+// RUM 协议数据结构
 
-import { metrics } from '@opentelemetry/api';
-
-const meter = metrics.getMeter('qwen-cli');
-
-// 计数器
-const requestCounter = meter.createCounter('ai_requests_total', {
-  description: 'Total number of AI requests',
-});
-
-const toolExecutionCounter = meter.createCounter('tool_executions_total', {
-  description: 'Total number of tool executions',
-});
-
-const errorCounter = meter.createCounter('errors_total', {
-  description: 'Total number of errors',
-});
-
-// 直方图 (延迟分布)
-const aiLatencyHistogram = meter.createHistogram('ai_request_latency_ms', {
-  description: 'AI request latency in milliseconds',
-  unit: 'ms',
-});
-
-const toolLatencyHistogram = meter.createHistogram('tool_execution_latency_ms', {
-  description: 'Tool execution latency in milliseconds',
-  unit: 'ms',
-});
-
-// 仪表 (当前值)
-const activeSessionsGauge = meter.createObservableGauge('active_sessions', {
-  description: 'Number of active sessions',
-});
-
-const contextTokensGauge = meter.createObservableGauge('context_tokens', {
-  description: 'Current context window token usage',
-});
-
-// 记录指标
-export function recordAIRequest(model: string, latency: number): void {
-  requestCounter.add(1, { model });
-  aiLatencyHistogram.record(latency, { model });
+export interface RumApp {
+  id: string;           // 应用 ID: 'gb4w8c3ygj@851d5d500f08f92'
+  env: string;          // 环境: 'dev' | 'prod'
+  version: string;      // CLI 版本
+  type: 'cli' | 'extension';
 }
 
-export function recordToolExecution(
-  toolName: string,
-  latency: number,
-  success: boolean
-): void {
-  toolExecutionCounter.add(1, { tool: toolName, success: String(success) });
-  toolLatencyHistogram.record(latency, { tool: toolName });
+export interface RumUser {
+  id: string;           // 用户 ID (基于 installationId 哈希)
 }
 
-export function recordError(errorType: string, category: string): void {
-  errorCounter.add(1, { type: errorType, category });
-}`;
-
-  const privacyCode = `// 隐私保护
-// packages/core/src/telemetry/privacy.ts
-
-// 隐私敏感字段
-const SENSITIVE_FIELDS = [
-  'api_key',
-  'token',
-  'password',
-  'secret',
-  'credential',
-  'authorization',
-  'email',
-  'phone',
-  'address',
-];
-
-// 数据清洗器
-export class TelemetrySanitizer {
-  private config: TelemetryConfig;
-
-  // 清洗事件数据
-  sanitize(event: TelemetryEvent): TelemetryEvent {
-    const sanitized = { ...event };
-
-    // 匿名化用户 ID
-    if (this.config.anonymizeUserId && sanitized.userId) {
-      sanitized.userId = this.hashUserId(sanitized.userId);
-    }
-
-    // 移除敏感字段
-    if (this.config.excludePersonalData) {
-      sanitized.data = this.removeSensitiveFields(sanitized.data);
-    }
-
-    // 移除内容数据
-    if (this.config.excludeContentData) {
-      sanitized.data = this.removeContentFields(sanitized.data);
-    }
-
-    return sanitized;
-  }
-
-  // 哈希用户 ID
-  private hashUserId(userId: string): string {
-    return crypto
-      .createHash('sha256')
-      .update(userId + 'qwen-salt')
-      .digest('hex')
-      .substring(0, 16);
-  }
-
-  // 移除敏感字段
-  private removeSensitiveFields(data: any): any {
-    if (typeof data !== 'object' || data === null) {
-      return data;
-    }
-
-    const cleaned: any = Array.isArray(data) ? [] : {};
-
-    for (const [key, value] of Object.entries(data)) {
-      const lowerKey = key.toLowerCase();
-
-      // 跳过敏感字段
-      if (SENSITIVE_FIELDS.some(f => lowerKey.includes(f))) {
-        cleaned[key] = '[REDACTED]';
-        continue;
-      }
-
-      // 递归处理嵌套对象
-      cleaned[key] = this.removeSensitiveFields(value);
-    }
-
-    return cleaned;
-  }
-
-  // 移除内容字段 (prompt, response 等)
-  private removeContentFields(data: any): any {
-    const contentFields = ['prompt', 'content', 'message', 'response', 'text'];
-
-    if (typeof data !== 'object' || data === null) {
-      return data;
-    }
-
-    const cleaned: any = { ...data };
-
-    for (const field of contentFields) {
-      if (field in cleaned) {
-        // 保留长度信息但移除实际内容
-        cleaned[field] = {
-          length: String(cleaned[field]).length,
-          redacted: true,
-        };
-      }
-    }
-
-    return cleaned;
-  }
+export interface RumSession {
+  id: string;           // 会话 ID
 }
 
-// 用户同意管理
-export class ConsentManager {
-  private consentGiven: boolean | null = null;
+export interface RumEvent {
+  timestamp?: number;
+  event_type?: 'view' | 'action' | 'exception' | 'resource';
+  type: string;         // 事件类型: 'session' | 'user' | 'tool' | 'api' | 'error'
+  name: string;         // 事件名称
+  snapshots?: string;   // JSON 字符串，附加数据
+  properties?: Record<string, unknown>;
+}
 
-  async checkConsent(): Promise<boolean> {
-    if (this.consentGiven !== null) {
-      return this.consentGiven;
-    }
+// 不同事件类型的扩展接口
+export interface RumViewEvent extends RumEvent {
+  view_type?: string;
+  time_spent?: number;  // 当前视图停留时间 (ms)
+}
 
-    // 从配置读取
-    const config = await loadConfig();
+export interface RumActionEvent extends RumEvent {
+  target_name?: string;
+  duration?: number;    // 动作持续时间 (ms)
+}
 
-    // 环境变量覆盖
-    if (process.env.QWEN_TELEMETRY === 'false') {
-      this.consentGiven = false;
-      return false;
-    }
+export interface RumResourceEvent extends RumEvent {
+  method?: string;      // HTTP 方法
+  status_code?: string;
+  url?: string;
+  duration?: number;    // 资源加载时间 (ms)
+  success?: number;     // 1: 成功, 0: 失败
+  trace_id?: string;
+}
 
-    this.consentGiven = config.telemetry?.enabled ?? true;
-    return this.consentGiven;
-  }
+export interface RumExceptionEvent extends RumEvent {
+  source?: string;      // 错误来源
+  subtype?: string;     // 错误子类型
+  message?: string;
+  stack?: string;
+}
 
-  async setConsent(consent: boolean): Promise<void> {
-    this.consentGiven = consent;
-    await saveConfig({ telemetry: { enabled: consent } });
-  }
+// 完整的 RUM Payload
+export interface RumPayload {
+  app: RumApp;
+  user: RumUser;
+  session: RumSession;
+  view: RumView;
+  events: RumEvent[];
+  properties?: Record<string, unknown>;
+  _v: string;           // 版本标识: 'qwen-code@x.y.z'
 }`;
 
-  const telemetryServiceCode = `// 遥测服务
-// packages/core/src/telemetry/service.ts
+  // 事件常量定义
+  const eventConstantsCode = `// packages/core/src/telemetry/constants.ts
+// 事件名称常量
 
-export class TelemetryService {
-  private config: TelemetryConfig;
-  private sanitizer: TelemetrySanitizer;
-  private consentManager: ConsentManager;
-  private eventBuffer: TelemetryEvent[] = [];
-  private flushTimer: NodeJS.Timer | null = null;
+export const SERVICE_NAME = 'qwen-code';
 
-  constructor(config: TelemetryConfig) {
-    this.config = config;
-    this.sanitizer = new TelemetrySanitizer(config);
-    this.consentManager = new ConsentManager();
+// 用户事件
+export const EVENT_USER_PROMPT = 'qwen-code.user_prompt';
+export const EVENT_SLASH_COMMAND = 'qwen-code.slash_command';
+export const EVENT_MODEL_SLASH_COMMAND = 'qwen-code.slash_command.model';
 
-    // 初始化 OpenTelemetry
-    if (config.enabled) {
-      initTelemetry(config);
-    }
+// API 事件
+export const EVENT_API_REQUEST = 'qwen-code.api_request';
+export const EVENT_API_RESPONSE = 'qwen-code.api_response';
+export const EVENT_API_ERROR = 'qwen-code.api_error';
+export const EVENT_API_CANCEL = 'qwen-code.api_cancel';
 
-    // 设置定时刷新
-    this.startFlushTimer();
-  }
+// 工具事件
+export const EVENT_TOOL_CALL = 'qwen-code.tool_call';
+export const EVENT_FILE_OPERATION = 'qwen-code.file_operation';
+export const EVENT_SUBAGENT_EXECUTION = 'qwen-code.subagent_execution';
 
-  // 记录事件
-  async record(event: TelemetryEvent): Promise<void> {
-    // 检查用户同意
-    if (!(await this.consentManager.checkConsent())) {
-      return;
-    }
+// 系统事件
+export const EVENT_CLI_CONFIG = 'qwen-code.config';
+export const EVENT_CHAT_COMPRESSION = 'qwen-code.chat_compression';
+export const EVENT_CONVERSATION_FINISHED = 'qwen-code.conversation_finished';
 
-    // 采样
-    if (Math.random() > this.config.sampleRate) {
-      return;
-    }
+// 错误事件
+export const EVENT_INVALID_CHUNK = 'qwen-code.chat.invalid_chunk';
+export const EVENT_CONTENT_RETRY = 'qwen-code.chat.content_retry';
+export const EVENT_CONTENT_RETRY_FAILURE = 'qwen-code.chat.content_retry_failure';
+export const EVENT_MALFORMED_JSON_RESPONSE = 'qwen-code.malformed_json_response';
 
-    // 清洗数据
-    const sanitized = this.sanitizer.sanitize(event);
+// 扩展事件
+export const EVENT_EXTENSION_INSTALL = 'qwen-code.extension_install';
+export const EVENT_EXTENSION_UNINSTALL = 'qwen-code.extension_uninstall';
+export const EVENT_EXTENSION_ENABLE = 'qwen-code.extension_enable';
+export const EVENT_EXTENSION_DISABLE = 'qwen-code.extension_disable';
 
-    // 添加到缓冲区
-    this.eventBuffer.push(sanitized);
+// IDE 事件
+export const EVENT_IDE_CONNECTION = 'qwen-code.ide_connection';
+export const EVENT_FLASH_FALLBACK = 'qwen-code.flash_fallback';
+export const EVENT_RIPGREP_FALLBACK = 'qwen-code.ripgrep_fallback';
 
-    // 检查是否需要立即刷新
-    if (this.eventBuffer.length >= this.config.batchSize) {
-      await this.flush();
-    }
-  }
+// 性能事件
+export const EVENT_STARTUP_PERFORMANCE = 'qwen-code.startup.performance';
+export const EVENT_MEMORY_USAGE = 'qwen-code.memory.usage';
+export const EVENT_PERFORMANCE_BASELINE = 'qwen-code.performance.baseline';
+export const EVENT_PERFORMANCE_REGRESSION = 'qwen-code.performance.regression';`;
 
-  // 刷新缓冲区
-  async flush(): Promise<void> {
-    if (this.eventBuffer.length === 0) {
-      return;
-    }
+  // 事件流转图
+  const eventFlowChart = `sequenceDiagram
+    participant User as 用户操作
+    participant Core as Core 层
+    participant Loggers as loggers.ts
+    participant UI as uiTelemetry
+    participant Qwen as QwenLogger
+    participant OTEL as OpenTelemetry
+    participant RUM as Aliyun RUM
+    participant OTLP as OTLP Backend
 
-    const events = [...this.eventBuffer];
-    this.eventBuffer = [];
+    User->>Core: 执行工具调用
+    Core->>Loggers: logToolCall(config, event)
 
-    try {
-      await this.sendEvents(events);
-    } catch (error) {
-      // 发送失败，将事件放回缓冲区
-      this.eventBuffer.unshift(...events);
-
-      // 限制队列大小
-      if (this.eventBuffer.length > this.config.maxQueueSize) {
-        this.eventBuffer = this.eventBuffer.slice(-this.config.maxQueueSize);
-      }
-    }
-  }
-
-  // 便捷方法
-  recordSessionStart(): void {
-    this.record({
-      category: 'session',
-      event: 'session.start',
-      data: {
-        sessionId: getSessionId(),
-        cliVersion: getVersion(),
-        platform: process.platform,
-        nodeVersion: process.version,
-      },
-    });
-  }
-
-  recordAIRequest(model: string, tokens: number): void {
-    this.record({
-      category: 'ai',
-      event: 'ai.request',
-      data: { model, promptTokens: tokens },
-    });
-  }
-
-  recordToolExecution(toolName: string, duration: number, success: boolean): void {
-    this.record({
-      category: 'tool',
-      event: 'tool.execute',
-      data: { toolName, duration, success },
-    });
-    recordToolExecution(toolName, duration, success);  // 也记录指标
-  }
-
-  recordError(error: Error, context?: any): void {
-    this.record({
-      category: 'error',
-      event: 'error.unhandled',
-      data: {
-        errorType: error.name,
-        message: error.message,
-        stack: error.stack,
-        context,
-      },
-    });
-    recordError(error.name, 'unhandled');  // 也记录指标
-  }
-}`;
+    par 并行记录
+        Loggers->>UI: addEvent(uiEvent)
+        Note over UI: 本地状态更新
+    and
+        Loggers->>Qwen: logToolCallEvent(event)
+        Qwen->>Qwen: enqueueLogEvent()
+        Note over Qwen: 加入缓冲队列
+        Qwen->>Qwen: flushIfNeeded()
+        alt 距上次刷新 >= 60s
+            Qwen->>RUM: POST /
+            Note over RUM: 批量发送
+        end
+    and
+        Loggers->>OTEL: logger.emit(logRecord)
+        Loggers->>OTEL: recordToolCallMetrics()
+        OTEL->>OTEL: BatchSpanProcessor
+        Note over OTEL: 批量处理
+        OTEL->>OTLP: Export (10s interval)
+    end`;
 
   return (
     <div className="space-y-8">
-      {/* 概述 */}
+      {/* 30秒速览 */}
       <section>
         <h2 className="text-2xl font-bold text-cyan-400 mb-4">遥测系统</h2>
+        <HighlightBox title="30秒速览" variant="blue">
+          <pre className="text-sm whitespace-pre-wrap font-mono">{quickSummary}</pre>
+        </HighlightBox>
+      </section>
+
+      {/* 概述 */}
+      <section>
         <p className="text-gray-300 mb-4">
-          遥测系统用于收集匿名化的使用数据和性能指标，帮助改进 CLI 的质量和用户体验。
-          基于 OpenTelemetry 标准，支持追踪、指标和日志的统一收集。
+          遥测系统采用<strong>双通道架构</strong>：OpenTelemetry (OTLP) 用于标准化可观测性数据，
+          QwenLogger (RUM) 用于发送用户行为分析数据到阿里云。两个通道独立运作，互不干扰。
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <HighlightBox title="事件追踪" color="blue">
-            <p className="text-sm">会话、请求、工具执行</p>
-            <code className="text-xs text-blue-400">Traces</code>
+          <HighlightBox title="OpenTelemetry" variant="green">
+            <p className="text-sm">Traces + Metrics + Logs</p>
+            <code className="text-xs text-green-400">OTLP gRPC/HTTP</code>
           </HighlightBox>
 
-          <HighlightBox title="性能指标" color="green">
-            <p className="text-sm">延迟、吞吐量、资源使用</p>
-            <code className="text-xs text-green-400">Metrics</code>
+          <HighlightBox title="QwenLogger" variant="yellow">
+            <p className="text-sm">RUM 用户行为分析</p>
+            <code className="text-xs text-yellow-400">Aliyun RUM</code>
           </HighlightBox>
 
-          <HighlightBox title="错误报告" color="red">
-            <p className="text-sm">异常、失败、超时</p>
-            <code className="text-xs text-red-400">Errors</code>
+          <HighlightBox title="指标类型" variant="blue">
+            <p className="text-sm">Counter / Histogram / Gauge</p>
+            <code className="text-xs text-blue-400">OpenTelemetry API</code>
           </HighlightBox>
 
-          <HighlightBox title="隐私保护" color="purple">
-            <p className="text-sm">匿名化、数据清洗</p>
-            <code className="text-xs text-purple-400">Privacy</code>
+          <HighlightBox title="隐私保护" variant="purple">
+            <p className="text-sm">匿名化 + 脱敏 + 可禁用</p>
+            <code className="text-xs text-purple-400">QWEN_TELEMETRY=false</code>
           </HighlightBox>
         </div>
       </section>
 
-      {/* 数据流 */}
+      {/* 双通道架构 */}
       <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">遥测数据流</h3>
-        <MermaidDiagram chart={telemetryFlowChart} title="遥测数据流" />
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">双通道架构</h3>
+        <MermaidDiagram chart={dualChannelArchChart} />
       </section>
 
-      {/* 配置 */}
+      {/* SDK 初始化流程 */}
       <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">遥测配置</h3>
-        <CodeBlock code={telemetryConfigCode} language="typescript" title="配置选项" />
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">SDK 初始化流程</h3>
+        <MermaidDiagram chart={sdkInitChart} />
+        <CodeBlock code={sdkInitCode} language="typescript" title="sdk.ts - 初始化实现" />
+      </section>
+
+      {/* 指标定义 */}
+      <section>
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">指标定义</h3>
+        <CodeBlock code={metricsDefinitionCode} language="typescript" title="metrics.ts - Counter & Histogram" />
 
         <div className="mt-4 bg-gray-800/50 rounded-lg p-4">
-          <h4 className="font-semibold text-yellow-400 mb-2">禁用遥测</h4>
-          <div className="text-sm text-gray-300 space-y-2">
-            <p>通过环境变量禁用:</p>
-            <code className="bg-gray-900 px-2 py-1 rounded">export QWEN_TELEMETRY=false</code>
-            <p className="mt-2">通过配置文件禁用 (~/.qwen/settings.json):</p>
-            <code className="bg-gray-900 px-2 py-1 rounded block mt-1">
-              {`{ "telemetry": { "enabled": false } }`}
-            </code>
-          </div>
-        </div>
-      </section>
-
-      {/* 事件类型 */}
-      <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">事件类型</h3>
-        <CodeBlock code={eventTypesCode} language="typescript" title="事件定义" />
-
-        <div className="mt-4 grid grid-cols-2 gap-4">
-          <div className="bg-gray-800/50 rounded-lg p-4">
-            <h4 className="font-semibold text-cyan-400 mb-2">收集的事件</h4>
-            <ul className="text-sm text-gray-300 space-y-1">
-              <li>• 会话开始/结束</li>
-              <li>• AI 请求和响应</li>
-              <li>• 工具执行统计</li>
-              <li>• 错误和异常</li>
-              <li>• 性能指标</li>
-            </ul>
-          </div>
-          <div className="bg-gray-800/50 rounded-lg p-4">
-            <h4 className="font-semibold text-cyan-400 mb-2">不收集的数据</h4>
-            <ul className="text-sm text-gray-300 space-y-1">
-              <li>• 用户提示词内容</li>
-              <li>• AI 响应内容</li>
-              <li>• 文件内容</li>
-              <li>• 个人身份信息</li>
-              <li>• API 密钥和凭证</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* OpenTelemetry */}
-      <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">OpenTelemetry 集成</h3>
-        <CodeBlock code={openTelemetryCode} language="typescript" title="追踪实现" />
-      </section>
-
-      {/* 指标 */}
-      <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">指标收集</h3>
-        <CodeBlock code={metricsCode} language="typescript" title="Metrics" />
-
-        <div className="mt-4 bg-gray-800/50 rounded-lg p-4">
-          <h4 className="font-semibold text-cyan-400 mb-2">关键指标</h4>
+          <h4 className="font-semibold text-cyan-400 mb-2">核心指标参考表</h4>
           <table className="w-full text-sm">
             <thead>
               <tr className="text-gray-400">
                 <th className="text-left p-2">指标名</th>
                 <th className="text-left p-2">类型</th>
+                <th className="text-left p-2">单位</th>
                 <th className="text-left p-2">说明</th>
               </tr>
             </thead>
             <tbody className="text-gray-300">
               <tr className="border-t border-gray-700">
-                <td className="p-2"><code>ai_requests_total</code></td>
+                <td className="p-2"><code className="text-green-400">qwen-code.tool.call.count</code></td>
                 <td className="p-2">Counter</td>
-                <td className="p-2">AI 请求总数</td>
+                <td className="p-2">次</td>
+                <td className="p-2">工具调用总数</td>
               </tr>
               <tr className="border-t border-gray-700">
-                <td className="p-2"><code>ai_request_latency_ms</code></td>
+                <td className="p-2"><code className="text-green-400">qwen-code.tool.call.latency</code></td>
                 <td className="p-2">Histogram</td>
-                <td className="p-2">AI 请求延迟分布</td>
+                <td className="p-2">ms</td>
+                <td className="p-2">工具调用延迟分布</td>
               </tr>
               <tr className="border-t border-gray-700">
-                <td className="p-2"><code>tool_executions_total</code></td>
+                <td className="p-2"><code className="text-green-400">qwen-code.api.request.count</code></td>
                 <td className="p-2">Counter</td>
-                <td className="p-2">工具执行总数</td>
+                <td className="p-2">次</td>
+                <td className="p-2">API 请求总数</td>
               </tr>
               <tr className="border-t border-gray-700">
-                <td className="p-2"><code>errors_total</code></td>
+                <td className="p-2"><code className="text-green-400">qwen-code.api.request.latency</code></td>
+                <td className="p-2">Histogram</td>
+                <td className="p-2">ms</td>
+                <td className="p-2">API 请求延迟分布</td>
+              </tr>
+              <tr className="border-t border-gray-700">
+                <td className="p-2"><code className="text-green-400">qwen-code.token.usage</code></td>
                 <td className="p-2">Counter</td>
-                <td className="p-2">错误总数</td>
+                <td className="p-2">tokens</td>
+                <td className="p-2">Token 使用量 (input/output/cache/thought/tool)</td>
               </tr>
               <tr className="border-t border-gray-700">
-                <td className="p-2"><code>context_tokens</code></td>
-                <td className="p-2">Gauge</td>
-                <td className="p-2">当前上下文 Token 数</td>
+                <td className="p-2"><code className="text-green-400">qwen-code.session.count</code></td>
+                <td className="p-2">Counter</td>
+                <td className="p-2">次</td>
+                <td className="p-2">CLI 会话总数</td>
+              </tr>
+              <tr className="border-t border-gray-700">
+                <td className="p-2"><code className="text-green-400">qwen-code.chat_compression</code></td>
+                <td className="p-2">Counter</td>
+                <td className="p-2">次</td>
+                <td className="p-2">上下文压缩事件</td>
+              </tr>
+              <tr className="border-t border-gray-700">
+                <td className="p-2"><code className="text-green-400">qwen-code.subagent.execution.count</code></td>
+                <td className="p-2">Counter</td>
+                <td className="p-2">次</td>
+                <td className="p-2">子代理执行计数</td>
               </tr>
             </tbody>
           </table>
         </div>
       </section>
 
-      {/* 隐私保护 */}
+      {/* 性能监控指标 */}
       <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">隐私保护</h3>
-        <CodeBlock code={privacyCode} language="typescript" title="数据清洗" />
-
-        <HighlightBox title="隐私保护措施" color="green" className="mt-4">
-          <ul className="text-sm space-y-1">
-            <li>• <strong>用户 ID 哈希</strong>: 使用 SHA-256 单向哈希</li>
-            <li>• <strong>敏感字段过滤</strong>: 自动检测并移除密钥、密码等</li>
-            <li>• <strong>内容脱敏</strong>: 只保留长度信息，移除实际内容</li>
-            <li>• <strong>用户同意</strong>: 尊重用户的禁用选择</li>
-            <li>• <strong>本地采样</strong>: 在客户端进行采样，减少数据量</li>
-          </ul>
-        </HighlightBox>
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">性能监控指标</h3>
+        <CodeBlock code={performanceMetricsCode} language="typescript" title="metrics.ts - 性能监控" />
       </section>
 
-      {/* 遥测服务 */}
+      {/* 事件类型 */}
       <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">遥测服务</h3>
-        <CodeBlock code={telemetryServiceCode} language="typescript" title="TelemetryService" />
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">事件类型定义</h3>
+        <CodeBlock code={eventTypesCode} language="typescript" title="types.ts" />
       </section>
 
-      {/* 架构图 */}
+      {/* 事件常量 */}
       <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">遥测系统架构</h3>
-        <div className="bg-gray-800/50 rounded-lg p-6">
-          <pre className="text-sm text-gray-300 overflow-x-auto">
-{`┌──────────────────────────────────────────────────────────────────┐
-│                         Qwen CLI                               │
-│                                                                  │
-│  ┌─────────────────────────────────────────────────────────────┐ │
-│  │                    Event Sources                            │ │
-│  │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐    │ │
-│  │  │ Session  │  │    AI    │  │  Tools   │  │  Errors  │    │ │
-│  │  │  Events  │  │  Events  │  │  Events  │  │  Events  │    │ │
-│  │  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘    │ │
-│  │       └─────────────┴─────────────┴─────────────┘           │ │
-│  │                              │                              │ │
-│  └──────────────────────────────┼──────────────────────────────┘ │
-│                                 │                                │
-│  ┌──────────────────────────────▼──────────────────────────────┐ │
-│  │                   Telemetry Service                         │ │
-│  │  ┌───────────────┐  ┌───────────────┐  ┌───────────────┐   │ │
-│  │  │    Consent    │  │   Sanitizer   │  │    Sampler    │   │ │
-│  │  │    Manager    │  │               │  │               │   │ │
-│  │  │               │  │  Remove PII   │  │  Rate: 1.0    │   │ │
-│  │  │  Check: ✓     │  │  Hash UserID  │  │  Traces: 0.1  │   │ │
-│  │  └───────────────┘  └───────────────┘  └───────────────┘   │ │
-│  │                                                             │ │
-│  │  ┌────────────────────────────────────────────────────────┐ │ │
-│  │  │                    Event Buffer                        │ │ │
-│  │  │  [event1] [event2] [event3] ... [eventN]              │ │ │
-│  │  │           Batch Size: 100 | Flush: 30s                │ │ │
-│  │  └───────────────────────┬────────────────────────────────┘ │ │
-│  │                          │                                  │ │
-│  └──────────────────────────┼──────────────────────────────────┘ │
-│                             │                                    │
-└─────────────────────────────┼────────────────────────────────────┘
-                              │
-                              ▼
-┌──────────────────────────────────────────────────────────────────┐
-│                     OpenTelemetry SDK                            │
-│  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐     │
-│  │ Trace Exporter │  │ Metric Exporter│  │  Log Exporter  │     │
-│  │     OTLP       │  │     OTLP       │  │     OTLP       │     │
-│  └───────┬────────┘  └───────┬────────┘  └───────┬────────┘     │
-│          └───────────────────┼───────────────────┘               │
-│                              │                                   │
-└──────────────────────────────┼───────────────────────────────────┘
-                               │
-                               ▼
-┌──────────────────────────────────────────────────────────────────┐
-│                    Telemetry Backend                             │
-│             https://telemetry.qwen.dev                         │
-│                                                                  │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │
-│  │  Collector  │  │  Processor  │  │   Storage   │              │
-│  │    OTLP     │→ │  Aggregate  │→ │   Analyze   │              │
-│  └─────────────┘  └─────────────┘  └─────────────┘              │
-│                                                                  │
-└──────────────────────────────────────────────────────────────────┘`}
-          </pre>
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">事件名称常量</h3>
+        <CodeBlock code={eventConstantsCode} language="typescript" title="constants.ts" />
+      </section>
+
+      {/* QwenLogger 实现 */}
+      <section>
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">QwenLogger 实现</h3>
+        <CodeBlock code={qwenLoggerCode} language="typescript" title="qwen-logger.ts" />
+
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <HighlightBox title="刷新间隔" variant="blue">
+            <p className="text-2xl font-bold">60s</p>
+            <p className="text-xs text-gray-400">FLUSH_INTERVAL_MS</p>
+          </HighlightBox>
+          <HighlightBox title="最大事件数" variant="green">
+            <p className="text-2xl font-bold">1000</p>
+            <p className="text-xs text-gray-400">MAX_EVENTS (FIFO 淘汰)</p>
+          </HighlightBox>
+          <HighlightBox title="重试队列" variant="yellow">
+            <p className="text-2xl font-bold">100</p>
+            <p className="text-xs text-gray-400">MAX_RETRY_EVENTS</p>
+          </HighlightBox>
+        </div>
+      </section>
+
+      {/* RUM 事件结构 */}
+      <section>
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">RUM 事件结构</h3>
+        <CodeBlock code={rumEventStructureCode} language="typescript" title="event-types.ts" />
+      </section>
+
+      {/* 采集点实现 */}
+      <section>
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">采集点实现</h3>
+        <CodeBlock code={loggersCode} language="typescript" title="loggers.ts - 双通道记录" />
+      </section>
+
+      {/* 事件流转时序图 */}
+      <section>
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">事件流转时序</h3>
+        <MermaidDiagram chart={eventFlowChart} />
+      </section>
+
+      {/* 禁用遥测 */}
+      <section>
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">禁用遥测</h3>
+        <div className="bg-gray-800/50 rounded-lg p-4">
+          <div className="text-sm text-gray-300 space-y-3">
+            <div>
+              <p className="font-semibold text-yellow-400 mb-1">方法 1: 环境变量</p>
+              <code className="bg-gray-900 px-2 py-1 rounded block">export QWEN_TELEMETRY=false</code>
+            </div>
+            <div>
+              <p className="font-semibold text-yellow-400 mb-1">方法 2: 配置文件 (~/.qwen/settings.json)</p>
+              <code className="bg-gray-900 px-2 py-1 rounded block">
+                {`{ "telemetry": { "enabled": false } }`}
+              </code>
+            </div>
+            <div>
+              <p className="font-semibold text-yellow-400 mb-1">方法 3: 禁用使用统计 (QwenLogger)</p>
+              <code className="bg-gray-900 px-2 py-1 rounded block">
+                {`{ "usageStatistics": false }`}
+              </code>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 源码导航 */}
+      <section>
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">源码导航</h3>
+        <div className="bg-gray-800/50 rounded-lg p-4 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-gray-400">
+                <th className="text-left p-2">文件</th>
+                <th className="text-left p-2">职责</th>
+                <th className="text-left p-2">关键导出</th>
+              </tr>
+            </thead>
+            <tbody className="text-gray-300">
+              <tr className="border-t border-gray-700">
+                <td className="p-2"><code>telemetry/sdk.ts</code></td>
+                <td className="p-2">SDK 初始化与关闭</td>
+                <td className="p-2"><code>initializeTelemetry</code>, <code>shutdownTelemetry</code></td>
+              </tr>
+              <tr className="border-t border-gray-700">
+                <td className="p-2"><code>telemetry/metrics.ts</code></td>
+                <td className="p-2">指标定义与记录</td>
+                <td className="p-2"><code>initializeMetrics</code>, <code>recordToolCallMetrics</code>, ...</td>
+              </tr>
+              <tr className="border-t border-gray-700">
+                <td className="p-2"><code>telemetry/types.ts</code></td>
+                <td className="p-2">事件类型定义</td>
+                <td className="p-2"><code>TelemetryEvent</code>, <code>*Event</code> classes</td>
+              </tr>
+              <tr className="border-t border-gray-700">
+                <td className="p-2"><code>telemetry/constants.ts</code></td>
+                <td className="p-2">事件名称常量</td>
+                <td className="p-2"><code>EVENT_*</code>, <code>SERVICE_NAME</code></td>
+              </tr>
+              <tr className="border-t border-gray-700">
+                <td className="p-2"><code>telemetry/loggers.ts</code></td>
+                <td className="p-2">采集点函数</td>
+                <td className="p-2"><code>logToolCall</code>, <code>logApiResponse</code>, ...</td>
+              </tr>
+              <tr className="border-t border-gray-700">
+                <td className="p-2"><code>telemetry/qwen-logger/qwen-logger.ts</code></td>
+                <td className="p-2">RUM 日志记录器</td>
+                <td className="p-2"><code>QwenLogger</code> singleton</td>
+              </tr>
+              <tr className="border-t border-gray-700">
+                <td className="p-2"><code>telemetry/qwen-logger/event-types.ts</code></td>
+                <td className="p-2">RUM 事件结构</td>
+                <td className="p-2"><code>RumEvent</code>, <code>RumPayload</code></td>
+              </tr>
+              <tr className="border-t border-gray-700">
+                <td className="p-2"><code>telemetry/uiTelemetry.ts</code></td>
+                <td className="p-2">UI 遥测服务</td>
+                <td className="p-2"><code>uiTelemetryService</code></td>
+              </tr>
+              <tr className="border-t border-gray-700">
+                <td className="p-2"><code>telemetry/file-exporters.ts</code></td>
+                <td className="p-2">文件导出器</td>
+                <td className="p-2"><code>FileSpanExporter</code>, <code>FileLogExporter</code>, ...</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
@@ -798,22 +1118,45 @@ export class TelemetryService {
           <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
             <h4 className="text-green-400 font-semibold mb-2">遥测设计原则</h4>
             <ul className="text-sm text-gray-300 space-y-1">
-              <li>✓ 始终获得用户同意</li>
-              <li>✓ 最小化收集原则</li>
-              <li>✓ 默认匿名化</li>
-              <li>✓ 提供禁用选项</li>
-              <li>✓ 透明的数据使用说明</li>
+              <li>✓ 双通道独立运作，互不干扰</li>
+              <li>✓ 批量发送减少网络开销</li>
+              <li>✓ FIFO 淘汰防止内存泄漏</li>
+              <li>✓ 指数退避重试网络错误</li>
+              <li>✓ 默认启用，可完全禁用</li>
             </ul>
           </div>
           <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
-            <h4 className="text-blue-400 font-semibold mb-2">实现建议</h4>
+            <h4 className="text-blue-400 font-semibold mb-2">关键配置</h4>
             <ul className="text-sm text-gray-300 space-y-1">
-              <li>→ 使用批量发送减少网络开销</li>
-              <li>→ 本地采样减少数据量</li>
-              <li>→ 优雅降级，不影响主功能</li>
-              <li>→ 异步发送，不阻塞主流程</li>
-              <li>→ 定期清理本地缓存</li>
+              <li>→ OTLP Endpoint: 配置自定义后端</li>
+              <li>→ OTLP Protocol: grpc (默认) 或 http</li>
+              <li>→ Telemetry Outfile: 输出到本地文件</li>
+              <li>→ Log User Prompts: 是否记录用户输入</li>
+              <li>→ Usage Statistics: RUM 数据收集开关</li>
             </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* 相关页面 */}
+      <section>
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">相关页面</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <div className="bg-gray-800/50 rounded p-3 text-center">
+            <span className="text-cyan-400">配置系统</span>
+            <p className="text-xs text-gray-400 mt-1">遥测配置选项</p>
+          </div>
+          <div className="bg-gray-800/50 rounded p-3 text-center">
+            <span className="text-cyan-400">上下文管理</span>
+            <p className="text-xs text-gray-400 mt-1">压缩事件记录</p>
+          </div>
+          <div className="bg-gray-800/50 rounded p-3 text-center">
+            <span className="text-cyan-400">工具系统</span>
+            <p className="text-xs text-gray-400 mt-1">工具调用指标</p>
+          </div>
+          <div className="bg-gray-800/50 rounded p-3 text-center">
+            <span className="text-cyan-400">子代理系统</span>
+            <p className="text-xs text-gray-400 mt-1">子代理执行指标</p>
           </div>
         </div>
       </section>

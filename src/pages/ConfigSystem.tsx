@@ -9,6 +9,132 @@ export function ConfigSystem() {
     <div>
       <h2 className="text-2xl text-cyan-400 mb-5">配置系统详解 (Settings v2)</h2>
 
+      {/* 30秒速览 */}
+      <Layer title="30秒速览" icon="⚡">
+        <HighlightBox title="配置系统核心要点" icon="🎯" variant="purple">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2 text-sm">
+              <div className="flex items-start gap-2">
+                <span className="text-cyan-400 font-bold">📁</span>
+                <div>
+                  <strong>四层配置</strong>
+                  <div className="text-xs text-gray-400">systemDefaults → user → workspace → system</div>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-cyan-400 font-bold">🔀</span>
+                <div>
+                  <strong>4种合并策略</strong>
+                  <div className="text-xs text-gray-400">REPLACE | CONCAT | UNION | SHALLOW_MERGE</div>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-cyan-400 font-bold">🔐</span>
+                <div>
+                  <strong>信任门禁</strong>
+                  <div className="text-xs text-gray-400">非信任目录 → workspace 配置被忽略</div>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-start gap-2">
+                <span className="text-orange-400 font-bold">🌍</span>
+                <div>
+                  <strong>环境变量解析</strong>
+                  <div className="text-xs text-gray-400">$VAR 和 {'${VAR}'} 语法支持</div>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-green-400 font-bold">🔄</span>
+                <div>
+                  <strong>自动迁移</strong>
+                  <div className="text-xs text-gray-400">v1 扁平结构 → v2 嵌套结构</div>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-purple-400 font-bold">🛠️</span>
+                <div>
+                  <strong>工具集组装</strong>
+                  <div className="text-xs text-gray-400">Core + Discovery + MCP 三路合流</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </HighlightBox>
+
+        <div className="mt-4 bg-black/30 rounded-lg p-4 font-mono text-xs overflow-x-auto">
+          <div className="text-gray-500 mb-2">// 核心常量 - packages/cli/src/config/settings.ts</div>
+          <div><span className="text-purple-400">SETTINGS_VERSION</span> = <span className="text-yellow-400">2</span>  <span className="text-gray-500">// 当前配置版本</span></div>
+          <div><span className="text-purple-400">SETTINGS_VERSION_KEY</span> = <span className="text-green-400">"$version"</span>  <span className="text-gray-500">// 版本标记字段</span></div>
+          <div><span className="text-purple-400">SETTINGS_DIRECTORY_NAME</span> = <span className="text-green-400">".innies"</span>  <span className="text-gray-500">// 配置目录名</span></div>
+          <div><span className="text-purple-400">DEFAULT_EXCLUDED_ENV_VARS</span> = [<span className="text-green-400">"DEBUG"</span>, <span className="text-green-400">"DEBUG_MODE"</span>]</div>
+          <div className="mt-2 text-gray-500">// 合并策略枚举 - packages/cli/src/config/settingsSchema.ts:51-60</div>
+          <div><span className="text-cyan-400">MergeStrategy.REPLACE</span> = <span className="text-green-400">"replace"</span>  <span className="text-gray-500">// 直接覆盖（默认）</span></div>
+          <div><span className="text-cyan-400">MergeStrategy.CONCAT</span> = <span className="text-green-400">"concat"</span>  <span className="text-gray-500">// 数组拼接</span></div>
+          <div><span className="text-cyan-400">MergeStrategy.UNION</span> = <span className="text-green-400">"union"</span>  <span className="text-gray-500">// 数组去重合并</span></div>
+          <div><span className="text-cyan-400">MergeStrategy.SHALLOW_MERGE</span> = <span className="text-green-400">"shallow_merge"</span>  <span className="text-gray-500">// 对象浅合并</span></div>
+        </div>
+      </Layer>
+
+      {/* 完整加载序列图 */}
+      <Layer title="配置加载完整序列" icon="📊">
+        <MermaidDiagram
+          title="从 CLI 启动到 Config 实例创建的完整流程"
+          chart={`sequenceDiagram
+    participant CLI as CLI启动
+    participant LS as loadSettings()
+    participant Migrate as migrateSettingsToV2()
+    participant Trust as isWorkspaceTrusted()
+    participant Env as loadEnvironment()
+    participant Merge as mergeSettings()
+    participant LCC as loadCliConfig()
+    participant Memory as loadHierarchicalGeminiMemory()
+    participant Config as Config实例
+
+    CLI->>LS: 1. 加载四层配置文件
+    LS->>LS: 读取 system-defaults.json
+    LS->>LS: 读取 ~/.innies/settings.json
+    LS->>LS: 读取 .innies/settings.json
+    LS->>LS: 读取 /etc/.../settings.json
+
+    LS->>Migrate: 2. 检查并迁移 v1 → v2
+    Migrate-->>LS: 返回迁移后的配置
+
+    LS->>LS: 3. resolveEnvVarsInObject()
+    Note right of LS: 解析 $VAR 和 \${VAR}
+
+    LS->>Trust: 4. 初始信任检查
+    Trust-->>LS: isTrusted: boolean
+
+    LS->>Merge: 5. customDeepMerge()
+    Note right of Merge: systemDefaults → user → workspace → system
+    Merge-->>LS: 合并后的 Settings
+
+    LS->>Env: 6. loadEnvironment()
+    Note right of Env: 仅受信任目录加载项目 .env
+    Env-->>LS: 环境变量已加载
+
+    LS-->>CLI: 返回 LoadedSettings
+
+    CLI->>LCC: 7. loadCliConfig()
+
+    LCC->>Memory: 8. 加载 QWEN.md 记忆
+    Memory-->>LCC: userMemory: string
+
+    LCC->>LCC: 9. mergeMcpServers()
+    Note right of LCC: 合并 settings + extensions 的 MCP
+
+    LCC->>LCC: 10. 确定 approvalMode
+    Note right of LCC: CLI > settings > 默认
+
+    LCC->>Trust: 11. 二次信任检查
+    Trust-->>LCC: 不受信任 → 强制降级 approvalMode
+
+    LCC->>Config: 12. new Config({...})
+    Config-->>CLI: 返回完整 Config 实例`}
+        />
+      </Layer>
+
       {/* 配置层次 */}
       <Layer title="配置层次与优先级" icon="📁">
         <HighlightBox title="七层配置优先级（从低到高）" icon="🏗️" variant="blue">
@@ -16,8 +142,8 @@ export function ConfigSystem() {
           <ol className="list-decimal pl-5 space-y-1 text-sm">
             <li><strong>默认值</strong> - 代码中的硬编码默认</li>
             <li><strong>System Defaults</strong> - 系统级默认配置文件</li>
-            <li><strong>User Settings</strong> - 用户级配置 <code>~/.qwen/settings.json</code></li>
-            <li><strong>Workspace Settings</strong> - 项目级配置 <code>.qwen/settings.json</code></li>
+            <li><strong>User Settings</strong> - 用户级配置 <code>~/.innies/settings.json</code></li>
+            <li><strong>Workspace Settings</strong> - 项目级配置 <code>.innies/settings.json</code></li>
             <li><strong>System Settings</strong> - 系统级覆盖配置（企业管控）</li>
             <li><strong>环境变量</strong> - <code>.env</code> 文件或 shell 环境</li>
             <li><strong>命令行参数</strong> - 启动时传入的参数</li>
@@ -27,7 +153,7 @@ export function ConfigSystem() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-4">
             <h4 className="text-cyan-400 font-bold mb-2">🏠 用户级配置</h4>
-            <code className="text-xs text-gray-400 block mb-2">~/.qwen/settings.json</code>
+            <code className="text-xs text-gray-400 block mb-2">~/.innies/settings.json</code>
             <p className="text-sm text-gray-300">
               跨所有项目的全局配置，如 UI 偏好、默认模型等
             </p>
@@ -35,7 +161,7 @@ export function ConfigSystem() {
 
           <div className="bg-purple-500/10 border-2 border-purple-500/30 rounded-lg p-4">
             <h4 className="text-purple-400 font-bold mb-2">📂 项目级配置</h4>
-            <code className="text-xs text-gray-400 block mb-2">.qwen/settings.json</code>
+            <code className="text-xs text-gray-400 block mb-2">.innies/settings.json</code>
             <p className="text-sm text-gray-300">
               项目特定配置，覆盖用户级设置<br/>
               <span className="text-orange-400 text-xs">⚠️ 非信任目录时被忽略</span>
@@ -45,8 +171,8 @@ export function ConfigSystem() {
           <div className="bg-green-500/10 border-2 border-green-500/30 rounded-lg p-4">
             <h4 className="text-green-400 font-bold mb-2">🏢 System Defaults</h4>
             <code className="text-xs text-gray-400 block mb-2">
-              /etc/qwen-code/system-defaults.json (Linux)<br/>
-              /Library/Application Support/QwenCode/system-defaults.json (macOS)
+              /etc/innies-code/system-defaults.json (Linux)<br/>
+              /Library/Application Support/InniesCode/system-defaults.json (macOS)
             </code>
             <p className="text-sm text-gray-300">
               系统级默认值，可被用户/项目覆盖
@@ -56,14 +182,44 @@ export function ConfigSystem() {
           <div className="bg-red-500/10 border-2 border-red-500/30 rounded-lg p-4">
             <h4 className="text-red-400 font-bold mb-2">🔒 System Settings (Override)</h4>
             <code className="text-xs text-gray-400 block mb-2">
-              /etc/qwen-code/settings.json (Linux)<br/>
-              /Library/Application Support/QwenCode/settings.json (macOS)
+              /etc/innies-code/settings.json (Linux)<br/>
+              /Library/Application Support/InniesCode/settings.json (macOS)
             </code>
             <p className="text-sm text-gray-300">
               系统管理员强制覆盖，优先级最高
             </p>
           </div>
         </div>
+
+        <CodeBlock
+          title="packages/cli/src/config/settings.ts:140-161 - 系统配置路径"
+          code={`// 获取系统级覆盖配置路径
+export function getSystemSettingsPath(): string {
+  // 环境变量覆盖
+  if (process.env['QWEN_CODE_SYSTEM_SETTINGS_PATH']) {
+    return process.env['QWEN_CODE_SYSTEM_SETTINGS_PATH'];
+  }
+  // 平台特定路径
+  if (platform() === 'darwin') {
+    return '/Library/Application Support/QwenCode/settings.json';
+  } else if (platform() === 'win32') {
+    return 'C:\\\\ProgramData\\\\qwen-code\\\\settings.json';
+  } else {
+    return '/etc/qwen-code/settings.json';
+  }
+}
+
+// 获取系统级默认配置路径
+export function getSystemDefaultsPath(): string {
+  if (process.env['QWEN_CODE_SYSTEM_DEFAULTS_PATH']) {
+    return process.env['QWEN_CODE_SYSTEM_DEFAULTS_PATH'];
+  }
+  return path.join(
+    path.dirname(getSystemSettingsPath()),
+    'system-defaults.json',
+  );
+}`}
+        />
       </Layer>
 
       {/* v2 结构 */}
@@ -189,7 +345,7 @@ export function ConfigSystem() {
     "loadMemoryFromIncludeDirectories": false,
     "fileFiltering": {
       "respectGitIgnore": true,
-      "respectQwenIgnore": true,
+      "respectInniesIgnore": true,
       "enableRecursiveFileSearch": true,
       "disableFuzzySearch": false
     }
@@ -249,8 +405,85 @@ export function ConfigSystem() {
       </Layer>
 
       {/* v1 → v2 迁移映射 */}
-      <Layer title="v1 → v2 字段映射" icon="🔄">
-        <div className="overflow-x-auto">
+      <Layer title="v1 → v2 字段映射与迁移" icon="🔄">
+        <HighlightBox title="迁移逻辑详解" icon="⚙️" variant="purple">
+          <p className="text-sm mb-2">
+            <code>migrateSettingsToV2()</code> 函数负责将 v1 扁平结构迁移到 v2 嵌套结构。
+            迁移时会备份原文件为 <code>.orig</code>。
+          </p>
+          <p className="text-xs text-gray-400">
+            源码位置: <code>packages/cli/src/config/settings.ts:253-321</code>
+          </p>
+        </HighlightBox>
+
+        <CodeBlock
+          title="packages/cli/src/config/settings.ts:63-138 - 迁移映射表"
+          code={`// v1 字段 → v2 路径的完整映射表
+const MIGRATION_MAP: Record<string, string> = {
+  // General
+  vimMode: 'general.vimMode',
+  preferredEditor: 'general.preferredEditor',
+  disableAutoUpdate: 'general.disableAutoUpdate',
+  checkpointing: 'general.checkpointing',
+  enablePromptCompletion: 'general.enablePromptCompletion',
+
+  // UI
+  theme: 'ui.theme',
+  hideBanner: 'ui.hideBanner',
+  hideTips: 'ui.hideTips',
+  hideFooter: 'ui.hideFooter',
+  hideWindowTitle: 'ui.hideWindowTitle',
+  showMemoryUsage: 'ui.showMemoryUsage',
+  showLineNumbers: 'ui.showLineNumbers',
+  hideCWD: 'ui.footer.hideCWD',
+  hideSandboxStatus: 'ui.footer.hideSandboxStatus',
+  accessibility: 'ui.accessibility',
+  customWittyPhrases: 'ui.customWittyPhrases',
+  enableWelcomeBack: 'ui.enableWelcomeBack',
+
+  // Model
+  model: 'model.name',                    // ⚠️ string → model.name
+  maxSessionTurns: 'model.maxSessionTurns',
+  sessionTokenLimit: 'model.sessionTokenLimit',
+  skipNextSpeakerCheck: 'model.skipNextSpeakerCheck',
+  chatCompression: 'model.chatCompression',
+  summarizeToolOutput: 'model.summarizeToolOutput',
+  contentGenerator: 'model.generationConfig',
+
+  // Tools
+  allowedTools: 'tools.allowed',
+  excludeTools: 'tools.exclude',
+  coreTools: 'tools.core',
+  autoAccept: 'tools.autoAccept',
+  approvalMode: 'tools.approvalMode',
+  sandbox: 'tools.sandbox',
+  shouldUseNodePtyShell: 'tools.shell.enableInteractiveShell',
+  shellPager: 'tools.shell.pager',
+  toolDiscoveryCommand: 'tools.discoveryCommand',
+  toolCallCommand: 'tools.callCommand',
+
+  // Security
+  selectedAuthType: 'security.auth.selectedType',
+  enforcedAuthType: 'security.auth.enforcedType',
+  useExternalAuth: 'security.auth.useExternal',
+  folderTrust: 'security.folderTrust.enabled',
+
+  // MCP
+  mcpServers: 'mcpServers',               // ⚠️ 保持顶层
+  allowMCPServers: 'mcp.allowed',
+  excludeMCPServers: 'mcp.excluded',
+  mcpServerCommand: 'mcp.serverCommand',
+
+  // Context
+  contextFileName: 'context.fileName',
+  includeDirectories: 'context.includeDirectories',
+  memoryImportFormat: 'context.importFormat',
+  memoryDiscoveryMaxDirs: 'context.discoveryMaxDirs',
+  fileFiltering: 'context.fileFiltering',
+};`}
+        />
+
+        <div className="overflow-x-auto mt-4">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-700">
@@ -282,6 +515,41 @@ export function ConfigSystem() {
             </tbody>
           </table>
         </div>
+
+        <CodeBlock
+          title="packages/cli/src/config/settings.ts:222-251 - 迁移检测逻辑"
+          code={`// 检查配置是否需要迁移
+export function needsMigration(settings: Record<string, unknown>): boolean {
+  // 1. 检查版本字段 - 如果存在且 >= 当前版本，无需迁移
+  if (SETTINGS_VERSION_KEY in settings) {
+    const version = settings[SETTINGS_VERSION_KEY];
+    if (typeof version === 'number' && version >= SETTINGS_VERSION) {
+      return false;
+    }
+  }
+
+  // 2. 回退检测：检查是否存在 v1 的顶层 key
+  const hasV1Keys = Object.entries(MIGRATION_MAP).some(([v1Key, v2Path]) => {
+    // 跳过路径相同的（如 mcpServers）
+    if (v1Key === v2Path || !(v1Key in settings)) {
+      return false;
+    }
+
+    // 特殊处理：如果是 v2 容器（如 'model'）且值是对象，
+    // 则认为已经是 v2 格式
+    if (
+      KNOWN_V2_CONTAINERS.has(v1Key) &&
+      typeof settings[v1Key] === 'object' &&
+      settings[v1Key] !== null
+    ) {
+      return false;
+    }
+    return true;
+  });
+
+  return hasV1Keys;
+}`}
+        />
       </Layer>
 
       {/* 四层合并策略可视化 */}
@@ -302,7 +570,7 @@ export function ConfigSystem() {
               <div className="bg-cyan-700/30 border border-cyan-500/50 rounded px-3 py-2 text-center">
                 <div className="text-xs text-gray-400">Layer 2</div>
                 <div className="text-cyan-400 font-mono text-sm">user</div>
-                <div className="text-xs text-gray-500">~/.qwen/</div>
+                <div className="text-xs text-gray-500">~/.innies/</div>
               </div>
               <span className="text-cyan-400">→</span>
               <div className="bg-purple-700/30 border border-purple-500/50 rounded px-3 py-2 text-center relative">
@@ -321,8 +589,8 @@ export function ConfigSystem() {
         </HighlightBox>
 
         <CodeBlock
-          title="packages/cli/src/config/settings.ts:396-418"
-          code={`// 四层合并核心函数
+          title="packages/cli/src/config/settings.ts:396-419 - 四层合并核心函数"
+          code={`// 四层配置合并
 function mergeSettings(
   system: Settings,           // Layer 4: 系统覆盖（企业管控）
   systemDefaults: Settings,   // Layer 1: 系统默认值
@@ -330,11 +598,14 @@ function mergeSettings(
   workspace: Settings,        // Layer 3: 项目配置
   isTrusted: boolean,         // 工作区是否受信任
 ): Settings {
-  // 非信任工作区 → workspace 配置被忽略
+  // ⚠️ 非信任工作区 → workspace 配置被替换为空对象
   const safeWorkspace = isTrusted ? workspace : ({} as Settings);
 
-  // customDeepMerge: 后面的参数覆盖前面的
-  // 合并顺序: {} ← systemDefaults ← user ← safeWorkspace ← system
+  // Settings are merged with the following precedence (last one wins):
+  // 1. System Defaults (最低)
+  // 2. User Settings
+  // 3. Workspace Settings
+  // 4. System Settings (最高)
   return customDeepMerge(
     getMergeStrategyForPath,  // 根据字段路径决定合并策略
     {},                        // 空对象作为基础
@@ -343,6 +614,79 @@ function mergeSettings(
     safeWorkspace,             // 3. 项目配置（可能为空）
     system,                    // 4. 系统覆盖（最高优先级）
   ) as Settings;
+}`}
+        />
+
+        <CodeBlock
+          title="packages/cli/src/utils/deepMerge.ts - customDeepMerge 实现"
+          code={`// 策略感知的深度合并实现
+function mergeRecursively(
+  target: MergeableObject,
+  source: MergeableObject,
+  getMergeStrategyForPath: (path: string[]) => MergeStrategy | undefined,
+  path: string[] = [],
+) {
+  for (const key of Object.keys(source)) {
+    // 防止原型链污染
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+      continue;
+    }
+
+    const newPath = [...path, key];
+    const srcValue = source[key];
+    const objValue = target[key];
+    const mergeStrategy = getMergeStrategyForPath(newPath);
+
+    // 1️⃣ SHALLOW_MERGE: 对象浅合并
+    if (mergeStrategy === MergeStrategy.SHALLOW_MERGE && objValue && srcValue) {
+      const obj1 = typeof objValue === 'object' && objValue !== null ? objValue : {};
+      const obj2 = typeof srcValue === 'object' && srcValue !== null ? srcValue : {};
+      target[key] = { ...obj1, ...obj2 };
+      continue;
+    }
+
+    // 2️⃣ 数组合并策略
+    if (Array.isArray(objValue)) {
+      const srcArray = Array.isArray(srcValue) ? srcValue : [srcValue];
+
+      if (mergeStrategy === MergeStrategy.CONCAT) {
+        // CONCAT: 直接拼接数组
+        target[key] = objValue.concat(srcArray);
+        continue;
+      }
+      if (mergeStrategy === MergeStrategy.UNION) {
+        // UNION: 去重合并
+        target[key] = [...new Set(objValue.concat(srcArray))];
+        continue;
+      }
+    }
+
+    // 3️⃣ 对象递归合并
+    if (isPlainObject(objValue) && isPlainObject(srcValue)) {
+      mergeRecursively(objValue, srcValue, getMergeStrategyForPath, newPath);
+    } else if (isPlainObject(srcValue)) {
+      target[key] = {};
+      mergeRecursively(target[key] as MergeableObject, srcValue, getMergeStrategyForPath, newPath);
+    } else {
+      // 4️⃣ REPLACE（默认）: 直接覆盖
+      target[key] = srcValue;
+    }
+  }
+  return target;
+}
+
+// 主入口函数
+export function customDeepMerge(
+  getMergeStrategyForPath: (path: string[]) => MergeStrategy | undefined,
+  ...sources: MergeableObject[]
+): MergeableObject {
+  const result: MergeableObject = {};
+  for (const source of sources) {
+    if (source) {
+      mergeRecursively(result, source, getMergeStrategyForPath);
+    }
+  }
+  return result;
 }`}
         />
 
@@ -467,56 +811,9 @@ function getMergeStrategyForPath(path: string[]): MergeStrategy | undefined {
         />
       </Layer>
 
-      {/* 配置加载流程 */}
-      <Layer title="配置加载完整流程" icon="⚙️">
-        <CodeBlock
-          title="packages/cli/src/config/settings.ts - LoadedSettings 类"
-          code={`// LoadedSettings 封装四层配置
-export class LoadedSettings {
-  constructor(
-    system: SettingsFile,         // 系统覆盖配置
-    systemDefaults: SettingsFile, // 系统默认配置
-    user: SettingsFile,           // 用户配置
-    workspace: SettingsFile,      // 工作区配置
-    isTrusted: boolean,           // 是否受信任
-    migratedInMemorScopes: Set<SettingScope>,
-  ) {
-    this.system = system;
-    this.systemDefaults = systemDefaults;
-    this.user = user;
-    this.workspace = workspace;
-    this.isTrusted = isTrusted;
-    this._merged = this.computeMergedSettings();  // 立即计算合并结果
-  }
-
-  get merged(): Settings {
-    return this._merged;  // 对外暴露合并后的配置
-  }
-
-  private computeMergedSettings(): Settings {
-    return mergeSettings(
-      this.system.settings,
-      this.systemDefaults.settings,
-      this.user.settings,
-      this.workspace.settings,
-      this.isTrusted,
-    );
-  }
-
-  // 动态修改配置并重新计算合并结果
-  setValue(scope: SettingScope, key: string, value: unknown): void {
-    const settingsFile = this.forScope(scope);
-    setNestedProperty(settingsFile.settings, key, value);
-    this._merged = this.computeMergedSettings();  // 重算！
-    saveSettings(settingsFile);
-  }
-}`}
-        />
-      </Layer>
-
-      {/* 环境变量 */}
-      <Layer title="环境变量" icon="🌍">
-        <HighlightBox title="字符串值支持环境变量引用" icon="💡" variant="green">
+      {/* 环境变量解析 */}
+      <Layer title="环境变量解析机制" icon="🌍">
+        <HighlightBox title="$VAR 和 \${VAR} 语法支持" icon="💡" variant="green">
           <p className="text-sm">
             settings.json 中的字符串值可以使用 <code>$VAR</code> 或 <code>{'${VAR}'}</code> 语法引用环境变量，
             加载时自动解析。例如：<code>"apiKey": "$MY_API_TOKEN"</code>
@@ -524,10 +821,122 @@ export class LoadedSettings {
         </HighlightBox>
 
         <CodeBlock
+          title="packages/cli/src/utils/envVarResolver.ts - 环境变量解析实现"
+          code={`/**
+ * 解析字符串中的环境变量
+ * 支持 $VAR_NAME 和 \${VAR_NAME} 两种语法
+ */
+export function resolveEnvVarsInString(value: string): string {
+  const envVarRegex = /\\$(?:(\\w+)|{([^}]+)})/g;  // 匹配 $VAR 或 \${VAR}
+
+  return value.replace(envVarRegex, (match, varName1, varName2) => {
+    const varName = varName1 || varName2;
+    // 如果环境变量存在，替换为其值
+    if (process && process.env && typeof process.env[varName] === 'string') {
+      return process.env[varName]!;
+    }
+    // 不存在则保留原始占位符
+    return match;
+  });
+}
+
+/**
+ * 递归解析对象中的所有字符串值
+ * 使用 WeakSet 防止循环引用
+ */
+export function resolveEnvVarsInObject<T>(obj: T): T {
+  return resolveEnvVarsInObjectInternal(obj, new WeakSet());
+}
+
+function resolveEnvVarsInObjectInternal<T>(
+  obj: T,
+  visited: WeakSet<object>,
+): T {
+  // 基本类型直接返回
+  if (obj === null || obj === undefined ||
+      typeof obj === 'boolean' || typeof obj === 'number') {
+    return obj;
+  }
+
+  // 字符串：解析环境变量
+  if (typeof obj === 'string') {
+    return resolveEnvVarsInString(obj) as unknown as T;
+  }
+
+  // 数组：递归处理每个元素
+  if (Array.isArray(obj)) {
+    if (visited.has(obj)) {
+      return [...obj] as unknown as T;  // 防止循环
+    }
+    visited.add(obj);
+    const result = obj.map((item) =>
+      resolveEnvVarsInObjectInternal(item, visited),
+    ) as unknown as T;
+    visited.delete(obj);
+    return result;
+  }
+
+  // 对象：递归处理每个属性
+  if (typeof obj === 'object') {
+    if (visited.has(obj as object)) {
+      return { ...obj } as T;  // 防止循环
+    }
+    visited.add(obj as object);
+    const newObj = { ...obj } as T;
+    for (const key in newObj) {
+      if (Object.prototype.hasOwnProperty.call(newObj, key)) {
+        newObj[key] = resolveEnvVarsInObjectInternal(newObj[key], visited);
+      }
+    }
+    visited.delete(obj as object);
+    return newObj;
+  }
+
+  return obj;
+}`}
+        />
+
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-green-500/10 border-2 border-green-500/30 rounded-lg p-4">
+            <h4 className="text-green-400 font-bold mb-2">解析示例</h4>
+            <div className="text-xs space-y-2 font-mono">
+              <div>
+                <span className="text-gray-400">输入:</span> <span className="text-green-400">"$API_KEY"</span><br/>
+                <span className="text-gray-400">输出:</span> <span className="text-yellow-400">"sk-xxxx"</span>
+              </div>
+              <div>
+                <span className="text-gray-400">输入:</span> <span className="text-green-400">"{'${BASE_URL}'}/api"</span><br/>
+                <span className="text-gray-400">输出:</span> <span className="text-yellow-400">"https://example.com/api"</span>
+              </div>
+              <div>
+                <span className="text-gray-400">输入:</span> <span className="text-green-400">"$UNDEFINED_VAR"</span><br/>
+                <span className="text-gray-400">输出:</span> <span className="text-red-400">"$UNDEFINED_VAR"</span> (保留)
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-4">
+            <h4 className="text-cyan-400 font-bold mb-2">解析时机</h4>
+            <p className="text-sm text-gray-300 mb-2">
+              环境变量在 <code>loadSettings()</code> 中、配置合并前解析：
+            </p>
+            <CodeBlock
+              code={`// settings.ts:712-716
+systemSettings = resolveEnvVarsInObject(systemResult.settings);
+systemDefaultSettings = resolveEnvVarsInObject(systemDefaultsResult.settings);
+userSettings = resolveEnvVarsInObject(userResult.settings);
+workspaceSettings = resolveEnvVarsInObject(workspaceResult.settings);`}
+            />
+          </div>
+        </div>
+
+        <CodeBlock
+          title="常用环境变量"
           code={`# 认证相关
 OPENAI_API_KEY=sk-...          # OpenAI 兼容 API 密钥
 OPENAI_BASE_URL=https://...    # 自定义 API 端点
 OPENAI_MODEL=qwen-coder-plus   # 默认模型
+QWEN_MODEL=qwen-coder-plus     # Qwen 模型（优先级高于 OPENAI_MODEL）
 
 # 沙箱
 GEMINI_SANDBOX=true            # 启用沙箱 (true|docker|podman)
@@ -550,7 +959,330 @@ QWEN_CODE_IDE_PORT=3000        # IDE MCP 端口
 
 # 系统配置路径覆盖
 QWEN_CODE_SYSTEM_SETTINGS_PATH=/custom/path/settings.json
-QWEN_CODE_SYSTEM_DEFAULTS_PATH=/custom/path/defaults.json`}
+QWEN_CODE_SYSTEM_DEFAULTS_PATH=/custom/path/defaults.json
+
+# 代理
+HTTPS_PROXY=http://proxy:8080
+HTTP_PROXY=http://proxy:8080`}
+        />
+      </Layer>
+
+      {/* .env 文件加载 */}
+      <Layer title=".env 文件加载机制" icon="📄">
+        <HighlightBox title="loadEnvironment() 加载逻辑" icon="⚙️" variant="blue">
+          <p className="text-sm mb-2">
+            <code>loadEnvironment()</code> 负责发现和加载 .env 文件，受信任检查影响。
+          </p>
+          <p className="text-xs text-gray-400">
+            源码位置: <code>packages/cli/src/config/settings.ts:537-577</code>
+          </p>
+        </HighlightBox>
+
+        <CodeBlock
+          title="packages/cli/src/config/settings.ts:486-513 - .env 文件发现"
+          code={`// 向上遍历查找 .env 文件
+function findEnvFile(startDir: string): string | null {
+  let currentDir = path.resolve(startDir);
+
+  while (true) {
+    // 1. 优先查找 .innies/.env（项目特定）
+    const geminiEnvPath = path.join(currentDir, QWEN_DIR, '.env');
+    if (fs.existsSync(geminiEnvPath)) {
+      return geminiEnvPath;
+    }
+
+    // 2. 回退到项目根目录的 .env
+    const envPath = path.join(currentDir, '.env');
+    if (fs.existsSync(envPath)) {
+      return envPath;
+    }
+
+    // 3. 向上遍历父目录
+    const parentDir = path.dirname(currentDir);
+    if (parentDir === currentDir || !parentDir) {
+      // 到达根目录，检查 home 目录
+      const homeGeminiEnvPath = path.join(homedir(), QWEN_DIR, '.env');
+      if (fs.existsSync(homeGeminiEnvPath)) {
+        return homeGeminiEnvPath;
+      }
+      const homeEnvPath = path.join(homedir(), '.env');
+      if (fs.existsSync(homeEnvPath)) {
+        return homeEnvPath;
+      }
+      return null;
+    }
+    currentDir = parentDir;
+  }
+}`}
+        />
+
+        <CodeBlock
+          title="packages/cli/src/config/settings.ts:537-577 - .env 加载与信任检查"
+          code={`export function loadEnvironment(settings: Settings): void {
+  const envFilePath = findEnvFile(process.cwd());
+
+  // ⚠️ 关键：非信任目录不加载项目级 .env
+  if (!isWorkspaceTrusted(settings).isTrusted) {
+    return;
+  }
+
+  // Cloud Shell 特殊处理
+  if (process.env['CLOUD_SHELL'] === 'true') {
+    setUpCloudShellEnvironment(envFilePath);
+  }
+
+  if (envFilePath) {
+    try {
+      const envFileContent = fs.readFileSync(envFilePath, 'utf-8');
+      const parsedEnv = dotenv.parse(envFileContent);
+
+      // 获取排除列表
+      const excludedVars = settings?.advanced?.excludedEnvVars || DEFAULT_EXCLUDED_ENV_VARS;
+      const isProjectEnvFile = !envFilePath.includes(QWEN_DIR);
+
+      for (const key in parsedEnv) {
+        if (Object.hasOwn(parsedEnv, key)) {
+          // 项目级 .env：跳过排除的变量（如 DEBUG）
+          if (isProjectEnvFile && excludedVars.includes(key)) {
+            continue;
+          }
+
+          // 只加载尚未设置的环境变量（不覆盖 shell 环境）
+          if (!Object.hasOwn(process.env, key)) {
+            process.env[key] = parsedEnv[key];
+          }
+        }
+      }
+    } catch (_e) {
+      // 静默忽略错误
+    }
+  }
+}`}
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div className="bg-green-500/10 border-2 border-green-500/30 rounded-lg p-4">
+            <h4 className="text-green-400 font-bold mb-2">.env 搜索优先级</h4>
+            <ol className="text-sm space-y-1 list-decimal pl-4 text-gray-300">
+              <li><code>.innies/.env</code> (当前目录)</li>
+              <li><code>.env</code> (当前目录)</li>
+              <li>向上遍历父目录重复 1-2</li>
+              <li><code>~/.innies/.env</code> (home)</li>
+              <li><code>~/.env</code> (home)</li>
+            </ol>
+          </div>
+
+          <div className="bg-red-500/10 border-2 border-red-500/30 rounded-lg p-4">
+            <h4 className="text-red-400 font-bold mb-2">排除的环境变量</h4>
+            <p className="text-sm text-gray-300 mb-2">
+              项目级 .env 中的这些变量不会被加载：
+            </p>
+            <div className="text-xs font-mono space-y-1">
+              <div><code className="text-orange-400">DEBUG</code> - 调试模式</div>
+              <div><code className="text-orange-400">DEBUG_MODE</code> - 调试模式</div>
+              <div className="text-gray-400 mt-2">可通过 <code>advanced.excludedEnvVars</code> 自定义</div>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      {/* 配置加载流程 */}
+      <Layer title="loadSettings() 完整实现" icon="⚙️">
+        <CodeBlock
+          title="packages/cli/src/config/settings.ts:583-792 - loadSettings 核心实现"
+          code={`export function loadSettings(
+  workspaceDir: string = process.cwd(),
+): LoadedSettings {
+  let systemSettings: Settings = {};
+  let systemDefaultSettings: Settings = {};
+  let userSettings: Settings = {};
+  let workspaceSettings: Settings = {};
+  const settingsErrors: SettingsError[] = [];
+  const migratedInMemorScopes = new Set<SettingScope>();
+
+  // 解析符号链接，获取真实路径
+  const resolvedWorkspaceDir = path.resolve(workspaceDir);
+  const resolvedHomeDir = path.resolve(homedir());
+  let realWorkspaceDir = resolvedWorkspaceDir;
+  try {
+    realWorkspaceDir = fs.realpathSync(resolvedWorkspaceDir);
+  } catch (_e) { /* 目录可能不存在 */ }
+  const realHomeDir = fs.realpathSync(resolvedHomeDir);
+
+  const workspaceSettingsPath = new Storage(workspaceDir).getWorkspaceSettingsPath();
+
+  // ═══════════════════════════════════════════
+  // 1. 加载并迁移各层配置文件
+  // ═══════════════════════════════════════════
+  const loadAndMigrate = (filePath: string, scope: SettingScope) => {
+    try {
+      if (fs.existsSync(filePath)) {
+        const content = fs.readFileSync(filePath, 'utf-8');
+        const rawSettings = JSON.parse(stripJsonComments(content));
+
+        // 验证是否为有效 JSON 对象
+        if (typeof rawSettings !== 'object' || rawSettings === null || Array.isArray(rawSettings)) {
+          settingsErrors.push({ message: 'Settings file is not a valid JSON object.', path: filePath });
+          return { settings: {} };
+        }
+
+        let settingsObject = rawSettings;
+
+        // v1 → v2 迁移
+        if (needsMigration(settingsObject)) {
+          const migratedSettings = migrateSettingsToV2(settingsObject);
+          if (migratedSettings) {
+            // 备份原文件并写入迁移后的配置
+            fs.renameSync(filePath, \`\${filePath}.orig\`);
+            fs.writeFileSync(filePath, JSON.stringify(migratedSettings, null, 2), 'utf-8');
+            settingsObject = migratedSettings;
+          }
+        }
+
+        return { settings: settingsObject, rawJson: content };
+      }
+    } catch (error) {
+      settingsErrors.push({ message: getErrorMessage(error), path: filePath });
+    }
+    return { settings: {} };
+  };
+
+  // 加载四层配置
+  const systemResult = loadAndMigrate(getSystemSettingsPath(), SettingScope.System);
+  const systemDefaultsResult = loadAndMigrate(getSystemDefaultsPath(), SettingScope.SystemDefaults);
+  const userResult = loadAndMigrate(USER_SETTINGS_PATH, SettingScope.User);
+
+  // ⚠️ 特殊处理：如果工作区是 home 目录，跳过 workspace 配置
+  let workspaceResult = { settings: {} as Settings, rawJson: undefined };
+  if (realWorkspaceDir !== realHomeDir) {
+    workspaceResult = loadAndMigrate(workspaceSettingsPath, SettingScope.Workspace);
+  }
+
+  // ═══════════════════════════════════════════
+  // 2. 保存原始配置（用于后续保存）
+  // ═══════════════════════════════════════════
+  const systemOriginalSettings = structuredClone(systemResult.settings);
+  const userOriginalSettings = structuredClone(userResult.settings);
+  const workspaceOriginalSettings = structuredClone(workspaceResult.settings);
+
+  // ═══════════════════════════════════════════
+  // 3. 解析环境变量
+  // ═══════════════════════════════════════════
+  systemSettings = resolveEnvVarsInObject(systemResult.settings);
+  systemDefaultSettings = resolveEnvVarsInObject(systemDefaultsResult.settings);
+  userSettings = resolveEnvVarsInObject(userResult.settings);
+  workspaceSettings = resolveEnvVarsInObject(workspaceResult.settings);
+
+  // ═══════════════════════════════════════════
+  // 4. 主题名称兼容性处理
+  // ═══════════════════════════════════════════
+  if (userSettings.ui?.theme === 'VS') {
+    userSettings.ui.theme = DefaultLight.name;
+  } else if (userSettings.ui?.theme === 'VS2015') {
+    userSettings.ui.theme = DefaultDark.name;
+  }
+
+  // ═══════════════════════════════════════════
+  // 5. 初始信任检查（只用 user + system）
+  // ═══════════════════════════════════════════
+  const initialTrustCheckSettings = customDeepMerge(
+    getMergeStrategyForPath, {}, systemSettings, userSettings,
+  );
+  const isTrusted = isWorkspaceTrusted(initialTrustCheckSettings as Settings).isTrusted ?? true;
+
+  // ═══════════════════════════════════════════
+  // 6. 临时合并并加载环境变量
+  // ═══════════════════════════════════════════
+  const tempMergedSettings = mergeSettings(
+    systemSettings, systemDefaultSettings, userSettings, workspaceSettings, isTrusted,
+  );
+  loadEnvironment(tempMergedSettings);
+
+  // 错误处理
+  if (settingsErrors.length > 0) {
+    throw new FatalConfigError(settingsErrors.map(
+      (e) => \`Error in \${e.path}: \${e.message}\`
+    ).join('\\n'));
+  }
+
+  // ═══════════════════════════════════════════
+  // 7. 返回 LoadedSettings 实例
+  // ═══════════════════════════════════════════
+  return new LoadedSettings(
+    { path: getSystemSettingsPath(), settings: systemSettings, originalSettings: systemOriginalSettings },
+    { path: getSystemDefaultsPath(), settings: systemDefaultSettings, originalSettings: systemDefaultsOriginalSettings },
+    { path: USER_SETTINGS_PATH, settings: userSettings, originalSettings: userOriginalSettings },
+    { path: workspaceSettingsPath, settings: workspaceSettings, originalSettings: workspaceOriginalSettings },
+    isTrusted,
+    migratedInMemorScopes,
+  );
+}`}
+        />
+
+        <CodeBlock
+          title="packages/cli/src/config/settings.ts:421-484 - LoadedSettings 类"
+          code={`// LoadedSettings 封装四层配置
+export class LoadedSettings {
+  constructor(
+    system: SettingsFile,         // 系统覆盖配置
+    systemDefaults: SettingsFile, // 系统默认配置
+    user: SettingsFile,           // 用户配置
+    workspace: SettingsFile,      // 工作区配置
+    isTrusted: boolean,           // 是否受信任
+    migratedInMemorScopes: Set<SettingScope>,
+  ) {
+    this.system = system;
+    this.systemDefaults = systemDefaults;
+    this.user = user;
+    this.workspace = workspace;
+    this.isTrusted = isTrusted;
+    this.migratedInMemorScopes = migratedInMemorScopes;
+    this._merged = this.computeMergedSettings();  // 立即计算合并结果
+  }
+
+  readonly system: SettingsFile;
+  readonly systemDefaults: SettingsFile;
+  readonly user: SettingsFile;
+  readonly workspace: SettingsFile;
+  readonly isTrusted: boolean;
+
+  private _merged: Settings;
+
+  // 对外暴露合并后的配置
+  get merged(): Settings {
+    return this._merged;
+  }
+
+  // 计算合并结果
+  private computeMergedSettings(): Settings {
+    return mergeSettings(
+      this.system.settings,
+      this.systemDefaults.settings,
+      this.user.settings,
+      this.workspace.settings,
+      this.isTrusted,
+    );
+  }
+
+  // 根据 scope 获取对应配置文件
+  forScope(scope: SettingScope): SettingsFile {
+    switch (scope) {
+      case SettingScope.User: return this.user;
+      case SettingScope.Workspace: return this.workspace;
+      case SettingScope.System: return this.system;
+      case SettingScope.SystemDefaults: return this.systemDefaults;
+    }
+  }
+
+  // 动态修改配置并重新计算合并结果
+  setValue(scope: SettingScope, key: string, value: unknown): void {
+    const settingsFile = this.forScope(scope);
+    setNestedProperty(settingsFile.settings, key, value);
+    setNestedProperty(settingsFile.originalSettings, key, value);
+    this._merged = this.computeMergedSettings();  // 重算！
+    saveSettings(settingsFile);  // 持久化到文件
+  }
+}`}
         />
       </Layer>
 
@@ -602,15 +1334,38 @@ QWEN_CODE_SYSTEM_DEFAULTS_PATH=/custom/path/defaults.json`}
             </div>
           </div>
         </div>
+
+        <CodeBlock
+          title="packages/cli/src/config/config.ts:72-88 - approvalMode 解析"
+          code={`const VALID_APPROVAL_MODE_VALUES = ['plan', 'default', 'auto-edit', 'yolo'] as const;
+
+function parseApprovalModeValue(value: string): ApprovalMode {
+  const normalized = value.trim().toLowerCase();
+  switch (normalized) {
+    case 'plan':
+      return ApprovalMode.PLAN;
+    case 'default':
+      return ApprovalMode.DEFAULT;
+    case 'yolo':
+      return ApprovalMode.YOLO;
+    case 'auto_edit':
+    case 'autoedit':
+    case 'auto-edit':
+      return ApprovalMode.AUTO_EDIT;
+    default:
+      throw new Error(\`Invalid approval mode: \${value}\`);
+  }
+}`}
+        />
       </Layer>
 
-      {/* .qwen 目录结构 */}
-      <Layer title=".qwen 目录结构" icon="📂">
+      {/* .innies 目录结构 */}
+      <Layer title=".innies 目录结构" icon="📂">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-4">
-            <h4 className="text-cyan-400 font-bold mb-2">~/.qwen/ (用户级)</h4>
+            <h4 className="text-cyan-400 font-bold mb-2">~/.innies/ (用户级)</h4>
             <pre className="text-sm text-gray-300 whitespace-pre-wrap">{`├── settings.json      # 用户配置
-├── QWEN.md          # 用户级记忆
+├── QWEN.md            # 用户级记忆
 ├── oauth_creds.json   # OAuth 凭据
 ├── mcp-oauth-tokens.json  # MCP OAuth tokens
 ├── agents/            # 用户级子代理
@@ -625,9 +1380,9 @@ QWEN_CODE_SYSTEM_DEFAULTS_PATH=/custom/path/defaults.json`}
           </div>
 
           <div className="bg-purple-500/10 border-2 border-purple-500/30 rounded-lg p-4">
-            <h4 className="text-purple-400 font-bold mb-2">.qwen/ (项目级)</h4>
+            <h4 className="text-purple-400 font-bold mb-2">.innies/ (项目级)</h4>
             <pre className="text-sm text-gray-300 whitespace-pre-wrap">{`├── settings.json      # 项目配置
-├── QWEN.md          # 项目级记忆
+├── QWEN.md            # 项目级记忆
 ├── agents/            # 项目级子代理
 ├── commands/          # 项目级自定义命令
 ├── extensions/        # 项目级扩展
@@ -645,37 +1400,71 @@ QWEN_CODE_SYSTEM_DEFAULTS_PATH=/custom/path/defaults.json`}
             当 <code>security.folderTrust.enabled: true</code> 且工作区未被信任时：
           </p>
           <ul className="list-disc pl-5 text-sm space-y-1">
-            <li>项目级 <code>.qwen/settings.json</code> <strong>被忽略</strong></li>
-            <li>项目级 <code>.qwen/commands/</code> <strong>不加载</strong></li>
-            <li>项目级 <code>.qwen/extensions/</code> <strong>不加载</strong></li>
+            <li>项目级 <code>.innies/settings.json</code> <strong>被忽略</strong></li>
+            <li>项目级 <code>.innies/commands/</code> <strong>不加载</strong></li>
+            <li>项目级 <code>.innies/extensions/</code> <strong>不加载</strong></li>
             <li>项目级 <code>.env</code> 文件 <strong>不加载</strong></li>
             <li><code>tools.approvalMode</code> 受限，不能使用 <code>yolo</code></li>
           </ul>
         </HighlightBox>
 
         <CodeBlock
-          title="信任检查逻辑"
-          code={`// packages/cli/src/config/trustedFolders.ts
-function isWorkspaceTrusted(settings: Settings): TrustResult {
-  // 1. 功能未启用 → 默认信任
-  if (!settings.security?.folderTrust?.enabled) {
-    return { isTrusted: true };
-  }
+          title="packages/cli/src/config/config.ts:605-615 - approvalMode 强制降级"
+          code={`// loadCliConfig() 中的 approval mode 校验
+if (
+  !trustedFolder &&
+  approvalMode !== ApprovalMode.DEFAULT &&
+  approvalMode !== ApprovalMode.PLAN
+) {
+  logger.warn(
+    \`Approval mode overridden to "default" because the current folder is not trusted.\`,
+  );
+  approvalMode = ApprovalMode.DEFAULT;
+}
 
-  // 2. 检查信任列表
-  const trustedFolders = loadTrustedFolders();
-  const cwd = process.cwd();
-
-  // 3. 匹配当前目录或父目录
-  for (const trusted of trustedFolders) {
-    if (cwd.startsWith(trusted)) {
-      return { isTrusted: true };
-    }
-  }
-
-  return { isTrusted: false, reason: 'Folder not in trust list' };
-}`}
+// ⚠️ yolo 和 auto-edit 在不受信任目录强制降级为 default`}
         />
+
+        <HighlightBox title="信任检查触发时机" icon="⏱️" variant="purple">
+          <div className="text-sm space-y-2">
+            <div className="flex items-start gap-2">
+              <span className="text-cyan-400">1.</span>
+              <div>
+                <strong>loadSettings() 阶段</strong> - 决定是否加载 workspace settings
+                <div className="text-xs text-gray-400 mt-1">
+                  位置: <code>packages/cli/src/config/settings.ts:396-418</code>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="text-cyan-400">2.</span>
+              <div>
+                <strong>loadEnvironment() 阶段</strong> - 决定是否加载项目级 .env
+                <div className="text-xs text-gray-400 mt-1">
+                  位置: <code>packages/cli/src/config/settings.ts:537-541</code>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="text-cyan-400">3.</span>
+              <div>
+                <strong>loadCliConfig() 阶段</strong> - 校验和降级 approvalMode
+                <div className="text-xs text-gray-400 mt-1">
+                  位置: <code>packages/cli/src/config/config.ts:605-615</code>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="text-cyan-400">4.</span>
+              <div>
+                <strong>loadHierarchicalGeminiMemory() 阶段</strong> - 决定是否加载项目级 QWEN.md
+                <div className="text-xs text-gray-400 mt-1">
+                  位置: <code>packages/core/src/utils/memoryDiscovery.ts:359</code>
+                </div>
+              </div>
+            </div>
+          </div>
+        </HighlightBox>
       </Layer>
 
       {/* loadCliConfig() 完整链路 */}
@@ -696,7 +1485,7 @@ function isWorkspaceTrusted(settings: Settings): TrustResult {
     LoadSettings --> MergeSettings[mergeSettings<br/>配置合并]
     MergeSettings --> TrustCheck{folderTrust<br/>检查}
 
-    TrustCheck -->|受信任| LoadEnv[loadEnvFiles<br/>加载 .env]
+    TrustCheck -->|受信任| LoadEnv[loadEnvironment<br/>加载 .env]
     TrustCheck -->|不受信任| SkipEnv[跳过项目级 .env]
 
     LoadEnv --> LoadMemory[loadHierarchicalGeminiMemory<br/>加载 QWEN.md]
@@ -731,7 +1520,7 @@ function isWorkspaceTrusted(settings: Settings): TrustResult {
         />
 
         <CodeBlock
-          title="packages/cli/src/config/config.ts:522-708 - loadCliConfig 核心流程"
+          title="packages/cli/src/config/config.ts:522-805 - loadCliConfig 核心流程"
           code={`export async function loadCliConfig(
   settings: Settings,       // 已合并的 Settings 对象
   extensions: Extension[],  // 加载的扩展列表
@@ -746,11 +1535,10 @@ function isWorkspaceTrusted(settings: Settings): TrustResult {
   const trustedFolder = isWorkspaceTrusted(settings)?.isTrusted ?? true;
 
   // 2️⃣ 激活扩展筛选
-  const activeExtensions = extensions.filter(
-    (_, i) => allExtensions[i].isActive,
-  );
+  const allExtensions = annotateActiveExtensions(extensions, cwd, extensionEnablementManager);
+  const activeExtensions = extensions.filter((_, i) => allExtensions[i].isActive);
 
-  // 3️⃣ 设置上下文文件名（hack 方式）
+  // 3️⃣ 设置上下文文件名
   if (settings.context?.fileName) {
     setServerGeminiMdFilename(settings.context.fileName);
   }
@@ -758,16 +1546,10 @@ function isWorkspaceTrusted(settings: Settings): TrustResult {
   // 4️⃣ 加载层级记忆（QWEN.md）
   const { memoryContent, fileCount } = await loadHierarchicalGeminiMemory(
     cwd,
-    settings.context?.loadMemoryFromIncludeDirectories
-      ? includeDirectories
-      : [],
-    debugMode,
-    fileService,
-    settings,
-    extensionContextFilePaths,
+    settings.context?.loadMemoryFromIncludeDirectories ? includeDirectories : [],
+    debugMode, fileService, settings, extensionContextFilePaths,
     trustedFolder,  // ⚠️ 受信任才加载项目级记忆
-    memoryImportFormat,
-    fileFiltering,
+    memoryImportFormat, fileFiltering,
   );
 
   // 5️⃣ 合并 MCP 服务器配置
@@ -786,18 +1568,19 @@ function isWorkspaceTrusted(settings: Settings): TrustResult {
   }
 
   // 7️⃣ 🔐 强制安全降级：不受信任 → 降级至 default
-  if (
-    !trustedFolder &&
-    approvalMode !== ApprovalMode.DEFAULT &&
-    approvalMode !== ApprovalMode.PLAN
-  ) {
-    logger.warn(
-      'Approval mode overridden to "default" because the current folder is not trusted.',
-    );
+  if (!trustedFolder && approvalMode !== ApprovalMode.DEFAULT && approvalMode !== ApprovalMode.PLAN) {
+    logger.warn('Approval mode overridden to "default" because the current folder is not trusted.');
     approvalMode = ApprovalMode.DEFAULT;
   }
 
-  // 8️⃣ 创建 Config 实例（后续调用 createToolRegistry）
+  // 8️⃣ 模型解析优先级：CLI > 环境变量 > settings
+  const resolvedModel =
+    argv.model ||
+    process.env['OPENAI_MODEL'] ||
+    process.env['QWEN_MODEL'] ||
+    settings.model?.name;
+
+  // 9️⃣ 创建 Config 实例
   return new Config({
     sessionId,
     targetDir: cwd,
@@ -805,625 +1588,239 @@ function isWorkspaceTrusted(settings: Settings): TrustResult {
     debugMode,
     approvalMode,
     mcpServers,
-    userMemory: memoryContent,  // 传入加载的记忆
-    toolDiscoveryCommand: settings.tools?.discoveryCommand,
+    userMemory: memoryContent,
+    model: resolvedModel,
+    generationConfig: {
+      ...(settings.model?.generationConfig || {}),
+      model: resolvedModel,
+      apiKey: argv.openaiApiKey || process.env['OPENAI_API_KEY'] || settings.security?.auth?.apiKey,
+      baseUrl: argv.openaiBaseUrl || process.env['OPENAI_BASE_URL'] || settings.security?.auth?.baseUrl,
+    },
     // ... 其他配置
   });
 }`}
         />
       </Layer>
 
-      {/* 信任门禁对配置的影响 */}
-      <Layer title="信任门禁对配置的影响" icon="🔐">
-        <HighlightBox title="isTrustedFolder 的影响范围" icon="⚠️" variant="red">
-          <p className="text-sm mb-3">
-            当 <code>security.folderTrust.enabled: true</code> 且工作区未受信任时，配置加载的多个环节会受到限制：
+      {/* MCP 服务器合并 */}
+      <Layer title="MCP 服务器配置合并" icon="🔌">
+        <HighlightBox title="mergeMcpServers() 合并逻辑" icon="⚙️" variant="purple">
+          <p className="text-sm mb-2">
+            MCP 服务器配置来源于 <code>settings.mcpServers</code> 和扩展定义，
+            按 key 去重合并（settings 优先）。
+          </p>
+          <p className="text-xs text-gray-400">
+            源码位置: <code>packages/cli/src/config/config.ts:838-857</code>
           </p>
         </HighlightBox>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-red-500/10 border-2 border-red-500/30 rounded-lg p-4">
-            <h4 className="text-red-400 font-bold mb-2 flex items-center gap-2">
-              <span>🚫</span>
-              <span>Workspace Settings 被忽略</span>
-            </h4>
-            <p className="text-sm text-gray-300 mb-2">
-              源码位置: <code className="text-xs">packages/cli/src/config/settings.ts:403</code>
-            </p>
-            <CodeBlock
-              code={`// mergeSettings() 中的安全检查
-const safeWorkspace = isTrusted ? workspace : ({} as Settings);
+        <CodeBlock
+          title="packages/cli/src/config/config.ts:838-857 - MCP 服务器合并"
+          code={`function mergeMcpServers(settings: Settings, extensions: Extension[]) {
+  // 1. 从 settings 复制 MCP 服务器配置
+  const mcpServers = { ...(settings.mcpServers || {}) };
 
-// 非信任工作区 → workspace 配置被替换为空对象
-return customDeepMerge(
-  getMergeStrategyForPath,
-  {},
-  systemDefaults,
-  user,
-  safeWorkspace,  // ⚠️ 可能为空对象
-  system,
-);`}
-            />
-          </div>
+  // 2. 合并扩展提供的 MCP 服务器
+  for (const extension of extensions) {
+    Object.entries(extension.config.mcpServers || {}).forEach(([key, server]) => {
+      // ⚠️ 冲突检测：settings 中已存在同名服务器则跳过
+      if (mcpServers[key]) {
+        logger.warn(
+          \`Skipping extension MCP config for server with key "\${key}" as it already exists.\`,
+        );
+        return;
+      }
 
-          <div className="bg-red-500/10 border-2 border-red-500/30 rounded-lg p-4">
-            <h4 className="text-red-400 font-bold mb-2 flex items-center gap-2">
-              <span>🚫</span>
-              <span>.env 文件不加载</span>
-            </h4>
-            <p className="text-sm text-gray-300 mb-2">
-              源码位置: <code className="text-xs">packages/cli/src/config/settings.ts:540</code>
-            </p>
-            <CodeBlock
-              code={`// loadEnvFiles() 中的信任检查
-async function loadEnvFiles(
-  cwd: string,
-  isTrusted: boolean,
-): Promise<void> {
-  // 只在受信任目录加载项目级 .env
-  if (isTrusted) {
-    const workspaceEnvPath = path.join(cwd, '.env');
-    if (fs.existsSync(workspaceEnvPath)) {
-      dotenv.config({ path: workspaceEnvPath });
+      // 记录扩展来源
+      mcpServers[key] = {
+        ...server,
+        extensionName: extension.config.name,
+      };
+    });
+  }
+
+  return mcpServers;
+}`}
+        />
+
+        <CodeBlock
+          title="packages/cli/src/config/config.ts:666-693 - MCP 白名单/黑名单过滤"
+          code={`// 应用 mcp.allowed 白名单
+if (!argv.allowedMcpServerNames) {
+  if (settings.mcp?.allowed) {
+    mcpServers = allowedMcpServers(
+      mcpServers,
+      settings.mcp.allowed,
+      blockedMcpServers,  // 记录被阻止的服务器
+    );
+  }
+
+  // 应用 mcp.excluded 黑名单
+  if (settings.mcp?.excluded) {
+    const excludedNames = new Set(settings.mcp.excluded.filter(Boolean));
+    if (excludedNames.size > 0) {
+      mcpServers = Object.fromEntries(
+        Object.entries(mcpServers).filter(([key]) => !excludedNames.has(key)),
+      );
+    }
+  }
+}
+
+// CLI 参数 --allowed-mcp-server-names 优先级最高
+if (argv.allowedMcpServerNames) {
+  mcpServers = allowedMcpServers(mcpServers, argv.allowedMcpServerNames, blockedMcpServers);
+}`}
+        />
+      </Layer>
+
+      {/* 工具排除合并 */}
+      <Layer title="工具排除列表合并" icon="🛠️">
+        <CodeBlock
+          title="packages/cli/src/config/config.ts:859-874 - mergeExcludeTools"
+          code={`function mergeExcludeTools(
+  settings: Settings,
+  extensions: Extension[],
+  extraExcludes?: string[] | undefined,
+): string[] {
+  // 1. 从 settings 和额外排除列表开始
+  const allExcludeTools = new Set([
+    ...(settings.tools?.exclude || []),
+    ...(extraExcludes || []),
+  ]);
+
+  // 2. 合并扩展定义的排除工具
+  for (const extension of extensions) {
+    for (const tool of extension.config.excludeTools || []) {
+      allExcludeTools.add(tool);
     }
   }
 
-  // 用户级 ~/.qwen/.env 始终加载
-  const userEnvPath = path.join(homedir(), '.qwen', '.env');
-  if (fs.existsSync(userEnvPath)) {
-    dotenv.config({ path: userEnvPath });
-  }
-}`}
-            />
-          </div>
-
-          <div className="bg-red-500/10 border-2 border-red-500/30 rounded-lg p-4">
-            <h4 className="text-red-400 font-bold mb-2 flex items-center gap-2">
-              <span>⬇️</span>
-              <span>approvalMode 强制降级</span>
-            </h4>
-            <p className="text-sm text-gray-300 mb-2">
-              源码位置: <code className="text-xs">packages/cli/src/config/config.ts:605-615</code>
-            </p>
-            <CodeBlock
-              code={`// loadCliConfig() 中的 approval mode 校验
-if (
-  !trustedFolder &&
-  approvalMode !== ApprovalMode.DEFAULT &&
-  approvalMode !== ApprovalMode.PLAN
-) {
-  logger.warn(
-    'Approval mode overridden to "default" ' +
-    'because the current folder is not trusted.',
-  );
-  approvalMode = ApprovalMode.DEFAULT;
-}
-
-// ⚠️ yolo 和 auto-edit 在不受信任目录强制降级为 default`}
-            />
-          </div>
-
-          <div className="bg-red-500/10 border-2 border-red-500/30 rounded-lg p-4">
-            <h4 className="text-red-400 font-bold mb-2 flex items-center gap-2">
-              <span>🚫</span>
-              <span>MCP 服务器发现受限</span>
-            </h4>
-            <p className="text-sm text-gray-300 mb-2">
-              项目级 <code>.qwen/settings.json</code> 中定义的 MCP 服务器在非信任目录不会被加载
-            </p>
-            <div className="text-xs text-gray-400 space-y-1">
-              <div>✅ 用户级 <code>~/.qwen/settings.json</code> MCP 配置：始终生效</div>
-              <div>✅ 扩展提供的 MCP 配置：始终生效</div>
-              <div>❌ 项目级 <code>.qwen/settings.json</code> MCP 配置：仅受信任时生效</div>
-            </div>
-          </div>
-        </div>
-
-        <HighlightBox title="信任检查触发时机" icon="⏱️" variant="purple">
-          <div className="text-sm space-y-2">
-            <div className="flex items-start gap-2">
-              <span className="text-cyan-400">1.</span>
-              <div>
-                <strong>loadSettings() 阶段</strong> - 决定是否加载 workspace settings
-                <div className="text-xs text-gray-400 mt-1">
-                  位置: <code>packages/cli/src/config/settings.ts:396-418</code>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <span className="text-cyan-400">2.</span>
-              <div>
-                <strong>loadEnvFiles() 阶段</strong> - 决定是否加载项目级 .env
-                <div className="text-xs text-gray-400 mt-1">
-                  位置: <code>packages/cli/src/config/settings.ts:540</code>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <span className="text-cyan-400">3.</span>
-              <div>
-                <strong>loadCliConfig() 阶段</strong> - 校验和降级 approvalMode
-                <div className="text-xs text-gray-400 mt-1">
-                  位置: <code>packages/cli/src/config/config.ts:605-615</code>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <span className="text-cyan-400">4.</span>
-              <div>
-                <strong>loadHierarchicalGeminiMemory() 阶段</strong> - 决定是否加载项目级 QWEN.md
-                <div className="text-xs text-gray-400 mt-1">
-                  位置: <code>packages/core/src/utils/memoryDiscovery.ts:359</code>
-                </div>
-              </div>
-            </div>
-          </div>
-        </HighlightBox>
-      </Layer>
-
-      {/* userMemory 构建 */}
-      <Layer title="userMemory 构建机制" icon="🧠">
-        <HighlightBox title="QWEN.md 层级发现" icon="🔍" variant="green">
-          <p className="text-sm mb-2">
-            <code>loadHierarchicalGeminiMemory()</code> 函数负责发现并合并多层级的 QWEN.md 文件，
-            构建成 <code>userMemory</code> 字符串传递给 AI 模型。
-          </p>
-          <p className="text-sm text-gray-400">
-            源码位置: <code>packages/core/src/utils/memoryDiscovery.ts:359</code>
-          </p>
-        </HighlightBox>
-
-        <MermaidDiagram
-          title="QWEN.md 发现与合并流程"
-          chart={`flowchart TB
-    Start([开始加载记忆]) --> GetPaths[getGeminiMdFilePathsInternal<br/>获取所有 QWEN.md 路径]
-
-    GetPaths --> GlobalCheck{检查全局级}
-    GlobalCheck -->|存在| AddGlobal[添加 ~/.qwen/QWEN.md]
-    GlobalCheck -->|不存在| CheckProject
-    AddGlobal --> CheckProject
-
-    CheckProject{检查项目级}
-    CheckProject -->|受信任| AddProject[添加 .qwen/QWEN.md]
-    CheckProject -->|不受信任| SkipProject[跳过项目级]
-
-    AddProject --> CheckInclude
-    SkipProject --> CheckInclude
-
-    CheckInclude{includeDirectories?}
-    CheckInclude -->|有| AddInclude[添加各 includeDirectory<br/>下的 QWEN.md]
-    CheckInclude -->|无| CheckExtensions
-    AddInclude --> CheckExtensions
-
-    CheckExtensions{扩展 contextFiles?}
-    CheckExtensions -->|有| AddExtensions[添加扩展提供的<br/>context 文件]
-    CheckExtensions -->|无| ReadFiles
-    AddExtensions --> ReadFiles
-
-    ReadFiles[readGeminiMdFiles<br/>读取所有文件内容]
-
-    ReadFiles --> Concatenate[concatenateInstructions<br/>拼接成单一字符串]
-
-    Concatenate --> Result([userMemory: string])
-
-    style Start fill:#22d3ee,stroke:#0891b2,color:#000
-    style Result fill:#4ade80,stroke:#16a34a,color:#000
-    style CheckProject fill:#f59e0b,stroke:#d97706,color:#000
-    style SkipProject fill:#ef4444,stroke:#dc2626,color:#fff
-    style AddGlobal fill:#8b5cf6,stroke:#7c3aed,color:#fff
-    style AddProject fill:#8b5cf6,stroke:#7c3aed,color:#fff`}
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-purple-500/10 border-2 border-purple-500/30 rounded-lg p-4">
-            <h4 className="text-purple-400 font-bold mb-2">层级合并（全局 → 项目）</h4>
-            <CodeBlock
-              code={`// 1. 全局级（始终加载）
-~/.qwen/QWEN.md
-
-// 2. 项目级（受信任时加载）
-/path/to/project/.qwen/QWEN.md
-
-// 3. includeDirectories（若启用）
-/include/dir1/.qwen/QWEN.md
-/include/dir2/.qwen/QWEN.md
-
-// 4. 扩展提供的 context files
-/extension/context/file1.md
-/extension/context/file2.md
-
-// 最终拼接成单一字符串
-userMemory = concatenate(所有文件内容)`}
-            />
-          </div>
-
-          <div className="bg-purple-500/10 border-2 border-purple-500/30 rounded-lg p-4">
-            <h4 className="text-purple-400 font-bold mb-2">importFormat 控制</h4>
-            <p className="text-sm text-gray-300 mb-2">
-              <code>context.importFormat</code> 配置项控制如何展示文件来源：
-            </p>
-            <div className="space-y-2 text-xs">
-              <div className="bg-black/30 rounded p-2">
-                <div className="text-cyan-400 font-bold mb-1">tree 格式（默认）</div>
-                <pre className="text-gray-400">{`# Codebase and user instructions
-...
-Contents of ~/.qwen/QWEN.md:
-[global content]
-
-Contents of /project/.qwen/QWEN.md:
-[project content]`}</pre>
-              </div>
-              <div className="bg-black/30 rounded p-2">
-                <div className="text-orange-400 font-bold mb-1">flat 格式</div>
-                <pre className="text-gray-400">{`# claudeMd
-[concatenated content without file paths]`}</pre>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <CodeBlock
-          title="packages/core/src/utils/memoryDiscovery.ts:359-415 - 核心实现"
-          code={`export async function loadServerHierarchicalMemory(
-  currentWorkingDirectory: string,
-  includeDirectoriesToReadGemini: readonly string[],
-  debugMode: boolean,
-  fileService: FileDiscoveryService,
-  extensionContextFilePaths: string[] = [],
-  folderTrust: boolean,  // ⚠️ 信任标志
-  importFormat: 'flat' | 'tree' = 'tree',
-  fileFilteringOptions?: FileFilteringOptions,
-  maxDirs: number = 200,
-): Promise<LoadServerHierarchicalMemoryResponse> {
-  // 1. 获取所有 QWEN.md 文件路径
-  const filePaths = await getGeminiMdFilePathsInternal(
-    currentWorkingDirectory,
-    includeDirectoriesToReadGemini,
-    userHomePath,
-    debugMode,
-    fileService,
-    extensionContextFilePaths,
-    folderTrust,  // ⚠️ 传递信任状态
-    fileFilteringOptions || DEFAULT_MEMORY_FILE_FILTERING_OPTIONS,
-    maxDirs,
-  );
-
-  if (filePaths.length === 0) {
-    return { memoryContent: '', fileCount: 0 };
-  }
-
-  // 2. 读取所有文件内容
-  const contentsWithPaths = await readGeminiMdFiles(
-    filePaths,
-    debugMode,
-    importFormat,
-  );
-
-  // 3. 拼接成单一指令字符串
-  const combinedInstructions = concatenateInstructions(
-    contentsWithPaths,
-    currentWorkingDirectory,
-  );
-
-  return {
-    memoryContent: combinedInstructions,
-    fileCount: contentsWithPaths.length,
-  };
+  // 3. 去重返回
+  return [...allExcludeTools];
 }`}
         />
 
-        <HighlightBox title="Context Files 处理" icon="📄" variant="blue">
+        <HighlightBox title="非交互模式的额外排除" icon="⚠️" variant="orange">
           <p className="text-sm mb-2">
-            扩展可以通过 <code>extension.contextFiles</code> 提供额外的上下文文件，
-            这些文件会与 QWEN.md 一起被加载并拼接到 <code>userMemory</code> 中。
+            在非交互模式下，根据 approvalMode 自动排除需要用户确认的工具：
           </p>
           <CodeBlock
-            code={`// 扩展定义示例（extension.ts）
-export const myExtension: Extension = {
-  name: 'my-extension',
-  contextFiles: [
-    '/path/to/extension/context.md',
-    '/path/to/extension/rules.md',
-  ],
-  // ...
-};
-
-// 这些文件会在 loadHierarchicalGeminiMemory 中被包含
-const extensionContextFilePaths = activeExtensions.flatMap(
-  (e) => e.contextFiles,
-);`}
+            code={`// config.ts:640-658
+if (!interactive && !argv.experimentalAcp) {
+  switch (approvalMode) {
+    case ApprovalMode.PLAN:
+    case ApprovalMode.DEFAULT:
+      // 排除所有需要审批的工具
+      extraExcludes.push(ShellTool.Name, EditTool.Name, WriteFileTool.Name);
+      break;
+    case ApprovalMode.AUTO_EDIT:
+      // 只排除 Shell（仍需审批）
+      extraExcludes.push(ShellTool.Name);
+      break;
+    case ApprovalMode.YOLO:
+      // 不排除任何工具
+      break;
+  }
+}`}
           />
         </HighlightBox>
       </Layer>
 
-      {/* 工具集组装 */}
-      <Layer title="工具集组装：三路合流" icon="🛠️">
-        <HighlightBox title="createToolRegistry() 工具来源" icon="⚙️" variant="purple">
-          <p className="text-sm mb-2">
-            <code>Config.createToolRegistry()</code> 负责组装最终的工具集，
-            工具来源于三个渠道，按优先级合流：
-          </p>
-        </HighlightBox>
-
-        <MermaidDiagram
-          title="工具集三路合流"
-          chart={`flowchart LR
-    subgraph Source1[核心工具]
-      Core[Core 内置工具<br/>Read/Edit/Shell/Grep/...]
-      CoreFilter{coreTools<br/>白名单?}
-      Core --> CoreFilter
-      CoreFilter -->|过滤| CoreEnabled[启用的核心工具]
-    end
-
-    subgraph Source2[发现工具]
-      Discovery[discoveryCommand<br/>外部工具发现]
-      DiscoveryExec[执行发现命令<br/>获取工具定义]
-      Discovery --> DiscoveryExec
-      DiscoveryExec --> DiscoveryTools[外部工具列表]
-    end
-
-    subgraph Source3[MCP 工具]
-      McpServers[MCP 服务器配置]
-      McpConnect[连接 MCP 服务器<br/>获取工具列表]
-      McpServers --> McpConnect
-      McpConnect --> McpTools[MCP 工具列表]
-    end
-
-    CoreEnabled --> Registry[ToolRegistry]
-    DiscoveryTools --> Registry
-    McpTools --> Registry
-
-    Registry --> ExcludeFilter{excludeTools<br/>黑名单?}
-    ExcludeFilter -->|过滤| FinalToolset([最终工具集])
-
-    style Source1 fill:#22d3ee20,stroke:#22d3ee
-    style Source2 fill:#8b5cf620,stroke:#8b5cf6
-    style Source3 fill:#f59e0b20,stroke:#f59e0b
-    style FinalToolset fill:#4ade80,stroke:#16a34a,color:#000`}
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-4">
-            <h4 className="text-cyan-400 font-bold mb-2 flex items-center gap-2">
-              <span>1️⃣</span>
-              <span>Core 内置工具</span>
-            </h4>
-            <p className="text-sm text-gray-300 mb-2">
-              源码: <code className="text-xs">packages/core/src/config/config.ts:1092-1200</code>
-            </p>
-            <div className="text-xs space-y-1 text-gray-400">
-              <div>✅ TaskTool - 子任务委托</div>
-              <div>✅ LSTool - 列出文件</div>
-              <div>✅ ReadFileTool - 读取文件</div>
-              <div>✅ GrepTool - 搜索内容</div>
-              <div>✅ EditTool - 编辑文件</div>
-              <div>✅ WriteFileTool - 写入文件</div>
-              <div>✅ ShellTool - 执行命令</div>
-              <div>✅ WebSearchTool - 网络搜索</div>
-              <div>... 等 20+ 工具</div>
-            </div>
-          </div>
-
-          <div className="bg-purple-500/10 border-2 border-purple-500/30 rounded-lg p-4">
-            <h4 className="text-purple-400 font-bold mb-2 flex items-center gap-2">
-              <span>2️⃣</span>
-              <span>Discovery 发现工具</span>
-            </h4>
-            <p className="text-sm text-gray-300 mb-2">
-              通过 <code>tools.discoveryCommand</code> 发现外部工具
-            </p>
-            <CodeBlock
-              code={`// settings.json 配置
-{
-  "tools": {
-    "discoveryCommand": "./discover-tools.sh"
-  }
-}
-
-// 发现命令输出格式（JSON）
-[
-  {
-    "name": "custom_tool",
-    "description": "My custom tool",
-    "parameters": {...}
-  }
-]`}
-            />
-          </div>
-
-          <div className="bg-orange-500/10 border-2 border-orange-500/30 rounded-lg p-4">
-            <h4 className="text-orange-400 font-bold mb-2 flex items-center gap-2">
-              <span>3️⃣</span>
-              <span>MCP 工具</span>
-            </h4>
-            <p className="text-sm text-gray-300 mb-2">
-              从 MCP 服务器获取工具定义
-            </p>
-            <div className="text-xs space-y-1 text-gray-400">
-              <div>🔌 连接到配置的 MCP 服务器</div>
-              <div>📋 调用 tools/list 获取工具列表</div>
-              <div>🔄 动态注册工具到 Registry</div>
-              <div>⚙️ 工具调用通过 MCP 协议代理</div>
-            </div>
-          </div>
-        </div>
-
-        <CodeBlock
-          title="packages/core/src/config/config.ts:1092-1200 - createToolRegistry 实现"
-          code={`async createToolRegistry(): Promise<ToolRegistry> {
-  const registry = new ToolRegistry(this, this.eventEmitter);
-
-  // Helper: 注册核心工具（带 coreTools/excludeTools 过滤）
-  const registerCoreTool = (ToolClass: any, ...args: unknown[]) => {
-    const toolName = ToolClass.Name || ToolClass.name;
-    const coreTools = this.getCoreTools();  // tools.core 白名单
-    const excludeTools = this.getExcludeTools() || [];  // tools.exclude 黑名单
-
-    let isEnabled = true;
-
-    // 1️⃣ coreTools 白名单过滤
-    if (coreTools) {
-      isEnabled = coreTools.some(
-        (tool) =>
-          tool === toolName ||
-          tool.startsWith(\`\${toolName}(\`),
-      );
-    }
-
-    // 2️⃣ excludeTools 黑名单过滤
-    const isExcluded = excludeTools.some(
-      (tool) => tool === toolName,
-    );
-
-    if (isExcluded) {
-      isEnabled = false;
-    }
-
-    // 3️⃣ 只注册启用的工具
-    if (isEnabled) {
-      registry.registerTool(new ToolClass(...args));
-    }
-  };
-
-  // 注册所有核心工具
-  registerCoreTool(TaskTool, this);
-  registerCoreTool(LSTool, this);
-  registerCoreTool(ReadFileTool, this);
-  registerCoreTool(GrepTool, this);
-  registerCoreTool(EditTool, this);
-  registerCoreTool(WriteFileTool, this);
-  registerCoreTool(ShellTool, this);
-  registerCoreTool(WebSearchTool, this);
-  // ... 更多核心工具
-
-  // 4️⃣ 发现外部工具（如果配置了 discoveryCommand）
-  if (this.getToolDiscoveryCommand()) {
-    await registry.discoverTools(this.getToolDiscoveryCommand());
-  }
-
-  // 5️⃣ 注册 MCP 工具（通过 MCP 服务器连接获取）
-  await registry.registerMcpTools(this.getMcpServers());
-
-  return registry;
-}`}
-        />
-
-        <HighlightBox title="工具过滤优先级" icon="🎯" variant="orange">
-          <div className="text-sm space-y-2">
-            <div className="flex items-start gap-2">
-              <span className="text-red-400 font-bold">1.</span>
-              <div>
-                <strong className="text-red-400">excludeTools 黑名单</strong> - 优先级最高，直接排除
-                <div className="text-xs text-gray-400 mt-1">
-                  <code>tools.exclude: ["web_search"]</code> → 无论如何都排除
-                </div>
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <span className="text-cyan-400 font-bold">2.</span>
-              <div>
-                <strong className="text-cyan-400">coreTools 白名单</strong> - 若配置则只启用列表中的工具
-                <div className="text-xs text-gray-400 mt-1">
-                  <code>tools.core: ["read_file", "edit"]</code> → 只启用这两个核心工具
-                </div>
-              </div>
-            </div>
-            <div className="flex items-start gap-2">
-              <span className="text-green-400 font-bold">3.</span>
-              <div>
-                <strong className="text-green-400">默认全启用</strong> - 若无配置则所有核心工具默认启用
-                <div className="text-xs text-gray-400 mt-1">
-                  未配置 <code>tools.core</code> 时的行为
-                </div>
-              </div>
-            </div>
-          </div>
-        </HighlightBox>
-      </Layer>
-
       {/* 源码位置 */}
-      <Layer title="源码位置" icon="📍">
+      <Layer title="源码导航" icon="📍">
         <HighlightBox title="配置系统核心源码" icon="📁" variant="blue">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <h5 className="text-cyan-400 font-bold mb-2">配置加载与合并</h5>
-              <div className="text-sm space-y-2">
-                <div className="flex items-start gap-2">
-                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/cli/src/config/settings.ts:35-48</code>
-                  <span className="text-gray-400 text-xs">getMergeStrategyForPath() 策略查找</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/cli/src/config/settings.ts:396-418</code>
-                  <span className="text-gray-400 text-xs">mergeSettings() 四层合并</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/cli/src/config/settings.ts:421-484</code>
-                  <span className="text-gray-400 text-xs">LoadedSettings 类</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/cli/src/config/settings.ts:540</code>
-                  <span className="text-gray-400 text-xs">loadEnvFiles() 环境变量加载</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/cli/src/utils/deepMerge.ts</code>
-                  <span className="text-gray-400 text-xs">customDeepMerge() 实现</span>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h5 className="text-purple-400 font-bold mb-2">完整加载链路</h5>
-              <div className="text-sm space-y-2">
-                <div className="flex items-start gap-2">
-                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/cli/src/config/config.ts:522-708</code>
-                  <span className="text-gray-400 text-xs">loadCliConfig() 主入口</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/cli/src/config/config.ts:605-615</code>
-                  <span className="text-gray-400 text-xs">approvalMode 安全降级</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/core/src/utils/memoryDiscovery.ts:359-415</code>
-                  <span className="text-gray-400 text-xs">loadServerHierarchicalMemory()</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/core/src/config/config.ts:1092-1200</code>
-                  <span className="text-gray-400 text-xs">createToolRegistry() 工具组装</span>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h5 className="text-red-400 font-bold mb-2">信任与安全</h5>
-              <div className="text-sm space-y-2">
-                <div className="flex items-start gap-2">
-                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/cli/src/config/trustedFolders.ts</code>
-                  <span className="text-gray-400 text-xs">工作区信任机制</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/cli/src/config/settings.ts:403</code>
-                  <span className="text-gray-400 text-xs">workspace 配置信任检查</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/cli/src/config/settings.ts:540</code>
-                  <span className="text-gray-400 text-xs">.env 文件信任检查</span>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h5 className="text-green-400 font-bold mb-2">Schema 与定义</h5>
-              <div className="text-sm space-y-2">
-                <div className="flex items-start gap-2">
-                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/cli/src/config/settingsSchema.ts:51-60</code>
-                  <span className="text-gray-400 text-xs">MergeStrategy 枚举定义</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <code className="bg-black/30 px-2 py-1 rounded text-xs">packages/cli/src/config/settingsSchema.ts</code>
-                  <span className="text-gray-400 text-xs">完整 Settings Schema 定义</span>
-                </div>
-              </div>
-            </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-700">
+                  <th className="text-left py-2 text-cyan-400">文件</th>
+                  <th className="text-left py-2 text-gray-400">行号</th>
+                  <th className="text-left py-2 text-gray-400">功能</th>
+                </tr>
+              </thead>
+              <tbody className="text-gray-300">
+                <tr className="border-b border-gray-800">
+                  <td className="py-1"><code>packages/cli/src/config/settings.ts</code></td>
+                  <td>35-48</td>
+                  <td className="text-xs">getMergeStrategyForPath() 策略查找</td>
+                </tr>
+                <tr className="border-b border-gray-800">
+                  <td><code>packages/cli/src/config/settings.ts</code></td>
+                  <td>63-138</td>
+                  <td className="text-xs">MIGRATION_MAP v1→v2 映射表</td>
+                </tr>
+                <tr className="border-b border-gray-800">
+                  <td><code>packages/cli/src/config/settings.ts</code></td>
+                  <td>222-251</td>
+                  <td className="text-xs">needsMigration() 迁移检测</td>
+                </tr>
+                <tr className="border-b border-gray-800">
+                  <td><code>packages/cli/src/config/settings.ts</code></td>
+                  <td>253-321</td>
+                  <td className="text-xs">migrateSettingsToV2() 迁移实现</td>
+                </tr>
+                <tr className="border-b border-gray-800">
+                  <td><code>packages/cli/src/config/settings.ts</code></td>
+                  <td>396-419</td>
+                  <td className="text-xs">mergeSettings() 四层合并</td>
+                </tr>
+                <tr className="border-b border-gray-800">
+                  <td><code>packages/cli/src/config/settings.ts</code></td>
+                  <td>421-484</td>
+                  <td className="text-xs">LoadedSettings 类</td>
+                </tr>
+                <tr className="border-b border-gray-800">
+                  <td><code>packages/cli/src/config/settings.ts</code></td>
+                  <td>486-513</td>
+                  <td className="text-xs">findEnvFile() .env 发现</td>
+                </tr>
+                <tr className="border-b border-gray-800">
+                  <td><code>packages/cli/src/config/settings.ts</code></td>
+                  <td>537-577</td>
+                  <td className="text-xs">loadEnvironment() 环境变量加载</td>
+                </tr>
+                <tr className="border-b border-gray-800">
+                  <td><code>packages/cli/src/config/settings.ts</code></td>
+                  <td>583-792</td>
+                  <td className="text-xs">loadSettings() 主入口</td>
+                </tr>
+                <tr className="border-b border-gray-800">
+                  <td><code>packages/cli/src/config/settingsSchema.ts</code></td>
+                  <td>51-60</td>
+                  <td className="text-xs">MergeStrategy 枚举定义</td>
+                </tr>
+                <tr className="border-b border-gray-800">
+                  <td><code>packages/cli/src/config/settingsSchema.ts</code></td>
+                  <td>91-1188</td>
+                  <td className="text-xs">SETTINGS_SCHEMA 完整定义</td>
+                </tr>
+                <tr className="border-b border-gray-800">
+                  <td><code>packages/cli/src/utils/deepMerge.ts</code></td>
+                  <td>24-90</td>
+                  <td className="text-xs">customDeepMerge() 策略感知合并</td>
+                </tr>
+                <tr className="border-b border-gray-800">
+                  <td><code>packages/cli/src/utils/envVarResolver.ts</code></td>
+                  <td>20-112</td>
+                  <td className="text-xs">环境变量解析实现</td>
+                </tr>
+                <tr className="border-b border-gray-800">
+                  <td><code>packages/cli/src/config/config.ts</code></td>
+                  <td>522-805</td>
+                  <td className="text-xs">loadCliConfig() 完整加载链路</td>
+                </tr>
+                <tr className="border-b border-gray-800">
+                  <td><code>packages/cli/src/config/config.ts</code></td>
+                  <td>838-857</td>
+                  <td className="text-xs">mergeMcpServers() MCP 合并</td>
+                </tr>
+                <tr>
+                  <td><code>packages/cli/src/config/config.ts</code></td>
+                  <td>859-874</td>
+                  <td className="text-xs">mergeExcludeTools() 工具排除合并</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </HighlightBox>
       </Layer>

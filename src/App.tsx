@@ -17,6 +17,7 @@ const StartupFlow = lazy(() => import('./pages/StartupFlow').then(m => ({ defaul
 const StartupChain = lazy(() => import('./pages/StartupChain').then(m => ({ default: m.StartupChain })));
 const ConfigSystem = lazy(() => import('./pages/ConfigSystem').then(m => ({ default: m.ConfigSystem })));
 const AuthenticationFlow = lazy(() => import('./pages/AuthenticationFlow').then(m => ({ default: m.AuthenticationFlow })));
+const SharedTokenManager = lazy(() => import('./pages/SharedTokenManager').then(m => ({ default: m.SharedTokenManager })));
 const RequestLifecycle = lazy(() => import('./pages/RequestLifecycle').then(m => ({ default: m.RequestLifecycle })));
 const InteractionLoop = lazy(() => import('./pages/InteractionLoop').then(m => ({ default: m.InteractionLoop })));
 const GeminiChatCore = lazy(() => import('./pages/GeminiChatCore').then(m => ({ default: m.GeminiChatCore })));
@@ -118,6 +119,10 @@ const FileDiscovery = lazy(() => import('./pages/FileDiscovery').then(m => ({ de
 const CoreCode = lazy(() => import('./pages/CoreCode').then(m => ({ default: m.CoreCode })));
 const LoopMechanism = lazy(() => import('./pages/LoopMechanism').then(m => ({ default: m.LoopMechanism })));
 const EnterpriseDeployment = lazy(() => import('./pages/EnterpriseDeployment').then(m => ({ default: m.EnterpriseDeployment })));
+const ModelConfigCacheAnimation = lazy(() => import('./pages/ModelConfigCacheAnimation'));
+const SubagentResolutionAnimation = lazy(() => import('./pages/SubagentResolutionAnimation'));
+const ShadowGitCheckpointAnimation = lazy(() => import('./pages/ShadowGitCheckpointAnimation'));
+const ChatRecordingAnimation = lazy(() => import('./pages/ChatRecordingAnimation'));
 
 // 页面加载 fallback
 function PageLoading() {
@@ -222,6 +227,8 @@ function App() {
         return <ConfigSystem />;
       case 'auth':
         return <AuthenticationFlow />;
+      case 'shared-token-manager':
+        return <SharedTokenManager />;
       case 'lifecycle':
         return <RequestLifecycle />;
       case 'interaction-loop':
@@ -418,6 +425,14 @@ function App() {
         return <CommandLoadingAnimation />;
       case 'tool-confirmation-anim':
         return <ToolConfirmationFlowAnimation />;
+      case 'model-config-cache-anim':
+        return <ModelConfigCacheAnimation />;
+      case 'subagent-resolution-anim':
+        return <SubagentResolutionAnimation />;
+      case 'shadow-git-checkpoint-anim':
+        return <ShadowGitCheckpointAnimation />;
+      case 'chat-recording-anim':
+        return <ChatRecordingAnimation />;
       case 'code':
         return <CoreCode />;
       case 'loop':
