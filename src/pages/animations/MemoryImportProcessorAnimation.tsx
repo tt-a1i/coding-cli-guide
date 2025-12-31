@@ -23,7 +23,7 @@ export function MemoryImportProcessorAnimation() {
     {
       id: 0,
       action: 'START',
-      file: 'QWEN.md',
+      file: 'GEMINI.md',
       detail: '开始处理根文件，初始化 ImportState',
       processedFiles: [],
       currentDepth: 0,
@@ -31,9 +31,9 @@ export function MemoryImportProcessorAnimation() {
     {
       id: 1,
       action: 'FIND_IMPORTS',
-      file: 'QWEN.md',
+      file: 'GEMINI.md',
       detail: '扫描 @imports，发现 3 个导入: @config.md, @prompts.md, @tools.md',
-      processedFiles: ['QWEN.md'],
+      processedFiles: ['GEMINI.md'],
       currentDepth: 0,
     },
     {
@@ -41,7 +41,7 @@ export function MemoryImportProcessorAnimation() {
       action: 'VALIDATE_PATH',
       file: 'config.md',
       detail: '验证路径安全性: 检查是否在 projectRoot 内，拒绝 URL 和路径遍历',
-      processedFiles: ['QWEN.md'],
+      processedFiles: ['GEMINI.md'],
       currentDepth: 0,
     },
     {
@@ -49,7 +49,7 @@ export function MemoryImportProcessorAnimation() {
       action: 'PROCESS_IMPORT',
       file: 'config.md',
       detail: '递归处理 config.md (depth: 1)',
-      processedFiles: ['QWEN.md', 'config.md'],
+      processedFiles: ['GEMINI.md', 'config.md'],
       currentDepth: 1,
     },
     {
@@ -57,7 +57,7 @@ export function MemoryImportProcessorAnimation() {
       action: 'FIND_IMPORTS',
       file: 'config.md',
       detail: '扫描 config.md，发现 1 个导入: @settings.md',
-      processedFiles: ['QWEN.md', 'config.md'],
+      processedFiles: ['GEMINI.md', 'config.md'],
       currentDepth: 1,
     },
     {
@@ -65,23 +65,23 @@ export function MemoryImportProcessorAnimation() {
       action: 'PROCESS_IMPORT',
       file: 'settings.md',
       detail: '递归处理 settings.md (depth: 2)',
-      processedFiles: ['QWEN.md', 'config.md', 'settings.md'],
+      processedFiles: ['GEMINI.md', 'config.md', 'settings.md'],
       currentDepth: 2,
     },
     {
       id: 6,
       action: 'FIND_IMPORTS',
       file: 'settings.md',
-      detail: '扫描 settings.md，发现导入: @QWEN.md',
-      processedFiles: ['QWEN.md', 'config.md', 'settings.md'],
+      detail: '扫描 settings.md，发现导入: @GEMINI.md',
+      processedFiles: ['GEMINI.md', 'config.md', 'settings.md'],
       currentDepth: 2,
     },
     {
       id: 7,
       action: 'CIRCULAR_DETECTED',
-      file: 'QWEN.md',
-      detail: '🔄 检测到循环引用! QWEN.md 已在 processedFiles 中',
-      processedFiles: ['QWEN.md', 'config.md', 'settings.md'],
+      file: 'GEMINI.md',
+      detail: '🔄 检测到循环引用! GEMINI.md 已在 processedFiles 中',
+      processedFiles: ['GEMINI.md', 'config.md', 'settings.md'],
       currentDepth: 2,
       result: 'circular',
     },
@@ -90,7 +90,7 @@ export function MemoryImportProcessorAnimation() {
       action: 'BACKTRACK',
       file: 'config.md',
       detail: '回溯到 config.md，继续处理其他导入',
-      processedFiles: ['QWEN.md', 'config.md', 'settings.md'],
+      processedFiles: ['GEMINI.md', 'config.md', 'settings.md'],
       currentDepth: 1,
     },
     {
@@ -98,7 +98,7 @@ export function MemoryImportProcessorAnimation() {
       action: 'PROCESS_IMPORT',
       file: 'prompts.md',
       detail: '处理 prompts.md (depth: 1)',
-      processedFiles: ['QWEN.md', 'config.md', 'settings.md', 'prompts.md'],
+      processedFiles: ['GEMINI.md', 'config.md', 'settings.md', 'prompts.md'],
       currentDepth: 1,
     },
     {
@@ -106,7 +106,7 @@ export function MemoryImportProcessorAnimation() {
       action: 'FIND_IMPORTS',
       file: 'prompts.md',
       detail: '扫描 prompts.md，发现深层导入链',
-      processedFiles: ['QWEN.md', 'config.md', 'settings.md', 'prompts.md'],
+      processedFiles: ['GEMINI.md', 'config.md', 'settings.md', 'prompts.md'],
       currentDepth: 1,
     },
     {
@@ -114,7 +114,7 @@ export function MemoryImportProcessorAnimation() {
       action: 'DEEP_RECURSION',
       file: 'deep/level4.md',
       detail: '递归到 depth: 4...',
-      processedFiles: ['QWEN.md', 'config.md', 'settings.md', 'prompts.md', 'deep/level2.md', 'deep/level3.md', 'deep/level4.md'],
+      processedFiles: ['GEMINI.md', 'config.md', 'settings.md', 'prompts.md', 'deep/level2.md', 'deep/level3.md', 'deep/level4.md'],
       currentDepth: 4,
     },
     {
@@ -122,7 +122,7 @@ export function MemoryImportProcessorAnimation() {
       action: 'MAX_DEPTH_REACHED',
       file: 'deep/level5.md',
       detail: '⚠️ 达到最大深度限制 (maxDepth: 5)，停止处理',
-      processedFiles: ['QWEN.md', 'config.md', 'settings.md', 'prompts.md', 'deep/level2.md', 'deep/level3.md', 'deep/level4.md'],
+      processedFiles: ['GEMINI.md', 'config.md', 'settings.md', 'prompts.md', 'deep/level2.md', 'deep/level3.md', 'deep/level4.md'],
       currentDepth: 5,
       result: 'max-depth',
     },
@@ -131,23 +131,23 @@ export function MemoryImportProcessorAnimation() {
       action: 'PROCESS_IMPORT',
       file: 'tools.md',
       detail: '处理最后一个根级导入 tools.md',
-      processedFiles: ['QWEN.md', 'config.md', 'settings.md', 'prompts.md', 'deep/level2.md', 'deep/level3.md', 'deep/level4.md', 'tools.md'],
+      processedFiles: ['GEMINI.md', 'config.md', 'settings.md', 'prompts.md', 'deep/level2.md', 'deep/level3.md', 'deep/level4.md', 'tools.md'],
       currentDepth: 1,
     },
     {
       id: 14,
       action: 'BUILD_TREE',
-      file: 'QWEN.md',
+      file: 'GEMINI.md',
       detail: '构建 MemoryFile 导入树',
-      processedFiles: ['QWEN.md', 'config.md', 'settings.md', 'prompts.md', 'deep/level2.md', 'deep/level3.md', 'deep/level4.md', 'tools.md'],
+      processedFiles: ['GEMINI.md', 'config.md', 'settings.md', 'prompts.md', 'deep/level2.md', 'deep/level3.md', 'deep/level4.md', 'tools.md'],
       currentDepth: 0,
     },
     {
       id: 15,
       action: 'COMPLETE',
-      file: 'QWEN.md',
+      file: 'GEMINI.md',
       detail: '✅ 处理完成! 返回 ProcessImportsResult',
-      processedFiles: ['QWEN.md', 'config.md', 'settings.md', 'prompts.md', 'deep/level2.md', 'deep/level3.md', 'deep/level4.md', 'tools.md'],
+      processedFiles: ['GEMINI.md', 'config.md', 'settings.md', 'prompts.md', 'deep/level2.md', 'deep/level3.md', 'deep/level4.md', 'tools.md'],
       currentDepth: 0,
       result: 'success',
     },
@@ -206,7 +206,7 @@ stateDiagram-v2
 
   const treeStructure = `
 graph TD
-    A["📄 QWEN.md<br/>(root)"] --> B["📄 config.md"]
+    A["📄 GEMINI.md<br/>(root)"] --> B["📄 config.md"]
     A --> C["📄 prompts.md"]
     A --> D["📄 tools.md"]
     B --> E["📄 settings.md"]
@@ -239,7 +239,7 @@ graph TD
       {/* Introduction */}
       <HighlightBox title="📚 机制介绍" variant="blue">
         <p className="mb-3">
-          Memory Import Processor 处理 QWEN.md 文件中的 <code>@path/to/file</code> 导入语法，
+          Memory Import Processor 处理 GEMINI.md 文件中的 <code>@path/to/file</code> 导入语法，
           递归解析所有引用的文件并合并内容。关键挑战是检测<strong>循环依赖</strong>和控制<strong>递归深度</strong>。
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">

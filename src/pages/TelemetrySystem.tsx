@@ -7,7 +7,7 @@ export function TelemetrySystem() {
   // 30秒速览
   const quickSummary = `🎯 核心要点
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📊 双通道架构    OpenTelemetry (OTLP) + QwenLogger (RUM)
+📊 双通道架构    OpenTelemetry (OTLP) + GeminiLogger (RUM)
 ⏱️ 刷新间隔      OTLP: 10秒  |  RUM: 60秒
 📦 事件缓冲      最大 1000 事件，超出时 FIFO 淘汰
 🔄 重试机制      最多 3 次，指数退避，最多保留 100 条失败事件
@@ -36,7 +36,7 @@ export function TelemetrySystem() {
             metric["PeriodicExportingMetricReader"]
         end
 
-        subgraph rum["QwenLogger 通道"]
+        subgraph rum["GeminiLogger 通道"]
             queue["FixedDeque&lt;RumEvent&gt;"]
             flush["flushToRum()"]
             retry["retryWithBackoff"]
@@ -116,7 +116,7 @@ export function TelemetrySystem() {
   // 指标定义代码
   const metricsDefinitionCode = `// packages/core/src/telemetry/metrics.ts
 // 服务名称前缀
-const SERVICE_NAME = 'qwen-code';
+const SERVICE_NAME = 'gemini-code';
 
 // ═══════════════════════════════════════════════════════════════
 // Counter 指标定义 (累计计数)
@@ -391,9 +391,9 @@ export class LoopDetectedEvent { loop_type: LoopType; prompt_id: string; }
 export class ExtensionInstallEvent { extension_name: string; extension_version: string; status: 'success' | 'error'; }
 // ... 更多事件类型`;
 
-  // QwenLogger 实现代码
-  const qwenLoggerCode = `// packages/core/src/telemetry/qwen-logger/qwen-logger.ts
-// Qwen RUM 日志记录器
+  // GeminiLogger 实现代码
+  const geminiLoggerCode = `// packages/core/src/telemetry/gemini-logger/gemini-logger.ts
+// Gemini RUM 日志记录器
 
 const USAGE_STATS_HOSTNAME = 'gb4w8c3ygj-default-sea.rum.aliyuncs.com';
 const RUN_APP_ID = 'gb4w8c3ygj@851d5d500f08f92';
@@ -406,8 +406,8 @@ const FLUSH_INTERVAL_MS = 1000 * 60;   // 60秒刷新间隔
 const MAX_EVENTS = 1000;                // 最大事件数量
 const MAX_RETRY_EVENTS = 100;           // 重试队列最大事件数
 
-export class QwenLogger {
-  private static instance: QwenLogger;
+export class GeminiLogger {
+  private static instance: GeminiLogger;
 
   // 事件队列 (固定大小双端队列)
   private readonly events: FixedDeque<RumEvent>;
@@ -527,7 +527,7 @@ export function initializeTelemetry(config: Config): void {
 
   // 创建 Resource (服务元数据)
   const resource = resourceFromAttributes({
-    [SemanticResourceAttributes.SERVICE_NAME]: 'qwen-code',
+    [SemanticResourceAttributes.SERVICE_NAME]: 'gemini-code',
     [SemanticResourceAttributes.SERVICE_VERSION]: process.version,
     'session.id': config.getSessionId(),
   });
@@ -612,15 +612,15 @@ export function initializeTelemetry(config: Config): void {
   const loggersCode = `// packages/core/src/telemetry/loggers.ts
 // 遥测日志记录函数 (采集点)
 
-// 双通道记录：OpenTelemetry + QwenLogger (RUM)
+// 双通道记录：OpenTelemetry + GeminiLogger (RUM)
 
 export function logToolCall(config: Config, event: ToolCallEvent): void {
   // 1. UI 遥测 (本地状态)
   const uiEvent = { ...event, 'event.name': EVENT_TOOL_CALL };
   uiTelemetryService.addEvent(uiEvent);
 
-  // 2. QwenLogger (RUM 通道)
-  QwenLogger.getInstance(config)?.logToolCallEvent(event);
+  // 2. GeminiLogger (RUM 通道)
+  GeminiLogger.getInstance(config)?.logToolCallEvent(event);
 
   // 3. OpenTelemetry (OTLP 通道)
   if (!isTelemetrySdkInitialized()) return;
@@ -652,8 +652,8 @@ export function logApiResponse(config: Config, event: ApiResponseEvent): void {
   // UI 遥测
   uiTelemetryService.addEvent({ ...event, 'event.name': EVENT_API_RESPONSE });
 
-  // QwenLogger
-  QwenLogger.getInstance(config)?.logApiResponseEvent(event);
+  // GeminiLogger
+  GeminiLogger.getInstance(config)?.logApiResponseEvent(event);
 
   // OpenTelemetry
   if (!isTelemetrySdkInitialized()) return;
@@ -680,7 +680,7 @@ export function logApiResponse(config: Config, event: ApiResponseEvent): void {
 }
 
 export function logChatCompression(config: Config, event: ChatCompressionEvent): void {
-  QwenLogger.getInstance(config)?.logChatCompressionEvent(event);
+  GeminiLogger.getInstance(config)?.logChatCompressionEvent(event);
 
   const logger = logs.getLogger(SERVICE_NAME);
   logger.emit({
@@ -695,7 +695,7 @@ export function logChatCompression(config: Config, event: ChatCompressionEvent):
 }`;
 
   // RUM 事件结构
-  const rumEventStructureCode = `// packages/core/src/telemetry/qwen-logger/event-types.ts
+  const rumEventStructureCode = `// packages/core/src/telemetry/gemini-logger/event-types.ts
 // RUM 协议数据结构
 
 export interface RumApp {
@@ -757,58 +757,58 @@ export interface RumPayload {
   view: RumView;
   events: RumEvent[];
   properties?: Record<string, unknown>;
-  _v: string;           // 版本标识: 'qwen-code@x.y.z'
+  _v: string;           // 版本标识: 'gemini-code@x.y.z'
 }`;
 
   // 事件常量定义
   const eventConstantsCode = `// packages/core/src/telemetry/constants.ts
 // 事件名称常量
 
-export const SERVICE_NAME = 'qwen-code';
+export const SERVICE_NAME = 'gemini-code';
 
 // 用户事件
-export const EVENT_USER_PROMPT = 'qwen-code.user_prompt';
-export const EVENT_SLASH_COMMAND = 'qwen-code.slash_command';
-export const EVENT_MODEL_SLASH_COMMAND = 'qwen-code.slash_command.model';
+export const EVENT_USER_PROMPT = 'gemini-code.user_prompt';
+export const EVENT_SLASH_COMMAND = 'gemini-code.slash_command';
+export const EVENT_MODEL_SLASH_COMMAND = 'gemini-code.slash_command.model';
 
 // API 事件
-export const EVENT_API_REQUEST = 'qwen-code.api_request';
-export const EVENT_API_RESPONSE = 'qwen-code.api_response';
-export const EVENT_API_ERROR = 'qwen-code.api_error';
-export const EVENT_API_CANCEL = 'qwen-code.api_cancel';
+export const EVENT_API_REQUEST = 'gemini-code.api_request';
+export const EVENT_API_RESPONSE = 'gemini-code.api_response';
+export const EVENT_API_ERROR = 'gemini-code.api_error';
+export const EVENT_API_CANCEL = 'gemini-code.api_cancel';
 
 // 工具事件
-export const EVENT_TOOL_CALL = 'qwen-code.tool_call';
-export const EVENT_FILE_OPERATION = 'qwen-code.file_operation';
-export const EVENT_SUBAGENT_EXECUTION = 'qwen-code.subagent_execution';
+export const EVENT_TOOL_CALL = 'gemini-code.tool_call';
+export const EVENT_FILE_OPERATION = 'gemini-code.file_operation';
+export const EVENT_SUBAGENT_EXECUTION = 'gemini-code.subagent_execution';
 
 // 系统事件
-export const EVENT_CLI_CONFIG = 'qwen-code.config';
-export const EVENT_CHAT_COMPRESSION = 'qwen-code.chat_compression';
-export const EVENT_CONVERSATION_FINISHED = 'qwen-code.conversation_finished';
+export const EVENT_CLI_CONFIG = 'gemini-code.config';
+export const EVENT_CHAT_COMPRESSION = 'gemini-code.chat_compression';
+export const EVENT_CONVERSATION_FINISHED = 'gemini-code.conversation_finished';
 
 // 错误事件
-export const EVENT_INVALID_CHUNK = 'qwen-code.chat.invalid_chunk';
-export const EVENT_CONTENT_RETRY = 'qwen-code.chat.content_retry';
-export const EVENT_CONTENT_RETRY_FAILURE = 'qwen-code.chat.content_retry_failure';
-export const EVENT_MALFORMED_JSON_RESPONSE = 'qwen-code.malformed_json_response';
+export const EVENT_INVALID_CHUNK = 'gemini-code.chat.invalid_chunk';
+export const EVENT_CONTENT_RETRY = 'gemini-code.chat.content_retry';
+export const EVENT_CONTENT_RETRY_FAILURE = 'gemini-code.chat.content_retry_failure';
+export const EVENT_MALFORMED_JSON_RESPONSE = 'gemini-code.malformed_json_response';
 
 // 扩展事件
-export const EVENT_EXTENSION_INSTALL = 'qwen-code.extension_install';
-export const EVENT_EXTENSION_UNINSTALL = 'qwen-code.extension_uninstall';
-export const EVENT_EXTENSION_ENABLE = 'qwen-code.extension_enable';
-export const EVENT_EXTENSION_DISABLE = 'qwen-code.extension_disable';
+export const EVENT_EXTENSION_INSTALL = 'gemini-code.extension_install';
+export const EVENT_EXTENSION_UNINSTALL = 'gemini-code.extension_uninstall';
+export const EVENT_EXTENSION_ENABLE = 'gemini-code.extension_enable';
+export const EVENT_EXTENSION_DISABLE = 'gemini-code.extension_disable';
 
 // IDE 事件
-export const EVENT_IDE_CONNECTION = 'qwen-code.ide_connection';
-export const EVENT_FLASH_FALLBACK = 'qwen-code.flash_fallback';
-export const EVENT_RIPGREP_FALLBACK = 'qwen-code.ripgrep_fallback';
+export const EVENT_IDE_CONNECTION = 'gemini-code.ide_connection';
+export const EVENT_FLASH_FALLBACK = 'gemini-code.flash_fallback';
+export const EVENT_RIPGREP_FALLBACK = 'gemini-code.ripgrep_fallback';
 
 // 性能事件
-export const EVENT_STARTUP_PERFORMANCE = 'qwen-code.startup.performance';
-export const EVENT_MEMORY_USAGE = 'qwen-code.memory.usage';
-export const EVENT_PERFORMANCE_BASELINE = 'qwen-code.performance.baseline';
-export const EVENT_PERFORMANCE_REGRESSION = 'qwen-code.performance.regression';`;
+export const EVENT_STARTUP_PERFORMANCE = 'gemini-code.startup.performance';
+export const EVENT_MEMORY_USAGE = 'gemini-code.memory.usage';
+export const EVENT_PERFORMANCE_BASELINE = 'gemini-code.performance.baseline';
+export const EVENT_PERFORMANCE_REGRESSION = 'gemini-code.performance.regression';`;
 
   // 事件流转图
   const eventFlowChart = `sequenceDiagram
@@ -816,7 +816,7 @@ export const EVENT_PERFORMANCE_REGRESSION = 'qwen-code.performance.regression';`
     participant Core as Core 层
     participant Loggers as loggers.ts
     participant UI as uiTelemetry
-    participant Qwen as QwenLogger
+    participant Google as GeminiLogger
     participant OTEL as OpenTelemetry
     participant RUM as Aliyun RUM
     participant OTLP as OTLP Backend
@@ -828,12 +828,12 @@ export const EVENT_PERFORMANCE_REGRESSION = 'qwen-code.performance.regression';`
         Loggers->>UI: addEvent(uiEvent)
         Note over UI: 本地状态更新
     and
-        Loggers->>Qwen: logToolCallEvent(event)
-        Qwen->>Qwen: enqueueLogEvent()
-        Note over Qwen: 加入缓冲队列
-        Qwen->>Qwen: flushIfNeeded()
+        Loggers->>Gemini: logToolCallEvent(event)
+        Gemini->>Gemini: enqueueLogEvent()
+        Note over Gemini: 加入缓冲队列
+        Gemini->>Gemini: flushIfNeeded()
         alt 距上次刷新 >= 60s
-            Qwen->>RUM: POST /
+            Gemini->>RUM: POST /
             Note over RUM: 批量发送
         end
     and
@@ -858,7 +858,7 @@ export const EVENT_PERFORMANCE_REGRESSION = 'qwen-code.performance.regression';`
       <section>
         <p className="text-gray-300 mb-4">
           遥测系统采用<strong>双通道架构</strong>：OpenTelemetry (OTLP) 用于标准化可观测性数据，
-          QwenLogger (RUM) 用于发送用户行为分析数据到阿里云。两个通道独立运作，互不干扰。
+          GeminiLogger (RUM) 用于发送用户行为分析数据到阿里云。两个通道独立运作，互不干扰。
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -867,7 +867,7 @@ export const EVENT_PERFORMANCE_REGRESSION = 'qwen-code.performance.regression';`
             <code className="text-xs text-green-400">OTLP gRPC/HTTP</code>
           </HighlightBox>
 
-          <HighlightBox title="QwenLogger" variant="yellow">
+          <HighlightBox title="GeminiLogger" variant="yellow">
             <p className="text-sm">RUM 用户行为分析</p>
             <code className="text-xs text-yellow-400">Aliyun RUM</code>
           </HighlightBox>
@@ -915,49 +915,49 @@ export const EVENT_PERFORMANCE_REGRESSION = 'qwen-code.performance.regression';`
             </thead>
             <tbody className="text-gray-300">
               <tr className="border-t border-gray-700">
-                <td className="p-2"><code className="text-green-400">qwen-code.tool.call.count</code></td>
+                <td className="p-2"><code className="text-green-400">gemini-code.tool.call.count</code></td>
                 <td className="p-2">Counter</td>
                 <td className="p-2">次</td>
                 <td className="p-2">工具调用总数</td>
               </tr>
               <tr className="border-t border-gray-700">
-                <td className="p-2"><code className="text-green-400">qwen-code.tool.call.latency</code></td>
+                <td className="p-2"><code className="text-green-400">gemini-code.tool.call.latency</code></td>
                 <td className="p-2">Histogram</td>
                 <td className="p-2">ms</td>
                 <td className="p-2">工具调用延迟分布</td>
               </tr>
               <tr className="border-t border-gray-700">
-                <td className="p-2"><code className="text-green-400">qwen-code.api.request.count</code></td>
+                <td className="p-2"><code className="text-green-400">gemini-code.api.request.count</code></td>
                 <td className="p-2">Counter</td>
                 <td className="p-2">次</td>
                 <td className="p-2">API 请求总数</td>
               </tr>
               <tr className="border-t border-gray-700">
-                <td className="p-2"><code className="text-green-400">qwen-code.api.request.latency</code></td>
+                <td className="p-2"><code className="text-green-400">gemini-code.api.request.latency</code></td>
                 <td className="p-2">Histogram</td>
                 <td className="p-2">ms</td>
                 <td className="p-2">API 请求延迟分布</td>
               </tr>
               <tr className="border-t border-gray-700">
-                <td className="p-2"><code className="text-green-400">qwen-code.token.usage</code></td>
+                <td className="p-2"><code className="text-green-400">gemini-code.token.usage</code></td>
                 <td className="p-2">Counter</td>
                 <td className="p-2">tokens</td>
                 <td className="p-2">Token 使用量 (input/output/cache/thought/tool)</td>
               </tr>
               <tr className="border-t border-gray-700">
-                <td className="p-2"><code className="text-green-400">qwen-code.session.count</code></td>
+                <td className="p-2"><code className="text-green-400">gemini-code.session.count</code></td>
                 <td className="p-2">Counter</td>
                 <td className="p-2">次</td>
                 <td className="p-2">CLI 会话总数</td>
               </tr>
               <tr className="border-t border-gray-700">
-                <td className="p-2"><code className="text-green-400">qwen-code.chat_compression</code></td>
+                <td className="p-2"><code className="text-green-400">gemini-code.chat_compression</code></td>
                 <td className="p-2">Counter</td>
                 <td className="p-2">次</td>
                 <td className="p-2">上下文压缩事件</td>
               </tr>
               <tr className="border-t border-gray-700">
-                <td className="p-2"><code className="text-green-400">qwen-code.subagent.execution.count</code></td>
+                <td className="p-2"><code className="text-green-400">gemini-code.subagent.execution.count</code></td>
                 <td className="p-2">Counter</td>
                 <td className="p-2">次</td>
                 <td className="p-2">子代理执行计数</td>
@@ -985,10 +985,10 @@ export const EVENT_PERFORMANCE_REGRESSION = 'qwen-code.performance.regression';`
         <CodeBlock code={eventConstantsCode} language="typescript" title="constants.ts" />
       </section>
 
-      {/* QwenLogger 实现 */}
+      {/* GeminiLogger 实现 */}
       <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">QwenLogger 实现</h3>
-        <CodeBlock code={qwenLoggerCode} language="typescript" title="qwen-logger.ts" />
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">GeminiLogger 实现</h3>
+        <CodeBlock code={geminiLoggerCode} language="typescript" title="gemini-logger.ts" />
 
         <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
           <HighlightBox title="刷新间隔" variant="blue">
@@ -1034,13 +1034,13 @@ export const EVENT_PERFORMANCE_REGRESSION = 'qwen-code.performance.regression';`
               <code className="bg-gray-900 px-2 py-1 rounded block">export QWEN_TELEMETRY=false</code>
             </div>
             <div>
-              <p className="font-semibold text-yellow-400 mb-1">方法 2: 配置文件 (~/.qwen/settings.json)</p>
+              <p className="font-semibold text-yellow-400 mb-1">方法 2: 配置文件 (~/.gemini/settings.json)</p>
               <code className="bg-gray-900 px-2 py-1 rounded block">
                 {`{ "telemetry": { "enabled": false } }`}
               </code>
             </div>
             <div>
-              <p className="font-semibold text-yellow-400 mb-1">方法 3: 禁用使用统计 (QwenLogger)</p>
+              <p className="font-semibold text-yellow-400 mb-1">方法 3: 禁用使用统计 (GeminiLogger)</p>
               <code className="bg-gray-900 px-2 py-1 rounded block">
                 {`{ "usageStatistics": false }`}
               </code>
@@ -1088,12 +1088,12 @@ export const EVENT_PERFORMANCE_REGRESSION = 'qwen-code.performance.regression';`
                 <td className="p-2"><code>logToolCall</code>, <code>logApiResponse</code>, ...</td>
               </tr>
               <tr className="border-t border-gray-700">
-                <td className="p-2"><code>telemetry/qwen-logger/qwen-logger.ts</code></td>
+                <td className="p-2"><code>telemetry/gemini-logger/gemini-logger.ts</code></td>
                 <td className="p-2">RUM 日志记录器</td>
-                <td className="p-2"><code>QwenLogger</code> singleton</td>
+                <td className="p-2"><code>GeminiLogger</code> singleton</td>
               </tr>
               <tr className="border-t border-gray-700">
-                <td className="p-2"><code>telemetry/qwen-logger/event-types.ts</code></td>
+                <td className="p-2"><code>telemetry/gemini-logger/event-types.ts</code></td>
                 <td className="p-2">RUM 事件结构</td>
                 <td className="p-2"><code>RumEvent</code>, <code>RumPayload</code></td>
               </tr>
@@ -1147,6 +1147,8 @@ export const EVENT_PERFORMANCE_REGRESSION = 'qwen-code.performance.regression';`
           { id: 'memory', label: '上下文管理', description: '压缩事件记录' },
           { id: 'tool-arch', label: '工具架构', description: '工具调用指标' },
           { id: 'subagent', label: '子代理系统', description: '子代理执行指标' },
+          { id: 'lifecycle', label: '请求生命周期', description: 'API 请求追踪' },
+          { id: 'error-recovery-patterns', label: '错误恢复', description: '错误事件处理' },
         ]}
       />
     </div>

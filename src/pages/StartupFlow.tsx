@@ -2,6 +2,7 @@ import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 interface FlowStepProps {
   step: number;
@@ -28,6 +29,15 @@ function FlowStep({ step, title, description, code, file }: FlowStepProps) {
     </div>
   );
 }
+
+const relatedPages: RelatedPage[] = [
+  { id: 'startup-chain', label: '启动链', description: '启动流程概述' },
+  { id: 'config', label: '配置系统', description: '配置加载' },
+  { id: 'sandbox', label: '沙箱系统', description: '沙箱启动' },
+  { id: 'services-arch', label: '服务架构', description: '服务初始化' },
+  { id: 'gemini-chat', label: 'GeminiChatCore', description: 'AI 核心初始化' },
+  { id: 'interaction-loop', label: '交互循环', description: '主循环入口' },
+];
 
 export function StartupFlow() {
   return (
@@ -85,7 +95,7 @@ if (memoryArgs.length > 0) {
             code={`// 解析命令行参数 (yargs)
 const config = loadCliConfig(process.argv);
 
-// 加载用户设置 (~/.qwen/settings.json)
+// 加载用户设置 (~/.gemini/settings.json)
 const settings = loadSettings(config.getProjectRoot());
 
 // 配置项包括：
@@ -102,7 +112,7 @@ const settings = loadSettings(config.getProjectRoot());
             description="验证 API 密钥或 OAuth 令牌是否有效。"
             code={`// 支持多种认证方式
 const authResult = await validateAuthMethod({
-    // 1. Qwen OAuth (默认，免费 2000 请求/天)
+    // 1. Google OAuth (默认，免费 2000 请求/天)
     // 2. OpenAI API Key (OPENAI_API_KEY)
     // 3. Google API Key (GEMINI_API_KEY)
     // 4. 自定义 API (OPENAI_BASE_URL)
@@ -186,7 +196,7 @@ if (!authResult.valid) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-white/5 rounded-lg p-4 border border-white/10">
             <h4 className="text-cyan-400 font-bold mb-2">全局配置</h4>
-            <code className="text-sm text-gray-400">~/.qwen/</code>
+            <code className="text-sm text-gray-400">~/.gemini/</code>
             <ul className="mt-2 text-sm space-y-1">
               <li>├── settings.json (用户设置)</li>
               <li>├── auth.json (认证信息)</li>
@@ -197,10 +207,10 @@ if (!authResult.valid) {
 
           <div className="bg-white/5 rounded-lg p-4 border border-white/10">
             <h4 className="text-cyan-400 font-bold mb-2">项目配置</h4>
-            <code className="text-sm text-gray-400">.qwen/</code>
+            <code className="text-sm text-gray-400">.gemini/</code>
             <ul className="mt-2 text-sm space-y-1">
               <li>├── settings.json (项目设置)</li>
-              <li>├── QWEN.md (项目说明)</li>
+              <li>├── GEMINI.md (项目说明)</li>
               <li>├── chats/ (聊天记录)</li>
               <li>└── sandbox.Dockerfile (沙箱配置)</li>
             </ul>
@@ -211,7 +221,7 @@ if (!authResult.valid) {
       {/* 命令行参数 */}
       <Layer title="命令行参数" icon="💻">
         <CodeBlock
-          code={`qwen [options] [prompt]
+          code={`gemini [options] [prompt]
 
 选项：
   --model, -m      指定模型名称
@@ -224,9 +234,9 @@ if (!authResult.valid) {
   --version        显示版本
 
 示例：
-  qwen "帮我写一个 React 组件"
-  qwen -m qwen-coder-plus --resume
-  qwen --print "列出当前目录文件"`}
+  gemini "帮我写一个 React 组件"
+  gemini -m gemini-1.5-pro --resume
+  gemini --print "列出当前目录文件"`}
         />
       </Layer>
 
@@ -519,25 +529,25 @@ async function loadAllConfigs(projectRoot: string): Promise<CliConfig> {
     config: getDefaultConfig()
   });
 
-  // 2. 全局配置 (~/.qwen/settings.json)
+  // 2. 全局配置 (~/.gemini/settings.json)
   const globalConfig = await loadJsonSafe(
-    path.join(os.homedir(), '.qwen', 'settings.json')
+    path.join(os.homedir(), '.gemini', 'settings.json')
   );
   if (globalConfig) {
     sources.push({
-      source: '~/.qwen/settings.json',
+      source: '~/.gemini/settings.json',
       priority: 10,
       config: globalConfig
     });
   }
 
-  // 3. 项目配置 (.qwen/settings.json)
+  // 3. 项目配置 (.gemini/settings.json)
   const projectConfig = await loadJsonSafe(
-    path.join(projectRoot, '.qwen', 'settings.json')
+    path.join(projectRoot, '.gemini', 'settings.json')
   );
   if (projectConfig) {
     sources.push({
-      source: '.qwen/settings.json',
+      source: '.gemini/settings.json',
       priority: 20,
       config: projectConfig
     });
@@ -639,16 +649,16 @@ function loadEnvConfig(): Partial<CliConfig> {
 ├───────────────────────────────────────────────────────────────┤
 │  优先级 30: 环境变量 (OPENAI_API_KEY, INNIES_MODEL)           │
 ├───────────────────────────────────────────────────────────────┤
-│  优先级 20: 项目配置 (.qwen/settings.json)                    │
+│  优先级 20: 项目配置 (.gemini/settings.json)                    │
 ├───────────────────────────────────────────────────────────────┤
-│  优先级 10: 全局配置 (~/.qwen/settings.json)                  │
+│  优先级 10: 全局配置 (~/.gemini/settings.json)                  │
 ├───────────────────────────────────────────────────────────────┤
 │  优先级 0:  默认配置 (内置默认值)                              │
 └───────────────────────────────────────────────────────────────┘
 
 示例：
-- 默认 model = "qwen-coder"
-- 全局配置 model = "qwen-coder-plus"
+- 默认 model = "gemini-1.5-flash"
+- 全局配置 model = "gemini-1.5-pro"
 - 项目配置 model = "gpt-4"
 - 环境变量 无
 - 命令行 --model claude-3
@@ -663,8 +673,8 @@ function loadEnvConfig(): Partial<CliConfig> {
 flowchart TD
     subgraph "配置加载流程"
         D[默认配置<br/>优先级: 0] --> M[合并器]
-        G[全局配置<br/>~/.qwen/settings.json<br/>优先级: 10] --> M
-        P[项目配置<br/>.qwen/settings.json<br/>优先级: 20] --> M
+        G[全局配置<br/>~/.gemini/settings.json<br/>优先级: 10] --> M
+        P[项目配置<br/>.gemini/settings.json<br/>优先级: 20] --> M
         E[环境变量<br/>OPENAI_API_KEY 等<br/>优先级: 30] --> M
         C[命令行参数<br/>--model 等<br/>优先级: 40] --> M
     end
@@ -775,13 +785,13 @@ const authProviders: AuthProvider[] = [
     }
   },
 
-  // 3. Qwen OAuth（默认免费方式）
+  // 3. Google OAuth（默认免费方式）
   {
-    name: 'qwen-oauth',
+    name: 'google-oauth',
     priority: 50,
     isConfigured: () => {
       // 检查是否有缓存的 OAuth 令牌
-      const tokenPath = path.join(os.homedir(), '.qwen', 'auth.json');
+      const tokenPath = path.join(os.homedir(), '.gemini', 'auth.json');
       try {
         const auth = JSON.parse(fs.readFileSync(tokenPath, 'utf-8'));
         return Boolean(auth.accessToken);
@@ -790,7 +800,7 @@ const authProviders: AuthProvider[] = [
       }
     },
     async validate() {
-      const tokenPath = path.join(os.homedir(), '.qwen', 'auth.json');
+      const tokenPath = path.join(os.homedir(), '.gemini', 'auth.json');
 
       try {
         const auth = JSON.parse(await fs.readFile(tokenPath, 'utf-8'));
@@ -805,13 +815,13 @@ const authProviders: AuthProvider[] = [
           return refreshed;
         }
 
-        return { valid: true, provider: 'qwen-oauth' };
+        return { valid: true, provider: 'google-oauth' };
       } catch {
-        return { valid: false, error: '未登录 Qwen OAuth' };
+        return { valid: false, error: '未登录 Google OAuth' };
       }
     },
     getCredentials() {
-      const tokenPath = path.join(os.homedir(), '.qwen', 'auth.json');
+      const tokenPath = path.join(os.homedir(), '.gemini', 'auth.json');
       const auth = JSON.parse(fs.readFileSync(tokenPath, 'utf-8'));
       return {
         type: 'oauth',
@@ -836,7 +846,7 @@ async function authenticateUser(): Promise<AuthResult> {
       error: '未配置认证方式',
       suggestion: \`请选择以下方式之一：
 1. 设置 OPENAI_API_KEY 环境变量
-2. 运行 qwen auth 登录 Qwen OAuth（免费）
+2. 运行 gemini auth 登录 Google OAuth（免费）
 3. 设置 GEMINI_API_KEY 使用 Google API\`
     };
   }
@@ -877,14 +887,14 @@ async function authenticateUser(): Promise<AuthResult> {
 │  ├─ 成功 → 使用 Gemini 认证                                     │
 │  └─ 失败 → 继续尝试                                             │
 ├─────────────────────────────────────────────────────────────────┤
-│  尝试 3: Qwen OAuth (缓存令牌)                                   │
-│  ├─ 成功 → 使用 Qwen OAuth                                      │
+│  尝试 3: Google OAuth (缓存令牌)                                   │
+│  ├─ 成功 → 使用 Google OAuth                                      │
 │  ├─ 过期 → 尝试刷新令牌                                         │
 │  └─ 失败 → 无可用认证                                           │
 ├─────────────────────────────────────────────────────────────────┤
 │  回退: 显示认证引导                                              │
 │  - 引导用户配置 API Key                                         │
-│  - 或运行 qwen auth 登录                                        │
+│  - 或运行 gemini auth 登录                                        │
 └─────────────────────────────────────────────────────────────────┘
 */`}
             language="typescript"
@@ -1062,7 +1072,7 @@ function registerCleanupHandlers(): void {
         <Layer title="问题1: CLI 无法启动" depth={2} defaultOpen={true}>
           <HighlightBox title="常见症状" color="red">
             <ul className="text-sm space-y-1">
-              <li>• 执行 <code>innies</code> 命令无响应或立即退出</li>
+              <li>• 执行 <code>gemini</code> 命令无响应或立即退出</li>
               <li>• 显示 "command not found" 错误</li>
               <li>• Node.js 版本错误</li>
             </ul>
@@ -1079,19 +1089,19 @@ node --version
 npm config get prefix
 # 确保该路径在 PATH 中
 
-# 3. 检查 innies 命令位置
-which innies || where innies
+# 3. 检查 gemini 命令位置
+which gemini || where gemini
 # 应该指向正确的安装位置
 
 # 4. 检查权限
-ls -la $(which innies)
+ls -la $(which gemini)
 # 应该有执行权限
 
 # 5. 直接运行检查错误
-node $(which innies) 2>&1
+node $(which gemini) 2>&1
 
 # 6. 启用调试模式
-DEBUG=1 innies
+DEBUG=1 gemini
 
 # 常见解决方案
 
@@ -1109,8 +1119,8 @@ export PATH="$(npm config get prefix)/bin:$PATH"
 sudo chown -R $(whoami) $(npm config get prefix)/{lib/node_modules,bin,share}
 
 # 方案 D: 重新安装
-npm uninstall -g @anthropics/innies-cli
-npm install -g @anthropics/innies-cli`}
+npm uninstall -g @anthropics/gemini-cli
+npm install -g @anthropics/gemini-cli`}
             language="bash"
             title="启动问题诊断"
           />
@@ -1143,14 +1153,14 @@ curl https://api.openai.com/v1/models \\
   -H "Authorization: Bearer $OPENAI_API_KEY"
 
 # 4. 检查 OAuth 令牌
-cat ~/.qwen/auth.json
+cat ~/.gemini/auth.json
 
 # 5. 清除并重新登录
-rm ~/.qwen/auth.json
-innies auth login
+rm ~/.gemini/auth.json
+gemini auth login
 
 # 调试认证过程
-DEBUG_AUTH=1 innies
+DEBUG_AUTH=1 gemini
 
 # 常见解决方案
 
@@ -1167,9 +1177,9 @@ source ~/.bashrc  # 或 ~/.zshrc
 # 确保有 API 调用权限
 
 # 方案 D: OAuth 令牌过期
-innies auth refresh
+gemini auth refresh
 # 如果失败则重新登录
-innies auth login`}
+gemini auth login`}
             language="bash"
             title="认证问题诊断"
           />
@@ -1189,28 +1199,28 @@ innies auth login`}
             code={`# 配置问题诊断
 
 # 1. 检查配置文件是否存在
-ls -la ~/.qwen/settings.json
-ls -la .qwen/settings.json
+ls -la ~/.gemini/settings.json
+ls -la .gemini/settings.json
 
 # 2. 验证 JSON 语法
 # 使用 jq 检查
-cat ~/.qwen/settings.json | jq .
-cat .qwen/settings.json | jq .
+cat ~/.gemini/settings.json | jq .
+cat .gemini/settings.json | jq .
 
 # 3. 查看合并后的配置
-innies config show
+gemini config show
 
 # 4. 检查特定配置项
-innies config get model
-innies config get sandbox
+gemini config get model
+gemini config get sandbox
 
 # 5. 检查配置来源
-DEBUG_CONFIG=1 innies
+DEBUG_CONFIG=1 gemini
 
 # 输出示例：
 # [config] Loading from defaults
-# [config] Loading from ~/.qwen/settings.json
-# [config] Loading from .qwen/settings.json
+# [config] Loading from ~/.gemini/settings.json
+# [config] Loading from .gemini/settings.json
 # [config] Loading from environment
 # [config] Loading from cli args
 # [config] Final config: {...}
@@ -1226,12 +1236,12 @@ DEBUG_CONFIG=1 innies
 # 命令行 > 环境变量 > 项目配置 > 全局配置 > 默认
 
 # 问题: 权限错误
-chmod 600 ~/.qwen/settings.json
-chmod 600 ~/.qwen/auth.json
+chmod 600 ~/.gemini/settings.json
+chmod 600 ~/.gemini/auth.json
 
 # 重置为默认配置
-rm ~/.qwen/settings.json
-innies config reset`}
+rm ~/.gemini/settings.json
+gemini config reset`}
             language="bash"
             title="配置问题诊断"
           />
@@ -1254,17 +1264,17 @@ innies config reset`}
 node -e "console.log(require('v8').getHeapStatistics().heap_size_limit / 1024 / 1024 + ' MB')"
 
 # 2. 监控运行时内存
-innies --debug 2>&1 | grep memory
+gemini --debug 2>&1 | grep memory
 
 # 3. 手动增加内存限制
-NODE_OPTIONS="--max-old-space-size=8192" innies
+NODE_OPTIONS="--max-old-space-size=8192" gemini
 
 # 4. 检查内存泄漏
 # 使用 --expose-gc 启动
-node --expose-gc $(which innies) --debug
+node --expose-gc $(which gemini) --debug
 
 # 5. 分析内存快照
-node --inspect $(which innies)
+node --inspect $(which gemini)
 # 然后在 Chrome DevTools 中分析
 
 # 解决方案
@@ -1278,7 +1288,7 @@ export NODE_OPTIONS="--max-old-space-size=8192"
 
 # 方案 C: 减少上下文
 # 使用 --resume 时清理旧会话
-innies --new-session
+gemini --new-session
 
 # 方案 D: 关闭长时间运行的会话
 # 定期重启 CLI，不要让会话运行太久
@@ -1321,9 +1331,9 @@ interface DebugOptions {
 }
 
 // 使用示例
-DEBUG=1 innies                        # 全部调试
-DEBUG_AUTH=1 innies                   # 仅认证调试
-DEBUG_MCP=1 DEBUG_TOOLS=1 innies      # MCP 和工具调试
+DEBUG=1 gemini                        # 全部调试
+DEBUG_AUTH=1 gemini                   # 仅认证调试
+DEBUG_MCP=1 DEBUG_TOOLS=1 gemini      # MCP 和工具调试
 
 // 日志输出位置
 const logLocations = {
@@ -1334,13 +1344,13 @@ const logLocations = {
   stderr: '错误和调试信息',
 
   // 日志文件
-  logFile: '~/.qwen/logs/innies.log',
+  logFile: '~/.gemini/logs/gemini.log',
 
   // 调试日志
-  debugFile: '~/.qwen/logs/debug.log',
+  debugFile: '~/.gemini/logs/debug.log',
 
   // 会话日志
-  sessionLog: '.qwen/logs/session-{id}.log'
+  sessionLog: '.gemini/logs/session-{id}.log'
 };
 
 // 日志级别
@@ -1359,9 +1369,9 @@ process.env.LOG_LEVEL = 'debug';
 日志输出示例：
 
 [2024-01-15T10:30:00.123Z] [INFO] Starting Innies CLI v1.2.3
-[2024-01-15T10:30:00.150Z] [DEBUG] Loading config from ~/.qwen/settings.json
-[2024-01-15T10:30:00.175Z] [DEBUG] Merged config: { model: "qwen-coder-plus", ... }
-[2024-01-15T10:30:00.200Z] [INFO] Authenticating with qwen-oauth
+[2024-01-15T10:30:00.150Z] [DEBUG] Loading config from ~/.gemini/settings.json
+[2024-01-15T10:30:00.175Z] [DEBUG] Merged config: { model: "gemini-1.5-pro", ... }
+[2024-01-15T10:30:00.200Z] [INFO] Authenticating with google-oauth
 [2024-01-15T10:30:00.500Z] [DEBUG] OAuth token validated
 [2024-01-15T10:30:00.520Z] [INFO] Connecting to MCP servers...
 [2024-01-15T10:30:01.000Z] [DEBUG] MCP server 'filesystem' connected
@@ -1370,7 +1380,7 @@ process.env.LOG_LEVEL = 'debug';
 调试建议：
 1. 首先使用 DEBUG=1 获取全面信息
 2. 根据问题类型使用特定调试标志
-3. 检查 ~/.qwen/logs/ 目录的日志文件
+3. 检查 ~/.gemini/logs/ 目录的日志文件
 4. 使用 --verbose 获取更多输出
 */`}
             language="typescript"
@@ -1834,7 +1844,7 @@ class StartupCache {
   private appVersion: string;
 
   constructor() {
-    this.cacheDir = path.join(os.homedir(), '.qwen', 'cache');
+    this.cacheDir = path.join(os.homedir(), '.gemini', 'cache');
     this.appVersion = packageJson.version;
   }
 
@@ -1960,7 +1970,7 @@ class StartupCache {
 │ 工具定义          │ 24 小时   │ 版本升级                        │
 └─────────────────────────────────────────────────────────────────┘
 
-缓存文件位置：~/.qwen/cache/
+缓存文件位置：~/.gemini/cache/
 - auth.json
 - config.json
 - mcp-filesystem.json
@@ -2074,7 +2084,7 @@ sequenceDiagram
     participant MCP as MCP Manager
     participant UI as UI
 
-    User->>CLI: innies [prompt]
+    User->>CLI: gemini [prompt]
     CLI->>Mem: 检查内存需求
 
     alt 内存不足
@@ -2214,7 +2224,7 @@ async function handleStartupError(error: Error): Promise<void> {
   if (!handler) {
     // 未知错误
     console.error('启动时发生未知错误:', error);
-    console.error('请尝试: innies --debug 获取更多信息');
+    console.error('请尝试: gemini --debug 获取更多信息');
     process.exit(1);
   }
 
@@ -2333,6 +2343,84 @@ stateDiagram-v2
       </Layer>
 
       {/* ==================== 深化内容结束 ==================== */}
+
+      {/* 为什么这样设计启动流程 */}
+      <Layer title="为什么这样设计启动流程" icon="🤔" defaultOpen={false}>
+        <div className="space-y-4">
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
+            <h4 className="text-[var(--terminal-green)] font-bold mb-2">📊 为什么使用分阶段启动？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：将启动过程划分为多个明确的阶段（内存检测 → 配置加载 → 认证 → 服务初始化 → UI 启动）。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>故障隔离</strong>：每个阶段独立，可以精确定位启动失败的原因</li>
+                <li><strong>渐进式加载</strong>：按需加载模块，减少启动时间和内存占用</li>
+                <li><strong>优雅降级</strong>：某阶段失败可以选择跳过或回退，而非整体崩溃</li>
+              </ul>
+              <p><strong>权衡</strong>：增加了代码复杂度，但换来了更好的可维护性和用户体验。</p>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
+            <h4 className="text-[var(--cyber-blue)] font-bold mb-2">⚙️ 为什么配置优先级是 CLI &gt; 环境变量 &gt; 文件？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：配置合并遵循 CLI 参数 &gt; 环境变量 &gt; 项目配置 &gt; 全局配置 &gt; 默认值 的优先级。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>即时性</strong>：CLI 参数是用户当前会话的明确意图，应该最优先</li>
+                <li><strong>灵活性</strong>：环境变量便于 CI/CD 集成和临时覆盖</li>
+                <li><strong>持久性</strong>：配置文件提供持久化的默认设置</li>
+                <li><strong>层级隔离</strong>：项目配置不污染全局设置，全局设置提供统一默认</li>
+              </ul>
+              <p><strong>行业标准</strong>：这与 Git、Docker 等工具的配置优先级设计一致。</p>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
+            <h4 className="text-[var(--amber)] font-bold mb-2">🛡️ 为什么沙箱检测在主逻辑前？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：沙箱环境检测和初始化在认证和服务加载之前完成。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>安全边界</strong>：确保后续所有操作都在正确的安全上下文中执行</li>
+                <li><strong>失败快速</strong>：沙箱不可用时尽早告知用户，避免浪费时间加载其他服务</li>
+                <li><strong>资源隔离</strong>：某些服务（如 MCP）可能需要在沙箱内运行</li>
+              </ul>
+              <p><strong>风险</strong>：如果沙箱检测本身不安全，可能导致逃逸。通过最小权限检测逻辑缓解。</p>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
+            <h4 className="text-[var(--purple)] font-bold mb-2">⚡ 为什么使用异步初始化？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：几乎所有初始化操作都是异步的，支持并行执行。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>性能</strong>：认证验证、MCP 连接等 I/O 操作可以并行，显著减少启动时间</li>
+                <li><strong>响应性</strong>：UI 可以在其他服务初始化时就开始渲染</li>
+                <li><strong>超时控制</strong>：每个异步操作可以设置独立超时，避免整体卡死</li>
+              </ul>
+              <p><strong>复杂度</strong>：需要正确处理竞态条件和错误传播，使用 Promise.allSettled 等模式。</p>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--red)]">
+            <h4 className="text-[var(--red)] font-bold mb-2">🔀 为什么分离 Interactive 和 Non-Interactive 入口？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：交互模式和非交互模式（--print 或管道输入）使用不同的代码路径。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>资源优化</strong>：非交互模式无需加载 React、Ink 等 UI 框架，启动更快</li>
+                <li><strong>输出格式</strong>：管道模式输出纯文本，交互模式支持丰富的终端格式</li>
+                <li><strong>错误处理</strong>：交互模式可以询问用户，非交互模式必须立即失败或使用默认值</li>
+              </ul>
+              <p><strong>设计原则</strong>：遵循 Unix 哲学 - 工具应该同时支持交互和脚本使用。</p>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { HighlightBox } from '../components/HighlightBox';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 interface StartHereProps {
   onNavigate?: (tab: string) => void;
@@ -7,6 +8,17 @@ interface StartHereProps {
 
 export function StartHere({ onNavigate }: StartHereProps) {
   const [selectedPath, setSelectedPath] = useState<'architect' | 'developer' | 'explorer' | null>(null);
+
+  const relatedPages: RelatedPage[] = [
+    { id: 'overview', label: '架构概览', description: '系统整体架构鸟瞰' },
+    { id: 'hook-system', label: 'Hook 系统', description: '事件拦截与扩展点' },
+    { id: 'policy-engine', label: 'Policy 引擎', description: '安全策略决策系统' },
+    { id: 'message-bus', label: '消息总线', description: '发布/订阅异步通信' },
+    { id: 'model-routing', label: '模型路由', description: 'Flash/Pro 智能选择' },
+    { id: 'agent-framework', label: 'Agent 框架', description: '子代理执行与编排' },
+    { id: 'gemini-chat', label: 'GeminiChat 详解', description: '核心交互引擎' },
+    { id: 'animation', label: '动画演示', description: '可视化流程理解' },
+  ];
 
   const learningPaths = {
     architect: {
@@ -57,8 +69,10 @@ export function StartHere({ onNavigate }: StartHereProps) {
   const coreTerms = [
     { term: 'Turn', definition: '一次完整的 用户输入→AI响应→工具执行 循环', category: 'core' },
     { term: 'Continuation', definition: 'AI 完成工具调用后自动继续的机制', category: 'core' },
-    { term: 'StreamingState', definition: '流式响应的三态：Idle/Responding/WaitingForConfirmation', category: 'state' },
-    { term: 'ToolKind', definition: '工具类型分类：Read/Write/Execute/Subagent 等', category: 'tool' },
+    { term: 'Hook', definition: '事件拦截系统 - 11 种事件类型、3 层配置优先级', category: 'event' },
+    { term: 'Policy', definition: '安全策略引擎 - ALLOW/DENY/ASK_USER 三种决策', category: 'security' },
+    { term: 'MessageBus', definition: '发布/订阅消息总线 - 解耦异步通信', category: 'event' },
+    { term: 'ModelRouter', definition: '智能模型路由 - Flash/Pro 策略链选择', category: 'routing' },
     { term: 'ApprovalMode', definition: '审批级别：Plan/Default/AutoEdit/YOLO', category: 'security' },
     { term: 'MCP', definition: 'Model Context Protocol - 工具动态注册协议', category: 'extension' },
   ];
@@ -74,11 +88,11 @@ export function StartHere({ onNavigate }: StartHereProps) {
         <div className="relative">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-[var(--bg-panel)] border border-[var(--border-subtle)] rounded-full text-sm font-mono text-[var(--text-muted)] mb-6">
             <span className="w-2 h-2 rounded-full bg-[var(--terminal-green)] animate-pulse shadow-[0_0_6px_var(--terminal-green-glow)]" />
-            <span>$ qwen --deep-dive</span>
+            <span>$ gemini --deep-dive</span>
           </div>
 
           <h1 className="text-4xl md:text-5xl font-bold font-mono mb-4 tracking-tight">
-            <span className="text-[var(--terminal-green)]">Qwen CLI</span>
+            <span className="text-[var(--terminal-green)]">Gemini CLI</span>
             <span className="text-[var(--text-primary)]"> 架构深度解析</span>
           </h1>
 
@@ -162,11 +176,12 @@ export function StartHere({ onNavigate }: StartHereProps) {
           <div className="flex items-start gap-2">
             <span className="text-[var(--amber)]">💡</span>
             <p className="text-[var(--text-muted)]">
-              <strong className="text-[var(--text-secondary)]">关于命名：</strong>
-              Qwen CLI 基于 Google Gemini CLI 改造，源码中的
+              <strong className="text-[var(--text-secondary)]">关于本指南：</strong>
+              本指南基于 Google Gemini CLI 源码分析，涵盖核心机制如
               <code className="text-[var(--amber)] bg-[var(--amber)]/10 px-1 rounded mx-1">GeminiChat</code>、
-              <code className="text-[var(--amber)] bg-[var(--amber)]/10 px-1 rounded mx-1">Gemini 格式</code>
-              等是历史遗留命名。
+              <code className="text-[var(--amber)] bg-[var(--amber)]/10 px-1 rounded mx-1">Hook/Policy</code>、
+              <code className="text-[var(--amber)] bg-[var(--amber)]/10 px-1 rounded mx-1">Agent 框架</code>
+              等事件驱动架构。
             </p>
           </div>
         </div>
@@ -360,25 +375,27 @@ export function StartHere({ onNavigate }: StartHereProps) {
             </p>
           </HighlightBox>
 
-          <HighlightBox title="🛡️ 三层安全门禁" variant="green">
+          <HighlightBox title="🎯 事件驱动架构" variant="green">
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              1. <strong className="text-[var(--terminal-green)]">信任文件夹</strong> - 限制高权限模式的使用范围<br/>
-              2. <strong className="text-[var(--terminal-green)]">审批模式</strong> - 控制工具执行是否需要确认<br/>
-              3. <strong className="text-[var(--terminal-green)]">检查点恢复</strong> - 支持操作回滚
+              <strong className="text-[var(--terminal-green)]">Hook System</strong> - 11 种事件拦截点<br/>
+              <strong className="text-[var(--terminal-green)]">Policy Engine</strong> - 安全策略决策<br/>
+              <strong className="text-[var(--terminal-green)]">MessageBus</strong> - 发布/订阅解耦通信
             </p>
           </HighlightBox>
 
-          <HighlightBox title="🔌 MCP 协议扩展" variant="purple">
+          <HighlightBox title="🛡️ 多层安全门禁" variant="purple">
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              通过 Model Context Protocol 实现工具动态注册，
-              支持 IDE 集成（VS Code Diff）、外部服务接入等扩展场景。
+              <strong className="text-[var(--purple)]">Policy Engine</strong> - ALLOW/DENY/ASK_USER 决策<br/>
+              <strong className="text-[var(--purple)]">信任文件夹</strong> - 限制高权限模式范围<br/>
+              <strong className="text-[var(--purple)]">沙箱隔离</strong> - 安全执行边界
             </p>
           </HighlightBox>
 
-          <HighlightBox title="⚡ Continuation 机制" variant="yellow">
+          <HighlightBox title="🔀 智能模型路由" variant="yellow">
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
-              当 AI 返回 <code className="text-[var(--amber)] bg-[var(--amber)]/10 px-1 rounded">finish_reason !== 'STOP'</code> 时，
-              系统自动将工具执行结果反馈给 AI 继续对话，实现多轮自主工作。
+              <code className="text-[var(--amber)] bg-[var(--amber)]/10 px-1 rounded">CompositeStrategy</code> 策略链：
+              Override → Classifier（LLM 复杂度分析）→ Fallback → Default，
+              智能选择 Flash 或 Pro 模型。
             </p>
           </HighlightBox>
         </div>
@@ -416,7 +433,21 @@ export function StartHere({ onNavigate }: StartHereProps) {
               </div>
             </div>
 
-            {/* Layer 3: Tool & Extension */}
+            {/* Layer 3: Event-Driven Architecture */}
+            <div className="col-span-5 bg-cyan-500/10 rounded-lg p-3 border border-cyan-500/30">
+              <div className="text-cyan-400 font-semibold mb-2">Event-Driven Architecture</div>
+              <div className="flex justify-center gap-4 text-[var(--text-muted)]">
+                <span>Hook System</span>
+                <span>•</span>
+                <span>Policy Engine</span>
+                <span>•</span>
+                <span>MessageBus</span>
+                <span>•</span>
+                <span>Model Router</span>
+              </div>
+            </div>
+
+            {/* Layer 4: Tool & Extension */}
             <div className="col-span-3 bg-[var(--amber)]/10 rounded-lg p-3 border border-[var(--amber)]/30">
               <div className="text-[var(--amber)] font-semibold mb-2">Tool System</div>
               <div className="text-[var(--text-muted)]">
@@ -424,17 +455,17 @@ export function StartHere({ onNavigate }: StartHereProps) {
               </div>
             </div>
             <div className="col-span-2 bg-[var(--purple)]/10 rounded-lg p-3 border border-[var(--purple)]/30">
-              <div className="text-[var(--purple)] font-semibold mb-2">Extensions</div>
+              <div className="text-[var(--purple)] font-semibold mb-2">Agent Framework</div>
               <div className="text-[var(--text-muted)]">
-                MCP • Subagent
+                Local • Remote • MCP
               </div>
             </div>
 
-            {/* Layer 4: Security */}
+            {/* Layer 5: Security */}
             <div className="col-span-5 bg-red-500/10 rounded-lg p-3 border border-red-500/30">
               <div className="text-red-400 font-semibold mb-2">Security Layer</div>
               <div className="flex justify-center gap-4 text-[var(--text-muted)]">
-                <span>Approval</span>
+                <span>Policy Rules</span>
                 <span>•</span>
                 <span>Sandbox</span>
                 <span>•</span>
@@ -500,7 +531,7 @@ export function StartHere({ onNavigate }: StartHereProps) {
         </div>
         <h2 className="text-lg font-bold font-mono text-[var(--text-primary)] mb-3">关于本文档</h2>
         <p className="text-sm text-[var(--text-secondary)] mb-6 font-mono">
-          基于 <a href="https://github.com/zhimanai/qwen-cli" className="text-[var(--terminal-green)] hover:underline hover:text-[var(--terminal-green)] transition-colors">qwen-cli</a> 源码分析，
+          基于 <a href="https://github.com/anthropics/gemini-cli" className="text-[var(--terminal-green)] hover:underline hover:text-[var(--terminal-green)] transition-colors">gemini-cli</a> 源码分析，
           所有结论均附带源文件路径和行号引用。
         </p>
         <div className="flex justify-center gap-8 text-xs font-mono text-[var(--text-muted)]">
@@ -518,6 +549,8 @@ export function StartHere({ onNavigate }: StartHereProps) {
           </span>
         </div>
       </section>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { RelatedPages } from '../components/RelatedPages';
 /**
  * Turn 状态机深度解析
  *
- * Turn 是 Qwen CLI 的核心概念，代表一次完整的 AI 响应周期。
+ * Turn 是 Gemini CLI 的核心概念，代表一次完整的 AI 响应周期。
  * 本页面深入解释 Turn 的设计哲学、状态流转和错误处理。
  *
  * 源码位置: packages/core/src/core/turn.ts
@@ -45,7 +45,7 @@ function Introduction({
               🎯 什么是 Turn？
             </h4>
             <p className="text-gray-300 text-sm">
-              Turn（轮次）是 Qwen CLI 的<strong>核心抽象单元</strong>，
+              Turn（轮次）是 Gemini CLI 的<strong>核心抽象单元</strong>，
               代表从用户发送消息到 AI 完成响应的<strong>一个完整周期</strong>。
               它封装了流式响应接收、工具调用请求、错误处理等复杂逻辑。
               可以理解为：<strong>一次"用户问 → AI 答"的完整交互</strong>。
@@ -704,7 +704,7 @@ export function TurnStateMachine() {
           🔄 Turn 状态机深度解析
         </h1>
         <p className="text-gray-400">
-          理解 Qwen CLI 的核心抽象单元：一次完整的 AI 响应周期
+          理解 Gemini CLI 的核心抽象单元：一次完整的 AI 响应周期
         </p>
         <div className="mt-2 text-xs text-gray-500 font-mono">
           源码: packages/core/src/core/turn.ts

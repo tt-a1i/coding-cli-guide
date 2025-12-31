@@ -4,6 +4,7 @@ import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { Module } from '../components/Module';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 // ===== Introduction Component =====
 function Introduction({
@@ -39,7 +40,7 @@ function Introduction({
               🎯 什么是服务层？
             </h4>
             <p className="text-[var(--text-secondary)] text-sm">
-              服务层是 Qwen CLI 的<strong>中间抽象层</strong>，位于 Core
+              服务层是 Gemini CLI 的<strong>中间抽象层</strong>，位于 Core
               循环和底层系统之间。
               它封装了文件系统、Shell 执行、Git 操作等复杂逻辑，提供干净的
               API 供上层调用。
@@ -720,6 +721,15 @@ function LoopDetectionVisualization() {
 export function ServicesArchitecture() {
   const [isIntroExpanded, setIsIntroExpanded] = useState(true);
 
+  const relatedPages: RelatedPage[] = [
+    { id: 'startup-chain', label: '启动链', description: '服务初始化流程' },
+    { id: 'gemini-chat', label: 'GeminiChatCore', description: 'AI 核心服务' },
+    { id: 'tool-arch', label: '工具系统', description: '工具服务' },
+    { id: 'mcp', label: 'MCP集成', description: 'MCP 服务' },
+    { id: 'config', label: '配置系统', description: '配置服务' },
+    { id: 'memory', label: '上下文管理', description: '上下文服务' },
+  ];
+
   return (
     <div>
       <Introduction
@@ -734,7 +744,7 @@ export function ServicesArchitecture() {
             icon="📁"
             name="FileDiscoveryService"
             path="packages/core/src/services"
-            description="基于 .gitignore 和 .qwenignore 过滤文件"
+            description="基于 .gitignore 和 .geminiignore 过滤文件"
           />
           <Module
             icon="💻"
@@ -819,8 +829,8 @@ export function ServicesArchitecture() {
             language="typescript"
             code={`// 加载优先级（后加载覆盖前面）
 const loadOrder = [
-  "~/.qwen/commands/",      // 1. 用户命令（最低优先级）
-  ".qwen/commands/",        // 2. 项目命令
+  "~/.gemini/commands/",      // 1. 用户命令（最低优先级）
+  ".gemini/commands/",        // 2. 项目命令
   "<extension>/commands/"     // 3. 扩展命令（按字母排序）
 ];
 
@@ -959,7 +969,7 @@ graph TB
             <div className="bg-[var(--amber)]/10 rounded-lg p-4 border border-[var(--amber)]/30">
               <h4 className="font-bold text-[var(--warning-color)] mb-2">🌐 外部依赖</h4>
               <ul className="text-sm text-[var(--text-secondary)] space-y-1">
-                <li>• AI API (Qwen/OpenAI)</li>
+                <li>• AI API (Gemini/OpenAI)</li>
                 <li>• 文件系统操作</li>
                 <li>• PTY/Shell 执行</li>
                 <li>• Git 版本控制</li>
@@ -1208,7 +1218,7 @@ const shell = process.platform === 'win32'
           </p>
           <ul className="space-y-1 text-sm">
             <li>
-              • 存储位置: <code>.qwen/git/</code>
+              • 存储位置: <code>.gemini/git/</code>
             </li>
             <li>• 隔离用户配置（name、email、GPG 签名）</li>
             <li>• 自动复制 .gitignore 规则</li>
@@ -1527,7 +1537,7 @@ function processOutput(data: string): string {
                   ⚙️ 隔离如何实现？
                 </div>
                 <p className="text-sm text-[var(--text-secondary)]">
-                  使用 GIT_DIR 指向 .qwen/git/，GIT_WORK_TREE
+                  使用 GIT_DIR 指向 .gemini/git/，GIT_WORK_TREE
                   指向项目根目录。还覆盖 user.name/email 防止泄露用户信息。
                 </p>
               </div>
@@ -1546,11 +1556,11 @@ function processOutput(data: string): string {
               language="typescript"
               code={`// GitService - 影子仓库管理
 class GitService {
-  private shadowGitDir: string;  // .qwen/git/
+  private shadowGitDir: string;  // .gemini/git/
   private workTree: string;       // 项目根目录
 
   constructor(projectRoot: string) {
-    this.shadowGitDir = path.join(projectRoot, '.qwen', 'git');
+    this.shadowGitDir = path.join(projectRoot, '.gemini', 'git');
     this.workTree = projectRoot;
   }
 
@@ -1563,8 +1573,8 @@ class GitService {
     await this.git('init', '--bare');
 
     // 设置隔离的用户配置（不影响用户全局配置）
-    await this.git('config', 'user.name', 'Qwen CLI');
-    await this.git('config', 'user.email', 'noreply@qwen.local');
+    await this.git('config', 'user.name', 'Gemini CLI');
+    await this.git('config', 'user.email', 'noreply@gemini.local');
 
     // 禁用 GPG 签名
     await this.git('config', 'commit.gpgSign', 'false');
@@ -1697,7 +1707,7 @@ function isSafeSplitPoint(
       <Layer title="服务依赖注入模式" icon="💉">
         <HighlightBox title="Config 对象模式" icon="🔧" variant="blue">
           <p className="mb-3 text-sm">
-            Qwen CLI 使用 <strong>Config 对象</strong> 作为依赖注入的载体，而非传统的 DI 容器。
+            Gemini CLI 使用 <strong>Config 对象</strong> 作为依赖注入的载体，而非传统的 DI 容器。
             这种轻量级方案减少了复杂度，同时保持了可测试性。
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1750,7 +1760,7 @@ function createProductionConfig(): Config {
     fileSystem: new StandardFileSystemService(),
     chatRecording: new ChatRecordingService(),
     loopDetection: new LoopDetectionService(),
-    model: 'qwen-coder',
+    model: 'gemini-1.5-flash',
     timeout: 30000,
     sandbox: loadSandboxConfig(),
   };
@@ -1787,6 +1797,8 @@ async function executeTool(
           />
         </div>
       </Layer>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

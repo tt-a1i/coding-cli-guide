@@ -432,11 +432,11 @@ flowchart TD
           </div>
           <div className={`p-3 rounded-lg border ${getSourceColor('user')}`}>
             <div className="font-bold mb-1">User</div>
-            <div className="text-xs opacity-80">用户级 ~/.qwen/commands/</div>
+            <div className="text-xs opacity-80">用户级 ~/.gemini/commands/</div>
           </div>
           <div className={`p-3 rounded-lg border ${getSourceColor('project')}`}>
             <div className="font-bold mb-1">Project</div>
-            <div className="text-xs opacity-80">项目级 .qwen/commands/</div>
+            <div className="text-xs opacity-80">项目级 .gemini/commands/</div>
           </div>
           <div className={`p-3 rounded-lg border ${getSourceColor('extension')}`}>
             <div className="font-bold mb-1">Extension</div>

@@ -22,8 +22,8 @@ interface LogEntry {
 
 const CACHE_TTL = 10000; // 10 seconds for demo (real: 5 minutes)
 const MODELS: ModelConfig[] = [
-  { id: 'qwen-coder-plus', baseURL: 'https://api.qwen.ai/v1', apiKey: 'sk-***1' },
-  { id: 'qwen-coder-turbo', baseURL: 'https://api.qwen.ai/v1', apiKey: 'sk-***2' },
+  { id: 'gemini-1.5-pro', baseURL: 'https://generativelanguage.googleapis.com/v1', apiKey: 'sk-***1' },
+  { id: 'gemini-1.5-flash', baseURL: 'https://generativelanguage.googleapis.com/v1', apiKey: 'sk-***2' },
   { id: 'gpt-4o', baseURL: 'https://api.openai.com/v1', apiKey: 'sk-***3' },
 ];
 
@@ -38,7 +38,7 @@ export default function ModelConfigCacheAnimation() {
   });
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [queryModel, setQueryModel] = useState('qwen-coder-plus');
+  const [queryModel, setQueryModel] = useState('gemini-1.5-pro');
   const [queryResult, setQueryResult] = useState<ModelConfig | null>(null);
   const [highlightedModel, setHighlightedModel] = useState<string | null>(null);
 
@@ -243,8 +243,8 @@ export default function ModelConfigCacheAnimation() {
                   onChange={(e) => setQueryModel(e.target.value)}
                   className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white"
                 >
-                  <option value="qwen-coder-plus">qwen-coder-plus</option>
-                  <option value="qwen-coder-turbo">qwen-coder-turbo</option>
+                  <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+                  <option value="gemini-1.5-flash">gemini-1.5-flash</option>
                   <option value="gpt-4o">gpt-4o</option>
                   <option value="unknown-model">unknown-model (未知)</option>
                 </select>
@@ -349,7 +349,7 @@ export default function ModelConfigCacheAnimation() {
         <div className="mt-6 bg-black/40 backdrop-blur border border-purple-500/30 rounded-xl p-4">
           <h3 className="text-purple-400 font-bold mb-3">📄 源码参考</h3>
           <pre className="text-xs text-gray-400 overflow-x-auto">
-{`// packages/core/src/innies/modelConfigCache.ts
+{`// packages/core/src/gemini/modelConfigCache.ts
 
 export class ModelConfigCache {
   private cache: Map<string, { baseURL: string; apiKey: string }> = new Map();

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 /**
  * File Discovery & Ignore Pattern System
@@ -44,7 +45,7 @@ function Introduction({
             </h4>
             <p className="text-[var(--text-secondary)] text-sm">
               CLI 需要高效地搜索代码文件，同时尊重用户的 ignore 配置。
-              系统实现了 <strong>多层 ignore 支持</strong>（.gitignore + .qwenignore）、
+              系统实现了 <strong>多层 ignore 支持</strong>（.gitignore + .geminiignore）、
               <strong>BFS 并行遍历</strong>、<strong>智能缓存</strong>，在大型 monorepo 中也能快速响应。
             </p>
           </div>
@@ -87,6 +88,15 @@ function Introduction({
   );
 }
 
+const relatedPages: RelatedPage[] = [
+  { id: 'tool-ref', label: '工具参考', description: 'Glob、Grep 等工具的详细文档' },
+  { id: 'tool-arch', label: '工具系统架构', description: '工具如何与文件发现系统协作' },
+  { id: 'bfs-file-search-anim', label: 'BFS 文件搜索动画', description: '广度优先搜索算法可视化' },
+  { id: 'sandbox', label: '沙箱系统', description: '文件访问权限与安全机制' },
+  { id: 'memory', label: '内存管理', description: '文件内容如何进入上下文' },
+  { id: 'config', label: '配置系统', description: 'CLI 配置与 .geminiignore 的关系' },
+];
+
 export function FileDiscovery() {
   const [isIntroExpanded, setIsIntroExpanded] = useState(true);
 
@@ -96,7 +106,7 @@ export function FileDiscovery() {
     apply_defaults["应用默认排除模式<br/>node_modules, .git..."]
     scan["扫描文件"]
     filter_git["检查 .gitignore"]
-    filter_qwen["检查 .qwenignore"]
+    filter_gemini["检查 .geminiignore"]
     collect["收集过滤统计"]
     result["返回过滤后的结果"]
 
@@ -104,14 +114,14 @@ export function FileDiscovery() {
     get_config --> apply_defaults
     apply_defaults --> scan
     scan --> filter_git
-    filter_git --> filter_qwen
-    filter_qwen --> collect
+    filter_git --> filter_gemini
+    filter_gemini --> collect
     collect --> result
 
     style tool fill:#22d3ee,color:#000
     style result fill:#22c55e,color:#000
     style filter_git fill:#f59e0b,color:#000
-    style filter_qwen fill:#a855f7,color:#fff`;
+    style filter_gemini fill:#a855f7,color:#fff`;
 
   const bfsAlgorithmChart = `flowchart TD
     start["开始 BFS 搜索"]
@@ -312,7 +322,7 @@ export class GitIgnoreParser implements GitIgnoreFilter {
 
 export class FileDiscoveryService {
   private gitIgnoreFilter: GitIgnoreFilter | null = null;
-  private qwenIgnoreFilter: QwenIgnoreFilter | null = null;
+  private geminiIgnoreFilter: GeminiIgnoreFilter | null = null;
   private projectRoot: string;
 
   constructor(projectRoot: string) {
@@ -328,11 +338,11 @@ export class FileDiscoveryService {
   ): FilterReport {
     const {
       respectGitIgnore = true,
-      respectQwenIgnore = true,
+      respectGeminiIgnore = true,
     } = options;
 
     let gitIgnoredCount = 0;
-    let qwenIgnoredCount = 0;
+    let geminiIgnoredCount = 0;
 
     const filteredPaths = filePaths.filter((filePath) => {
       // 检查 .gitignore
@@ -341,9 +351,9 @@ export class FileDiscoveryService {
         return false;
       }
 
-      // 检查 .qwenignore
-      if (respectQwenIgnore && this.shouldQwenIgnoreFile(filePath)) {
-        qwenIgnoredCount++;
+      // 检查 .geminiignore
+      if (respectGeminiIgnore && this.shouldGeminiIgnoreFile(filePath)) {
+        geminiIgnoredCount++;
         return false;
       }
 
@@ -353,7 +363,7 @@ export class FileDiscoveryService {
     return {
       filteredPaths,
       gitIgnoredCount,
-      qwenIgnoredCount,
+      geminiIgnoredCount,
     };
   }
 
@@ -368,22 +378,22 @@ export class FileDiscoveryService {
   }
 
   /**
-   * 惰性加载 QwenIgnoreParser
+   * 惰性加载 GeminiIgnoreParser
    *
-   * 注意：.qwenignore 只在项目根目录查找，不支持嵌套
+   * 注意：.geminiignore 只在项目根目录查找，不支持嵌套
    */
-  private shouldQwenIgnoreFile(filePath: string): boolean {
-    if (!this.qwenIgnoreFilter) {
-      this.qwenIgnoreFilter = new QwenIgnoreParser(this.projectRoot);
+  private shouldGeminiIgnoreFile(filePath: string): boolean {
+    if (!this.geminiIgnoreFilter) {
+      this.geminiIgnoreFilter = new GeminiIgnoreParser(this.projectRoot);
     }
-    return this.qwenIgnoreFilter.isIgnored(filePath);
+    return this.geminiIgnoreFilter.isIgnored(filePath);
   }
 }
 
 interface FilterReport {
   filteredPaths: string[];
   gitIgnoredCount: number;
-  qwenIgnoredCount: number;
+  geminiIgnoredCount: number;
 }`;
 
   const bfsSearchCode = `// packages/core/src/utils/bfsFileSearch.ts
@@ -470,7 +480,7 @@ export async function bfsFileSearch(
   return foundFiles;
 }`;
 
-  const qwenIgnoreCode = `// .qwenignore 文件示例
+  const geminiIgnoreCode = `// .geminiignore 文件示例
 
 # 敏感文件 - 绝不发送给 AI
 .env
@@ -528,11 +538,11 @@ logs/
                 <span className="text-[var(--text-muted)]"> - 支持嵌套、多级目录</span>
               </li>
               <li>
-                <strong className="text-[var(--amber)]">.qwenignore</strong>
+                <strong className="text-[var(--amber)]">.geminiignore</strong>
                 <span className="text-[var(--text-muted)]"> - 项目根目录、CLI 专用</span>
               </li>
               <li className="text-xs text-[var(--text-muted)]">
-                优先级：.qwenignore &gt; .gitignore &gt; 内置默认
+                优先级：.geminiignore &gt; .gitignore &gt; 内置默认
               </li>
             </ul>
           </HighlightBox>
@@ -571,7 +581,7 @@ logs/
     q1{"在内置排除列表？<br/>.git/, node_modules/"}
     q2{"匹配工具排除参数？<br/>--exclude, ignore 选项"}
     q3{"被 .gitignore 忽略？<br/>任意层级的 .gitignore"}
-    q4{"被 .qwenignore 忽略？<br/>仅项目根目录"}
+    q4{"被 .geminiignore 忽略？<br/>仅项目根目录"}
     q5{"是二进制/媒体文件？<br/>*.exe, *.png..."}
     q6{"文件可读？<br/>权限检查"}
 
@@ -579,7 +589,7 @@ logs/
     exclude1["❌ 排除<br/><small>原因: 内置规则</small>"]
     exclude2["❌ 排除<br/><small>原因: 工具参数</small>"]
     exclude3["❌ 排除<br/><small>原因: .gitignore</small>"]
-    exclude4["❌ 排除<br/><small>原因: .qwenignore</small>"]
+    exclude4["❌ 排除<br/><small>原因: .geminiignore</small>"]
     exclude5["❌ 排除<br/><small>原因: 不可处理</small>"]
     exclude6["❌ 排除<br/><small>原因: 无权限</small>"]
 
@@ -626,7 +636,7 @@ logs/
           <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-3">
             <h4 className="text-purple-400 font-semibold text-sm mb-2">🟣 CLI 排除</h4>
             <p className="text-xs text-[var(--text-muted)]">
-              .qwenignore 专属。适合敏感文件，优先级最高。
+              .geminiignore 专属。适合敏感文件，优先级最高。
             </p>
           </div>
         </div>
@@ -650,7 +660,7 @@ logs/
               <li>• <code>package-lock.json</code> 在 Git 中，但 AI 分析它浪费 token</li>
             </ul>
             <p className="text-xs text-[var(--amber)] mt-2">
-              → .qwenignore 给用户一个专门控制 AI 可见性的旋钮
+              → .geminiignore 给用户一个专门控制 AI 可见性的旋钮
             </p>
           </div>
 
@@ -712,7 +722,7 @@ logs/
                 <td className="text-[var(--text-muted)]">无法精细到文件</td>
               </tr>
               <tr>
-                <td className="py-2">.qwenignore 位置</td>
+                <td className="py-2">.geminiignore 位置</td>
                 <td className="text-[var(--terminal-green)]">仅项目根目录</td>
                 <td className="text-[var(--text-muted)]">不支持嵌套</td>
               </tr>
@@ -836,25 +846,25 @@ logs/
         </div>
       </section>
 
-      {/* .qwenignore */}
+      {/* .geminiignore */}
       <section>
         <h3 className="text-xl font-semibold text-[var(--terminal-green)] mb-4">
-          .qwenignore 配置
+          .geminiignore 配置
         </h3>
         <p className="text-[var(--text-secondary)] mb-4">
-          <code className="text-[var(--amber)]">.qwenignore</code> 是 CLI 专用的忽略文件，
+          <code className="text-[var(--amber)]">.geminiignore</code> 是 CLI 专用的忽略文件，
           语法与 .gitignore 相同，但只在项目根目录查找（不支持嵌套）。
           适合配置 AI 不应该读取的敏感文件。
         </p>
-        <CodeBlock code={qwenIgnoreCode} language="bash" title=".qwenignore 示例" />
+        <CodeBlock code={geminiIgnoreCode} language="bash" title=".geminiignore 示例" />
 
-        <HighlightBox title=".gitignore vs .qwenignore" variant="blue" className="mt-4">
+        <HighlightBox title=".gitignore vs .geminiignore" variant="blue" className="mt-4">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-[var(--text-muted)]">
                 <th className="py-2">特性</th>
                 <th className="py-2">.gitignore</th>
-                <th className="py-2">.qwenignore</th>
+                <th className="py-2">.geminiignore</th>
               </tr>
             </thead>
             <tbody className="text-[var(--text-secondary)]">
@@ -974,7 +984,7 @@ logs/
           <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
             <h4 className="text-green-400 font-semibold mb-2">✓ 推荐做法</h4>
             <ul className="text-sm text-[var(--text-secondary)] space-y-1">
-              <li>• 使用 .qwenignore 排除敏感文件</li>
+              <li>• 使用 .geminiignore 排除敏感文件</li>
               <li>• 保持 .gitignore 更新，排除大型构建产物</li>
               <li>• 利用默认排除，无需手动配置 node_modules</li>
               <li>• 使用 BFS + maxDirs 限制防止超时</li>
@@ -986,11 +996,13 @@ logs/
               <li>• 在大型 monorepo 中不设置 ignore</li>
               <li>• 搜索整个 node_modules 目录</li>
               <li>• 忽略权限错误的目录而不告知用户</li>
-              <li>• 在 .qwenignore 中放置运行时需要的文件</li>
+              <li>• 在 .geminiignore 中放置运行时需要的文件</li>
             </ul>
           </div>
         </div>
       </section>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

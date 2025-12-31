@@ -282,7 +282,7 @@ function convertParameters(params: FunctionDeclarationSchema) {
     leftData: '',
     rightData: `// ChatCompletionCreateParams
 {
-  model: "qwen-coder-plus",
+  model: "gemini-1.5-pro",
   messages: [
     { role: "system", content: "You are..." },
     { role: "user", content: "读取 package.json" }
@@ -323,7 +323,7 @@ Authorization: Bearer sk-xxx
 Content-Type: application/json
 
 {
-  "model": "qwen-coder-plus",
+  "model": "gemini-1.5-pro",
   "messages": [...],
   "tools": [...],
   "stream": true
@@ -364,7 +364,7 @@ for await (const chunk of stream) {
   id: "chatcmpl-xxx",
   object: "chat.completion.chunk",
   created: 1703123456,
-  model: "qwen-coder-plus",
+  model: "gemini-1.5-pro",
   choices: [{
     index: 0,
     delta: {

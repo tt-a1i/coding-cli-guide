@@ -85,7 +85,7 @@ sequenceDiagram
         Note over Z,A: 初始化阶段
         Z->>A: initialize(protocolVersion, capabilities)
         A->>Z: InitializeResponse(authMethods, agentCapabilities)
-        Z->>A: authenticate(methodId: "qwen_oauth")
+        Z->>A: authenticate(methodId: "gemini_oauth")
         A->>Z: AuthenticateResponse(success)
     end
 
@@ -256,7 +256,7 @@ sequenceDiagram
       protocolVersion: 1,
       authMethods: [
         { id: 'use_openai', name: 'Use OpenAI API' },
-        { id: 'qwen_oauth', name: 'Qwen OAuth' },
+        { id: 'gemini_oauth', name: 'Google OAuth' },
       ],
       agentCapabilities: {
         loadSession: false,

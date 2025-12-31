@@ -3,6 +3,7 @@ import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { ComparisonTable } from '../components/ComparisonTable';
 import { CodeBlock } from '../components/CodeBlock';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 // ===== Introduction Component =====
 function Introduction({
@@ -149,6 +150,16 @@ function LoopNode({ icon, title, description, variant = 'default' }: LoopNodePro
     </div>
   );
 }
+
+// ===== Related Pages =====
+const relatedPages: RelatedPage[] = [
+  { id: 'turn-state-machine', label: 'Turn 状态机', description: '深入理解 Turn 的生命周期' },
+  { id: 'loop-detection-anim', label: '循环检测动画', description: '可视化循环检测过程' },
+  { id: 'tool-scheduler-anim', label: '工具调度动画', description: '工具并行执行机制' },
+  { id: 'streaming-response-processing', label: '流式响应处理', description: 'Chunk 解析与工具调用重组' },
+  { id: 'token-management-strategy', label: 'Token 管理策略', description: '会话 Token 限制机制' },
+  { id: 'e2e', label: '端到端流程', description: '完整请求处理链路' },
+];
 
 // ===== Main Component =====
 export function LoopMechanism() {
@@ -533,6 +544,8 @@ async checkNextSpeaker(): Promise<boolean> {
           </HighlightBox>
         </div>
       </Layer>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

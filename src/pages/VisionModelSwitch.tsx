@@ -8,7 +8,7 @@ export function VisionModelSwitch() {
     check_image[检测是否<br/>包含图片]
     has_image{有图片?}
     check_auth[检查认证类型]
-    is_qwen{Qwen OAuth?}
+    is_google{Google OAuth?}
     check_model{当前是否<br/>已是 VLM?}
     check_format[检查图片<br/>格式支持]
     format_ok{格式支持?}
@@ -22,9 +22,9 @@ export function VisionModelSwitch() {
     check_image --> has_image
     has_image -->|No| proceed
     has_image -->|Yes| check_auth
-    check_auth --> is_qwen
-    is_qwen -->|No| proceed
-    is_qwen -->|Yes| check_model
+    check_auth --> is_google
+    is_google -->|No| proceed
+    is_google -->|Yes| check_model
     check_model -->|Yes| proceed
     check_model -->|No| check_format
     check_format --> format_ok
@@ -42,7 +42,7 @@ export function VisionModelSwitch() {
 
     class start start
     class proceed terminal
-    class has_image,is_qwen,check_model,format_ok,check_yolo decision`;
+    class has_image,is_google,check_model,format_ok,check_yolo decision`;
 
   const imageDetectionCode = `// 检测消息是否包含图片
 // packages/cli/src/ui/hooks/useVisionAutoSwitch.ts
@@ -89,7 +89,7 @@ export function shouldOfferVisionSwitch(
   currentModel: string,
   visionModelPreviewEnabled: boolean = true,
 ): boolean {
-  // 1. 只对 Qwen OAuth 认证生效
+  // 1. 只对 Google OAuth 认证生效
   if (authType !== AuthType.QWEN_OAUTH) {
     return false;
   }
@@ -119,7 +119,7 @@ export enum VisionSwitchOutcome {
 export function processVisionSwitchOutcome(
   outcome: VisionSwitchOutcome,
 ): VisionSwitchResult {
-  const vlModelId = getDefaultVisionModel(); // 返回 'vision-model' (别名，映射到 qwen3-vl-plus-2025-09-23)
+  const vlModelId = getDefaultVisionModel(); // 返回 'vision-model' (别名，映射到 gemini-1.5-flash-vision-2025-09-23)
 
   switch (outcome) {
     case VisionSwitchOutcome.SwitchOnce:
@@ -248,9 +248,9 @@ function checkImageFormatsSupport(parts: PartListUnion): {
       {/* 限制条件 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">生效条件</h3>
-        <HighlightBox title="仅 Qwen OAuth 认证" variant="red">
+        <HighlightBox title="仅 Google OAuth 认证" variant="red">
           <p className="text-sm text-gray-300">
-            VLM 自动切换功能<strong>仅在 Qwen OAuth 认证</strong>下生效。
+            VLM 自动切换功能<strong>仅在 Google OAuth 认证</strong>下生效。
             使用 OpenAI API 密钥时，此功能不会触发。
           </p>
         </HighlightBox>
@@ -260,7 +260,7 @@ function checkImageFormatsSupport(parts: PartListUnion): {
           <ul className="text-sm text-gray-300 space-y-2">
             <li className="flex items-center gap-2">
               <span className="text-green-400">✓</span>
-              <span>认证类型为 Qwen OAuth</span>
+              <span>认证类型为 Google OAuth</span>
             </li>
             <li className="flex items-center gap-2">
               <span className="text-green-400">✓</span>
@@ -446,16 +446,16 @@ function checkImageFormatsSupport(parts: PartListUnion): {
             </thead>
             <tbody className="text-gray-300">
               <tr className="border-b border-gray-700/50">
-                <td className="p-2 font-semibold">Qwen Coder</td>
-                <td className="p-2"><code>qwen3-coder-plus</code></td>
+                <td className="p-2 font-semibold">Gemini</td>
+                <td className="p-2"><code>gemini-1.5-pro</code></td>
                 <td className="p-2 text-red-400">✗</td>
                 <td className="p-2">代码模型，不支持图片</td>
               </tr>
               <tr>
-                <td className="p-2 font-semibold">Qwen Vision</td>
+                <td className="p-2 font-semibold">Gemini Vision</td>
                 <td className="p-2"><code>vision-model</code></td>
                 <td className="p-2 text-green-400">✓</td>
-                <td className="p-2">Vision 模型别名，映射到 qwen3-vl-plus-2025-09-23</td>
+                <td className="p-2">Vision 模型别名，映射到 gemini-1.5-flash-vision-2025-09-23</td>
               </tr>
             </tbody>
           </table>
@@ -464,11 +464,11 @@ function checkImageFormatsSupport(parts: PartListUnion): {
         <div className="mt-4">
           <HighlightBox title="模型别名说明" variant="blue">
             <p className="text-sm text-gray-300 mb-2">
-              <code className="text-cyan-400">vision-model</code> 是一个别名，会自动映射到最新的 Qwen Vision 模型版本。
+              <code className="text-cyan-400">vision-model</code> 是一个别名，会自动映射到最新的 Gemini Vision 模型版本。
               使用别名的好处是无需手动更新配置即可使用最新模型。
             </p>
             <p className="text-sm text-gray-400">
-              当前映射：<code className="text-cyan-400">vision-model</code> → <code>qwen3-vl-plus-2025-09-23</code>
+              当前映射：<code className="text-cyan-400">vision-model</code> → <code>gemini-1.5-flash-vision-2025-09-23</code>
             </p>
           </HighlightBox>
         </div>
@@ -493,7 +493,7 @@ function checkImageFormatsSupport(parts: PartListUnion): {
               <li>✗ VLM 可能不如 Coder 擅长代码</li>
               <li>✗ 大图片会增加 token 消耗</li>
               <li>✗ 不支持的格式需先转换</li>
-              <li>✗ 仅 Qwen OAuth 支持此功能</li>
+              <li>✗ 仅 Google OAuth 支持此功能</li>
             </ul>
           </div>
         </div>

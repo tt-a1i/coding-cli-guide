@@ -1153,7 +1153,7 @@ async function handleLargeContent(
             <CodeBlock
               title="调试：记录原始流数据"
               code={`// 1. 启用详细日志
-DEBUG=stream:* innies
+DEBUG=stream:* gemini
 
 // 2. 捕获原始 SSE 数据
 class DebugParser extends StreamingToolCallParser {
@@ -1344,23 +1344,23 @@ function parseArgs(raw: unknown): ParsedArgs {
               </thead>
               <tbody className="text-[var(--text-secondary)]">
                 <tr className="border-b border-[var(--border-subtle)]/50">
-                  <td className="py-2 px-3"><code className="text-cyan-400 text-xs">DEBUG=stream:raw innies</code></td>
+                  <td className="py-2 px-3"><code className="text-cyan-400 text-xs">DEBUG=stream:raw gemini</code></td>
                   <td className="py-2 px-3">打印原始 SSE 数据</td>
                 </tr>
                 <tr className="border-b border-[var(--border-subtle)]/50">
-                  <td className="py-2 px-3"><code className="text-cyan-400 text-xs">DEBUG=stream:parser innies</code></td>
+                  <td className="py-2 px-3"><code className="text-cyan-400 text-xs">DEBUG=stream:parser gemini</code></td>
                   <td className="py-2 px-3">打印解析器状态变化</td>
                 </tr>
                 <tr className="border-b border-[var(--border-subtle)]/50">
-                  <td className="py-2 px-3"><code className="text-cyan-400 text-xs">DEBUG=stream:tools innies</code></td>
+                  <td className="py-2 px-3"><code className="text-cyan-400 text-xs">DEBUG=stream:tools gemini</code></td>
                   <td className="py-2 px-3">打印检测到的工具调用</td>
                 </tr>
                 <tr className="border-b border-[var(--border-subtle)]/50">
-                  <td className="py-2 px-3"><code className="text-cyan-400 text-xs">STREAM_DUMP=1 innies</code></td>
+                  <td className="py-2 px-3"><code className="text-cyan-400 text-xs">STREAM_DUMP=1 gemini</code></td>
                   <td className="py-2 px-3">保存完整流数据到文件</td>
                 </tr>
                 <tr>
-                  <td className="py-2 px-3"><code className="text-cyan-400 text-xs">innies --replay stream.log</code></td>
+                  <td className="py-2 px-3"><code className="text-cyan-400 text-xs">gemini --replay stream.log</code></td>
                   <td className="py-2 px-3">回放保存的流数据</td>
                 </tr>
               </tbody>

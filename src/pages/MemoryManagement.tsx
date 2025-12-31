@@ -4,7 +4,7 @@ import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { JsonBlock } from '../components/JsonBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
-import { useNavigation } from '../contexts/NavigationContext';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 function CollapsibleSection({
   title,
@@ -37,7 +37,14 @@ function CollapsibleSection({
 }
 
 export function MemoryManagement() {
-  const { navigate } = useNavigation();
+  const relatedPages: RelatedPage[] = [
+    { id: 'memory', label: '上下文管理', description: '消息历史' },
+    { id: 'token-accounting', label: 'Token计算', description: 'Token 预算' },
+    { id: 'session-persistence', label: '会话持久化', description: '状态保存' },
+    { id: 'gemini-chat', label: 'GeminiChatCore', description: 'AI 核心' },
+    { id: 'checkpointing', label: '检查点', description: '状态快照' },
+    { id: 'history-compression-anim', label: '压缩', description: '历史压缩' },
+  ];
 
   return (
     <div>
@@ -68,7 +75,7 @@ export function MemoryManagement() {
             <div className="text-center">
               <div className="text-2xl mb-1">📝</div>
               <strong>记忆系统</strong>
-              <p className="text-xs text-gray-400">QWEN.md 持久化知识</p>
+              <p className="text-xs text-gray-400">GEMINI.md 持久化知识</p>
             </div>
             <div className="text-center">
               <div className="text-2xl mb-1">🗜️</div>
@@ -316,8 +323,8 @@ export function normalize(model: string): string {
   s = s.split(':').pop() ?? s;
 
   // 移除版本/日期后缀: "gpt-4-20250219" → "gpt-4"
-  // 特殊保留: qwen-plus-latest, kimi-k2-0905
-  if (!s.match(/^qwen-(?:plus|flash|vl-max)-latest$/) &&
+  // 特殊保留: gemini-2.0-flash, kimi-k2-0905
+  if (!s.match(/^gemini-(?:plus|flash|vl-max)-latest$/) &&
       !s.match(/^kimi-k2-\\d{4}$/)) {
     s = s.replace(/-(?:\\d{4,}|v\\d+|latest|exp)$/g, '');
   }
@@ -343,16 +350,16 @@ export function normalize(model: string): string {
               </thead>
               <tbody className="text-gray-300">
                 <tr className="border-b border-gray-700">
-                  <td className="py-2 px-3 text-purple-400">Qwen3-Coder-Plus</td>
+                  <td className="py-2 px-3 text-purple-400">Gemini-1.5-Pro</td>
                   <td className="py-2 px-3">1M (1,048,576)</td>
                   <td className="py-2 px-3">64K</td>
-                  <td className="py-2 px-3"><code>/^qwen3-coder-plus/</code></td>
+                  <td className="py-2 px-3"><code>/^gemini-1.5-pro/</code></td>
                 </tr>
                 <tr className="border-b border-gray-700">
-                  <td className="py-2 px-3 text-purple-400">Qwen3-Max</td>
+                  <td className="py-2 px-3 text-purple-400">Gemini-1.5-Pro</td>
                   <td className="py-2 px-3">256K (262,144)</td>
                   <td className="py-2 px-3">64K</td>
-                  <td className="py-2 px-3"><code>/^qwen3-max/</code></td>
+                  <td className="py-2 px-3"><code>/^gemini-1.5-pro/</code></td>
                 </tr>
                 <tr className="border-b border-gray-700">
                   <td className="py-2 px-3 text-blue-400">Gemini 2.0 Flash</td>
@@ -499,7 +506,7 @@ export function tokenLimit(
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-4">
             <h4 className="text-cyan-400 font-bold mb-2">🌍 全局记忆</h4>
-            <code className="text-xs text-gray-400 block mb-2">~/.innies/QWEN.md</code>
+            <code className="text-xs text-gray-400 block mb-2">~/.gemini/GEMINI.md</code>
             <p className="text-sm text-gray-300">
               跨所有项目共享的知识，如用户偏好、通用技术栈等
             </p>
@@ -507,7 +514,7 @@ export function tokenLimit(
 
           <div className="bg-purple-500/10 border-2 border-purple-500/30 rounded-lg p-4">
             <h4 className="text-purple-400 font-bold mb-2">📂 项目记忆</h4>
-            <code className="text-xs text-gray-400 block mb-2">.innies/QWEN.md</code>
+            <code className="text-xs text-gray-400 block mb-2">.gemini/GEMINI.md</code>
             <p className="text-sm text-gray-300">
               项目特定信息，如架构决策、API 约定等
             </p>
@@ -515,7 +522,7 @@ export function tokenLimit(
         </div>
 
         <CodeBlock
-          title="QWEN.md 文件结构"
+          title="GEMINI.md 文件结构"
           code={`# 项目说明
 
 这是一个 React + TypeScript 项目...
@@ -529,7 +536,7 @@ export function tokenLimit(
 - 使用 Context 管理全局状态
 - 组件按功能模块组织
 
-## Qwen Added Memories
+## Gemini Added Memories
 - 用户偏好使用函数式组件
 - 测试框架是 Vitest
 - 代码风格遵循 ESLint 配置`}
@@ -546,8 +553,8 @@ class MemoryTool extends BaseDeclarativeTool {
     operations = {
         add: async (fact: string, level: 'user' | 'project') => {
             const filePath = level === 'user'
-                ? '~/.innies/QWEN.md'
-                : '.innies/QWEN.md';
+                ? '~/.gemini/GEMINI.md'
+                : '.gemini/GEMINI.md';
 
             const content = await readFile(filePath);
             const updated = appendToMemorySection(content, fact);
@@ -565,7 +572,7 @@ class MemoryTool extends BaseDeclarativeTool {
 }
 
 function appendToMemorySection(content: string, fact: string): string {
-    const MEMORY_HEADER = '## Qwen Added Memories';
+    const MEMORY_HEADER = '## Gemini Added Memories';
 
     if (!content.includes(MEMORY_HEADER)) {
         return content + '\\n\\n' + MEMORY_HEADER + '\\n- ' + fact;
@@ -580,7 +587,7 @@ function appendToMemorySection(content: string, fact: string): string {
       <Layer title="会话持久化 (Session Persistence)" icon="💾">
         <CodeBlock
           title="会话存储位置"
-          code={`~/.innies/tmp/<project_hash>/chats/
+          code={`~/.gemini/tmp/<project_hash>/chats/
 └── session-2025-12-19-15-30-abc12345.json
 
 命名格式：
@@ -604,7 +611,7 @@ session-<日期>-<时间>-<sessionId前8位>.json`}
         {
             "id": "msg-002",
             "timestamp": "2025-12-19T15:30:10.000Z",
-            "type": "qwen",
+            "type": "gemini",
             "content": [...],
             "toolCalls": [
                 {
@@ -629,10 +636,10 @@ session-<日期>-<时间>-<sessionId前8位>.json`}
       <Layer title="会话恢复 (Resume)" icon="🔄">
         <CodeBlock
           code={`# 恢复最近的会话
-innies --resume
+gemini --resume
 
 # 恢复指定会话
-innies --resume abc12345
+gemini --resume abc12345
 
 # 会话恢复流程
 1. 查找匹配的会话文件
@@ -734,24 +741,62 @@ uiTelemetryService.updateTokenStats(tokens);`}
         </div>
       </Layer>
 
-      {/* 相关页面 */}
-      <div className="mt-8 p-4 bg-gray-800/50 rounded-lg">
-        <h3 className="text-lg font-semibold text-cyan-400 mb-3">相关页面</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button onClick={() => navigate('token-accounting')} className="block p-3 bg-gray-700/50 rounded hover:bg-gray-700 transition-colors text-left border-none cursor-pointer">
-            <div className="text-purple-400 font-semibold">Token 计费系统</div>
-            <div className="text-sm text-gray-400">Token 统计和计费详解</div>
-          </button>
-          <button onClick={() => navigate('telemetry')} className="block p-3 bg-gray-700/50 rounded hover:bg-gray-700 transition-colors text-left border-none cursor-pointer">
-            <div className="text-blue-400 font-semibold">遥测系统</div>
-            <div className="text-sm text-gray-400">性能指标采集</div>
-          </button>
-          <button onClick={() => navigate('session-persistence')} className="block p-3 bg-gray-700/50 rounded hover:bg-gray-700 transition-colors text-left border-none cursor-pointer">
-            <div className="text-green-400 font-semibold">会话持久化</div>
-            <div className="text-sm text-gray-400">完整的会话管理</div>
-          </button>
+      {/* 为什么这样设计内存管理 */}
+      <Layer title="为什么这样设计内存管理" icon="🤔" defaultOpen={false}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* 设计决策 1 */}
+          <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+            <h4 className="text-blue-400 font-bold mb-2">为什么使用 Token 预算而非消息数量限制?</h4>
+            <p className="text-sm text-gray-300">
+              消息长度差异巨大：一条消息可能是 10 个字符的问候，也可能是 10,000 字符的代码。
+              按消息数量限制会导致资源浪费或意外截断。Token 预算直接对应 LLM 的实际处理成本，
+              能精确控制 API 费用和响应延迟。
+            </p>
+          </div>
+
+          {/* 设计决策 2 */}
+          <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
+            <h4 className="text-purple-400 font-bold mb-2">为什么压缩而非删除旧消息?</h4>
+            <p className="text-sm text-gray-300">
+              删除会丢失上下文，导致 AI "失忆"——忘记之前的决策、文件修改、用户偏好。
+              压缩通过 LLM 生成摘要，保留关键信息（任务状态、决策理由、文件变更），
+              用更少的 Token 维持对话连贯性。这是在成本和质量之间的最优权衡。
+            </p>
+          </div>
+
+          {/* 设计决策 3 */}
+          <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
+            <h4 className="text-green-400 font-bold mb-2">为什么分离短期和长期记忆?</h4>
+            <p className="text-sm text-gray-300">
+              短期记忆（会话历史）处理当前对话流程，需要高精度但可以牺牲持久性。
+              长期记忆（GEMINI.md）存储跨会话的知识，如项目架构、用户偏好。
+              分离设计让各层专注优化：短期追求响应速度，长期追求知识积累和检索效率。
+            </p>
+          </div>
+
+          {/* 设计决策 4 */}
+          <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4">
+            <h4 className="text-orange-400 font-bold mb-2">为什么使用 LRU 缓存?</h4>
+            <p className="text-sm text-gray-300">
+              用户对话模式具有时间局部性：最近讨论的文件、概念更可能被再次引用。
+              LRU（最近最少使用）缓存自动淘汰冷数据，保留热数据。
+              相比固定窗口，LRU 能更智能地利用有限的上下文空间，减少重复加载成本。
+            </p>
+          </div>
+
+          {/* 设计决策 5 */}
+          <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-4 md:col-span-2">
+            <h4 className="text-cyan-400 font-bold mb-2">为什么支持多级存储?</h4>
+            <p className="text-sm text-gray-300">
+              不同类型的信息有不同的生命周期和访问模式：(1) 实时对话需要毫秒级响应，存于内存；
+              (2) 会话记录需要持久化但访问频率低，存于本地 JSON；(3) 项目知识需要跨设备共享，
+              存于 GEMINI.md 可被 Git 管理。多级存储让每类数据都能获得最适合的存储介质和访问策略。
+            </p>
+          </div>
         </div>
-      </div>
+      </Layer>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

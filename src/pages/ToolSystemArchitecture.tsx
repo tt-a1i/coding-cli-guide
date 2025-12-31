@@ -4,6 +4,7 @@ import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { JsonBlock } from '../components/JsonBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
   return (
@@ -128,6 +129,15 @@ function ToolCard({ name, displayName, description, kind, params }: ToolCardProp
 
 export function ToolSystemArchitecture() {
   const [isIntroExpanded, setIsIntroExpanded] = useState(true);
+
+  const relatedPages: RelatedPage[] = [
+    { id: 'tool-detail', label: '工具详情', description: '各工具实现细节' },
+    { id: 'tool-scheduler', label: '工具调度器', description: '并发调度机制' },
+    { id: 'mcp', label: 'MCP集成', description: '外部工具协议' },
+    { id: 'interaction-loop', label: '交互循环', description: '工具调用入口' },
+    { id: 'approval-mode', label: '审批模式', description: '工具权限控制' },
+    { id: 'extension', label: '扩展系统', description: '工具扩展机制' },
+  ];
 
   return (
     <div>
@@ -544,7 +554,7 @@ exclude = [
     "run_shell_command(sudo *)",    # 提权命令
 ]
 
-# 工作区允许列表 (在 .qwen/settings.toml)
+# 工作区允许列表 (在 .gemini/settings.toml)
 allowed = [
     "run_shell_command(./scripts/*)",  # 项目脚本
 ]`}
@@ -1236,16 +1246,16 @@ ToolDisabledError: Tool 'run_shell_command' is disabled
               <div className="bg-[var(--bg-terminal)] rounded p-3">
                 <div className="text-green-400 text-xs font-mono mb-2">调试步骤</div>
                 <pre className="text-xs text-gray-300 overflow-x-auto">{`# 1. 列出所有已注册工具
-DEBUG=tool:registry innies
+DEBUG=tool:registry gemini
 
 # 2. 检查工具定义
-innies extensions list
+gemini extensions list
 
 # 3. 检查配置禁用
-cat ~/.qwen/settings.toml | grep -A5 '[tools]'
+cat ~/.gemini/settings.toml | grep -A5 '[tools]'
 
 # 4. 检查 MCP 服务器状态
-innies mcp status`}</pre>
+gemini mcp status`}</pre>
               </div>
             </div>
             <HighlightBox title="常见原因" icon="🔍" variant="orange">
@@ -1308,16 +1318,16 @@ innies mcp status`}</pre>
             <div className="bg-[var(--bg-terminal)] rounded p-3">
               <div className="text-green-400 text-xs font-mono mb-2">调试技巧</div>
               <pre className="text-xs text-gray-300 overflow-x-auto">{`# 1. 打印完整的工具 schema
-DEBUG=tool:schema innies
+DEBUG=tool:schema gemini
 
 # 2. 查看 AI 发送的原始参数
-DEBUG=ai:tools innies
+DEBUG=ai:tools gemini
 
 # 3. 验证路径有效性
 node -e "console.log(require('path').isAbsolute('/src/main.ts'))"
 
 # 4. 检查工作区范围
-innies --show-workspace`}</pre>
+gemini --show-workspace`}</pre>
             </div>
           </div>
         </div>
@@ -1423,7 +1433,7 @@ async function diagnosePermission(error: PermissionError) {
     switch (error.reason) {
         case 'blocked_by_global_policy':
             console.log('\\nThis tool/command is blocked globally.');
-            console.log('Check: ~/.qwen/settings.toml [tools.exclude]');
+            console.log('Check: ~/.gemini/settings.toml [tools.exclude]');
             break;
 
         case 'outside_workspace':
@@ -1458,32 +1468,32 @@ async function diagnosePermission(error: PermissionError) {
               <tbody className="text-[var(--text-secondary)]">
                 <tr className="border-b border-[var(--border-subtle)]/50">
                   <td className="py-2 px-3">工具注册</td>
-                  <td className="py-2 px-3"><code className="text-cyan-400 text-xs">DEBUG=tool:* innies</code></td>
+                  <td className="py-2 px-3"><code className="text-cyan-400 text-xs">DEBUG=tool:* gemini</code></td>
                   <td className="py-2 px-3">查看所有工具日志</td>
                 </tr>
                 <tr className="border-b border-[var(--border-subtle)]/50">
                   <td className="py-2 px-3">参数解析</td>
-                  <td className="py-2 px-3"><code className="text-cyan-400 text-xs">DEBUG=ai:tools innies</code></td>
+                  <td className="py-2 px-3"><code className="text-cyan-400 text-xs">DEBUG=ai:tools gemini</code></td>
                   <td className="py-2 px-3">查看 AI 发送的参数</td>
                 </tr>
                 <tr className="border-b border-[var(--border-subtle)]/50">
                   <td className="py-2 px-3">权限检查</td>
-                  <td className="py-2 px-3"><code className="text-cyan-400 text-xs">DEBUG=permission:* innies</code></td>
+                  <td className="py-2 px-3"><code className="text-cyan-400 text-xs">DEBUG=permission:* gemini</code></td>
                   <td className="py-2 px-3">查看权限决策过程</td>
                 </tr>
                 <tr className="border-b border-[var(--border-subtle)]/50">
                   <td className="py-2 px-3">沙箱执行</td>
-                  <td className="py-2 px-3"><code className="text-cyan-400 text-xs">DEBUG=sandbox:* innies</code></td>
+                  <td className="py-2 px-3"><code className="text-cyan-400 text-xs">DEBUG=sandbox:* gemini</code></td>
                   <td className="py-2 px-3">查看沙箱日志</td>
                 </tr>
                 <tr className="border-b border-[var(--border-subtle)]/50">
                   <td className="py-2 px-3">MCP 通信</td>
-                  <td className="py-2 px-3"><code className="text-cyan-400 text-xs">DEBUG=mcp:* innies</code></td>
+                  <td className="py-2 px-3"><code className="text-cyan-400 text-xs">DEBUG=mcp:* gemini</code></td>
                   <td className="py-2 px-3">查看 MCP 协议日志</td>
                 </tr>
                 <tr>
                   <td className="py-2 px-3">全量日志</td>
-                  <td className="py-2 px-3"><code className="text-cyan-400 text-xs">DEBUG=* innies 2&gt;&amp;1 | tee debug.log</code></td>
+                  <td className="py-2 px-3"><code className="text-cyan-400 text-xs">DEBUG=* gemini 2&gt;&amp;1 | tee debug.log</code></td>
                   <td className="py-2 px-3">记录所有调试输出</td>
                 </tr>
               </tbody>
@@ -1621,7 +1631,7 @@ Total: 50ms (3x faster)`}</pre>
     });
 
     // L2: 文件系统缓存（较慢，容量大）
-    private l2CacheDir = path.join(os.tmpdir(), 'qwen-tool-cache');
+    private l2CacheDir = path.join(os.tmpdir(), 'gemini-tool-cache');
 
     async get(key: string): Promise<CachedResult | null> {
         // 1. 检查 L1
@@ -2334,6 +2344,82 @@ const telemetryProcessor: ResultProcessor = {
           </div>
         </HighlightBox>
       </Layer>
+
+      {/* 为什么这样设计 */}
+      <Layer title="为什么这样设计工具系统" icon="🤔" defaultOpen={false}>
+        <div className="space-y-6">
+          <HighlightBox title="设计决策解析" icon="💡" variant="blue">
+            <p className="text-sm text-[var(--text-secondary)]">
+              工具系统的设计目标是<strong>可扩展、安全、高效</strong>，
+              支持内置工具和外部 MCP 工具的统一管理。
+            </p>
+          </HighlightBox>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-[var(--bg-card)] p-4 rounded-lg border border-[var(--border-subtle)]">
+              <h4 className="text-[var(--terminal-green)] font-bold mb-2">1. 为什么使用注册表模式？</h4>
+              <p className="text-sm text-[var(--text-secondary)] mb-2">
+                所有工具通过 <code>ToolRegistry</code> 统一注册和管理。
+              </p>
+              <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                <li>• <strong>原因</strong>: 支持动态添加/移除工具</li>
+                <li>• <strong>好处</strong>: 解耦工具实现与调用逻辑</li>
+                <li>• <strong>权衡</strong>: 需要维护注册状态</li>
+              </ul>
+            </div>
+
+            <div className="bg-[var(--bg-card)] p-4 rounded-lg border border-[var(--border-subtle)]">
+              <h4 className="text-[var(--cyber-blue)] font-bold mb-2">2. 为什么工具有 Schema 定义？</h4>
+              <p className="text-sm text-[var(--text-secondary)] mb-2">
+                每个工具都有 JSON Schema 描述参数结构。
+              </p>
+              <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                <li>• <strong>原因</strong>: AI 需要知道如何调用工具</li>
+                <li>• <strong>好处</strong>: 自动生成提示、参数验证</li>
+                <li>• <strong>权衡</strong>: Schema 维护成本</li>
+              </ul>
+            </div>
+
+            <div className="bg-[var(--bg-card)] p-4 rounded-lg border border-[var(--border-subtle)]">
+              <h4 className="text-[var(--amber)] font-bold mb-2">3. 为什么分离调度器和执行器？</h4>
+              <p className="text-sm text-[var(--text-secondary)] mb-2">
+                <code>ToolScheduler</code> 负责调度，各工具负责执行。
+              </p>
+              <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                <li>• <strong>原因</strong>: 支持并发、重试、超时控制</li>
+                <li>• <strong>好处</strong>: 统一的执行策略</li>
+                <li>• <strong>权衡</strong>: 增加一层抽象</li>
+              </ul>
+            </div>
+
+            <div className="bg-[var(--bg-card)] p-4 rounded-lg border border-[var(--border-subtle)]">
+              <h4 className="text-[var(--purple)] font-bold mb-2">4. 为什么 MCP 工具与内置工具统一？</h4>
+              <p className="text-sm text-[var(--text-secondary)] mb-2">
+                MCP 工具通过适配器注册到同一注册表。
+              </p>
+              <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                <li>• <strong>原因</strong>: AI 无需区分工具来源</li>
+                <li>• <strong>好处</strong>: 统一的调用接口</li>
+                <li>• <strong>权衡</strong>: MCP 通信开销</li>
+              </ul>
+            </div>
+
+            <div className="bg-[var(--bg-card)] p-4 rounded-lg border border-[var(--border-subtle)] md:col-span-2">
+              <h4 className="text-[var(--terminal-green)] font-bold mb-2">5. 为什么工具有权限分级？</h4>
+              <p className="text-sm text-[var(--text-secondary)] mb-2">
+                工具分为只读、写入、危险等级别，配合审批模式使用。
+              </p>
+              <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                <li>• <strong>原因</strong>: 保护用户系统安全</li>
+                <li>• <strong>好处</strong>: 细粒度的权限控制</li>
+                <li>• <strong>权衡</strong>: 需要正确分类工具</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

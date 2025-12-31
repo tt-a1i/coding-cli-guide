@@ -451,7 +451,7 @@ function handleSlashCommand(input: string) {
 npm install -g react-devtools@4.28.5
 
 # 2. 以调试模式启动 CLI
-DEV=true qwen
+DEV=true gemini
 
 # 3. 在另一个终端启动 DevTools
 npx react-devtools@4.28.5`}

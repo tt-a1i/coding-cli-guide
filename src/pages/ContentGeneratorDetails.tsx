@@ -3,6 +3,16 @@ import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { JsonBlock } from '../components/JsonBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+
+const relatedPages: RelatedPage[] = [
+  { id: 'streaming-response-processing', label: '流式响应处理', description: '流式解析与 Chunk 处理' },
+  { id: 'content-format-conversion', label: '格式转换', description: 'Gemini/OpenAI 格式双向转换' },
+  { id: 'multi-provider', label: '多厂商架构', description: '多 AI 提供商支持' },
+  { id: 'streaming-tool-parser-anim', label: '工具调用解析', description: '流式 JSON 解析动画' },
+  { id: 'error-recovery-patterns', label: '错误恢复模式', description: '重试与降级策略' },
+  { id: 'content-pipeline-anim', label: '生成管道动画', description: '可视化内容生成流程' },
+];
 
 export function ContentGeneratorDetails() {
   return (
@@ -78,12 +88,12 @@ OpenAIContentGenerator.generateContentStream()
             </p>
           </div>
           <div className="bg-white/5 rounded-lg p-4 border border-purple-400/30">
-            <h4 className="text-purple-400 font-bold mb-2">Qwen OAuth</h4>
+            <h4 className="text-purple-400 font-bold mb-2">Google OAuth</h4>
             <code className="text-xs text-gray-400 block mb-2">
-              packages/core/src/qwen/qwenContentGenerator.ts
+              packages/core/src/gemini/geminiContentGenerator.ts
             </code>
             <p className="text-sm text-gray-300">
-              Qwen 特定实现，免费 2000 请求/天
+              Gemini 特定实现，免费 2000 请求/天
             </p>
           </div>
         </div>
@@ -148,7 +158,7 @@ OpenAIContentGenerator.generateContentStream()
             <h4 className="text-cyan-400 font-bold mb-2">Gemini 格式 (内部)</h4>
             <JsonBlock
               code={`{
-    "model": "qwen-coder-plus",
+    "model": "gemini-1.5-pro",
     "contents": [
         {
             "role": "user",
@@ -184,7 +194,7 @@ OpenAIContentGenerator.generateContentStream()
             <h4 className="text-purple-400 font-bold mb-2">OpenAI 格式 (API)</h4>
             <JsonBlock
               code={`{
-    "model": "qwen-coder-plus",
+    "model": "gemini-1.5-pro",
     "messages": [
         {
             "role": "user",
@@ -1168,6 +1178,8 @@ private async handleError(
           </table>
         </div>
       </Layer>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

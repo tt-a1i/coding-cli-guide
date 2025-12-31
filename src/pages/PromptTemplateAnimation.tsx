@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 /**
  * Prompt 模板引擎动画
  *
- * 可视化 qwen-cli 的系统提示词构建流程
+ * 可视化 gemini-cli 的系统提示词构建流程
  * 源码: packages/core/src/core/prompts.ts
  *
  * 核心函数:
@@ -49,7 +49,7 @@ const INITIAL_SECTIONS: PromptSection[] = [
   { id: 'tool-policy', name: 'Tool Usage Policy', category: 'core', content: 'When doing file search, prefer Task tool...', tokens: 267, active: false, injected: false },
   { id: 'sandbox', name: 'Sandbox Section', category: 'dynamic', content: '# macOS Seatbelt Sandbox\nYou are running inside a restricted...', tokens: 156, active: false, injected: false },
   { id: 'git-repo', name: 'Git Repository', category: 'dynamic', content: 'gitStatus: Current branch: main\nStatus: clean...', tokens: 98, active: false, injected: false },
-  { id: 'model-examples', name: 'Tool Call Examples', category: 'model', content: '## Qwen-Coder Examples\n<tool_call>{"name":"Read"...', tokens: 423, active: false, injected: false },
+  { id: 'model-examples', name: 'Tool Call Examples', category: 'model', content: '## Gemini Examples\n<tool_call>{"name":"Read"...', tokens: 423, active: false, injected: false },
   { id: 'user-memory', name: 'User Memory', category: 'memory', content: '# User Preferences\n- Preferred language: TypeScript...', tokens: 134, active: false, injected: false },
 ];
 
@@ -60,8 +60,8 @@ const ENV_VARS: EnvResolution[] = [
 ];
 
 const MODEL_OPTIONS = [
-  { id: 'qwen-coder', name: 'Qwen-Coder', pattern: 'qwen.*coder', selected: false },
-  { id: 'qwen-vl', name: 'Qwen-VL', pattern: 'qwen.*vl', selected: false },
+  { id: 'gemini-1.5-flash', name: 'Gemini', pattern: 'gemini.*coder', selected: false },
+  { id: 'gemini-vision', name: 'Gemini Vision', pattern: 'gemini.*vl', selected: false },
   { id: 'general', name: 'General', pattern: '*', selected: false },
 ];
 
@@ -70,7 +70,7 @@ export default function PromptTemplateAnimation() {
   const [sections, setSections] = useState<PromptSection[]>(INITIAL_SECTIONS);
   const [envVars, setEnvVars] = useState<EnvResolution[]>(ENV_VARS);
   const [modelOptions, setModelOptions] = useState(MODEL_OPTIONS);
-  const [selectedModel, setSelectedModel] = useState('qwen-coder-32b');
+  const [selectedModel, setSelectedModel] = useState('gemini-1.5-flash');
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [totalTokens, setTotalTokens] = useState(0);
@@ -209,7 +209,7 @@ export default function PromptTemplateAnimation() {
       case 'memory-append':
         addLog('💾 追加用户记忆 - User Memory Suffix');
         timers.push(setTimeout(() => {
-          addLog('  📂 Loading ~/.config/qwen/CLAUDE.md');
+          addLog('  📂 Loading ~/.config/gemini/CLAUDE.md');
         }, 300));
 
         timers.push(setTimeout(() => {
@@ -289,8 +289,8 @@ export default function PromptTemplateAnimation() {
             disabled={isPlaying}
             className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded px-3 py-1.5 text-sm font-mono text-[var(--text-primary)]"
           >
-            <option value="qwen-coder-32b">qwen-coder-32b</option>
-            <option value="qwen-vl-max">qwen-vl-max</option>
+            <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+            <option value="gemini-1.5-pro-vision">gemini-1.5-pro-vision</option>
             <option value="gpt-4o">gpt-4o</option>
           </select>
           <button

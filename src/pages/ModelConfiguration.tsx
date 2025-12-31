@@ -104,9 +104,9 @@ flowchart LR
                     { model: 'GPT-4o', limit: '128K (131,072)', pattern: '^gpt-4o.*$' },
                     { model: 'Claude Sonnet 4', limit: '1M (1,048,576)', pattern: '^claude-sonnet-4.*$' },
                     { model: 'Claude 3.5 Sonnet', limit: '200K (200,000)', pattern: '^claude-3\\.5-sonnet.*$' },
-                    { model: 'Qwen3-Coder-Plus', limit: '1M (1,048,576)', pattern: '^qwen3-coder-plus(-.*)?$' },
-                    { model: 'Qwen3-Max', limit: '256K (262,144)', pattern: '^qwen3-max(-preview)?(-.*)?$' },
-                    { model: 'Qwen2.5', limit: '128K (131,072)', pattern: '^qwen2\\.5.*$' },
+                    { model: 'Gemini-1.5-Pro', limit: '1M (1,048,576)', pattern: '^gemini-1.5-pro(-.*)?$' },
+                    { model: 'Gemini-1.5-Pro', limit: '256K (262,144)', pattern: '^gemini-1.5-pro(-preview)?(-.*)?$' },
+                    { model: 'Gemini-1.0', limit: '128K (131,072)', pattern: '^gemini-1.0\\.5.*$' },
                     { model: 'DeepSeek R1', limit: '128K (131,072)', pattern: '^deepseek-r1(?:-.*)?$' },
                     { model: 'Kimi K2-0905', limit: '256K (262,144)', pattern: '^kimi-k2-0905$' },
                     { model: 'Llama 4 Scout', limit: '10M (10,485,760)', pattern: '^llama-4-scout.*$' },
@@ -139,10 +139,10 @@ flowchart LR
                 </thead>
                 <tbody className="text-[var(--text-secondary)]">
                   {[
-                    { model: 'Qwen3-Coder-Plus', limit: '64K (65,536)', pattern: '^qwen3-coder-plus(-.*)?$' },
-                    { model: 'Qwen3-Max', limit: '64K (65,536)', pattern: '^qwen3-max(-preview)?(-.*)?$' },
-                    { model: 'Qwen3-VL-Plus', limit: '32K (32,768)', pattern: '^qwen3-vl-plus$' },
-                    { model: 'Qwen-VL-Max-Latest', limit: '8K (8,192)', pattern: '^qwen-vl-max-latest$' },
+                    { model: 'Gemini-1.5-Pro', limit: '64K (65,536)', pattern: '^gemini-1.5-pro(-.*)?$' },
+                    { model: 'Gemini-1.5-Pro', limit: '64K (65,536)', pattern: '^gemini-1.5-pro(-preview)?(-.*)?$' },
+                    { model: 'Gemini-1.5-Vision', limit: '32K (32,768)', pattern: '^gemini-1.5-flash-vision$' },
+                    { model: 'Gemini Vision-Max-Latest', limit: '8K (8,192)', pattern: '^gemini-1.5-pro-vision-latest$' },
                     { model: '默认', limit: '4K (4,096)', pattern: '(无匹配时)' },
                   ].map((row, i) => (
                     <tr key={i} className="border-b border-[var(--border-subtle)]/50">
@@ -186,7 +186,7 @@ export function tokenLimit(
 
 // 使用示例
 tokenLimit('gpt-4.1-20250219');           // 1,048,576 (1M)
-tokenLimit('qwen3-coder-plus', 'output'); // 65,536 (64K)`}
+tokenLimit('gemini-1.5-pro', 'output'); // 65,536 (64K)`}
               language="typescript"
             />
           </Layer>
@@ -223,7 +223,7 @@ sequenceDiagram
 
           <Layer title="缓存实现" icon="📦">
             <CodeBlock
-              code={`// packages/core/src/innies/modelConfigCache.ts
+              code={`// packages/core/src/gemini/modelConfigCache.ts
 
 export class ModelConfigCache {
   private static instance: ModelConfigCache;
@@ -305,7 +305,7 @@ export class ModelConfigCache {
             </p>
 
             <CodeBlock
-              code={`// packages/core/src/innies/inniesModelService.ts
+              code={`// packages/core/src/gemini/geminiModelService.ts
 
 export interface InniesModelSummary {
   id: string;           // 模型标识符
@@ -322,8 +322,8 @@ export async function fetchInniesModels(
   options?: InniesModelSearchOptions,
 ): Promise<InniesModelSummary[]> {
   const sharedManager = SharedTokenManager.getInstance();
-  const inniesClient = new InniesOAuth2Client();
-  const credentials = await sharedManager.getValidCredentials(inniesClient);
+  const geminiClient = new InniesOAuth2Client();
+  const credentials = await sharedManager.getValidCredentials(geminiClient);
 
   const accessToken = credentials.access_token;
   if (!accessToken) {
@@ -415,7 +415,7 @@ const id = resolveStringField(record, [
 flowchart TD
     subgraph Input["输入示例"]
         I1["openai/gpt-4.1-20250219"]
-        I2["qwen-plus-latest"]
+        I2["gemini-2.0-flash"]
         I3["llama-7b-int4"]
     end
 
@@ -428,7 +428,7 @@ flowchart TD
 
     subgraph Output["输出"]
         O1["gpt-4.1"]
-        O2["qwen-plus-latest<br/>(保留 - 特殊情况)"]
+        O2["gemini-2.0-flash<br/>(保留 - 特殊情况)"]
         O3["llama-7b"]
     end
 
@@ -457,10 +457,10 @@ export function normalize(model: string): string {
   s = s.replace(/-preview/g, '');
 
   // 4. 特殊情况：保留某些模型的版本标识
-  // - qwen-plus-latest, qwen-flash-latest, qwen-vl-max-latest
+  // - gemini-2.0-flash, gemini-1.5-flash, gemini-1.5-pro-vision-latest
   // - kimi-k2-0905, kimi-k2-0711 (保留日期区分版本)
   if (
-    !s.match(/^qwen-(?:plus|flash|vl-max)-latest$/) &&
+    !s.match(/^gemini-(?:plus|flash|vl-max)-latest$/) &&
     !s.match(/^kimi-k2-\\d{4}$/)
   ) {
     // 移除版本/日期后缀
@@ -478,7 +478,7 @@ export function normalize(model: string): string {
 
 // 示例
 normalize('openai/gpt-4.1-20250219');  // "gpt-4.1"
-normalize('qwen-plus-latest');          // "qwen-plus-latest" (保留)
+normalize('gemini-2.0-flash');          // "gemini-2.0-flash" (保留)
 normalize('llama-3-70b-int4');          // "llama-3-70b"
 normalize('Claude:sonnet-4');           // "sonnet-4"`}
               language="typescript"
@@ -489,7 +489,7 @@ normalize('Claude:sonnet-4');           // "sonnet-4"`}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <HighlightBox title="保留版本标识" icon="✅" variant="purple">
                 <ul className="text-[var(--text-secondary)] pl-5 mb-0 space-y-1 text-sm">
-                  <li><code>qwen-plus-latest</code> - latest 是模型标识的一部分</li>
+                  <li><code>gemini-2.0-flash</code> - latest 是模型标识的一部分</li>
                   <li><code>kimi-k2-0905</code> - 日期区分不同版本</li>
                 </ul>
               </HighlightBox>
@@ -544,8 +544,8 @@ graph TB
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           {[
             'packages/core/src/core/tokenLimits.ts',
-            'packages/core/src/innies/modelConfigCache.ts',
-            'packages/core/src/innies/inniesModelService.ts',
+            'packages/core/src/gemini/modelConfigCache.ts',
+            'packages/core/src/gemini/geminiModelService.ts',
             'packages/core/src/config/config.ts',
           ].map(file => (
             <code key={file} className="bg-[var(--bg-elevated)] px-3 py-2 rounded-md text-[var(--cyber-blue)] text-sm block">

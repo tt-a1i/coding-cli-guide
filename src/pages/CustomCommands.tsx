@@ -2,6 +2,16 @@ import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+
+const relatedPages: RelatedPage[] = [
+  { id: 'slash-cmd', label: '斜杠命令', description: '内置命令系统概览' },
+  { id: 'at-cmd', label: '@命令', description: '@{} 文件注入语法详解' },
+  { id: 'shell-modes', label: 'Shell模式', description: 'Shell 命令执行安全机制' },
+  { id: 'trusted-folders', label: '信任机制', description: '工作区信任与命令加载' },
+  { id: 'shell-injection-anim', label: 'Shell注入处理', description: 'Shell 注入安全检查动画' },
+  { id: 'injection-parser-anim', label: 'Injection解析器', description: '注入语法解析动画' },
+];
 
 export function CustomCommands() {
   // 命令加载流程
@@ -9,8 +19,8 @@ export function CustomCommands() {
     start([CLI 启动])
     loader_init[FileCommandLoader 初始化]
     check_trust{工作区是否受信任?}
-    load_user[加载用户级命令<br/>~/.qwen/commands/]
-    load_project[加载项目级命令<br/>.qwen/commands/]
+    load_user[加载用户级命令<br/>~/.gemini/commands/]
+    load_project[加载项目级命令<br/>.gemini/commands/]
     skip_project[跳过项目级命令]
     load_ext[加载扩展命令]
     merge[合并命令列表]
@@ -182,7 +192,7 @@ export function CustomCommands() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-4">
             <h5 className="text-cyan-400 font-bold mb-2">🏠 用户级命令</h5>
-            <code className="text-xs text-gray-400 block mb-2">~/.qwen/commands/*.toml</code>
+            <code className="text-xs text-gray-400 block mb-2">~/.gemini/commands/*.toml</code>
             <p className="text-sm text-gray-300">
               跨所有项目可用的个人命令
             </p>
@@ -190,7 +200,7 @@ export function CustomCommands() {
 
           <div className="bg-purple-500/10 border-2 border-purple-500/30 rounded-lg p-4">
             <h5 className="text-purple-400 font-bold mb-2">📂 项目级命令</h5>
-            <code className="text-xs text-gray-400 block mb-2">.qwen/commands/*.toml</code>
+            <code className="text-xs text-gray-400 block mb-2">.gemini/commands/*.toml</code>
             <p className="text-sm text-gray-300">
               项目特定命令，可提交到版本控制共享给团队
             </p>
@@ -293,9 +303,9 @@ description = "命令描述（显示在 /help 中）"`}
         <CodeBlock
           title="命名规则示例"
           code={`# 文件路径 → 命令名称
-~/.qwen/commands/test.toml          → /test
-.qwen/commands/git/commit.toml      → /git:commit
-.qwen/commands/refactor/pure.toml   → /refactor:pure
+~/.gemini/commands/test.toml          → /test
+.gemini/commands/git/commit.toml      → /git:commit
+.gemini/commands/refactor/pure.toml   → /refactor:pure
 
 # 子目录作为命名空间，路径分隔符 / 转换为 :`}
         />
@@ -501,7 +511,7 @@ if (!allAllowed && isHardDenial) {
 
         <h4 className="text-lg text-cyan-400 font-bold mb-3 mt-5">安全配置</h4>
         <CodeBlock
-          title="~/.qwen/config.toml"
+          title="~/.gemini/config.toml"
           code={`# 工作区信任
 [security.folderTrust]
 enabled = true  # 启用工作区信任检查
@@ -598,7 +608,7 @@ mode = "DEFAULT"  # DEFAULT | YOLO | AUTO_EDIT | PLAN`}
 
           <CodeBlock
             title="示例：代码审查命令"
-            code={`# .qwen/commands/review.toml
+            code={`# .gemini/commands/review.toml
 
 description = "使用最佳实践指南审查代码"
 
@@ -626,7 +636,7 @@ prompt = """
 
         <h4 className="text-lg text-cyan-400 font-bold mb-3 mt-5">完整示例</h4>
         <CodeBlock
-          title=".qwen/commands/git/commit.toml"
+          title=".gemini/commands/git/commit.toml"
           code={`# 调用方式: /git:commit
 
 description = "根据暂存的更改生成 Git 提交消息"
@@ -639,12 +649,84 @@ prompt = """
 \`\`\`
 
 提交消息格式要求:
-@{.qwen/commit-template.md}
+@{.gemini/commit-template.md}
 
 额外说明: {{args}}
 """`}
         />
       </Layer>
+
+      {/* 为什么这样设计 */}
+      <Layer title="为什么这样设计？" icon="💡">
+        <div className="space-y-4">
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
+            <h4 className="text-[var(--terminal-green)] font-bold mb-2">为什么用 TOML 而不是 JSON/YAML？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：命令定义文件使用 TOML 格式。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>多行字符串</strong>：TOML 的 <code>"""</code> 语法非常适合长 prompt</li>
+                <li><strong>注释友好</strong>：支持 # 注释，方便说明 prompt 用途</li>
+                <li><strong>简洁明了</strong>：比 JSON 少引号，比 YAML 少缩进问题</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
+            <h4 className="text-[var(--cyber-blue)] font-bold mb-2">为什么需要三层允许列表机制？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：Shell 命令安全使用 blocklist → allowlist → session 三层检查。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>安全优先</strong>：blocklist 最先检查，危险命令一票否决</li>
+                <li><strong>灵活配置</strong>：allowlist 允许信任特定命令，减少确认弹窗</li>
+                <li><strong>会话缓存</strong>：session 列表避免同一命令反复确认</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
+            <h4 className="text-[var(--purple)] font-bold mb-2">为什么处理器链顺序是 @{} → !{} → args？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：先处理文件注入，再处理 Shell，最后处理参数。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>安全隔离</strong>：文件内容先注入，避免通过 Shell 动态构造恶意路径</li>
+                <li><strong>args 在 Shell 中可用</strong>：Shell 命令可以使用 <code>{`{{args}}`}</code>，需要先完成替换</li>
+                <li><strong>默认追加</strong>：如果没用 <code>{`{{args}}`}</code>，最后追加到 prompt 末尾</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
+            <h4 className="text-[var(--amber)] font-bold mb-2">为什么项目命令优先于用户命令？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：同名命令时，项目级覆盖用户级。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>项目定制</strong>：团队可能需要覆盖用户的个人习惯</li>
+                <li><strong>一致性</strong>：确保团队成员使用相同的命令行为</li>
+                <li><strong>版本控制</strong>：项目命令可提交 Git，团队共享和迭代</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-red-500">
+            <h4 className="text-red-400 font-bold mb-2">为什么非信任工作区不加载项目命令？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：未信任的工作区只加载用户级命令。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>防止攻击</strong>：恶意仓库可能包含执行危险操作的命令</li>
+                <li><strong>显式信任</strong>：用户必须明确信任工作区才能执行其命令</li>
+                <li><strong>与 VS Code 一致</strong>：遵循 IDE 的工作区信任安全模型</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

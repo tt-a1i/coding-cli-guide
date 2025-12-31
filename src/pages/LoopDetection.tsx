@@ -2,6 +2,16 @@ import { HighlightBox } from '../components/HighlightBox';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+
+const relatedPages: RelatedPage[] = [
+  { id: 'retry', label: '重试回退', description: '循环与重试机制的关系' },
+  { id: 'error', label: '错误处理', description: '循环检测触发的错误' },
+  { id: 'gemini-chat', label: '核心循环', description: '循环检测在主循环中的位置' },
+  { id: 'turn-state-machine', label: 'Turn状态机', description: '循环检测的状态触发' },
+  { id: 'tool-scheduler', label: '工具调度', description: '工具调用循环的来源' },
+  { id: 'design-tradeoffs', label: '设计权衡', description: '检测灵敏度的权衡' },
+];
 
 export function LoopDetection() {
   const loopDetectionFlow = `
@@ -1875,7 +1885,7 @@ class LoopDetectionLogger {
 }
 
 // 使用示例
-// DEBUG_LOOP_DETECTION=true innies
+// DEBUG_LOOP_DETECTION=true gemini
 
 /*
 日志输出示例：
@@ -1916,7 +1926,7 @@ class LoopDetectionLogger {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm font-mono">
               <div>
                 <p className="text-purple-400 mb-1"># 启用循环检测调试</p>
-                <code className="text-gray-300">DEBUG_LOOP_DETECTION=true innies</code>
+                <code className="text-gray-300">DEBUG_LOOP_DETECTION=true gemini</code>
               </div>
               <div>
                 <p className="text-purple-400 mb-1"># 查看触发历史</p>
@@ -3329,6 +3339,125 @@ loopDetectionService.setHashAlgorithm({
           </HighlightBox>
         </Layer>
       </Layer>
+
+      {/* 为什么这样设计循环检测 */}
+      <Layer title="为什么这样设计循环检测？" icon="💡">
+        <div className="space-y-4">
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
+            <h4 className="text-[var(--terminal-green)] font-bold mb-2">🔢 为什么用固定阈值（5次工具、10次内容）？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：工具调用重复 5 次、内容重复 10 次触发循环检测。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>经验值</strong>：基于大量实际使用场景调优的经验阈值</li>
+                <li><strong>误报平衡</strong>：太低容易误报正常重试，太高会浪费 Token</li>
+                <li><strong>工具 vs 内容</strong>：工具调用更确定，阈值更低；内容可能有轻微变化，阈值更高</li>
+              </ul>
+              <p><strong>可调整</strong>：通过配置或扩展点可自定义阈值。</p>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
+            <h4 className="text-[var(--cyber-blue)] font-bold mb-2">🧠 为什么 30 轮后才启用 LLM 检测？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：LLM 智能循环检测只在对话超过 30 轮后才激活。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>成本控制</strong>：LLM 检测需要额外 API 调用，频繁使用成本高</li>
+                <li><strong>复杂场景</strong>：简单循环用哈希检测足够，LLM 用于检测复杂的语义循环</li>
+                <li><strong>长对话风险</strong>：对话越长，出现微妙循环的概率越高</li>
+              </ul>
+              <p><strong>LLM 能力</strong>：可以检测"AI 在尝试不同方法但都失败"的模式。</p>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
+            <h4 className="text-[var(--amber)] font-bold mb-2">🔗 为什么用哈希而非精确匹配？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：使用内容哈希（MD5）比较而非逐字符精确匹配。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>空间效率</strong>：存储固定长度哈希比存储完整内容节省内存</li>
+                <li><strong>查找效率</strong>：O(1) 哈希查找比 O(n) 字符串比较快</li>
+                <li><strong>归一化</strong>：哈希前可先归一化（去空白、统一大小写），忽略无意义差异</li>
+              </ul>
+              <p><strong>冲突风险</strong>：MD5 冲突概率极低，对循环检测场景可接受。</p>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
+            <h4 className="text-[var(--purple)] font-bold mb-2">🚨 为什么检测到循环后中断而非自动重试？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：检测到循环后向用户报告并中断，而非自动尝试恢复。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>资源保护</strong>：循环会无限消耗 Token 和时间，必须及时止损</li>
+                <li><strong>用户介入</strong>：很多循环需要用户提供新信息或改变策略</li>
+                <li><strong>透明性</strong>：让用户知道发生了什么，而非悄悄重试</li>
+              </ul>
+              <p><strong>扩展</strong>：可以注册自定义 LoopHandler 实现智能重试策略。</p>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--red)]">
+            <h4 className="text-[var(--red)] font-bold mb-2">🔄 为什么需要多层检测机制？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：工具调用 → 内容哈希 → LLM 智能检测，三层递进。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>快速检测</strong>：工具调用检测最快，能在早期捕获明显循环</li>
+                <li><strong>深度检测</strong>：内容哈希捕获工具参数不同但内容相似的情况</li>
+                <li><strong>语义检测</strong>：LLM 检测捕获"变着花样失败"的复杂循环</li>
+              </ul>
+              <p><strong>性能</strong>：大多数循环在前两层就被检测，LLM 层很少被调用。</p>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      {/* 循环检测阈值速查表 */}
+      <Layer title="循环检测阈值速查表" icon="📊">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-[var(--border-subtle)]">
+                <th className="text-left py-2 px-3 text-[var(--text-muted)]">检测类型</th>
+                <th className="text-left py-2 px-3 text-[var(--text-muted)]">默认阈值</th>
+                <th className="text-left py-2 px-3 text-[var(--text-muted)]">检测对象</th>
+                <th className="text-left py-2 px-3 text-[var(--text-muted)]">典型循环场景</th>
+              </tr>
+            </thead>
+            <tbody className="text-[var(--text-secondary)]">
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--terminal-green)]">工具调用循环</td>
+                <td className="py-2 px-3">≥ 5 次</td>
+                <td className="py-2 px-3">工具名 + 参数哈希</td>
+                <td className="py-2 px-3">反复读取同一文件、重复执行相同命令</td>
+              </tr>
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--cyber-blue)]">内容重复循环</td>
+                <td className="py-2 px-3">≥ 10 次</td>
+                <td className="py-2 px-3">归一化内容哈希</td>
+                <td className="py-2 px-3">AI 反复说相同的话、相似的建议</td>
+              </tr>
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--amber)]">LLM 智能检测</td>
+                <td className="py-2 px-3">≥ 30 轮</td>
+                <td className="py-2 px-3">对话历史语义</td>
+                <td className="py-2 px-3">变换方法但持续失败、无进展的尝试</td>
+              </tr>
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--purple)]">连续空输出</td>
+                <td className="py-2 px-3">≥ 3 次</td>
+                <td className="py-2 px-3">AI 响应内容</td>
+                <td className="py-2 px-3">AI 卡住不输出任何内容</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Layer>
+
+      <RelatedPages pages={relatedPages} />
 
       {/* ==================== 深化内容结束 ==================== */}
     </div>

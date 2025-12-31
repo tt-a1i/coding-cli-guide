@@ -10,7 +10,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
  * 4. 指数退避重试策略
  *
  * 源码位置:
- * - packages/core/src/qwen/sharedTokenManager.ts
+ * - packages/core/src/gemini/sharedTokenManager.ts
  */
 
 // 配置常量
@@ -405,7 +405,7 @@ export default function SharedTokenManagerAnimation() {
           可视化跨进程 Token 管理：文件锁机制、Token 刷新、缓存同步、指数退避重试
         </p>
         <p className="text-gray-500 text-xs mt-1">
-          源码: packages/core/src/qwen/sharedTokenManager.ts
+          源码: packages/core/src/gemini/sharedTokenManager.ts
         </p>
       </div>
 
@@ -510,7 +510,7 @@ export default function SharedTokenManagerAnimation() {
             <div className="font-mono text-sm space-y-2">
               <div className="flex justify-between">
                 <span className="text-gray-400">路径:</span>
-                <span className="text-gray-300">~/.qwen/qwen_oauth_creds.lock</span>
+                <span className="text-gray-300">~/.gemini/gemini_oauth_creds.lock</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">存在:</span>
@@ -647,9 +647,9 @@ export default function SharedTokenManagerAnimation() {
         <h3 className="text-white font-semibold mb-3">关键代码逻辑</h3>
         <pre className="text-xs text-gray-300 overflow-x-auto bg-gray-800 p-3 rounded">
 {`// 获取有效凭证的核心逻辑
-async getValidCredentials(qwenClient, forceRefresh = false) {
+async getValidCredentials(geminiClient, forceRefresh = false) {
   // 1. 检查文件是否被其他进程更新
-  await this.checkAndReloadIfNeeded(qwenClient);
+  await this.checkAndReloadIfNeeded(geminiClient);
 
   // 2. 如果缓存有效，直接返回
   if (!forceRefresh && this.memoryCache.credentials && this.isTokenValid(this.memoryCache.credentials)) {
@@ -658,7 +658,7 @@ async getValidCredentials(qwenClient, forceRefresh = false) {
 
   // 3. 需要刷新，使用分布式锁
   if (!this.refreshPromise) {
-    this.refreshPromise = this.performTokenRefresh(qwenClient, forceRefresh);
+    this.refreshPromise = this.performTokenRefresh(geminiClient, forceRefresh);
   }
 
   return await this.refreshPromise;

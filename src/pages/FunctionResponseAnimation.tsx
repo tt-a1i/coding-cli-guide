@@ -121,7 +121,7 @@ private buildFromString(
     id: "call_abc123",
     name: "read_file",
     response: {
-      output: "{\\"name\\": \\"qwen-cli\\", \\"version\\": \\"1.0.0\\"}"
+      output: "{\\"name\\": \\"gemini-cli\\", \\"version\\": \\"1.0.0\\"}"
     }
   }
 }`,
@@ -400,7 +400,7 @@ function ResponseStructure({ phase }: { phase: BuildPhase }) {
                   </span>
                 ) : (
                   <span className="text-[var(--terminal-green)]">
-                    output: "{'{'}\"name\": \"qwen-cli\"...{'}'}"
+                    output: "{'{'}\"name\": \"gemini-cli\"...{'}'}"
                   </span>
                 )}
               </div>

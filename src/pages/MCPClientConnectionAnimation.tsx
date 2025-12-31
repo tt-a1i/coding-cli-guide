@@ -379,7 +379,7 @@ export default function MCPClientConnectionAnimation() {
               <h4 className="text-xs font-mono text-[var(--muted)] mb-2">McpClient</h4>
               <pre className="text-xs font-mono text-[var(--text-secondary)]">
 {`{
-  name: "qwen-cli-mcp-client-${currentServerIndex >= 0 && servers[currentServerIndex] ? servers[currentServerIndex].name : '...'}",
+  name: "gemini-cli-mcp-client-${currentServerIndex >= 0 && servers[currentServerIndex] ? servers[currentServerIndex].name : '...'}",
   version: "0.0.1",
   capabilities: {
     roots: { listChanged: true }

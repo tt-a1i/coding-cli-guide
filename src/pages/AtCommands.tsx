@@ -1,6 +1,16 @@
 import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+
+const relatedPages: RelatedPage[] = [
+  { id: 'custom-cmd', label: '自定义命令', description: '@ 语法在自定义命令中的使用' },
+  { id: 'slash-cmd', label: '斜杠命令', description: '命令系统的基础入口' },
+  { id: 'tool-ref', label: '工具参考', description: 'read_many_files 工具详解' },
+  { id: 'at-file-processor-anim', label: '@File 处理器', description: '@ 命令处理动画演示' },
+  { id: 'file-discovery', label: '文件发现系统', description: '文件忽略规则的底层实现' },
+  { id: 'trusted-folders', label: '信任机制', description: '工作区安全与文件访问' },
+];
 
 export function AtCommands() {
   return (
@@ -122,7 +132,7 @@ function parseAllAtCommands(query: string): AtCommandPart[] {
 
             <div className="bg-purple-400/20 border border-purple-400 rounded-lg px-4 py-2 text-center w-full max-w-md">
               <strong>2. 检查忽略规则</strong>
-              <div className="text-xs text-gray-400">.gitignore / .qwenignore</div>
+              <div className="text-xs text-gray-400">.gitignore / .geminiignore</div>
             </div>
             <div className="text-cyan-400">↓</div>
 
@@ -175,11 +185,11 @@ async function handleAtCommand({
         const gitIgnored = respectFileIgnore.respectGitIgnore &&
             fileDiscovery.shouldIgnoreFile(pathName, { respectGitIgnore: true });
 
-        // 检查 .qwenignore
-        const qwenIgnored = respectFileIgnore.respectQwenIgnore &&
-            fileDiscovery.shouldIgnoreFile(pathName, { respectQwenIgnore: true });
+        // 检查 .geminiignore
+        const geminiIgnored = respectFileIgnore.respectGeminiIgnore &&
+            fileDiscovery.shouldIgnoreFile(pathName, { respectGeminiIgnore: true });
 
-        if (gitIgnored || qwenIgnored) {
+        if (gitIgnored || geminiIgnored) {
             continue;  // 跳过被忽略的文件
         }
 
@@ -264,7 +274,7 @@ async function handleAtCommand({
         <HighlightBox title="忽略文件来源" icon="📋" variant="orange">
           <ul className="pl-5 list-disc space-y-1">
             <li><strong>.gitignore</strong> - Git 忽略的文件</li>
-            <li><strong>.qwenignore</strong> - CLI 特定忽略规则</li>
+            <li><strong>.geminiignore</strong> - CLI 特定忽略规则</li>
           </ul>
         </HighlightBox>
 
@@ -274,19 +284,19 @@ async function handleAtCommand({
 const gitIgnored = respectFileIgnore.respectGitIgnore &&
     fileDiscovery.shouldIgnoreFile(pathName, {
         respectGitIgnore: true,
-        respectQwenIgnore: false
+        respectGeminiIgnore: false
     });
 
-const qwenIgnored = respectFileIgnore.respectQwenIgnore &&
+const geminiIgnored = respectFileIgnore.respectGeminiIgnore &&
     fileDiscovery.shouldIgnoreFile(pathName, {
         respectGitIgnore: false,
-        respectQwenIgnore: true
+        respectGeminiIgnore: true
     });
 
-if (gitIgnored || qwenIgnored) {
-    const reason = gitIgnored && qwenIgnored ? 'both'
+if (gitIgnored || geminiIgnored) {
+    const reason = gitIgnored && geminiIgnored ? 'both'
                  : gitIgnored ? 'git'
-                 : 'qwen';
+                 : 'gemini';
 
     ignoredByReason[reason].push(pathName);
     onDebugMessage(\`Path \${pathName} is \${reasonText} and will be skipped.\`);
@@ -362,7 +372,7 @@ if (totalIgnored > 0) {
 
         <HighlightBox title="注意事项" icon="⚠️" variant="orange">
           <ul className="pl-5 list-disc space-y-1">
-            <li>被 .gitignore 或 .qwenignore 忽略的文件不会被读取</li>
+            <li>被 .gitignore 或 .geminiignore 忽略的文件不会被读取</li>
             <li>目录会自动展开为 ** glob 模式</li>
             <li>找不到的文件会尝试模糊搜索</li>
             <li>大文件可能会被截断以避免超出 Token 限制</li>
@@ -385,7 +395,7 @@ if (totalIgnored > 0) {
             <h4 className="text-purple-400 font-bold mb-2">FileDiscoveryService</h4>
             <p className="text-sm text-gray-300">
               用于检查文件是否应该被忽略，
-              统一管理 .gitignore 和 .qwenignore 规则。
+              统一管理 .gitignore 和 .geminiignore 规则。
             </p>
           </div>
           <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
@@ -402,6 +412,65 @@ if (totalIgnored > 0) {
           </div>
         </div>
       </Layer>
+
+      {/* 为什么这样设计 */}
+      <Layer title="为什么这样设计？" icon="💡">
+        <div className="space-y-4">
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
+            <h4 className="text-[var(--terminal-green)] font-bold mb-2">为什么使用 @ 符号作为文件引用语法？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：选择 @ 符号作为文件引用的前缀标记。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>直觉性</strong>：@ 在很多上下文中表示"引用"（如邮件地址、社交媒体提及）</li>
+                <li><strong>低冲突</strong>：@ 在命令行和代码中很少作为路径开头使用</li>
+                <li><strong>易输入</strong>：所有键盘布局都能方便输入 @ 符号</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
+            <h4 className="text-[var(--cyber-blue)] font-bold mb-2">为什么目录会自动展开为 ** glob 模式？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：<code>@src/</code> 自动转换为 <code>src/**</code> 递归匹配。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>用户意图</strong>：引用目录时，用户通常期望包含所有子文件</li>
+                <li><strong>减少输入</strong>：避免用户每次都要手动输入 <code>**</code></li>
+                <li><strong>与 gitignore 一致</strong>：遵循现有工具的目录处理惯例</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
+            <h4 className="text-[var(--purple)] font-bold mb-2">为什么找不到文件时尝试 glob 搜索？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：当 <code>@utils</code> 不是有效路径时，自动搜索 <code>**/*utils*</code>。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>模糊查找</strong>：用户可能不记得完整路径，模糊匹配提升体验</li>
+                <li><strong>容错设计</strong>：不因为小错误中断工作流，而是尝试智能推断</li>
+                <li><strong>明确反馈</strong>：如果找到多个匹配，会列出供用户选择</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
+            <h4 className="text-[var(--amber)] font-bold mb-2">为什么要尊重 .gitignore 和 .geminiignore？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：被忽略的文件不会被 @ 命令读取。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>安全性</strong>：避免读取敏感配置文件（如 .env、密钥文件）</li>
+                <li><strong>Token 节省</strong>：排除 node_modules 等大型依赖目录</li>
+                <li><strong>意图一致</strong>：用户已通过 ignore 文件表明这些文件不重要</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

@@ -2,6 +2,16 @@ import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+
+const relatedPages: RelatedPage[] = [
+  { id: 'tool-arch', label: '工具架构', description: '工具系统设计详解' },
+  { id: 'tool-scheduler', label: '工具调度', description: '调度器状态机' },
+  { id: 'tool-dev-guide', label: '工具开发', description: '自定义工具开发指南' },
+  { id: 'approval-mode', label: '审批模式', description: '权限控制机制' },
+  { id: 'mcp', label: 'MCP 集成', description: '外部工具集成' },
+  { id: 'glossary', label: '术语表', description: '术语快速索引' },
+];
 
 /**
  * Tool Reference Page - 工具系统参考
@@ -12,7 +22,7 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 export function ToolReference() {
   // 工具注册和发现流程
   const toolRegistrationFlow = `flowchart TD
-    start([启动 Qwen CLI])
+    start([启动 Gemini CLI])
     init_config[初始化 Config]
     register_tools[registerTools]
     create_instances[创建工具实例]
@@ -99,7 +109,7 @@ export function ToolReference() {
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold text-cyan-400">工具系统参考手册</h2>
         <p className="text-gray-400 mt-2">
-          Qwen CLI 内置工具分类、参数规范与注册机制完整指南
+          Gemini CLI 内置工具分类、参数规范与注册机制完整指南
         </p>
       </div>
 
@@ -107,7 +117,7 @@ export function ToolReference() {
       <Layer title="目标" icon="🎯">
         <div className="space-y-3 text-gray-300">
           <p>
-            工具系统是 Qwen CLI 的核心能力，提供了 AI 与本地环境交互的标准化接口。
+            工具系统是 Gemini CLI 的核心能力，提供了 AI 与本地环境交互的标准化接口。
             主要解决以下问题：
           </p>
           <ul className="list-disc list-inside space-y-2 ml-4">
@@ -135,7 +145,7 @@ export function ToolReference() {
       <Layer title="工具来源说明" icon="🔍">
         <div className="space-y-4">
           <p className="text-gray-300">
-            Qwen CLI 的工具系统由三种来源组成,提供了从核心功能到动态扩展的完整能力：
+            Gemini CLI 的工具系统由三种来源组成,提供了从核心功能到动态扩展的完整能力：
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -301,7 +311,7 @@ export function ToolReference() {
 
         <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-3 mt-4">
           <p className="text-sm text-yellow-300">
-            <strong>重要：</strong> Qwen CLI 内部统一使用 Gemini 格式，
+            <strong>重要：</strong> Gemini CLI 内部统一使用 Gemini 格式，
             仅在与 OpenAI 兼容 API 通信时才进行格式转换。
           </p>
         </div>
@@ -935,10 +945,10 @@ To exit Plan Mode, use the exit_plan_mode tool.
                   <td className="py-1 px-2 font-sans">尊重 .gitignore (默认 true)</td>
                 </tr>
                 <tr>
-                  <td className="py-1 px-2 text-cyan-400">respect_qwen_ignore</td>
+                  <td className="py-1 px-2 text-cyan-400">respect_gemini_ignore</td>
                   <td className="py-1 px-2">boolean</td>
                   <td className="py-1 px-2 text-gray-400">No</td>
-                  <td className="py-1 px-2 font-sans">尊重 .qwenignore (默认 true)</td>
+                  <td className="py-1 px-2 font-sans">尊重 .geminiignore (默认 true)</td>
                 </tr>
               </tbody>
             </table>
@@ -1093,6 +1103,40 @@ To exit Plan Mode, use the exit_plan_mode tool.
           </div>
         </HighlightBox>
       </Layer>
+
+      {/* 为什么这样设计 */}
+      <Layer title="为什么这样设计" icon="💡">
+        <div className="space-y-4">
+          <div className="bg-gradient-to-r from-[var(--terminal-green)]/10 to-[var(--cyber-blue)]/10 rounded-lg p-5 border border-[var(--terminal-green)]/30">
+            <h4 className="text-[var(--terminal-green)] font-bold font-mono mb-3">Kind 分类驱动权限</h4>
+            <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
+              工具按 Kind（Read、Search、Edit、Execute、Think）分类，而非按功能分类。
+              这种设计让审批系统可以基于操作类型而非工具名称做决策：
+              只读操作自动放行，修改操作需要确认。这既保证了安全性，又不影响使用体验。
+            </p>
+          </div>
+
+          <div className="bg-gradient-to-r from-[var(--amber)]/10 to-[var(--purple)]/10 rounded-lg p-5 border border-[var(--amber)]/30">
+            <h4 className="text-[var(--amber)] font-bold font-mono mb-3">统一的参数规范</h4>
+            <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
+              所有工具使用 JSON Schema 定义参数。文件路径必须是绝对路径，这避免了工作目录歧义；
+              必需参数和可选参数清晰区分，让 AI 能够正确构造调用请求。
+              统一的规范减少了工具开发者的心智负担，也让 AI 更容易学习工具使用模式。
+            </p>
+          </div>
+
+          <div className="bg-gradient-to-r from-[var(--cyber-blue)]/10 to-[var(--terminal-green)]/10 rounded-lg p-5 border border-[var(--cyber-blue)]/30">
+            <h4 className="text-[var(--cyber-blue)] font-bold font-mono mb-3">内部格式统一</h4>
+            <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
+              无论后端使用哪个 AI 厂商，内部统一使用 Gemini 格式的 FunctionResponse。
+              这种设计将厂商差异隔离在转换层，核心工具逻辑完全不感知底层 API 的格式变化。
+              添加新厂商支持只需实现格式转换，不需要修改任何工具代码。
+            </p>
+          </div>
+        </div>
+      </Layer>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Layer } from '../components/Layer';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 interface GlossaryProps {
   onNavigate?: (tab: string) => void;
@@ -227,14 +229,14 @@ const glossaryTerms: Term[] = [
   // File System
   {
     term: 'FileDiscovery',
-    definition: '文件发现系统，基于 BFS 算法搜索文件，支持 .gitignore、.qwenignore 等 ignore 模式。',
+    definition: '文件发现系统，基于 BFS 算法搜索文件，支持 .gitignore、.geminiignore 等 ignore 模式。',
     category: 'tool',
     relatedPage: 'bfs-file-search-anim',
     example: 'Glob 工具使用 FileDiscovery 查找匹配的文件',
   },
   {
     term: 'IgnorePattern',
-    definition: '文件忽略模式，支持 .gitignore 语法。按优先级：.qwenignore > .gitignore > 内置默认。',
+    definition: '文件忽略模式，支持 .gitignore 语法。按优先级：.geminiignore > .gitignore > 内置默认。',
     category: 'tool',
     example: '*.log, node_modules/, .git/ 等默认忽略',
   },
@@ -255,7 +257,7 @@ const glossaryTerms: Term[] = [
   // Provider System
   {
     term: 'Provider',
-    definition: 'AI 服务提供商抽象，如 QwenProvider、OpenAIProvider、AnthropicProvider。封装了各厂商的 API 差异。',
+    definition: 'AI 服务提供商抽象，如 GeminiProvider、OpenAIProvider、AnthropicProvider。封装了各厂商的 API 差异。',
     category: 'core',
     relatedPage: 'multi-provider',
   },
@@ -332,7 +334,7 @@ const glossaryTerms: Term[] = [
     definition: '降级模型策略，当主模型不可用时自动切换到备选模型。保证服务可用性。',
     category: 'core',
     relatedPage: 'error-recovery-patterns',
-    example: 'qwen-coder-plus 失败 → 降级到 qwen-coder',
+    example: 'gemini-1.5-pro 失败 → 降级到 gemini-1.5-flash',
   },
   {
     term: 'CircuitBreaker',
@@ -396,7 +398,7 @@ const glossaryTerms: Term[] = [
     term: 'PKCE',
     definition: 'Proof Key for Code Exchange，OAuth 2.0 安全扩展。通过 code_verifier 和 code_challenge 防止授权码拦截攻击，CLI 等公开客户端必须使用。',
     category: 'security',
-    relatedPage: 'qwen-authentication',
+    relatedPage: 'google-authentication',
     example: '生成随机 code_verifier → SHA256 哈希得到 code_challenge → 授权时验证',
   },
   {
@@ -459,6 +461,15 @@ const categories = [
   { id: 'state', label: '状态管理', icon: '🔄' },
   { id: 'ui', label: 'UI/UX', icon: '🎨' },
   { id: 'prompt', label: 'Prompt', icon: '📝' },
+];
+
+const relatedPages: RelatedPage[] = [
+  { id: 'start', label: 'Start Here', description: '快速入门指南' },
+  { id: 'overview', label: '架构概览', description: '系统架构全景图' },
+  { id: 'learning-path', label: '学习路径', description: '系统性学习路线' },
+  { id: 'tool-ref', label: '工具参考', description: '内置工具详解' },
+  { id: 'interaction-loop', label: '核心循环', description: 'interactionLoop 详解' },
+  { id: 'gemini-chat', label: 'GeminiChat', description: '核心引擎架构' },
 ];
 
 export default function Glossary({ onNavigate }: GlossaryProps) {
@@ -611,6 +622,37 @@ export default function Glossary({ onNavigate }: GlossaryProps) {
           })}
         </div>
       </section>
+
+      {/* 为什么这样设计 */}
+      <Layer title="为什么这样设计" icon="💡">
+        <div className="space-y-4">
+          <div className="bg-gradient-to-r from-[var(--terminal-green)]/10 to-[var(--cyber-blue)]/10 rounded-lg p-5 border border-[var(--terminal-green)]/30">
+            <h4 className="text-[var(--terminal-green)] font-bold font-mono mb-3">术语统一命名</h4>
+            <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
+              CLI 项目涉及多个技术领域（AI、编辑器、Shell、网络协议等），每个领域都有自己的术语体系。
+              统一的术语表确保团队成员和贡献者使用相同的语言描述相同的概念，减少沟通成本和理解偏差。
+            </p>
+          </div>
+
+          <div className="bg-gradient-to-r from-[var(--amber)]/10 to-[var(--purple)]/10 rounded-lg p-5 border border-[var(--amber)]/30">
+            <h4 className="text-[var(--amber)] font-bold font-mono mb-3">分类组织</h4>
+            <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
+              按功能领域分类（核心概念、工具系统、安全机制等）而非字母排序，
+              帮助读者建立概念间的关联。相关术语聚集在一起，更容易形成系统性理解。
+            </p>
+          </div>
+
+          <div className="bg-gradient-to-r from-[var(--cyber-blue)]/10 to-[var(--terminal-green)]/10 rounded-lg p-5 border border-[var(--cyber-blue)]/30">
+            <h4 className="text-[var(--cyber-blue)] font-bold font-mono mb-3">关联导航</h4>
+            <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
+              每个术语都链接到详细文档页面。术语表作为索引入口，
+              让读者可以快速定位感兴趣的主题，然后深入阅读完整内容。
+            </p>
+          </div>
+        </div>
+      </Layer>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

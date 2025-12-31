@@ -3,6 +3,16 @@ import { HighlightBox } from '../components/HighlightBox';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+
+const relatedPages: RelatedPage[] = [
+  { id: 'policy-engine', label: 'Policy 引擎', description: '策略决策与规则匹配' },
+  { id: 'trusted-folders', label: '信任机制', description: '项目信任级别与模式限制' },
+  { id: 'sandbox', label: '沙箱系统', description: '审批后的执行隔离' },
+  { id: 'tool-arch', label: '工具架构', description: '工具 Kind 与审批规则' },
+  { id: 'hook-system', label: 'Hook 系统', description: '事件拦截与扩展' },
+  { id: 'message-bus', label: '消息总线', description: '确认请求的异步通信' },
+];
 
 function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
   return (
@@ -761,7 +771,7 @@ export class ExitPlanModeTool extends Tool {
           <div>
             <h4 className="text-cyan-400 font-semibold mb-2">审批模式配置</h4>
             <CodeBlock
-              code={`// .qwen/settings.json
+              code={`// .gemini/settings.json
 
 {
   // 默认审批模式（会话启动时的初始模式）
@@ -1024,6 +1034,215 @@ export class ExitPlanModeTool extends Tool {
           </div>
         </div>
       </section>
+
+      {/* 为什么这样设计审批系统 */}
+      <Layer title="为什么这样设计审批系统？" icon="💡">
+        <div className="space-y-4">
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
+            <h4 className="text-[var(--purple)] font-bold mb-2">🎚️ 为什么需要 4 种模式？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：提供 Plan → Default → Auto-Edit → YOLO 四个渐进式信任级别。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>场景多样</strong>：审计代码 vs 日常开发 vs 快速原型有不同的安全需求</li>
+                <li><strong>渐进信任</strong>：用户可以从保守模式开始，逐步放宽</li>
+                <li><strong>可选粒度</strong>：Auto-Edit 精准区分读取/编辑，YOLO 则完全自动</li>
+              </ul>
+              <p><strong>权衡</strong>：模式越多用户越需要学习，但 4 种已覆盖常见场景。</p>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
+            <h4 className="text-[var(--terminal-green)] font-bold mb-2">📖 为什么只读工具始终自动批准？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：Read、Glob、Grep、WebSearch 等只读工具在所有模式下自动执行。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>无副作用</strong>：只读操作不会修改系统状态</li>
+                <li><strong>高频使用</strong>：AI 需要频繁读取文件来理解代码</li>
+                <li><strong>用户体验</strong>：每次读取都确认会严重影响效率</li>
+              </ul>
+              <p><strong>边界</strong>：即使是只读，敏感文件（如 .env）仍受文件系统权限保护。</p>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
+            <h4 className="text-[var(--amber)] font-bold mb-2">🔄 为什么用 Shift+Tab 而非配置文件？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：模式切换通过快捷键 Shift+Tab 实时切换，而非启动参数或配置。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>情境变化</strong>：同一会话中可能需要切换模式（如从审计转到修复）</li>
+                <li><strong>直观反馈</strong>：状态栏实时显示当前模式，用户清楚权限状态</li>
+                <li><strong>零配置</strong>：默认模式合理，无需预先配置</li>
+              </ul>
+              <p><strong>补充</strong>：<code className="bg-black/30 px-1 rounded">--dangerously-skip-permissions</code> 仍可通过命令行启用 YOLO。</p>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
+            <h4 className="text-[var(--cyber-blue)] font-bold mb-2">🚫 为什么不可信文件夹限制模式？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：未经信任的项目只能使用 Plan 或 Default 模式。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>恶意项目防护</strong>：防止用户在下载的恶意项目中意外启用自动执行</li>
+                <li><strong>主动信任</strong>：强制用户先阅读代码，再决定是否信任</li>
+                <li><strong>分层防御</strong>：即使用户习惯性按确认，也不会在陌生项目中自动执行</li>
+              </ul>
+              <p><strong>信任方式</strong>：通过 <code className="bg-black/30 px-1 rounded">/trust</code> 命令或配置显式添加信任。</p>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--red)]">
+            <h4 className="text-[var(--red)] font-bold mb-2">⚠️ 为什么 Shell 命令需要特殊处理？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：Shell 命令（Bash 工具）即使在 Auto-Edit 模式也需要确认。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>能力过大</strong>：Shell 可以执行任意系统命令，影响范围无法预估</li>
+                <li><strong>不可逆操作</strong>：rm -rf、格式化等操作无法通过检查点恢复</li>
+                <li><strong>静态分析难</strong>：无法可靠判断命令的危险性（如变量展开、管道）</li>
+              </ul>
+              <p><strong>例外</strong>：YOLO 模式会自动执行 Shell，因为用户已明确接受风险。</p>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      {/* Policy Engine 集成 */}
+      <Layer title="与 Policy Engine 集成" icon="🛡️">
+        <div className="space-y-4">
+          <HighlightBox title="架构关系" variant="blue">
+            <div className="text-sm space-y-2">
+              <p className="text-[var(--text-secondary)]">
+                ApprovalMode 是 Policy Engine 的一个<strong className="text-[var(--cyber-blue)]">输入因素</strong>，
+                而非独立决策系统。Policy Engine 综合考虑多个因素做出最终决策：
+              </p>
+              <div className="flex flex-wrap gap-2 mt-2">
+                <span className="px-2 py-1 bg-[var(--purple)]/20 text-[var(--purple)] rounded text-xs">ApprovalMode</span>
+                <span className="text-[var(--text-muted)]">+</span>
+                <span className="px-2 py-1 bg-[var(--amber)]/20 text-[var(--amber)] rounded text-xs">TOML 规则</span>
+                <span className="text-[var(--text-muted)]">+</span>
+                <span className="px-2 py-1 bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] rounded text-xs">Safety Checker</span>
+                <span className="text-[var(--text-muted)]">→</span>
+                <span className="px-2 py-1 bg-[var(--cyber-blue)]/20 text-[var(--cyber-blue)] rounded text-xs">ALLOW / DENY / ASK_USER</span>
+              </div>
+            </div>
+          </HighlightBox>
+
+          <div className="bg-gray-800/50 rounded-lg p-4">
+            <h4 className="text-cyan-400 font-semibold mb-3">Policy Engine 决策流程</h4>
+            <MermaidDiagram chart={`flowchart TD
+    request[工具调用请求] --> policy[Policy Engine]
+
+    subgraph "Policy Engine 决策"
+        policy --> toml{TOML 规则}
+        toml -->|匹配 allow| allow[ALLOW]
+        toml -->|匹配 deny| deny[DENY]
+        toml -->|无匹配| mode{检查 ApprovalMode}
+
+        mode -->|YOLO| allow
+        mode -->|Plan + 修改工具| deny
+        mode -->|Default/Auto-Edit| safety{Safety Checker}
+
+        safety -->|安全| auto[自动决策]
+        safety -->|危险| ask[ASK_USER]
+    end
+
+    allow --> execute[执行工具]
+    deny --> block[阻断执行]
+    ask --> bus[MessageBus]
+    bus --> ui[UI 确认对话框]
+
+    style policy fill:#ea580c,color:#fff
+    style allow fill:#22c55e,color:#000
+    style deny fill:#ef4444,color:#fff
+    style ask fill:#f59e0b,color:#000
+`} />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
+              <h4 className="text-[var(--terminal-green)] font-bold mb-2">ApprovalMode 角色</h4>
+              <ul className="text-sm text-[var(--text-secondary)] space-y-1">
+                <li>• 提供用户意图的<strong>全局基准</strong></li>
+                <li>• 作为 Policy Engine 的<strong>输入参数</strong></li>
+                <li>• 可被 TOML 规则<strong>覆盖</strong></li>
+              </ul>
+            </div>
+
+            <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
+              <h4 className="text-[var(--amber)] font-bold mb-2">TOML 规则优先级</h4>
+              <ul className="text-sm text-[var(--text-secondary)] space-y-1">
+                <li>• <code className="text-[var(--terminal-green)]">allow</code> 规则直接批准</li>
+                <li>• <code className="text-red-400">deny</code> 规则直接拒绝</li>
+                <li>• 无匹配时回退到 ApprovalMode</li>
+              </ul>
+            </div>
+          </div>
+
+          <CodeBlock
+            code={`// Policy Engine 与 ApprovalMode 的交互
+// packages/core/src/policy/policy-engine.ts
+
+async evaluate(request: ToolRequest): Promise<PolicyDecision> {
+  // 1. 首先检查 TOML 规则
+  const ruleMatch = this.matchRules(request);
+  if (ruleMatch) {
+    return { action: ruleMatch.action };
+  }
+
+  // 2. 检查 Safety Checker
+  const safetyCheck = this.checkSafety(request);
+  if (!safetyCheck.passed) {
+    return { action: 'DENY', reason: safetyCheck.reason };
+  }
+
+  // 3. 根据 ApprovalMode 决策
+  const mode = this.config.approvalMode;
+
+  if (mode === 'yolo') {
+    return { action: 'ALLOW' };
+  }
+
+  if (mode === 'plan' && request.tool.kind !== 'Read') {
+    return { action: 'DENY', reason: 'Plan mode active' };
+  }
+
+  if (mode === 'auto-edit' && request.tool.kind === 'Edit') {
+    return { action: 'ALLOW' };
+  }
+
+  // default 模式：需要用户确认
+  return { action: 'ASK_USER' };
+}`}
+            language="typescript"
+            title="Policy Engine 决策逻辑"
+          />
+        </div>
+      </Layer>
+
+      {/* 模式选择决策树 */}
+      <Layer title="模式选择决策树" icon="🌳">
+        <MermaidDiagram chart={`flowchart TD
+    start[选择审批模式] --> q1{是否信任<br/>此项目？}
+    q1 -->|否| plan[Plan 模式<br/>只读审计]
+    q1 -->|是| q2{是否需要<br/>完全自动？}
+    q2 -->|是| yolo[YOLO 模式<br/>全自动]
+    q2 -->|否| q3{是否信任<br/>文件编辑？}
+    q3 -->|否| default[Default 模式<br/>每次确认]
+    q3 -->|是| autoedit[Auto-Edit 模式<br/>自动编辑]
+
+    style start fill:#22d3ee,color:#000
+    style plan fill:#a855f7,color:#fff
+    style default fill:#3b82f6,color:#fff
+    style autoedit fill:#22c55e,color:#000
+    style yolo fill:#ef4444,color:#fff
+`} />
+      </Layer>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

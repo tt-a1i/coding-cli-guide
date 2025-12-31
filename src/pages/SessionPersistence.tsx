@@ -95,7 +95,7 @@ function SessionFileVisualization() {
     <div className="my-6 p-6 bg-gray-900/50 rounded-xl border border-gray-700/50">
       <h4 className="text-lg font-semibold text-gray-200 mb-4">📁 会话存储结构</h4>
       <div className="font-mono text-sm space-y-1">
-        <div className="text-gray-400">~/.qwen/</div>
+        <div className="text-gray-400">~/.gemini/</div>
         <div className="pl-4 text-gray-400">└── tmp/</div>
         <div className="pl-8 text-cyan-400">└── {'<project_hash>'}/ <span className="text-gray-500">← 项目唯一标识</span></div>
         <div className="pl-12 text-emerald-400">└── chats/</div>
@@ -116,7 +116,7 @@ function SessionRecordFlow() {
     { icon: '👤', label: '用户输入', color: 'text-blue-400', desc: 'recordMessage(user)' },
     { icon: '🤔', label: 'AI思考', color: 'text-purple-400', desc: 'recordThought()' },
     { icon: '🔧', label: '工具调用', color: 'text-yellow-400', desc: 'recordToolCalls()' },
-    { icon: '🤖', label: 'AI响应', color: 'text-green-400', desc: 'recordMessage(qwen)' },
+    { icon: '🤖', label: 'AI响应', color: 'text-green-400', desc: 'recordMessage(gemini)' },
     { icon: '📊', label: 'Token统计', color: 'text-cyan-400', desc: 'recordMessageTokens()' },
     { icon: '💾', label: '写入磁盘', color: 'text-pink-400', desc: 'writeConversation()' },
   ];
@@ -301,7 +301,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
       {isExpanded && (
         <div className="space-y-4 text-gray-300 animate-fadeIn">
           <p className="text-lg">
-            Qwen CLI 实现了完整的会话持久化系统，用于<strong className="text-emerald-300">记录对话历史</strong>、
+            Gemini CLI 实现了完整的会话持久化系统，用于<strong className="text-emerald-300">记录对话历史</strong>、
             <strong className="text-cyan-300">恢复中断会话</strong>、以及<strong className="text-orange-300">智能压缩上下文</strong>。
           </p>
 
@@ -537,7 +537,7 @@ function SessionResumeSection() {
   return (
     <div className="pt-6 space-y-4">
       <p className="text-gray-300">
-        Qwen CLI 支持从历史会话恢复，让用户可以继续之前中断的对话。
+        Gemini CLI 支持从历史会话恢复，让用户可以继续之前中断的对话。
       </p>
 
       <DesignRationaleCard
@@ -636,6 +636,182 @@ function BestPracticesSection() {
   );
 }
 
+// 边界情况与故障恢复章节
+function EdgeCasesSection() {
+  return (
+    <div className="pt-6 space-y-6">
+      <p className="text-gray-300">
+        以下是会话持久化系统可能遇到的边界情况及其处理方式：
+      </p>
+
+      {/* 边界情况表格 */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-gray-700 text-left text-gray-400">
+              <th className="py-2 px-2">场景</th>
+              <th className="py-2 px-2">触发条件</th>
+              <th className="py-2 px-2">系统行为</th>
+              <th className="py-2 px-2">用户影响</th>
+            </tr>
+          </thead>
+          <tbody className="text-gray-300">
+            <tr className="border-b border-gray-800">
+              <td className="py-2 px-2 text-red-400">会话文件损坏</td>
+              <td className="py-2 px-2 text-xs">JSON 解析失败</td>
+              <td className="py-2 px-2 text-xs">跳过该文件，不显示在列表</td>
+              <td className="py-2 px-2 text-xs">该会话无法恢复</td>
+            </tr>
+            <tr className="border-b border-gray-800">
+              <td className="py-2 px-2 text-amber-400">压缩摘要为空</td>
+              <td className="py-2 px-2 text-xs">模型返回空响应</td>
+              <td className="py-2 px-2 text-xs">返回 COMPRESSION_FAILED_EMPTY_SUMMARY</td>
+              <td className="py-2 px-2 text-xs">保持原有历史不变</td>
+            </tr>
+            <tr className="border-b border-gray-800">
+              <td className="py-2 px-2 text-amber-400">压缩后膨胀</td>
+              <td className="py-2 px-2 text-xs">新 Token 数 {'>'} 原 Token 数</td>
+              <td className="py-2 px-2 text-xs">返回 COMPRESSION_FAILED_INFLATED_TOKEN_COUNT</td>
+              <td className="py-2 px-2 text-xs">保持原有历史不变</td>
+            </tr>
+            <tr className="border-b border-gray-800">
+              <td className="py-2 px-2 text-cyan-400">项目哈希变化</td>
+              <td className="py-2 px-2 text-xs">项目目录移动或重命名</td>
+              <td className="py-2 px-2 text-xs">生成新的项目哈希</td>
+              <td className="py-2 px-2 text-xs">旧会话不再关联</td>
+            </tr>
+            <tr className="border-b border-gray-800">
+              <td className="py-2 px-2 text-purple-400">磁盘空间不足</td>
+              <td className="py-2 px-2 text-xs">写入会话文件失败</td>
+              <td className="py-2 px-2 text-xs">静默失败，继续运行</td>
+              <td className="py-2 px-2 text-xs">当前会话不会持久化</td>
+            </tr>
+            <tr>
+              <td className="py-2 px-2 text-gray-400">找不到分割点</td>
+              <td className="py-2 px-2 text-xs">最后消息是 functionCall</td>
+              <td className="py-2 px-2 text-xs">回退到 lastSplitPoint</td>
+              <td className="py-2 px-2 text-xs">可能压缩更多或更少</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* 故障恢复指南 */}
+      <div className="bg-gray-800/50 rounded-xl p-5">
+        <h4 className="text-lg font-semibold text-gray-200 mb-4">🔧 常见问题排查</h4>
+        <div className="space-y-4">
+          <div className="bg-black/30 rounded-lg p-4">
+            <div className="text-amber-400 font-medium mb-2">问题: Welcome Back 列表为空</div>
+            <ul className="text-sm text-gray-400 space-y-1 list-disc list-inside">
+              <li>检查 <code>ui.enableWelcomeBack</code> 是否为 true</li>
+              <li>确认当前目录与之前会话的目录一致</li>
+              <li>检查 <code>~/.gemini/tmp/*/chats/</code> 目录是否存在会话文件</li>
+            </ul>
+          </div>
+          <div className="bg-black/30 rounded-lg p-4">
+            <div className="text-amber-400 font-medium mb-2">问题: 会话恢复后内容不完整</div>
+            <ul className="text-sm text-gray-400 space-y-1 list-disc list-inside">
+              <li>可能会话在压缩后中断，部分历史已被摘要替换</li>
+              <li>检查会话 JSON 中是否有 <code>state_snapshot</code> 标记</li>
+              <li>考虑从 Git checkpoint 恢复更完整的状态</li>
+            </ul>
+          </div>
+          <div className="bg-black/30 rounded-lg p-4">
+            <div className="text-amber-400 font-medium mb-2">问题: 手动编辑后无法加载</div>
+            <ul className="text-sm text-gray-400 space-y-1 list-disc list-inside">
+              <li>使用 <code>jq . session.json</code> 验证 JSON 格式</li>
+              <li>确保必须字段存在: sessionId, projectHash, messages</li>
+              <li>删除损坏的文件，从备份恢复</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// 为什么这样设计章节
+function DesignDecisionsSection() {
+  return (
+    <div className="pt-6 space-y-6">
+      <div className="bg-gradient-to-br from-blue-900/30 to-cyan-900/20 rounded-xl p-5 border border-blue-500/30">
+        <h4 className="text-lg font-semibold text-blue-300 mb-3">1. 为什么按项目哈希隔离会话？</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <div>
+            <div className="text-gray-400 mb-1">问题</div>
+            <p className="text-gray-300">如果所有会话存储在同一目录，用户在多项目间切换时会混淆上下文</p>
+          </div>
+          <div>
+            <div className="text-gray-400 mb-1">解决方案</div>
+            <p className="text-gray-300">使用项目根目录的哈希值创建隔离的存储空间，确保每个项目的会话独立</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/20 rounded-xl p-5 border border-purple-500/30">
+        <h4 className="text-lg font-semibold text-purple-300 mb-3">2. 为什么选择 70% 作为压缩阈值？</h4>
+        <div className="text-sm text-gray-300 space-y-2">
+          <p>这是在<strong className="text-white">上下文连贯性</strong>和<strong className="text-white">可用空间</strong>之间的平衡：</p>
+          <ul className="text-gray-400 space-y-1 list-disc list-inside text-xs">
+            <li><strong>太高 (如 90%)</strong>: 留给新对话的空间太少，可能很快再次触发压缩</li>
+            <li><strong>太低 (如 50%)</strong>: 频繁压缩导致上下文丢失过多</li>
+            <li><strong>70% 的平衡</strong>: 保留 30% 空间约可支持 2-3 轮深度对话</li>
+          </ul>
+        </div>
+      </div>
+
+      <div className="bg-gradient-to-br from-green-900/30 to-emerald-900/20 rounded-xl p-5 border border-green-500/30">
+        <h4 className="text-lg font-semibold text-green-300 mb-3">3. 为什么只能在 user 消息处分割？</h4>
+        <div className="text-sm text-gray-300 space-y-2">
+          <p>保证对话的<strong className="text-white">语义完整性</strong>：</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <div className="bg-black/30 rounded p-3">
+              <div className="text-red-400 mb-1">如果在 model 消息处分割</div>
+              <p className="text-gray-400">AI 的回复可能被截断，失去上下文</p>
+            </div>
+            <div className="bg-black/30 rounded p-3">
+              <div className="text-red-400 mb-1">如果在 functionResponse 处分割</div>
+              <p className="text-gray-400">工具调用和结果被分离，AI 无法理解</p>
+            </div>
+          </div>
+          <p className="text-cyan-400 mt-2">user 消息是自然的对话边界，分割后仍保持语义完整</p>
+        </div>
+      </div>
+
+      <div className="bg-gradient-to-br from-amber-900/30 to-orange-900/20 rounded-xl p-5 border border-amber-500/30">
+        <h4 className="text-lg font-semibold text-amber-300 mb-3">4. 为什么使用队列缓存 Thoughts 和 Tokens？</h4>
+        <div className="text-sm text-gray-300 space-y-2">
+          <p><strong className="text-white">时序问题</strong>：AI 的思考过程和 Token 统计可能在消息对象创建之前就产生。</p>
+          <div className="bg-black/30 rounded p-3 mt-2">
+            <CodeBlock code={`// 时序示例
+1. API 返回 thinking 数据 → queuedThoughts.push(thought)
+2. API 返回 token 统计 → queuedTokens.push(tokens)
+3. 用户消息创建 → message.thoughts = queuedThoughts.splice()
+                  message.tokens = queuedTokens.splice()
+
+// 如果不用队列，这些数据会丢失`} language="typescript" />
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-gradient-to-br from-red-900/30 to-rose-900/20 rounded-xl p-5 border border-red-500/30">
+        <h4 className="text-lg font-semibold text-red-300 mb-3">5. 为什么使用增量写入优化？</h4>
+        <div className="text-sm text-gray-300 space-y-2">
+          <p><strong className="text-white">性能考量</strong>：每次消息都写入磁盘会造成：</p>
+          <ul className="text-gray-400 space-y-1 list-disc list-inside text-xs">
+            <li>大量磁盘 I/O 操作</li>
+            <li>SSD 磨损增加</li>
+            <li>潜在的 I/O 阻塞</li>
+          </ul>
+          <p className="text-cyan-400 mt-2">
+            通过 <code>cachedLastConvData</code> 比对内容，只有真正变化时才写入。
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // 关联页面配置
 const sessionRelatedPages = [
   { id: 'turn-state-machine', label: 'Turn 状态机', description: '了解 CompressionStatus 的来源' },
@@ -686,6 +862,22 @@ export function SessionPersistence() {
         defaultOpen={false}
       >
         <BestPracticesSection />
+      </CollapsibleSection>
+
+      <CollapsibleSection
+        title="边界情况与故障恢复"
+        icon="⚠️"
+        defaultOpen={false}
+      >
+        <EdgeCasesSection />
+      </CollapsibleSection>
+
+      <CollapsibleSection
+        title="为什么这样设计？"
+        icon="💡"
+        defaultOpen={false}
+      >
+        <DesignDecisionsSection />
       </CollapsibleSection>
 
       <RelatedPages title="📚 相关页面" pages={sessionRelatedPages} />

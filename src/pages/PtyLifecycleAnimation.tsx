@@ -25,7 +25,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
             <h3 className="text-cyan-400 font-semibold mb-2">🎯 核心概念</h3>
             <p className="text-gray-300">
               <strong>PTY (Pseudo-Terminal)</strong> 是一个虚拟终端设备，让 CLI 能够像真实终端一样执行命令。
-              当你在 Qwen CLI 中使用 Bash 工具执行 <code className="bg-gray-700 px-1 rounded">ls</code>、
+              当你在 Gemini CLI 中使用 Bash 工具执行 <code className="bg-gray-700 px-1 rounded">ls</code>、
               <code className="bg-gray-700 px-1 rounded">git status</code> 等命令时，背后就是 PTY 在工作。
             </p>
           </div>

@@ -1,6 +1,17 @@
 import { HighlightBox } from '../components/HighlightBox';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
+import { Layer } from '../components/Layer';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+
+const relatedPages: RelatedPage[] = [
+  { id: 'git-service-deep', label: 'GitService深度', description: '影子仓库的实现细节' },
+  { id: 'approval-mode', label: '审批模式', description: '检查点触发时机' },
+  { id: 'session-persistence', label: '会话持久化', description: '对话历史的持久化' },
+  { id: 'error', label: '错误处理', description: '检查点恢复失败处理' },
+  { id: 'sandbox', label: '沙箱系统', description: '沙箱与检查点的配合' },
+  { id: 'design-tradeoffs', label: '设计权衡', description: '检查点架构决策' },
+];
 
 export function Checkpointing() {
   const checkpointFlowChart = `flowchart TD
@@ -55,10 +66,10 @@ export function Checkpointing() {
     class restore_done terminal_node`;
 
   const enableConfigCode = `// 方式一：命令行参数启用(已废弃,不推荐)
-$ qwen --checkpointing  # ⚠️ Deprecated
+$ gemini --checkpointing  # ⚠️ Deprecated
 
 // 方式二：settings.json 永久启用(推荐)
-// ~/.qwen/settings.json
+// ~/.gemini/settings.json
 {
   "general": {
     "checkpointing": {
@@ -68,7 +79,7 @@ $ qwen --checkpointing  # ⚠️ Deprecated
 }`;
 
   const checkpointStorageCode = `// 检查点数据存储结构
-// ~/.qwen/
+// ~/.gemini/
 
 ├── history/                    # Git 快照存储
 │   └── <project_hash>/        # 每个项目一个影子仓库
@@ -104,11 +115,11 @@ class GitService {
     this.storage = storage;
   }
 
-  // 影子仓库位置: ~/.qwen/history/<project-hash>/
-  // 注意: 不在项目目录内，而是在全局 ~/.qwen 下
+  // 影子仓库位置: ~/.gemini/history/<project-hash>/
+  // 注意: 不在项目目录内，而是在全局 ~/.gemini 下
   private getHistoryDir(): string {
     return this.storage.getHistoryDir();
-    // 实际路径: ~/.qwen/history/<sha256(projectRoot)>/
+    // 实际路径: ~/.gemini/history/<sha256(projectRoot)>/
   }
 
   async initialize(): Promise<void> {
@@ -127,7 +138,7 @@ class GitService {
 
     // 创建专用 gitconfig，避免继承用户配置
     const gitConfigContent =
-      '[user]\\n  name = Qwen Cli\\n  email = ...';
+      '[user]\\n  name = Gemini CLI\\n  email = ...';
     await fs.writeFile(path.join(repoDir, '.gitconfig'), gitConfigContent);
 
     const repo = simpleGit(repoDir);
@@ -183,7 +194,7 @@ The following tool call is pending:
   const workflowExampleCode = `// 典型工作流示例
 
 // 1. 启动带检查点的会话
-$ qwen --checkpointing
+$ gemini --checkpointing
 
 // 2. AI 提议修改文件
 AI: 我将修改 app.ts 添加新功能...
@@ -415,14 +426,14 @@ useEffect(() => {
 //
 // 影子仓库设置 - 使用独立的 .git 目录和工作树
 async setupShadowGitRepository() {
-  const repoDir = this.getHistoryDir();  // ~/.qwen/history/<hash>
+  const repoDir = this.getHistoryDir();  // ~/.gemini/history/<hash>
   const gitConfigPath = path.join(repoDir, '.gitconfig');
 
   await fs.mkdir(repoDir, { recursive: true });
 
   // 创建专用 Git 配置，避免继承用户全局配置
   const gitConfigContent =
-    '[user]\\n  name = Qwen Cli\\n  email = qwen-code@qwen.ai\\n[commit]\\n  gpgsign = false\\n';
+    '[user]\\n  name = Gemini CLI\\n  email = gemini-code@google.com\\n[commit]\\n  gpgsign = false\\n';
   await fs.writeFile(gitConfigPath, gitConfigContent);
 
   // 初始化 Git 仓库
@@ -526,7 +537,7 @@ async restoreProjectFromSnapshot(commitHash: string): Promise<void> {
 
           <HighlightBox title="存储位置" variant="green">
             <ul className="text-sm text-gray-300 space-y-1">
-              <li>• 路径: ~/.qwen/history/&lt;hash&gt;</li>
+              <li>• 路径: ~/.gemini/history/&lt;hash&gt;</li>
               <li>• 每个项目一个独立仓库</li>
               <li>• hash 基于项目路径生成</li>
               <li>• 可手动删除清理空间</li>
@@ -711,7 +722,7 @@ async function restoreAction(
     GS-->>CS: commitHash
 
     CS->>FS: 写入检查点 JSON
-    Note right of FS: ~/.qwen/tmp/<hash>/<br/>checkpoints/<timestamp>.json<br/>{history, clientHistory,<br/>toolCall, commitHash}
+    Note right of FS: ~/.gemini/tmp/<hash>/<br/>checkpoints/<timestamp>.json<br/>{history, clientHistory,<br/>toolCall, commitHash}
 
     CS-->>CLI: 检查点创建完成
     CLI->>User: 执行工具调用
@@ -790,7 +801,7 @@ async function restoreAction(
 ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐
 │ 影子 Git 仓库 │  │ 对话历史文件 │  │ 工具调用 JSON       │
 │              │  │              │  │                      │
-│ ~/.qwen/   │  │ ~/.qwen/   │  │ ~/.qwen/tmp/       │
+│ ~/.gemini/   │  │ ~/.gemini/   │  │ ~/.gemini/tmp/       │
 │ history/     │  │ tmp/<hash>/  │  │ <hash>/checkpoints/  │
 │ <hash>/      │  │ checkpoints/ │  │ <timestamp>.json     │
 │              │  │              │  │                      │
@@ -825,7 +836,7 @@ async function restoreAction(
           <HighlightBox title="存储空间" variant="yellow">
             <p className="text-sm text-gray-300">
               检查点会占用磁盘空间。对于大型项目，影子仓库可能变得很大。
-              可以定期清理 <code>~/.qwen/history/</code> 目录。
+              可以定期清理 <code>~/.gemini/history/</code> 目录。
             </p>
           </HighlightBox>
 
@@ -882,6 +893,126 @@ async function restoreAction(
           </div>
         </div>
       </section>
+
+      {/* 为什么这样设计检查点系统 */}
+      <Layer title="为什么这样设计检查点系统？" icon="💡">
+        <div className="space-y-4">
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
+            <h4 className="text-[var(--terminal-green)] font-bold mb-2">🌲 为什么使用影子 Git 仓库？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：在 <code className="bg-black/30 px-1 rounded">~/.gemini/history/{'{project_hash}'}</code> 创建独立的 Git 仓库存储快照。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>不污染项目</strong>：不在项目目录创建任何文件，保持项目干净</li>
+                <li><strong>增量存储</strong>：Git 的对象存储天然支持增量，节省空间</li>
+                <li><strong>成熟可靠</strong>：Git 是经过验证的可靠存储，不需要重新发明轮子</li>
+                <li><strong>易于清理</strong>：删除目录即可清理，无需复杂的清理逻辑</li>
+              </ul>
+              <p><strong>权衡</strong>：需要 Git 可用，但现代开发环境几乎都有 Git。</p>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
+            <h4 className="text-[var(--cyber-blue)] font-bold mb-2">⏰ 为什么在批准前创建检查点？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：检查点在用户批准工具之前创建，而非之后。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>恢复需求</strong>：用户批准后如果后悔，需要恢复到批准前的状态</li>
+                <li><strong>原子性</strong>：确保能恢复到工具执行前的确切状态</li>
+                <li><strong>对话一致</strong>：同时保存对话历史，恢复后 AI 知道之前讨论了什么</li>
+              </ul>
+              <p><strong>时机</strong>：在 <code className="bg-black/30 px-1 rounded">awaiting_approval</code> 状态转换时触发。</p>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
+            <h4 className="text-[var(--amber)] font-bold mb-2">📝 为什么只对修改工具创建检查点？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：只有 <code className="bg-black/30 px-1 rounded">write_file</code>、<code className="bg-black/30 px-1 rounded">replace</code> 等修改工具触发检查点。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>效率</strong>：只读工具（Read、Grep）不改变状态，无需快照</li>
+                <li><strong>空间节省</strong>：减少不必要的快照，节省存储</li>
+                <li><strong>精准恢复</strong>：每个检查点对应一个具体的修改操作</li>
+              </ul>
+              <p><strong>注意</strong>：Shell 命令可能有副作用但难以追踪，目前不创建检查点。</p>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
+            <h4 className="text-[var(--purple)] font-bold mb-2">🔄 为什么恢复时重新提议工具调用？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：恢复检查点后，AI 会重新提议相同的工具调用。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>继续流程</strong>：用户可以选择再次批准或修改指令</li>
+                <li><strong>对话连贯</strong>：AI 的状态与恢复的对话历史一致</li>
+                <li><strong>灵活决策</strong>：用户可以给 AI 新的指示，改变执行方向</li>
+              </ul>
+              <p><strong>体验</strong>：相当于"撤销并重做"，而非简单的文件回滚。</p>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--red)]">
+            <h4 className="text-[var(--red)] font-bold mb-2">🚫 为什么默认不启用检查点？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：检查点功能默认关闭，需要用户显式启用。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>性能开销</strong>：每次修改前创建快照有 I/O 成本</li>
+                <li><strong>空间占用</strong>：长期使用会积累大量历史数据</li>
+                <li><strong>适用场景</strong>：不是所有用户都需要精细的撤销能力</li>
+              </ul>
+              <p><strong>推荐</strong>：在 settings.json 中永久启用，对于重要项目提供保护。</p>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      {/* 检查点边界情况 */}
+      <Layer title="边界情况与故障恢复" icon="⚠️">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-[var(--border-subtle)]">
+                <th className="text-left py-2 px-3 text-[var(--text-muted)]">场景</th>
+                <th className="text-left py-2 px-3 text-[var(--text-muted)]">表现</th>
+                <th className="text-left py-2 px-3 text-[var(--text-muted)]">解决方案</th>
+              </tr>
+            </thead>
+            <tbody className="text-[var(--text-secondary)]">
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--amber)]">影子仓库损坏</td>
+                <td className="py-2 px-3">/restore 列表为空或报错</td>
+                <td className="py-2 px-3">删除 ~/.gemini/history/{'{hash}'} 重建</td>
+              </tr>
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--amber)]">磁盘空间不足</td>
+                <td className="py-2 px-3">检查点创建失败</td>
+                <td className="py-2 px-3">清理旧检查点或禁用功能</td>
+              </tr>
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--purple)]">项目目录移动</td>
+                <td className="py-2 px-3">路径哈希变化，找不到旧检查点</td>
+                <td className="py-2 px-3">检查点与项目路径绑定，无法跨路径恢复</td>
+              </tr>
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--cyber-blue)]">跨会话恢复</td>
+                <td className="py-2 px-3">AI 上下文可能不完整</td>
+                <td className="py-2 px-3">恢复后重新描述需求给 AI</td>
+              </tr>
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--red)]">恢复后文件冲突</td>
+                <td className="py-2 px-3">当前有未保存的修改</td>
+                <td className="py-2 px-3">恢复前提示用户确认覆盖</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Layer>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

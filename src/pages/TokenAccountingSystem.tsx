@@ -4,7 +4,7 @@ import { useNavigation } from '../contexts/NavigationContext';
 // ============================================================
 // Token Accounting System - 深度解析页面
 // ============================================================
-// 本页面详细解释 Qwen CLI 中的 Token 计算与管理系统
+// 本页面详细解释 Gemini CLI 中的 Token 计算与管理系统
 // 涵盖：Token 限制匹配、文本/图像 Token 计算、设计原理
 
 // 可折叠章节组件
@@ -94,12 +94,12 @@ function DesignRationaleCard({ title, why, how, benefit }: {
 function TokenLimitVisualization() {
   const limits = [
     { name: '32K', value: 32768, color: 'bg-blue-500', models: 'gemini-2.0-flash-image-generation' },
-    { name: '64K', value: 65536, color: 'bg-cyan-500', models: 'glm-4.5v, qwen3-coder-plus (output)' },
-    { name: '128K', value: 131072, color: 'bg-green-500', models: 'gpt-4o, qwen2.5, deepseek' },
+    { name: '64K', value: 65536, color: 'bg-cyan-500', models: 'glm-4.5v, gemini-1.5-pro (output)' },
+    { name: '128K', value: 131072, color: 'bg-green-500', models: 'gpt-4o, gemini-1.0, deepseek' },
     { name: '200K', value: 200000, color: 'bg-yellow-500', models: 'claude-3.5-sonnet, o3, o4-mini' },
-    { name: '256K', value: 262144, color: 'bg-orange-500', models: 'qwen3-coder, qwen3-max, kimi-k2' },
+    { name: '256K', value: 262144, color: 'bg-orange-500', models: 'gemini-1.5-coder, gemini-1.5-pro, kimi-k2' },
     { name: '512K', value: 524288, color: 'bg-red-500', models: 'seed-oss' },
-    { name: '1M', value: 1048576, color: 'bg-purple-500', models: 'gemini-1.5/2.0, qwen3-coder-plus, claude-4' },
+    { name: '1M', value: 1048576, color: 'bg-purple-500', models: 'gemini-1.5/2.0, gemini-1.5-pro, claude-4' },
     { name: '2M', value: 2097152, color: 'bg-pink-500', models: 'gemini-1.5-pro' },
     { name: '10M', value: 10485760, color: 'bg-indigo-500', models: 'llama-4-scout' },
   ];
@@ -295,7 +295,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
       {isExpanded && (
         <div className="space-y-4 text-gray-300 animate-fadeIn">
           <p className="text-lg">
-            Token 是 AI 模型计费和上下文管理的基本单位。Qwen CLI 实现了一套精确的 Token 计算系统，
+            Token 是 AI 模型计费和上下文管理的基本单位。Gemini CLI 实现了一套精确的 Token 计算系统，
             用于：<strong className="text-purple-300">模型能力匹配</strong>、<strong className="text-cyan-300">成本估算</strong>、
             <strong className="text-yellow-300">上下文压缩决策</strong>。
           </p>
@@ -328,7 +328,7 @@ function TokenLimitSection() {
   return (
     <div className="pt-6 space-y-4">
       <p className="text-gray-300">
-        不同的 AI 模型有不同的上下文窗口大小。Qwen CLI 使用<strong className="text-purple-300">正则模式匹配</strong>来
+        不同的 AI 模型有不同的上下文窗口大小。Gemini CLI 使用<strong className="text-purple-300">正则模式匹配</strong>来
         自动识别模型并返回正确的 Token 限制。
       </p>
 
@@ -384,11 +384,11 @@ export const DEFAULT_OUTPUT_TOKEN_LIMIT = 4_096; // 默认输出 4K`}
   [/^gpt-4o-mini.*$/, LIMITS['128k']],
   [/^gpt-4o.*$/, LIMITS['128k']],
 
-  // Qwen 商业版 vs 开源版区分
-  [/^qwen3-coder-plus(-.*)?$/, LIMITS['1m']],     // 商业版 1M
-  [/^qwen3-coder-.*$/, LIMITS['256k']],           // 开源版 256K
-  [/^qwen-plus-latest$/, LIMITS['1m']],           // 商业 latest
-  [/^qwen-plus.*$/, LIMITS['128k']],              // 标准版
+  // Gemini 商业版 vs 开源版区分
+  [/^gemini-1.5-pro(-.*)?$/, LIMITS['1m']],     // 商业版 1M
+  [/^gemini-1.5-coder-.*$/, LIMITS['256k']],           // 开源版 256K
+  [/^gemini-2.0-flash$/, LIMITS['1m']],           // 商业 latest
+  [/^gemini-plus.*$/, LIMITS['128k']],              // 标准版
 
   // 特殊处理：保留 Kimi 的日期版本号
   [/^kimi-k2-0905$/, LIMITS['256k']],
@@ -761,7 +761,7 @@ function TokenCostLandscape() {
         <p className="text-sm text-gray-300">
           <strong>历史对话</strong>是最大的 Token 消耗来源。一个 10 轮对话，如果不压缩，
           可能累积到 <span className="text-red-400 font-mono">200K+</span> Token。
-          这就是为什么 Qwen CLI 实现了多层压缩策略。
+          这就是为什么 Gemini CLI 实现了多层压缩策略。
         </p>
       </div>
     </div>
@@ -773,7 +773,7 @@ function TokenSavingStrategies() {
   return (
     <div className="pt-6 space-y-4">
       <p className="text-gray-300">
-        Qwen CLI 在多个层面实现 Token 节省策略，总体可节省 <strong className="text-green-400">40-80%</strong> 的 Token 成本。
+        Gemini CLI 在多个层面实现 Token 节省策略，总体可节省 <strong className="text-green-400">40-80%</strong> 的 Token 成本。
       </p>
 
       <div className="my-6 space-y-4">
@@ -876,7 +876,7 @@ function TokenSavingStrategies() {
             <div className="flex-1">
               <h4 className="text-lg font-semibold text-purple-300 mb-2">策略 4: Ignore 过滤</h4>
               <p className="text-sm text-gray-400 mb-3">
-                .gitignore + .qwenignore 防止无用文件被读取。
+                .gitignore + .geminiignore 防止无用文件被读取。
               </p>
               <div className="bg-gray-900/50 rounded-lg p-3">
                 <div className="text-xs text-gray-500 mb-2">典型排除效果</div>
@@ -1143,7 +1143,7 @@ async calculateTokens(text: string): Promise<number> {
 GPT-4o, GPT-4: cl100k_base ✓ (兼容)
 Claude 3.x:    claude-tokenizer (略有差异)
 Gemini:        SentencePiece (差异较大)
-Qwen:          Qwen-tokenizer (接近 cl100k)
+Gemini:          Gemini-tokenizer (接近 cl100k)
 DeepSeek:      custom (接近 cl100k)
 
 // 图片 Token 差异示例
@@ -1225,14 +1225,14 @@ function DebuggingTips() {
             </div>
             <CodeBlock
               code={`# 调试方法 1: 检查实际 API 响应
-DEBUG=innies:tokens innies
+DEBUG=gemini:tokens gemini
 
 # 调试方法 2: 对比 usage 字段
 # API 响应中的 usage.prompt_tokens 和 usage.completion_tokens
 # 与本地计算值进行对比
 
 # 调试方法 3: 单独测试 tokenizer
-import { getDefaultTokenizer } from '@innies/innies-core';
+import { getDefaultTokenizer } from '@anthropic/gemini-core';
 const tokenizer = getDefaultTokenizer();
 const result = await tokenizer.calculateTokens(yourContent);
 console.log(result.breakdown);`}
@@ -1273,7 +1273,7 @@ console.log(result.breakdown);`}
 # 在 CLI 界面中查看状态栏的 Token 计数
 
 # 检查模型限制是否正确匹配
-import { getTokenLimits } from '@innies/innies-core';
+import { getTokenLimits } from '@anthropic/gemini-core';
 console.log(getTokenLimits('your-model-name'));
 
 # 调整压缩阈值（在 settings.json）
@@ -1284,7 +1284,7 @@ console.log(getTokenLimits('your-model-name'));
 }
 
 # 查看压缩日志
-DEBUG=innies:compress innies`}
+DEBUG=gemini:compress gemini`}
               language="bash"
               title="调试命令"
             />
@@ -1328,7 +1328,7 @@ console.log('First 8 bytes:', buffer.subarray(0, 8));
 # 检查 WebP 签名: 52 49 46 46 xx xx xx xx 57 45 42 50
 
 # 手动测试图片 tokenizer
-import { ImageTokenizer } from '@innies/innies-core';
+import { ImageTokenizer } from '@anthropic/gemini-core';
 const tokenizer = new ImageTokenizer();
 const tokens = await tokenizer.calculateTokens(base64Data, 'image/png');`}
               language="bash"
@@ -1365,12 +1365,12 @@ const tokens = await tokenizer.calculateTokens(base64Data, 'image/png');`}
             </div>
             <CodeBlock
               code={`# 检查归一化后的模型名称
-import { normalizeModelName } from '@innies/innies-core';
+import { normalizeModelName } from '@anthropic/gemini-core';
 console.log(normalizeModelName('openai/gpt-4o-2024-08-06'));
 // 输出: gpt-4o
 
 # 验证模式匹配结果
-import { getTokenLimits } from '@innies/innies-core';
+import { getTokenLimits } from '@anthropic/gemini-core';
 console.log(getTokenLimits('gpt-4o'));
 // 输出: { input: 128000, output: 16384 }
 
@@ -1398,27 +1398,27 @@ export INNIES_OUTPUT_LIMIT=8192`}
           <tbody className="text-gray-300 font-mono text-xs">
             <tr className="border-t border-gray-700/50">
               <td className="py-2">Token 计算详情</td>
-              <td className="text-cyan-400">DEBUG=innies:tokens</td>
+              <td className="text-cyan-400">DEBUG=gemini:tokens</td>
               <td>每次计算的 breakdown</td>
             </tr>
             <tr className="border-t border-gray-700/50">
               <td className="py-2">上下文压缩</td>
-              <td className="text-cyan-400">DEBUG=innies:compress</td>
+              <td className="text-cyan-400">DEBUG=gemini:compress</td>
               <td>压缩触发时机和效果</td>
             </tr>
             <tr className="border-t border-gray-700/50">
               <td className="py-2">模型限制匹配</td>
-              <td className="text-cyan-400">DEBUG=innies:limits</td>
+              <td className="text-cyan-400">DEBUG=gemini:limits</td>
               <td>模式匹配过程</td>
             </tr>
             <tr className="border-t border-gray-700/50">
               <td className="py-2">图片处理</td>
-              <td className="text-cyan-400">DEBUG=innies:image</td>
+              <td className="text-cyan-400">DEBUG=gemini:image</td>
               <td>尺寸解析和缩放</td>
             </tr>
             <tr className="border-t border-gray-700/50">
               <td className="py-2">全部信息</td>
-              <td className="text-cyan-400">DEBUG=innies:*</td>
+              <td className="text-cyan-400">DEBUG=gemini:*</td>
               <td>所有调试输出</td>
             </tr>
           </tbody>

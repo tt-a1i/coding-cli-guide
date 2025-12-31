@@ -183,8 +183,8 @@ const builtinCommands = [
     description: 'FileCommandLoader 扫描 TOML 文件',
     code: `// 搜索路径
 const searchPaths = [
-  '~/.qwen/commands/',      // 用户目录
-  '.qwen/commands/',         // 项目目录
+  '~/.gemini/commands/',      // 用户目录
+  '.gemini/commands/',         // 项目目录
   '{extension}/commands/',     // 扩展目录
 ];
 
@@ -443,8 +443,8 @@ function CommandLoadersComparison() {
         '!{} Shell 执行',
       ],
       examples: [
-        '~/.qwen/commands/review.toml → /review',
-        '.qwen/commands/deploy.toml → /deploy',
+        '~/.gemini/commands/review.toml → /review',
+        '.gemini/commands/deploy.toml → /deploy',
       ],
     },
     {

@@ -2,7 +2,16 @@ import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
-import { RelatedPages } from '../components/RelatedPages';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+
+const relatedPages: RelatedPage[] = [
+  { id: 'error', label: '错误处理', description: '错误处理机制详解' },
+  { id: 'retry', label: '重试回退', description: '重试策略与回退机制' },
+  { id: 'error-recovery-patterns', label: '错误恢复模式', description: '常见错误恢复模式' },
+  { id: 'exponential-backoff-anim', label: '指数退避动画', description: '退避算法可视化演示' },
+  { id: 'checkpointing', label: '检查点恢复', description: '状态检查点与恢复' },
+  { id: 'loop-detect', label: '循环检测', description: '循环检测与中断机制' },
+];
 
 export function ErrorRecoveryDecisionTree() {
   const mainDecisionTree = `
@@ -663,14 +672,7 @@ flowchart TB
       </Layer>
 
       {/* 相关页面 */}
-      <RelatedPages
-        pages={[
-          { id: 'error', label: '错误处理' },
-          { id: 'retry', label: '重试回退' },
-          { id: 'error-recovery-patterns', label: '错误恢复模式' },
-          { id: 'exponential-backoff-anim', label: '指数退避动画' },
-        ]}
-      />
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

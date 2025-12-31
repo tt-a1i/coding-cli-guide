@@ -4,6 +4,7 @@ import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { JsonBlock } from '../components/JsonBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 function Introduction({
   isExpanded,
@@ -51,11 +52,11 @@ function Introduction({
             <div className="grid grid-cols-3 gap-2 mt-2">
               <div className="bg-[var(--bg-card)] p-2 rounded text-center">
                 <div className="text-xs text-[var(--terminal-green)]">项目级</div>
-                <div className="text-[10px] text-[var(--text-muted)]">.qwen/agents/</div>
+                <div className="text-[10px] text-[var(--text-muted)]">.gemini/agents/</div>
               </div>
               <div className="bg-[var(--bg-card)] p-2 rounded text-center">
                 <div className="text-xs text-[var(--cyber-blue)]">用户级</div>
-                <div className="text-[10px] text-[var(--text-muted)]">~/.qwen/agents/</div>
+                <div className="text-[10px] text-[var(--text-muted)]">~/.gemini/agents/</div>
               </div>
               <div className="bg-[var(--bg-card)] p-2 rounded text-center">
                 <div className="text-xs text-[var(--amber)]">内置</div>
@@ -105,6 +106,17 @@ function Introduction({
 
 export function SubagentSystem() {
   const [isIntroExpanded, setIsIntroExpanded] = useState(true);
+
+  const relatedPages: RelatedPage[] = [
+    { id: 'agent-framework', label: 'Agent 框架', description: 'Agent 定义与配置系统' },
+    { id: 'interaction-loop', label: '交互循环', description: '子代理与主循环的协作' },
+    { id: 'tool-arch', label: '工具系统', description: '子代理可用的工具集' },
+    { id: 'mcp', label: 'MCP集成', description: '子代理与MCP服务器的连接' },
+    { id: 'approval-mode', label: '审批模式', description: '子代理权限控制' },
+    { id: 'services-arch', label: '服务架构', description: '子代理依赖的核心服务' },
+    { id: 'lifecycle', label: '请求生命周期', description: '子代理请求处理流程' },
+  ];
+
   // 模板变量替换流程 - Mermaid flowchart
   const templateFlowChart = `flowchart TD
     start([System Prompt<br/>模板])
@@ -184,12 +196,12 @@ export function SubagentSystem() {
           <div className="bg-white/5 rounded-lg p-4 border border-white/10 text-center">
             <div className="text-3xl mb-2">📂</div>
             <h4 className="text-cyan-400 font-bold">项目级</h4>
-            <p className="text-sm text-gray-400">.qwen/agents/*.md</p>
+            <p className="text-sm text-gray-400">.gemini/agents/*.md</p>
           </div>
           <div className="bg-white/5 rounded-lg p-4 border border-white/10 text-center">
             <div className="text-3xl mb-2">🏠</div>
             <h4 className="text-cyan-400 font-bold">用户级</h4>
-            <p className="text-sm text-gray-400">~/.qwen/agents/*.md</p>
+            <p className="text-sm text-gray-400">~/.gemini/agents/*.md</p>
           </div>
           <div className="bg-white/5 rounded-lg p-4 border border-white/10 text-center">
             <div className="text-3xl mb-2">📦</div>
@@ -214,8 +226,8 @@ export function SubagentSystem() {
             <tbody className="text-gray-300">
               <tr>
                 <td className="border border-gray-700 p-3 font-semibold">存储位置</td>
-                <td className="border border-gray-700 p-3 text-center"><code>.qwen/agents/*.md</code></td>
-                <td className="border border-gray-700 p-3 text-center"><code>~/.qwen/agents/*.md</code></td>
+                <td className="border border-gray-700 p-3 text-center"><code>.gemini/agents/*.md</code></td>
+                <td className="border border-gray-700 p-3 text-center"><code>~/.gemini/agents/*.md</code></td>
                 <td className="border border-gray-700 p-3 text-center">内存 (代码嵌入)</td>
               </tr>
               <tr className="bg-gray-800/30">
@@ -281,7 +293,7 @@ tools:
   - glob
 
 modelConfig:
-  model: qwen3-coder-plus
+  model: gemini-2.0-flash
   temp: 0.3
 
 runConfig:
@@ -431,7 +443,7 @@ export class ContextState {
 const context = new ContextState();
 context.set('task_prompt', '审查 src/utils.ts 的代码质量');
 context.set('language', 'TypeScript');
-context.set('project_name', 'qwen-cli');
+context.set('project_name', 'gemini-cli');
 
 await subagent.runNonInteractive(context);`}
         />
@@ -891,11 +903,11 @@ toolsList.push(
 # Task 工具会启动对应的子代理来处理
 
 # 3. 子代理配置位置
-~/.qwen/agents/         # 用户级子代理（全局可用）
-.qwen/agents/           # 项目级子代理（仅当前项目）
+~/.gemini/agents/         # 用户级子代理（全局可用）
+.gemini/agents/           # 项目级子代理（仅当前项目）
 
 # 4. 示例：创建代码审查子代理
-# 创建文件: .qwen/agents/reviewer.md
+# 创建文件: .gemini/agents/reviewer.md
 ---
 name: reviewer
 description: 代码审查专家
@@ -914,8 +926,8 @@ runConfig:
 
         <HighlightBox title="优先级规则" icon="📋" variant="green">
           <ol className="pl-5 list-decimal space-y-1">
-            <li><strong>项目级</strong> - .qwen/agents/ 下的子代理优先</li>
-            <li><strong>用户级</strong> - ~/.qwen/agents/ 下的子代理次之</li>
+            <li><strong>项目级</strong> - .gemini/agents/ 下的子代理优先</li>
+            <li><strong>用户级</strong> - ~/.gemini/agents/ 下的子代理次之</li>
             <li><strong>内置</strong> - 代码中定义的内置子代理最后</li>
           </ol>
           <p className="text-sm text-gray-400 mt-2">
@@ -1308,7 +1320,7 @@ class SubagentRegistry {
                 <h5 className="text-[var(--text-secondary)] text-sm font-semibold mb-2">🎯 触发场景</h5>
                 <p className="text-xs text-[var(--text-muted)]">
                   当用户在 Home 目录 (<code>~</code>) 下运行 CLI 时，
-                  <code>.qwen/agents/</code> 和 <code>~/.qwen/agents/</code> 指向同一位置。
+                  <code>.gemini/agents/</code> 和 <code>~/.gemini/agents/</code> 指向同一位置。
                 </p>
               </div>
               <CodeBlock
@@ -1326,7 +1338,7 @@ async loadProjectAgents(projectRoot: string): Promise<Map<string, Subagent>> {
   }
 
   // 正常加载项目级子代理
-  const agentsDir = path.join(projectRoot, '.qwen', 'agents');
+  const agentsDir = path.join(projectRoot, '.gemini', 'agents');
   return this.loadFromDirectory(agentsDir, 'project');
 }`}
               />
@@ -1374,11 +1386,11 @@ async loadProjectAgents(projectRoot: string): Promise<Map<string, Subagent>> {
               <CodeBlock
                 title="检查子代理配置"
                 code={`# 1. 确认文件位置
-ls -la ~/.qwen/agents/          # 用户级
-ls -la .qwen/agents/            # 项目级
+ls -la ~/.gemini/agents/          # 用户级
+ls -la .gemini/agents/            # 项目级
 
 # 2. 验证 YAML 格式
-cat ~/.qwen/agents/reviewer.md | head -20
+cat ~/.gemini/agents/reviewer.md | head -20
 
 # 正确格式：
 ---
@@ -1598,7 +1610,7 @@ tools:
                 </tr>
                 <tr>
                   <td className="border border-[var(--border-subtle)] px-3 py-2">启用调试日志</td>
-                  <td className="border border-[var(--border-subtle)] px-3 py-2"><code className="text-xs bg-black/30 px-1 rounded">DEBUG=subagent:* innies</code></td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2"><code className="text-xs bg-black/30 px-1 rounded">DEBUG=subagent:* gemini</code></td>
                   <td className="border border-[var(--border-subtle)] px-3 py-2">输出详细的子代理日志</td>
                 </tr>
               </tbody>
@@ -1838,8 +1850,8 @@ description: 文件分析专家
     end
 
     subgraph Storage["存储层"]
-        ProjectDir[".qwen/agents/"]
-        UserDir["~/.qwen/agents/"]
+        ProjectDir[".gemini/agents/"]
+        UserDir["~/.gemini/agents/"]
         Builtin["内置代理"]
     end
 
@@ -2130,6 +2142,125 @@ engine.registerHelper('if', (condition, thenVal, elseVal) => {
           </div>
         </div>
       </Layer>
+
+      {/* 为什么这样设计 */}
+      <Layer title="为什么这样设计子代理系统" icon="🤔" defaultOpen={false}>
+        <div className="space-y-6">
+          <HighlightBox title="设计决策解析" icon="💡" variant="blue">
+            <p className="text-sm text-[var(--text-secondary)]">
+              子代理系统的设计目标是<strong>任务分解与专业化执行</strong>，
+              让复杂任务可以被分解为多个专门的子任务，由具备特定能力的代理完成。
+            </p>
+          </HighlightBox>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-[var(--bg-card)] p-4 rounded-lg border border-[var(--border-subtle)]">
+              <h4 className="text-[var(--terminal-green)] font-bold mb-2">1. 为什么使用非交互模式？</h4>
+              <p className="text-sm text-[var(--text-secondary)] mb-2">
+                子代理<strong>不询问用户问题</strong>，直接根据可用上下文完成任务。
+              </p>
+              <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                <li>• <strong>原因</strong>: 子代理是自动执行的后台任务</li>
+                <li>• <strong>好处</strong>: 避免阻塞主流程，提高执行效率</li>
+                <li>• <strong>权衡</strong>: 需要更完整的初始上下文</li>
+              </ul>
+            </div>
+
+            <div className="bg-[var(--bg-card)] p-4 rounded-lg border border-[var(--border-subtle)]">
+              <h4 className="text-[var(--cyber-blue)] font-bold mb-2">2. 为什么过滤 Task 工具？</h4>
+              <p className="text-sm text-[var(--text-secondary)] mb-2">
+                子代理工具列表中<strong>移除 Task 工具</strong>，防止递归调用。
+              </p>
+              <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                <li>• <strong>原因</strong>: 防止子代理无限嵌套调用自己</li>
+                <li>• <strong>好处</strong>: 避免资源耗尽和死循环</li>
+                <li>• <strong>权衡</strong>: 子代理无法再委托任务</li>
+              </ul>
+            </div>
+
+            <div className="bg-[var(--bg-card)] p-4 rounded-lg border border-[var(--border-subtle)]">
+              <h4 className="text-[var(--amber)] font-bold mb-2">3. 为什么使用 Markdown + YAML Frontmatter？</h4>
+              <p className="text-sm text-[var(--text-secondary)] mb-2">
+                子代理配置文件使用 <code>.md</code> 格式，Frontmatter 存储元数据。
+              </p>
+              <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                <li>• <strong>原因</strong>: Markdown 适合长文本系统提示</li>
+                <li>• <strong>好处</strong>: 可读性强，支持富文本格式</li>
+                <li>• <strong>权衡</strong>: 需要解析 Frontmatter</li>
+              </ul>
+            </div>
+
+            <div className="bg-[var(--bg-card)] p-4 rounded-lg border border-[var(--border-subtle)]">
+              <h4 className="text-[var(--purple)] font-bold mb-2">4. 为什么采用三级配置层次？</h4>
+              <p className="text-sm text-[var(--text-secondary)] mb-2">
+                项目级 &gt; 用户级 &gt; 内置，优先级递减。
+              </p>
+              <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                <li>• <strong>原因</strong>: 允许项目自定义覆盖默认行为</li>
+                <li>• <strong>好处</strong>: 灵活性与一致性兼顾</li>
+                <li>• <strong>权衡</strong>: 配置来源可能不明确</li>
+              </ul>
+            </div>
+
+            <div className="bg-[var(--bg-card)] p-4 rounded-lg border border-[var(--border-subtle)] md:col-span-2">
+              <h4 className="text-[var(--terminal-green)] font-bold mb-2">5. 为什么使用模板变量系统？</h4>
+              <p className="text-sm text-[var(--text-secondary)] mb-2">
+                系统提示支持 <code>$&#123;key&#125;</code> 占位符，运行时替换为 ContextState 中的值。
+              </p>
+              <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                <li>• <strong>原因</strong>: 同一个子代理可以根据上下文执行不同任务</li>
+                <li>• <strong>好处</strong>: 复用配置，减少重复定义</li>
+                <li>• <strong>权衡</strong>: 缺失变量会导致运行时错误</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* 子代理类型参考表 */}
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border border-[var(--border-subtle)]">
+            <h4 className="text-[var(--text-primary)] font-bold mb-3">📊 内置子代理类型参考</h4>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-[var(--border-subtle)]">
+                    <th className="text-left py-2 px-3 text-[var(--text-muted)]">类型</th>
+                    <th className="text-left py-2 px-3 text-[var(--text-muted)]">用途</th>
+                    <th className="text-left py-2 px-3 text-[var(--text-muted)]">特殊配置</th>
+                    <th className="text-left py-2 px-3 text-[var(--text-muted)]">终止模式</th>
+                  </tr>
+                </thead>
+                <tbody className="text-[var(--text-secondary)]">
+                  <tr className="border-b border-[var(--border-subtle)]/50">
+                    <td className="py-2 px-3 font-mono text-[var(--terminal-green)]">Explore</td>
+                    <td className="py-2 px-3">代码库探索</td>
+                    <td className="py-2 px-3">仅读取工具</td>
+                    <td className="py-2 px-3">GOAL</td>
+                  </tr>
+                  <tr className="border-b border-[var(--border-subtle)]/50">
+                    <td className="py-2 px-3 font-mono text-[var(--cyber-blue)]">Plan</td>
+                    <td className="py-2 px-3">任务规划</td>
+                    <td className="py-2 px-3">读取+分析工具</td>
+                    <td className="py-2 px-3">GOAL</td>
+                  </tr>
+                  <tr className="border-b border-[var(--border-subtle)]/50">
+                    <td className="py-2 px-3 font-mono text-[var(--amber)]">general-purpose</td>
+                    <td className="py-2 px-3">通用任务</td>
+                    <td className="py-2 px-3">全部工具（除Task）</td>
+                    <td className="py-2 px-3">MAX_TURNS=100</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 px-3 font-mono text-[var(--purple)]">自定义</td>
+                    <td className="py-2 px-3">用户定义</td>
+                    <td className="py-2 px-3">YAML 配置</td>
+                    <td className="py-2 px-3">可配置</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

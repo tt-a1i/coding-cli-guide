@@ -3,6 +3,7 @@ import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { Module } from '../components/Module';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 // ===== Introduction Component =====
 function Introduction({
@@ -38,7 +39,7 @@ function Introduction({
               🎯 核心问题
             </h4>
             <p className="text-[var(--text-secondary)] text-sm">
-              如何让 CLI 支持<strong>多个 AI 厂商</strong>（Qwen、OpenAI、Gemini、DeepSeek）
+              如何让 CLI 支持<strong>多个 AI 厂商</strong>（OpenAI、Gemini、DeepSeek）
               而不需要为每个厂商写完全不同的代码？
               <br />
               答案是：<strong>统一接口 + 适配器模式 + 格式转换器</strong>
@@ -147,20 +148,20 @@ function Introduction({
 
 // ===== Provider Routing Animation =====
 function ProviderRoutingAnimation() {
-  const [selectedAuth, setSelectedAuth] = useState<string>('qwen-oauth');
+  const [selectedAuth, setSelectedAuth] = useState<string>('google-oauth');
 
   const authTypes = [
     {
-      id: 'qwen-oauth',
-      name: 'Qwen OAuth',
-      provider: 'QwenContentGenerator',
+      id: 'google-oauth',
+      name: 'Google OAuth',
+      provider: 'GeminiContentGenerator',
       color: 'var(--terminal-green)',
       icon: '🐧',
     },
     {
-      id: 'qwen-oauth',
-      name: 'Qwen OAuth',
-      provider: 'QwenContentGenerator',
+      id: 'google-oauth',
+      name: 'Google OAuth',
+      provider: 'GeminiContentGenerator',
       color: 'var(--cyber-blue)',
       icon: '🏠',
     },
@@ -420,13 +421,13 @@ function ContentConverterFlow() {
 function TokenLimitsVisualization() {
   const models = [
     {
-      name: 'Qwen3-Coder-Plus',
+      name: 'Gemini-1.5-Pro',
       input: 1000000,
       output: 64000,
       color: 'var(--terminal-green)',
     },
     {
-      name: 'Qwen3-Coder-Flash',
+      name: 'Gemini-1.5-Flash',
       input: 1000000,
       output: 32000,
       color: 'var(--cyber-blue)',
@@ -576,6 +577,15 @@ function ProviderFeaturesComparison() {
 export function MultiProviderArchitecture() {
   const [isIntroExpanded, setIsIntroExpanded] = useState(true);
 
+  const relatedPages: RelatedPage[] = [
+    { id: 'gemini-chat', label: 'GeminiChatCore', description: 'AI 核心' },
+    { id: 'config', label: '配置系统', description: '提供商配置' },
+    { id: 'auth', label: '认证流程', description: 'API 认证' },
+    { id: 'streaming-response-processing', label: '流式处理', description: '响应流' },
+    { id: 'error', label: '错误处理', description: '提供商错误' },
+    { id: 'retry', label: '重试回退', description: '故障恢复' },
+  ];
+
   return (
     <div>
       <Introduction
@@ -635,8 +645,8 @@ export function MultiProviderArchitecture() {
   USE_VERTEX_AI = 'vertex-ai',            // Google Vertex AI
   CLOUD_SHELL = 'cloud-shell',            // Google Cloud Shell
   USE_OPENAI = 'openai',                  // OpenAI-compatible
-  QWEN_OAUTH = 'qwen-oauth',              // Qwen OAuth (推荐)
-  QWEN_OAUTH = 'qwen-oauth',          // Qwen OAuth
+  QWEN_OAUTH = 'google-oauth',              // Google OAuth (推荐)
+  QWEN_OAUTH = 'google-oauth',          // Google OAuth
 }`}
           />
         </div>
@@ -647,14 +657,14 @@ export function MultiProviderArchitecture() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <Module
             icon="🐧"
-            name="QwenContentGenerator"
-            path="packages/core/src/qwen"
+            name="GeminiContentGenerator"
+            path="packages/core/src/gemini"
             description="继承 OpenAI，动态 Token 管理"
           />
           <Module
             icon="🏠"
-            name="QwenContentGenerator"
-            path="packages/core/src/qwen"
+            name="GeminiContentGenerator"
+            path="packages/core/src/gemini"
             description="继承 OpenAI，模型配置缓存"
           />
           <Module
@@ -692,10 +702,10 @@ export function MultiProviderArchitecture() {
               └─ OpenAIContentGenerator
             </div>
             <div className="ml-8 text-[var(--terminal-green)]">
-              ├─ QwenContentGenerator
+              ├─ GeminiContentGenerator
             </div>
             <div className="ml-8 text-[var(--cyber-blue)]">
-              └─ QwenContentGenerator
+              └─ GeminiContentGenerator
             </div>
           </div>
         </HighlightBox>
@@ -784,7 +794,7 @@ function normalize(model: string): string {
 }
 
 // 示例
-normalize("qwen3-coder-plus-20250219") → "qwen3-coder-plus"
+normalize("gemini-1.5-pro-20250219") → "gemini-1.5-pro"
 normalize("gpt-4o-2024-08-06") → "gpt-4o"
 normalize("gemini-2.5-pro-preview") → "gemini-2.5-pro"`}
           />
@@ -796,7 +806,7 @@ normalize("gemini-2.5-pro-preview") → "gemini-2.5-pro"`}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-[var(--terminal-green)]/30">
             <div className="text-[var(--terminal-green)] font-bold mb-2">
-              Qwen SharedTokenManager
+              Gemini SharedTokenManager
             </div>
             <ul className="text-sm text-[var(--text-secondary)] space-y-1">
               <li>• 单例模式，线程安全</li>
@@ -810,7 +820,7 @@ normalize("gemini-2.5-pro-preview") → "gemini-2.5-pro"`}
 
           <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-[var(--cyber-blue)]/30">
             <div className="text-[var(--cyber-blue)] font-bold mb-2">
-              Qwen 双重回退
+              Gemini 双重回退
             </div>
             <ul className="text-sm text-[var(--text-secondary)] space-y-1">
               <li>• 模型特定配置优先</li>
@@ -825,7 +835,7 @@ normalize("gemini-2.5-pro-preview") → "gemini-2.5-pro"`}
           <CodeBlock
             title="错误处理与刷新"
             language="typescript"
-            code={`// QwenContentGenerator 重写错误处理
+            code={`// GeminiContentGenerator 重写错误处理
 protected shouldSuppressErrorLogging(error: unknown): boolean {
   // 401/403 期间正在刷新 token，抑制错误日志
   if (this.refreshingToken && isAuthError(error)) {
@@ -974,18 +984,80 @@ async generateContent(request, promptId) {
           />
           <Module
             icon="🐧"
-            name="qwenContentGenerator.ts"
-            path="packages/core/src/qwen"
-            description="Qwen 实现 + Token 管理"
+            name="geminiContentGenerator.ts"
+            path="packages/core/src/gemini"
+            description="Gemini 实现 + Token 管理"
           />
           <Module
             icon="🔐"
             name="sharedTokenManager.ts"
-            path="packages/core/src/qwen"
+            path="packages/core/src/gemini"
             description="Token 刷新单例"
           />
         </div>
       </Layer>
+
+      {/* Design Decisions */}
+      <Layer title="为什么这样设计多提供商架构" icon="🤔" defaultOpen={false}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-[var(--terminal-green)]/30">
+            <div className="text-[var(--terminal-green)] font-bold mb-2">
+              为什么使用适配器模式？
+            </div>
+            <div className="text-sm text-[var(--text-secondary)]">
+              不同 AI 厂商使用不同的 API 格式（Gemini 用 parts/contents，OpenAI 用 messages）。
+              适配器模式让我们可以<strong>统一内部表示</strong>，只在边界处转换格式。
+              这样核心逻辑完全不需要关心具体是哪个厂商，降低了耦合度。
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-[var(--cyber-blue)]/30">
+            <div className="text-[var(--cyber-blue)] font-bold mb-2">
+              为什么支持多个 API 提供商？
+            </div>
+            <div className="text-sm text-[var(--text-secondary)]">
+              单一提供商有风险：<strong>API 可能宕机、价格可能调整、模型可能下线</strong>。
+              支持多提供商让用户可以根据成本、性能、可用性自由选择，
+              也让产品不会被某个厂商锁定，增强了系统弹性。
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-[var(--amber)]/30">
+            <div className="text-[var(--amber)] font-bold mb-2">
+              为什么统一响应格式？
+            </div>
+            <div className="text-sm text-[var(--text-secondary)]">
+              上层业务代码（工具调用、流式渲染、Token 计数）需要一致的数据结构。
+              选择 Gemini 格式作为内部标准是因为它<strong>语义更丰富</strong>（parts 数组支持多模态），
+              而 OpenAI 格式更简单可以无损转换。
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-[var(--purple)]/30">
+            <div className="text-[var(--purple)] font-bold mb-2">
+              为什么使用工厂模式创建客户端？
+            </div>
+            <div className="text-sm text-[var(--text-secondary)]">
+              创建 ContentGenerator 涉及复杂逻辑：读取配置、选择认证方式、初始化 Provider。
+              工厂模式将这些<strong>创建细节封装</strong>起来，调用方只需说"给我一个 generator"，
+              不需要知道 Gemini 和 OpenAI 的创建过程有何不同。
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-pink-400/30">
+            <div className="text-pink-400 font-bold mb-2">
+              为什么流式响应是默认行为？
+            </div>
+            <div className="text-sm text-[var(--text-secondary)]">
+              AI 生成可能需要 10-30 秒，用户盯着空白屏幕体验很差。
+              流式响应让用户<strong>立即看到输出开始</strong>，感知延迟大幅降低。
+              同时流式也支持提前取消、进度显示、实时 Token 计数等功能。
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

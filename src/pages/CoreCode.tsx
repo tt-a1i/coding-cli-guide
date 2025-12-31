@@ -2,6 +2,16 @@ import { useState } from 'react';
 import { Layer } from '../components/Layer';
 import { CodeBlock } from '../components/CodeBlock';
 import { HighlightBox } from '../components/HighlightBox';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+
+const relatedPages: RelatedPage[] = [
+  { id: 'gemini-chat', label: '核心循环', description: 'GeminiChat 详细解析' },
+  { id: 'turn-state-machine', label: 'Turn状态机', description: 'Turn 状态流转详解' },
+  { id: 'content-gen', label: 'API调用层', description: 'ContentGenerator 深度解析' },
+  { id: 'tool-arch', label: '工具架构', description: '工具系统架构全景' },
+  { id: 'tool-scheduler', label: '工具调度详解', description: 'ToolScheduler 实现细节' },
+  { id: 'streaming-tool-parser-anim', label: '流式工具解析', description: '流式工具调用解析动画' },
+];
 
 // ===== Introduction Component =====
 function Introduction({
@@ -686,6 +696,66 @@ class CoreToolScheduler {
           </ol>
         </div>
       </Layer>
+
+      {/* 为什么这样设计 */}
+      <Layer title="为什么这样设计？" icon="💡">
+        <div className="space-y-4">
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
+            <h4 className="text-[var(--terminal-green)] font-bold mb-2">为什么用 AsyncGenerator 实现流式处理？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：核心 API 使用 <code>AsyncGenerator&lt;Event, Turn&gt;</code> 返回事件流。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>实时反馈</strong>：用户看到 AI 逐字输出，体验更好</li>
+                <li><strong>内存效率</strong>：不需要等待完整响应，边接收边处理</li>
+                <li><strong>可组合性</strong>：上层可以 yield* 委托，形成流式管道</li>
+                <li><strong>取消友好</strong>：配合 AbortSignal 可随时中断流</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
+            <h4 className="text-[var(--cyber-blue)] font-bold mb-2">为什么 Turn 和 GeminiClient 分开？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：Turn 管理单次响应，GeminiClient 管理整个会话。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>职责清晰</strong>：Turn 专注单轮逻辑，Client 专注跨轮协调</li>
+                <li><strong>状态隔离</strong>：每个 Turn 有独立的工具调用收集和完成状态</li>
+                <li><strong>便于测试</strong>：可以独立测试单轮逻辑，不需要完整会话</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
+            <h4 className="text-[var(--purple)] font-bold mb-2">为什么工具调用使用状态机模式？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：ToolScheduler 使用状态机管理工具调用生命周期。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>复杂状态</strong>：工具调用有验证、等待、执行、完成多种状态</li>
+                <li><strong>并发安全</strong>：状态转换有明确规则，避免竞态条件</li>
+                <li><strong>可观测性</strong>：每个状态转换都可以触发 UI 更新和日志</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
+            <h4 className="text-[var(--amber)] font-bold mb-2">为什么 ContentGenerator 要抽象为接口？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：ContentGenerator 是接口，有多个厂商实现。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>多厂商支持</strong>：OpenAI、Gemini 等 API 格式不同</li>
+                <li><strong>统一内部格式</strong>：Core 层使用 Gemini 格式，Generator 负责转换</li>
+                <li><strong>易于扩展</strong>：添加新厂商只需实现接口，不改核心逻辑</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

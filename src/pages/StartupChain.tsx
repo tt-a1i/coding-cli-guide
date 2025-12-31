@@ -3,6 +3,7 @@ import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
   return (
@@ -26,7 +27,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
             <p className="text-[var(--text-primary)] font-medium">
               <span className="text-[var(--terminal-green)] font-bold">一句话：</span>
-              从执行 <code className="text-[var(--cyber-blue)]">qwen</code> 命令到进入会话，经过配置加载 → 沙箱检测 → 认证验证 → 模式选择 4 个阶段
+              从执行 <code className="text-[var(--cyber-blue)]">gemini</code> 命令到进入会话，经过配置加载 → 沙箱检测 → 认证验证 → 模式选择 4 个阶段
             </p>
           </div>
 
@@ -55,7 +56,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
             <h4 className="text-sm font-semibold text-[var(--text-muted)] mb-2">核心流程</h4>
             <div className="flex items-center gap-2 flex-wrap text-sm">
               <span className="px-3 py-1.5 bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] rounded-lg border border-[var(--terminal-green)]/30">
-                qwen 命令
+                gemini 命令
               </span>
               <span className="text-[var(--text-muted)]">→</span>
               <span className="px-3 py-1.5 bg-[var(--cyber-blue)]/20 text-[var(--cyber-blue)] rounded-lg border border-[var(--cyber-blue)]/30">
@@ -82,11 +83,11 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
             <div className="flex items-center gap-2 flex-wrap text-xs">
               <span className="px-2 py-1 bg-red-500/20 text-red-400 rounded border border-red-500/30">CLI 参数</span>
               <span className="text-[var(--text-muted)]">&gt;</span>
-              <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded border border-yellow-500/30">/etc/qwen-code/</span>
+              <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded border border-yellow-500/30">/etc/gemini-code/</span>
               <span className="text-[var(--text-muted)]">&gt;</span>
-              <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded border border-green-500/30">.qwen/</span>
+              <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded border border-green-500/30">.gemini/</span>
               <span className="text-[var(--text-muted)]">&gt;</span>
-              <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded border border-blue-500/30">~/.qwen/</span>
+              <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded border border-blue-500/30">~/.gemini/</span>
               <span className="text-[var(--text-muted)]">&gt;</span>
               <span className="px-2 py-1 bg-gray-500/20 text-gray-400 rounded border border-gray-500/30">默认值</span>
             </div>
@@ -107,8 +108,18 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
 export function StartupChain() {
   const [isSummaryExpanded, setIsSummaryExpanded] = useState(true);
+
+  const relatedPages: RelatedPage[] = [
+    { id: 'services-arch', label: '服务架构', description: '启动链初始化的服务体系' },
+    { id: 'config', label: '配置系统', description: '配置加载与解析' },
+    { id: 'sandbox', label: '沙箱系统', description: '沙箱启动与隔离' },
+    { id: 'interaction-loop', label: '交互循环', description: '启动后的主循环' },
+    { id: 'gemini-chat', label: 'GeminiChatCore', description: 'AI 核心初始化' },
+    { id: 'mcp', label: 'MCP集成', description: 'MCP 服务器启动' },
+  ];
+
   const startupFlowDiagram = `flowchart TD
-    start([执行 qwen 命令])
+    start([执行 gemini 命令])
     main_entry[main 入口<br/>index.ts:14]
     load_settings[loadSettings<br/>settings.ts:583]
     parse_args[parseArguments<br/>config.ts:130]
@@ -189,7 +200,7 @@ export function StartupChain() {
     participant App as initializeApp
 
     Main->>LS: 加载配置文件
-    Note right of LS: 1. systemDefaults.json<br/>2. ~/.qwen/settings.json<br/>3. .qwen/settings.json<br/>4. /etc/qwen-code/settings.json
+    Note right of LS: 1. systemDefaults.json<br/>2. ~/.gemini/settings.json<br/>3. .gemini/settings.json<br/>4. /etc/gemini-code/settings.json
     LS-->>Main: LoadedSettings
 
     Main->>LA: 解析命令行参数
@@ -223,7 +234,7 @@ export function StartupChain() {
       <div className="text-center mb-8">
         <h2 className="text-2xl font-bold text-cyan-400">CLI 启动链路</h2>
         <p className="text-gray-400 mt-2">
-          从执行 qwen 命令到进入交互会话的完整流程分析
+          从执行 gemini 命令到进入交互会话的完整流程分析
         </p>
       </div>
 
@@ -231,13 +242,13 @@ export function StartupChain() {
       <Layer title="目标" icon="🎯">
         <div className="text-gray-300 space-y-3">
           <p>
-            CLI 启动链路负责完成从用户执行 <code>qwen</code> 命令到应用完全初始化的整个过程。
+            CLI 启动链路负责完成从用户执行 <code>gemini</code> 命令到应用完全初始化的整个过程。
             主要目标包括：
           </p>
           <ul className="list-disc list-inside space-y-2 ml-4">
             <li>加载和合并多层级配置（系统默认、用户、项目、系统覆盖）</li>
             <li>检测和启动沙箱环境（macOS Seatbelt、Docker、Podman）</li>
-            <li>初始化认证系统（Qwen OAuth、OpenAI API、Google Login）</li>
+            <li>初始化认证系统（Google OAuth、OpenAI API、Google Login）</li>
             <li>加载扩展和 MCP 服务器配置</li>
             <li>根据运行环境选择正确的模式（交互式、非交互式、Zed 集成）</li>
           </ul>
@@ -249,7 +260,7 @@ export function StartupChain() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <HighlightBox title="触发条件" icon="🚀" variant="blue">
             <ul className="text-sm space-y-1">
-              <li>• 用户在终端执行 <code>qwen</code> 命令</li>
+              <li>• 用户在终端执行 <code>gemini</code> 命令</li>
               <li>• 可选的 CLI 参数（--model, --prompt, --sandbox 等）</li>
               <li>• 可选的 stdin 输入（管道或重定向）</li>
             </ul>
@@ -258,7 +269,7 @@ export function StartupChain() {
           <HighlightBox title="环境依赖" icon="🌍" variant="green">
             <ul className="text-sm space-y-1">
               <li>• Node.js &gt;= 20 运行时</li>
-              <li>• 配置文件（可选）：~/.qwen/settings.json</li>
+              <li>• 配置文件（可选）：~/.gemini/settings.json</li>
               <li>• 环境变量（可选）：OPENAI_API_KEY, GEMINI_SANDBOX 等</li>
               <li>• Git 可用（如启用 checkpointing）</li>
             </ul>
@@ -411,9 +422,9 @@ return customDeepMerge(
   getMergeStrategyForPath,
   {},
   systemDefaults,      // 1. 基础默认值
-  user,                // 2. 用户设置覆盖 (~/.qwen/settings.json)
-  safeWorkspace,       // 3. 工作区覆盖 (.qwen/settings.json, 需信任)
-  system,              // 4. 系统覆盖 (/etc/qwen-code/settings.json, 最高优先)
+  user,                // 2. 用户设置覆盖 (~/.gemini/settings.json)
+  safeWorkspace,       // 3. 工作区覆盖 (.gemini/settings.json, 需信任)
+  system,              // 4. 系统覆盖 (/etc/gemini-code/settings.json, 最高优先)
 ) as Settings;`}
         />
       </Layer>
@@ -447,7 +458,7 @@ return customDeepMerge(
               <div className="text-sm space-y-2">
                 <p className="text-gray-300">容器化隔离</p>
                 <p className="text-xs text-gray-500">
-                  镜像: ghcr.io/zhimanai/qwen-cli:VERSION
+                  镜像: ghcr.io/google/generative-ai-cli:VERSION
                 </p>
                 <p className="text-xs text-gray-500">
                   检测: docker/podman 命令可用
@@ -633,8 +644,8 @@ main().catch((error) => {
                   <td className="border border-gray-700 p-3 text-gray-500">-</td>
                 </tr>
                 <tr className="bg-gray-800/30">
-                  <td className="border border-gray-700 p-3 font-mono text-cyan-400">QWEN_MODEL</td>
-                  <td className="border border-gray-700 p-3">Qwen 模型名称</td>
+                  <td className="border border-gray-700 p-3 font-mono text-cyan-400">GEMINI_MODEL</td>
+                  <td className="border border-gray-700 p-3">Gemini 模型名称</td>
                   <td className="border border-gray-700 p-3 text-gray-500">-</td>
                 </tr>
                 <tr>
@@ -657,7 +668,7 @@ main().catch((error) => {
               <h5 className="font-semibold text-green-400 mb-2">系统级配置</h5>
               <ul className="text-sm space-y-1 text-gray-300">
                 <li>
-                  <code className="text-yellow-300">/etc/qwen-code/settings.json</code>
+                  <code className="text-yellow-300">/etc/gemini-code/settings.json</code>
                   <span className="text-gray-500 ml-2">(最高优先级)</span>
                 </li>
                 <li>
@@ -671,11 +682,11 @@ main().catch((error) => {
               <h5 className="font-semibold text-blue-400 mb-2">用户/项目级配置</h5>
               <ul className="text-sm space-y-1 text-gray-300">
                 <li>
-                  <code className="text-cyan-300">~/.qwen/settings.json</code>
+                  <code className="text-cyan-300">~/.gemini/settings.json</code>
                   <span className="text-gray-500 ml-2">(用户)</span>
                 </li>
                 <li>
-                  <code className="text-green-300">.qwen/settings.json</code>
+                  <code className="text-green-300">.gemini/settings.json</code>
                   <span className="text-gray-500 ml-2">(项目, 需信任)</span>
                 </li>
               </ul>
@@ -694,7 +705,7 @@ main().catch((error) => {
   },
   "security": {
     "auth": {
-      "selectedType": "qwen-oauth"  // 认证类型: qwen-oauth | openai-api
+      "selectedType": "google-oauth"  // 认证类型: google-oauth | openai-api
     }
   },
   "tools": {
@@ -777,6 +788,125 @@ render(<AppWrapper />, {
           </div>
         </div>
       </Layer>
+
+      {/* 为什么这样设计 */}
+      <Layer title="为什么这样设计启动链" icon="🤔" defaultOpen={false}>
+        <div className="space-y-6">
+          <HighlightBox title="设计决策解析" icon="💡" variant="blue">
+            <p className="text-sm text-[var(--text-secondary)]">
+              启动链的设计目标是<strong>快速、可靠、可配置</strong>，
+              确保 CLI 能够在各种环境下正确初始化并进入工作状态。
+            </p>
+          </HighlightBox>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-[var(--bg-card)] p-4 rounded-lg border border-[var(--border-subtle)]">
+              <h4 className="text-[var(--terminal-green)] font-bold mb-2">1. 为什么先加载设置再解析参数？</h4>
+              <p className="text-sm text-[var(--text-secondary)] mb-2">
+                设置文件包含<strong>默认值和环境变量</strong>，参数解析需要这些作为 fallback。
+              </p>
+              <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                <li>• <strong>原因</strong>: 参数优先级高于配置文件</li>
+                <li>• <strong>好处</strong>: 统一的配置覆盖逻辑</li>
+                <li>• <strong>权衡</strong>: 两步加载略增复杂度</li>
+              </ul>
+            </div>
+
+            <div className="bg-[var(--bg-card)] p-4 rounded-lg border border-[var(--border-subtle)]">
+              <h4 className="text-[var(--cyber-blue)] font-bold mb-2">2. 为什么沙箱启动后父进程退出？</h4>
+              <p className="text-sm text-[var(--text-secondary)] mb-2">
+                沙箱内运行的是<strong>独立的 CLI 实例</strong>，父进程无需保持。
+              </p>
+              <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                <li>• <strong>原因</strong>: 沙箱是完整隔离环境</li>
+                <li>• <strong>好处</strong>: 避免资源浪费和信号传递问题</li>
+                <li>• <strong>权衡</strong>: 无法从外部直接控制沙箱</li>
+              </ul>
+            </div>
+
+            <div className="bg-[var(--bg-card)] p-4 rounded-lg border border-[var(--border-subtle)]">
+              <h4 className="text-[var(--amber)] font-bold mb-2">3. 为什么使用 React/Ink 而非传统 readline？</h4>
+              <p className="text-sm text-[var(--text-secondary)] mb-2">
+                Ink 提供<strong>声明式 UI 和状态管理</strong>，适合复杂交互界面。
+              </p>
+              <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                <li>• <strong>原因</strong>: CLI 需要实时更新、多区域显示</li>
+                <li>• <strong>好处</strong>: 组件化、可复用、易测试</li>
+                <li>• <strong>权衡</strong>: 引入 React 运行时开销</li>
+              </ul>
+            </div>
+
+            <div className="bg-[var(--bg-card)] p-4 rounded-lg border border-[var(--border-subtle)]">
+              <h4 className="text-[var(--purple)] font-bold mb-2">4. 为什么分离 Interactive 和 Non-Interactive 模式？</h4>
+              <p className="text-sm text-[var(--text-secondary)] mb-2">
+                两种模式的<strong>输入输出特性完全不同</strong>。
+              </p>
+              <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                <li>• <strong>原因</strong>: 交互模式需要 UI，非交互模式需要管道</li>
+                <li>• <strong>好处</strong>: 各自优化，不互相干扰</li>
+                <li>• <strong>权衡</strong>: 代码路径分叉</li>
+              </ul>
+            </div>
+
+            <div className="bg-[var(--bg-card)] p-4 rounded-lg border border-[var(--border-subtle)] md:col-span-2">
+              <h4 className="text-[var(--terminal-green)] font-bold mb-2">5. 为什么使用 Context Providers 层级？</h4>
+              <p className="text-sm text-[var(--text-secondary)] mb-2">
+                React Context 提供<strong>跨组件状态共享</strong>，避免 prop drilling。
+              </p>
+              <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                <li>• <strong>原因</strong>: 设置、会话状态需要全局访问</li>
+                <li>• <strong>好处</strong>: 解耦组件依赖，支持动态更新</li>
+                <li>• <strong>权衡</strong>: Provider 嵌套层次深</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* 启动阶段参考表 */}
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border border-[var(--border-subtle)]">
+            <h4 className="text-[var(--text-primary)] font-bold mb-3">📊 启动阶段耗时参考</h4>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-[var(--border-subtle)]">
+                    <th className="text-left py-2 px-3 text-[var(--text-muted)]">阶段</th>
+                    <th className="text-left py-2 px-3 text-[var(--text-muted)]">典型耗时</th>
+                    <th className="text-left py-2 px-3 text-[var(--text-muted)]">阻塞类型</th>
+                    <th className="text-left py-2 px-3 text-[var(--text-muted)]">失败处理</th>
+                  </tr>
+                </thead>
+                <tbody className="text-[var(--text-secondary)]">
+                  <tr className="border-b border-[var(--border-subtle)]/50">
+                    <td className="py-2 px-3 font-mono text-[var(--terminal-green)]">loadSettings</td>
+                    <td className="py-2 px-3">&lt;10ms</td>
+                    <td className="py-2 px-3">同步</td>
+                    <td className="py-2 px-3">使用默认值</td>
+                  </tr>
+                  <tr className="border-b border-[var(--border-subtle)]/50">
+                    <td className="py-2 px-3 font-mono text-[var(--cyber-blue)]">parseArguments</td>
+                    <td className="py-2 px-3">&lt;5ms</td>
+                    <td className="py-2 px-3">同步</td>
+                    <td className="py-2 px-3">显示帮助并退出</td>
+                  </tr>
+                  <tr className="border-b border-[var(--border-subtle)]/50">
+                    <td className="py-2 px-3 font-mono text-[var(--amber)]">sandbox launch</td>
+                    <td className="py-2 px-3">100-500ms</td>
+                    <td className="py-2 px-3">异步等待</td>
+                    <td className="py-2 px-3">回退到无沙箱</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 px-3 font-mono text-[var(--purple)]">initializeApp</td>
+                    <td className="py-2 px-3">50-200ms</td>
+                    <td className="py-2 px-3">异步</td>
+                    <td className="py-2 px-3">显示错误并退出</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

@@ -210,7 +210,7 @@ export default function ShadowGitCheckpointAnimation() {
               <span className="text-xl">👻</span> 影子 Git 仓库
             </h3>
             <div className="text-xs text-gray-500 font-mono mb-3">
-              .innies/tmp/[project_hash]/history/.git/
+              .gemini/tmp/[project_hash]/history/.git/
             </div>
 
             <div className="space-y-3">
@@ -309,7 +309,7 @@ export default function ShadowGitCheckpointAnimation() {
             <div className="p-3 bg-purple-500/20 border border-purple-500/30 rounded-lg text-center">
               <div className="text-purple-400 font-bold">影子 Git</div>
               <div className="text-xs text-gray-400">GIT_WORK_TREE=project</div>
-              <div className="text-xs text-gray-400">GIT_DIR=.innies/.git</div>
+              <div className="text-xs text-gray-400">GIT_DIR=.gemini/.git</div>
             </div>
             <div className="text-gray-500">→</div>
             <div className="p-3 bg-green-500/20 border border-green-500/30 rounded-lg text-center">

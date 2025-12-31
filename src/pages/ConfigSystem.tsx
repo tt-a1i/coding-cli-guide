@@ -3,6 +3,7 @@ import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { JsonBlock } from '../components/JsonBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { RelatedPages } from '../components/RelatedPages';
 
 export function ConfigSystem() {
   return (
@@ -66,7 +67,7 @@ export function ConfigSystem() {
           <div className="text-gray-500 mb-2">// 核心常量 - packages/cli/src/config/settings.ts</div>
           <div><span className="text-purple-400">SETTINGS_VERSION</span> = <span className="text-yellow-400">2</span>  <span className="text-gray-500">// 当前配置版本</span></div>
           <div><span className="text-purple-400">SETTINGS_VERSION_KEY</span> = <span className="text-green-400">"$version"</span>  <span className="text-gray-500">// 版本标记字段</span></div>
-          <div><span className="text-purple-400">SETTINGS_DIRECTORY_NAME</span> = <span className="text-green-400">".innies"</span>  <span className="text-gray-500">// 配置目录名</span></div>
+          <div><span className="text-purple-400">SETTINGS_DIRECTORY_NAME</span> = <span className="text-green-400">".gemini"</span>  <span className="text-gray-500">// 配置目录名</span></div>
           <div><span className="text-purple-400">DEFAULT_EXCLUDED_ENV_VARS</span> = [<span className="text-green-400">"DEBUG"</span>, <span className="text-green-400">"DEBUG_MODE"</span>]</div>
           <div className="mt-2 text-gray-500">// 合并策略枚举 - packages/cli/src/config/settingsSchema.ts:51-60</div>
           <div><span className="text-cyan-400">MergeStrategy.REPLACE</span> = <span className="text-green-400">"replace"</span>  <span className="text-gray-500">// 直接覆盖（默认）</span></div>
@@ -93,8 +94,8 @@ export function ConfigSystem() {
 
     CLI->>LS: 1. 加载四层配置文件
     LS->>LS: 读取 system-defaults.json
-    LS->>LS: 读取 ~/.innies/settings.json
-    LS->>LS: 读取 .innies/settings.json
+    LS->>LS: 读取 ~/.gemini/settings.json
+    LS->>LS: 读取 .gemini/settings.json
     LS->>LS: 读取 /etc/.../settings.json
 
     LS->>Migrate: 2. 检查并迁移 v1 → v2
@@ -118,7 +119,7 @@ export function ConfigSystem() {
 
     CLI->>LCC: 7. loadCliConfig()
 
-    LCC->>Memory: 8. 加载 QWEN.md 记忆
+    LCC->>Memory: 8. 加载 GEMINI.md 记忆
     Memory-->>LCC: userMemory: string
 
     LCC->>LCC: 9. mergeMcpServers()
@@ -142,8 +143,8 @@ export function ConfigSystem() {
           <ol className="list-decimal pl-5 space-y-1 text-sm">
             <li><strong>默认值</strong> - 代码中的硬编码默认</li>
             <li><strong>System Defaults</strong> - 系统级默认配置文件</li>
-            <li><strong>User Settings</strong> - 用户级配置 <code>~/.innies/settings.json</code></li>
-            <li><strong>Workspace Settings</strong> - 项目级配置 <code>.innies/settings.json</code></li>
+            <li><strong>User Settings</strong> - 用户级配置 <code>~/.gemini/settings.json</code></li>
+            <li><strong>Workspace Settings</strong> - 项目级配置 <code>.gemini/settings.json</code></li>
             <li><strong>System Settings</strong> - 系统级覆盖配置（企业管控）</li>
             <li><strong>环境变量</strong> - <code>.env</code> 文件或 shell 环境</li>
             <li><strong>命令行参数</strong> - 启动时传入的参数</li>
@@ -153,7 +154,7 @@ export function ConfigSystem() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-4">
             <h4 className="text-cyan-400 font-bold mb-2">🏠 用户级配置</h4>
-            <code className="text-xs text-gray-400 block mb-2">~/.innies/settings.json</code>
+            <code className="text-xs text-gray-400 block mb-2">~/.gemini/settings.json</code>
             <p className="text-sm text-gray-300">
               跨所有项目的全局配置，如 UI 偏好、默认模型等
             </p>
@@ -161,7 +162,7 @@ export function ConfigSystem() {
 
           <div className="bg-purple-500/10 border-2 border-purple-500/30 rounded-lg p-4">
             <h4 className="text-purple-400 font-bold mb-2">📂 项目级配置</h4>
-            <code className="text-xs text-gray-400 block mb-2">.innies/settings.json</code>
+            <code className="text-xs text-gray-400 block mb-2">.gemini/settings.json</code>
             <p className="text-sm text-gray-300">
               项目特定配置，覆盖用户级设置<br/>
               <span className="text-orange-400 text-xs">⚠️ 非信任目录时被忽略</span>
@@ -171,7 +172,7 @@ export function ConfigSystem() {
           <div className="bg-green-500/10 border-2 border-green-500/30 rounded-lg p-4">
             <h4 className="text-green-400 font-bold mb-2">🏢 System Defaults</h4>
             <code className="text-xs text-gray-400 block mb-2">
-              /etc/innies-code/system-defaults.json (Linux)<br/>
+              /etc/gemini-code/system-defaults.json (Linux)<br/>
               /Library/Application Support/InniesCode/system-defaults.json (macOS)
             </code>
             <p className="text-sm text-gray-300">
@@ -182,7 +183,7 @@ export function ConfigSystem() {
           <div className="bg-red-500/10 border-2 border-red-500/30 rounded-lg p-4">
             <h4 className="text-red-400 font-bold mb-2">🔒 System Settings (Override)</h4>
             <code className="text-xs text-gray-400 block mb-2">
-              /etc/innies-code/settings.json (Linux)<br/>
+              /etc/gemini-code/settings.json (Linux)<br/>
               /Library/Application Support/InniesCode/settings.json (macOS)
             </code>
             <p className="text-sm text-gray-300">
@@ -201,11 +202,11 @@ export function getSystemSettingsPath(): string {
   }
   // 平台特定路径
   if (platform() === 'darwin') {
-    return '/Library/Application Support/QwenCode/settings.json';
+    return '/Library/Application Support/GeminiCode/settings.json';
   } else if (platform() === 'win32') {
-    return 'C:\\\\ProgramData\\\\qwen-code\\\\settings.json';
+    return 'C:\\\\ProgramData\\\\gemini-code\\\\settings.json';
   } else {
-    return '/etc/qwen-code/settings.json';
+    return '/etc/gemini-code/settings.json';
   }
 }
 
@@ -291,7 +292,7 @@ export function getSystemDefaultsPath(): string {
   // model - 模型设置
   // ═══════════════════════════════════════════
   "model": {
-    "name": "qwen-coder-plus",
+    "name": "gemini-1.5-pro",
     "maxSessionTurns": -1,
     "sessionTokenLimit": null,
     "skipNextSpeakerCheck": true,
@@ -338,7 +339,7 @@ export function getSystemDefaultsPath(): string {
   // context - 上下文设置
   // ═══════════════════════════════════════════
   "context": {
-    "fileName": ["QWEN.md", "CONTEXT.md"],
+    "fileName": ["GEMINI.md", "CONTEXT.md"],
     "importFormat": "tree",     // tree | flat
     "discoveryMaxDirs": 200,
     "includeDirectories": [],
@@ -368,7 +369,7 @@ export function getSystemDefaultsPath(): string {
       "enabled": false
     },
     "auth": {
-      "selectedType": "qwen_oauth",  // qwen_oauth | api_key | ...
+      "selectedType": "gemini_oauth",  // gemini_oauth | api_key | ...
       "enforcedType": null,
       "useExternal": false,
       "apiKey": null,
@@ -570,7 +571,7 @@ export function needsMigration(settings: Record<string, unknown>): boolean {
               <div className="bg-cyan-700/30 border border-cyan-500/50 rounded px-3 py-2 text-center">
                 <div className="text-xs text-gray-400">Layer 2</div>
                 <div className="text-cyan-400 font-mono text-sm">user</div>
-                <div className="text-xs text-gray-500">~/.innies/</div>
+                <div className="text-xs text-gray-500">~/.gemini/</div>
               </div>
               <span className="text-cyan-400">→</span>
               <div className="bg-purple-700/30 border border-purple-500/50 rounded px-3 py-2 text-center relative">
@@ -935,8 +936,8 @@ workspaceSettings = resolveEnvVarsInObject(workspaceResult.settings);`}
           code={`# 认证相关
 OPENAI_API_KEY=sk-...          # OpenAI 兼容 API 密钥
 OPENAI_BASE_URL=https://...    # 自定义 API 端点
-OPENAI_MODEL=qwen-coder-plus   # 默认模型
-QWEN_MODEL=qwen-coder-plus     # Qwen 模型（优先级高于 OPENAI_MODEL）
+OPENAI_MODEL=gemini-1.5-pro   # 默认模型
+GEMINI_MODEL=gemini-1.5-pro     # Gemini 模型（优先级高于 OPENAI_MODEL）
 
 # 沙箱
 GEMINI_SANDBOX=true            # 启用沙箱 (true|docker|podman)
@@ -985,7 +986,7 @@ function findEnvFile(startDir: string): string | null {
   let currentDir = path.resolve(startDir);
 
   while (true) {
-    // 1. 优先查找 .innies/.env（项目特定）
+    // 1. 优先查找 .gemini/.env（项目特定）
     const geminiEnvPath = path.join(currentDir, QWEN_DIR, '.env');
     if (fs.existsSync(geminiEnvPath)) {
       return geminiEnvPath;
@@ -1064,10 +1065,10 @@ function findEnvFile(startDir: string): string | null {
           <div className="bg-green-500/10 border-2 border-green-500/30 rounded-lg p-4">
             <h4 className="text-green-400 font-bold mb-2">.env 搜索优先级</h4>
             <ol className="text-sm space-y-1 list-decimal pl-4 text-gray-300">
-              <li><code>.innies/.env</code> (当前目录)</li>
+              <li><code>.gemini/.env</code> (当前目录)</li>
               <li><code>.env</code> (当前目录)</li>
               <li>向上遍历父目录重复 1-2</li>
-              <li><code>~/.innies/.env</code> (home)</li>
+              <li><code>~/.gemini/.env</code> (home)</li>
               <li><code>~/.env</code> (home)</li>
             </ol>
           </div>
@@ -1359,13 +1360,13 @@ function parseApprovalModeValue(value: string): ApprovalMode {
         />
       </Layer>
 
-      {/* .innies 目录结构 */}
-      <Layer title=".innies 目录结构" icon="📂">
+      {/* .gemini 目录结构 */}
+      <Layer title=".gemini 目录结构" icon="📂">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-4">
-            <h4 className="text-cyan-400 font-bold mb-2">~/.innies/ (用户级)</h4>
+            <h4 className="text-cyan-400 font-bold mb-2">~/.gemini/ (用户级)</h4>
             <pre className="text-sm text-gray-300 whitespace-pre-wrap">{`├── settings.json      # 用户配置
-├── QWEN.md            # 用户级记忆
+├── GEMINI.md            # 用户级记忆
 ├── oauth_creds.json   # OAuth 凭据
 ├── mcp-oauth-tokens.json  # MCP OAuth tokens
 ├── agents/            # 用户级子代理
@@ -1380,9 +1381,9 @@ function parseApprovalModeValue(value: string): ApprovalMode {
           </div>
 
           <div className="bg-purple-500/10 border-2 border-purple-500/30 rounded-lg p-4">
-            <h4 className="text-purple-400 font-bold mb-2">.innies/ (项目级)</h4>
+            <h4 className="text-purple-400 font-bold mb-2">.gemini/ (项目级)</h4>
             <pre className="text-sm text-gray-300 whitespace-pre-wrap">{`├── settings.json      # 项目配置
-├── QWEN.md            # 项目级记忆
+├── GEMINI.md            # 项目级记忆
 ├── agents/            # 项目级子代理
 ├── commands/          # 项目级自定义命令
 ├── extensions/        # 项目级扩展
@@ -1400,9 +1401,9 @@ function parseApprovalModeValue(value: string): ApprovalMode {
             当 <code>security.folderTrust.enabled: true</code> 且工作区未被信任时：
           </p>
           <ul className="list-disc pl-5 text-sm space-y-1">
-            <li>项目级 <code>.innies/settings.json</code> <strong>被忽略</strong></li>
-            <li>项目级 <code>.innies/commands/</code> <strong>不加载</strong></li>
-            <li>项目级 <code>.innies/extensions/</code> <strong>不加载</strong></li>
+            <li>项目级 <code>.gemini/settings.json</code> <strong>被忽略</strong></li>
+            <li>项目级 <code>.gemini/commands/</code> <strong>不加载</strong></li>
+            <li>项目级 <code>.gemini/extensions/</code> <strong>不加载</strong></li>
             <li>项目级 <code>.env</code> 文件 <strong>不加载</strong></li>
             <li><code>tools.approvalMode</code> 受限，不能使用 <code>yolo</code></li>
           </ul>
@@ -1457,7 +1458,7 @@ if (
             <div className="flex items-start gap-2">
               <span className="text-cyan-400">4.</span>
               <div>
-                <strong>loadHierarchicalGeminiMemory() 阶段</strong> - 决定是否加载项目级 QWEN.md
+                <strong>loadHierarchicalGeminiMemory() 阶段</strong> - 决定是否加载项目级 GEMINI.md
                 <div className="text-xs text-gray-400 mt-1">
                   位置: <code>packages/core/src/utils/memoryDiscovery.ts:359</code>
                 </div>
@@ -1488,7 +1489,7 @@ if (
     TrustCheck -->|受信任| LoadEnv[loadEnvironment<br/>加载 .env]
     TrustCheck -->|不受信任| SkipEnv[跳过项目级 .env]
 
-    LoadEnv --> LoadMemory[loadHierarchicalGeminiMemory<br/>加载 QWEN.md]
+    LoadEnv --> LoadMemory[loadHierarchicalGeminiMemory<br/>加载 GEMINI.md]
     SkipEnv --> LoadMemory
 
     LoadMemory --> MergeMcp[mergeMcpServers<br/>合并 MCP 服务器配置]
@@ -1543,7 +1544,7 @@ if (
     setServerGeminiMdFilename(settings.context.fileName);
   }
 
-  // 4️⃣ 加载层级记忆（QWEN.md）
+  // 4️⃣ 加载层级记忆（GEMINI.md）
   const { memoryContent, fileCount } = await loadHierarchicalGeminiMemory(
     cwd,
     settings.context?.loadMemoryFromIncludeDirectories ? includeDirectories : [],
@@ -1577,7 +1578,7 @@ if (
   const resolvedModel =
     argv.model ||
     process.env['OPENAI_MODEL'] ||
-    process.env['QWEN_MODEL'] ||
+    process.env['GEMINI_MODEL'] ||
     settings.model?.name;
 
   // 9️⃣ 创建 Config 实例
@@ -2070,13 +2071,13 @@ if (needsMigration(settingsObject)) {
               </div>
               <CodeBlock
                 code={`# 调试方法 1: 查看实际加载的配置
-DEBUG=innies:config innies
+DEBUG=gemini:config gemini
 
 # 调试方法 2: 检查配置文件语法
-cat ~/.innies/settings.json | jq .
+cat ~/.gemini/settings.json | jq .
 
 # 调试方法 3: 查看信任状态
-innies --help  # 观察是否有信任提示
+gemini --help  # 观察是否有信任提示
 
 # 调试方法 4: 查看配置合并结果
 # 在代码中添加日志
@@ -2116,7 +2117,7 @@ console.log(JSON.stringify(mergedSettings, null, 2));`}
 echo $API_KEY
 
 # 调试方法 2: 在 .env 中设置（会被自动加载）
-echo "API_KEY=sk-xxx" >> ~/.innies/.env
+echo "API_KEY=sk-xxx" >> ~/.gemini/.env
 
 # 调试方法 3: 检查配置值类型
 # 环境变量只解析字符串值，数字/布尔不会解析
@@ -2162,11 +2163,11 @@ echo "API_KEY=sk-xxx" >> ~/.innies/.env
               </div>
               <CodeBlock
                 code={`# 查看原始备份
-cat ~/.innies/settings.json.orig
+cat ~/.gemini/settings.json.orig
 
 # 常见迁移错误
-# v1: "model": "qwen-coder-plus"
-# v2: "model": { "name": "qwen-coder-plus" }
+# v1: "model": "gemini-1.5-pro"
+# v2: "model": { "name": "gemini-1.5-pro" }
 
 # v1: "allowedTools": [...]
 # v2: "tools": { "allowed": [...] }
@@ -2205,16 +2206,16 @@ cat ~/.innies/settings.json.orig
               </div>
               <CodeBlock
                 code={`# 调试 MCP 连接
-DEBUG=innies:mcp innies
+DEBUG=gemini:mcp gemini
 
 # 检查 MCP 排除列表
-jq '.mcp.excluded' ~/.innies/settings.json
+jq '.mcp.excluded' ~/.gemini/settings.json
 
 # 手动测试 MCP Server 命令
 npx -y @anthropic/mcp-server-filesystem
 
 # 检查信任状态（非信任目录不启动 MCP）
-innies config --show | grep trust`}
+gemini config --show | grep trust`}
               />
             </div>
           </div>
@@ -2234,17 +2235,17 @@ innies config --show | grep trust`}
               <tbody className="text-gray-300 font-mono text-xs">
                 <tr className="border-b border-gray-700/50">
                   <td className="p-2">配置加载过程</td>
-                  <td className="p-2 text-cyan-400">DEBUG=innies:config innies</td>
+                  <td className="p-2 text-cyan-400">DEBUG=gemini:config gemini</td>
                   <td>各层配置加载和合并详情</td>
                 </tr>
                 <tr className="border-b border-gray-700/50">
                   <td className="p-2">环境变量解析</td>
-                  <td className="p-2 text-cyan-400">DEBUG=innies:env innies</td>
+                  <td className="p-2 text-cyan-400">DEBUG=gemini:env gemini</td>
                   <td>.env 文件加载和变量解析</td>
                 </tr>
                 <tr className="border-b border-gray-700/50">
                   <td className="p-2">信任状态</td>
-                  <td className="p-2 text-cyan-400">DEBUG=innies:trust innies</td>
+                  <td className="p-2 text-cyan-400">DEBUG=gemini:trust gemini</td>
                   <td>信任检查过程和结果</td>
                 </tr>
                 <tr className="border-b border-gray-700/50">
@@ -2254,7 +2255,7 @@ innies config --show | grep trust`}
                 </tr>
                 <tr>
                   <td className="p-2">查看最终配置</td>
-                  <td className="p-2 text-cyan-400">innies config --show</td>
+                  <td className="p-2 text-cyan-400">gemini config --show</td>
                   <td>合并后的最终配置</td>
                 </tr>
               </tbody>
@@ -2350,7 +2351,7 @@ innies config --show | grep trust`}
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-green-400">✓</span>
-                <span className="text-gray-300">或使用 .innies/.env 精确匹配</span>
+                <span className="text-gray-300">或使用 .gemini/.env 精确匹配</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <span className="text-yellow-400">△</span>
@@ -2484,8 +2485,8 @@ innies config --show | grep trust`}
 
     subgraph Sources["配置来源"]
         SysDefaults[system-defaults.json]
-        UserSettings[~/.innies/settings.json]
-        WorkspaceSettings[.innies/settings.json]
+        UserSettings[~/.gemini/settings.json]
+        WorkspaceSettings[.gemini/settings.json]
         SysSettings[/etc/.../settings.json]
         EnvFile[.env 文件]
         ShellEnv[Shell 环境变量]
@@ -2660,6 +2661,159 @@ class LoadedSettings {
           </div>
         </HighlightBox>
       </Layer>
+
+      {/* 为什么这样设计配置系统 */}
+      <Layer title="💡 为什么这样设计配置系统？" icon="🤔">
+        <div className="space-y-6">
+          <div className="bg-black/30 rounded-lg p-5">
+            <h4 className="text-lg font-medium text-gray-200 mb-3">1. 为什么采用四层配置而非两层？</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <div className="text-red-400 font-medium mb-1">两层模型（用户 + 项目）的不足</div>
+                <ul className="text-gray-400 space-y-1">
+                  <li>• 无法满足企业管控需求</li>
+                  <li>• 无法提供系统级默认值</li>
+                  <li>• IT 无法统一配置策略</li>
+                </ul>
+              </div>
+              <div>
+                <div className="text-green-400 font-medium mb-1">四层模型的优势</div>
+                <ul className="text-gray-400 space-y-1">
+                  <li>• <strong>systemDefaults</strong>: 企业可预设默认值</li>
+                  <li>• <strong>user</strong>: 个人偏好</li>
+                  <li>• <strong>workspace</strong>: 项目需求</li>
+                  <li>• <strong>system</strong>: IT 强制策略</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-black/30 rounded-lg p-5">
+            <h4 className="text-lg font-medium text-gray-200 mb-3">2. 为什么 v2 采用嵌套结构而非 v1 扁平结构？</h4>
+            <CodeBlock code={`// v1 扁平结构的问题
+{
+  "vimMode": true,
+  "hideBanner": true,
+  "model": "gemini-1.5-flash",
+  "allowedTools": [...],
+  "mcpServers": {...}
+}
+// 100+ 个顶层字段，难以管理和扩展
+
+// v2 嵌套结构的优势
+{
+  "general": { "vimMode": true },
+  "ui": { "hideBanner": true },
+  "model": { "name": "gemini-1.5-flash" },
+  "tools": { "allowed": [...] }
+}
+// 分类清晰，易于扩展新领域`} language="json" />
+          </div>
+
+          <div className="bg-black/30 rounded-lg p-5">
+            <h4 className="text-lg font-medium text-gray-200 mb-3">3. 为什么需要策略感知合并？</h4>
+            <div className="text-sm text-gray-300 space-y-2">
+              <p>不同字段需要不同的合并语义：</p>
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-gray-700 text-gray-400">
+                    <th className="text-left py-2">字段</th>
+                    <th className="text-left py-2">如果用 REPLACE</th>
+                    <th className="text-left py-2">正确策略</th>
+                  </tr>
+                </thead>
+                <tbody className="text-gray-400">
+                  <tr className="border-b border-gray-800">
+                    <td className="py-2"><code>mcpServers</code></td>
+                    <td className="py-2 text-red-400">项目配置完全覆盖用户服务器</td>
+                    <td className="py-2 text-green-400">SHALLOW_MERGE: 按 key 合并</td>
+                  </tr>
+                  <tr className="border-b border-gray-800">
+                    <td className="py-2"><code>tools.exclude</code></td>
+                    <td className="py-2 text-red-400">项目排除列表覆盖用户列表</td>
+                    <td className="py-2 text-green-400">UNION: 去重合并</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2"><code>context.includeDirectories</code></td>
+                    <td className="py-2 text-red-400">项目目录覆盖用户目录</td>
+                    <td className="py-2 text-green-400">CONCAT: 拼接保留全部</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div className="bg-black/30 rounded-lg p-5">
+            <h4 className="text-lg font-medium text-gray-200 mb-3">4. 为什么工作区配置需要信任检查？</h4>
+            <div className="text-sm text-gray-300">
+              <p className="mb-2"><strong className="text-red-400">安全风险</strong>：恶意仓库可能包含危险配置</p>
+              <ul className="text-gray-400 space-y-1 text-xs">
+                <li>• <code>tools.approvalMode: "yolo"</code> - 自动执行任意命令</li>
+                <li>• <code>mcpServers</code> - 启动恶意 MCP 服务器</li>
+                <li>• <code>tools.allowed</code> - 跳过危险操作确认</li>
+              </ul>
+              <p className="mt-3 text-cyan-400">
+                解决方案：非信任工作区的 workspace 配置被替换为空对象
+              </p>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      {/* 配置边界情况 */}
+      <Layer title="⚠️ 配置加载边界情况" icon="🔧">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-700 text-left text-gray-400">
+                <th className="py-2 px-2">场景</th>
+                <th className="py-2 px-2">触发条件</th>
+                <th className="py-2 px-2">系统行为</th>
+              </tr>
+            </thead>
+            <tbody className="text-gray-300">
+              <tr className="border-b border-gray-800">
+                <td className="py-2 px-2 text-red-400">JSON 语法错误</td>
+                <td className="py-2 px-2 text-xs">settings.json 包含无效 JSON</td>
+                <td className="py-2 px-2 text-xs">跳过该文件，使用默认值，输出警告</td>
+              </tr>
+              <tr className="border-b border-gray-800">
+                <td className="py-2 px-2 text-amber-400">迁移冲突</td>
+                <td className="py-2 px-2 text-xs">v1 字段与 v2 容器同名</td>
+                <td className="py-2 px-2 text-xs">检测 v2 容器类型，跳过迁移</td>
+              </tr>
+              <tr className="border-b border-gray-800">
+                <td className="py-2 px-2 text-amber-400">环境变量未定义</td>
+                <td className="py-2 px-2 text-xs">$VAR 引用不存在的变量</td>
+                <td className="py-2 px-2 text-xs">保留原始字符串 "$VAR"</td>
+              </tr>
+              <tr className="border-b border-gray-800">
+                <td className="py-2 px-2 text-cyan-400">循环引用</td>
+                <td className="py-2 px-2 text-xs">对象自引用</td>
+                <td className="py-2 px-2 text-xs">WeakSet 检测，返回浅拷贝</td>
+              </tr>
+              <tr>
+                <td className="py-2 px-2 text-purple-400">权限不足</td>
+                <td className="py-2 px-2 text-xs">无法读取系统配置文件</td>
+                <td className="py-2 px-2 text-xs">静默跳过，仅使用可访问的配置</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Layer>
+
+      {/* 相关页面 */}
+      <RelatedPages
+        title="📚 相关阅读"
+        pages={[
+          { id: 'approval-mode', label: '审批模式系统', description: '工具执行权限控制' },
+          { id: 'mcp', label: 'MCP 协议', description: 'mcpServers 配置详解' },
+          { id: 'extension', label: '扩展系统', description: '扩展配置项注册' },
+          { id: 'session-persistence', label: '会话持久化', description: '会话配置和存储' },
+          { id: 'design-tradeoffs', label: '设计权衡', description: '配置系统的架构决策' },
+          { id: 'sandbox', label: '沙箱系统', description: 'sandbox 配置详解' },
+        ]}
+      />
     </div>
   );
 }

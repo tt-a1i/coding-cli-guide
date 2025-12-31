@@ -1,11 +1,22 @@
 import { HighlightBox } from '../components/HighlightBox';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
+import { Layer } from '../components/Layer';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 export function NonInteractiveMode() {
+  const relatedPages: RelatedPage[] = [
+    { id: 'startup-chain', label: '启动链', description: '模式选择' },
+    { id: 'gemini-chat', label: 'GeminiChatCore', description: 'AI 核心' },
+    { id: 'tool-arch', label: '工具系统', description: '工具调用' },
+    { id: 'streaming-response-processing', label: '流式处理', description: '输出流' },
+    { id: 'error', label: '错误处理', description: '错误码' },
+    { id: 'config', label: '配置系统', description: '命令行参数' },
+  ];
+
   const nonInteractiveFlow = `
 flowchart TD
-    start["命令行启动<br/>qwen -p &quot;prompt&quot;"]
+    start["命令行启动<br/>gemini -p &quot;prompt&quot;"]
     parse_args["解析命令行参数"]
     check_stdin{"检查 stdin<br/>输入"}
     read_stdin["读取 stdin<br/>内容"]
@@ -76,46 +87,46 @@ type OutputFormat =
   const usageExamplesCode = `# 非交互模式使用示例
 
 # 基本用法：单次请求
-qwen -p "解释这段代码的作用" @src/main.ts
+gemini -p "解释这段代码的作用" @src/main.ts
 
 # 从 stdin 读取输入
-cat error.log | qwen -p "分析这个错误日志"
-git diff | qwen -p "为这些更改写一个提交信息"
+cat error.log | gemini -p "分析这个错误日志"
+git diff | gemini -p "为这些更改写一个提交信息"
 
 # 输出到文件
-qwen -p "生成 API 文档" @src/api.ts -o docs/api.md
+gemini -p "生成 API 文档" @src/api.ts -o docs/api.md
 
 # JSON 格式输出
-qwen -p "列出所有 TODO 项" --json > todos.json
+gemini -p "列出所有 TODO 项" --json > todos.json
 
 # 多轮对话模式
-qwen -p "重构这个函数" @func.ts --max-turns 5
+gemini -p "重构这个函数" @func.ts --max-turns 5
 
 # 自动确认所有操作
-qwen -p "修复所有 lint 错误" --yes
+gemini -p "修复所有 lint 错误" --yes
 
 # 指定系统提示词
-qwen -p "review code" --system "你是一个严格的代码审查员"
+gemini -p "review code" --system "你是一个严格的代码审查员"
 
 # 恢复之前的会话
-qwen -p "继续之前的任务" --resume session-abc123
+gemini -p "继续之前的任务" --resume session-abc123
 
 # 限制可用工具
-qwen -p "只分析代码，不要修改" --tools "Read,Grep,Glob"
+gemini -p "只分析代码，不要修改" --tools "Read,Grep,Glob"
 
 # 禁用危险工具
-qwen -p "清理项目" --no-tools "run_shell_command"
+gemini -p "清理项目" --no-tools "run_shell_command"
 
 # 使用沙箱执行
-qwen -p "运行测试" --sandbox
+gemini -p "运行测试" --sandbox
 
 # 设置超时
-qwen -p "分析大型代码库" --timeout 300
+gemini -p "分析大型代码库" --timeout 300
 
 # 管道链式调用
-qwen -p "提取函数列表" @src/*.ts --json | \\
+gemini -p "提取函数列表" @src/*.ts --json | \\
   jq '.functions[]' | \\
-  qwen -p "为每个函数生成测试"`;
+  gemini -p "为每个函数生成测试"`;
 
   const implementationCode = `// 非交互模式主函数
 // packages/cli/src/nonInteractiveCli.ts
@@ -387,8 +398,8 @@ function getExitCode(error: Error): number {
 }
 
 // 在脚本中使用退出码
-// $ qwen -p "test" && echo "success" || echo "failed"
-// $ if qwen -p "check"; then deploy; fi`;
+// $ gemini -p "test" && echo "success" || echo "failed"
+// $ if gemini -p "check"; then deploy; fi`;
 
   const ciIntegrationCode = `# CI/CD 集成示例
 
@@ -404,7 +415,7 @@ jobs:
       - name: AI Code Review
         run: |
           git diff origin/main...HEAD | \\
-            qwen -p "审查这些代码更改，指出潜在问题" \\
+            gemini -p "审查这些代码更改，指出潜在问题" \\
             --json > review.json
 
       - name: Check Review Result
@@ -418,7 +429,7 @@ jobs:
 code-review:
   script:
     - |
-      qwen -p "检查代码质量" @src/ \\
+      gemini -p "检查代码质量" @src/ \\
         --tools "Read,Grep,Glob" \\
         --timeout 120 \\
         --yes
@@ -429,7 +440,7 @@ pipeline {
     stage('AI Analysis') {
       steps {
         sh '''
-          qwen -p "分析测试覆盖率并建议改进" \\
+          gemini -p "分析测试覆盖率并建议改进" \\
             @coverage/lcov.info \\
             -o reports/ai-analysis.md
         '''
@@ -444,7 +455,7 @@ pipeline {
 
 staged_files=$(git diff --cached --name-only --diff-filter=ACM)
 if [ -n "$staged_files" ]; then
-  echo "$staged_files" | xargs qwen -p "快速检查这些文件" --quiet
+  echo "$staged_files" | xargs gemini -p "快速检查这些文件" --quiet
   if [ $? -ne 0 ]; then
     echo "AI 检查未通过"
     exit 1
@@ -463,22 +474,22 @@ fi`;
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <HighlightBox title="单次请求" color="blue">
-            <code className="text-sm">qwen -p "prompt"</code>
+            <code className="text-sm">gemini -p "prompt"</code>
             <p className="text-xs text-gray-400 mt-1">执行一次请求后退出</p>
           </HighlightBox>
 
           <HighlightBox title="管道输入" color="green">
-            <code className="text-sm">cat file | qwen</code>
+            <code className="text-sm">cat file | gemini</code>
             <p className="text-xs text-gray-400 mt-1">从 stdin 读取内容</p>
           </HighlightBox>
 
           <HighlightBox title="文件输出" color="yellow">
-            <code className="text-sm">qwen -p "..." -o out.md</code>
+            <code className="text-sm">gemini -p "..." -o out.md</code>
             <p className="text-xs text-gray-400 mt-1">结果写入文件</p>
           </HighlightBox>
 
           <HighlightBox title="JSON 格式" color="purple">
-            <code className="text-sm">qwen --json</code>
+            <code className="text-sm">gemini --json</code>
             <p className="text-xs text-gray-400 mt-1">结构化输出</p>
           </HighlightBox>
         </div>
@@ -657,7 +668,7 @@ fi`;
 {`┌──────────────────────────────────────────────────────────────────┐
 │                    Command Line Interface                        │
 │                                                                  │
-│  $ qwen -p "prompt" @file.ts --json -o output.json            │
+│  $ gemini -p "prompt" @file.ts --json -o output.json            │
 │                                                                  │
 └───────────────────────────────┬──────────────────────────────────┘
                                 │
@@ -680,7 +691,7 @@ fi`;
 │  │  stdin Reader  │  │  @ Reference   │  │   Context      │     │
 │  │                │  │   Resolver     │  │   Loader       │     │
 │  │  cat file |    │  │   @path →      │  │   --context    │     │
-│  │  qwen        │  │   content      │  │   files        │     │
+│  │  gemini        │  │   content      │  │   files        │     │
 │  └───────┬────────┘  └───────┬────────┘  └───────┬────────┘     │
 │          └───────────────────┴───────────────────┘               │
 │                              │                                   │
@@ -758,6 +769,48 @@ fi`;
           </div>
         </div>
       </section>
+
+      {/* 设计决策 */}
+      <Layer title="为什么这样设计非交互模式" icon="🤔" defaultOpen={false}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <HighlightBox title="为什么需要独立的非交互模式?" color="blue">
+            <p className="text-sm text-gray-300">
+              交互模式依赖终端 UI 和用户输入循环，不适合自动化场景。非交互模式提供确定性的输入输出流程，
+              支持单次执行语义，便于脚本编排和 CI/CD 集成。两种模式的执行路径和资源管理策略完全不同。
+            </p>
+          </HighlightBox>
+
+          <HighlightBox title="为什么使用标准输出而非 Ink UI?" color="green">
+            <p className="text-sm text-gray-300">
+              Ink UI 的 React 渲染模型会产生 ANSI 转义序列和光标控制，破坏管道输出的可解析性。
+              非交互模式直接写入 stdout/stderr，确保输出是纯文本或结构化 JSON，可被 jq、grep 等工具处理。
+            </p>
+          </HighlightBox>
+
+          <HighlightBox title="为什么支持管道输入?" color="yellow">
+            <p className="text-sm text-gray-300">
+              Unix 哲学强调组合性，通过检测 stdin.isTTY 自动识别管道输入，使 CLI 成为管道链的一部分。
+              支持 <code>cat file | gemini</code> 和 <code>gemini | jq</code> 模式，实现与现有工具链的无缝集成。
+            </p>
+          </HighlightBox>
+
+          <HighlightBox title="为什么返回退出码?" color="purple">
+            <p className="text-sm text-gray-300">
+              Shell 脚本和 CI 系统依赖退出码判断命令成功与否。细分的退出码（0-7, 130）让调用方能区分
+              成功、参数错误、认证失败、网络问题等情况，支持 <code>&&</code>、<code>||</code>、<code>set -e</code> 等流程控制。
+            </p>
+          </HighlightBox>
+
+          <HighlightBox title="为什么限制交互式工具?" color="orange">
+            <p className="text-sm text-gray-300">
+              非交互模式无法处理需要用户确认的操作。通过 <code>--yes</code> 自动确认和 <code>--tools</code> 白名单，
+              在安全性和自动化之间取得平衡。敏感操作建议启用 <code>--sandbox</code> 隔离执行环境。
+            </p>
+          </HighlightBox>
+        </div>
+      </Layer>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

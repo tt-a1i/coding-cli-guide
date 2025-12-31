@@ -313,10 +313,10 @@ export class FileCommandLoader implements ICommandLoader {
   private getCommandDirectories(): CommandDirectory[] {
     const dirs: CommandDirectory[] = [];
 
-    // 1. 用户全局命令 (~/.config/innies/commands/)
+    // 1. 用户全局命令 (~/.config/gemini/commands/)
     dirs.push({ path: Storage.getUserCommandsDir() });
 
-    // 2. 项目级命令 (.innies/commands/)
+    // 2. 项目级命令 (.gemini/commands/)
     dirs.push({ path: storage.getProjectCommandsDir() });
 
     // 3. 扩展命令 (按字母顺序，便于确定性加载)
@@ -337,7 +337,7 @@ export class FileCommandLoader implements ICommandLoader {
 }`} />
 
           <h4>TOML 命令文件格式</h4>
-          <CodeBlock language="toml" code={`# ~/.config/innies/commands/review.toml
+          <CodeBlock language="toml" code={`# ~/.config/gemini/commands/review.toml
 
 prompt = """
 请审查以下代码的质量、安全性和最佳实践:

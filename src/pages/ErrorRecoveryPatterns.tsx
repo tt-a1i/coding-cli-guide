@@ -3,8 +3,18 @@ import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 type TabType = 'overview' | 'retry' | 'fallback' | 'token' | 'timeout';
+
+const relatedPages: RelatedPage[] = [
+  { id: 'shared-token-manager', label: 'Token 管理器', description: '多进程 Token 共享机制' },
+  { id: 'retry', label: '重试与降级', description: '指数退避与模型降级策略' },
+  { id: 'error', label: '错误处理', description: '错误分类与处理策略' },
+  { id: 'content-gen', label: 'ContentGenerator', description: 'API 调用层详解' },
+  { id: 'exponential-backoff-anim', label: '指数退避动画', description: '可视化退避算法' },
+  { id: 'concurrency-patterns', label: '并发模式', description: '异步操作与并发控制' },
+];
 
 export function ErrorRecoveryPatterns() {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
@@ -128,7 +138,7 @@ flowchart TD
               </tr>
               <tr className="border-b border-white/10">
                 <td className="p-3 text-[var(--error)] font-semibold">配额检测</td>
-                <td className="p-3 text-[var(--text-secondary)]">Qwen 免费额度用尽</td>
+                <td className="p-3 text-[var(--text-secondary)]">Gemini 配额用尽</td>
                 <td className="p-3 text-[var(--text-secondary)]">立即失败</td>
                 <td className="p-3 text-[var(--cyber-blue)] font-mono text-xs">quotaErrorDetection.ts</td>
               </tr>
@@ -310,7 +320,7 @@ function FallbackTab() {
 flowchart TD
     subgraph "配额检测"
         Q1[Gemini Pro 配额]
-        Q2[Qwen 免费配额]
+        Q2[Gemini 配额]
         Q3[通用配额错误]
     end
 
@@ -352,8 +362,8 @@ export function isProQuotaExceededError(error: unknown): boolean {
   // ...
 }
 
-// Qwen 免费配额耗尽（不可恢复）
-export function isQwenFreeQuotaExhausted(error: unknown): boolean {
+// Gemini 配额耗尽（不可恢复）
+export function isGeminiQuotaExhausted(error: unknown): boolean {
   const checkMessage = (message: string): boolean => {
     const lowerMessage = message.toLowerCase();
     return (
@@ -365,8 +375,8 @@ export function isQwenFreeQuotaExhausted(error: unknown): boolean {
   // ...
 }
 
-// Qwen 限流（可重试）
-export function isQwenThrottlingError(error: unknown): boolean {
+// Gemini 限流（可重试）
+export function isGeminiThrottlingError(error: unknown): boolean {
   const checkMessage = (message: string): boolean => {
     const lowerMessage = message.toLowerCase();
     return (
@@ -463,9 +473,9 @@ flowchart LR
     style C fill:#ef4444,stroke:#dc2626,color:#fff
 `} />
 
-        <HighlightBox title="Qwen OAuth 特殊处理" variant="blue">
+        <HighlightBox title="Google OAuth 特殊处理" variant="blue">
           <p className="text-sm">
-            Qwen 免费配额耗尽是不可恢复的，不会尝试降级，而是直接提示用户升级付费计划。
+            Gemini 配额耗尽是不可恢复的，不会尝试降级，而是直接提示用户升级付费计划。
           </p>
         </HighlightBox>
       </Layer>
@@ -512,18 +522,18 @@ sequenceDiagram
 
       {/* Token Manager Implementation */}
       <Layer title="📦 SharedTokenManager 实现">
-        <CodeBlock language="typescript" code={`// packages/core/src/qwen/sharedTokenManager.ts
+        <CodeBlock language="typescript" code={`// packages/core/src/gemini/sharedTokenManager.ts
 
 export class SharedTokenManager {
-  private memoryCache: { credentials: QwenCredentials | null; mtime: number };
-  private refreshPromise: Promise<QwenCredentials> | null = null;
+  private memoryCache: { credentials: GeminiCredentials | null; mtime: number };
+  private refreshPromise: Promise<GeminiCredentials> | null = null;
 
   async getValidCredentials(
-    qwenClient: IQwenOAuth2Client,
+    geminiClient: IGeminiOAuth2Client,
     forceRefresh = false,
-  ): Promise<QwenCredentials> {
+  ): Promise<GeminiCredentials> {
     // 1. 检查其他进程是否更新了凭证文件
-    await this.checkAndReloadIfNeeded(qwenClient);
+    await this.checkAndReloadIfNeeded(geminiClient);
 
     // 2. 缓存有效且未过期，直接返回
     if (!forceRefresh && this.memoryCache.credentials &&
@@ -534,7 +544,7 @@ export class SharedTokenManager {
     // 3. 使用 Promise 链防止并发刷新
     let currentRefreshPromise = this.refreshPromise;
     if (!currentRefreshPromise) {
-      currentRefreshPromise = this.performTokenRefresh(qwenClient, forceRefresh);
+      currentRefreshPromise = this.performTokenRefresh(geminiClient, forceRefresh);
       this.refreshPromise = currentRefreshPromise;
     }
 
@@ -548,7 +558,7 @@ export class SharedTokenManager {
     }
   }
 
-  private async checkAndReloadIfNeeded(qwenClient: IQwenOAuth2Client): Promise<void> {
+  private async checkAndReloadIfNeeded(geminiClient: IGeminiOAuth2Client): Promise<void> {
     const currentMtime = await this.getFileMtime();
 
     // 文件被其他进程修改
@@ -562,7 +572,7 @@ export class SharedTokenManager {
 
       {/* Transparent Retry */}
       <Layer title="🔄 透明认证重试">
-        <CodeBlock language="typescript" code={`// packages/core/src/qwen/qwenContentGenerator.ts
+        <CodeBlock language="typescript" code={`// packages/core/src/gemini/geminiContentGenerator.ts
 
 private async executeWithCredentialManagement<T>(
   operation: () => Promise<T>,
@@ -580,7 +590,7 @@ private async executeWithCredentialManagement<T>(
   } catch (error) {
     // 认证错误：强制刷新后重试
     if (this.isAuthError(error)) {
-      await this.sharedManager.getValidCredentials(this.qwenClient, true);
+      await this.sharedManager.getValidCredentials(this.geminiClient, true);
       return await attemptOperation();
     }
     throw error;
@@ -789,6 +799,8 @@ const connectedServers = results
           </p>
         </HighlightBox>
       </Layer>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

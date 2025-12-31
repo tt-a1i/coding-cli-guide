@@ -1,6 +1,16 @@
 import { useState } from 'react';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+
+const relatedPages: RelatedPage[] = [
+  { id: 'token-counting-anim', label: 'Token 计数动画', description: '可视化 Token 计算过程' },
+  { id: 'image-tokenizer-anim', label: '图片 Token 动画', description: '图片尺寸归一化演示' },
+  { id: 'request-tokenizer-anim', label: '请求 Token 动画', description: '多模态内容处理' },
+  { id: 'shared-token-manager', label: '共享 Token 管理', description: '跨会话 Token 管理' },
+  { id: 'context-compression-anim', label: '上下文压缩动画', description: '历史消息压缩策略' },
+  { id: 'loop', label: '循环机制', description: 'Token 限制与循环控制' },
+];
 
 export function TokenManagementStrategy() {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
@@ -687,6 +697,8 @@ export async function disposeDefaultTokenizer(): Promise<void> {
           </div>
         </div>
       </section>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

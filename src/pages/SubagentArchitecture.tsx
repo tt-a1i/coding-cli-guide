@@ -173,7 +173,7 @@ export function SubagentArchitecture() {
               <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
                 <h4 className="text-[var(--terminal-green)] font-bold mb-2">1. Project 级</h4>
                 <p className="text-sm text-[var(--text-secondary)] mb-2">
-                  项目根目录下的 <code className="text-[var(--amber)]">.innies/agents/*.md</code>
+                  项目根目录下的 <code className="text-[var(--amber)]">.gemini/agents/*.md</code>
                 </p>
                 <div className="text-xs text-[var(--text-muted)]">
                   优先级最高，项目特定配置可覆盖全局设置
@@ -183,7 +183,7 @@ export function SubagentArchitecture() {
               <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
                 <h4 className="text-[var(--cyber-blue)] font-bold mb-2">2. User 级</h4>
                 <p className="text-sm text-[var(--text-secondary)] mb-2">
-                  用户主目录下的 <code className="text-[var(--amber)]">~/.innies/agents/*.md</code>
+                  用户主目录下的 <code className="text-[var(--amber)]">~/.gemini/agents/*.md</code>
                 </p>
                 <div className="text-xs text-[var(--text-muted)]">
                   用户全局配置，跨项目共享

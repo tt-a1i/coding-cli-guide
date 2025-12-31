@@ -3,11 +3,21 @@ import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 type TabType = 'overview' | 'batch' | 'queue' | 'lock' | 'resilience';
 
 export function ConcurrencyPatterns() {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
+
+  const relatedPages: RelatedPage[] = [
+    { id: 'shared-token-manager', label: 'Token 共享机制', description: '分布式锁实战案例' },
+    { id: 'tool-scheduler', label: '工具调度详解', description: '工具队列调度' },
+    { id: 'file-discovery', label: '文件发现系统', description: 'BFS 并行搜索' },
+    { id: 'streaming-response-processing', label: '流式响应处理', description: '异步流处理' },
+    { id: 'error-recovery-patterns', label: '错误恢复模式', description: '并发错误处理' },
+    { id: 'bfs-file-search-anim', label: 'BFS 文件搜索动画', description: '批量并行可视化' },
+  ];
 
   const tabs: { id: TabType; label: string; icon: string }[] = [
     { id: 'overview', label: '模式概览', icon: '🎯' },
@@ -49,6 +59,8 @@ export function ConcurrencyPatterns() {
       {activeTab === 'queue' && <QueueTab />}
       {activeTab === 'lock' && <LockTab />}
       {activeTab === 'resilience' && <ResilienceTab />}
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }
@@ -500,7 +512,7 @@ sequenceDiagram
 
       {/* Lock Acquisition */}
       <Layer title="🔒 锁获取实现">
-        <CodeBlock language="typescript" code={`// packages/core/src/innies/sharedTokenManager.ts
+        <CodeBlock language="typescript" code={`// packages/core/src/gemini/sharedTokenManager.ts
 
 private async acquireLock(lockPath: string): Promise<void> {
   const { maxAttempts, attemptInterval, maxInterval } = this.lockConfig;
@@ -550,11 +562,11 @@ private async acquireLock(lockPath: string): Promise<void> {
 private checkPromise: Promise<void> | null = null;
 
 async getValidCredentials(
-  inniesClient: IInniesOAuth2Client,
+  geminiClient: IInniesOAuth2Client,
   forceRefresh = false,
 ): Promise<InniesCredentials> {
   // 先检查文件是否被其他进程更新
-  await this.checkAndReloadIfNeeded(inniesClient);
+  await this.checkAndReloadIfNeeded(geminiClient);
 
   // 缓存有效，直接返回
   if (!forceRefresh && this.isTokenValid(this.memoryCache.credentials)) {
@@ -566,7 +578,7 @@ async getValidCredentials(
 
   if (!currentRefreshPromise) {
     // 创建新的刷新操作
-    currentRefreshPromise = this.performTokenRefresh(inniesClient, forceRefresh);
+    currentRefreshPromise = this.performTokenRefresh(geminiClient, forceRefresh);
     this.refreshPromise = currentRefreshPromise;
   }
 

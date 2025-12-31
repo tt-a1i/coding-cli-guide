@@ -2,7 +2,16 @@ import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
-import { RelatedPages } from '../components/RelatedPages';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+
+const relatedPages: RelatedPage[] = [
+  { id: 'token-accounting', label: 'Token 计费系统', description: 'Token 计费与统计机制' },
+  { id: 'token-management-strategy', label: 'Token 计算策略', description: 'Token 估算与预算策略' },
+  { id: 'shared-token-manager', label: 'Token 共享机制', description: '跨会话 Token 管理' },
+  { id: 'memory', label: '上下文管理', description: '基于 Token 的压缩策略' },
+  { id: 'history-compression-anim', label: '历史压缩动画', description: '历史压缩可视化演示' },
+  { id: 'token-counting-anim', label: 'Token 计数动画', description: 'Token 计数过程演示' },
+];
 
 export function TokenLifecycleOverview() {
   const tokenLifecycle = `
@@ -548,7 +557,7 @@ async function applyDegradation(
   // 最后手段
   return {
     action: 'force_truncate_and_switch_model',
-    targetModel: 'qwen-coder-fast',
+    targetModel: 'gemini-1.5-flash-fast',
     requiresConfirmation: true,
   };
 }`}
@@ -568,21 +577,21 @@ async function applyDegradation(
                 </thead>
                 <tbody>
                   <tr className="border-b border-gray-700">
-                    <td className="py-2 px-3 font-mono text-cyan-400">qwen-coder-plus</td>
+                    <td className="py-2 px-3 font-mono text-cyan-400">gemini-1.5-pro</td>
                     <td className="py-2 px-3">128K</td>
                     <td className="py-2 px-3">$0.01/1K</td>
                     <td className="py-2 px-3">$0.03/1K</td>
                     <td className="py-2 px-3">复杂任务、长上下文</td>
                   </tr>
                   <tr className="border-b border-gray-700">
-                    <td className="py-2 px-3 font-mono text-green-400">qwen-coder</td>
+                    <td className="py-2 px-3 font-mono text-green-400">gemini-1.5-flash</td>
                     <td className="py-2 px-3">64K</td>
                     <td className="py-2 px-3">$0.005/1K</td>
                     <td className="py-2 px-3">$0.015/1K</td>
                     <td className="py-2 px-3">日常开发、中等任务</td>
                   </tr>
                   <tr>
-                    <td className="py-2 px-3 font-mono text-yellow-400">qwen-coder-fast</td>
+                    <td className="py-2 px-3 font-mono text-yellow-400">gemini-1.5-flash-fast</td>
                     <td className="py-2 px-3">32K</td>
                     <td className="py-2 px-3">$0.001/1K</td>
                     <td className="py-2 px-3">$0.003/1K</td>
@@ -596,15 +605,7 @@ async function applyDegradation(
       </Layer>
 
       {/* 相关页面 */}
-      <RelatedPages
-        pages={[
-          { id: 'token-accounting', label: 'Token 计费系统' },
-          { id: 'token-management-strategy', label: 'Token 计算策略' },
-          { id: 'shared-token-manager', label: 'Token 共享机制' },
-          { id: 'memory', label: '上下文管理' },
-          { id: 'history-compression-anim', label: '历史压缩动画' },
-        ]}
-      />
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

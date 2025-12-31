@@ -1,11 +1,21 @@
 import { useState } from 'react';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 export function ContentFormatConversion() {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(
     new Set(['quickstart'])
   );
+
+  const relatedPages: RelatedPage[] = [
+    { id: 'multi-provider', label: '多厂商架构', description: 'OpenAI/Gemini 统一抽象' },
+    { id: 'streaming-response-processing', label: '流式响应处理', description: 'Chunk 处理管道' },
+    { id: 'format-converter-anim', label: '格式转换动画', description: '转换过程可视化' },
+    { id: 'streaming-tool-parser-anim', label: '流式工具调用解析', description: '增量解析机制' },
+    { id: 'content-gen', label: 'API 调用层', description: 'ContentGenerator 架构' },
+    { id: 'ai-tool', label: 'AI 工具交互', description: 'FunctionCall 完整生命周期' },
+  ];
 
   const toggleSection = (id: string) => {
     setExpandedSections((prev) => {
@@ -354,7 +364,7 @@ convertOpenAIResponseToGemini(response) {
                     ⚠️ 设计考量
                   </h4>
                   <p className="text-sm text-[var(--text-secondary)]">
-                    部分 OpenAI 兼容 API (如 Qwen) 会将 finishReason 和 usageMetadata
+                    部分 OpenAI 兼容 API (如 Gemini) 会将 finishReason 和 usageMetadata
                     分成两个 chunk 发送。合并策略确保最终 chunk 包含完整信息。
                   </p>
                 </div>
@@ -720,6 +730,8 @@ reset(): void {
           </div>
         </div>
       </section>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

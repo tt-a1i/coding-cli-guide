@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
   return (
@@ -40,7 +41,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
                 <li className="text-xs text-gray-500 ml-4">getCoreSystemPrompt, getCompressionPrompt</li>
                 <li>• <code>packages/core/src/tools/tool-names.ts</code></li>
                 <li className="text-xs text-gray-500 ml-4">工具名称常量定义</li>
-                <li>• <code>.qwen/system.md</code></li>
+                <li>• <code>.gemini/system.md</code></li>
                 <li className="text-xs text-gray-500 ml-4">用户自定义 System Prompt 覆盖</li>
               </ul>
             </div>
@@ -50,8 +51,8 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
             <h4 className="font-semibold text-[var(--purple)] mb-2">💡 设计理念</h4>
             <p className="text-sm text-gray-300">
               System Prompt 不是静态文本，而是一个<strong>动态组装的指令集</strong>。
-              它根据当前环境（是否在 Git 仓库、是否启用沙箱）、用户记忆（QWEN.md）、
-              以及目标模型（Qwen-Coder/Qwen-VL）实时拼接不同的内容块。
+              它根据当前环境（是否在 Git 仓库、是否启用沙箱）、用户记忆（GEMINI.md）、
+              以及目标模型（Gemini/Gemini Vision）实时拼接不同的内容块。
               这种设计让同一个 CLI 工具能够适配多种场景，同时保持行为的一致性。
             </p>
           </div>
@@ -63,6 +64,14 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
 export function SystemPromptArch() {
   const [isIntroExpanded, setIsIntroExpanded] = useState(true);
+  const relatedPages: RelatedPage[] = [
+    { id: 'gemini-chat', label: 'GeminiChatCore', description: 'AI 核心逻辑' },
+    { id: 'memory', label: '内存管理', description: '记忆与上下文' },
+    { id: 'tool-arch', label: '工具架构', description: '工具调用系统' },
+    { id: 'sandbox', label: '沙箱系统', description: '安全执行环境' },
+    { id: 'model-configuration', label: '模型配置', description: '模型选择' },
+    { id: 'multi-provider', label: '多供应商', description: '适配不同模型' },
+  ];
 
   return (
     <div className="space-y-8 animate-fadeIn">
@@ -106,7 +115,7 @@ export function SystemPromptArch() {
             <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 font-bold">4</div>
             <div className="flex-1 bg-green-500/10 rounded-lg p-3 border-l-2 border-green-500">
               <div className="font-semibold text-green-300">用户记忆追加 (User Memory)</div>
-              <p className="text-sm text-gray-400">将 QWEN.md 中的用户偏好和知识追加到 Prompt 末尾</p>
+              <p className="text-sm text-gray-400">将 GEMINI.md 中的用户偏好和知识追加到 Prompt 末尾</p>
             </div>
           </div>
         </div>
@@ -123,7 +132,7 @@ export function SystemPromptArch() {
   userMemory?: string,
   model?: string,
 ): string {
-  // 默认路径：.qwen/system.md
+  // 默认路径：.gemini/system.md
   let systemMdPath = path.resolve(path.join(QWEN_CONFIG_DIR, 'system.md'));
 
   // 解析环境变量
@@ -146,7 +155,7 @@ export function SystemPromptArch() {
 
   const basePrompt = systemMdEnabled
     ? fs.readFileSync(systemMdPath, 'utf8')  // 从文件加载
-    : \`You are Qwen Cli, an interactive CLI agent...\`;  // 内置默认
+    : \`You are Gemini CLI, an interactive CLI agent...\`;  // 内置默认
 }`}
         />
 
@@ -154,7 +163,7 @@ export function SystemPromptArch() {
           <p className="text-sm text-gray-300">
             <strong>为什么支持自定义 System Prompt？</strong><br/>
             不同团队可能有特定的代码规范、安全要求或工作流程。
-            通过 <code>.qwen/system.md</code> 文件，团队可以定制 AI 的行为，
+            通过 <code>.gemini/system.md</code> 文件，团队可以定制 AI 的行为，
             比如强制要求某种注释风格、禁止使用某些命令等。
             这个文件可以提交到 Git 仓库，让整个团队共享相同的 AI 行为配置。
           </p>
@@ -170,7 +179,7 @@ export function SystemPromptArch() {
           <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
             <h4 className="font-semibold text-cyan-400 mb-2">🎭 身份定义</h4>
             <div className="text-sm text-gray-300 font-mono bg-black/30 p-2 rounded">
-              "You are Qwen Cli, an interactive CLI agent developed by Zhiman Tech, specializing in software engineering tasks..."
+              "You are Gemini CLI, an interactive CLI agent developed by Google, specializing in software engineering tasks..."
             </div>
           </div>
 
@@ -320,7 +329,7 @@ enabling sandboxing.
           </div>
 
           <div className="bg-gray-900/50 rounded-lg p-4 border border-green-500/30">
-            <h4 className="font-semibold text-green-400 mb-2">Qwen-Coder 格式</h4>
+            <h4 className="font-semibold text-green-400 mb-2">Gemini 格式</h4>
             <div className="text-xs font-mono bg-black/40 p-2 rounded text-gray-300">
               {'<tool_call>'}<br/>
               {'<function=Bash>'}<br/>
@@ -330,17 +339,17 @@ enabling sandboxing.
               {'</function>'}<br/>
               {'</tool_call>'}
             </div>
-            <p className="text-xs text-gray-500 mt-2">匹配 /qwen.*-coder/i</p>
+            <p className="text-xs text-gray-500 mt-2">匹配 /gemini.*-coder/i</p>
           </div>
 
           <div className="bg-gray-900/50 rounded-lg p-4 border border-purple-500/30">
-            <h4 className="font-semibold text-purple-400 mb-2">Qwen-VL 格式</h4>
+            <h4 className="font-semibold text-purple-400 mb-2">Gemini Vision 格式</h4>
             <div className="text-xs font-mono bg-black/40 p-2 rounded text-gray-300">
               {'<tool_call>'}<br/>
               {'{"name": "Bash", "arguments": {"command": "npm run build"}}'}<br/>
               {'</tool_call>'}
             </div>
-            <p className="text-xs text-gray-500 mt-2">匹配 /qwen.*-vl/i</p>
+            <p className="text-xs text-gray-500 mt-2">匹配 /gemini.*-vl/i</p>
           </div>
         </div>
 
@@ -351,21 +360,21 @@ enabling sandboxing.
   const toolCallStyle = process.env['QWEN_CODE_TOOL_CALL_STYLE'];
   if (toolCallStyle) {
     switch (toolCallStyle.toLowerCase()) {
-      case 'qwen-coder': return qwenCoderToolCallExamples;
-      case 'qwen-vl':    return qwenVlToolCallExamples;
+      case 'gemini-1.5-flash': return geminiCoderToolCallExamples;
+      case 'gemini-vision':    return geminiVisionToolCallExamples;
       case 'general':    return generalToolCallExamples;
     }
   }
 
   // 2. 基于模型名称的正则匹配
   if (model && model.length < 100) {
-    // qwen3-coder, qwen2.5-coder, etc.
-    if (/qwen[^-]*-coder/i.test(model)) {
-      return qwenCoderToolCallExamples;
+    // gemini-1.5-coder, gemini-1.0-coder, etc.
+    if (/gemini[^-]*-coder/i.test(model)) {
+      return geminiCoderToolCallExamples;
     }
-    // qwen-vl, qwen2-vl, qwen3-vl, etc.
-    if (/qwen[^-]*-vl/i.test(model)) {
-      return qwenVlToolCallExamples;
+    // gemini-vision, gemini-1.0-vl, gemini-1.5-vl, etc.
+    if (/gemini[^-]*-vl/i.test(model)) {
+      return geminiVisionToolCallExamples;
     }
   }
 
@@ -376,14 +385,14 @@ enabling sandboxing.
         <HighlightBox title="环境变量覆盖" icon="⚙️" variant="orange">
           <p className="text-sm text-gray-300">
             用户可以通过设置 <code>QWEN_CODE_TOOL_CALL_STYLE</code> 环境变量来强制指定格式，
-            这在使用自定义模型或调试时非常有用。支持的值：<code>qwen-coder</code>、<code>qwen-vl</code>、<code>general</code>
+            这在使用自定义模型或调试时非常有用。支持的值：<code>gemini-1.5-flash</code>、<code>gemini-vision</code>、<code>general</code>
           </p>
         </HighlightBox>
       </Layer>
 
       <Layer title="用户记忆注入 (User Memory)" icon="🧠">
         <p className="text-gray-300 mb-4">
-          用户记忆（来自 QWEN.md 文件）会被追加到 System Prompt 的末尾：
+          用户记忆（来自 GEMINI.md 文件）会被追加到 System Prompt 的末尾：
         </p>
 
         <CodeBlock
@@ -399,11 +408,11 @@ return \`\${basePrompt}\${memorySuffix}\`;
 // 最终格式：
 // [Base Prompt Content]
 // ---
-// [User Memory from QWEN.md]`}
+// [User Memory from GEMINI.md]`}
         />
 
         <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-4 mt-4">
-          <h4 className="font-semibold text-purple-400 mb-2">📝 QWEN.md 示例内容</h4>
+          <h4 className="font-semibold text-purple-400 mb-2">📝 GEMINI.md 示例内容</h4>
           <div className="text-sm font-mono bg-black/30 p-3 rounded text-gray-300">
             <div className="text-purple-300"># 用户偏好</div>
             - 使用 TypeScript 而非 JavaScript<br/>
@@ -568,7 +577,7 @@ Do not mention this to user.
             </div>
             <div className="pl-4 flex items-center gap-2">
               <span className="text-purple-400">├──</span>
-              <span className="text-gray-300">追加 userMemory (QWEN.md)</span>
+              <span className="text-gray-300">追加 userMemory (GEMINI.md)</span>
             </div>
             <div className="pl-4 flex items-center gap-2">
               <span className="text-cyan-400">└──</span>
@@ -633,6 +642,8 @@ Do not mention this to user.
           </p>
         </div>
       </Layer>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

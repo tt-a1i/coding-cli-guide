@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 // 学习路径类型
 interface LearningPath {
@@ -56,7 +58,7 @@ function Introduction({
             </h4>
             <p className="text-[var(--text-secondary)] text-sm">
               本指南根据不同的学习目标提供了多条学习路径。每条路径都有清晰的里程碑和检查点，
-              帮助你系统性地理解 Qwen CLI 的架构。<strong>选择一条路径，按顺序学习</strong>
+              帮助你系统性地理解 Gemini CLI 的架构。<strong>选择一条路径，按顺序学习</strong>
               是最高效的方式。
             </p>
           </div>
@@ -402,7 +404,7 @@ const learningPaths: LearningPath[] = [
           '了解依赖注入模式',
         ],
         estimatedTime: '1.5 小时',
-        checkpoint: '能描述从 qwen 命令到 interactionLoop 的启动过程吗？',
+        checkpoint: '能描述从 gemini 命令到 interactionLoop 的启动过程吗？',
       },
       {
         title: 'Turn 状态机',
@@ -494,7 +496,7 @@ const learningPaths: LearningPath[] = [
       },
       {
         title: '多厂商架构',
-        pages: ['多厂商架构', 'API调用层', 'Qwen OAuth 详解'],
+        pages: ['多厂商架构', 'API调用层', 'Google OAuth 详解'],
         keyConceptsCn: [
           '理解 Provider 抽象',
           '掌握格式转换管道',
@@ -609,6 +611,15 @@ const architectureMap = `flowchart TB
     style EXTERNAL fill:#a855f715,stroke:#a855f7
 `;
 
+const relatedPages: RelatedPage[] = [
+  { id: 'start', label: 'Start Here', description: '快速入门起点' },
+  { id: 'overview', label: '架构概览', description: '系统全景图' },
+  { id: 'glossary', label: '术语表', description: '核心术语索引' },
+  { id: 'tool-ref', label: '工具参考', description: '内置工具手册' },
+  { id: 'gemini-chat', label: 'GeminiChat', description: '核心引擎详解' },
+  { id: 'design-tradeoffs', label: '设计权衡', description: '架构决策分析' },
+];
+
 export function LearningPathGuide() {
   const [isIntroExpanded, setIsIntroExpanded] = useState(true);
   const [selectedPath, setSelectedPath] = useState<string>('quick-overview');
@@ -628,7 +639,7 @@ export function LearningPathGuide() {
         <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2">
           <span>🗺️</span> 架构全景图
         </h2>
-        <MermaidDiagram chart={architectureMap} title="Qwen CLI 架构层次" />
+        <MermaidDiagram chart={architectureMap} title="Gemini CLI 架构层次" />
         <p className="text-sm text-[var(--text-muted)] mt-2 text-center">
           每条学习路径都会覆盖上图的不同部分
         </p>
@@ -737,6 +748,38 @@ export function LearningPathGuide() {
           </div>
         </div>
       </div>
+
+      {/* 为什么这样设计 */}
+      <Layer title="为什么这样设计" icon="💡">
+        <div className="space-y-4">
+          <div className="bg-gradient-to-r from-[var(--terminal-green)]/10 to-[var(--cyber-blue)]/10 rounded-lg p-5 border border-[var(--terminal-green)]/30">
+            <h4 className="text-[var(--terminal-green)] font-bold font-mono mb-3">渐进式学习路径</h4>
+            <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
+              不同读者有不同的学习目标和时间预算。快速概览路径让人在 2-3 小时内建立全局认知，
+              而架构师路径则提供 15-20 小时的深度学习。每条路径都有明确的检查点，
+              确保学习者真正理解了当前阶段的内容再继续。
+            </p>
+          </div>
+
+          <div className="bg-gradient-to-r from-[var(--amber)]/10 to-[var(--purple)]/10 rounded-lg p-5 border border-[var(--amber)]/30">
+            <h4 className="text-[var(--amber)] font-bold font-mono mb-3">目标导向设计</h4>
+            <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
+              每条路径针对特定目标：想开发扩展的选扩展开发路径，想理解核心机制的选核心机制路径。
+              这种设计避免了读者在不相关的内容上浪费时间，同时保证覆盖达到目标所需的全部知识点。
+            </p>
+          </div>
+
+          <div className="bg-gradient-to-r from-[var(--cyber-blue)]/10 to-[var(--terminal-green)]/10 rounded-lg p-5 border border-[var(--cyber-blue)]/30">
+            <h4 className="text-[var(--cyber-blue)] font-bold font-mono mb-3">可验证的学习成果</h4>
+            <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
+              每个步骤都有检查点问题，这不仅帮助读者自我评估，也提供了学习的里程碑感。
+              能回答检查点问题说明真正掌握了该阶段内容，而不是走马观花地浏览。
+            </p>
+          </div>
+        </div>
+      </Layer>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

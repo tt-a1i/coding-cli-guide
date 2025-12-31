@@ -1196,13 +1196,13 @@ async checkPermission(command: string): Promise<ToolConfirmation | false> {
 echo 'npm install $PACKAGE' | grep -E '\\$\\(|\\$\\{|\\$[A-Z]|\\\`'
 
 # 2. 检查白名单配置
-innies config list | grep coreTools
+gemini config list | grep coreTools
 
 # 3. 检查黑名单配置
-innies config list | grep excludeTools
+gemini config list | grep excludeTools
 
 # 4. 启用详细日志
-DEBUG=innies:permission innies
+DEBUG=gemini:permission gemini
 
 # 5. 检查命令的实际根命令
 # (开发者工具)
@@ -1241,11 +1241,11 @@ console.log(getCommandRoots('npm install $PACKAGE'));
 
 # 2. 查看当前会话白名单 (开发调试)
 # ShellTool.allowlist 是私有属性，可通过日志查看:
-DEBUG=innies:shell innies
+DEBUG=gemini:shell gemini
 # 日志输出: [shell] Session allowlist: ["npm", "git", ...]
 
 # 3. 如果需要持久化授权，使用全局配置:
-innies config set coreTools '["npm", "git", "node"]'
+gemini config set coreTools '["npm", "git", "node"]'
 
 # 4. 子代理授权不会传递到父代理
 # 这是设计决策，确保每个执行上下文独立审计`} />
@@ -1343,17 +1343,17 @@ echo $TERM
 
 # 3. 非交互模式下的替代方案
 # 使用预授权配置:
-innies config set coreTools '["*"]'  # YOLO 模式
+gemini config set coreTools '["*"]'  # YOLO 模式
 
 # 或使用 --yes 标志 (如果支持):
-innies --yes "run npm install"
+gemini --yes "run npm install"
 
 # 4. 在脚本中使用:
 # 确保 stdin 连接到 /dev/tty
-innies < /dev/tty
+gemini < /dev/tty
 
 # 5. Docker/容器环境:
-docker run -it innies  # -it 确保分配 TTY`} />
+docker run -it gemini  # -it 确保分配 TTY`} />
         </div>
 
         {/* 调试参考表 */}
@@ -1371,17 +1371,17 @@ docker run -it innies  # -it 确保分配 TTY`} />
               <tbody className="text-[var(--text-secondary)]">
                 <tr className="border-b border-[var(--border-subtle)]/50">
                   <td className="py-2 px-3 font-mono text-[var(--error-red)]">命令被拒绝</td>
-                  <td className="py-2 px-3"><code>DEBUG=innies:permission innies</code></td>
+                  <td className="py-2 px-3"><code>DEBUG=gemini:permission gemini</code></td>
                   <td className="py-2 px-3">检查 isHardDenial, blockReason</td>
                 </tr>
                 <tr className="border-b border-[var(--border-subtle)]/50">
                   <td className="py-2 px-3 font-mono text-[var(--amber)]">白名单不匹配</td>
-                  <td className="py-2 px-3"><code>innies config list | grep coreTools</code></td>
+                  <td className="py-2 px-3"><code>gemini config list | grep coreTools</code></td>
                   <td className="py-2 px-3">检查通配符格式，仅支持后缀 *</td>
                 </tr>
                 <tr className="border-b border-[var(--border-subtle)]/50">
                   <td className="py-2 px-3 font-mono text-[var(--cyber-blue)]">会话授权丢失</td>
-                  <td className="py-2 px-3"><code>DEBUG=innies:shell innies</code></td>
+                  <td className="py-2 px-3"><code>DEBUG=gemini:shell gemini</code></td>
                   <td className="py-2 px-3">检查 ShellTool 实例是否重建</td>
                 </tr>
                 <tr className="border-b border-[var(--border-subtle)]/50">
@@ -2031,7 +2031,7 @@ class EnterprisePermissionChecker implements PermissionChecker {
             </div>
             <div className="bg-[var(--bg-terminal)] rounded p-3">
               <div className="text-xs text-[var(--terminal-green)] font-bold mb-2">Hooks 集成</div>
-              <JsonBlock code={`// .innies/hooks/pre-tool.sh
+              <JsonBlock code={`// .gemini/hooks/pre-tool.sh
 #!/bin/bash
 # 工具执行前的自定义检查
 

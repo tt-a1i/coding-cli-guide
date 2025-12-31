@@ -3,7 +3,7 @@ import { useState, useCallback } from 'react';
 /**
  * Multi-Provider Content Pipeline 动画
  *
- * 可视化 OpenAI/Qwen 多厂商内容生成管道：
+ * 可视化 OpenAI/Gemini 多厂商内容生成管道：
  * 1. ContentGenerator 接口抽象
  * 2. AuthType 鉴权类型分发
  * 3. Gemini ↔ OpenAI 格式转换
@@ -61,12 +61,12 @@ type Phase =
   | 'yield_response'
   | 'complete';
 
-type AuthType = 'qwen-oauth' | 'openai' | 'gemini-api-key' | 'vertex-ai';
+type AuthType = 'google-oauth' | 'openai' | 'gemini-api-key' | 'vertex-ai';
 type Provider = 'dashscope' | 'deepseek' | 'openrouter' | 'default';
 
 export default function MultiProviderPipelineAnimation() {
   const [phase, setPhase] = useState<Phase>('idle');
-  const [authType, setAuthType] = useState<AuthType>('qwen-oauth');
+  const [authType, setAuthType] = useState<AuthType>('google-oauth');
   const [provider, setProvider] = useState<Provider>('dashscope');
   const [isRunning, setIsRunning] = useState(false);
   const [logs, setLogs] = useState<string[]>([]);
@@ -374,7 +374,7 @@ export default function MultiProviderPipelineAnimation() {
 
   // Auth type descriptions
   const authTypeInfo: Record<AuthType, { label: string; description: string; color: string }> = {
-    'qwen-oauth': { label: 'Qwen OAuth', description: '通义千问 OAuth 认证', color: 'text-purple-400' },
+    'google-oauth': { label: 'Google OAuth', description: '通义千问 OAuth 认证', color: 'text-purple-400' },
     'openai': { label: 'OpenAI API', description: 'OpenAI 兼容 API', color: 'text-green-400' },
     'gemini-api-key': { label: 'Gemini API', description: 'Google Gemini API', color: 'text-blue-400' },
     'vertex-ai': { label: 'Vertex AI', description: 'Google Cloud Vertex', color: 'text-yellow-400' },
@@ -418,7 +418,7 @@ export default function MultiProviderPipelineAnimation() {
             🔄 Multi-Provider Content Pipeline
           </h2>
           <p className="text-gray-400 mt-1">
-            可视化 OpenAI/Qwen 多厂商格式转换与流式处理管道
+            可视化 OpenAI/Gemini 多厂商格式转换与流式处理管道
           </p>
         </div>
         <div className="flex gap-2">

@@ -1,5 +1,5 @@
 /**
- * QwenAuthentication - Qwen OAuth2 认证详解
+ * GoogleAuthentication - Google OAuth2 认证详解
  * 深入解析 OAuth 2.0 Device Authorization Grant 和跨会话 Token 管理机制
  */
 
@@ -8,13 +8,13 @@ import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { useNavigation } from '../contexts/NavigationContext';
 
-export function QwenAuthentication() {
+export function GoogleAuthentication() {
   const [activeTab, setActiveTab] = useState<'flow' | 'pkce' | 'manager' | 'events'>('flow');
   const { navigate } = useNavigation();
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h1>🔐 Qwen OAuth2 认证详解</h1>
+      <h1>🔐 Google OAuth2 认证详解</h1>
 
       <div className="info-box" style={{
         background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(239, 68, 68, 0.1))',
@@ -28,7 +28,7 @@ export function QwenAuthentication() {
           <li><strong>认证协议</strong>：OAuth 2.0 Device Authorization Grant (RFC 8628)</li>
           <li><strong>安全增强</strong>：PKCE (Proof Key for Code Exchange) 防止授权码拦截</li>
           <li><strong>Token 管理</strong>：SharedTokenManager 单例实现跨会话 Token 同步</li>
-          <li><strong>存储位置</strong>：<code>~/.innies/oauth_creds.json</code> (权限 0600)</li>
+          <li><strong>存储位置</strong>：<code>~/.gemini/oauth_creds.json</code> (权限 0600)</li>
           <li><strong>刷新策略</strong>：Token 过期前 30 秒自动刷新，分布式锁防止竞争</li>
         </ul>
       </div>
@@ -71,46 +71,46 @@ export function QwenAuthentication() {
           <h2>🔄 Device Authorization Grant Flow</h2>
 
           <p>
-            Qwen OAuth 使用 <strong>RFC 8628 Device Authorization Grant</strong>，适用于无法进行标准浏览器重定向的 CLI 环境。
+            Google OAuth 使用 <strong>RFC 8628 Device Authorization Grant</strong>，适用于无法进行标准浏览器重定向的 CLI 环境。
             用户在浏览器中授权，CLI 通过轮询获取 Token。
           </p>
 
           <MermaidDiagram chart={`
 sequenceDiagram
     participant CLI as 🖥️ Innies CLI
-    participant Qwen as 🌐 Qwen OAuth Server
+    participant Google as 🌐 Google OAuth Server
     participant Browser as 🌍 用户浏览器
 
     Note over CLI: 生成 PKCE code_verifier + code_challenge
 
-    CLI->>Qwen: POST /api/v1/oauth2/device/code
+    CLI->>Google: POST /api/v1/oauth2/device/code
     Note right of CLI: client_id, scope, code_challenge
 
-    Qwen-->>CLI: device_code, user_code, verification_uri
+    Google-->>CLI: device_code, user_code, verification_uri
 
     CLI->>Browser: 自动打开 verification_uri_complete
     Note over Browser: 用户看到授权页面
 
-    Browser->>Qwen: 用户授权 (输入 user_code)
+    Browser->>Google: 用户授权 (输入 user_code)
     Note over Browser: 用户点击"允许"
 
     loop 轮询 (每 2 秒)
-        CLI->>Qwen: POST /api/v1/oauth2/token
+        CLI->>Google: POST /api/v1/oauth2/token
         Note right of CLI: device_code, code_verifier
 
         alt 用户尚未授权
-            Qwen-->>CLI: { error: "authorization_pending" }
+            Google-->>CLI: { error: "authorization_pending" }
         else 轮询过快
-            Qwen-->>CLI: { error: "slow_down" }
+            Google-->>CLI: { error: "slow_down" }
             Note over CLI: 增加轮询间隔 ×1.5
         else 用户已授权
-            Qwen-->>CLI: access_token, refresh_token, expires_in
+            Google-->>CLI: access_token, refresh_token, expires_in
         else 超时/拒绝
-            Qwen-->>CLI: { error: "expired_token" | "access_denied" }
+            Google-->>CLI: { error: "expired_token" | "access_denied" }
         end
     end
 
-    CLI->>CLI: 缓存 credentials 到 ~/.innies/oauth_creds.json
+    CLI->>CLI: 缓存 credentials 到 ~/.gemini/oauth_creds.json
 `} />
 
           <h3>核心 API 端点</h3>
@@ -131,8 +131,8 @@ sequenceDiagram
 {
   device_code: 'xxxx-xxxx-xxxx',
   user_code: 'ABCD-1234',
-  verification_uri: 'https://chat.qwen.ai/device',
-  verification_uri_complete: 'https://chat.qwen.ai/device?code=ABCD-1234',
+  verification_uri: 'https://accounts.google.com/device',
+  verification_uri_complete: 'https://accounts.google.com/device?code=ABCD-1234',
   expires_in: 900  // 15 分钟
 }`} />
             </div>
@@ -154,13 +154,13 @@ sequenceDiagram
   refresh_token: 'dGhpcyBpcyBh...',
   token_type: 'Bearer',
   expires_in: 3600,
-  resource_url: 'https://api.qwen.ai/v1'
+  resource_url: 'https://generativelanguage.googleapis.com/v1'
 }`} />
             </div>
           </div>
 
           <h3>轮询状态处理</h3>
-          <CodeBlock language="typescript" code={`// packages/core/src/qwen/qwenOAuth2.ts
+          <CodeBlock language="typescript" code={`// packages/core/src/gemini/geminiOAuth.ts
 
 async pollDeviceToken(options: { device_code: string; code_verifier: string }) {
   const response = await fetch(QWEN_OAUTH_TOKEN_ENDPOINT, { /* ... */ });
@@ -244,7 +244,7 @@ graph LR
 `} />
 
           <h3>实现代码</h3>
-          <CodeBlock language="typescript" code={`// packages/core/src/qwen/qwenOAuth2.ts
+          <CodeBlock language="typescript" code={`// packages/core/src/gemini/geminiOAuth.ts
 
 import crypto from 'crypto';
 
@@ -386,7 +386,7 @@ stateDiagram-v2
 `} />
 
           <h3>关键配置常量</h3>
-          <CodeBlock language="typescript" code={`// packages/core/src/qwen/sharedTokenManager.ts
+          <CodeBlock language="typescript" code={`// packages/core/src/gemini/sharedTokenManager.ts
 
 // Token 刷新缓冲区 - 在过期前 30 秒开始刷新
 const TOKEN_REFRESH_BUFFER_MS = 30 * 1000;
@@ -446,7 +446,7 @@ private async acquireLock(lockPath: string): Promise<void> {
             <div className="card" style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '1rem', borderRadius: '8px' }}>
               <h4 style={{ color: 'var(--cyber-blue)', margin: '0 0 0.5rem 0' }}>📝 MemoryCache 结构</h4>
               <CodeBlock language="typescript" code={`interface MemoryCache {
-  credentials: QwenCredentials | null;
+  credentials: GeminiCredentials | null;
   fileModTime: number;   // 上次读取的文件修改时间
   lastCheck: number;     // 上次检查时间戳
 }`} />
@@ -513,15 +513,15 @@ try {
           <h2>📡 OAuth 事件系统</h2>
 
           <p>
-            <code>qwenOAuth2Events</code> 是一个全局 EventEmitter，用于在认证流程中传递状态更新。
-            UI 组件 (<code>useQwenAuth</code>) 监听这些事件来显示认证进度。
+            <code>geminiOAuthEvents</code> 是一个全局 EventEmitter，用于在认证流程中传递状态更新。
+            UI 组件 (<code>useGeminiAuth</code>) 监听这些事件来显示认证进度。
           </p>
 
           <MermaidDiagram chart={`
 sequenceDiagram
-    participant OAuth as 🔐 qwenOAuth2.ts
+    participant OAuth as 🔐 geminiOAuth.ts
     participant Events as 📡 EventEmitter
-    participant Hook as ⚛️ useQwenAuth
+    participant Hook as ⚛️ useGeminiAuth
     participant UI as 🖥️ AuthDialog
 
     OAuth->>Events: emit(AuthUri, deviceAuth)
@@ -552,9 +552,9 @@ sequenceDiagram
 `} />
 
           <h3>事件类型</h3>
-          <CodeBlock language="typescript" code={`// packages/core/src/qwen/qwenOAuth2.ts
+          <CodeBlock language="typescript" code={`// packages/core/src/gemini/geminiOAuth.ts
 
-export enum QwenOAuth2Event {
+export enum GeminiOAuth2Event {
   AuthUri = 'auth-uri',         // Device 授权信息就绪
   AuthProgress = 'auth-progress', // 认证进度更新
   AuthCancel = 'auth-cancel',   // 用户取消认证
@@ -571,28 +571,28 @@ interface DeviceAuthorizationInfo {
 type AuthStatus = 'idle' | 'polling' | 'success' | 'error' | 'timeout' | 'rate_limit';
 
 // 全局事件发射器
-export const qwenOAuth2Events = new EventEmitter();`} />
+export const geminiOAuthEvents = new EventEmitter();`} />
 
           <h3>UI Hook 实现</h3>
-          <CodeBlock language="typescript" code={`// packages/cli/src/ui/hooks/useQwenAuth.ts
+          <CodeBlock language="typescript" code={`// packages/cli/src/ui/hooks/useGeminiAuth.ts
 
-export const useQwenAuth = (settings: LoadedSettings, isAuthenticating: boolean) => {
-  const [qwenAuthState, setQwenAuthState] = useState<QwenAuthState>({
-    isQwenAuthenticating: false,
+export const useGeminiAuth = (settings: LoadedSettings, isAuthenticating: boolean) => {
+  const [geminiAuthState, setGeminiAuthState] = useState<GeminiAuthState>({
+    isGeminiAuthenticating: false,
     deviceAuth: null,
     authStatus: 'idle',
     authMessage: null,
   });
 
   useEffect(() => {
-    if (!isQwenAuth || !isAuthenticating) {
-      setQwenAuthState({ /* reset */ });
+    if (!isGeminiAuth || !isAuthenticating) {
+      setGeminiAuthState({ /* reset */ });
       return;
     }
 
     // 监听 Device 授权信息
     const handleDeviceAuth = (deviceAuth: DeviceAuthorizationInfo) => {
-      setQwenAuthState(prev => ({
+      setGeminiAuthState(prev => ({
         ...prev,
         deviceAuth: {
           verification_uri: deviceAuth.verification_uri,
@@ -609,29 +609,29 @@ export const useQwenAuth = (settings: LoadedSettings, isAuthenticating: boolean)
       status: 'success' | 'error' | 'polling' | 'timeout' | 'rate_limit',
       message?: string
     ) => {
-      setQwenAuthState(prev => ({
+      setGeminiAuthState(prev => ({
         ...prev,
         authStatus: status,
         authMessage: message || null,
       }));
     };
 
-    qwenOAuth2Events.on(QwenOAuth2Event.AuthUri, handleDeviceAuth);
-    qwenOAuth2Events.on(QwenOAuth2Event.AuthProgress, handleAuthProgress);
+    geminiOAuthEvents.on(GeminiOAuth2Event.AuthUri, handleDeviceAuth);
+    geminiOAuthEvents.on(GeminiOAuth2Event.AuthProgress, handleAuthProgress);
 
     return () => {
-      qwenOAuth2Events.off(QwenOAuth2Event.AuthUri, handleDeviceAuth);
-      qwenOAuth2Events.off(QwenOAuth2Event.AuthProgress, handleAuthProgress);
+      geminiOAuthEvents.off(GeminiOAuth2Event.AuthUri, handleDeviceAuth);
+      geminiOAuthEvents.off(GeminiOAuth2Event.AuthProgress, handleAuthProgress);
     };
-  }, [isQwenAuth, isAuthenticating]);
+  }, [isGeminiAuth, isAuthenticating]);
 
   // 取消认证
-  const cancelQwenAuth = useCallback(() => {
-    qwenOAuth2Events.emit(QwenOAuth2Event.AuthCancel);
-    setQwenAuthState({ /* reset */ });
+  const cancelGeminiAuth = useCallback(() => {
+    geminiOAuthEvents.emit(GeminiOAuth2Event.AuthCancel);
+    setGeminiAuthState({ /* reset */ });
   }, []);
 
-  return { ...qwenAuthState, isQwenAuth, cancelQwenAuth };
+  return { ...geminiAuthState, isGeminiAuth, cancelGeminiAuth };
 };`} />
 
           <h3>取消机制</h3>
@@ -639,12 +639,12 @@ export const useQwenAuth = (settings: LoadedSettings, isAuthenticating: boolean)
           <div className="card" style={{ background: 'rgba(245, 158, 11, 0.1)', padding: '1rem', borderRadius: '8px' }}>
             <h4 style={{ color: 'var(--warning-color)', margin: '0 0 0.5rem 0' }}>🛑 响应式取消</h4>
             <p>用户点击"取消"后，轮询循环会在下一个 100ms 检查点退出：</p>
-            <CodeBlock language="typescript" code={`// authWithQwenDeviceFlow 中的取消检测
+            <CodeBlock language="typescript" code={`// authWithGeminiDeviceFlow 中的取消检测
 
 let isCancelled = false;
 
 // 注册取消监听器
-qwenOAuth2Events.once(QwenOAuth2Event.AuthCancel, () => {
+geminiOAuthEvents.once(GeminiOAuth2Event.AuthCancel, () => {
   isCancelled = true;
 });
 
@@ -680,12 +680,12 @@ if (isCancelled) {
         <h2>💾 凭证存储</h2>
 
         <CodeBlock language="typescript" code={`// 存储路径
-const QWEN_DIR = '.innies';
+const QWEN_DIR = '.gemini';
 const QWEN_CREDENTIAL_FILENAME = 'oauth_creds.json';
 const QWEN_LOCK_FILENAME = 'oauth_creds.lock';
 
-// ~/.innies/oauth_creds.json 格式
-interface QwenCredentials {
+// ~/.gemini/oauth_creds.json 格式
+interface GeminiCredentials {
   access_token: string;     // JWT 格式的访问令牌
   refresh_token: string;    // 用于刷新的长期令牌
   token_type: 'Bearer';     // 令牌类型
@@ -706,7 +706,7 @@ await fs.writeFile(filePath, content, { mode: 0o600 });     // 文件: rw-------
         }}>
           <h4 style={{ color: '#ef4444', margin: '0 0 0.5rem 0' }}>⚠️ 安全警告</h4>
           <ul style={{ margin: 0, fontSize: '0.9rem' }}>
-            <li><strong>不要</strong>将 <code>~/.innies/oauth_creds.json</code> 提交到版本控制</li>
+            <li><strong>不要</strong>将 <code>~/.gemini/oauth_creds.json</code> 提交到版本控制</li>
             <li><strong>不要</strong>分享你的 refresh_token</li>
             <li>如果怀疑凭证泄露，执行 <code>/auth logout</code> 重新认证</li>
           </ul>

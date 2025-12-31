@@ -37,8 +37,8 @@ const BUILTIN_AGENTS: SubagentConfig[] = [
 ];
 
 const LEVEL_CONFIG = {
-  project: { color: 'cyan', icon: '📁', label: 'Project Level', path: '.innies/agents/' },
-  user: { color: 'purple', icon: '👤', label: 'User Level', path: '~/.innies/agents/' },
+  project: { color: 'cyan', icon: '📁', label: 'Project Level', path: '.gemini/agents/' },
+  user: { color: 'purple', icon: '👤', label: 'User Level', path: '~/.gemini/agents/' },
   builtin: { color: 'green', icon: '⚙️', label: 'Builtin', path: '<builtin>' },
 };
 

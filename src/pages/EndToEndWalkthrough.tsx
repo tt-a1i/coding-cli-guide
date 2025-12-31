@@ -109,7 +109,7 @@ function StageCard({ number, title, duration, description, keyPoints, sourceFile
 export function EndToEndWalkthrough() {
   // 主流程图
   const e2eFlow = `flowchart TD
-    start(["用户输入<br/>innies 或交互式"])
+    start(["用户输入<br/>gemini 或交互式"])
     preprocess["消息预处理<br/>@file/@memory/@url"]
     buildReq["构建请求<br/>history + tools + system prompt"]
     stream["流式响应<br/>token/parts"]
@@ -207,7 +207,7 @@ export function EndToEndWalkthrough() {
           description="CLI 接收用户输入，可以是交互式输入或命令行参数。确定运行模式（交互/非交互）并初始化会话。"
           keyPoints={[
             '解析命令行参数 (yargs)',
-            '加载配置文件 (~/.innies/settings.json)',
+            '加载配置文件 (~/.gemini/settings.json)',
             '初始化认证状态 (OAuth Token)',
             '恢复或创建新会话',
           ]}
@@ -274,7 +274,7 @@ export function EndToEndWalkthrough() {
           <HighlightBox title="请求结构" variant="blue">
             <pre className="text-xs text-gray-300 overflow-x-auto">
 {`{
-  model: "qwen3-coder-plus",
+  model: "gemini-1.5-pro",
   messages: [
     { role: "system", content: "..." },
     { role: "user", content: "..." },
@@ -443,9 +443,9 @@ data: [DONE]`}
           </HighlightBox>
           <HighlightBox title="存储位置" variant="green">
             <ul className="text-xs text-gray-300 space-y-1">
-              <li>• <code>~/.innies/sessions/</code></li>
-              <li>• <code>~/.innies/logs/</code></li>
-              <li>• <code>.innies/memory/</code>（项目级）</li>
+              <li>• <code>~/.gemini/sessions/</code></li>
+              <li>• <code>~/.gemini/logs/</code></li>
+              <li>• <code>.gemini/memory/</code>（项目级）</li>
             </ul>
           </HighlightBox>
         </div>

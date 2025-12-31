@@ -4,15 +4,15 @@ import { useState, useEffect, useCallback } from 'react';
 /**
  * OAuth 设备授权流动画
  *
- * 可视化 qwenOAuth2.ts 设备授权流程
- * 源码: packages/core/src/qwen/qwenOAuth2.ts
+ * 可视化 geminiOAuth.ts 设备授权流程
+ * 源码: packages/core/src/gemini/geminiOAuth.ts
  *
  * 核心流程:
  * 1. requestDeviceAuthorization() - 获取 deviceCode
  * 2. 打开浏览器验证页面
  * 3. pollDeviceToken() - 轮询等待用户授权
  * 4. 获取 access_token + refresh_token
- * 5. cacheQwenCredentials() - 缓存凭证
+ * 5. cacheGeminiCredentials() - 缓存凭证
  */
 
 type AuthPhase =
@@ -76,7 +76,7 @@ export default function OAuthDeviceFlowAnimation() {
 
     switch (phase) {
       case 'idle':
-        addLog('🔐 getQwenOAuthClient() 开始');
+        addLog('🔐 getGeminiOAuthClient() 开始');
         setPhase('requesting_device_code');
         break;
 
@@ -147,7 +147,7 @@ export default function OAuthDeviceFlowAnimation() {
 
       case 'success':
         addLog('✅ 认证成功!');
-        addLog('💾 cacheQwenCredentials()');
+        addLog('💾 cacheGeminiCredentials()');
         timer = setTimeout(() => {
           addLog('🔒 凭证已安全存储');
           setIsPlaying(false);
@@ -193,7 +193,7 @@ export default function OAuthDeviceFlowAnimation() {
             OAuth 设备授权流
           </h1>
           <p className="text-[var(--muted)] text-sm mt-1">
-            qwenOAuth2 - Device Code Grant Flow (RFC 8628)
+            geminiOAuth - Device Code Grant Flow (RFC 8628)
           </p>
         </div>
         <div className="flex items-center gap-4">
@@ -367,7 +367,7 @@ export default function OAuthDeviceFlowAnimation() {
         <div className="col-span-5">
           <div className="bg-[var(--bg-secondary)] rounded-lg p-4 border border-[var(--border)] h-full">
             <h3 className="text-sm font-semibold text-[var(--amber)] mb-4 font-mono">
-              QwenCredentials
+              GeminiCredentials
             </h3>
 
             <div className="space-y-4">
@@ -462,10 +462,10 @@ export default function OAuthDeviceFlowAnimation() {
       {/* 源码说明 */}
       <div className="bg-[var(--bg-secondary)] rounded-lg p-4 border border-[var(--border)]">
         <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
-          源码: qwenOAuth2.ts
+          源码: geminiOAuth.ts
         </h3>
         <pre className="text-xs font-mono text-[var(--text-secondary)] bg-black/30 p-3 rounded overflow-x-auto">
-{`async function authWithQwenDeviceFlow(client, config): Promise<AuthResult> {
+{`async function authWithGeminiDeviceFlow(client, config): Promise<AuthResult> {
   // 1. 请求设备授权码
   const deviceAuth = await client.requestDeviceAuthorization();
   const verificationUrl = \`\${BASE_URL}/login?device_code=\${deviceAuth.deviceCode}\`;
@@ -490,7 +490,7 @@ export default function OAuthDeviceFlowAnimation() {
         expiry_date: Date.now() + tokenResponse.expiresIn * 1000,
       };
       client.setCredentials(credentials);
-      await cacheQwenCredentials(credentials);
+      await cacheGeminiCredentials(credentials);
       return { success: true };
     }
 

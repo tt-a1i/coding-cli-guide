@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 /**
  * 消息格式转换管道动画
  *
- * 可视化 OpenAI ↔ Gemini ↔ Qwen 格式互转流程
+ * 可视化 OpenAI ↔ Gemini ↔ OpenAI 格式互转流程
  * 源码: packages/core/src/core/openaiContentGenerator/converter.ts
  *
  * 核心转换:
@@ -13,7 +13,7 @@ import { useState, useEffect, useCallback } from 'react';
  * - convertGeminiToolsToOpenAI() - 工具 schema 转换
  */
 
-type FormatType = 'gemini' | 'openai' | 'qwen';
+type FormatType = 'gemini' | 'openai' | 'gemini';
 type ConversionPhase =
   | 'idle'
   | 'input-parse'     // 解析输入格式
@@ -228,7 +228,7 @@ export default function MessageFormatPipelineAnimation() {
     switch (format) {
       case 'gemini': return '#4285f4';
       case 'openai': return '#10a37f';
-      case 'qwen': return '#ff6b35';
+      case 'gemini': return '#ff6b35';
     }
   };
 
@@ -251,7 +251,7 @@ export default function MessageFormatPipelineAnimation() {
             消息格式转换管道
           </h1>
           <p className="text-[var(--muted)] text-sm mt-1">
-            OpenAIContentConverter - Gemini ↔ OpenAI ↔ Qwen 格式互转
+            OpenAIContentConverter - Gemini ↔ OpenAI ↔ Gemini 格式互转
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -265,7 +265,7 @@ export default function MessageFormatPipelineAnimation() {
             >
               <option value="gemini">Gemini</option>
               <option value="openai">OpenAI</option>
-              <option value="qwen">Qwen</option>
+              <option value="gemini">Gemini</option>
             </select>
             <span className="text-[var(--muted)]">→</span>
             <select
@@ -277,7 +277,7 @@ export default function MessageFormatPipelineAnimation() {
             >
               <option value="openai">OpenAI</option>
               <option value="gemini">Gemini</option>
-              <option value="qwen">Qwen</option>
+              <option value="gemini">Gemini</option>
             </select>
           </div>
           <button

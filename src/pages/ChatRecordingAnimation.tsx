@@ -21,7 +21,7 @@ interface ToolCallRecord {
 
 interface MessageRecord {
   id: string;
-  type: 'user' | 'qwen';
+  type: 'user' | 'gemini';
   content: string;
   timestamp: string;
   thoughts?: ThoughtSummary[];
@@ -68,8 +68,8 @@ export default function ChatRecordingAnimation() {
   const recordTokens = useCallback((tokens: TokensSummary) => {
     setConversation(prev => {
       const lastMsg = prev.messages[prev.messages.length - 1];
-      if (lastMsg && lastMsg.type === 'qwen' && !lastMsg.tokens) {
-        // Attach to last qwen message
+      if (lastMsg && lastMsg.type === 'gemini' && !lastMsg.tokens) {
+        // Attach to last gemini message
         addLog(`📊 recordTokens() → 附加到消息 #${prev.messages.length}`);
         return {
           ...prev,
@@ -100,19 +100,19 @@ export default function ChatRecordingAnimation() {
     addLog(`👤 recordMessage(user) → "${content.substring(0, 30)}..."`);
   }, [addLog]);
 
-  // Record qwen message (includes queued thoughts and tokens)
-  const recordQwenMessage = useCallback((content: string, model: string = 'qwen-coder-plus') => {
+  // Record gemini message (includes queued thoughts and tokens)
+  const recordGeminiMessage = useCallback((content: string, model: string = 'gemini-1.5-pro') => {
     setConversation(prev => {
       const msg: MessageRecord = {
         id: generateId(),
-        type: 'qwen',
+        type: 'gemini',
         content,
         timestamp: new Date().toISOString(),
         thoughts: queuedThoughts.length > 0 ? [...queuedThoughts] : undefined,
         tokens: queuedTokens || undefined,
         model,
       };
-      addLog(`🤖 recordMessage(qwen) → 包含 ${queuedThoughts.length} 个思考`);
+      addLog(`🤖 recordMessage(gemini) → 包含 ${queuedThoughts.length} 个思考`);
       return {
         ...prev,
         messages: [...prev.messages, msg],
@@ -127,17 +127,17 @@ export default function ChatRecordingAnimation() {
     setConversation(prev => {
       const lastMsg = prev.messages[prev.messages.length - 1];
 
-      if (!lastMsg || lastMsg.type !== 'qwen' || queuedThoughts.length > 0) {
-        // Create new qwen message for tool calls
+      if (!lastMsg || lastMsg.type !== 'gemini' || queuedThoughts.length > 0) {
+        // Create new gemini message for tool calls
         const msg: MessageRecord = {
           id: generateId(),
-          type: 'qwen',
+          type: 'gemini',
           content: '',
           timestamp: new Date().toISOString(),
           toolCalls,
           thoughts: queuedThoughts.length > 0 ? [...queuedThoughts] : undefined,
           tokens: queuedTokens || undefined,
-          model: 'qwen-coder-plus',
+          model: 'gemini-1.5-pro',
         };
         addLog(`🔧 recordToolCalls() → 新消息 (${toolCalls.length} 工具)`);
         setQueuedThoughts([]);
@@ -148,7 +148,7 @@ export default function ChatRecordingAnimation() {
         };
       }
 
-      // Add to existing qwen message
+      // Add to existing gemini message
       addLog(`🔧 recordToolCalls() → 添加到现有消息`);
       return {
         ...prev,
@@ -196,10 +196,10 @@ export default function ChatRecordingAnimation() {
     await sleep(300);
 
     // AI responds
-    recordQwenMessage('这是 package.json 的内容...');
+    recordGeminiMessage('这是 package.json 的内容...');
 
     setIsSimulating(false);
-  }, [recordUserMessage, recordThought, recordToolCalls, recordTokens, recordQwenMessage]);
+  }, [recordUserMessage, recordThought, recordToolCalls, recordTokens, recordGeminiMessage]);
 
   const clearAll = useCallback(() => {
     setConversation({ sessionId: 'session-' + Date.now().toString(36), messages: [] });
@@ -313,7 +313,7 @@ export default function ChatRecordingAnimation() {
                     🔧 工具调用
                   </button>
                   <button
-                    onClick={() => recordQwenMessage('AI 响应内容')}
+                    onClick={() => recordGeminiMessage('AI 响应内容')}
                     disabled={isSimulating}
                     className="px-3 py-2 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-lg text-sm hover:bg-purple-500/30 disabled:opacity-50"
                   >
@@ -360,7 +360,7 @@ export default function ChatRecordingAnimation() {
                       <span className={`text-xs font-bold ${
                         msg.type === 'user' ? 'text-cyan-400' : 'text-purple-400'
                       }`}>
-                        {msg.type === 'user' ? '👤 User' : '🤖 Qwen'}
+                        {msg.type === 'user' ? '👤 User' : '🤖 Gemini'}
                         {msg.model && <span className="text-gray-500 ml-2">({msg.model})</span>}
                       </span>
                       <span className="text-xs text-gray-500">#{index + 1}</span>
@@ -416,7 +416,7 @@ export default function ChatRecordingAnimation() {
                     key={index}
                     className={`p-2 rounded ${
                       log.includes('recordMessage(user)') ? 'bg-cyan-500/10 text-cyan-400' :
-                      log.includes('recordMessage(qwen)') ? 'bg-purple-500/10 text-purple-400' :
+                      log.includes('recordMessage(gemini)') ? 'bg-purple-500/10 text-purple-400' :
                       log.includes('recordThought') ? 'bg-yellow-500/10 text-yellow-400' :
                       log.includes('recordToolCalls') ? 'bg-green-500/10 text-green-400' :
                       log.includes('recordTokens') ? 'bg-blue-500/10 text-blue-400' :
@@ -474,10 +474,10 @@ export class ChatRecordingService {
     });
   }
 
-  recordMessage(message: { type: 'user' | 'qwen'; content: string; model: string }): void {
+  recordMessage(message: { type: 'user' | 'gemini'; content: string; model: string }): void {
     this.updateConversation((conversation) => {
       const msg = this.newMessage(message.type, message.content);
-      if (msg.type === 'qwen') {
+      if (msg.type === 'gemini') {
         // 合并排队的思考和 Token 到新消息
         conversation.messages.push({
           ...msg,

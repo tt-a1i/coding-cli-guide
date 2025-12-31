@@ -71,6 +71,11 @@ const SubagentConfigAnimation = lazy(() => import('./pages/SubagentConfigAnimati
 const HistoryCompressionAnimation = lazy(() => import('./pages/HistoryCompressionAnimation').then(m => ({ default: m.HistoryCompressionAnimation })));
 const StreamingToolCallParserAnimation = lazy(() => import('./pages/StreamingToolCallParserAnimation').then(m => ({ default: m.StreamingToolCallParserAnimation })));
 const LoopDetectionAnimation = lazy(() => import('./pages/LoopDetectionAnimation').then(m => ({ default: m.LoopDetectionAnimation })));
+const HookEventAnimation = lazy(() => import('./pages/HookEventAnimation').then(m => ({ default: m.HookEventAnimation })));
+const PolicyDecisionAnimation = lazy(() => import('./pages/PolicyDecisionAnimation').then(m => ({ default: m.PolicyDecisionAnimation })));
+const MessageBusAnimation = lazy(() => import('./pages/MessageBusAnimation').then(m => ({ default: m.MessageBusAnimation })));
+const RoutingChainAnimation = lazy(() => import('./pages/RoutingChainAnimation').then(m => ({ default: m.RoutingChainAnimation })));
+const AgentLoopAnimation = lazy(() => import('./pages/AgentLoopAnimation').then(m => ({ default: m.AgentLoopAnimation })));
 const RequestTokenizerAnimation = lazy(() => import('./pages/RequestTokenizerAnimation').then(m => ({ default: m.RequestTokenizerAnimation })));
 const ResultCacheAnimation = lazy(() => import('./pages/ResultCacheAnimation').then(m => ({ default: m.ResultCacheAnimation })));
 const TerminalSerializerAnimation = lazy(() => import('./pages/TerminalSerializerAnimation').then(m => ({ default: m.TerminalSerializerAnimation })));
@@ -125,9 +130,14 @@ const ShadowGitCheckpointAnimation = lazy(() => import('./pages/ShadowGitCheckpo
 const ChatRecordingAnimation = lazy(() => import('./pages/ChatRecordingAnimation'));
 const SubagentArchitecture = lazy(() => import('./pages/SubagentArchitecture').then(m => ({ default: m.SubagentArchitecture })));
 const TokenManagementStrategy = lazy(() => import('./pages/TokenManagementStrategy').then(m => ({ default: m.TokenManagementStrategy })));
+const HookSystem = lazy(() => import('./pages/HookSystem').then(m => ({ default: m.HookSystem })));
+const PolicyEngine = lazy(() => import('./pages/PolicyEngine').then(m => ({ default: m.PolicyEngine })));
+const MessageBus = lazy(() => import('./pages/MessageBus').then(m => ({ default: m.MessageBus })));
+const ModelRouting = lazy(() => import('./pages/ModelRouting').then(m => ({ default: m.ModelRouting })));
+const AgentFramework = lazy(() => import('./pages/AgentFramework').then(m => ({ default: m.AgentFramework })));
 const ContentFormatConversion = lazy(() => import('./pages/ContentFormatConversion').then(m => ({ default: m.ContentFormatConversion })));
 const CommandExecutionContext = lazy(() => import('./pages/CommandExecutionContext').then(m => ({ default: m.CommandExecutionContext })));
-const QwenAuthentication = lazy(() => import('./pages/QwenAuthentication').then(m => ({ default: m.QwenAuthentication })));
+const GoogleAuthentication = lazy(() => import('./pages/GoogleAuthentication').then(m => ({ default: m.GoogleAuthentication })));
 const StreamingResponseProcessing = lazy(() => import('./pages/StreamingResponseProcessing').then(m => ({ default: m.StreamingResponseProcessing })));
 const ZedIntegration = lazy(() => import('./pages/ZedIntegration').then(m => ({ default: m.ZedIntegration })));
 const ModelConfiguration = lazy(() => import('./pages/ModelConfiguration').then(m => ({ default: m.ModelConfiguration })));
@@ -139,6 +149,12 @@ const ShellExecutionServiceDeep = lazy(() => import('./pages/ShellExecutionServi
 const TokenLifecycleOverview = lazy(() => import('./pages/TokenLifecycleOverview').then(m => ({ default: m.TokenLifecycleOverview })));
 const ErrorRecoveryDecisionTree = lazy(() => import('./pages/ErrorRecoveryDecisionTree').then(m => ({ default: m.ErrorRecoveryDecisionTree })));
 const IDEIntegrationOverview = lazy(() => import('./pages/IDEIntegrationOverview').then(m => ({ default: m.IDEIntegrationOverview })));
+const FallbackSystem = lazy(() => import('./pages/FallbackSystem').then(m => ({ default: m.FallbackSystem })));
+const ChatRecording = lazy(() => import('./pages/ChatRecording').then(m => ({ default: m.ChatRecording })));
+const PromptRegistry = lazy(() => import('./pages/PromptRegistry').then(m => ({ default: m.PromptRegistry })));
+const CommandLoading = lazy(() => import('./pages/CommandLoading').then(m => ({ default: m.CommandLoading })));
+const PromptProcessors = lazy(() => import('./pages/PromptProcessors').then(m => ({ default: m.PromptProcessors })));
+const UIStateManagement = lazy(() => import('./pages/UIStateManagement').then(m => ({ default: m.UIStateManagement })));
 
 // 页面加载 fallback
 function PageLoading() {
@@ -184,7 +200,7 @@ function App() {
 
   const activeTabLabel = useMemo(() => {
     const item = flatNavItems.find((i) => i.id === activeTab);
-    return item?.label ?? 'Qwen CLI';
+    return item?.label ?? 'Gemini CLI';
   }, [activeTab]);
 
   useEffect(() => {
@@ -299,6 +315,8 @@ function App() {
         return <AtCommands />;
       case 'memory-split':
         return <MemorySystemSplit />;
+      case 'agent-framework':
+        return <AgentFramework />;
       case 'subagent':
         return <SubagentSystem />;
       case 'mcp':
@@ -311,6 +329,14 @@ function App() {
         return <IDEIntegrationOverview />;
       case 'ide-diff':
         return <IDEDiffProtocol />;
+      case 'hook-system':
+        return <HookSystem />;
+      case 'policy-engine':
+        return <PolicyEngine />;
+      case 'message-bus':
+        return <MessageBus />;
+      case 'model-routing':
+        return <ModelRouting />;
       case 'approval-mode':
         return <ApprovalModeSystem />;
       case 'trusted-folders':
@@ -373,6 +399,16 @@ function App() {
         return <StreamingToolCallParserAnimation />;
       case 'loop-detection-anim':
         return <LoopDetectionAnimation />;
+      case 'hook-event-anim':
+        return <HookEventAnimation />;
+      case 'policy-decision-anim':
+        return <PolicyDecisionAnimation />;
+      case 'message-bus-anim':
+        return <MessageBusAnimation />;
+      case 'routing-chain-anim':
+        return <RoutingChainAnimation />;
+      case 'agent-loop-anim':
+        return <AgentLoopAnimation />;
       case 'request-tokenizer-anim':
         return <RequestTokenizerAnimation />;
       case 'result-cache-anim':
@@ -473,8 +509,8 @@ function App() {
         return <ContentFormatConversion />;
       case 'command-execution-context':
         return <CommandExecutionContext />;
-      case 'qwen-authentication':
-        return <QwenAuthentication />;
+      case 'google-authentication':
+        return <GoogleAuthentication />;
       case 'streaming-response-processing':
         return <StreamingResponseProcessing />;
       case 'zed-integration':
@@ -487,6 +523,18 @@ function App() {
         return <ErrorRecoveryPatterns />;
       case 'concurrency-patterns':
         return <ConcurrencyPatterns />;
+      case 'fallback-system':
+        return <FallbackSystem />;
+      case 'chat-recording':
+        return <ChatRecording />;
+      case 'prompt-registry':
+        return <PromptRegistry />;
+      case 'command-loading':
+        return <CommandLoading />;
+      case 'prompt-processors':
+        return <PromptProcessors />;
+      case 'ui-state-management':
+        return <UIStateManagement />;
       default:
         return <StartHere onNavigate={(tab) => navigateToTab(tab)} />;
     }

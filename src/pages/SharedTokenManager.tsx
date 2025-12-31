@@ -1,10 +1,20 @@
 import { useState } from 'react';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+
+const relatedPages: RelatedPage[] = [
+  { id: 'auth', label: '认证流程', description: 'OAuth 设备授权流程' },
+  { id: 'google-authentication', label: 'Google OAuth 认证', description: 'Google OAuth 详解' },
+  { id: 'shared-token-manager-anim', label: 'Token 管理动画', description: '可视化 Token 刷新流程' },
+  { id: 'oauth-device-flow-anim', label: '设备授权动画', description: 'OAuth 设备流程动画' },
+  { id: 'error-recovery-patterns', label: '错误恢复模式', description: 'Token 刷新错误处理' },
+  { id: 'concurrency-patterns', label: '并发模式', description: '多进程协调机制' },
+];
 
 // ============================================================
 // SharedTokenManager - 多进程 Token 共享机制深度解析
 // ============================================================
-// 本页面详细解释 Qwen CLI 中的多进程 Token 管理系统
+// 本页面详细解释 Gemini CLI 中的多进程 Token 管理系统
 // 涵盖：分布式锁、内存缓存、Token 刷新、错误处理
 
 // 可折叠章节组件
@@ -131,9 +141,9 @@ function ArchitectureDiagram() {
         RP["刷新 Promise<br/>refreshPromise"]
     end
 
-    subgraph FileSystem["文件系统 (~/.innies/)"]
-        CF["innies_oauth_creds.json<br/>凭证文件"]
-        LF["innies_oauth_creds.lock<br/>锁文件"]
+    subgraph FileSystem["文件系统 (~/.gemini/)"]
+        CF["gemini_oauth_creds.json<br/>凭证文件"]
+        LF["gemini_oauth_creds.lock<br/>锁文件"]
     end
 
     subgraph OAuth["OAuth 服务"]
@@ -534,13 +544,13 @@ function OAuthIntegration() {
 function SourceNavigation() {
   const files = [
     {
-      path: 'packages/core/src/innies/sharedTokenManager.ts',
+      path: 'packages/core/src/gemini/sharedTokenManager.ts',
       desc: 'SharedTokenManager 完整实现',
       lines: '883 行',
       key: 'getInstance, getValidCredentials, performTokenRefresh, acquireLock'
     },
     {
-      path: 'packages/core/src/innies/inniesOAuth2.ts',
+      path: 'packages/core/src/gemini/geminiOAuth2.ts',
       desc: 'OAuth2 客户端，设备授权与 Token 刷新',
       lines: '~400 行',
       key: 'InniesOAuth2Client, requestDeviceAuthorization, refreshAccessToken'
@@ -662,6 +672,8 @@ export function SharedTokenManager() {
           </div>
         </div>
       </div>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

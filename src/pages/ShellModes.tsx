@@ -813,7 +813,7 @@ signal.addEventListener('abort', () => {
 
           <HighlightBox title="配置示例" variant="yellow">
             <CodeBlock
-              code={`// .qwen/settings.json
+              code={`// .gemini/settings.json
 {
   "tools": {
     "shell": {

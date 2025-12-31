@@ -45,8 +45,8 @@ const requestContents: ContentItem[] = [
 
 // 模型限制配置
 const modelLimits = {
-  'qwen-coder-plus': { input: 131072, output: 16384 },
   'gemini-1.5-pro': { input: 2097152, output: 8192 },
+  'gemini-1.5-flash': { input: 1048576, output: 16384 },
   'gpt-4o': { input: 128000, output: 16384 },
 };
 
@@ -285,7 +285,7 @@ export function tokenLimit(
 ): number {
   // 规范化模型名称
   const normalized = normalize(model);
-  // "qwen-coder-plus-latest" → "qwen-coder-plus"
+  // "gemini-1.5-pro-latest" → "gemini-1.5-pro"
 
   // 匹配限制规则
   for (const [pattern, limit] of PATTERNS) {
@@ -590,8 +590,8 @@ export function TokenCountingAnimation() {
         {/* Limit checker */}
         <LimitChecker
           total={totalTokens}
-          limit={modelLimits['qwen-coder-plus'].input}
-          model="qwen-coder-plus"
+          limit={modelLimits['gemini-1.5-pro'].input}
+          model="gemini-1.5-pro"
         />
 
         {/* Code panel */}

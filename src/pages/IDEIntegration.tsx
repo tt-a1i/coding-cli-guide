@@ -2,6 +2,16 @@ import { HighlightBox } from '../components/HighlightBox';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+
+const relatedPages: RelatedPage[] = [
+  { id: 'ide-diff', label: 'IDE Diff 协议', description: '深入理解 gemini-diff:// 虚拟文档机制' },
+  { id: 'ide-integration-overview', label: 'IDE 集成总览', description: 'IDE 集成的架构概述' },
+  { id: 'zed-integration', label: 'Zed 集成', description: 'Zed 编辑器的集成方案' },
+  { id: 'mcp', label: 'MCP 集成', description: 'MCP 协议在 IDE 集成中的应用' },
+  { id: 'trusted-folders', label: '信任文件夹', description: 'IDE 信任状态与安全管理' },
+  { id: 'extension', label: '扩展系统', description: 'CLI 扩展机制与 IDE 扩展的关系' },
+];
 
 export function IDEIntegration() {
   const connectionFlowChart = `flowchart TD
@@ -206,7 +216,7 @@ export function IDEIntegration() {
         <HighlightBox title="Zed 支持状态" icon="⚡" variant="yellow">
           <p className="text-sm mb-2">
             <strong className="text-amber-400">Zed</strong> 是一款高性能的现代编辑器。
-            Qwen CLI 可在 Zed 的集成终端中运行，但原生 Diff 功能需要额外配置。
+            Gemini CLI 可在 Zed 的集成终端中运行，但原生 Diff 功能需要额外配置。
           </p>
         </HighlightBox>
 
@@ -235,14 +245,14 @@ export function IDEIntegration() {
         <div className="mt-4 bg-gray-800/50 rounded-lg p-4">
           <h4 className="text-cyan-400 font-semibold mb-3">Zed 使用方式</h4>
           <CodeBlock
-            title="在 Zed 中使用 Qwen CLI"
+            title="在 Zed 中使用 Gemini CLI"
             language="bash"
             code={`# 1. 在 Zed 中打开项目
 zed ~/my-project
 
 # 2. 打开集成终端 (Cmd+J 或 Ctrl+J)
 # 3. 运行 CLI
-innies
+gemini
 
 # 4. CLI 使用内置 Diff 视图 (自动检测到非 VSCode 环境)
 # AI 修改会在终端内显示 Diff，而不是打开 IDE Diff 视图
@@ -252,8 +262,8 @@ innies
 {
   "language_models": {
     "mcp_servers": {
-      "innies-context": {
-        "command": "innies",
+      "gemini-context": {
+        "command": "gemini",
         "args": ["mcp-server"]
       }
     }
@@ -391,12 +401,12 @@ innies
         </HighlightBox>
       </Layer>
 
-      {/* qwen-diff scheme */}
-      <Layer title="qwen-diff:// 虚拟文档机制" icon="📄">
+      {/* gemini-diff scheme */}
+      <Layer title="gemini-diff:// 虚拟文档机制" icon="📄">
         <HighlightBox title="技术原理" icon="💡" variant="blue">
           <p className="text-sm mb-2">
             VS Code 的 Diff 视图需要两个文档 URI：左侧（原始）和右侧（修改后）。
-            <code className="text-yellow-400 mx-1">qwen-diff://</code> 是自定义的虚拟文档 scheme，
+            <code className="text-yellow-400 mx-1">gemini-diff://</code> 是自定义的虚拟文档 scheme，
             用于提供 AI 提议的新内容，而无需实际写入文件。
           </p>
         </HighlightBox>
@@ -404,17 +414,17 @@ innies
         <CodeBlock
           title="URI 构造规则"
           language="typescript"
-          code={`// qwen-diff:// URI 构造
-const DIFF_SCHEME = 'qwen-diff';
+          code={`// gemini-diff:// URI 构造
+const DIFF_SCHEME = 'gemini-diff';
 
 const rightDocUri = vscode.Uri.from({
-  scheme: DIFF_SCHEME,           // 'qwen-diff'
+  scheme: DIFF_SCHEME,           // 'gemini-diff'
   path: filePath,                // 原始文件的绝对路径
   query: \`rand=\${Math.random()}\`  // 缓存清除
 });
 
 // 示例 URI:
-// qwen-diff:///Users/dev/project/src/utils.ts?rand=0.123456`}
+// gemini-diff:///Users/dev/project/src/utils.ts?rand=0.123456`}
         />
 
         <CodeBlock
@@ -453,7 +463,7 @@ class DiffContentProvider implements TextDocumentContentProvider {
             <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
               <h5 className="text-blue-400 font-semibold mb-2">1. 构建 URI</h5>
               <pre className="text-xs text-gray-300">
-{`qwen-diff://
+{`gemini-diff://
   /path/to/file.ts
   ?rand=0.xxx`}
               </pre>
@@ -505,7 +515,7 @@ class DiffContentProvider implements TextDocumentContentProvider {
           language="typescript"
           code={`// MCP Server 注册工具
 const mcpServer = new McpServer({
-  name: 'qwen-code-companion-mcp-server',
+  name: 'gemini-code-companion-mcp-server',
   version: '1.0.0',
 });
 
@@ -574,10 +584,10 @@ server.registerTool('closeDiff', {
           title="临时文件位置"
           language="text"
           code={`# 主文件 (按端口)
-/tmp/qwen-code-ide-server-{port}.json
+/tmp/gemini-code-ide-server-{port}.json
 
 # 按父进程 ID (多窗口支持)
-/tmp/qwen-code-ide-server-{ppid}.json
+/tmp/gemini-code-ide-server-{ppid}.json
 
 # 文件内容
 {
@@ -712,7 +722,7 @@ QWEN_CODE_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
               <p className="text-red-400">- {'}'}</p>
             </div>
             <div className="bg-green-900/20 p-3 rounded">
-              <p className="text-gray-400 mb-2">// 修改后 (qwen-diff://)</p>
+              <p className="text-gray-400 mb-2">// 修改后 (gemini-diff://)</p>
               <p className="text-green-400">+ function hello(name: string) {'{'}</p>
               <p className="text-green-400">+   console.log(`Hello, ${'{'}name{'}'}`)</p>
               <p className="text-green-400">+ {'}'}</p>
@@ -817,15 +827,15 @@ QWEN_CODE_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
           <table className="w-full text-sm">
             <tbody className="text-gray-300">
               <tr className="border-b border-gray-700">
-                <td className="p-2"><code>Qwen Code: Run</code></td>
+                <td className="p-2"><code>Gemini CLI: Run</code></td>
                 <td className="p-2">启动新的 CLI 会话</td>
               </tr>
               <tr className="border-b border-gray-700">
-                <td className="p-2"><code>Qwen Code: Accept Diff</code></td>
+                <td className="p-2"><code>Gemini CLI: Accept Diff</code></td>
                 <td className="p-2">接受当前 Diff 视图中的修改</td>
               </tr>
               <tr>
-                <td className="p-2"><code>Qwen Code: Close Diff Editor</code></td>
+                <td className="p-2"><code>Gemini CLI: Close Diff Editor</code></td>
                 <td className="p-2">拒绝修改并关闭 Diff 视图</td>
               </tr>
             </tbody>
@@ -881,7 +891,7 @@ QWEN_CODE_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
 │  │   ┌──────────────┐    ┌──────────────┐    ┌─────────┐  │    │
 │  │   │ IDEServer    │    │ DiffManager  │    │OpenFiles│  │    │
 │  │   │              │    │              │    │Manager  │  │    │
-│  │   │ Express HTTP │    │ qwen-diff  │    │         │  │    │
+│  │   │ Express HTTP │    │ gemini-diff  │    │         │  │    │
 │  │   │ + MCP Server │    │ :// Provider │    │ Context │  │    │
 │  │   │              │    │              │    │ Sync    │  │    │
 │  │   └──────────────┘    └──────────────┘    └─────────┘  │    │
@@ -891,17 +901,17 @@ QWEN_CODE_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
 │               ▼                   │               ▼             │
 │  ┌─────────────────────────────────────────────────────────┐    │
 │  │                   Integrated Terminal                    │    │
-│  │   $ qwen                                              │    │
+│  │   $ gemini                                              │    │
 │  └─────────────────────────────────────────────────────────┘    │
 └─────────────────────────────────────────────────────────────────┘
                                   │
           ┌───────────────────────┼───────────────────────┐
-          │ QWEN_CODE_IDE_*       │ /tmp/qwen-code-ide-*  │
+          │ QWEN_CODE_IDE_*       │ /tmp/gemini-code-ide-*  │
           │ Environment Vars      │ Connection Files      │
           └───────────────────────┼───────────────────────┘
                                   ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                        Qwen CLI                               │
+│                        Gemini CLI                               │
 │   ┌──────────────────────────────────────────────────────────┐  │
 │   │                    IDE Integration                        │  │
 │   │                                                          │  │
@@ -944,6 +954,8 @@ QWEN_CODE_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
           </div>
         </div>
       </section>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

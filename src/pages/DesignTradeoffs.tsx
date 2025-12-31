@@ -3,8 +3,9 @@ import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
+import { RelatedPages } from '../components/RelatedPages';
 
-type TabType = 'overview' | 'safety' | 'performance' | 'correctness' | 'state';
+type TabType = 'overview' | 'safety' | 'performance' | 'correctness' | 'state' | 'alternatives';
 
 export function DesignTradeoffs() {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
@@ -15,6 +16,7 @@ export function DesignTradeoffs() {
     { id: 'performance', label: '性能 vs 简洁', icon: '⚡' },
     { id: 'correctness', label: '正确性 vs 吞吐', icon: '✅' },
     { id: 'state', label: '状态管理', icon: '📦' },
+    { id: 'alternatives', label: '替代方案', icon: '🔀' },
   ];
 
   return (
@@ -49,6 +51,20 @@ export function DesignTradeoffs() {
       {activeTab === 'performance' && <PerformanceTab />}
       {activeTab === 'correctness' && <CorrectnessTab />}
       {activeTab === 'state' && <StateTab />}
+      {activeTab === 'alternatives' && <AlternativesTab />}
+
+      {/* 相关页面 */}
+      <RelatedPages
+        title="📚 相关阅读"
+        pages={[
+          { id: 'tool-scheduler', label: '工具调度器详解', description: '了解顺序队列实现' },
+          { id: 'loop-detect', label: '循环检测', description: '三层检测的深入分析' },
+          { id: 'approval-mode', label: '审批模式系统', description: '信任边界的完整实现' },
+          { id: 'config', label: '配置系统', description: '四层配置合并机制' },
+          { id: 'shell-modes', label: 'Shell 模式', description: 'PTY 回退链的详细说明' },
+          { id: 'session-persistence', label: '会话持久化', description: '队列模式状态管理' },
+        ]}
+      />
     </div>
   );
 }
@@ -366,7 +382,7 @@ flowchart TD
 
       {/* Model Config Cache */}
       <Layer title="⏱️ 模型配置缓存 TTL">
-        <CodeBlock language="typescript" code={`// packages/core/src/innies/modelConfigCache.ts
+        <CodeBlock language="typescript" code={`// packages/core/src/gemini/modelConfigCache.ts
 
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 分钟 TTL
 
@@ -626,24 +642,24 @@ sequenceDiagram
 
       {/* Singleton Pattern */}
       <Layer title="🏛️ 单例遥测">
-        <CodeBlock language="typescript" code={`// packages/core/src/telemetry/qwen-logger/qwen-logger.ts
+        <CodeBlock language="typescript" code={`// packages/core/src/telemetry/gemini-logger/gemini-logger.ts
 
-export class QwenLogger {
-  private static instance: QwenLogger;
+export class GeminiLogger {
+  private static instance: GeminiLogger;
 
   private constructor() {
     // 私有构造函数，强制使用单例
   }
 
-  static getInstance(): QwenLogger {
-    if (!QwenLogger.instance) {
-      QwenLogger.instance = new QwenLogger();
+  static getInstance(): GeminiLogger {
+    if (!GeminiLogger.instance) {
+      GeminiLogger.instance = new GeminiLogger();
     }
-    return QwenLogger.instance;
+    return GeminiLogger.instance;
   }
 
   // 测试时需要重置
-  // (QwenLogger as any).instance = undefined;
+  // (GeminiLogger as any).instance = undefined;
 }`} />
 
         <div className="grid grid-cols-2 gap-3 mt-4">
@@ -706,6 +722,315 @@ flowchart TD
           <li><strong className="text-[var(--text-primary)]">优雅降级</strong>：多层回退保证可用性</li>
         </ul>
       </HighlightBox>
+    </div>
+  );
+}
+
+function AlternativesTab() {
+  return (
+    <div className="flex flex-col gap-6">
+      <Layer title="🔀 被否决的替代方案">
+        <p className="text-[var(--text-secondary)] mb-4">
+          每个架构决策都考虑了多种方案。以下是被否决的替代方案及其原因：
+        </p>
+
+        {/* 工具并行执行 */}
+        <div className="bg-red-900/10 border border-red-500/30 rounded-lg p-5 mb-4">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">❌</span>
+            <div className="flex-1">
+              <h4 className="text-lg font-semibold text-red-400 mb-2">替代方案 1：工具并行执行</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <div className="text-gray-400 mb-1">方案描述</div>
+                  <p className="text-gray-300">
+                    允许 AI 一次返回多个 tool_calls，CLI 并行执行所有工具，然后一次性返回结果。
+                  </p>
+                </div>
+                <div>
+                  <div className="text-gray-400 mb-1">理论优势</div>
+                  <ul className="text-gray-300 space-y-1">
+                    <li>• 更高的吞吐量</li>
+                    <li>• 减少 API 往返次数</li>
+                    <li>• I/O 密集任务更快</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-3 bg-black/30 rounded p-3">
+                <div className="text-red-400 font-medium mb-1">否决原因</div>
+                <ul className="text-gray-300 text-xs space-y-1">
+                  <li>• <strong>状态竞争</strong>：工具 A 读取文件，工具 B 同时修改该文件</li>
+                  <li>• <strong>上下文不一致</strong>：工具 B 可能依赖工具 A 的输出，但 A 尚未完成</li>
+                  <li>• <strong>错误处理复杂</strong>：部分成功时如何回滚？如何通知 AI？</li>
+                  <li>• <strong>调试困难</strong>：并行日志交错，难以追踪问题</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 单层循环检测 */}
+        <div className="bg-red-900/10 border border-red-500/30 rounded-lg p-5 mb-4">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">❌</span>
+            <div className="flex-1">
+              <h4 className="text-lg font-semibold text-red-400 mb-2">替代方案 2：单层循环检测（仅 LLM）</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <div className="text-gray-400 mb-1">方案描述</div>
+                  <p className="text-gray-300">
+                    只使用 LLM 检测循环，依赖模型的语义理解能力判断是否陷入重复。
+                  </p>
+                </div>
+                <div>
+                  <div className="text-gray-400 mb-1">理论优势</div>
+                  <ul className="text-gray-300 space-y-1">
+                    <li>• 实现简单</li>
+                    <li>• 最高的语义准确性</li>
+                    <li>• 无需维护多套逻辑</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-3 bg-black/30 rounded p-3">
+                <div className="text-red-400 font-medium mb-1">否决原因</div>
+                <ul className="text-gray-300 text-xs space-y-1">
+                  <li>• <strong>延迟高</strong>：每次检测都需要 API 调用，增加响应时间</li>
+                  <li>• <strong>成本高</strong>：额外的 Token 消耗用于循环检测</li>
+                  <li>• <strong>漏检风险</strong>：简单的精确重复用哈希更可靠</li>
+                  <li>• <strong>决策</strong>：采用三层混合检测（哈希 → 内容 → LLM）</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 无信任边界 */}
+        <div className="bg-red-900/10 border border-red-500/30 rounded-lg p-5 mb-4">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">❌</span>
+            <div className="flex-1">
+              <h4 className="text-lg font-semibold text-red-400 mb-2">替代方案 3：无信任边界的统一审批模式</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <div className="text-gray-400 mb-1">方案描述</div>
+                  <p className="text-gray-300">
+                    所有目录使用相同的审批规则，不区分受信任和非受信任。
+                  </p>
+                </div>
+                <div>
+                  <div className="text-gray-400 mb-1">理论优势</div>
+                  <ul className="text-gray-300 space-y-1">
+                    <li>• 简化用户心智模型</li>
+                    <li>• 减少配置复杂度</li>
+                    <li>• 无需管理信任列表</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-3 bg-black/30 rounded p-3">
+                <div className="text-red-400 font-medium mb-1">否决原因</div>
+                <ul className="text-gray-300 text-xs space-y-1">
+                  <li>• <strong>安全风险</strong>：恶意项目可通过 .gemini/ 配置启用 YOLO 模式</li>
+                  <li>• <strong>供应链攻击</strong>：克隆的仓库可能包含危险配置</li>
+                  <li>• <strong>行业标准</strong>：VS Code 等工具都有类似的工作区信任机制</li>
+                  <li>• <strong>决策</strong>：非信任目录强制降级到 DEFAULT 模式</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 深合并配置 */}
+        <div className="bg-red-900/10 border border-red-500/30 rounded-lg p-5">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">❌</span>
+            <div className="flex-1">
+              <h4 className="text-lg font-semibold text-red-400 mb-2">替代方案 4：简单深合并配置</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <div className="text-gray-400 mb-1">方案描述</div>
+                  <p className="text-gray-300">
+                    使用 lodash.merge 或类似的简单深合并，所有字段统一处理。
+                  </p>
+                </div>
+                <div>
+                  <div className="text-gray-400 mb-1">理论优势</div>
+                  <ul className="text-gray-300 space-y-1">
+                    <li>• 实现简单</li>
+                    <li>• 行为可预测</li>
+                    <li>• 无需维护 schema</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-3 bg-black/30 rounded p-3">
+                <div className="text-red-400 font-medium mb-1">否决原因</div>
+                <ul className="text-gray-300 text-xs space-y-1">
+                  <li>• <strong>数组问题</strong>：<code>tools.allowed</code> 应该合并还是覆盖？</li>
+                  <li>• <strong>对象问题</strong>：<code>mcpServers</code> 应该深合并还是浅合并？</li>
+                  <li>• <strong>语义差异</strong>：不同字段需要不同的合并策略</li>
+                  <li>• <strong>决策</strong>：采用带 schema 的策略感知合并</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      {/* 决策量化 */}
+      <Layer title="📊 决策的量化权衡">
+        <p className="text-[var(--text-secondary)] mb-4">
+          以下是主要决策的量化分析，展示了每个选择的具体得失：
+        </p>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="border-b border-white/20">
+                <th className="p-3 text-left text-[var(--text-primary)]">决策</th>
+                <th className="p-3 text-left text-[var(--terminal-green)]">获得</th>
+                <th className="p-3 text-left text-[var(--amber)]">失去</th>
+                <th className="p-3 text-left text-[var(--text-muted)]">量化影响</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b border-white/10">
+                <td className="p-3 text-[var(--text-secondary)]">顺序工具队列</td>
+                <td className="p-3 text-[var(--terminal-green)] text-xs">
+                  • 100% 状态一致性<br/>
+                  • 可预测的执行顺序<br/>
+                  • 简化错误处理
+                </td>
+                <td className="p-3 text-[var(--amber)] text-xs">
+                  • 无法并行 I/O<br/>
+                  • 批量操作更慢
+                </td>
+                <td className="p-3 text-[var(--text-muted)] text-xs">
+                  对于 10 个独立文件读取：<br/>
+                  顺序: ~500ms<br/>
+                  并行: ~100ms<br/>
+                  <strong>代价: 5x 延迟</strong>
+                </td>
+              </tr>
+              <tr className="border-b border-white/10">
+                <td className="p-3 text-[var(--text-secondary)]">三层循环检测</td>
+                <td className="p-3 text-[var(--terminal-green)] text-xs">
+                  • 快速精确匹配（Layer 1）<br/>
+                  • 模糊匹配（Layer 2）<br/>
+                  • 语义理解（Layer 3）
+                </td>
+                <td className="p-3 text-[var(--amber)] text-xs">
+                  • 更多代码维护<br/>
+                  • 调试复杂度增加
+                </td>
+                <td className="p-3 text-[var(--text-muted)] text-xs">
+                  Layer 1: O(1), ~0.1ms<br/>
+                  Layer 2: O(n), ~5ms<br/>
+                  Layer 3: ~500ms (API)<br/>
+                  <strong>99% 在 Layer 1/2 拦截</strong>
+                </td>
+              </tr>
+              <tr className="border-b border-white/10">
+                <td className="p-3 text-[var(--text-secondary)]">信任边界</td>
+                <td className="p-3 text-[var(--terminal-green)] text-xs">
+                  • 阻止供应链攻击<br/>
+                  • 保护系统安全<br/>
+                  • 符合行业标准
+                </td>
+                <td className="p-3 text-[var(--amber)] text-xs">
+                  • 首次使用需确认<br/>
+                  • 增加用户操作步骤
+                </td>
+                <td className="p-3 text-[var(--text-muted)] text-xs">
+                  每个新项目: +1 次交互<br/>
+                  此后: 0 额外开销<br/>
+                  <strong>一次性 2 秒代价</strong>
+                </td>
+              </tr>
+              <tr className="border-b border-white/10">
+                <td className="p-3 text-[var(--text-secondary)]">非对称编码缓存</td>
+                <td className="p-3 text-[var(--terminal-green)] text-xs">
+                  • 系统编码只检测一次<br/>
+                  • 减少 shell 调用
+                </td>
+                <td className="p-3 text-[var(--amber)] text-xs">
+                  • 代码逻辑不一致<br/>
+                  • 更难理解
+                </td>
+                <td className="p-3 text-[var(--text-muted)] text-xs">
+                  Windows chcp: ~50ms<br/>
+                  缓存命中: ~0.01ms<br/>
+                  <strong>5000x 性能提升</strong>
+                </td>
+              </tr>
+              <tr>
+                <td className="p-3 text-[var(--text-secondary)]">PTY 多层回退</td>
+                <td className="p-3 text-[var(--terminal-green)] text-xs">
+                  • 100% 环境兼容<br/>
+                  • 优雅降级
+                </td>
+                <td className="p-3 text-[var(--amber)] text-xs">
+                  • 3 套 shell 逻辑<br/>
+                  • 更多测试用例
+                </td>
+                <td className="p-3 text-[var(--text-muted)] text-xs">
+                  代码量: +400 行<br/>
+                  测试用例: +30 个<br/>
+                  <strong>覆盖 100% 环境</strong>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Layer>
+
+      {/* 历史决策时间线 */}
+      <Layer title="📅 决策演进时间线">
+        <MermaidDiagram chart={`
+timeline
+    title 架构决策演进
+    section 早期版本
+        工具串行执行 : 保证状态一致性
+        单层循环检测 : 仅 LLM 判断
+    section v0.2.x
+        信任边界引入 : 响应安全审计
+        配置 v1 扁平结构 : 简单实现
+    section v0.3.x
+        三层循环检测 : 性能优化
+        配置 v2 嵌套结构 : 可扩展性
+        PTY 回退链 : 兼容性增强
+    section 当前
+        非对称缓存 : 性能精调
+        策略感知合并 : 配置灵活性
+`} />
+      </Layer>
+
+      {/* 未来可能的变化 */}
+      <Layer title="🔮 未来可能重新评估的决策">
+        <HighlightBox title="条件成熟时可能改变" variant="yellow">
+          <div className="space-y-4 text-sm">
+            <div>
+              <div className="text-[var(--text-primary)] font-medium">1. 有限并行执行</div>
+              <p className="text-[var(--text-secondary)]">
+                如果 AI 模型能够可靠地标注工具调用之间的依赖关系，可以考虑对无依赖的工具实现并行执行。
+                <span className="text-[var(--text-muted)]">（需要模型能力提升）</span>
+              </p>
+            </div>
+            <div>
+              <div className="text-[var(--text-primary)] font-medium">2. 更细粒度的权限</div>
+              <p className="text-[var(--text-secondary)]">
+                目前的审批模式是全局的，未来可能支持按工具、按目录的细粒度权限控制。
+                <span className="text-[var(--text-muted)]">（需要用户需求验证）</span>
+              </p>
+            </div>
+            <div>
+              <div className="text-[var(--text-primary)] font-medium">3. 分布式状态</div>
+              <p className="text-[var(--text-secondary)]">
+                当前的单例遥测和队列模式假设单进程运行，如果需要支持分布式场景，需要重新设计。
+                <span className="text-[var(--text-muted)]">（取决于产品方向）</span>
+              </p>
+            </div>
+          </div>
+        </HighlightBox>
+      </Layer>
     </div>
   );
 }

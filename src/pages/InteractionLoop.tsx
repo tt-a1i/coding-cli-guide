@@ -3,6 +3,7 @@ import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
   return (
@@ -101,6 +102,16 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
 export function InteractionLoop() {
   const [isSummaryExpanded, setIsSummaryExpanded] = useState(true);
+
+  const relatedPages: RelatedPage[] = [
+    { id: 'gemini-chat', label: 'GeminiChatCore', description: 'AI 核心循环' },
+    { id: 'lifecycle', label: '请求生命周期', description: '请求处理流程' },
+    { id: 'tool-arch', label: '工具系统', description: '工具调用处理' },
+    { id: 'subagent', label: '子代理', description: '任务委托机制' },
+    { id: 'streaming-response-processing', label: '流式处理', description: '响应流处理' },
+    { id: 'memory', label: '上下文管理', description: '消息历史管理' },
+  ];
+
   // 主循环流程图
   const mainLoopFlowChart = `flowchart TD
     start([用户输入<br/>TextInput])
@@ -350,7 +361,7 @@ const ideContextDelta = await getIdeContextDelta();
 
 // 准备完整请求
 const request = await prepareRequest(userParts, ideContextDelta);
-// - 添加系统提示 (CLAUDE.md, .qwen/instructions.md)
+// - 添加系统提示 (CLAUDE.md, .gemini/instructions.md)
 // - 注入历史消息
 // - Token 计数与截断
 // - 上下文窗口管理`}
@@ -1223,7 +1234,7 @@ if (totalTokens > contextWindowSize * 0.9) {
                     <div className="text-[var(--terminal-green)] mb-2">调试步骤：</div>
                     <ol className="text-[var(--text-secondary)] space-y-1 list-decimal list-inside">
                       <li>启用 <code className="text-[var(--amber)]">DEBUG=1</code> 查看详细日志</li>
-                      <li>检查 <code className="text-[var(--amber)]">~/.qwen/logs/</code> 中的错误日志</li>
+                      <li>检查 <code className="text-[var(--amber)]">~/.gemini/logs/</code> 中的错误日志</li>
                       <li>确认 Token 使用量是否接近模型上限</li>
                       <li>尝试使用 <code className="text-[var(--amber)]">/compress</code> 压缩历史后重试</li>
                     </ol>
@@ -1334,7 +1345,7 @@ if (totalTokens > contextWindowSize * 0.9) {
             <h4 className="text-[var(--cyber-blue)] font-bold mb-3">🔧 调试工具速查</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
               <div className="bg-[var(--bg-card)] p-3 rounded">
-                <code className="text-[var(--amber)]">DEBUG=1 innies</code>
+                <code className="text-[var(--amber)]">DEBUG=1 gemini</code>
                 <div className="text-[var(--text-muted)] text-xs mt-1">启用详细调试日志</div>
               </div>
               <div className="bg-[var(--bg-card)] p-3 rounded">
@@ -1390,7 +1401,7 @@ if (totalTokens > contextWindowSize * 0.9) {
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-[var(--terminal-green)]">✓</span>
-                  <span>配置合理的 .qwenignore 排除大文件</span>
+                  <span>配置合理的 .geminiignore 排除大文件</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-[var(--terminal-green)]">✓</span>
@@ -1582,7 +1593,7 @@ if (totalTokens > contextWindowSize * 0.9) {
                 <li>• <strong>TextInput</strong> - 提供用户输入触发</li>
                 <li>• <strong>ConfigSystem</strong> - 提供模型、Token 限制等配置</li>
                 <li>• <strong>AuthService</strong> - 提供 API 认证凭据</li>
-                <li>• <strong>MemorySystem</strong> - 提供 QWEN.md 上下文</li>
+                <li>• <strong>MemorySystem</strong> - 提供 GEMINI.md 上下文</li>
               </ul>
             </div>
 
@@ -1598,6 +1609,8 @@ if (totalTokens > contextWindowSize * 0.9) {
           </div>
         </div>
       </Layer>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

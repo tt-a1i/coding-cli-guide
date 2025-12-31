@@ -85,8 +85,8 @@ export function UpstreamDiffOverview() {
     end
 
     subgraph Innies["Innies CLI (企业化)"]
-        IA["Qwen OAuth<br/>设备授权流程"]
-        IB["多厂商 API<br/>Qwen/OpenAI/兼容"]
+        IA["Google OAuth<br/>设备授权流程"]
+        IB["多厂商 API<br/>Gemini/OpenAI/兼容"]
         IC["私有 Registry<br/>Nexus/Verdaccio"]
         ID["模型切换<br/>运行时可选"]
         IE["Token 共享<br/>多进程协调"]
@@ -158,12 +158,12 @@ export function UpstreamDiffOverview() {
         <ComparisonTable
           headers={['维度', '上游默认', '企业化改造', '改造原因']}
           rows={[
-            ['认证', 'Google OAuth', 'Qwen OAuth 设备授权', '企业内网无法访问 Google'],
+            ['认证', 'Google OAuth', 'Google OAuth 设备授权', '企业内网无法访问 Google'],
             ['Token 管理', '单进程', '多进程共享 + 文件锁', '避免并发刷新冲突'],
-            ['API 端点', 'Gemini API', '多厂商适配层', '支持 Qwen/OpenAI/DeepSeek 等'],
+            ['API 端点', 'Gemini API', '多厂商适配层', '支持 Gemini/OpenAI/DeepSeek 等'],
             ['依赖获取', 'npm install', '私有 Registry', '内网无法访问 npmjs.com'],
             ['分发方式', 'npm 全局安装', 'Portable + pkg 打包', 'Windows 用户免装 Node.js'],
-            ['配置目录', '.gemini', '.innies', '品牌隔离，避免冲突'],
+            ['配置目录', '.gemini', '.gemini', '品牌隔离，避免冲突'],
             ['审批策略', '默认宽松', '可配置严格模式', '企业合规要求'],
           ]}
         />
@@ -201,8 +201,8 @@ export function UpstreamDiffOverview() {
           <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700 mt-4">
             <h5 className="text-cyan-400 font-semibold mb-2">源码位置</h5>
             <ul className="text-sm text-gray-300 space-y-1">
-              <li><code>packages/core/src/innies/inniesOAuth2.ts</code> — OAuth2 客户端</li>
-              <li><code>packages/core/src/innies/sharedTokenManager.ts</code> — Token 共享</li>
+              <li><code>packages/core/src/gemini/geminiOAuth2.ts</code> — OAuth2 客户端</li>
+              <li><code>packages/core/src/gemini/sharedTokenManager.ts</code> — Token 共享</li>
               <li><code>packages/cli/src/config/auth.ts</code> — 认证配置</li>
             </ul>
           </div>
@@ -213,7 +213,7 @@ export function UpstreamDiffOverview() {
         <div className="space-y-4">
           <DesignCard
             title="为什么需要多厂商适配？"
-            why="不同企业使用不同的 LLM 服务（Qwen、Azure OpenAI、私有部署等）"
+            why="不同企业使用不同的 LLM 服务（Gemini、Azure OpenAI、私有部署等）"
             how="抽象 ContentGenerator 接口，各厂商实现适配器"
             benefit="一套代码支持多个 LLM Provider，运行时通过配置切换"
           />
@@ -221,7 +221,7 @@ export function UpstreamDiffOverview() {
           <ComparisonTable
             headers={['厂商', '认证方式', 'API 格式', '特殊处理']}
             rows={[
-              ['Qwen', 'OAuth2 Token', 'OpenAI 兼容', 'Token 共享管理'],
+              ['Gemini', 'OAuth2 Token', 'OpenAI 兼容', 'Token 共享管理'],
               ['OpenAI', 'API Key', '原生 OpenAI', '无需转换'],
               ['Azure OpenAI', 'API Key + Endpoint', 'OpenAI 兼容', 'Endpoint 路由'],
               ['DeepSeek', 'API Key', 'OpenAI 兼容', 'Beta 功能支持'],
@@ -232,14 +232,14 @@ export function UpstreamDiffOverview() {
           <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
             <h5 className="text-cyan-400 font-semibold mb-2">配置示例</h5>
             <pre className="bg-gray-900/80 p-3 rounded text-sm text-gray-300 overflow-x-auto">
-{`# 使用 Qwen (默认)
-innies
+{`# 使用 Gemini (默认)
+gemini
 
 # 使用 OpenAI 兼容 API
 OPENAI_API_KEY=sk-xxx \\
 OPENAI_BASE_URL=https://api.example.com/v1 \\
 OPENAI_MODEL=gpt-4 \\
-innies`}
+gemini`}
             </pre>
           </div>
         </div>
@@ -290,11 +290,11 @@ innies`}
           <ComparisonTable
             headers={['项目', '上游', '企业化', '迁移策略']}
             rows={[
-              ['配置目录', '~/.gemini', '~/.innies', '完全隔离'],
+              ['配置目录', '~/.gemini', '~/.gemini', '完全隔离'],
               ['环境变量前缀', 'GEMINI_', 'INNIES_ / 兼容 GEMINI_', '双重检测'],
-              ['CLI 命令', 'gemini', 'innies', '别名可选'],
-              ['日志目录', '.gemini/logs', '.innies/logs', '隔离存储'],
-              ['凭证文件', 'gemini_oauth_creds.json', 'innies_oauth_creds.json', '格式兼容'],
+              ['CLI 命令', 'gemini', 'gemini', '别名可选'],
+              ['日志目录', '.gemini/logs', '.gemini/logs', '隔离存储'],
+              ['凭证文件', 'gemini_oauth_creds.json', 'gemini_oauth_creds.json', '格式兼容'],
             ]}
           />
 
@@ -302,7 +302,7 @@ innies`}
             title="为什么要隔离配置目录？"
             why="避免与上游 Gemini CLI 冲突，支持并行安装"
             how="所有路径引用从硬编码改为可配置"
-            benefit="用户可同时使用 gemini 和 innies 命令"
+            benefit="用户可同时使用 gemini 和 gemini 命令"
           />
         </div>
       </CollapsibleSection>
@@ -382,7 +382,7 @@ innies`}
           <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
             <div className="text-cyan-300 font-semibold mb-2">Q：如何从上游同步新功能？</div>
             <div className="text-gray-400">
-              A：定期 cherry-pick 上游提交，保持核心逻辑兼容。改造代码集中在 <code>packages/core/src/innies/</code>，
+              A：定期 cherry-pick 上游提交，保持核心逻辑兼容。改造代码集中在 <code>packages/core/src/gemini/</code>，
               最小化与上游代码的耦合。
             </div>
           </div>

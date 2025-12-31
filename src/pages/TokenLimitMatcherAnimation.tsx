@@ -39,7 +39,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
             <h4 className="text-[var(--amber)] font-bold mb-2">🔧 为什么需要</h4>
             <p className="text-[var(--text-secondary)] text-sm">
               多厂商 API 集成需要正确识别每个模型的能力：Google Gemini 2M、OpenAI GPT-4o 128K、
-              Claude 200K、Qwen 1M 等。模型名称可能带有版本后缀、提供商前缀，需要标准化处理。
+              Claude 200K、Gemini 1M 等。模型名称可能带有版本后缀、提供商前缀，需要标准化处理。
             </p>
           </div>
 
@@ -77,7 +77,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
             </div>
             <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--border-subtle)]">
               <div className="text-xl font-bold text-[var(--cyber-blue)]">1M</div>
-              <div className="text-xs text-[var(--text-muted)]">Qwen3 Coder</div>
+              <div className="text-xs text-[var(--text-muted)]">Gemini</div>
             </div>
             <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--border-subtle)]">
               <div className="text-xl font-bold text-[var(--purple)]">200K</div>
@@ -122,24 +122,24 @@ const SAMPLE_PATTERNS: PatternMatch[] = [
   { pattern: '^o3(?:-mini|$).*$', limit: 200000, limitLabel: '200K', matched: false },
   { pattern: '^gpt-4o.*$', limit: 131072, limitLabel: '128K', matched: false },
   { pattern: '^claude-3\\.7-sonnet.*$', limit: 1048576, limitLabel: '1M', matched: false },
-  { pattern: '^qwen3-coder-plus(-.*)?$', limit: 1048576, limitLabel: '1M', matched: false },
-  { pattern: '^qwen3-coder-flash(-.*)?$', limit: 1048576, limitLabel: '1M', matched: false },
-  { pattern: '^qwen2\\.5.*$', limit: 131072, limitLabel: '128K', matched: false },
-  { pattern: '^qwen-plus-latest$', limit: 1048576, limitLabel: '1M', matched: false },
-  { pattern: '^qwen-vl-max.*$', limit: 131072, limitLabel: '128K', matched: false },
+  { pattern: '^gemini-1.5-pro(-.*)?$', limit: 1048576, limitLabel: '1M', matched: false },
+  { pattern: '^gemini-1.5-coder-flash(-.*)?$', limit: 1048576, limitLabel: '1M', matched: false },
+  { pattern: '^gemini-1.0\\.5.*$', limit: 131072, limitLabel: '128K', matched: false },
+  { pattern: '^gemini-2.0-flash$', limit: 1048576, limitLabel: '1M', matched: false },
+  { pattern: '^gemini-1.5-pro-vision.*$', limit: 131072, limitLabel: '128K', matched: false },
   { pattern: '^deepseek-r1(?:-.*)?$', limit: 131072, limitLabel: '128K', matched: false },
   { pattern: '^kimi-k2-0905$', limit: 262144, limitLabel: '256K', matched: false },
 ];
 
 const OUTPUT_PATTERNS: PatternMatch[] = [
-  { pattern: '^qwen3-coder-plus(-.*)?$', limit: 65536, limitLabel: '64K', matched: false },
-  { pattern: '^qwen3-max(-preview)?(-.*)?$', limit: 65536, limitLabel: '64K', matched: false },
-  { pattern: '^qwen-vl-max-latest$', limit: 8192, limitLabel: '8K', matched: false },
-  { pattern: '^qwen3-vl-plus$', limit: 32768, limitLabel: '32K', matched: false },
+  { pattern: '^gemini-1.5-pro(-.*)?$', limit: 65536, limitLabel: '64K', matched: false },
+  { pattern: '^gemini-1.5-pro(-preview)?(-.*)?$', limit: 65536, limitLabel: '64K', matched: false },
+  { pattern: '^gemini-1.5-pro-vision-latest$', limit: 8192, limitLabel: '8K', matched: false },
+  { pattern: '^gemini-1.5-flash-vision$', limit: 32768, limitLabel: '32K', matched: false },
 ];
 
 export default function TokenLimitMatcherAnimation() {
-  const [inputModel, setInputModel] = useState('qwen3-coder-plus-20250101');
+  const [inputModel, setInputModel] = useState('gemini-1.5-pro-20250101');
   const [isIntroExpanded, setIsIntroExpanded] = useState(true);
   const [normalizedModel, setNormalizedModel] = useState('');
   const [normalizationSteps, setNormalizationSteps] = useState<NormalizationStep[]>([]);
@@ -205,7 +205,7 @@ export default function TokenLimitMatcherAnimation() {
     s = s.replace(/-preview/g, '');
 
     // Check if special model that keeps date
-    const isSpecialModel = s.match(/^qwen-(?:plus|flash|vl-max)-latest$/) || s.match(/^kimi-k2-\d{4}$/);
+    const isSpecialModel = s.match(/^gemini-(?:plus|flash|vl-max)-latest$/) || s.match(/^kimi-k2-\d{4}$/);
 
     if (!isSpecialModel) {
       s = s.replace(/-(?:\d{4,}|\d+x\d+b|v\d+(?:\.\d+)*|(?<=-[^-]+-)\d+(?:\.\d+)+|latest|exp)$/g, '');
@@ -361,11 +361,11 @@ export default function TokenLimitMatcherAnimation() {
           {/* Quick presets */}
           <div className="mt-4 flex flex-wrap gap-2">
             {[
-              'qwen3-coder-plus-20250101',
+              'gemini-1.5-pro-20250101',
               'openai/gpt-4o-mini',
               'claude-3.7-sonnet-20250219',
               'deepseek-r1-bf16',
-              'qwen-vl-max-latest',
+              'gemini-1.5-pro-vision-latest',
               'kimi-k2-0905',
             ].map((preset) => (
               <button
@@ -575,7 +575,7 @@ export default function TokenLimitMatcherAnimation() {
               { provider: 'Google Gemini', models: ['gemini-2.5-pro', 'gemini-2.0-flash'], limit: '1M-2M' },
               { provider: 'OpenAI', models: ['o3', 'gpt-4.1', 'gpt-4o'], limit: '128K-1M' },
               { provider: 'Anthropic', models: ['claude-3.7-sonnet', 'claude-opus-4'], limit: '200K-1M' },
-              { provider: 'Alibaba Qwen', models: ['qwen3-coder-plus', 'qwen-vl-max'], limit: '128K-1M' },
+              { provider: 'Google Gemini', models: ['gemini-1.5-pro', 'gemini-1.5-pro-vision'], limit: '128K-1M' },
               { provider: 'DeepSeek', models: ['deepseek-r1', 'deepseek-v3'], limit: '128K' },
               { provider: 'Moonshot', models: ['kimi-k2-0905', 'kimi-k2-turbo'], limit: '128K-256K' },
               { provider: 'Zhipu GLM', models: ['glm-4.5', 'glm-4.6'], limit: '64K-128K' },

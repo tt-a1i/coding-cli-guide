@@ -466,7 +466,7 @@ export function highlight(type: keyof Theme['syntax'], text: string): string {
 }`;
 
   const customThemeCode = `// 自定义主题
-// ~/.qwen/themes/my-theme.json
+// ~/.gemini/themes/my-theme.json
 
 {
   "name": "my-theme",
@@ -514,12 +514,12 @@ export function highlight(type: keyof Theme['syntax'], text: string): string {
 }
 
 // 加载自定义主题
-// qwen config set theme my-theme`;
+// gemini config set theme my-theme`;
 
   const cliCommandsCode = `# 主题管理命令
 
 # 列出所有可用主题
-qwen config themes
+gemini config themes
 # 输出:
 # Available Themes:
 # ────────────────────────────────
@@ -541,19 +541,19 @@ qwen config themes
 # ────────────────────────────────
 
 # 切换主题
-qwen config set theme dracula
+gemini config set theme dracula
 
 # 预览主题
-qwen config preview-theme monokai
+gemini config preview-theme monokai
 
 # 重置为默认主题
-qwen config set theme dark
+gemini config set theme dark
 
 # 导入自定义主题
-qwen config import-theme ./my-theme.json
+gemini config import-theme ./my-theme.json
 
 # 导出当前主题
-qwen config export-theme > current-theme.json`;
+gemini config export-theme > current-theme.json`;
 
   // 主题预览组件
   const ThemePreview = ({ themeName, theme }: { themeName: string; theme: Record<string, Record<string, string>> }) => (
@@ -562,7 +562,7 @@ qwen config export-theme > current-theme.json`;
         {themeName}
       </h5>
       <div className="space-y-1 text-sm font-mono">
-        <div style={{ color: theme.ui.prompt }}>{theme.ui.promptSymbol} qwen</div>
+        <div style={{ color: theme.ui.prompt }}>{theme.ui.promptSymbol} gemini</div>
         <div>
           <span style={{ color: theme.syntax.keyword }}>const</span>{' '}
           <span style={{ color: theme.syntax.variable }}>greeting</span>{' '}
@@ -760,7 +760,7 @@ qwen config export-theme > current-theme.json`;
 │  │  │ dark | light | dracula | monokai | nord | ...       │   │  │
 │  │  └─────────────────────────────────────────────────────┘   │  │
 │  │  ┌─────────────────────────────────────────────────────┐   │  │
-│  │  │ Custom Themes (~/.qwen/themes/)                   │   │  │
+│  │  │ Custom Themes (~/.gemini/themes/)                   │   │  │
 │  │  │ my-theme.json | company-theme.json | ...            │   │  │
 │  │  └─────────────────────────────────────────────────────┘   │  │
 │  └────────────────────────────────────────────────────────────┘  │

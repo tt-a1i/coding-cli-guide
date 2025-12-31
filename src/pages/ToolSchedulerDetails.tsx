@@ -1,8 +1,18 @@
 import { HighlightBox } from '../components/HighlightBox';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 export function ToolSchedulerDetails() {
+  const relatedPages: RelatedPage[] = [
+    { id: 'tool-arch', label: '工具系统', description: '工具架构总览' },
+    { id: 'tool-detail', label: '工具详情', description: '各工具实现' },
+    { id: 'concurrency-patterns', label: '并发模式', description: '并发调度' },
+    { id: 'approval-mode', label: '审批模式', description: '权限控制' },
+    { id: 'interaction-loop', label: '交互循环', description: '调用入口' },
+    { id: 'error', label: '错误处理', description: '工具错误' },
+  ];
+
   // 工具调度完整流程 - Mermaid flowchart
   const toolSchedulerFlowChart = `flowchart TD
     start([AI 请求执行工具])
@@ -890,7 +900,7 @@ if (isPlanMode && !isExitPlanModeTool) {
                 <li>• 保留开头 <code>20%</code> 的行（前 20 行）</li>
                 <li>• 保留结尾 <code>80%</code> 的行（后 80 行）</li>
                 <li>• 中间部分用 <code>... [CONTENT TRUNCATED] ...</code> 标记</li>
-                <li>• 完整输出保存到 <code>.qwen/tmp/&lt;callId&gt;.output</code></li>
+                <li>• 完整输出保存到 <code>.gemini/tmp/&lt;callId&gt;.output</code></li>
               </ul>
             </div>
             <div>
@@ -1529,7 +1539,7 @@ function getMcpToolKind(tool: McpTool): Kind {
                   <h5 className="text-sm font-semibold text-cyan-300 mb-2">调试步骤</h5>
                   <CodeBlock
                     code={`# 1. 检查 Scheduler 状态
-DEBUG=innies:scheduler innies
+DEBUG=gemini:scheduler gemini
 
 # 2. 查看工具调用日志
 # 日志会显示每个工具的状态转换
@@ -1577,7 +1587,7 @@ console.log('onApprove bound:', typeof onApprove);
                   <h5 className="text-sm font-semibold text-cyan-300 mb-2">调试步骤</h5>
                   <CodeBlock
                     code={`# 1. 确认 ApprovalMode 设置正确
-# 在 ~/.config/innies/settings.json 检查
+# 在 ~/.config/gemini/settings.json 检查
 {
   "approval_mode": "yolo"
 }
@@ -1617,7 +1627,7 @@ async shouldConfirmExecute(signal: AbortSignal) {
                     <ul className="text-sm text-gray-400 space-y-1">
                       <li>• 输出显示 "[CONTENT TRUNCATED]"</li>
                       <li>• 提示的文件路径不存在</li>
-                      <li>• <code>.qwen/tmp/</code> 目录为空</li>
+                      <li>• <code>.gemini/tmp/</code> 目录为空</li>
                     </ul>
                   </div>
                   <div>
@@ -1634,19 +1644,19 @@ async shouldConfirmExecute(signal: AbortSignal) {
                   <h5 className="text-sm font-semibold text-cyan-300 mb-2">调试步骤</h5>
                   <CodeBlock
                     code={`# 1. 检查临时目录
-ls -la .qwen/tmp/
+ls -la .gemini/tmp/
 
 # 2. 检查目录权限
-ls -la .qwen/
+ls -la .gemini/
 
 # 3. 手动创建目录测试
-mkdir -p .qwen/tmp && touch .qwen/tmp/test.txt
+mkdir -p .gemini/tmp && touch .gemini/tmp/test.txt
 
 # 4. 检查磁盘空间
 df -h .
 
 # 5. 查看完整日志中的文件保存路径
-DEBUG=innies:truncate innies`}
+DEBUG=gemini:truncate gemini`}
                     language="bash"
                     title="调试命令"
                   />
@@ -1690,7 +1700,7 @@ DEBUG=innies:truncate innies`}
 # 在 MCP Server 日志中查看工具声明
 
 # 3. 检查 allowedTools 配置
-cat ~/.config/innies/settings.json | jq '.tools.allowed'
+cat ~/.config/gemini/settings.json | jq '.tools.allowed'
 
 # 4. 添加调试日志
 // packages/core/src/core/coreToolScheduler.ts:752
@@ -1724,27 +1734,27 @@ console.log('Plan Mode check:', {
               <tbody className="text-gray-300">
                 <tr className="border-b border-gray-700/50">
                   <td className="p-2">工具调度流程</td>
-                  <td className="p-2"><code className="text-cyan-300">DEBUG=innies:scheduler</code></td>
+                  <td className="p-2"><code className="text-cyan-300">DEBUG=gemini:scheduler</code></td>
                   <td className="p-2">调度入口、状态转换、队列操作</td>
                 </tr>
                 <tr className="border-b border-gray-700/50">
                   <td className="p-2">确认决策逻辑</td>
-                  <td className="p-2"><code className="text-cyan-300">DEBUG=innies:approval</code></td>
+                  <td className="p-2"><code className="text-cyan-300">DEBUG=gemini:approval</code></td>
                   <td className="p-2">shouldConfirmExecute 返回值、模式判断</td>
                 </tr>
                 <tr className="border-b border-gray-700/50">
                   <td className="p-2">输出截断</td>
-                  <td className="p-2"><code className="text-cyan-300">DEBUG=innies:truncate</code></td>
+                  <td className="p-2"><code className="text-cyan-300">DEBUG=gemini:truncate</code></td>
                   <td className="p-2">截断阈值、文件保存路径</td>
                 </tr>
                 <tr className="border-b border-gray-700/50">
                   <td className="p-2">MCP 工具调用</td>
-                  <td className="p-2"><code className="text-cyan-300">DEBUG=innies:mcp</code></td>
+                  <td className="p-2"><code className="text-cyan-300">DEBUG=gemini:mcp</code></td>
                   <td className="p-2">MCP 工具声明、annotations 解析</td>
                 </tr>
                 <tr>
                   <td className="p-2">全部调试信息</td>
-                  <td className="p-2"><code className="text-cyan-300">DEBUG=innies:*</code></td>
+                  <td className="p-2"><code className="text-cyan-300">DEBUG=gemini:*</code></td>
                   <td className="p-2">所有模块的调试输出</td>
                 </tr>
               </tbody>
@@ -1776,7 +1786,7 @@ console.log('Plan Mode check:', {
                 <p className="text-xs text-gray-400">
                   自动批准 Edit/Write 类工具，只对 Shell 命令需要确认。
                 </p>
-                <code className="text-xs text-cyan-300">innies --auto-edit</code>
+                <code className="text-xs text-cyan-300">gemini --auto-edit</code>
               </div>
               <div className="bg-gray-800/50 rounded p-2">
                 <h5 className="text-xs font-semibold text-gray-300 mb-1">策略 2: 配置常用命令白名单</h5>
@@ -1803,7 +1813,7 @@ console.log('Plan Mode check:', {
                 <p className="text-xs text-gray-400">
                   在隔离的 Sandbox 中可安全使用 YOLO 模式。
                 </p>
-                <code className="text-xs text-cyan-300">GEMINI_SANDBOX=docker innies --yolo</code>
+                <code className="text-xs text-cyan-300">GEMINI_SANDBOX=docker gemini --yolo</code>
               </div>
             </div>
           </div>
@@ -1837,7 +1847,7 @@ console.log('Plan Mode check:', {
               <div className="bg-gray-800/50 rounded p-2">
                 <h5 className="text-xs font-semibold text-gray-300 mb-1">策略 2: 使用 SSD 存储临时文件</h5>
                 <p className="text-xs text-gray-400">
-                  确保 .qwen/tmp 目录在 SSD 上，加速文件写入。
+                  确保 .gemini/tmp 目录在 SSD 上，加速文件写入。
                 </p>
               </div>
               <div className="bg-gray-800/50 rounded p-2">
@@ -1845,7 +1855,7 @@ console.log('Plan Mode check:', {
                 <p className="text-xs text-gray-400">
                   避免临时文件积累影响磁盘性能。
                 </p>
-                <code className="text-xs text-cyan-300">find .qwen/tmp -mtime +7 -delete</code>
+                <code className="text-xs text-cyan-300">find .gemini/tmp -mtime +7 -delete</code>
               </div>
             </div>
           </div>
@@ -1908,7 +1918,7 @@ console.log('Plan Mode check:', {
                 <p className="text-xs text-gray-400">
                   启用调试日志查看队列积压情况。
                 </p>
-                <code className="text-xs text-cyan-300">DEBUG=innies:queue innies</code>
+                <code className="text-xs text-cyan-300">DEBUG=gemini:queue gemini</code>
               </div>
             </div>
           </div>
@@ -2262,6 +2272,8 @@ interface ToolCallRequestInfo {
           </div>
         </div>
       </section>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

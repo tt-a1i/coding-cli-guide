@@ -194,11 +194,11 @@ sequenceDiagram
             title="VS Code 扩展配置"
             language="json"
             code={`{
-  "innies.mcp.enabled": true,
-  "innies.mcp.port": 3000,
-  "innies.diffView.enabled": true,
-  "innies.autoApply": false,
-  "innies.diagnostics.include": ["error", "warning"]
+  "gemini.mcp.enabled": true,
+  "gemini.mcp.port": 3000,
+  "gemini.diffView.enabled": true,
+  "gemini.autoApply": false,
+  "gemini.diagnostics.include": ["error", "warning"]
 }`}
           />
         </div>
@@ -224,9 +224,9 @@ sequenceDiagram
             code={`{
   "assistant": {
     "enabled": true,
-    "provider": "innies",
-    "innies": {
-      "binary": "innies",
+    "provider": "gemini",
+    "gemini": {
+      "binary": "gemini",
       "args": ["--ide-mode", "zed"]
     }
   }
@@ -313,7 +313,7 @@ sequenceDiagram
             <ol className="space-y-2 text-sm list-decimal list-inside">
               <li>安装 "Innies IDE Companion" 扩展</li>
               <li>扩展自动启动 MCP Server</li>
-              <li>在终端运行 <code className="text-cyan-400">innies</code></li>
+              <li>在终端运行 <code className="text-cyan-400">gemini</code></li>
               <li>CLI 自动检测并连接 MCP Server</li>
             </ol>
           </HighlightBox>
@@ -441,7 +441,7 @@ async function checkPortAvailability(port: number): Promise<boolean> {
     if (e.code === 'EADDRINUSE') {
       // 检查是否是我们自己的进程
       const owner = await findProcessOnPort(port);
-      if (owner?.includes('innies')) {
+      if (owner?.includes('gemini')) {
         return 'already_running';
       }
       return false;
@@ -477,7 +477,7 @@ async function checkPortAvailability(port: number): Promise<boolean> {
                   <td className="py-2 px-3 font-mono text-cyan-400">Innies CLI</td>
                   <td className="py-2 px-3">1.0.0</td>
                   <td className="py-2 px-3 text-green-400">latest</td>
-                  <td className="py-2 px-3 font-mono text-gray-400">innies --version</td>
+                  <td className="py-2 px-3 font-mono text-gray-400">gemini --version</td>
                 </tr>
                 <tr className="border-b border-gray-700">
                   <td className="py-2 px-3 font-mono text-cyan-400">VS Code</td>
@@ -561,7 +561,7 @@ echo "=== Innies CLI 环境检查 ==="
 
 # CLI 版本
 echo -n "CLI: "
-innies --version 2>/dev/null || echo "未安装"
+gemini --version 2>/dev/null || echo "未安装"
 
 # Node.js 版本
 echo -n "Node.js: "
@@ -589,10 +589,12 @@ lsof -i :3000 >/dev/null 2>&1 && echo "已占用" || echo "可用"`}
       {/* 相关页面 */}
       <RelatedPages
         pages={[
-          { id: 'ide-integration', label: 'IDE 集成详情' },
-          { id: 'ide-diff', label: 'IDE Diff 协议' },
-          { id: 'zed-integration', label: 'Zed ACP 协议' },
-          { id: 'mcp', label: 'MCP 集成' },
+          { id: 'ide-integration', label: 'IDE 集成详情', description: 'VS Code 深度集成' },
+          { id: 'ide-diff', label: 'IDE Diff 协议', description: 'Diff 视图实现' },
+          { id: 'zed-integration', label: 'Zed ACP 协议', description: 'Zed 原生集成' },
+          { id: 'mcp', label: 'MCP 集成', description: '工具扩展协议' },
+          { id: 'tool-arch', label: '工具架构', description: '文件操作工具' },
+          { id: 'config', label: '配置系统', description: 'IDE 配置选项' },
         ]}
       />
     </div>

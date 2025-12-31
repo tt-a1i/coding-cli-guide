@@ -3,6 +3,7 @@ import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
   return (
@@ -61,6 +62,15 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
     </div>
   );
 }
+
+const relatedPages: RelatedPage[] = [
+  { id: 'auth', label: '认证流程', description: 'OAuth 与 Token 管理机制' },
+  { id: 'shared-token-manager', label: 'Token 共享管理', description: '多进程 Token 共享与竞态处理' },
+  { id: 'google-authentication', label: 'Google OAuth 认证', description: 'Google OAuth 设备流程详解' },
+  { id: 'config', label: '配置系统', description: '环境变量与配置文件管理' },
+  { id: 'sandbox', label: '沙箱系统', description: '容器化部署与安全隔离' },
+  { id: 'non-interactive', label: '非交互模式', description: 'CI/CD 场景下的 CLI 使用' },
+];
 
 export function EnterpriseDeployment() {
   const [isIntroExpanded, setIsIntroExpanded] = useState(true);
@@ -262,8 +272,8 @@ npm run build:portable
 │   ├── cli.js         # esbuild 打包的主程序
 │   ├── vendor/        # 内置工具 (ripgrep 等)
 │   └── *.sb           # 沙箱配置文件
-├── innies.bat         # Windows 启动器
-├── innies.ps1         # PowerShell 启动器
+├── gemini.bat         # Windows 启动器
+├── gemini.ps1         # PowerShell 启动器
 ├── install.bat        # 自动安装脚本
 └── INSTALL.md         # 用户说明`}
             </pre>
@@ -280,7 +290,7 @@ const NODE_DIST_URL_MIRROR =
 // 1. npm run bundle → esbuild 打包
 // 2. 下载 Node.js portable（带进度条）
 // 3. 解压并整合文件结构
-// 4. 生成启动脚本 (innies.bat)
+// 4. 生成启动脚本 (gemini.bat)
 // 5. 生成安装脚本 (install.bat)`}
           />
         </div>
@@ -379,10 +389,10 @@ export async function checkForUpdates(): Promise<UpdateObject | null> {
           <HighlightBox title="手动更新方法" variant="blue">
             <CodeBlock
               code={`# npm 全局安装
-npm update -g @qwen-code/qwen-code
+npm update -g @gemini-code/gemini-code
 
 # 或安装指定版本
-npm install -g @qwen-code/qwen-code@1.2.3
+npm install -g @gemini-code/gemini-code@1.2.3
 
 # Portable 版：替换 app/ 目录即可
 cp -r new-version/app/* portable-win-x64/app/`}
@@ -439,7 +449,7 @@ cp -r new-version/app/* portable-win-x64/app/`}
             <ol className="text-sm space-y-2 list-decimal pl-4">
               <li><strong>构建时</strong>：在有网络的机器上执行 <code>npm run build:portable</code></li>
               <li><strong>分发时</strong>：将 <code>dist/portable-win-x64/</code> 打包成 zip/tar.gz</li>
-              <li><strong>部署时</strong>：用户解压到任意目录，运行 <code>install.bat</code> 或直接 <code>innies.bat</code></li>
+              <li><strong>部署时</strong>：用户解压到任意目录，运行 <code>install.bat</code> 或直接 <code>gemini.bat</code></li>
               <li><strong>更新时</strong>：只需替换 <code>app/</code> 目录，Node.js 运行时无需重新下载</li>
             </ol>
           </HighlightBox>
@@ -478,7 +488,7 @@ cp -r new-version/app/* portable-win-x64/app/`}
                 <div className="bg-[var(--terminal-green)]/10 rounded p-2 text-sm">
                   <strong className="text-[var(--terminal-green)]">✅ 解决：</strong>
                   <span className="text-[var(--text-secondary)]"> 直接使用 </span>
-                  <code>innies.bat</code>
+                  <code>gemini.bat</code>
                   <span className="text-[var(--text-secondary)]">，或创建桌面快捷方式。</span>
                 </div>
               </div>
@@ -618,11 +628,13 @@ cp -r new-version/app/* portable-win-x64/app/`}
           <div className="space-y-2">
             <h4 className="text-[var(--text-primary)] font-semibold">Token 管理</h4>
             <div className="space-y-1">
-              <code className="block text-[var(--purple)]">packages/core/src/qwen/sharedTokenManager.ts</code>
+              <code className="block text-[var(--purple)]">packages/core/src/gemini/sharedTokenManager.ts</code>
             </div>
           </div>
         </div>
       </Layer>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

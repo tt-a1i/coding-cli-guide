@@ -4,6 +4,7 @@ import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { useNavigation } from '../contexts/NavigationContext';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 function CollapsibleSection({
   title,
@@ -38,6 +39,15 @@ function CollapsibleSection({
 export function AuthenticationFlow() {
   const { navigate } = useNavigation();
 
+  const relatedPages: RelatedPage[] = [
+    { id: 'shared-token-manager', label: 'Token 共享机制', description: 'SharedTokenManager 完整架构' },
+    { id: 'google-authentication', label: 'Google OAuth 详解', description: '设备授权流程详解' },
+    { id: 'startup-chain', label: '启动链路', description: '认证如何触发' },
+    { id: 'config', label: '配置系统', description: '认证相关配置项' },
+    { id: 'oauth-device-flow-anim', label: 'OAuth 设备授权动画', description: '可视化授权流程' },
+    { id: 'error-recovery-patterns', label: '错误恢复模式', description: '认证错误处理策略' },
+  ];
+
   return (
     <div>
       <h2 className="text-2xl text-cyan-400 mb-5">认证流程详解</h2>
@@ -46,7 +56,7 @@ export function AuthenticationFlow() {
       <HighlightBox title="⏱️ 30秒速览" icon="🎯" variant="blue">
         <ul className="space-y-2 text-sm">
           <li>
-            • <strong>默认方式</strong>: Qwen OAuth Device Code 流程，无需 API 密钥，每天 2000 请求
+            • <strong>默认方式</strong>: Google OAuth Device Code 流程，无需 API 密钥，每天 2000 请求
           </li>
           <li>
             • <strong>核心标准</strong>: RFC 8628 (Device Authorization Grant) + RFC 7636 (PKCE)
@@ -64,7 +74,7 @@ export function AuthenticationFlow() {
       <Layer title="支持的认证方式" icon="🔐">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-purple-500/10 border-2 border-purple-500/30 rounded-lg p-4">
-            <h4 className="text-purple-400 font-bold mb-2">🌟 Qwen OAuth (默认)</h4>
+            <h4 className="text-purple-400 font-bold mb-2">🌟 Google OAuth (默认)</h4>
             <p className="text-sm text-gray-300 mb-2">
               免费使用，每天 2000 请求配额
             </p>
@@ -73,7 +83,7 @@ export function AuthenticationFlow() {
               <li>• PKCE 增强安全 (RFC 7636)</li>
               <li>• 自动令牌刷新</li>
             </ul>
-            <code className="text-xs block mt-2 text-purple-300">authType: "qwen_oauth"</code>
+            <code className="text-xs block mt-2 text-purple-300">authType: "gemini_oauth"</code>
           </div>
 
           <div className="bg-blue-500/10 border-2 border-blue-500/30 rounded-lg p-4">
@@ -190,8 +200,8 @@ client_id=f0304373b74a44d2b584a3fb70ca9e56
               code={`{
   "device_code": "GmRhmhcxhwAzkoEqiMEg_DnyEysN...",
   "user_code": "WDJB-MJHT",
-  "verification_uri": "https://chat.qwen.ai/device",
-  "verification_uri_complete": "https://chat.qwen.ai/device?code=WDJB-MJHT",
+  "verification_uri": "https://accounts.google.com/device",
+  "verification_uri_complete": "https://accounts.google.com/device?code=WDJB-MJHT",
   "expires_in": 900
 }`}
             />
@@ -238,7 +248,7 @@ client_id=f0304373b74a44d2b584a3fb70ca9e56
 
         <CodeBlock
           title="PKCE 实现代码"
-          code={`// packages/core/src/qwen/qwenOAuth2.ts:47-73
+          code={`// packages/core/src/gemini/geminiOAuth.ts:47-73
 
 import crypto from 'crypto';
 
@@ -320,11 +330,11 @@ export function generatePKCEPair(): {
 
         <CodeBlock
           title="Token 有效性检查"
-          code={`// packages/core/src/qwen/sharedTokenManager.ts:670-675
+          code={`// packages/core/src/gemini/sharedTokenManager.ts:670-675
 
 const TOKEN_REFRESH_BUFFER_MS = 30 * 1000; // 30 秒缓冲
 
-private isTokenValid(credentials: QwenCredentials): boolean {
+private isTokenValid(credentials: GeminiCredentials): boolean {
   if (!credentials.expiry_date || !credentials.access_token) {
     return false;
   }
@@ -347,7 +357,7 @@ private isTokenValid(credentials: QwenCredentials): boolean {
 
         <CodeBlock
           title="轮询实现"
-          code={`// packages/core/src/qwen/qwenOAuth2.ts:638-750
+          code={`// packages/core/src/gemini/geminiOAuth.ts:638-750
 
 let pollInterval = 2000; // 2 秒初始间隔
 const maxAttempts = Math.ceil(deviceAuth.expires_in / (pollInterval / 1000));
@@ -443,7 +453,7 @@ for (let attempt = 0; attempt < maxAttempts; attempt++) {
           title="Token 刷新时序"
           chart={`sequenceDiagram
     autonumber
-    participant Client as QwenOAuth2Client
+    participant Client as GeminiOAuth2Client
     participant Manager as SharedTokenManager
     participant File as 凭据文件
     participant Auth as 认证服务器
@@ -485,7 +495,7 @@ for (let attempt = 0; attempt < maxAttempts; attempt++) {
 
         <CodeBlock
           title="刷新 Token 实现"
-          code={`// packages/core/src/qwen/qwenOAuth2.ts:391-453
+          code={`// packages/core/src/gemini/geminiOAuth.ts:391-453
 
 async refreshAccessToken(): Promise<TokenRefreshResponse> {
   if (!this.credentials.refresh_token) {
@@ -510,7 +520,7 @@ async refreshAccessToken(): Promise<TokenRefreshResponse> {
   if (!response.ok) {
     // 400 错误表示 refresh_token 已失效
     if (response.status === 400) {
-      await clearQwenCredentials();
+      await clearGeminiCredentials();
       throw new CredentialsClearRequiredError(
         "Refresh token expired. Please use '/auth' to re-authenticate."
       );
@@ -521,7 +531,7 @@ async refreshAccessToken(): Promise<TokenRefreshResponse> {
   const tokenData = await response.json();
 
   // 更新凭据（保留原有 refresh_token 如果服务器未返回新的）
-  const tokens: QwenCredentials = {
+  const tokens: GeminiCredentials = {
     access_token: tokenData.access_token,
     token_type: tokenData.token_type,
     refresh_token: tokenData.refresh_token || this.credentials.refresh_token,
@@ -593,7 +603,7 @@ async refreshAccessToken(): Promise<TokenRefreshResponse> {
 
         <CodeBlock
           title="文件锁获取 (指数退避)"
-          code={`// packages/core/src/qwen/sharedTokenManager.ts:701-765
+          code={`// packages/core/src/gemini/sharedTokenManager.ts:701-765
 
 const DEFAULT_LOCK_CONFIG = {
   maxAttempts: 20,      // 最大尝试次数
@@ -667,9 +677,9 @@ export OPENAI_MODEL="gpt-4"`}
         <HighlightBox title="认证优先级" icon="📊" variant="blue">
           <ol className="pl-5 list-decimal space-y-1">
             <li><strong>环境变量</strong> - OPENAI_API_KEY 等</li>
-            <li><strong>项目配置</strong> - .innies/settings.json</li>
-            <li><strong>用户配置</strong> - ~/.innies/settings.json</li>
-            <li><strong>Qwen OAuth</strong> - 默认回退方式</li>
+            <li><strong>项目配置</strong> - .gemini/settings.json</li>
+            <li><strong>用户配置</strong> - ~/.gemini/settings.json</li>
+            <li><strong>Google OAuth</strong> - 默认回退方式</li>
           </ol>
         </HighlightBox>
       </Layer>
@@ -746,7 +756,7 @@ async function userCodeFlow(): Promise<Credentials> {
 
         <CodeBlock
           title="错误恢复流程"
-          code={`// packages/core/src/qwen/qwenOAuth2.ts:490-558
+          code={`// packages/core/src/gemini/geminiOAuth.ts:490-558
 
 try {
   const credentials = await sharedManager.getValidCredentials(client);
@@ -768,11 +778,11 @@ try {
   }
 
   // 重新触发 Device Flow
-  const result = await authWithQwenDeviceFlow(client, config);
+  const result = await authWithGeminiDeviceFlow(client, config);
   if (!result.success) {
     switch (result.reason) {
       case 'timeout':
-        throw new Error('Qwen OAuth authentication timed out');
+        throw new Error('Google OAuth authentication timed out');
       case 'cancelled':
         throw new Error('Authentication was cancelled by user');
       case 'rate_limit':
@@ -790,9 +800,9 @@ try {
       <Layer title="Token 存储与安全" icon="💾">
         <HighlightBox title="存储位置" icon="📁" variant="green">
           <ul className="pl-5 list-disc space-y-1">
-            <li><code>~/.innies/oauth_creds.json</code> - Qwen OAuth Token</li>
-            <li><code>~/.innies/oauth_creds.lock</code> - 刷新锁文件</li>
-            <li><code>~/.qwen/google_oauth_creds.json</code> - Google OAuth Token</li>
+            <li><code>~/.gemini/oauth_creds.json</code> - Google OAuth Token</li>
+            <li><code>~/.gemini/oauth_creds.lock</code> - 刷新锁文件</li>
+            <li><code>~/.gemini/google_oauth_creds.json</code> - Google OAuth Token</li>
           </ul>
         </HighlightBox>
 
@@ -816,13 +826,13 @@ try {
 
         <CodeBlock
           title="凭据文件结构"
-          code={`// ~/.innies/oauth_creds.json
+          code={`// ~/.gemini/oauth_creds.json
 {
   "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
   "refresh_token": "dGhpcyBpcyBhIHJlZnJlc2ggdG9rZW4...",
   "token_type": "Bearer",
   "expiry_date": 1735200000000,
-  "resource_url": "https://api.qwen.ai"
+  "resource_url": "https://generativelanguage.googleapis.com"
 }`}
         />
       </Layer>
@@ -840,18 +850,18 @@ try {
             </thead>
             <tbody className="text-gray-300">
               <tr className="border-b border-gray-700">
-                <td className="py-2 px-3">Qwen OAuth 客户端</td>
-                <td className="py-2 px-3"><code>packages/core/src/qwen/qwenOAuth2.ts</code></td>
-                <td className="py-2 px-3">QwenOAuth2Client, authWithQwenDeviceFlow</td>
+                <td className="py-2 px-3">Google OAuth 客户端</td>
+                <td className="py-2 px-3"><code>packages/core/src/gemini/geminiOAuth.ts</code></td>
+                <td className="py-2 px-3">GeminiOAuth2Client, authWithGeminiDeviceFlow</td>
               </tr>
               <tr className="border-b border-gray-700">
                 <td className="py-2 px-3">Token 共享管理</td>
-                <td className="py-2 px-3"><code>packages/core/src/qwen/sharedTokenManager.ts</code></td>
+                <td className="py-2 px-3"><code>packages/core/src/gemini/sharedTokenManager.ts</code></td>
                 <td className="py-2 px-3">SharedTokenManager, acquireLock</td>
               </tr>
               <tr className="border-b border-gray-700">
                 <td className="py-2 px-3">PKCE 工具</td>
-                <td className="py-2 px-3"><code>packages/core/src/qwen/qwenOAuth2.ts:47-73</code></td>
+                <td className="py-2 px-3"><code>packages/core/src/gemini/geminiOAuth.ts:47-73</code></td>
                 <td className="py-2 px-3">generatePKCEPair, generateCodeChallenge</td>
               </tr>
               <tr className="border-b border-gray-700">
@@ -869,24 +879,7 @@ try {
         </div>
       </Layer>
 
-      {/* 相关页面 */}
-      <div className="mt-8 p-4 bg-gray-800/50 rounded-lg">
-        <h3 className="text-lg font-semibold text-cyan-400 mb-3">相关页面</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button onClick={() => navigate('shared-token-manager')} className="block p-3 bg-gray-700/50 rounded hover:bg-gray-700 transition-colors text-left border-none cursor-pointer">
-            <div className="text-purple-400 font-semibold">Token 共享机制</div>
-            <div className="text-sm text-gray-400">SharedTokenManager 完整架构</div>
-          </button>
-          <button onClick={() => navigate('startup-chain')} className="block p-3 bg-gray-700/50 rounded hover:bg-gray-700 transition-colors text-left border-none cursor-pointer">
-            <div className="text-blue-400 font-semibold">启动链路</div>
-            <div className="text-sm text-gray-400">认证如何触发</div>
-          </button>
-          <button onClick={() => navigate('config')} className="block p-3 bg-gray-700/50 rounded hover:bg-gray-700 transition-colors text-left border-none cursor-pointer">
-            <div className="text-green-400 font-semibold">配置系统</div>
-            <div className="text-sm text-gray-400">认证相关配置项</div>
-          </button>
-        </div>
-      </div>
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

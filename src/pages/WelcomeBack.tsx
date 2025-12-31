@@ -113,7 +113,7 @@ export function WelcomeBack() {
 生成项目摘要中...
 ✓ 分析对话历史
 ✓ 提取关键信息
-✓ 保存到 .qwen/PROJECT_SUMMARY.md
+✓ 保存到 .gemini/PROJECT_SUMMARY.md
 
 项目摘要已生成！下次启动时将显示 Welcome Back 对话框。
 
@@ -180,13 +180,13 @@ export function WelcomeBack() {
   const fileStructureCode = `// Welcome Back 相关文件结构
 
 your-project/
-├── .qwen/
+├── .gemini/
 │   ├── PROJECT_SUMMARY.md     # 项目摘要文件
 │   ├── settings.json          # 项目设置
 │   └── ...
 └── ...
 
-~/.qwen/
+~/.gemini/
 ├── settings.json              # 用户全局设置
 ├── tmp/
 │   └── <project_hash>/
@@ -244,7 +244,7 @@ your-project/
               <span className="text-green-400">2.</span>
               <div>
                 <strong>PROJECT_SUMMARY.md 存在</strong>
-                <span className="text-gray-400"> - 检查 .qwen/PROJECT_SUMMARY.md</span>
+                <span className="text-gray-400"> - 检查 .gemini/PROJECT_SUMMARY.md</span>
               </div>
             </li>
             <li className="flex items-start gap-2">
@@ -277,7 +277,7 @@ your-project/
           <HighlightBox title="继续上次对话" variant="green">
             <p className="text-sm text-gray-300">
               预填充输入框内容，用户需按回车确认发送：<br/>
-              <code className="text-xs">@.qwen/PROJECT_SUMMARY.md, Based on our previous conversation, Let's continue?</code>
+              <code className="text-xs">@.gemini/PROJECT_SUMMARY.md, Based on our previous conversation, Let's continue?</code>
             </p>
           </HighlightBox>
         </div>
@@ -286,7 +286,7 @@ your-project/
       {/* 项目摘要格式 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">PROJECT_SUMMARY.md 格式</h3>
-        <CodeBlock code={projectSummaryFormat} language="markdown" title=".qwen/PROJECT_SUMMARY.md" />
+        <CodeBlock code={projectSummaryFormat} language="markdown" title=".gemini/PROJECT_SUMMARY.md" />
 
         <div className="mt-4 bg-gray-800/50 rounded-lg p-4">
           <h4 className="font-semibold text-cyan-400 mb-3">摘要段落说明</h4>

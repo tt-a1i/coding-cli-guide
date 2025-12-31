@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { JsonBlock } from '../components/JsonBlock';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 // 介绍内容组件
 function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
@@ -19,7 +20,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           <div>
             <h3 className="text-[var(--terminal-green)] font-semibold mb-2">🎯 核心概念</h3>
             <p className="text-[var(--text-secondary)]">
-              <strong>核心交互循环</strong>是 Qwen CLI 的心跳。当用户发送消息后，CLI 会与 AI 进行多轮交互，
+              <strong>核心交互循环</strong>是 Gemini CLI 的心跳。当用户发送消息后，CLI 会与 AI 进行多轮交互，
               直到 AI 完成任务或需要用户输入。这个循环包括：消息发送 → AI 思考 → 工具调用 → 用户审批 → 执行 → 继续对话。
             </p>
           </div>
@@ -114,7 +115,7 @@ function AnimStep({ visible, from, fromColor, to, message, messageColor, extra }
   );
 }
 
-// 动画步骤数据 - 对应 qwen-cli 实际流程
+// 动画步骤数据 - 对应 gemini-cli 实际流程
 const animSteps = [
   {
     from: '👤 用户',
@@ -188,7 +189,7 @@ ReadFileToolInvocation.execute({
     message: '返回 ToolResult',
     messageColor: 'bg-[var(--amber)]/10',
     extra: `{
-  llmContent: "{\\"name\\": \\"@qwen/qwen-cli\\", ...}",
+  llmContent: "{\\"name\\": \\"@anthropic/gemini-cli\\", ...}",
   returnDisplay: "package.json (1.2KB)"
 }`,
   },
@@ -214,7 +215,7 @@ ReadFileToolInvocation.execute({
     message: '最终回复 (finishReason: STOP)',
     messageColor: 'bg-[var(--purple)]/10',
     extra: `{
-  content: "package.json 的 name 是 @qwen/qwen-cli",
+  content: "package.json 的 name 是 @anthropic/gemini-cli",
   finishReason: "STOP"  // 无更多工具调用
 }`,
   },
@@ -246,6 +247,14 @@ export function Animation() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isIntroExpanded, setIsIntroExpanded] = useState(true);
   const maxSteps = animSteps.length;
+  const relatedPages: RelatedPage[] = [
+    { id: 'interaction-loop', label: '交互循环', description: '核心交互机制' },
+    { id: 'lifecycle', label: '请求生命周期', description: '请求处理流程' },
+    { id: 'tool-scheduler', label: '工具调度器', description: '工具执行调度' },
+    { id: 'approval-mode', label: '审批模式', description: '权限审批机制' },
+    { id: 'streaming-response-processing', label: '流式响应', description: '流式解析' },
+    { id: 'gemini-chat', label: 'GeminiChatCore', description: 'AI 核心' },
+  ];
 
   useEffect(() => {
     if (!isPlaying) return;
@@ -294,7 +303,7 @@ export function Animation() {
       </div>
 
       <p className="text-sm text-[var(--text-muted)] font-mono mb-6">
-        // 展示 qwen-cli 的核心交互循环：用户输入 → AI 思考 → 工具审批 → 执行 → Continuation
+        // 展示 gemini-cli 的核心交互循环：用户输入 → AI 思考 → 工具审批 → 执行 → Continuation
       </p>
 
       {/* 介绍部分 */}
@@ -386,6 +395,8 @@ export function Animation() {
           />
         </div>
       </div>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

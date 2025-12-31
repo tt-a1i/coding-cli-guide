@@ -11,24 +11,24 @@ export function MemorySystemSplit() {
     ai_trigger([AI 识别需求])
     memory_cmd[&#47;memory 命令]
     save_memory[save_memory 工具]
-    qwen_file[("QWEN.md" 文件)]
+    gemini_file[("GEMINI.md" 文件)]
     discovery[memoryDiscovery<br/>层级发现]
-    read_files[读取所有 QWEN.md]
+    read_files[读取所有 GEMINI.md]
     concatenate[拼接内容]
     system_prompt[注入 System Prompt]
-    write_section[写入 ## Qwen Added Memories]
+    write_section[写入 ## Gemini Added Memories]
     user_confirm[用户确认]
 
     user_input --> memory_cmd
     ai_trigger --> save_memory
     memory_cmd --> discovery
     discovery --> read_files
-    read_files --> qwen_file
-    qwen_file --> concatenate
+    read_files --> gemini_file
+    gemini_file --> concatenate
     concatenate --> system_prompt
     save_memory --> user_confirm
     user_confirm --> write_section
-    write_section --> qwen_file
+    write_section --> gemini_file
 
     classDef input fill:#22d3ee,color:#000
     classDef ai fill:#a855f7,color:#fff
@@ -38,17 +38,17 @@ export function MemorySystemSplit() {
 
     class user_input,memory_cmd input
     class ai_trigger,save_memory ai
-    class qwen_file file
+    class gemini_file file
     class system_prompt output
     class user_confirm confirm`;
 
   // 层级发现流程
   const hierarchyDiscoveryChart = `flowchart TD
     start([开始层级发现])
-    global[检查全局记忆<br/>~/.qwen/QWEN.md]
+    global[检查全局记忆<br/>~/.gemini/GEMINI.md]
     project_root[向上查找项目根<br/>包含 .git 的目录]
-    current[当前工作目录<br/>./QWEN.md]
-    bfs[BFS 向下搜索<br/>子目录 QWEN.md]
+    current[当前工作目录<br/>./GEMINI.md]
+    bfs[BFS 向下搜索<br/>子目录 GEMINI.md]
 
     trust_check{folderTrust?}
     stop_global([只返回全局记忆])
@@ -88,7 +88,7 @@ export function MemorySystemSplit() {
     determine_file[确定目标文件路径]
     read_current[读取当前文件内容]
 
-    has_section{存在 ## Qwen<br/>Added Memories?}
+    has_section{存在 ## Gemini<br/>Added Memories?}
     append_section[在现有区段追加]
     create_section[文件末尾创建新区段]
 
@@ -130,9 +130,9 @@ export function MemorySystemSplit() {
     <div className="space-y-8">
       {/* 标题 */}
       <section>
-        <h2 className="text-2xl font-bold text-cyan-400 mb-4">记忆系统：QWEN.md 层级上下文机制</h2>
+        <h2 className="text-2xl font-bold text-cyan-400 mb-4">记忆系统：GEMINI.md 层级上下文机制</h2>
         <p className="text-gray-300 mb-4">
-          Qwen CLI 的记忆系统通过 <code className="text-cyan-300">QWEN.md</code> 文件实现层级化的上下文管理。
+          Gemini CLI 的记忆系统通过 <code className="text-cyan-300">GEMINI.md</code> 文件实现层级化的上下文管理。
           它包含两套机制：用户主动管理的 <code className="text-cyan-300">/memory</code> 命令和 AI 自动调用的{' '}
           <code className="text-purple-300">save_memory</code> 工具。这两者互补协作，共同维护项目和用户的长期记忆。
         </p>
@@ -207,7 +207,7 @@ export function MemorySystemSplit() {
                 • <code>folderTrust</code> - 文件夹信任状态（影响是否加载项目记忆）
               </li>
               <li>
-                • <code>contextFileName</code> - 配置的记忆文件名（默认 <code>QWEN.md</code>）
+                • <code>contextFileName</code> - 配置的记忆文件名（默认 <code>GEMINI.md</code>）
               </li>
             </ul>
           </div>
@@ -235,10 +235,10 @@ export function MemorySystemSplit() {
             <h4 className="text-purple-400 font-semibold mb-1">save_memory 工具产出</h4>
             <ul className="space-y-1 text-gray-300">
               <li>
-                • 修改后的 <code>QWEN.md</code> 文件（新增或追加记忆条目）
+                • 修改后的 <code>GEMINI.md</code> 文件（新增或追加记忆条目）
               </li>
               <li>
-                • <code>## Qwen Added Memories</code> 区段中的新列表项
+                • <code>## Gemini Added Memories</code> 区段中的新列表项
               </li>
               <li>• 文件 diff 预览（用户确认前展示）</li>
               <li>• 成功/失败状态反馈</li>
@@ -248,7 +248,7 @@ export function MemorySystemSplit() {
           <div>
             <h4 className="text-gray-400 font-semibold mb-1">副作用</h4>
             <ul className="space-y-1 text-gray-300">
-              <li>• 文件系统修改 - <code>save_memory</code> 会修改磁盘上的 QWEN.md 文件</li>
+              <li>• 文件系统修改 - <code>save_memory</code> 会修改磁盘上的 GEMINI.md 文件</li>
               <li>• System Prompt 更新 - <code>/memory refresh</code> 会重新加载并更新上下文</li>
               <li>• Token 消耗 - 所有记忆内容都会占用上下文 Token</li>
             </ul>
@@ -270,7 +270,7 @@ export function MemorySystemSplit() {
                   • <code>loadServerHierarchicalMemory()</code> - 主入口函数
                 </li>
                 <li>
-                  • <code>getGeminiMdFilePathsInternal()</code> - 发现所有 QWEN.md 文件
+                  • <code>getGeminiMdFilePathsInternal()</code> - 发现所有 GEMINI.md 文件
                 </li>
                 <li>
                   • <code>readGeminiMdFiles()</code> - 读取并处理文件内容
@@ -296,7 +296,7 @@ export function MemorySystemSplit() {
                   • <code>computeNewContent()</code> - 计算新文件内容
                 </li>
                 <li>
-                  • <code>MEMORY_SECTION_HEADER</code> - "## Qwen Added Memories" 常量
+                  • <code>MEMORY_SECTION_HEADER</code> - "## Gemini Added Memories" 常量
                 </li>
                 <li>
                   • <code>shouldConfirmExecute()</code> - 确认对话框逻辑
@@ -345,7 +345,7 @@ export function MemorySystemSplit() {
 
           <div>
             <h4 className="text-cyan-400 font-semibold mb-3">层级发现流程</h4>
-            <MermaidDiagram chart={hierarchyDiscoveryChart} title="QWEN.md 文件发现顺序" />
+            <MermaidDiagram chart={hierarchyDiscoveryChart} title="GEMINI.md 文件发现顺序" />
           </div>
 
           <div>
@@ -371,8 +371,8 @@ export function MemorySystemSplit() {
               <div>
                 <span className="text-red-400 font-semibold">folderTrust = false</span>
                 <ul className="mt-1 space-y-0.5 ml-4">
-                  <li>• <strong>只加载全局记忆</strong> (~/.qwen/QWEN.md)</li>
-                  <li>• 跳过所有项目相关的 QWEN.md 文件</li>
+                  <li>• <strong>只加载全局记忆</strong> (~/.gemini/GEMINI.md)</li>
+                  <li>• 跳过所有项目相关的 GEMINI.md 文件</li>
                   <li>• 防止恶意项目注入指令</li>
                 </ul>
               </div>
@@ -386,7 +386,7 @@ export function MemorySystemSplit() {
                 <span className="text-cyan-400 font-semibold">scope = "global"</span>
                 <ul className="mt-1 space-y-0.5 ml-4">
                   <li>
-                    • 目标文件：<code className="text-yellow-300">~/.qwen/QWEN.md</code>
+                    • 目标文件：<code className="text-yellow-300">~/.gemini/GEMINI.md</code>
                   </li>
                   <li>• 适用场景：用户全局偏好（如编码风格、工具选择）</li>
                 </ul>
@@ -395,7 +395,7 @@ export function MemorySystemSplit() {
                 <span className="text-cyan-400 font-semibold">scope = "project"</span>
                 <ul className="mt-1 space-y-0.5 ml-4">
                   <li>
-                    • 目标文件：<code className="text-yellow-300">&lt;project-root&gt;/QWEN.md</code>
+                    • 目标文件：<code className="text-yellow-300">&lt;project-root&gt;/GEMINI.md</code>
                   </li>
                   <li>• 适用场景：项目特定信息（如技术栈、架构决策）</li>
                 </ul>
@@ -411,7 +411,7 @@ export function MemorySystemSplit() {
           </div>
 
           <div className="bg-gray-800/50 rounded-lg p-4">
-            <h4 className="text-cyan-400 font-semibold mb-3">## Qwen Added Memories 区段处理</h4>
+            <h4 className="text-cyan-400 font-semibold mb-3">## Gemini Added Memories 区段处理</h4>
             <div className="text-sm text-gray-300 space-y-2">
               <div>
                 <span className="text-green-400 font-semibold">区段存在</span>
@@ -424,7 +424,7 @@ export function MemorySystemSplit() {
                 <span className="text-yellow-400 font-semibold">区段不存在</span>
                 <ul className="mt-1 space-y-0.5 ml-4">
                   <li>• 在文件末尾创建新区段</li>
-                  <li>• 格式：<code className="text-cyan-300">## Qwen Added Memories\n- &lt;fact&gt;</code></li>
+                  <li>• 格式：<code className="text-cyan-300">## Gemini Added Memories\n- &lt;fact&gt;</code></li>
                 </ul>
               </div>
             </div>
@@ -445,13 +445,13 @@ export function MemorySystemSplit() {
             <h4 className="text-cyan-400 font-semibold mb-3">文件名配置</h4>
             <div className="text-sm text-gray-300 space-y-1">
               <li>
-                • 默认文件名：<code className="text-cyan-300">QWEN.md</code>
+                • 默认文件名：<code className="text-cyan-300">GEMINI.md</code>
               </li>
               <li>
                 • 可通过 <code>settings.json</code> 配置为数组，同时读取多个文件
               </li>
               <li>
-                • 示例：<code className="text-yellow-300">["QWEN.md", "CLAUDE.md", "CURSOR.md"]</code>
+                • 示例：<code className="text-yellow-300">["GEMINI.md", "CLAUDE.md", "CURSOR.md"]</code>
               </li>
             </div>
           </div>
@@ -546,9 +546,9 @@ export function MemorySystemSplit() {
           code={`{
   "context": {
     // 记忆文件名配置
-    "contextFileName": "QWEN.md",  // 单个文件
+    "contextFileName": "GEMINI.md",  // 单个文件
     // 或
-    "contextFileName": ["QWEN.md", "CLAUDE.md", "CURSOR.md"]  // 多个文件
+    "contextFileName": ["GEMINI.md", "CLAUDE.md", "CURSOR.md"]  // 多个文件
   },
 
   // 文件夹信任设置（影响记忆加载范围）
@@ -578,7 +578,7 @@ export function MemorySystemSplit() {
           <div className="text-sm text-gray-300 space-y-1">
             <li>
               <code className="text-cyan-300">HOME</code> 或 <code className="text-cyan-300">USERPROFILE</code> -
-              用于确定全局记忆路径 (~/.qwen/QWEN.md)
+              用于确定全局记忆路径 (~/.gemini/GEMINI.md)
             </li>
             <li>
               <code className="text-cyan-300">DEBUG</code> - 启用调试日志，查看记忆发现和加载详情
@@ -639,7 +639,7 @@ export async function loadServerHierarchicalMemory(
     fileFilteringOptions?: FileFilteringOptions,
     maxDirs: number = 200,
 ): Promise<LoadServerHierarchicalMemoryResponse> {
-    // 1. 发现所有 QWEN.md 文件路径
+    // 1. 发现所有 GEMINI.md 文件路径
     const filePaths = await getGeminiMdFilePathsInternal(
         currentWorkingDirectory,
         includeDirectoriesToReadGemini,
@@ -718,7 +718,7 @@ function concatenateInstructions(
               title="memoryTool.ts - computeNewContent()"
               code={`// packages/core/src/tools/memoryTool.ts
 
-export const MEMORY_SECTION_HEADER = '## Qwen Added Memories';
+export const MEMORY_SECTION_HEADER = '## Gemini Added Memories';
 
 function computeNewContent(currentContent: string, fact: string): string {
     const newMemoryItem = \`- \${fact.trim()}\`;
@@ -757,22 +757,22 @@ function computeNewContent(currentContent: string, fact: string): string {
               <div className="space-y-2 text-sm">
                 <div className="flex items-center gap-2">
                   <span className="bg-cyan-500/20 px-2 py-1 rounded text-cyan-400 font-mono">1</span>
-                  <code className="text-gray-300">~/.qwen/QWEN.md</code>
+                  <code className="text-gray-300">~/.gemini/GEMINI.md</code>
                   <span className="text-gray-500">全局记忆</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="bg-cyan-500/20 px-2 py-1 rounded text-cyan-400 font-mono">2</span>
-                  <code className="text-gray-300">/path/to/project-root/QWEN.md</code>
+                  <code className="text-gray-300">/path/to/project-root/GEMINI.md</code>
                   <span className="text-gray-500">项目根目录（向上搜索到 .git）</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="bg-cyan-500/20 px-2 py-1 rounded text-cyan-400 font-mono">3</span>
-                  <code className="text-gray-300">./QWEN.md</code>
+                  <code className="text-gray-300">./GEMINI.md</code>
                   <span className="text-gray-500">当前工作目录</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="bg-cyan-500/20 px-2 py-1 rounded text-cyan-400 font-mono">4</span>
-                  <code className="text-gray-300">./subdir/QWEN.md</code>
+                  <code className="text-gray-300">./subdir/GEMINI.md</code>
                   <span className="text-gray-500">BFS 向下搜索（最多 maxDirs=200）</span>
                 </div>
               </div>
@@ -787,10 +787,10 @@ function computeNewContent(currentContent: string, fact: string): string {
 
         <div className="space-y-6">
           <div>
-            <h4 className="text-cyan-400 font-semibold mb-3">QWEN.md 文件结构示例</h4>
+            <h4 className="text-cyan-400 font-semibold mb-3">GEMINI.md 文件结构示例</h4>
             <CodeBlock
               language="markdown"
-              title="典型的 QWEN.md 文件"
+              title="典型的 GEMINI.md 文件"
               code={`# Project Context
 
 这是一个 React + TypeScript 项目...
@@ -808,7 +808,7 @@ function computeNewContent(currentContent: string, fact: string): string {
 - 使用函数式组件
 - 优先使用 hooks
 
-## Qwen Added Memories
+## Gemini Added Memories
 - 用户偏好使用 pnpm 而不是 npm
 - 测试框架是 Vitest
 - 部署平台是 Vercel`}
@@ -830,7 +830,7 @@ function computeNewContent(currentContent: string, fact: string): string {
               <h5 className="text-red-400 font-bold mb-2">不适合使用 save_memory</h5>
               <ul className="text-sm text-gray-300 space-y-1">
                 <li>• 只对当前会话有用的信息</li>
-                <li>• 长篇复杂的文本（应手动写入 QWEN.md）</li>
+                <li>• 长篇复杂的文本（应手动写入 GEMINI.md）</li>
                 <li>• 不确定是否值得长期记住的信息</li>
                 <li>• 频繁变化的临时数据</li>
               </ul>
@@ -854,8 +854,8 @@ function computeNewContent(currentContent: string, fact: string): string {
               </div>
               <div className="text-cyan-400">→</div>
               <div className="bg-gray-700/50 border border-gray-500 rounded-lg px-3 py-2 text-sm text-center flex-1">
-                <code className="text-yellow-400">QWEN.md</code>
-                <div className="text-xs text-gray-400">## Qwen Added Memories 区段</div>
+                <code className="text-yellow-400">GEMINI.md</code>
+                <div className="text-xs text-gray-400">## Gemini Added Memories 区段</div>
               </div>
             </div>
 
@@ -867,7 +867,7 @@ function computeNewContent(currentContent: string, fact: string): string {
               </div>
               <div className="text-cyan-400">→</div>
               <div className="bg-gray-700/50 border border-gray-500 rounded-lg px-3 py-2 text-sm text-center flex-1">
-                <code className="text-yellow-400">QWEN.md</code>
+                <code className="text-yellow-400">GEMINI.md</code>
                 <div className="text-xs text-gray-400">整个文件（包括 Added Memories）</div>
               </div>
               <div className="text-cyan-400">→</div>

@@ -3,6 +3,16 @@ import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { JsonBlock } from '../components/JsonBlock';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+
+const relatedPages: RelatedPage[] = [
+  { id: 'extension', label: '扩展系统', description: 'MCP 与扩展系统的关系' },
+  { id: 'tool-arch', label: '工具架构', description: 'MCP 工具如何融入工具系统' },
+  { id: 'ide-integration', label: 'IDE 集成', description: 'VS Code MCP 服务器详解' },
+  { id: 'subagent', label: '子代理系统', description: '子代理如何使用 MCP 工具' },
+  { id: 'approval-mode', label: '审批模式', description: 'MCP 工具的权限控制' },
+  { id: 'design-tradeoffs', label: '设计权衡', description: 'MCP 集成的架构决策' },
+];
 
 function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
   return (
@@ -215,7 +225,7 @@ export function MCPIntegration() {
       {/* MCP 配置 */}
       <Layer title="MCP 服务器配置" icon="⚙️">
         <JsonBlock
-          code={`// ~/.qwen/mcp/servers.json
+          code={`// ~/.gemini/mcp/servers.json
 {
     "servers": [
         {
@@ -979,7 +989,7 @@ echo '{"jsonrpc":"2.0","method":"initialize","id":1,"params":{}}' | npx -y @anth
 lsof -i :3000
 
 # 5. 查看详细日志
-DEBUG=mcp:* innies`}
+DEBUG=mcp:* gemini`}
               />
             </div>
           </div>
@@ -1066,7 +1076,7 @@ class MCPClient {
               <CodeBlock
                 title="检查已发现的工具"
                 code={`# 在 CLI 中查看已注册的 MCP 工具
-innies mcp list
+gemini mcp list
 
 # 输出示例:
 # MCP Servers:
@@ -1126,7 +1136,7 @@ curl http://localhost:9876/health
 lsof -i :9876
 
 # 5. 在 CLI 中强制重连
-innies mcp reconnect vscode`}
+gemini mcp reconnect vscode`}
               />
             </div>
           </div>
@@ -1144,37 +1154,37 @@ innies mcp reconnect vscode`}
               <tbody className="text-[var(--text-secondary)]">
                 <tr>
                   <td className="border border-[var(--border-subtle)] px-3 py-2">启用调试日志</td>
-                  <td className="border border-[var(--border-subtle)] px-3 py-2"><code className="text-xs bg-black/30 px-1 rounded">DEBUG=mcp:* innies</code></td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2"><code className="text-xs bg-black/30 px-1 rounded">DEBUG=mcp:* gemini</code></td>
                   <td className="border border-[var(--border-subtle)] px-3 py-2">输出所有 MCP 相关日志</td>
                 </tr>
                 <tr>
                   <td className="border border-[var(--border-subtle)] px-3 py-2">查看 MCP 状态</td>
-                  <td className="border border-[var(--border-subtle)] px-3 py-2"><code className="text-xs bg-black/30 px-1 rounded">innies mcp status</code></td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2"><code className="text-xs bg-black/30 px-1 rounded">gemini mcp status</code></td>
                   <td className="border border-[var(--border-subtle)] px-3 py-2">显示所有服务器连接状态</td>
                 </tr>
                 <tr>
                   <td className="border border-[var(--border-subtle)] px-3 py-2">列出已发现工具</td>
-                  <td className="border border-[var(--border-subtle)] px-3 py-2"><code className="text-xs bg-black/30 px-1 rounded">innies mcp list</code></td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2"><code className="text-xs bg-black/30 px-1 rounded">gemini mcp list</code></td>
                   <td className="border border-[var(--border-subtle)] px-3 py-2">列出所有 MCP 工具</td>
                 </tr>
                 <tr>
                   <td className="border border-[var(--border-subtle)] px-3 py-2">重连服务器</td>
-                  <td className="border border-[var(--border-subtle)] px-3 py-2"><code className="text-xs bg-black/30 px-1 rounded">innies mcp reconnect [name]</code></td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2"><code className="text-xs bg-black/30 px-1 rounded">gemini mcp reconnect [name]</code></td>
                   <td className="border border-[var(--border-subtle)] px-3 py-2">断开并重新连接指定服务器</td>
                 </tr>
                 <tr>
                   <td className="border border-[var(--border-subtle)] px-3 py-2">测试工具调用</td>
-                  <td className="border border-[var(--border-subtle)] px-3 py-2"><code className="text-xs bg-black/30 px-1 rounded">innies mcp call [tool] [args]</code></td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2"><code className="text-xs bg-black/30 px-1 rounded">gemini mcp call [tool] [args]</code></td>
                   <td className="border border-[var(--border-subtle)] px-3 py-2">手动调用 MCP 工具</td>
                 </tr>
                 <tr>
                   <td className="border border-[var(--border-subtle)] px-3 py-2">查看配置</td>
-                  <td className="border border-[var(--border-subtle)] px-3 py-2"><code className="text-xs bg-black/30 px-1 rounded">innies mcp config</code></td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2"><code className="text-xs bg-black/30 px-1 rounded">gemini mcp config</code></td>
                   <td className="border border-[var(--border-subtle)] px-3 py-2">显示当前 MCP 配置</td>
                 </tr>
                 <tr>
                   <td className="border border-[var(--border-subtle)] px-3 py-2">JSON-RPC 跟踪</td>
-                  <td className="border border-[var(--border-subtle)] px-3 py-2"><code className="text-xs bg-black/30 px-1 rounded">DEBUG=jsonrpc:* innies</code></td>
+                  <td className="border border-[var(--border-subtle)] px-3 py-2"><code className="text-xs bg-black/30 px-1 rounded">DEBUG=jsonrpc:* gemini</code></td>
                   <td className="border border-[var(--border-subtle)] px-3 py-2">显示原始 JSON-RPC 消息</td>
                 </tr>
               </tbody>
@@ -1775,6 +1785,140 @@ class LoggingMiddleware implements MCPMiddleware {
           </div>
         </div>
       </Layer>
+
+      {/* 为什么这样设计 MCP 集成 */}
+      <Layer title="为什么这样设计 MCP 集成？" icon="💡">
+        <div className="space-y-4">
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
+            <h4 className="text-[var(--purple)] font-bold mb-2">🔌 为什么选择 JSON-RPC over stdio？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：采用 JSON-RPC 2.0 作为消息格式，stdio 作为默认传输层。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>简单性</strong>：stdio 无需网络配置，进程直接通信，减少配置复杂度</li>
+                <li><strong>安全性</strong>：本地进程通信避免网络暴露，不需要额外的认证机制</li>
+                <li><strong>可调试</strong>：JSON 格式人类可读，便于开发和调试</li>
+                <li><strong>跨平台</strong>：stdio 在所有操作系统上都有良好支持</li>
+              </ul>
+              <p><strong>权衡</strong>：牺牲了远程调用的便利性，但通过支持 HTTP/WebSocket 作为可选传输层来弥补。</p>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
+            <h4 className="text-[var(--amber)] font-bold mb-2">🏷️ 为什么用 mcp_ 前缀命名工具？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：MCP 工具名采用 <code className="bg-black/30 px-1 rounded">mcp_{'{serverName}'}_{'{toolName}'}</code> 格式。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>命名空间隔离</strong>：避免与内置工具名冲突（如内置的 Read vs MCP 的 read_file）</li>
+                <li><strong>来源可追溯</strong>：AI 和用户都能清楚知道工具来自哪个 MCP 服务器</li>
+                <li><strong>路由简化</strong>：通过前缀即可快速判断是否是 MCP 工具，无需查表</li>
+              </ul>
+              <p><strong>替代方案</strong>：考虑过用元数据标记来源，但会增加工具调用的复杂度。</p>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
+            <h4 className="text-[var(--cyber-blue)] font-bold mb-2">🔄 为什么采用懒连接策略？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：MCP 服务器在首次需要时才启动连接，而非 CLI 启动时全部连接。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>启动速度</strong>：避免启动时等待所有服务器初始化，用户体验更好</li>
+                <li><strong>资源效率</strong>：很多会话可能不会用到某些 MCP 服务器，避免浪费</li>
+                <li><strong>容错性</strong>：单个服务器失败不影响其他功能</li>
+              </ul>
+              <p><strong>权衡</strong>：首次调用某服务器的工具时会有延迟，通过预热机制缓解。</p>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
+            <h4 className="text-[var(--terminal-green)] font-bold mb-2">🔐 为什么 MCP 工具需要单独授权？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：MCP 工具默认需要用户确认，不能像内置工具那样自动批准。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>安全边界</strong>：MCP 服务器是第三方代码，需要更严格的信任模型</li>
+                <li><strong>能力未知</strong>：MCP 工具的能力由服务器定义，CLI 无法静态分析其影响</li>
+                <li><strong>权限隔离</strong>：用户可以对不同服务器设置不同的信任级别</li>
+              </ul>
+              <p><strong>实现</strong>：通过 <code className="bg-black/30 px-1 rounded">trustedMcpServers</code> 配置允许信任的服务器自动执行。</p>
+            </div>
+          </div>
+
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--red)]">
+            <h4 className="text-[var(--red)] font-bold mb-2">⚡ 为什么不支持并行 MCP 调用？</h4>
+            <div className="text-sm text-[var(--text-secondary)] space-y-2">
+              <p><strong>决策</strong>：对同一 MCP 服务器的工具调用串行执行，不并行。</p>
+              <p><strong>原因</strong>：</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li><strong>服务器限制</strong>：大多数 MCP 服务器实现不支持并发请求</li>
+                <li><strong>状态一致性</strong>：避免服务器内部状态竞争（如文件操作）</li>
+                <li><strong>简化调试</strong>：串行执行更容易追踪问题</li>
+              </ul>
+              <p><strong>优化</strong>：不同服务器的调用可以并行，只是同一服务器内串行。</p>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      {/* MCP 协议版本兼容性 */}
+      <Layer title="协议版本与兼容性" icon="📋">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-[var(--border-subtle)]">
+                <th className="text-left py-2 px-3 text-[var(--text-muted)]">协议版本</th>
+                <th className="text-left py-2 px-3 text-[var(--text-muted)]">支持状态</th>
+                <th className="text-left py-2 px-3 text-[var(--text-muted)]">新增能力</th>
+                <th className="text-left py-2 px-3 text-[var(--text-muted)]">兼容性处理</th>
+              </tr>
+            </thead>
+            <tbody className="text-[var(--text-secondary)]">
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--terminal-green)]">2024-11-05</td>
+                <td className="py-2 px-3">✅ 完全支持</td>
+                <td className="py-2 px-3">基础工具调用、资源访问</td>
+                <td className="py-2 px-3">-</td>
+              </tr>
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--cyber-blue)]">2025-01-01</td>
+                <td className="py-2 px-3">✅ 完全支持</td>
+                <td className="py-2 px-3">流式响应、采样支持</td>
+                <td className="py-2 px-3">旧服务器自动降级</td>
+              </tr>
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--amber)]">未来版本</td>
+                <td className="py-2 px-3">🔄 前向兼容</td>
+                <td className="py-2 px-3">未知新特性</td>
+                <td className="py-2 px-3">忽略未知字段</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <HighlightBox title="版本协商机制" icon="🤝" variant="blue">
+          <CodeBlock
+            code={`// 初始化握手时的版本协商
+const initResult = await client.request({
+  method: 'initialize',
+  params: {
+    protocolVersion: '2025-01-01',  // 客户端支持的最新版本
+    capabilities: {
+      tools: { listChanged: true },
+      sampling: {},  // 新能力
+    }
+  }
+});
+
+// 服务器返回实际支持的版本
+// { protocolVersion: '2024-11-05', capabilities: { tools: {} } }
+// 客户端根据返回的版本调整行为`}
+          />
+        </HighlightBox>
+      </Layer>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

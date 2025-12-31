@@ -12,7 +12,7 @@ flowchart TB
         UserFiles["项目文件"]
     end
 
-    subgraph HistoryDir[".innies/history/"]
+    subgraph HistoryDir[".gemini/history/"]
         ShadowGit[".git (影子仓库)"]
         GitConfig[".gitconfig"]
         GitIgnore[".gitignore (同步)"]
@@ -44,7 +44,7 @@ sequenceDiagram
     Note over CLI,GS: 初始化阶段
     CLI->>GS: initialize()
     GS->>GS: verifyGitAvailability()
-    GS->>FS: mkdir(.innies/history)
+    GS->>FS: mkdir(.gemini/history)
     GS->>FS: write(.gitconfig)
     GS->>SG: git init
     GS->>SG: git commit --allow-empty
@@ -159,7 +159,7 @@ export class GitService {
   }
 
   async setupShadowGitRepository() {
-    const repoDir = this.getHistoryDir(); // .innies/history/
+    const repoDir = this.getHistoryDir(); // .gemini/history/
     const gitConfigPath = path.join(repoDir, '.gitconfig');
 
     // 创建目录
@@ -168,7 +168,7 @@ export class GitService {
     // 专用 gitconfig，避免继承用户配置
     const gitConfigContent = \`[user]
   name = Innies Cli
-  email = qwen-code@qwen.ai
+  email = gemini-code@google.com
 [commit]
   gpgsign = false
 \`;
@@ -243,7 +243,7 @@ export class GitService {
                   <tr className="border-b border-gray-700">
                     <td className="py-2 px-3 font-mono text-cyan-400">GIT_DIR</td>
                     <td className="py-2 px-3">指定 .git 目录位置</td>
-                    <td className="py-2 px-3 font-mono">.innies/history/.git</td>
+                    <td className="py-2 px-3 font-mono">.gemini/history/.git</td>
                   </tr>
                   <tr className="border-b border-gray-700">
                     <td className="py-2 px-3 font-mono text-cyan-400">GIT_WORK_TREE</td>
@@ -253,12 +253,12 @@ export class GitService {
                   <tr className="border-b border-gray-700">
                     <td className="py-2 px-3 font-mono text-cyan-400">HOME</td>
                     <td className="py-2 px-3">覆盖 HOME 目录</td>
-                    <td className="py-2 px-3 font-mono">.innies/history/</td>
+                    <td className="py-2 px-3 font-mono">.gemini/history/</td>
                   </tr>
                   <tr>
                     <td className="py-2 px-3 font-mono text-cyan-400">XDG_CONFIG_HOME</td>
                     <td className="py-2 px-3">覆盖 XDG 配置目录</td>
-                    <td className="py-2 px-3 font-mono">.innies/history/</td>
+                    <td className="py-2 px-3 font-mono">.gemini/history/</td>
                   </tr>
                 </tbody>
               </table>
@@ -613,8 +613,8 @@ coverage/`}
           <div className="space-y-4">
             <HighlightBox title="诊断步骤" icon="🔧" variant="blue">
               <ol className="space-y-2 text-sm list-decimal list-inside">
-                <li>检查 .innies/history/ 目录是否存在</li>
-                <li>验证 .innies/history/.git 是否为有效仓库</li>
+                <li>检查 .gemini/history/ 目录是否存在</li>
+                <li>验证 .gemini/history/.git 是否为有效仓库</li>
                 <li>检查磁盘空间是否充足</li>
                 <li>确认文件权限正确</li>
               </ol>
@@ -624,7 +624,7 @@ coverage/`}
               title="手动诊断命令"
               language="bash"
               code={`# 检查影子仓库状态
-cd .innies/history
+cd .gemini/history
 git status
 
 # 查看提交历史
@@ -672,7 +672,7 @@ git var -l
 
 # 验证工作树配置
 cd /your/project
-GIT_DIR=.innies/history/.git GIT_WORK_TREE=. git status`}
+GIT_DIR=.gemini/history/.git GIT_WORK_TREE=. git status`}
             />
           </div>
         </Layer>

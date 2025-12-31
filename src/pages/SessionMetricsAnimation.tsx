@@ -136,7 +136,7 @@ export default function SessionMetricsAnimation() {
     addLog('收到 API 响应...');
     await new Promise(r => setTimeout(r, 800));
 
-    const modelId = Math.random() > 0.3 ? 'qwen3-coder-plus' : 'qwen-vl-max';
+    const modelId = Math.random() > 0.3 ? 'gemini-1.5-pro' : 'gemini-1.5-pro-vision';
     const latency = 500 + Math.floor(Math.random() * 2000);
     const promptTokens = 1000 + Math.floor(Math.random() * 5000);
     const candidateTokens = 200 + Math.floor(Math.random() * 1500);

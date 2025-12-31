@@ -3,6 +3,7 @@ import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 // 快速摘要组件
 function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
@@ -98,6 +99,16 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
 export function RequestLifecycle() {
   const [isSummaryExpanded, setIsSummaryExpanded] = useState(true);
+
+  const relatedPages: RelatedPage[] = [
+    { id: 'interaction-loop', label: '交互循环', description: '请求处理的主循环' },
+    { id: 'gemini-chat', label: 'GeminiChatCore', description: 'AI 请求核心' },
+    { id: 'tool-arch', label: '工具系统', description: '工具调用处理' },
+    { id: 'streaming-response-processing', label: '流式处理', description: '响应流处理机制' },
+    { id: 'memory', label: '上下文管理', description: '消息历史与压缩' },
+    { id: 'loop-detect', label: '循环检测', description: '异常请求检测' },
+  ];
+
   // 完整请求生命周期流程图
   const requestLifecycleFlowChart = `flowchart TD
     node_start(["用户输入请求"])
@@ -271,7 +282,7 @@ async *generateContentStream(
       'Authorization': \`Bearer \${apiKey}\`
     },
     body: JSON.stringify({
-      model: request.model || 'qwen-coder-plus',
+      model: request.model || 'gemini-1.5-pro',
       contents: request.contents,  // 完整历史
       tools: request.tools,         // 工具定义
       generationConfig: request.generationConfig
@@ -908,6 +919,125 @@ await Promise.all([
           </div>
         </Layer>
       </section>
+
+      {/* 为什么这样设计 */}
+      <Layer title="为什么这样设计请求生命周期" icon="🤔" defaultOpen={false}>
+        <div className="space-y-6">
+          <HighlightBox title="设计决策解析" icon="💡" variant="blue">
+            <p className="text-sm text-[var(--text-secondary)]">
+              请求生命周期的设计目标是<strong>可靠、高效、可恢复</strong>，
+              确保每个请求都能被正确处理，即使遇到错误也能优雅恢复。
+            </p>
+          </HighlightBox>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-[var(--bg-card)] p-4 rounded-lg border border-[var(--border-subtle)]">
+              <h4 className="text-[var(--terminal-green)] font-bold mb-2">1. 为什么使用流式响应？</h4>
+              <p className="text-sm text-[var(--text-secondary)] mb-2">
+                AI 响应使用 <code>generateContentStream</code> 而非一次性返回。
+              </p>
+              <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                <li>• <strong>原因</strong>: 用户可以实时看到生成过程</li>
+                <li>• <strong>好处</strong>: 更好的交互体验，可提前取消</li>
+                <li>• <strong>权衡</strong>: 处理逻辑更复杂</li>
+              </ul>
+            </div>
+
+            <div className="bg-[var(--bg-card)] p-4 rounded-lg border border-[var(--border-subtle)]">
+              <h4 className="text-[var(--cyber-blue)] font-bold mb-2">2. 为什么预处理在请求前？</h4>
+              <p className="text-sm text-[var(--text-secondary)] mb-2">
+                <code>@file</code>、<code>@url</code> 等指令在发送 API 请求前处理。
+              </p>
+              <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                <li>• <strong>原因</strong>: 内容需要嵌入到请求消息中</li>
+                <li>• <strong>好处</strong>: AI 可以看到完整上下文</li>
+                <li>• <strong>权衡</strong>: 大文件会增加请求延迟</li>
+              </ul>
+            </div>
+
+            <div className="bg-[var(--bg-card)] p-4 rounded-lg border border-[var(--border-subtle)]">
+              <h4 className="text-[var(--amber)] font-bold mb-2">3. 为什么工具调用后继续循环？</h4>
+              <p className="text-sm text-[var(--text-secondary)] mb-2">
+                工具结果返回后，<strong>再次调用 AI</strong> 继续处理。
+              </p>
+              <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                <li>• <strong>原因</strong>: AI 需要根据工具结果决定下一步</li>
+                <li>• <strong>好处</strong>: 支持多步骤复杂任务</li>
+                <li>• <strong>权衡</strong>: 可能产生循环，需要检测</li>
+              </ul>
+            </div>
+
+            <div className="bg-[var(--bg-card)] p-4 rounded-lg border border-[var(--border-subtle)]">
+              <h4 className="text-[var(--purple)] font-bold mb-2">4. 为什么分离消息历史管理？</h4>
+              <p className="text-sm text-[var(--text-secondary)] mb-2">
+                消息历史由独立的 <code>MessageHistory</code> 管理。
+              </p>
+              <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                <li>• <strong>原因</strong>: 历史需要持久化和压缩</li>
+                <li>• <strong>好处</strong>: 解耦请求处理与状态管理</li>
+                <li>• <strong>权衡</strong>: 需要同步状态</li>
+              </ul>
+            </div>
+
+            <div className="bg-[var(--bg-card)] p-4 rounded-lg border border-[var(--border-subtle)] md:col-span-2">
+              <h4 className="text-[var(--terminal-green)] font-bold mb-2">5. 为什么使用指数退避重试？</h4>
+              <p className="text-sm text-[var(--text-secondary)] mb-2">
+                网络错误时使用 <code>1s → 2s → 4s → 8s</code> 递增间隔重试。
+              </p>
+              <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                <li>• <strong>原因</strong>: 避免对服务器造成压力，同时提高成功率</li>
+                <li>• <strong>好处</strong>: 平衡可靠性与效率</li>
+                <li>• <strong>权衡</strong>: 最坏情况下等待时间较长</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* 请求状态参考表 */}
+          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border border-[var(--border-subtle)]">
+            <h4 className="text-[var(--text-primary)] font-bold mb-3">📊 请求状态转换参考</h4>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-[var(--border-subtle)]">
+                    <th className="text-left py-2 px-3 text-[var(--text-muted)]">状态</th>
+                    <th className="text-left py-2 px-3 text-[var(--text-muted)]">触发条件</th>
+                    <th className="text-left py-2 px-3 text-[var(--text-muted)]">可能转换</th>
+                    <th className="text-left py-2 px-3 text-[var(--text-muted)]">超时处理</th>
+                  </tr>
+                </thead>
+                <tbody className="text-[var(--text-secondary)]">
+                  <tr className="border-b border-[var(--border-subtle)]/50">
+                    <td className="py-2 px-3 font-mono text-[var(--terminal-green)]">PENDING</td>
+                    <td className="py-2 px-3">用户提交</td>
+                    <td className="py-2 px-3">PROCESSING</td>
+                    <td className="py-2 px-3">-</td>
+                  </tr>
+                  <tr className="border-b border-[var(--border-subtle)]/50">
+                    <td className="py-2 px-3 font-mono text-[var(--cyber-blue)]">PROCESSING</td>
+                    <td className="py-2 px-3">API 调用开始</td>
+                    <td className="py-2 px-3">STREAMING / ERROR</td>
+                    <td className="py-2 px-3">60s 超时取消</td>
+                  </tr>
+                  <tr className="border-b border-[var(--border-subtle)]/50">
+                    <td className="py-2 px-3 font-mono text-[var(--amber)]">STREAMING</td>
+                    <td className="py-2 px-3">收到首个 chunk</td>
+                    <td className="py-2 px-3">TOOL_CALL / COMPLETE</td>
+                    <td className="py-2 px-3">30s 无响应取消</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 px-3 font-mono text-[var(--purple)]">TOOL_CALL</td>
+                    <td className="py-2 px-3">AI 请求工具</td>
+                    <td className="py-2 px-3">PROCESSING (循环)</td>
+                    <td className="py-2 px-3">工具自身超时</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </Layer>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

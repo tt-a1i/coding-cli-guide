@@ -137,7 +137,7 @@ export default function ExponentialBackoffAnimation() {
             timestamp: Date.now() - startTime,
             status: 429,
             action: 'fallback',
-            error: '触发配额回退: Pro → Generic → Qwen',
+            error: '触发配额回退: Pro → Generic → Gemini',
           };
           setAttempts(prev => [...prev, fallbackAttempt]);
           await sleep(800);
@@ -468,7 +468,7 @@ export default function ExponentialBackoffAnimation() {
             <span className="text-gray-600">→</span>
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-orange-400" />
-              <span className="text-gray-300 font-medium">Qwen 限流</span>
+              <span className="text-gray-300 font-medium">Gemini 限流</span>
             </div>
           </div>
         </div>
@@ -502,7 +502,7 @@ export default function ExponentialBackoffAnimation() {
               回退后重置: attempt=0, 429Count=0, delay=initial
             </div>
             <div className="p-2 bg-black/30 rounded text-gray-400">
-              回退顺序: Pro → Generic → Qwen Throttling
+              回退顺序: Pro → Generic → Gemini Throttling
             </div>
           </div>
         </div>

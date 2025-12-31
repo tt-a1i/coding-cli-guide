@@ -4,6 +4,7 @@ import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { JsonBlock } from '../components/JsonBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
   return (
@@ -91,6 +92,15 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
 export function GeminiChatCore() {
   const [isIntroExpanded, setIsIntroExpanded] = useState(true);
+
+  const relatedPages: RelatedPage[] = [
+    { id: 'interaction-loop', label: '交互循环', description: '用户交互处理' },
+    { id: 'lifecycle', label: '请求生命周期', description: '请求处理流程' },
+    { id: 'tool-arch', label: '工具系统', description: '工具调用与执行' },
+    { id: 'streaming-response-processing', label: '流式处理', description: '流式响应机制' },
+    { id: 'memory', label: '上下文管理', description: '消息历史管理' },
+    { id: 'services-arch', label: '服务架构', description: '核心服务依赖' },
+  ];
 
   return (
     <div>
@@ -1880,7 +1890,7 @@ class ChatLogger {
 }
 
 // 使用示例
-DEBUG_CHAT=true DEBUG_STREAM=true innies
+DEBUG_CHAT=true DEBUG_STREAM=true gemini
 
 /*
 调试输出示例：
@@ -2806,6 +2816,8 @@ STREAMING → PROCESSING_TOOL → STREAMING → CHECKING_LOOP → PROCESSING →
       </Layer>
 
       {/* ==================== 深化内容结束 ==================== */}
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

@@ -9,6 +9,16 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { useNavigation } from '../contexts/NavigationContext';
+import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+
+const relatedPages: RelatedPage[] = [
+  { id: 'streaming-json-parser-anim', label: '流式 JSON 解析动画', description: '深度跟踪与碰撞检测' },
+  { id: 'streaming-tool-parser-anim', label: '工具调用解析动画', description: 'ToolCallParser 可视化' },
+  { id: 'chunk-assembly-anim', label: 'Chunk 组装动画', description: '数据块合并演示' },
+  { id: 'content-format-conversion', label: '格式转换详解', description: 'Gemini ↔ OpenAI 格式' },
+  { id: 'loop', label: '循环机制', description: 'Agentic Loop 主循环' },
+  { id: 'error-recovery-patterns', label: '错误恢复模式', description: '流式错误处理策略' },
+];
 
 export function StreamingResponseProcessing() {
   const [activeTab, setActiveTab] = useState<'overview' | 'parser' | 'merge' | 'repair'>('overview');
@@ -683,6 +693,8 @@ async *executeStreaming(request) {
           </button>
         </div>
       </section>
+
+      <RelatedPages pages={relatedPages} />
     </div>
   );
 }

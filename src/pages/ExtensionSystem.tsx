@@ -1,12 +1,13 @@
 import { HighlightBox } from '../components/HighlightBox';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
+import { RelatedPages } from '../components/RelatedPages';
 
 export function ExtensionSystem() {
   const extensionFlow = `flowchart TD
     start["CLI 启动"]
-    scan_local["扫描本地扩展<br/>.qwen/extensions/"]
-    scan_global["扫描全局扩展<br/>~/.qwen/extensions/"]
+    scan_local["扫描本地扩展<br/>.gemini/extensions/"]
+    scan_global["扫描全局扩展<br/>~/.gemini/extensions/"]
     load_manifest["加载 manifest<br/>package.json"]
     validate{"验证扩展"}
     init_ext["初始化扩展<br/>执行 activate()"]
@@ -28,6 +29,33 @@ export function ExtensionSystem() {
     style skip fill:#22c55e,color:#000
     style validate fill:#f59e0b,color:#000`;
 
+  const extensionLifecycleFlow = `stateDiagram-v2
+    [*] --> Discovered: 扫描目录
+
+    state "Discovered" as Discovered
+    state "Validated" as Validated
+    state "Pending" as Pending
+    state "Active" as Active
+    state "Failed" as Failed
+    state "Deactivated" as Deactivated
+
+    Discovered --> Validated: manifest 有效
+    Discovered --> Failed: manifest 无效
+
+    Validated --> Pending: 等待激活事件
+    Validated --> Active: onStartup
+
+    Pending --> Active: 事件触发
+    note right of Pending: onCommand / workspaceContains / onTool
+
+    Active --> Deactivated: deactivate()
+    Active --> Failed: activate() 异常
+
+    Deactivated --> Active: 重新激活
+    Deactivated --> [*]: CLI 退出
+
+    Failed --> [*]: 跳过该扩展`;
+
   const extensionManifestCode = `// 扩展清单文件
 // package.json
 
@@ -38,7 +66,7 @@ export function ExtensionSystem() {
   "main": "dist/index.js",
 
   // 扩展元数据
-  "qwen": {
+  "gemini": {
     // 扩展类型
     "type": "extension",
 
@@ -221,20 +249,20 @@ async function installFromGitHub(
 }
 
 // 扩展命令
-// qwen extensions install owner/repo
-// qwen extensions uninstall extension-name
-// qwen extensions list
-// qwen extensions update [extension-name]`;
+// gemini extensions install owner/repo
+// gemini extensions uninstall extension-name
+// gemini extensions list
+// gemini extensions update [extension-name]`;
 
   const mcpServerConfigCode = `// MCP 服务器配置
-// .qwen/mcp.json
+// .gemini/mcp.json
 
 {
   "mcpServers": {
     // 内置 MCP 服务器
     "filesystem": {
       "command": "node",
-      "args": ["~/.qwen/mcp-servers/filesystem/index.js"],
+      "args": ["~/.gemini/mcp-servers/filesystem/index.js"],
       "env": {
         "ALLOWED_PATHS": "/home/user/projects"
       }
@@ -364,7 +392,7 @@ class ExtensionRegistry {
   const cliCommandsCode = `# 扩展管理命令
 
 # 列出所有扩展
-qwen extensions list
+gemini extensions list
 # 输出:
 # ┌─────────────────┬─────────┬────────┬──────────┐
 # │ Name            │ Version │ Active │ Type     │
@@ -375,34 +403,34 @@ qwen extensions list
 # └─────────────────┴─────────┴────────┴──────────┘
 
 # 安装扩展 (GitHub)
-qwen extensions install username/repo
-qwen extensions install username/repo@v1.0.0
-qwen extensions install github:username/repo
+gemini extensions install username/repo
+gemini extensions install username/repo@v1.0.0
+gemini extensions install github:username/repo
 
 # 安装扩展 (npm)
-qwen extensions install npm:package-name
+gemini extensions install npm:package-name
 
 # 安装扩展 (本地)
-qwen extensions install ./path/to/extension
+gemini extensions install ./path/to/extension
 
 # 卸载扩展
-qwen extensions uninstall extension-name
+gemini extensions uninstall extension-name
 
 # 更新扩展
-qwen extensions update           # 更新所有
-qwen extensions update ext-name  # 更新特定扩展
+gemini extensions update           # 更新所有
+gemini extensions update ext-name  # 更新特定扩展
 
 # 启用/禁用扩展
-qwen extensions enable ext-name
-qwen extensions disable ext-name
+gemini extensions enable ext-name
+gemini extensions disable ext-name
 
 # 查看扩展详情
-qwen extensions info ext-name
+gemini extensions info ext-name
 # 输出:
 # Name: python-tools
 # Version: 1.2.0
-# Description: Python development tools for qwen
-# Path: ~/.qwen/extensions/python-tools
+# Description: Python development tools for gemini
+# Path: ~/.gemini/extensions/python-tools
 #
 # Contributes:
 #   Commands:
@@ -495,7 +523,7 @@ qwen extensions info ext-name
       {/* CLI 命令 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">扩展管理命令</h3>
-        <CodeBlock code={cliCommandsCode} language="bash" title="qwen extensions" />
+        <CodeBlock code={cliCommandsCode} language="bash" title="gemini extensions" />
       </section>
 
       {/* 扩展目录结构 */}
@@ -503,7 +531,7 @@ qwen extensions info ext-name
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">扩展目录结构</h3>
         <div className="bg-gray-800/50 rounded-lg p-4">
           <pre className="text-sm text-gray-300">
-{`~/.qwen/
+{`~/.gemini/
 ├── extensions/                 # 全局扩展目录
 │   ├── python-tools/
 │   │   ├── package.json       # 扩展清单
@@ -521,7 +549,7 @@ qwen extensions info ext-name
 └── mcp.json                   # MCP 配置文件
 
 project/
-├── .qwen/
+├── .gemini/
 │   ├── extensions/            # 项目级扩展
 │   │   └── local-extension/
 │   └── mcp.json               # 项目 MCP 配置
@@ -536,7 +564,7 @@ project/
         <div className="bg-gray-800/50 rounded-lg p-6">
           <pre className="text-sm text-gray-300 overflow-x-auto">
 {`┌──────────────────────────────────────────────────────────────────┐
-│                         Qwen CLI                               │
+│                         Gemini CLI                               │
 │  ┌────────────────────────────────────────────────────────────┐  │
 │  │                   Extension Manager                        │  │
 │  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │  │
@@ -585,10 +613,10 @@ project/
           <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
             <h4 className="text-blue-400 font-semibold mb-2">开发步骤</h4>
             <ol className="text-sm text-gray-300 space-y-1 list-decimal list-inside">
-              <li>创建 package.json 并添加 qwen 配置</li>
+              <li>创建 package.json 并添加 gemini 配置</li>
               <li>实现 activate() 和可选的 deactivate()</li>
               <li>注册命令、工具或 MCP 服务器</li>
-              <li>测试: <code>qwen ext install ./</code></li>
+              <li>测试: <code>gemini ext install ./</code></li>
               <li>发布到 GitHub 或 npm</li>
             </ol>
           </div>
@@ -604,6 +632,351 @@ project/
           </div>
         </div>
       </section>
+
+      {/* 扩展生命周期深入 */}
+      <section className="bg-gradient-to-r from-purple-900/20 to-indigo-900/20 rounded-xl border border-purple-500/30 p-6">
+        <h3 className="text-xl font-semibold text-purple-400 mb-4">🔄 扩展生命周期深入</h3>
+
+        <MermaidDiagram chart={extensionLifecycleFlow} title="扩展完整生命周期" />
+
+        <div className="mt-6 space-y-4">
+          <div className="bg-black/30 rounded-lg p-4">
+            <h4 className="text-lg font-medium text-gray-200 mb-2">1. 发现阶段 (Discovery)</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <div className="text-gray-400 mb-1">扫描位置</div>
+                <ul className="text-gray-300 space-y-1">
+                  <li>• <code className="text-cyan-400">.gemini/extensions/</code> 项目级</li>
+                  <li>• <code className="text-cyan-400">~/.gemini/extensions/</code> 全局级</li>
+                </ul>
+              </div>
+              <div>
+                <div className="text-gray-400 mb-1">扫描内容</div>
+                <ul className="text-gray-300 space-y-1">
+                  <li>• 查找 <code>package.json</code></li>
+                  <li>• 验证 <code>gemini</code> 字段存在</li>
+                  <li>• 检查 <code>main</code> 入口文件</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-black/30 rounded-lg p-4">
+            <h4 className="text-lg font-medium text-gray-200 mb-2">2. 验证阶段 (Validation)</h4>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-700 text-gray-400">
+                  <th className="text-left py-2">检查项</th>
+                  <th className="text-left py-2">失败处理</th>
+                </tr>
+              </thead>
+              <tbody className="text-gray-300">
+                <tr className="border-b border-gray-800">
+                  <td className="py-2">package.json 格式</td>
+                  <td className="py-2 text-red-400">跳过扩展，记录警告</td>
+                </tr>
+                <tr className="border-b border-gray-800">
+                  <td className="py-2">入口文件存在</td>
+                  <td className="py-2 text-red-400">跳过扩展，记录错误</td>
+                </tr>
+                <tr className="border-b border-gray-800">
+                  <td className="py-2">依赖扩展已安装</td>
+                  <td className="py-2 text-amber-400">延迟激活，等待依赖</td>
+                </tr>
+                <tr>
+                  <td className="py-2">版本兼容性</td>
+                  <td className="py-2 text-amber-400">警告并继续</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="bg-black/30 rounded-lg p-4">
+            <h4 className="text-lg font-medium text-gray-200 mb-2">3. 激活阶段 (Activation)</h4>
+            <CodeBlock code={`// 激活时机由 activationEvents 控制
+"activationEvents": [
+  "onStartup",                    // CLI 启动时立即激活
+  "onCommand:myCommand",          // 用户调用 /myCommand 时激活
+  "workspaceContains:**/*.py",    // 工作区包含 Python 文件时激活
+  "onTool:myTool",                // AI 调用 myTool 时激活
+]
+
+// 激活流程
+async function activateExtension(info: ExtensionInfo): Promise<void> {
+  // 1. 创建扩展上下文
+  const context = createExtensionContext(info);
+
+  // 2. 加载扩展模块（动态 import）
+  const module = await import(info.entryPoint);
+
+  // 3. 调用 activate 函数
+  const startTime = Date.now();
+  await module.activate(context);
+
+  // 4. 记录激活时间（用于性能监控）
+  info.activationTime = Date.now() - startTime;
+  info.isActive = true;
+}`} language="typescript" />
+          </div>
+
+          <div className="bg-black/30 rounded-lg p-4">
+            <h4 className="text-lg font-medium text-gray-200 mb-2">4. 停用阶段 (Deactivation)</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <div className="text-gray-400 mb-1">触发条件</div>
+                <ul className="text-gray-300 space-y-1">
+                  <li>• CLI 正常退出</li>
+                  <li>• 用户禁用扩展</li>
+                  <li>• 扩展卸载</li>
+                  <li>• 扩展更新（先停用再激活）</li>
+                </ul>
+              </div>
+              <div>
+                <div className="text-gray-400 mb-1">清理责任</div>
+                <ul className="text-gray-300 space-y-1">
+                  <li>• <code>context.subscriptions</code> 自动清理</li>
+                  <li>• <code>deactivate()</code> 中的自定义清理</li>
+                  <li>• 文件句柄、网络连接关闭</li>
+                  <li>• 定时器取消</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 安全边界 */}
+      <section>
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">🔒 扩展安全边界</h3>
+
+        <HighlightBox title="扩展的权限模型" color="red">
+          <p className="text-sm mb-3">
+            扩展运行在与 CLI 相同的 Node.js 进程中，因此<strong className="text-red-400">默认拥有完全权限</strong>。
+            以下是当前的安全边界设计：
+          </p>
+        </HighlightBox>
+
+        <div className="mt-4 space-y-4">
+          <div className="bg-gray-800/50 rounded-lg p-4">
+            <h4 className="text-lg font-medium text-gray-200 mb-3">权限层级</h4>
+            <div className="space-y-3">
+              <div className="flex items-start gap-3">
+                <span className="text-red-400 font-mono text-sm bg-red-900/30 px-2 py-1 rounded">HIGH</span>
+                <div className="flex-1">
+                  <div className="text-gray-200 font-medium">文件系统完全访问</div>
+                  <p className="text-gray-400 text-xs">扩展可以读写任意文件，不受沙箱限制</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-red-400 font-mono text-sm bg-red-900/30 px-2 py-1 rounded">HIGH</span>
+                <div className="flex-1">
+                  <div className="text-gray-200 font-medium">进程执行权限</div>
+                  <p className="text-gray-400 text-xs">扩展可以 spawn 任意子进程</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-amber-400 font-mono text-sm bg-amber-900/30 px-2 py-1 rounded">MED</span>
+                <div className="flex-1">
+                  <div className="text-gray-200 font-medium">网络访问</div>
+                  <p className="text-gray-400 text-xs">扩展可以发起任意网络请求</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-green-400 font-mono text-sm bg-green-900/30 px-2 py-1 rounded">LOW</span>
+                <div className="flex-1">
+                  <div className="text-gray-200 font-medium">CLI API 访问</div>
+                  <p className="text-gray-400 text-xs">通过 ExtensionContext 提供的受限 API</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-amber-900/20 border border-amber-500/30 rounded-lg p-4">
+            <h4 className="text-amber-400 font-semibold mb-2">⚠️ 安全建议</h4>
+            <ul className="text-sm text-gray-300 space-y-1">
+              <li>• <strong>仅安装可信来源的扩展</strong>：GitHub 官方仓库、知名作者</li>
+              <li>• <strong>审查扩展代码</strong>：安装前检查 package.json 和入口文件</li>
+              <li>• <strong>限制全局扩展</strong>：优先使用项目级扩展，便于隔离</li>
+              <li>• <strong>定期更新</strong>：及时获取安全补丁</li>
+            </ul>
+          </div>
+
+          <div className="bg-gray-800/50 rounded-lg p-4">
+            <h4 className="text-lg font-medium text-gray-200 mb-2">MCP 服务器的特殊安全性</h4>
+            <p className="text-sm text-gray-400 mb-3">
+              通过扩展注册的 MCP 服务器有额外的安全机制：
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <div className="text-cyan-400 mb-1">隔离运行</div>
+                <p className="text-gray-300">MCP 服务器在独立进程中运行，与 CLI 主进程隔离</p>
+              </div>
+              <div>
+                <div className="text-cyan-400 mb-1">trust 标记</div>
+                <p className="text-gray-300"><code>trust: false</code> 的服务器需要用户确认才能使用</p>
+              </div>
+              <div>
+                <div className="text-cyan-400 mb-1">白名单机制</div>
+                <p className="text-gray-300"><code>mcp.allowed</code> 控制允许启用的服务器</p>
+              </div>
+              <div>
+                <div className="text-cyan-400 mb-1">黑名单机制</div>
+                <p className="text-gray-300"><code>mcp.excluded</code> 强制禁用危险服务器</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 为什么这样设计 */}
+      <section className="bg-gradient-to-r from-blue-900/20 to-cyan-900/20 rounded-xl border border-blue-500/30 p-6">
+        <h3 className="text-xl font-semibold text-blue-400 mb-4">💡 为什么这样设计？</h3>
+
+        <div className="space-y-6">
+          <div>
+            <h4 className="text-lg font-medium text-gray-200 mb-2">1. 为什么借鉴 VS Code 扩展模型？</h4>
+            <div className="bg-black/30 rounded-lg p-4 text-sm">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <div className="text-green-400 font-medium mb-1">借鉴的设计</div>
+                  <ul className="text-gray-300 space-y-1">
+                    <li>• <code>package.json</code> 作为 manifest</li>
+                    <li>• <code>activate()/deactivate()</code> 生命周期</li>
+                    <li>• <code>contributes</code> 声明式能力注册</li>
+                    <li>• <code>ExtensionContext</code> 上下文对象</li>
+                  </ul>
+                </div>
+                <div>
+                  <div className="text-cyan-400 font-medium mb-1">带来的好处</div>
+                  <ul className="text-gray-300 space-y-1">
+                    <li>• 开发者熟悉度高</li>
+                    <li>• 成熟的设计模式</li>
+                    <li>• 大量可参考的实现</li>
+                    <li>• 降低学习成本</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="text-lg font-medium text-gray-200 mb-2">2. 为什么使用 activationEvents 而非立即加载？</h4>
+            <div className="bg-black/30 rounded-lg p-4 text-sm text-gray-300">
+              <p className="mb-2">
+                <strong className="text-white">问题</strong>：如果所有扩展在 CLI 启动时都加载，会显著增加启动时间。
+              </p>
+              <p className="mb-2">
+                <strong className="text-white">解决</strong>：通过 activationEvents 实现按需激活：
+              </p>
+              <ul className="text-gray-400 text-xs space-y-1">
+                <li>• <code>onStartup</code>：核心扩展，必须立即加载</li>
+                <li>• <code>onCommand:xxx</code>：用户调用命令时才加载</li>
+                <li>• <code>workspaceContains:**/*.py</code>：Python 项目才加载 Python 相关扩展</li>
+              </ul>
+              <p className="mt-2 text-cyan-400">
+                效果：启动时间从 ~2s 降低到 ~200ms（无扩展场景）
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="text-lg font-medium text-gray-200 mb-2">3. 为什么 subscriptions 使用数组而非 Map？</h4>
+            <div className="bg-black/30 rounded-lg p-4 text-sm text-gray-300">
+              <p className="mb-2">
+                <code className="text-cyan-400">context.subscriptions</code> 是一个 <code>Disposable[]</code> 数组，
+                扩展停用时自动调用每个元素的 <code>dispose()</code>。
+              </p>
+              <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                <div>
+                  <div className="text-gray-400 mb-1">数组的优势</div>
+                  <ul className="text-gray-300 space-y-1">
+                    <li>• 保持注册顺序</li>
+                    <li>• 简单的 push 操作</li>
+                    <li>• 反向遍历 dispose</li>
+                  </ul>
+                </div>
+                <div>
+                  <div className="text-gray-400 mb-1">使用模式</div>
+                  <CodeBlock code={`const cmd = registerCommand('myCmd', handler);
+context.subscriptions.push(cmd);
+// 停用时自动 cmd.dispose()`} language="typescript" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 扩展加载错误处理 */}
+      <section>
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">⚠️ 扩展加载错误处理</h3>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-700 text-left text-gray-400">
+                <th className="py-2 px-2">错误类型</th>
+                <th className="py-2 px-2">触发条件</th>
+                <th className="py-2 px-2">CLI 行为</th>
+                <th className="py-2 px-2">用户可见信息</th>
+              </tr>
+            </thead>
+            <tbody className="text-gray-300">
+              <tr className="border-b border-gray-800">
+                <td className="py-2 px-2 text-red-400">ManifestError</td>
+                <td className="py-2 px-2 text-xs">package.json 解析失败</td>
+                <td className="py-2 px-2 text-xs">跳过该扩展</td>
+                <td className="py-2 px-2 text-xs">启动日志警告</td>
+              </tr>
+              <tr className="border-b border-gray-800">
+                <td className="py-2 px-2 text-red-400">EntryNotFound</td>
+                <td className="py-2 px-2 text-xs">入口文件不存在</td>
+                <td className="py-2 px-2 text-xs">跳过该扩展</td>
+                <td className="py-2 px-2 text-xs">启动日志错误</td>
+              </tr>
+              <tr className="border-b border-gray-800">
+                <td className="py-2 px-2 text-amber-400">ActivationError</td>
+                <td className="py-2 px-2 text-xs">activate() 抛出异常</td>
+                <td className="py-2 px-2 text-xs">标记为失败，不注册能力</td>
+                <td className="py-2 px-2 text-xs">显示错误通知</td>
+              </tr>
+              <tr className="border-b border-gray-800">
+                <td className="py-2 px-2 text-amber-400">DependencyMissing</td>
+                <td className="py-2 px-2 text-xs">依赖的扩展未安装</td>
+                <td className="py-2 px-2 text-xs">延迟激活</td>
+                <td className="py-2 px-2 text-xs">提示安装依赖</td>
+              </tr>
+              <tr>
+                <td className="py-2 px-2 text-cyan-400">Timeout</td>
+                <td className="py-2 px-2 text-xs">activate() 超过 10s</td>
+                <td className="py-2 px-2 text-xs">强制停止，标记失败</td>
+                <td className="py-2 px-2 text-xs">显示超时警告</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div className="mt-4 bg-green-900/20 border border-green-500/30 rounded-lg p-4">
+          <h4 className="text-green-400 font-semibold mb-2">错误隔离设计</h4>
+          <p className="text-sm text-gray-300">
+            单个扩展的错误<strong className="text-white">不会影响其他扩展或 CLI 核心功能</strong>。
+            每个扩展在独立的 try-catch 中加载，失败的扩展会被禁用，但 CLI 继续正常运行。
+          </p>
+        </div>
+      </section>
+
+      {/* 相关页面 */}
+      <RelatedPages
+        title="📚 相关阅读"
+        pages={[
+          { id: 'mcp', label: 'MCP 协议详解', description: '扩展如何注册 MCP 服务器' },
+          { id: 'tool-arch', label: '工具系统架构', description: '扩展如何注册自定义工具' },
+          { id: 'slash-cmd', label: '斜杠命令系统', description: '扩展如何添加新命令' },
+          { id: 'config', label: '配置系统', description: '扩展配置项的注册和使用' },
+          { id: 'sandbox', label: '沙箱系统', description: '工具执行的安全边界' },
+          { id: 'design-tradeoffs', label: '设计权衡', description: '扩展系统的架构决策' },
+        ]}
+      />
     </div>
   );
 }
