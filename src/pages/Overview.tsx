@@ -81,6 +81,28 @@ export function Overview() {
 
   return (
     <div>
+      {/* 版本提示 */}
+      <div className="mb-6 px-4 py-3 bg-[var(--bg-terminal)]/50 rounded-lg border border-[var(--border-subtle)] flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <span className="text-lg">📦</span>
+          <div>
+            <span className="text-[var(--text-secondary)] text-sm">本文档基于 </span>
+            <code className="px-2 py-0.5 bg-[var(--cyber-blue)]/20 text-[var(--cyber-blue)] rounded text-sm font-mono">
+              gemini-cli v0.24.0-nightly
+            </code>
+          </div>
+        </div>
+        <a
+          href="https://github.com/google-gemini/gemini-cli"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs text-[var(--text-muted)] hover:text-[var(--cyber-blue)] transition-colors flex items-center gap-1"
+        >
+          <span>查看源码</span>
+          <span>↗</span>
+        </a>
+      </div>
+
       <Introduction isExpanded={isIntroExpanded} onToggle={() => setIsIntroExpanded(!isIntroExpanded)} />
 
       <Layer title="整体架构" icon="🏗️">
