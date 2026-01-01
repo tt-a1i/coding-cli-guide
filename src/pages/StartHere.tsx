@@ -28,11 +28,11 @@ export function StartHere({ onNavigate }: StartHereProps) {
       description: '理解整体架构设计、设计模式和系统边界',
       steps: [
         { id: 'overview', label: '架构概览', desc: '整体架构鸟瞰' },
-        { id: 'lifecycle', label: '请求生命周期', desc: '端到端流程' },
-        { id: 'multi-provider', label: '多厂商架构', desc: 'Provider 抽象' },
-        { id: 'tool-arch', label: '工具架构', desc: '工具系统设计' },
+        { id: 'hook-system', label: 'Hook 系统', desc: '事件拦截机制' },
+        { id: 'policy-engine', label: 'Policy 引擎', desc: '安全策略决策' },
+        { id: 'message-bus', label: '消息总线', desc: '发布/订阅通信' },
+        { id: 'model-routing', label: '模型路由', desc: 'Flash/Pro 选择' },
         { id: 'design-tradeoffs', label: '设计权衡', desc: '架构决策分析' },
-        { id: 'error-recovery-patterns', label: '错误恢复', desc: '容错设计' },
       ],
     },
     developer: {
@@ -43,10 +43,10 @@ export function StartHere({ onNavigate }: StartHereProps) {
       steps: [
         { id: 'startup-chain', label: '启动链路', desc: '入口点分析' },
         { id: 'tool-ref', label: '工具参考', desc: '内置工具列表' },
-        { id: 'custom-cmd', label: '自定义命令', desc: '扩展命令系统' },
+        { id: 'agent-framework', label: 'Agent 框架', desc: '子代理开发' },
         { id: 'extension', label: '扩展系统', desc: '插件开发' },
-        { id: 'zed-integration', label: 'IDE 集成', desc: 'Zed ACP 协议' },
         { id: 'mcp', label: 'MCP集成', desc: '扩展协议' },
+        { id: 'zed-integration', label: 'IDE 集成', desc: 'Zed ACP 协议' },
       ],
     },
     explorer: {
@@ -57,11 +57,11 @@ export function StartHere({ onNavigate }: StartHereProps) {
       steps: [
         { id: 'gemini-chat', label: '核心循环', desc: 'GeminiChat 详解' },
         { id: 'interaction-loop', label: '交互循环', desc: 'Turn 状态机' },
-        { id: 'streaming-response-processing', label: '流式响应', desc: 'Chunk 解析' },
-        { id: 'content-format-conversion', label: '格式转换', desc: 'OpenAI/Gemini' },
-        { id: 'concurrency-patterns', label: '并发模式', desc: '资源控制' },
-        { id: 'loop-detect', label: '循环检测', desc: '防护机制' },
-        { id: 'animation', label: '动画演示', desc: '可视化流程' },
+        { id: 'routing-chain-anim', label: '路由策略链', desc: '模型选择动画' },
+        { id: 'agent-loop-anim', label: 'Agent 循环', desc: '子代理执行动画' },
+        { id: 'hook-event-anim', label: 'Hook 事件流', desc: '事件拦截动画' },
+        { id: 'policy-decision-anim', label: 'Policy 决策', desc: '安全决策动画' },
+        { id: 'animation', label: '更多动画', desc: '可视化流程' },
       ],
     },
   };
@@ -73,6 +73,7 @@ export function StartHere({ onNavigate }: StartHereProps) {
     { term: 'Policy', definition: '安全策略引擎 - ALLOW/DENY/ASK_USER 三种决策', category: 'security' },
     { term: 'MessageBus', definition: '发布/订阅消息总线 - 解耦异步通信', category: 'event' },
     { term: 'ModelRouter', definition: '智能模型路由 - Flash/Pro 策略链选择', category: 'routing' },
+    { term: 'Agent', definition: '子代理框架 - Local（TOML 定义）/ Remote（A2A 协议）', category: 'agent' },
     { term: 'ApprovalMode', definition: '审批级别：Plan/Default/AutoEdit/YOLO', category: 'security' },
     { term: 'MCP', definition: 'Model Context Protocol - 工具动态注册协议', category: 'extension' },
   ];
