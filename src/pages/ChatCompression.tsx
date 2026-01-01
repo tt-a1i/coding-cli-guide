@@ -39,7 +39,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
-              <div className="text-2xl font-bold text-[var(--cyber-blue)]">70%</div>
+              <div className="text-2xl font-bold text-[var(--cyber-blue)]">50%</div>
               <div className="text-xs text-[var(--text-muted)]">压缩触发阈值</div>
             </div>
             <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
@@ -93,7 +93,7 @@ export function ChatCompression() {
     subgraph Input["输入检测"]
         HISTORY[Chat History]
         TOKEN[Token 计算]
-        CHECK{超过 70% 阈值?}
+        CHECK{超过 50% 阈值?}
     end
 
     subgraph Split["分割计算"]
@@ -134,13 +134,13 @@ export function ChatCompression() {
   const thresholdDiagram = `flowchart LR
     subgraph Thresholds["Token 阈值"]
         TOTAL["总 Token 限制<br/>MAX_TOKENS"]
-        TRIGGER["触发阈值 70%<br/>COMPRESSION_TOKEN_THRESHOLD"]
+        TRIGGER["触发阈值 50%<br/>COMPRESSION_TOKEN_THRESHOLD"]
         PRESERVE["保留比例 30%<br/>COMPRESSION_PRESERVE_THRESHOLD"]
     end
 
     subgraph Example["示例: 128K Token"]
         E_TOTAL["128,000 总量"]
-        E_TRIGGER["89,600 触发压缩"]
+        E_TRIGGER["64,000 触发压缩"]
         E_PRESERVE["38,400 保留"]
     end
 
@@ -152,7 +152,7 @@ export function ChatCompression() {
     style Example fill:#1a1a2e,stroke:#00ff88`;
 
   const constantsCode = `// 压缩阈值常量
-export const COMPRESSION_TOKEN_THRESHOLD = 0.7;  // 超过 70% 触发压缩
+export const COMPRESSION_TOKEN_THRESHOLD = 0.5;  // 超过 50% 触发压缩
 export const COMPRESSION_PRESERVE_THRESHOLD = 0.3; // 保留最近 30%
 
 // 压缩状态枚举
@@ -379,7 +379,7 @@ async function runConversationLoop(chat: Chat) {
             <div className="text-[var(--cyber-blue)] font-bold mb-2">1️⃣ 检测阶段</div>
             <ul className="text-sm text-[var(--text-secondary)] space-y-1">
               <li>• 计算当前历史 Token 数</li>
-              <li>• 与 70% 阈值比较</li>
+              <li>• 与 50% 阈值比较</li>
               <li>• 决定是否需要压缩</li>
             </ul>
           </div>
@@ -414,9 +414,9 @@ async function runConversationLoop(chat: Chat) {
           <div className="text-sm text-[var(--text-secondary)] space-y-2">
             <p>假设模型上下文窗口为 <strong>128,000 tokens</strong>：</p>
             <ul className="list-disc list-inside space-y-1 ml-2">
-              <li><strong>触发阈值</strong>：128,000 × 0.7 = 89,600 tokens</li>
+              <li><strong>触发阈值</strong>：128,000 × 0.5 = 64,000 tokens</li>
               <li><strong>保留目标</strong>：128,000 × 0.3 = 38,400 tokens</li>
-              <li><strong>压缩目标</strong>：89,600 - 38,400 = 51,200 tokens → 摘要</li>
+              <li><strong>压缩目标</strong>：64,000 - 38,400 = 25,600 tokens → 摘要</li>
             </ul>
           </div>
         </div>

@@ -36,14 +36,14 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
             <p className="text-[var(--text-primary)] font-medium">
               <span className="text-[var(--purple)] font-bold">一句话：</span>
-              通过 3 种模式（Default → Auto-Edit → YOLO）控制 AI 执行工具的权限，平衡安全性与便利性
+              通过 4 种模式（Plan + Default → Auto-Edit → YOLO）控制 AI 执行工具的权限，平衡安全性与便利性
             </p>
           </div>
 
           {/* 关键数字 */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
-              <div className="text-2xl font-bold text-[var(--purple)]">3</div>
+              <div className="text-2xl font-bold text-[var(--purple)]">4</div>
               <div className="text-xs text-[var(--text-muted)]">审批模式</div>
             </div>
             <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
@@ -173,17 +173,18 @@ export function ApprovalModeSystem() {
     note right of scheduled : 已排期
     note right of executing : 执行中`;
 
-  const approvalModeEnum = `// packages/core/src/policy/types.ts:45-49
+  const approvalModeEnum = `// packages/core/src/config/config.ts:102-107
 
 export enum ApprovalMode {
+  PLAN = 'plan',           // 计划模式：只生成计划，不执行
   DEFAULT = 'default',     // 默认模式：只读自动，修改需确认
-  AUTO_EDIT = 'autoEdit',  // 自动编辑：文件编辑自动批准
+  AUTO_EDIT = 'auto-edit', // 自动编辑：文件编辑自动批准
   YOLO = 'yolo',           // YOLO模式：所有工具自动执行
 }
 
-// 模式切换顺序 (Shift+Tab)
+// 模式切换顺序 (Shift+Tab)：跳过 PLAN，循环 DEFAULT → AUTO_EDIT → YOLO
 export const APPROVAL_MODES = Object.values(ApprovalMode);
-// ['default', 'autoEdit', 'yolo']`;
+// ['plan', 'default', 'auto-edit', 'yolo']`;
 
   const setApprovalModeCode = `// PolicyEngine.setApprovalMode
 // packages/core/src/policy/policy-engine.ts:132-134
@@ -999,16 +1000,17 @@ priority = 10`}
       <Layer title="为什么这样设计审批系统？" icon="💡">
         <div className="space-y-4">
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
-            <h4 className="text-[var(--purple)] font-bold mb-2">🎚️ 为什么需要 3 种模式？</h4>
+            <h4 className="text-[var(--purple)] font-bold mb-2">🎚️ 为什么需要 4 种模式？</h4>
             <div className="text-sm text-[var(--text-secondary)] space-y-2">
-              <p><strong>决策</strong>：提供 Default → Auto-Edit → YOLO 三个渐进式信任级别。</p>
+              <p><strong>决策</strong>：提供 Plan + Default → Auto-Edit → YOLO 四种模式。</p>
               <p><strong>原因</strong>：</p>
               <ul className="list-disc pl-5 space-y-1">
+                <li><strong>Plan 模式</strong>：只生成计划不执行，适合代码审查和规划阶段</li>
                 <li><strong>场景多样</strong>：日常开发 vs 快速原型 vs 完全自动有不同的安全需求</li>
                 <li><strong>渐进信任</strong>：用户可以从保守模式开始，逐步放宽</li>
                 <li><strong>可选粒度</strong>：Auto-Edit 精准区分读取/编辑，YOLO 则完全自动</li>
               </ul>
-              <p><strong>权衡</strong>：模式越多用户越需要学习，但 3 种已覆盖常见场景。</p>
+              <p><strong>权衡</strong>：Shift+Tab 只在 Default/Auto-Edit/YOLO 间切换，Plan 通过 --plan 启动。</p>
             </div>
           </div>
 
