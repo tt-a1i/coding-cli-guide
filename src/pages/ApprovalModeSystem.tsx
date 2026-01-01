@@ -36,14 +36,14 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
             <p className="text-[var(--text-primary)] font-medium">
               <span className="text-[var(--purple)] font-bold">一句话：</span>
-              通过 4 种模式（Plan → Default → Auto-Edit → YOLO）控制 AI 执行工具的权限，平衡安全性与便利性
+              通过 3 种模式（Default → Auto-Edit → YOLO）控制 AI 执行工具的权限，平衡安全性与便利性
             </p>
           </div>
 
           {/* 关键数字 */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
-              <div className="text-2xl font-bold text-[var(--purple)]">4</div>
+              <div className="text-2xl font-bold text-[var(--purple)]">3</div>
               <div className="text-xs text-[var(--text-muted)]">审批模式</div>
             </div>
             <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
@@ -64,10 +64,6 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           <div>
             <h4 className="text-sm font-semibold text-[var(--text-muted)] mb-2">模式切换（Shift+Tab）</h4>
             <div className="flex items-center gap-2 flex-wrap text-sm">
-              <span className="px-3 py-1.5 bg-[var(--purple)]/20 text-[var(--purple)] rounded-lg border border-[var(--purple)]/30">
-                Plan 🔒
-              </span>
-              <span className="text-[var(--text-muted)]">→</span>
               <span className="px-3 py-1.5 bg-[var(--cyber-blue)]/20 text-[var(--cyber-blue)] rounded-lg border border-[var(--cyber-blue)]/30">
                 Default ⚠️
               </span>
@@ -94,7 +90,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
             <div className="bg-red-500/10 rounded-lg p-3 border border-red-500/30">
               <h4 className="text-sm font-semibold text-red-400 mb-1">🚫 不可信文件夹</h4>
               <p className="text-xs text-[var(--text-secondary)]">
-                只能使用 Plan 或 Default 模式，Auto-Edit 和 YOLO 被禁用
+                只能使用 Default 模式，Auto-Edit 和 YOLO 被禁用
               </p>
             </div>
           </div>
@@ -114,23 +110,24 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
 export function ApprovalModeSystem() {
   const [isSummaryExpanded, setIsSummaryExpanded] = useState(true);
-  // 工具审批决策流程 - Mermaid flowchart
+  // 工具审批决策流程 - Mermaid flowchart (基于 PolicyEngine)
   const approvalDecisionFlowChart = `flowchart TD
     start([AI 请求执行工具])
-    check_mode[检查当前<br/>审批模式]
-    is_plan{plan 模式<br/>+ 修改类工具?}
-    is_yolo{yolo 模式?}
-    is_auto_edit{auto-edit?}
+    policy[PolicyEngine.check<br/>规则匹配]
+    policy_result{Policy<br/>决策结果}
+    is_yolo{YOLO 模式?}
+    is_auto_edit{Auto-Edit 模式?}
     is_readonly{只读工具?}
     is_edit_tool{编辑类工具?}
-    block([阻断执行<br/>提示 Plan Mode])
+    policy_deny([Policy 拒绝<br/>抛出错误])
     auto_approve([自动批准<br/>立即执行])
     prompt_user([等待用户确认<br/>显示 Diff])
 
-    start --> check_mode
-    check_mode --> is_plan
-    is_plan -->|Yes| block
-    is_plan -->|No| is_yolo
+    start --> policy
+    policy --> policy_result
+    policy_result -->|ALLOW| auto_approve
+    policy_result -->|DENY| policy_deny
+    policy_result -->|ASK_USER| is_yolo
     is_yolo -->|Yes| auto_approve
     is_yolo -->|No| is_auto_edit
     is_auto_edit -->|Yes| is_edit_tool
@@ -141,10 +138,10 @@ export function ApprovalModeSystem() {
     is_readonly -->|No| prompt_user
 
     style start fill:#22d3ee,color:#000
-    style block fill:#ef4444,color:#fff
+    style policy_deny fill:#ef4444,color:#fff
     style auto_approve fill:#22c55e,color:#000
     style prompt_user fill:#f59e0b,color:#000
-    style is_plan fill:#a855f7,color:#fff
+    style policy_result fill:#a855f7,color:#fff
     style is_yolo fill:#a855f7,color:#fff
     style is_auto_edit fill:#a855f7,color:#fff
     style is_readonly fill:#a855f7,color:#fff
@@ -176,33 +173,26 @@ export function ApprovalModeSystem() {
     note right of scheduled : 已排期
     note right of executing : 执行中`;
 
-  const approvalModeEnum = `// packages/core/src/config/config.ts
+  const approvalModeEnum = `// packages/core/src/policy/types.ts:45-49
 
 export enum ApprovalMode {
-  PLAN = 'plan',        // 计划模式：阻止所有修改
-  DEFAULT = 'default',  // 默认模式：只读自动，修改需确认
-  AUTO_EDIT = 'auto-edit', // 自动编辑：文件编辑自动批准
-  YOLO = 'yolo',        // YOLO模式：所有工具自动执行
+  DEFAULT = 'default',     // 默认模式：只读自动，修改需确认
+  AUTO_EDIT = 'autoEdit',  // 自动编辑：文件编辑自动批准
+  YOLO = 'yolo',           // YOLO模式：所有工具自动执行
 }
 
 // 模式切换顺序 (Shift+Tab)
 export const APPROVAL_MODES = Object.values(ApprovalMode);
-// ['plan', 'default', 'auto-edit', 'yolo']`;
+// ['default', 'autoEdit', 'yolo']`;
 
-  const setApprovalModeCode = `// 设置审批模式时的安全检查
+  const setApprovalModeCode = `// PolicyEngine.setApprovalMode
+// packages/core/src/policy/policy-engine.ts:132-134
 setApprovalMode(mode: ApprovalMode): void {
-  // 不可信文件夹只能使用 plan 或 default 模式
-  if (
-    !this.isTrustedFolder() &&
-    mode !== ApprovalMode.DEFAULT &&
-    mode !== ApprovalMode.PLAN
-  ) {
-    throw new Error(
-      'Cannot enable privileged approval modes in an untrusted folder.'
-    );
-  }
   this.approvalMode = mode;
-}`;
+}
+
+// 不可信文件夹的模式限制由配置层面控制
+// 而非 PolicyEngine 内部检查`;
 
   const toolConfirmationCode = `// packages/core/src/tools/tools.ts
 
@@ -226,21 +216,22 @@ export enum ToolConfirmationOutcome {
   Cancel = 'cancel',                       // 取消
 }`;
 
-  const planModePromptCode = `// Plan Mode 系统提示注入
-// packages/core/src/core/prompts.ts
+  const policyDecisionCode = `// PolicyEngine 决策结果
+// packages/core/src/policy/types.ts
 
-export function getPlanModeSystemReminder(): string {
-  return \`<system-reminder>
-Plan mode is active. You MUST NOT make any edits to files or run any
-commands that could modify the system. Instead, present your plan
-using the exit_plan_mode tool when ready.
+export enum PolicyDecision {
+  ALLOW = 'ALLOW',      // 自动批准执行
+  DENY = 'DENY',        // 拒绝执行
+  ASK_USER = 'ASK_USER', // 需要用户确认
+}
 
-In plan mode:
-- DO NOT use Write, Edit, run_shell_command, or any modifying tools
-- DO analyze and plan the implementation
-- DO explain your approach step by step
-- When ready, call exit_plan_mode with your plan
-</system-reminder>\`;
+// PolicyRule 规则结构
+export interface PolicyRule {
+  toolName?: string;      // 工具名，支持通配符 serverName__*
+  argsPattern?: RegExp;   // 参数匹配正则
+  modes?: ApprovalMode[]; // 限定模式
+  decision: PolicyDecision;
+  priority?: number;      // 优先级，高优先
 }`;
 
   const allowedToolsCode = `// settings.json - v2 配置格式
@@ -279,7 +270,7 @@ In plan mode:
   const keyboardShortcutsCode = `// 审批模式相关快捷键
 
 // Shift+Tab: 循环切换审批模式
-// plan → default → auto-edit → yolo → plan ...
+// default → auto-edit → yolo → default ...
 
 // 工具确认对话框快捷键
 // y / Enter  : 批准执行
@@ -339,14 +330,14 @@ In plan mode:
               <li>AI 请求执行任意工具调用时</li>
               <li>用户通过 Shift+Tab 切换审批模式时</li>
               <li>用户通过 <code className="bg-black/30 px-1 rounded">/approval</code> 命令设置模式时</li>
-              <li>进入不可信文件夹时（自动降级到 plan/default）</li>
+              <li>进入不可信文件夹时（自动降级到 default）</li>
             </ul>
           </div>
 
           <div>
             <h4 className="text-cyan-400 font-semibold mb-2">输入参数</h4>
             <ul className="text-gray-300 list-disc list-inside space-y-1 ml-4">
-              <li><strong>当前 ApprovalMode</strong>：PLAN / DEFAULT / AUTO_EDIT / YOLO</li>
+              <li><strong>当前 ApprovalMode</strong>：DEFAULT / AUTO_EDIT / YOLO</li>
               <li><strong>工具 Kind 类型</strong>：Read / Search / Fetch / Edit / Delete / Execute</li>
               <li><strong>allowedTools 白名单</strong>：配置文件中定义的自动批准工具列表</li>
               <li><strong>文件夹信任状态</strong>：isTrustedFolder() 返回值</li>
@@ -373,9 +364,9 @@ In plan mode:
               <li>
                 <strong>审批决策</strong>：
                 <ul className="list-disc list-inside ml-6 mt-1">
-                  <li>返回 <code className="bg-black/30 px-1 rounded">null</code> → 自动批准，立即执行</li>
+                  <li>返回 <code className="bg-black/30 px-1 rounded">false</code> → 自动批准，立即执行</li>
                   <li>返回 <code className="bg-black/30 px-1 rounded">ToolCallConfirmationDetails</code> → 需要用户确认</li>
-                  <li>返回 <code className="bg-black/30 px-1 rounded">Plan Mode 提示</code> → 阻断执行</li>
+                  <li>抛出错误 → Policy DENY 拒绝执行</li>
                 </ul>
               </li>
               <li>
@@ -383,7 +374,7 @@ In plan mode:
                 <ul className="list-disc list-inside ml-6 mt-1">
                   <li>工具确认对话框（包含 Diff 预览、参数详情）</li>
                   <li>模式切换提示（Shift+Tab 时显示）</li>
-                  <li>Plan Mode 阻断警告</li>
+                  <li>Policy 拒绝错误提示</li>
                 </ul>
               </li>
             </ul>
@@ -393,7 +384,7 @@ In plan mode:
             <h4 className="text-cyan-400 font-semibold mb-2">状态变化</h4>
             <ul className="text-gray-300 list-disc list-inside space-y-1 ml-4">
               <li>工具调用状态：validating → scheduled / awaiting_approval / error</li>
-              <li>审批模式切换：plan → default → auto-edit → yolo（循环）</li>
+              <li>审批模式切换：default → auto-edit → yolo（循环）</li>
               <li>ToolConfirmationOutcome 记录：记录用户的批准/拒绝决策</li>
             </ul>
           </div>
@@ -433,15 +424,15 @@ In plan mode:
             </div>
             <div className="flex items-start gap-2">
               <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
-                packages/core/src/core/prompts.ts
+                packages/core/src/policy/policy-engine.ts
               </code>
-              <span className="text-gray-400">getPlanModeSystemReminder() 系统提示生成</span>
+              <span className="text-gray-400">PolicyEngine 策略决策引擎</span>
             </div>
             <div className="flex items-start gap-2">
               <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
-                packages/core/src/tools/exitPlanMode.ts
+                packages/core/src/confirmation-bus/message-bus.ts
               </code>
-              <span className="text-gray-400">ExitPlanModeTool 实现</span>
+              <span className="text-gray-400">MessageBus 确认请求处理</span>
             </div>
             <div className="flex items-start gap-2">
               <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
@@ -473,19 +464,8 @@ In plan mode:
           </div>
 
           <div>
-            <h4 className="text-cyan-400 font-semibold mb-3">四种审批模式对比</h4>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <HighlightBox title="Plan" variant="purple">
-                <div className="text-sm">
-                  <p className="font-semibold text-purple-300 mb-1">计划模式</p>
-                  <ul className="space-y-1 text-gray-300">
-                    <li>• 完全阻止所有修改</li>
-                    <li>• 只能分析和计划</li>
-                    <li>• 最安全的模式</li>
-                  </ul>
-                </div>
-              </HighlightBox>
-
+            <h4 className="text-cyan-400 font-semibold mb-3">三种审批模式对比</h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <HighlightBox title="Default" variant="blue">
                 <div className="text-sm">
                   <p className="font-semibold text-blue-300 mb-1">默认模式</p>
@@ -530,15 +510,13 @@ In plan mode:
             <h4 className="text-cyan-400 font-semibold mb-2">模式切换循环</h4>
             <div className="bg-gray-800/50 rounded-lg p-4">
               <div className="flex items-center justify-center gap-4 text-lg flex-wrap">
-                <span className="px-4 py-2 bg-purple-500/20 border border-purple-500 rounded">plan</span>
-                <span className="text-gray-500">→</span>
                 <span className="px-4 py-2 bg-blue-500/20 border border-blue-500 rounded">default</span>
                 <span className="text-gray-500">→</span>
                 <span className="px-4 py-2 bg-green-500/20 border border-green-500 rounded">auto-edit</span>
                 <span className="text-gray-500">→</span>
                 <span className="px-4 py-2 bg-red-500/20 border border-red-500 rounded">yolo</span>
                 <span className="text-gray-500">→</span>
-                <span className="text-gray-400">循环回 plan</span>
+                <span className="text-gray-400">循环回 default</span>
               </div>
               <p className="text-center text-gray-400 mt-4">
                 使用 <kbd className="px-2 py-1 bg-gray-700 rounded">Shift+Tab</kbd> 快捷键循环切换模式
@@ -553,7 +531,7 @@ In plan mode:
               <div className="text-sm space-y-2">
                 <p className="text-gray-300">
                   当 <code className="bg-black/30 px-1 rounded">isTrustedFolder() = false</code> 时，
-                  只允许使用 <strong className="text-purple-300">PLAN</strong> 或 <strong className="text-blue-300">DEFAULT</strong> 模式。
+                  只允许使用 <strong className="text-blue-300">DEFAULT</strong> 模式。
                 </p>
                 <p className="text-gray-300">
                   尝试切换到 <strong className="text-green-300">AUTO_EDIT</strong> 或 <strong className="text-red-300">YOLO</strong>
@@ -566,30 +544,30 @@ In plan mode:
           </div>
 
           <div>
-            <h4 className="text-cyan-400 font-semibold mb-2">Plan Mode 特殊行为</h4>
+            <h4 className="text-cyan-400 font-semibold mb-2">PolicyEngine 决策机制</h4>
             <div className="space-y-3">
-              <HighlightBox title="阻断逻辑" variant="purple">
+              <HighlightBox title="Policy 规则匹配" variant="purple">
                 <div className="text-sm space-y-2">
                   <div>
-                    <h5 className="font-semibold text-purple-300 mb-1">触发条件</h5>
+                    <h5 className="font-semibold text-purple-300 mb-1">三种决策结果</h5>
                     <ul className="space-y-1 text-gray-300 list-disc list-inside ml-2">
-                      <li><code>ApprovalMode = PLAN</code></li>
-                      <li>工具的 <code>shouldConfirmExecute()</code> 返回非空（需要确认）</li>
-                      <li>工具名称不是 <code>exit_plan_mode</code></li>
+                      <li><code>ALLOW</code> - 自动批准执行</li>
+                      <li><code>DENY</code> - 拒绝执行，抛出错误</li>
+                      <li><code>ASK_USER</code> - 需要用户确认</li>
                     </ul>
                   </div>
                   <div>
-                    <h5 className="font-semibold text-purple-300 mb-1">阻断行为</h5>
+                    <h5 className="font-semibold text-purple-300 mb-1">规则匹配逻辑</h5>
                     <ul className="space-y-1 text-gray-300 list-disc list-inside ml-2">
-                      <li>将工具调用标记为 <code>error</code> 状态</li>
-                      <li>返回 <code>getPlanModeSystemReminder()</code> 系统提示</li>
-                      <li>AI 收到提示后停止使用修改类工具</li>
-                      <li>只有 <code>exit_plan_mode</code> 工具可以突破阻断</li>
+                      <li>规则按 priority 排序，高优先级先匹配</li>
+                      <li>支持 toolName 精确匹配和通配符</li>
+                      <li>支持 argsPattern 正则匹配参数</li>
+                      <li>可限定 modes 只在特定模式下生效</li>
                     </ul>
                   </div>
                 </div>
               </HighlightBox>
-              <CodeBlock code={planModePromptCode} language="typescript" title="Plan Mode 系统提示" />
+              <CodeBlock code={policyDecisionCode} language="typescript" title="PolicyEngine 类型定义" />
             </div>
           </div>
 
@@ -677,15 +655,15 @@ In plan mode:
                   <li>
                     <strong>错误</strong>：<code className="bg-black/30 px-1 rounded text-red-300">Cannot enable privileged approval modes in an untrusted folder.</code>
                   </li>
-                  <li><strong>恢复</strong>：将文件夹标记为可信，或继续使用 PLAN/DEFAULT 模式</li>
+                  <li><strong>恢复</strong>：将文件夹标记为可信，或继续使用 DEFAULT 模式</li>
                 </ul>
               </div>
 
               <div>
-                <h5 className="text-yellow-400 font-semibold mb-1">场景 2：Plan Mode 阻断修改类工具</h5>
+                <h5 className="text-yellow-400 font-semibold mb-1">场景 2：Policy 规则拒绝工具执行</h5>
                 <ul className="text-sm text-gray-300 list-disc list-inside ml-4">
-                  <li><strong>行为</strong>：工具调用标记为 error，返回 Plan Mode 系统提示</li>
-                  <li><strong>恢复</strong>：AI 停止使用修改工具，通过 <code>exit_plan_mode</code> 提交计划后切换模式</li>
+                  <li><strong>行为</strong>：PolicyEngine 返回 DENY，抛出错误</li>
+                  <li><strong>恢复</strong>：检查 Policy 规则配置，或使用不同的工具/命令</li>
                 </ul>
               </div>
 
@@ -725,41 +703,32 @@ In plan mode:
           </div>
 
           <div>
-            <h4 className="text-cyan-400 font-semibold mb-2">Plan Mode 退出机制</h4>
+            <h4 className="text-cyan-400 font-semibold mb-2">Policy 规则配置</h4>
             <CodeBlock
-              code={`// packages/core/src/tools/exitPlanMode.ts
+              code={`// policy.toml - Policy 规则配置示例
 
-// exit_plan_mode 工具：提交计划并退出 Plan Mode
-export class ExitPlanModeTool extends Tool {
-  static readonly Name = 'exit_plan_mode';
+# 允许所有 git 命令自动执行
+[[rules]]
+toolName = "run_shell_command"
+argsPattern = "^git\\s+"
+decision = "ALLOW"
+priority = 100
 
-  static readonly FUNCTION_DECLARATION = {
-    name: 'exit_plan_mode',
-    description:
-      'Exit plan mode and present a summary of the implementation plan.',
-    parameters: {
-      type: 'object',
-      properties: {
-        plan: {
-          type: 'string',
-          description: 'The implementation plan to present to the user.',
-        },
-      },
-      required: ['plan'],
-    },
-  };
+# 允许特定 MCP Server 的所有工具
+[[rules]]
+toolName = "trusted-server__*"
+decision = "ALLOW"
+priority = 50
 
-  async run(): Promise<ToolResult> {
-    // 1. 将 AI 提交的计划展示给用户
-    // 2. 等待用户确认
-    // 3. 确认后切换回 Default 模式并执行计划
-    return {
-      output: 'Plan submitted for user approval.',
-    };
-  }
-}`}
-              language="typescript"
-              title="exit_plan_mode 工具实现"
+# 仅在 YOLO 模式下允许危险操作
+[[rules]]
+toolName = "run_shell_command"
+argsPattern = "rm\\s+-rf"
+modes = ["yolo"]
+decision = "ALLOW"
+priority = 10`}
+              language="toml"
+              title="Policy 规则配置"
             />
           </div>
         </div>
@@ -775,7 +744,7 @@ export class ExitPlanModeTool extends Tool {
 
 {
   // 默认审批模式（会话启动时的初始模式）
-  "approvalMode": "default", // "plan" | "default" | "auto-edit" | "yolo"
+  "approvalMode": "default", // "default" | "autoEdit" | "yolo"
 
   // 文件夹信任配置
   "trustedFolders": [
@@ -863,15 +832,14 @@ export class ExitPlanModeTool extends Tool {
         </div>
       </Layer>
 
-      {/* 补充：四种模式详细对比表 */}
+      {/* 补充：三种模式详细对比表 */}
       <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">四种审批模式详细对比</h3>
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">三种审批模式详细对比</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr className="bg-gray-800/50">
                 <th className="border border-gray-700 p-3 text-left text-gray-400">工具类型 (Kind)</th>
-                <th className="border border-gray-700 p-3 text-center text-purple-400">plan</th>
                 <th className="border border-gray-700 p-3 text-center text-blue-400">default</th>
                 <th className="border border-gray-700 p-3 text-center text-green-400">auto-edit</th>
                 <th className="border border-gray-700 p-3 text-center text-red-400">yolo</th>
@@ -885,13 +853,11 @@ export class ExitPlanModeTool extends Tool {
                 <td className="border border-gray-700 p-3 text-center text-green-400">✅ 自动</td>
                 <td className="border border-gray-700 p-3 text-center text-green-400">✅ 自动</td>
                 <td className="border border-gray-700 p-3 text-center text-green-400">✅ 自动</td>
-                <td className="border border-gray-700 p-3 text-center text-green-400">✅ 自动</td>
               </tr>
               <tr className="bg-gray-800/30">
                 <td className="border border-gray-700 p-3">
                   <code className="text-cyan-300">Search</code> 搜索文件
                 </td>
-                <td className="border border-gray-700 p-3 text-center text-green-400">✅ 自动</td>
                 <td className="border border-gray-700 p-3 text-center text-green-400">✅ 自动</td>
                 <td className="border border-gray-700 p-3 text-center text-green-400">✅ 自动</td>
                 <td className="border border-gray-700 p-3 text-center text-green-400">✅ 自动</td>
@@ -903,13 +869,11 @@ export class ExitPlanModeTool extends Tool {
                 <td className="border border-gray-700 p-3 text-center text-green-400">✅ 自动</td>
                 <td className="border border-gray-700 p-3 text-center text-green-400">✅ 自动</td>
                 <td className="border border-gray-700 p-3 text-center text-green-400">✅ 自动</td>
-                <td className="border border-gray-700 p-3 text-center text-green-400">✅ 自动</td>
               </tr>
               <tr className="bg-gray-800/30">
                 <td className="border border-gray-700 p-3">
                   <code className="text-orange-300">Edit</code> 编辑文件
                 </td>
-                <td className="border border-gray-700 p-3 text-center text-red-400">🚫 阻断</td>
                 <td className="border border-gray-700 p-3 text-center text-yellow-400">⚠️ 确认</td>
                 <td className="border border-gray-700 p-3 text-center text-green-400">✅ 自动</td>
                 <td className="border border-gray-700 p-3 text-center text-green-400">✅ 自动</td>
@@ -918,7 +882,6 @@ export class ExitPlanModeTool extends Tool {
                 <td className="border border-gray-700 p-3">
                   <code className="text-orange-300">Delete</code> 删除文件
                 </td>
-                <td className="border border-gray-700 p-3 text-center text-red-400">🚫 阻断</td>
                 <td className="border border-gray-700 p-3 text-center text-yellow-400">⚠️ 确认</td>
                 <td className="border border-gray-700 p-3 text-center text-yellow-400">⚠️ 确认</td>
                 <td className="border border-gray-700 p-3 text-center text-green-400">✅ 自动</td>
@@ -927,7 +890,6 @@ export class ExitPlanModeTool extends Tool {
                 <td className="border border-gray-700 p-3">
                   <code className="text-red-300">Execute</code> Shell 命令
                 </td>
-                <td className="border border-gray-700 p-3 text-center text-red-400">🚫 阻断</td>
                 <td className="border border-gray-700 p-3 text-center text-yellow-400">⚠️ 确认</td>
                 <td className="border border-gray-700 p-3 text-center text-yellow-400">⚠️ 确认</td>
                 <td className="border border-gray-700 p-3 text-center text-green-400">✅ 自动</td>
@@ -936,7 +898,6 @@ export class ExitPlanModeTool extends Tool {
                 <td className="border border-gray-700 p-3">
                   <code className="text-purple-300">MCP Tools</code> 外部服务器
                 </td>
-                <td className="border border-gray-700 p-3 text-center text-red-400">🚫 阻断</td>
                 <td className="border border-gray-700 p-3 text-center text-yellow-400">⚠️ 确认</td>
                 <td className="border border-gray-700 p-3 text-center text-yellow-400">⚠️ 确认</td>
                 <td className="border border-gray-700 p-3 text-center text-green-400">✅ 自动</td>
@@ -945,63 +906,62 @@ export class ExitPlanModeTool extends Tool {
           </table>
         </div>
         <p className="text-xs text-gray-400 mt-2">
-          注：🚫 阻断 = 触发 Plan Mode 提示，不执行工具 | ⚠️ 确认 = 等待用户批准 | ✅ 自动 = 自动执行
+          注：🚫 拒绝 = Policy DENY，不执行工具 | ⚠️ 确认 = 等待用户批准 | ✅ 自动 = 自动执行
         </p>
       </section>
 
-      {/* 补充：Plan Mode 工作流可视化 */}
+      {/* 补充：PolicyEngine 工作流可视化 */}
       <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">Plan Mode 工作流</h3>
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">PolicyEngine 工作流</h3>
         <p className="text-gray-300 mb-4">
-          Plan Mode 是一种特殊的只读模式，通过系统提示注入来强制 AI 只进行分析和计划，
-          不执行任何可能修改系统的操作。
+          PolicyEngine 是工具执行的核心决策引擎，通过规则匹配和 SafetyChecker 来决定工具是否可以执行。
+          支持三种审批模式：DEFAULT、AUTO_EDIT、YOLO。
         </p>
 
         <div className="bg-gray-800/50 rounded-lg p-4 mb-4">
-          <h4 className="text-purple-400 font-semibold mb-3">Plan Mode 生命周期</h4>
+          <h4 className="text-purple-400 font-semibold mb-3">模式切换流程</h4>
           <div className="flex items-center justify-center gap-4 text-sm flex-wrap">
             <div className="bg-blue-500/20 border border-blue-500 rounded px-4 py-2 text-center">
               <div className="text-blue-400 font-bold">Default Mode</div>
-              <div className="text-xs text-gray-400">正常工作</div>
+              <div className="text-xs text-gray-400">需要确认</div>
             </div>
             <div className="flex flex-col items-center">
               <span className="text-gray-400">Shift+Tab</span>
               <span className="text-gray-500">→</span>
             </div>
-            <div className="bg-purple-500/20 border border-purple-500 rounded px-4 py-2 text-center">
-              <div className="text-purple-400 font-bold">Plan Mode</div>
-              <div className="text-xs text-gray-400">分析 + 规划</div>
+            <div className="bg-green-500/20 border border-green-500 rounded px-4 py-2 text-center">
+              <div className="text-green-400 font-bold">Auto-Edit</div>
+              <div className="text-xs text-gray-400">文件编辑自动</div>
             </div>
             <div className="flex flex-col items-center">
-              <span className="text-gray-400">exit_plan_mode</span>
-              <span className="text-gray-400">(提交计划)</span>
+              <span className="text-gray-400">Shift+Tab</span>
               <span className="text-gray-500">→</span>
             </div>
-            <div className="bg-green-500/20 border border-green-500 rounded px-4 py-2 text-center">
-              <div className="text-green-400 font-bold">实施阶段</div>
-              <div className="text-xs text-gray-400">用户审批后执行</div>
+            <div className="bg-red-500/20 border border-red-500 rounded px-4 py-2 text-center">
+              <div className="text-red-400 font-bold">YOLO Mode</div>
+              <div className="text-xs text-gray-400">全部自动</div>
             </div>
           </div>
         </div>
 
-        <HighlightBox title="Plan Mode 行为" variant="purple">
+        <HighlightBox title="PolicyEngine 决策行为" variant="purple">
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <h5 className="font-semibold text-purple-300 mb-1">允许的操作</h5>
+              <h5 className="font-semibold text-purple-300 mb-1">自动批准</h5>
               <ul className="space-y-1">
-                <li>• 读取和分析代码</li>
-                <li>• 搜索和浏览文件</li>
-                <li>• 制定实施计划</li>
-                <li>• 调用 exit_plan_mode 提交计划</li>
+                <li>• PolicyDecision.ALLOW 返回</li>
+                <li>• YOLO 模式所有工具</li>
+                <li>• AUTO_EDIT 模式编辑类工具</li>
+                <li>• 匹配 Policy 规则的工具</li>
               </ul>
             </div>
             <div>
-              <h5 className="font-semibold text-purple-300 mb-1">禁止的操作</h5>
+              <h5 className="font-semibold text-purple-300 mb-1">需要确认</h5>
               <ul className="space-y-1">
-                <li>• Write / Edit 文件</li>
-                <li>• Shell 命令执行</li>
-                <li>• 任何修改性工具</li>
-                <li>• 直接实施变更</li>
+                <li>• PolicyDecision.ASK_USER 返回</li>
+                <li>• DEFAULT 模式修改类工具</li>
+                <li>• 未匹配任何 ALLOW 规则</li>
+                <li>• 危险操作（Shell 命令等）</li>
               </ul>
             </div>
           </div>
@@ -1016,7 +976,7 @@ export class ExitPlanModeTool extends Tool {
             <h4 className="text-green-400 font-semibold mb-2">推荐做法</h4>
             <ul className="text-sm text-gray-300 space-y-1">
               <li>✓ 日常开发使用 default 模式</li>
-              <li>✓ 审查不熟悉的代码时使用 plan 模式</li>
+              <li>✓ 审查不熟悉的代码时仔细看 Diff</li>
               <li>✓ 只在可信项目中使用 auto-edit</li>
               <li>✓ 仔细阅读 Diff 后再批准</li>
               <li>✓ 配置合理的 allowedTools</li>
@@ -1039,16 +999,16 @@ export class ExitPlanModeTool extends Tool {
       <Layer title="为什么这样设计审批系统？" icon="💡">
         <div className="space-y-4">
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
-            <h4 className="text-[var(--purple)] font-bold mb-2">🎚️ 为什么需要 4 种模式？</h4>
+            <h4 className="text-[var(--purple)] font-bold mb-2">🎚️ 为什么需要 3 种模式？</h4>
             <div className="text-sm text-[var(--text-secondary)] space-y-2">
-              <p><strong>决策</strong>：提供 Plan → Default → Auto-Edit → YOLO 四个渐进式信任级别。</p>
+              <p><strong>决策</strong>：提供 Default → Auto-Edit → YOLO 三个渐进式信任级别。</p>
               <p><strong>原因</strong>：</p>
               <ul className="list-disc pl-5 space-y-1">
-                <li><strong>场景多样</strong>：审计代码 vs 日常开发 vs 快速原型有不同的安全需求</li>
+                <li><strong>场景多样</strong>：日常开发 vs 快速原型 vs 完全自动有不同的安全需求</li>
                 <li><strong>渐进信任</strong>：用户可以从保守模式开始，逐步放宽</li>
                 <li><strong>可选粒度</strong>：Auto-Edit 精准区分读取/编辑，YOLO 则完全自动</li>
               </ul>
-              <p><strong>权衡</strong>：模式越多用户越需要学习，但 4 种已覆盖常见场景。</p>
+              <p><strong>权衡</strong>：模式越多用户越需要学习，但 3 种已覆盖常见场景。</p>
             </div>
           </div>
 
@@ -1083,7 +1043,7 @@ export class ExitPlanModeTool extends Tool {
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
             <h4 className="text-[var(--cyber-blue)] font-bold mb-2">🚫 为什么不可信文件夹限制模式？</h4>
             <div className="text-sm text-[var(--text-secondary)] space-y-2">
-              <p><strong>决策</strong>：未经信任的项目只能使用 Plan 或 Default 模式。</p>
+              <p><strong>决策</strong>：未经信任的项目只能使用 Default 模式。</p>
               <p><strong>原因</strong>：</p>
               <ul className="list-disc pl-5 space-y-1">
                 <li><strong>恶意项目防护</strong>：防止用户在下载的恶意项目中意外启用自动执行</li>
@@ -1143,8 +1103,8 @@ export class ExitPlanModeTool extends Tool {
         toml -->|无匹配| mode{检查 ApprovalMode}
 
         mode -->|YOLO| allow
-        mode -->|Plan + 修改工具| deny
-        mode -->|Default/Auto-Edit| safety{Safety Checker}
+        mode -->|Default + 修改工具| safety{Safety Checker}
+        mode -->|Auto-Edit + Read| allow
 
         safety -->|安全| auto[自动决策]
         safety -->|危险| ask[ASK_USER]
@@ -1206,11 +1166,7 @@ async evaluate(request: ToolRequest): Promise<PolicyDecision> {
     return { action: 'ALLOW' };
   }
 
-  if (mode === 'plan' && request.tool.kind !== 'Read') {
-    return { action: 'DENY', reason: 'Plan mode active' };
-  }
-
-  if (mode === 'auto-edit' && request.tool.kind === 'Edit') {
+  if (mode === 'autoEdit' && request.tool.kind === 'Edit') {
     return { action: 'ALLOW' };
   }
 
@@ -1227,15 +1183,14 @@ async evaluate(request: ToolRequest): Promise<PolicyDecision> {
       <Layer title="模式选择决策树" icon="🌳">
         <MermaidDiagram chart={`flowchart TD
     start[选择审批模式] --> q1{是否信任<br/>此项目？}
-    q1 -->|否| plan[Plan 模式<br/>只读审计]
+    q1 -->|否| default[Default 模式<br/>每次确认]
     q1 -->|是| q2{是否需要<br/>完全自动？}
     q2 -->|是| yolo[YOLO 模式<br/>全自动]
     q2 -->|否| q3{是否信任<br/>文件编辑？}
-    q3 -->|否| default[Default 模式<br/>每次确认]
+    q3 -->|否| default
     q3 -->|是| autoedit[Auto-Edit 模式<br/>自动编辑]
 
     style start fill:#22d3ee,color:#000
-    style plan fill:#a855f7,color:#fff
     style default fill:#3b82f6,color:#fff
     style autoedit fill:#22c55e,color:#000
     style yolo fill:#ef4444,color:#fff

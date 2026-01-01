@@ -206,14 +206,14 @@ tokenLimit('gemini-1.5-pro', 'output'); // 65,536 (64K)`}
 sequenceDiagram
     participant App as 应用层
     participant Cache as ModelConfigCache
-    participant API as Innies API
+    participant API as Gemini API
 
     App->>Cache: getModelConfig(modelId)
 
     alt 缓存有效
         Cache-->>App: 返回缓存配置
     else 缓存过期或为空
-        Cache->>API: fetchInniesModels()
+        Cache->>API: fetchGeminiModels()
         API-->>Cache: 模型列表 + baseURL + apiKey
         Cache->>Cache: 更新缓存 + lastFetchTime
         Cache-->>App: 返回新配置
@@ -256,7 +256,7 @@ export class ModelConfigCache {
   }
 
   private async refreshCache(): Promise<void> {
-    const models = await fetchInniesModels({ modelType: 4 });
+    const models = await fetchGeminiModels({ modelType: 4 });
 
     this.cache.clear();
     for (const model of models) {
@@ -463,11 +463,11 @@ graph TB
     subgraph Config["配置层"]
         TL[tokenLimits.ts<br/>Token 限制匹配]
         MC[ModelConfigCache<br/>5分钟 TTL]
-        MS[InniesModelService<br/>模型发现]
+        MS[GeminiModelService<br/>模型发现]
     end
 
     subgraph Backend["后端"]
-        API[Innies API<br/>/api/v1/model-management]
+        API[Gemini API<br/>/api/v1/model-management]
     end
 
     C --> TL

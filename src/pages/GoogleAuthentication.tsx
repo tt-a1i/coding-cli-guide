@@ -75,7 +75,7 @@ export function GoogleAuthentication() {
 
           <MermaidDiagram chart={`
 sequenceDiagram
-    participant CLI as 🖥️ Innies CLI
+    participant CLI as 🖥️ Gemini CLI
     participant Google as 🌐 Google OAuth Server
     participant Browser as 🌍 用户浏览器
 

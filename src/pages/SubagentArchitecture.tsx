@@ -97,7 +97,7 @@ export function SubagentArchitecture() {
               <div className="flex items-start gap-2">
                 <span className="text-[var(--terminal-green)]">✓</span>
                 <span className="text-[var(--text-secondary)]">
-                  <strong>禁止嵌套委托</strong>：SubagentManager 阻止循环
+                  <strong>禁止嵌套委托</strong>：toml-loader 验证阻止循环
                 </span>
               </div>
             </div>

@@ -63,8 +63,8 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
               <div className="bg-[var(--bg-card)] p-2 rounded text-center text-[var(--cyber-blue)]">AfterModel</div>
               <div className="bg-[var(--bg-card)] p-2 rounded text-center text-[var(--amber)]">SessionStart</div>
               <div className="bg-[var(--bg-card)] p-2 rounded text-center text-[var(--amber)]">SessionEnd</div>
-              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-[var(--purple)]">Shutdown</div>
-              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-[var(--purple)]">...</div>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-[var(--purple)]">PreCompress</div>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-[var(--purple)]">BeforeToolSelection</div>
             </div>
           </div>
 

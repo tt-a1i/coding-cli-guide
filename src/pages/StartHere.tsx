@@ -74,7 +74,7 @@ export function StartHere({ onNavigate }: StartHereProps) {
     { term: 'MessageBus', definition: '发布/订阅消息总线 - 解耦异步通信', category: 'event' },
     { term: 'ModelRouter', definition: '智能模型路由 - Flash/Pro 策略链选择', category: 'routing' },
     { term: 'Agent', definition: '子代理框架 - Local（TOML 定义）/ Remote（A2A 协议）', category: 'agent' },
-    { term: 'ApprovalMode', definition: '审批级别：Plan/Default/AutoEdit/YOLO', category: 'security' },
+    { term: 'ApprovalMode', definition: '审批级别：Default/AutoEdit/YOLO（3 种模式）', category: 'security' },
     { term: 'MCP', definition: 'Model Context Protocol - 工具动态注册协议', category: 'extension' },
   ];
 

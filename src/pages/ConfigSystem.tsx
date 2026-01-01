@@ -173,7 +173,7 @@ export function ConfigSystem() {
             <h4 className="text-green-400 font-bold mb-2">🏢 System Defaults</h4>
             <code className="text-xs text-gray-400 block mb-2">
               /etc/gemini-code/system-defaults.json (Linux)<br/>
-              /Library/Application Support/InniesCode/system-defaults.json (macOS)
+              /Library/Application Support/GeminiCode/system-defaults.json (macOS)
             </code>
             <p className="text-sm text-gray-300">
               系统级默认值，可被用户/项目覆盖
@@ -184,7 +184,7 @@ export function ConfigSystem() {
             <h4 className="text-red-400 font-bold mb-2">🔒 System Settings (Override)</h4>
             <code className="text-xs text-gray-400 block mb-2">
               /etc/gemini-code/settings.json (Linux)<br/>
-              /Library/Application Support/InniesCode/settings.json (macOS)
+              /Library/Application Support/GeminiCode/settings.json (macOS)
             </code>
             <p className="text-sm text-gray-300">
               系统管理员强制覆盖，优先级最高
@@ -346,7 +346,7 @@ export function getSystemDefaultsPath(): string {
     "loadMemoryFromIncludeDirectories": false,
     "fileFiltering": {
       "respectGitIgnore": true,
-      "respectInniesIgnore": true,
+      "respectGeminiIgnore": true,
       "enableRecursiveFileSearch": true,
       "disableFuzzySearch": false
     }
@@ -1338,13 +1338,11 @@ export class LoadedSettings {
 
         <CodeBlock
           title="packages/cli/src/config/config.ts:72-88 - approvalMode 解析"
-          code={`const VALID_APPROVAL_MODE_VALUES = ['plan', 'default', 'auto-edit', 'yolo'] as const;
+          code={`const VALID_APPROVAL_MODE_VALUES = ['default', 'auto-edit', 'yolo'] as const;
 
 function parseApprovalModeValue(value: string): ApprovalMode {
   const normalized = value.trim().toLowerCase();
   switch (normalized) {
-    case 'plan':
-      return ApprovalMode.PLAN;
     case 'default':
       return ApprovalMode.DEFAULT;
     case 'yolo':
@@ -1414,8 +1412,7 @@ function parseApprovalModeValue(value: string): ApprovalMode {
           code={`// loadCliConfig() 中的 approval mode 校验
 if (
   !trustedFolder &&
-  approvalMode !== ApprovalMode.DEFAULT &&
-  approvalMode !== ApprovalMode.PLAN
+  approvalMode !== ApprovalMode.DEFAULT
 ) {
   logger.warn(
     \`Approval mode overridden to "default" because the current folder is not trusted.\`,
@@ -1569,7 +1566,7 @@ if (
   }
 
   // 7️⃣ 🔐 强制安全降级：不受信任 → 降级至 default
-  if (!trustedFolder && approvalMode !== ApprovalMode.DEFAULT && approvalMode !== ApprovalMode.PLAN) {
+  if (!trustedFolder && approvalMode !== ApprovalMode.DEFAULT) {
     logger.warn('Approval mode overridden to "default" because the current folder is not trusted.');
     approvalMode = ApprovalMode.DEFAULT;
   }
@@ -1709,7 +1706,6 @@ if (argv.allowedMcpServerNames) {
             code={`// config.ts:640-658
 if (!interactive && !argv.experimentalAcp) {
   switch (approvalMode) {
-    case ApprovalMode.PLAN:
     case ApprovalMode.DEFAULT:
       // 排除所有需要审批的工具
       extraExcludes.push(ShellTool.Name, EditTool.Name, WriteFileTool.Name);
@@ -2023,7 +2019,7 @@ if (needsMigration(settingsObject)) {
               <ul className="text-sm text-gray-400 space-y-1">
                 <li>• workspace 配置被忽略</li>
                 <li>• 项目 .env 不加载</li>
-                <li>• approvalMode 强制降级为 PLAN</li>
+                <li>• approvalMode 强制降级为 DEFAULT</li>
                 <li>• MCP Server 不启动</li>
               </ul>
             </div>

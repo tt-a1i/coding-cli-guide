@@ -240,7 +240,7 @@ export const createMockCommandContext = (
           <h2>🔌 命令加载器架构</h2>
 
           <p>
-            Innies CLI 使用<strong>提供者模式</strong>加载命令。三种加载器分别负责不同来源的命令，
+            Gemini CLI 使用<strong>提供者模式</strong>加载命令。三种加载器分别负责不同来源的命令，
             最终由 <code>CommandService</code> 聚合并处理命名冲突。
           </p>
 

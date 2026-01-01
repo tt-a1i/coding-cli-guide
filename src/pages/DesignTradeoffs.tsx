@@ -25,7 +25,7 @@ export function DesignTradeoffs() {
         🎭 设计权衡与架构决策
       </h1>
       <p className="text-[var(--text-secondary)] mb-6 text-sm">
-        深入分析 Innies CLI 的关键架构决策及其背后的权衡考量
+        深入分析 Gemini CLI 的关键架构决策及其背后的权衡考量
       </p>
 
       {/* Tab Navigation */}
@@ -74,7 +74,7 @@ function OverviewTab() {
     <div className="flex flex-col gap-6">
       <Layer title="📐 设计哲学总览">
         <p className="text-[var(--text-secondary)] mb-4">
-          Innies CLI 的架构遵循以下核心原则，每个原则背后都有明确的权衡决策：
+          Gemini CLI 的架构遵循以下核心原则，每个原则背后都有明确的权衡决策：
         </p>
 
         <MermaidDiagram chart={`
@@ -150,7 +150,7 @@ mindmap
       {/* Core Insight */}
       <HighlightBox title="💡 核心洞察：拒绝纯并行" variant="blue">
         <p className="text-[var(--text-secondary)] text-sm">
-          Innies CLI 最显著的战略选择是<strong className="text-[var(--text-primary)]">拒绝纯并行</strong>，
+          Gemini CLI 最显著的战略选择是<strong className="text-[var(--text-primary)]">拒绝纯并行</strong>，
           转而采用<strong className="text-[var(--text-primary)]">顺序请求队列</strong>。
           这看似反直觉，但实际上是正确的——工具输出必须在下一批次执行前被纳入上下文，
           并行执行会导致状态竞争条件。
@@ -165,7 +165,7 @@ function SafetyTab() {
     <div className="flex flex-col gap-6">
       <Layer title="🛡️ 审批模式分层">
         <p className="text-[var(--text-secondary)] mb-4">
-          四层审批模式体现了<strong className="text-[var(--text-primary)]">安全优先</strong>与<strong className="text-[var(--text-primary)]">效率需求</strong>的平衡：
+          三层审批模式体现了<strong className="text-[var(--text-primary)]">安全优先</strong>与<strong className="text-[var(--text-primary)]">效率需求</strong>的平衡：
         </p>
 
         <MermaidDiagram chart={`
@@ -176,23 +176,19 @@ graph TD
     end
 
     subgraph "审批模式"
-        PLAN[PLAN<br/>仅规划]
         DEFAULT[DEFAULT<br/>需确认]
         AUTOEDIT[AUTO_EDIT<br/>自动编辑]
         YOLO[YOLO<br/>全自动]
     end
 
-    TF --> PLAN
     TF --> DEFAULT
     TF --> AUTOEDIT
     TF --> YOLO
 
-    UF --> PLAN
     UF --> DEFAULT
     UF -.->|❌ 禁止| AUTOEDIT
     UF -.->|❌ 禁止| YOLO
 
-    style PLAN fill:#22c55e,stroke:#16a34a,color:#fff
     style DEFAULT fill:#3b82f6,stroke:#2563eb,color:#fff
     style AUTOEDIT fill:#f59e0b,stroke:#d97706,color:#fff
     style YOLO fill:#ef4444,stroke:#dc2626,color:#fff
@@ -204,9 +200,8 @@ graph TD
         <CodeBlock language="typescript" code={`// packages/core/src/config/config.ts
 
 export enum ApprovalMode {
-  PLAN = 'plan',          // 安全：仅生成计划
   DEFAULT = 'default',    // 标准：每个操作需确认
-  AUTO_EDIT = 'auto-edit',// 特权：自动批准编辑
+  AUTO_EDIT = 'autoEdit', // 特权：自动批准编辑
   YOLO = 'yolo',          // 最高：无需任何确认
 }
 
@@ -430,7 +425,7 @@ function CorrectnessTab() {
     <div className="flex flex-col gap-6">
       <Layer title="🔄 工具执行队列">
         <p className="text-[var(--text-secondary)] mb-4">
-          <strong className="text-[var(--error)]">拒绝并行</strong>是 Innies CLI 最重要的架构决策之一：
+          <strong className="text-[var(--error)]">拒绝并行</strong>是 Gemini CLI 最重要的架构决策之一：
         </p>
 
         <CodeBlock language="typescript" code={`// packages/core/src/core/coreToolScheduler.ts

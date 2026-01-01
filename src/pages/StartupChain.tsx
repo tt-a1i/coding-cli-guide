@@ -513,7 +513,7 @@ if (sandboxConfig) {
                 <li>4. <code className="text-cyan-400">ApprovalMode.DEFAULT</code> 默认值</li>
               </ol>
               <p className="text-xs text-gray-500 mt-2">
-                非信任文件夹强制使用 DEFAULT 或 PLAN 模式，忽略 YOLO/AUTO_EDIT
+                非信任文件夹强制使用 DEFAULT 模式，忽略 YOLO/AUTO_EDIT
               </p>
             </div>
           </HighlightBox>
@@ -709,7 +709,7 @@ main().catch((error) => {
     }
   },
   "tools": {
-    "approvalMode": "DEFAULT",      // DEFAULT | YOLO | AUTO_EDIT | PLAN
+    "approvalMode": "DEFAULT",      // DEFAULT | YOLO | AUTO_EDIT
     "sandbox": "docker",            // 沙箱类型
     "allowed": [                    // 工具白名单
       "read_file",

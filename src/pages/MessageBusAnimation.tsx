@@ -21,7 +21,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
             </p>
           </div>
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
-            <h4 className="text-[var(--terminal-green)] font-bold mb-2">📨 8 种消息类型</h4>
+            <h4 className="text-[var(--terminal-green)] font-bold mb-2">📨 9 种消息类型</h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2 text-xs">
               <div className="bg-[var(--bg-card)] p-2 rounded text-center text-amber-400">TOOL_CONFIRM_REQ</div>
               <div className="bg-[var(--bg-card)] p-2 rounded text-center text-green-400">TOOL_CONFIRM_RES</div>

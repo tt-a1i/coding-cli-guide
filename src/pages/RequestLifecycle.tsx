@@ -744,7 +744,7 @@ if (input.length > MAX_INPUT_LENGTH) {
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                   <code className="text-[var(--amber)]">approvalMode</code>
-                  <p className="text-[var(--text-muted)]">工具批准模式（YOLO/STANDARD/PLAN）</p>
+                  <p className="text-[var(--text-muted)]">工具批准模式（YOLO/DEFAULT/AUTO_EDIT）</p>
                 </div>
                 <div>
                   <code className="text-[var(--amber)]">allowedTools</code>

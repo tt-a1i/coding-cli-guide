@@ -427,55 +427,52 @@ return \`\${basePrompt}\${memorySuffix}\`;
         </div>
       </Layer>
 
-      <Layer title="运行时系统提醒 (System Reminders)" icon="⚡">
+      <Layer title="运行时上下文注入" icon="⚡">
         <p className="text-gray-300 mb-4">
-          除了初始的 System Prompt，在运行过程中还会动态注入 <code>&lt;system-reminder&gt;</code> 标签：
+          除了初始的 System Prompt，在运行过程中还会动态注入上下文信息：
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
-            <h4 className="font-semibold text-red-400 mb-2">🛡️ Plan Mode Reminder</h4>
-            <p className="text-xs text-gray-400 mb-2">当用户暂不希望执行修改时：</p>
+          <div className="bg-cyan-900/20 border border-cyan-500/30 rounded-lg p-4">
+            <h4 className="font-semibold text-cyan-400 mb-2">🌍 环境上下文</h4>
+            <p className="text-xs text-gray-400 mb-2">会话开始时注入的环境信息：</p>
             <CodeBlock
-              title="getPlanModeSystemReminder()"
-              code={`<system-reminder>
-Plan mode is active. The user indicated
-that they do not want you to execute yet.
-You MUST NOT make any edits, run any
-non-readonly tools, or make any changes.
+              title="getEnvironmentContext()"
+              code={`This is the Gemini CLI. Setting up context...
+Today's date is Monday, January 6, 2025
+My operating system is: darwin
+The project's temp directory is: /tmp/...
+I'm currently working in: /Users/dev/project
 
-Instead:
-1. Answer the user's query comprehensively
-2. Present your plan via exit_plan_mode tool
-</system-reminder>`}
+Here is the folder structure:
+📁 src/
+  📄 index.ts
+  📁 components/
+    📄 App.tsx`}
             />
           </div>
 
           <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
-            <h4 className="font-semibold text-blue-400 mb-2">🤖 Subagent Reminder</h4>
-            <p className="text-xs text-gray-400 mb-2">当有可用的专业代理时：</p>
+            <h4 className="font-semibold text-blue-400 mb-2">🤖 Agent 目录上下文</h4>
+            <p className="text-xs text-gray-400 mb-2">当有可用的专业代理时注入系统提示：</p>
             <CodeBlock
-              title="getSubagentSystemReminder()"
-              code={`<system-reminder>
-You have powerful specialized agents at
-your disposal. Available agent types are:
-python, web, analysis, security.
+              title="registry.getDirectoryContext()"
+              code={`## Available Sub-Agents
+Use \`delegate_to_agent\` for complex tasks
+requiring specialized analysis.
 
-PROACTIVELY use the task tool to delegate
-when user's task matches agent capabilities.
-
-This message is for internal use only.
-Do not mention this to user.
-</system-reminder>`}
+- **codebase_investigator**: Explore codebase
+- **introspection_agent**: Self-analysis
+- **custom_agent**: Your custom agent`}
             />
           </div>
         </div>
 
-        <HighlightBox title="System Reminder vs System Prompt" icon="📌" variant="blue">
+        <HighlightBox title="静态 vs 动态上下文" icon="📌" variant="blue">
           <p className="text-sm text-gray-300">
             <strong>System Prompt</strong> 在会话开始时设置，定义 AI 的基本人格和规则。<br/>
-            <strong>System Reminder</strong> 在运行时动态注入到用户消息中，用于临时改变或强调某些行为。
-            它们使用 XML 标签包裹，AI 被训练识别这些标签为"内部指令"，不会在回复中泄露。
+            <strong>Environment Context</strong> 在初始历史中注入，包含日期、平台、工作目录等环境信息。<br/>
+            <strong>Agent Directory</strong> 通过 <code>registry.getDirectoryContext()</code> 动态生成可用代理列表。
           </p>
         </HighlightBox>
       </Layer>

@@ -761,7 +761,7 @@ signal.addEventListener('abort', () => {
                     <td className="p-2"><code className="text-purple-300">approvalMode</code></td>
                     <td className="p-2">enum</td>
                     <td className="p-2"><code>DEFAULT</code></td>
-                    <td className="p-2">确认模式 (YOLO/DEFAULT/AUTO_EDIT/PLAN)</td>
+                    <td className="p-2">确认模式 (YOLO/DEFAULT/AUTO_EDIT)</td>
                   </tr>
                   <tr>
                     <td className="p-2"><code className="text-purple-300">sessionShellAllowlist</code></td>

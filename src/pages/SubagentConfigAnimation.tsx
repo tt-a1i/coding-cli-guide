@@ -95,7 +95,7 @@ const sampleAgents: Record<SubagentLevel, SubagentConfig[]> = {
 const parseSequence: ParseStep[] = [
   {
     phase: 'init',
-    title: '初始化 SubagentManager',
+    title: '初始化 AgentRegistry',
     description: '创建缓存结构，设置目录路径',
     stateChange: {
       cacheStatus: 'empty',

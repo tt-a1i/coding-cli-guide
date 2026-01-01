@@ -105,8 +105,7 @@ function loadEnvFiles(): void {
 // 3. 审批模式限制
 setApprovalMode(mode: ApprovalMode): void {
   if (!this.isTrustedFolder() &&
-      mode !== ApprovalMode.DEFAULT &&
-      mode !== ApprovalMode.PLAN) {
+      mode !== ApprovalMode.DEFAULT) {
     throw new Error(
       'Cannot enable privileged approval modes in an untrusted folder.'
     );

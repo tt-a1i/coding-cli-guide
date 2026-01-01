@@ -534,7 +534,7 @@ exclude = [
 ]
 
 [approvalMode]
-mode = "DEFAULT"  # DEFAULT | YOLO | AUTO_EDIT | PLAN`}
+mode = "DEFAULT"  # DEFAULT | YOLO | AUTO_EDIT`}
         />
 
         <h4 className="text-lg text-cyan-400 font-bold mb-3 mt-5">三大注入机制详解</h4>

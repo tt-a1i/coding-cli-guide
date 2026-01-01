@@ -963,7 +963,7 @@ this.emitActivity('ERROR', { error: errorMessage, context: 'tool_call' });`;
 
           <HighlightBox title="为什么 Agent 不能调用 delegate_to_agent?" variant="purple">
             <p className="text-sm">
-              <strong>防止递归和复杂性</strong>：SubagentManager 会验证 tools 配置，
+              <strong>防止递归和复杂性</strong>：toml-loader 会验证 tools 配置，
               拒绝包含 delegate_to_agent 的 Agent 定义。这防止了 Agent 之间的递归调用，
               简化了执行模型和调试。
             </p>

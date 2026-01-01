@@ -136,7 +136,7 @@ export function AuthenticationFlow() {
           title="Device Authorization Grant 完整时序"
           chart={`sequenceDiagram
     autonumber
-    participant CLI as Innies CLI
+    participant CLI as Gemini CLI
     participant Auth as 认证服务器
     participant Browser as 用户浏览器
 

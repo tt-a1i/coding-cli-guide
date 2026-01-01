@@ -169,7 +169,7 @@ export interface ToolCallRecord {
 export type ConversationRecordExtra =
   | { type: 'user' }
   | {
-      type: 'qwen';  // AI 助手消息
+      type: 'model';  // AI 助手消息
       toolCalls?: ToolCallRecord[];
       thoughts?: Array<ThoughtSummary & { timestamp: string }>;
       tokens?: TokensSummary | null;
@@ -239,12 +239,12 @@ export interface ConversationRecord {
   const recordMethodsCode = `/** 记录消息 */
 recordMessage(message: {
   model: string;
-  type: 'user' | 'qwen';
+  type: 'user' | 'model';
   content: PartListUnion;
 }): void {
   this.updateConversation((conversation) => {
     const msg = this.newMessage(message.type, message.content);
-    if (msg.type === 'qwen') {
+    if (msg.type === 'model') {
       // 合并队列中的 thoughts 和 tokens
       conversation.messages.push({
         ...msg,
@@ -281,7 +281,7 @@ recordMessageTokens(respUsageMetadata: GenerateContentResponseUsageMetadata): vo
   // 尝试附加到最后一条消息，否则入队列
   this.updateConversation((conversation) => {
     const lastMsg = conversation.messages.at(-1);
-    if (lastMsg?.type === 'qwen' && !lastMsg.tokens) {
+    if (lastMsg?.type === 'model' && !lastMsg.tokens) {
       lastMsg.tokens = tokens;
     } else {
       this.queuedTokens = tokens;
@@ -307,10 +307,10 @@ recordToolCalls(model: string, toolCalls: ToolCallRecord[]): void {
     const lastMsg = conversation.messages.at(-1);
 
     // 如果没有 AI 消息或有新思考，创建新消息
-    if (!lastMsg || lastMsg.type !== 'qwen' || this.queuedThoughts.length > 0) {
+    if (!lastMsg || lastMsg.type !== 'model' || this.queuedThoughts.length > 0) {
       const newMsg: MessageRecord = {
-        ...this.newMessage('qwen', ''),
-        type: 'qwen',
+        ...this.newMessage('model', ''),
+        type: 'model',
         toolCalls: enrichedToolCalls,
         thoughts: this.queuedThoughts,
         model,
@@ -399,7 +399,7 @@ private updateConversation(updateFn: (conv: ConversationRecord) => void) {
               </div>
             </HighlightBox>
 
-            <HighlightBox title="AI 消息 (qwen)" variant="purple">
+            <HighlightBox title="AI 消息 (model)" variant="purple">
               <div className="text-sm space-y-2">
                 <ul className="text-gray-400 space-y-1">
                   <li>• <code>toolCalls</code>: 工具调用列表</li>

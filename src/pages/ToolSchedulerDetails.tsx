@@ -23,9 +23,9 @@ export function ToolSchedulerDetails() {
     build_invocation[buildInvocation<br/>构建调用对象]
     validation_error{参数验证<br/>是否通过?}
     should_confirm[shouldConfirmExecute<br/>确认决策]
-    is_plan_mode{Plan Mode<br/>+ 修改类工具?}
+    policy_check{PolicyEngine<br/>决策检查}
     is_yolo{YOLO 模式<br/>或白名单?}
-    plan_blocked([返回 Plan Mode<br/>系统提示])
+    policy_denied([Policy 拒绝<br/>返回错误])
     auto_approve([标记为 scheduled<br/>自动批准])
     await_approval([标记为 awaiting_approval<br/>等待确认])
     execute[execute 执行]
@@ -43,9 +43,10 @@ export function ToolSchedulerDetails() {
     build_invocation --> validation_error
     validation_error -->|失败| error_response
     validation_error -->|通过| should_confirm
-    should_confirm --> is_plan_mode
-    is_plan_mode -->|Yes| plan_blocked
-    is_plan_mode -->|No| is_yolo
+    should_confirm --> policy_check
+    policy_check -->|ALLOW| auto_approve
+    policy_check -->|DENY| policy_denied
+    policy_check -->|ASK_USER| is_yolo
     is_yolo -->|Yes| auto_approve
     is_yolo -->|No| await_approval
     await_approval --> |用户批准| auto_approve
@@ -57,61 +58,45 @@ export function ToolSchedulerDetails() {
     truncate_output --> success_response
 
     style start fill:#22d3ee,color:#000
-    style plan_blocked fill:#ef4444,color:#fff
+    style policy_denied fill:#ef4444,color:#fff
     style auto_approve fill:#22c55e,color:#000
     style await_approval fill:#f59e0b,color:#000
     style success_response fill:#22c55e,color:#000
     style error_response fill:#ef4444,color:#fff
-    style is_plan_mode fill:#a855f7,color:#fff
+    style policy_check fill:#a855f7,color:#fff
     style is_yolo fill:#a855f7,color:#fff
     style is_running fill:#a855f7,color:#fff
     style validation_error fill:#a855f7,color:#fff
     style truncate fill:#a855f7,color:#fff`;
 
-  // 确认决策逻辑详细流程
+  // 确认决策逻辑详细流程 - 基于 MessageBus + PolicyEngine
   const confirmationDecisionChart = `flowchart TD
     start([shouldConfirmExecute])
-    check_kind[检查工具 Kind]
-    is_read_kind{Kind 是<br/>Read/Search/Fetch?}
-    check_approval_mode[检查 ApprovalMode]
-    is_plan{ApprovalMode<br/>是 PLAN?}
-    is_yolo{ApprovalMode<br/>是 YOLO?}
-    is_auto_edit{ApprovalMode<br/>是 AUTO_EDIT?}
-    is_edit_kind{Kind 是<br/>Edit/Write?}
-    check_allowed_tools[检查 allowedTools]
-    is_in_whitelist{工具在<br/>白名单中?}
-    no_confirm([返回 null<br/>自动执行])
-    need_confirm([返回 ConfirmationDetails<br/>需要确认])
-    plan_block([阻断执行<br/>返回错误])
+    has_bus{有 MessageBus?}
+    get_decision[getMessageBusDecision<br/>向 PolicyEngine 请求决策]
+    policy{PolicyEngine<br/>决策结果}
+    allow([返回 false<br/>自动执行])
+    deny([抛出错误<br/>拒绝执行])
+    ask_user[getConfirmationDetails<br/>构建确认 UI]
+    need_confirm([返回 ConfirmationDetails<br/>等待用户确认])
+    default_flow[默认确认流程<br/>getConfirmationDetails]
 
-    start --> check_kind
-    check_kind --> is_read_kind
-    is_read_kind -->|Yes| no_confirm
-    is_read_kind -->|No| check_approval_mode
-    check_approval_mode --> is_plan
-    is_plan -->|Yes + exit_plan_mode| no_confirm
-    is_plan -->|Yes + 其他工具| plan_block
-    is_plan -->|No| is_yolo
-    is_yolo -->|Yes| no_confirm
-    is_yolo -->|No| is_auto_edit
-    is_auto_edit -->|Yes| is_edit_kind
-    is_auto_edit -->|No| check_allowed_tools
-    is_edit_kind -->|Yes| no_confirm
-    is_edit_kind -->|No| check_allowed_tools
-    check_allowed_tools --> is_in_whitelist
-    is_in_whitelist -->|Yes| no_confirm
-    is_in_whitelist -->|No| need_confirm
+    start --> has_bus
+    has_bus -->|Yes| get_decision
+    has_bus -->|No| default_flow
+    get_decision --> policy
+    policy -->|ALLOW| allow
+    policy -->|DENY| deny
+    policy -->|ASK_USER| ask_user
+    ask_user --> need_confirm
+    default_flow --> need_confirm
 
     style start fill:#22d3ee,color:#000
-    style no_confirm fill:#22c55e,color:#000
+    style allow fill:#22c55e,color:#000
+    style deny fill:#ef4444,color:#fff
     style need_confirm fill:#f59e0b,color:#000
-    style plan_block fill:#ef4444,color:#fff
-    style is_read_kind fill:#a855f7,color:#fff
-    style is_plan fill:#a855f7,color:#fff
-    style is_yolo fill:#a855f7,color:#fff
-    style is_auto_edit fill:#a855f7,color:#fff
-    style is_edit_kind fill:#a855f7,color:#fff
-    style is_in_whitelist fill:#a855f7,color:#fff`;
+    style policy fill:#a855f7,color:#fff
+    style has_bus fill:#a855f7,color:#fff`;
 
   // 并发控制流程
   const concurrencyControlChart = `sequenceDiagram
@@ -190,62 +175,56 @@ schedule(
   return this._schedule(request, signal);
 }`;
 
-  const shouldConfirmCode = `// packages/core/src/core/coreToolScheduler.ts:740
+  const shouldConfirmCode = `// packages/core/src/tools/tools.ts:98-117
 
-// 确认决策的核心逻辑
+// BaseToolInvocation.shouldConfirmExecute - 确认决策的核心逻辑
+async shouldConfirmExecute(
+  abortSignal: AbortSignal,
+): Promise<ToolCallConfirmationDetails | false> {
+  if (this.messageBus) {
+    // 通过 MessageBus 向 PolicyEngine 请求决策
+    const decision = await this.getMessageBusDecision(abortSignal);
+
+    if (decision === 'ALLOW') {
+      // PolicyEngine 决定自动批准
+      return false;
+    }
+
+    if (decision === 'DENY') {
+      // PolicyEngine 决定拒绝执行
+      throw new Error(
+        \`Tool execution for "\${
+          this._toolDisplayName || this._toolName
+        }" denied by policy.\`,
+      );
+    }
+
+    if (decision === 'ASK_USER') {
+      // PolicyEngine 决定需要用户确认
+      return this.getConfirmationDetails(abortSignal);
+    }
+  }
+
+  // 没有 MessageBus 时使用默认确认流程
+  return this.getConfirmationDetails(abortSignal);
+}
+
+// packages/core/src/core/coreToolScheduler.ts:602
+// 调度器中的调用
 const confirmationDetails = await invocation.shouldConfirmExecute(signal);
 
 if (!confirmationDetails) {
-  // 返回 null 表示不需要确认，自动批准
-  this.setToolCallOutcome(
-    reqInfo.callId,
-    ToolConfirmationOutcome.ProceedAlways,
-  );
+  // 返回 false 表示不需要确认，自动批准
   this.setStatusInternal(reqInfo.callId, 'scheduled');
   continue;
 }
 
-// 检查是否处于 Plan Mode
-const allowedTools = this.config.getAllowedTools() || [];
-const isPlanMode = this.config.getApprovalMode() === ApprovalMode.PLAN;
-const isExitPlanModeTool = reqInfo.name === 'exit_plan_mode';
-
-// Plan Mode 阻断逻辑
-if (isPlanMode && !isExitPlanModeTool) {
-  if (confirmationDetails) {
-    // 返回 Plan Mode 系统提示，阻止执行
-    this.setStatusInternal(reqInfo.callId, 'error', {
-      callId: reqInfo.callId,
-      responseParts: convertToFunctionResponse(
-        reqInfo.name,
-        reqInfo.callId,
-        getPlanModeSystemReminder(),
-      ),
-      resultDisplay: 'Plan mode blocked a non-read-only tool call.',
-      error: undefined,
-      errorType: undefined,
-    });
-  } else {
-    this.setStatusInternal(reqInfo.callId, 'scheduled');
-  }
-} else if (
-  this.config.getApprovalMode() === ApprovalMode.YOLO ||
-  doesToolInvocationMatch(toolCall.tool, invocation, allowedTools)
-) {
-  // YOLO 模式或工具在白名单中，自动批准
-  this.setToolCallOutcome(
-    reqInfo.callId,
-    ToolConfirmationOutcome.ProceedAlways,
-  );
-  this.setStatusInternal(reqInfo.callId, 'scheduled');
-} else {
-  // 需要用户确认
-  this.setStatusInternal(
-    reqInfo.callId,
-    'awaiting_approval',
-    wrappedConfirmationDetails,
-  );
-}`;
+// 需要用户确认
+this.setStatusInternal(
+  reqInfo.callId,
+  'awaiting_approval',
+  wrappedConfirmationDetails,
+);`;
 
   const convertResponseCode = `// packages/core/src/core/coreToolScheduler.ts:162
 
@@ -651,8 +630,7 @@ export type ToolCall =
               不同场景需要不同信任级别：
             </p>
             <ul className="text-sm text-gray-400 space-y-1 list-disc pl-4">
-              <li><strong className="text-yellow-300">PLAN</strong>：只分析不执行（最安全）</li>
-              <li><strong className="text-gray-300">DEFAULT</strong>：修改需确认（平衡）</li>
+              <li><strong className="text-gray-300">DEFAULT</strong>：修改需确认（最安全）</li>
               <li><strong className="text-blue-300">AUTO_EDIT</strong>：文件编辑自动（效率）</li>
               <li><strong className="text-red-300">YOLO</strong>：全部自动（最快）</li>
             </ul>
@@ -698,10 +676,10 @@ export type ToolCall =
                   <td className="py-2 text-cyan-400">节省 Token + 保留完整</td>
                 </tr>
                 <tr className="border-b border-gray-700/50">
-                  <td className="py-2">Plan Mode</td>
-                  <td className="py-2 text-green-400">调度层阻断</td>
-                  <td className="py-2 text-amber-400">无法执行任何修改</td>
-                  <td className="py-2 text-cyan-400">安全探索未知任务</td>
+                  <td className="py-2">PolicyEngine</td>
+                  <td className="py-2 text-green-400">规则驱动决策</td>
+                  <td className="py-2 text-amber-400">需要配置规则</td>
+                  <td className="py-2 text-cyan-400">灵活的权限控制</td>
                 </tr>
                 <tr>
                   <td className="py-2">白名单机制</td>
@@ -783,7 +761,7 @@ export type ToolCall =
               <li>• <code className="text-cyan-300">ApprovalMode = YOLO</code> - YOLO 模式</li>
               <li>• <code className="text-cyan-300">ApprovalMode = AUTO_EDIT + Kind = Edit</code> - 自动编辑模式</li>
               <li>• <code className="text-cyan-300">工具在 allowedTools 白名单</code> - 白名单匹配</li>
-              <li>• <code className="text-cyan-300">Plan Mode + exit_plan_mode</code> - 退出 Plan Mode</li>
+              <li>• <code className="text-cyan-300">PolicyEngine 规则匹配 ALLOW</code> - 规则自动批准</li>
             </ul>
           </div>
 
@@ -799,64 +777,72 @@ export type ToolCall =
         </div>
       </section>
 
-      {/* Plan Mode 阻断机制 */}
+      {/* PolicyEngine 决策机制 */}
       <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">Plan Mode 阻断机制</h3>
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">PolicyEngine 决策机制</h3>
         <p className="text-gray-300 mb-4">
-          Plan Mode 是一种特殊的安全模式，通过在调度器层面阻断修改类工具的执行，
-          强制 AI 只进行分析和规划，不执行任何可能修改系统的操作。
+          PolicyEngine 是工具执行的核心决策引擎，通过规则匹配和 SafetyChecker 来决定工具是否可以执行。
+          支持三种审批模式：DEFAULT（默认确认）、AUTO_EDIT（自动编辑）、YOLO（全自动）。
         </p>
 
-        <HighlightBox title="Plan Mode 阻断逻辑" variant="purple">
+        <HighlightBox title="PolicyEngine 决策逻辑" variant="purple">
           <div className="text-sm space-y-2">
             <div>
-              <h5 className="font-semibold text-purple-300 mb-1">阻断条件</h5>
+              <h5 className="font-semibold text-purple-300 mb-1">三种决策结果</h5>
               <ul className="space-y-1 text-gray-300">
-                <li>• <code>ApprovalMode = PLAN</code></li>
-                <li>• 工具的 <code>shouldConfirmExecute()</code> 返回非空（需要确认）</li>
-                <li>• 工具名称不是 <code>exit_plan_mode</code></li>
+                <li>• <code>ALLOW</code> - 自动批准执行，无需用户确认</li>
+                <li>• <code>DENY</code> - 拒绝执行，抛出错误</li>
+                <li>• <code>ASK_USER</code> - 需要用户确认后才能执行</li>
               </ul>
             </div>
             <div>
-              <h5 className="font-semibold text-purple-300 mb-1">阻断行为</h5>
+              <h5 className="font-semibold text-purple-300 mb-1">决策优先级</h5>
               <ul className="space-y-1 text-gray-300">
-                <li>• 将工具调用标记为 <code>error</code> 状态</li>
-                <li>• 返回 <code>getPlanModeSystemReminder()</code> 系统提示</li>
-                <li>• AI 收到提示后会停止使用修改类工具</li>
-                <li>• 只有 <code>exit_plan_mode</code> 工具可以突破阻断</li>
+                <li>• 规则按 <code>priority</code> 排序，高优先级先匹配</li>
+                <li>• 规则可限定 <code>modes</code>，只在特定 ApprovalMode 下生效</li>
+                <li>• 支持 <code>toolName</code> 精确匹配和通配符（如 <code>serverName__*</code>）</li>
+                <li>• 支持 <code>argsPattern</code> 正则匹配参数</li>
               </ul>
             </div>
           </div>
         </HighlightBox>
 
         <CodeBlock
-          code={`// packages/core/src/core/coreToolScheduler.ts:752-772
+          code={`// packages/core/src/policy/policy-engine.ts:147-180
 
-// Plan Mode 阻断检查
-const isPlanMode = this.config.getApprovalMode() === ApprovalMode.PLAN;
-const isExitPlanModeTool = reqInfo.name === 'exit_plan_mode';
-
-if (isPlanMode && !isExitPlanModeTool) {
-  if (confirmationDetails) {
-    // 阻断执行，返回 Plan Mode 提示
-    this.setStatusInternal(reqInfo.callId, 'error', {
-      callId: reqInfo.callId,
-      responseParts: convertToFunctionResponse(
-        reqInfo.name,
-        reqInfo.callId,
-        getPlanModeSystemReminder(), // <system-reminder> 注入
-      ),
-      resultDisplay: 'Plan mode blocked a non-read-only tool call.',
-      error: undefined,
-      errorType: undefined,
-    });
-  } else {
-    // 只读工具可以正常执行
-    this.setStatusInternal(reqInfo.callId, 'scheduled');
+/**
+ * Check if a tool call is allowed based on the configured policies.
+ * Returns the decision and the matching rule (if any).
+ */
+async check(
+  toolCall: FunctionCall,
+  serverName: string | undefined,
+): Promise<{
+  decision: PolicyDecision;
+  rule?: PolicyRule;
+}> {
+  // Compute stringified args once before the loop
+  let stringifiedArgs: string | undefined;
+  if (toolCall.args && (this.rules.some(r => r.argsPattern) || ...)) {
+    stringifiedArgs = stableStringify(toolCall.args);
   }
+
+  // Find the first matching rule (already sorted by priority)
+  for (const rule of this.rules) {
+    if (ruleMatches(rule, toolCall, stringifiedArgs, serverName, this.approvalMode)) {
+      // Shell 命令特殊处理：检查子命令
+      if (SHELL_TOOL_NAMES.includes(toolCall.name) && rule.decision === ALLOW) {
+        // 拆分并检查每个子命令
+        const subCommands = splitCommands(command);
+        // ... 子命令逐一验证
+      }
+      return { decision: rule.decision, rule };
+    }
+  }
+  return { decision: this.defaultDecision };
 }`}
           language="typescript"
-          title="Plan Mode 阻断代码"
+          title="PolicyEngine.check 决策代码"
         />
       </section>
 
@@ -1116,28 +1102,28 @@ if (isPlanMode && !isExitPlanModeTool) {
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">源码位置</h3>
         <div className="text-sm space-y-2">
           <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/core/coreToolScheduler.ts:625</code>
+            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/core/coreToolScheduler.ts:410</code>
             <span className="text-gray-400">schedule() 主入口</span>
           </div>
           <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/core/coreToolScheduler.ts:740</code>
+            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/core/coreToolScheduler.ts:483</code>
+            <span className="text-gray-400">_schedule() 内部实现</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/core/coreToolScheduler.ts:602</code>
             <span className="text-gray-400">shouldConfirmExecute 确认逻辑</span>
           </div>
           <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/core/coreToolScheduler.ts:752</code>
-            <span className="text-gray-400">Plan Mode 阻断机制</span>
+            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/core/coreToolScheduler.ts:947</code>
+            <span className="text-gray-400">saveTruncatedContent 输出截断</span>
           </div>
           <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/core/coreToolScheduler.ts:774</code>
-            <span className="text-gray-400">YOLO 模式自动通过</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/core/coreToolScheduler.ts:162</code>
+            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/core/coreToolScheduler.ts:974</code>
             <span className="text-gray-400">convertToFunctionResponse 结果转换</span>
           </div>
           <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/core/coreToolScheduler.ts:256</code>
-            <span className="text-gray-400">truncateAndSaveToFile 输出截断</span>
+            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/policy/policy-engine.ts:147</code>
+            <span className="text-gray-400">PolicyEngine.check 决策逻辑</span>
           </div>
           <div className="flex items-center gap-2">
             <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/core/coreToolScheduler.ts:1140</code>
@@ -1387,30 +1373,30 @@ async execute(params: BashParams, signal: AbortSignal) {
           </div>
         </div>
 
-        {/* 边界条件 5: Plan Mode 边界 */}
+        {/* 边界条件 5: PolicyEngine MCP 工具处理 */}
         <div className="bg-gray-900/50 rounded-lg p-4 mb-4 border-l-4 border-purple-500">
-          <h4 className="text-purple-400 font-bold mb-2">边界 5: Plan Mode 下的 MCP 工具调用</h4>
+          <h4 className="text-purple-400 font-bold mb-2">边界 5: PolicyEngine 对 MCP 工具的处理</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <h5 className="text-sm font-semibold text-gray-300 mb-2">场景描述</h5>
               <p className="text-sm text-gray-400">
-                Plan Mode 阻断内置工具，但 MCP 外部工具如何处理？
-                MCP 工具没有统一的 Kind 定义。
+                PolicyEngine 使用通配符规则匹配 MCP 工具：
+                <code className="text-purple-300">serverName__*</code> 可匹配某个 Server 的所有工具。
               </p>
               <div className="mt-2 bg-purple-500/10 p-2 rounded text-xs">
-                <strong className="text-purple-300">复杂场景：</strong>
+                <strong className="text-purple-300">安全机制：</strong>
                 <span className="text-gray-300 block mt-1">
-                  MCP 工具可能是只读查询，也可能是修改操作
+                  防止恶意 Server 通过命名伪装成受信任 Server
                 </span>
               </div>
             </div>
             <div>
               <h5 className="text-sm font-semibold text-gray-300 mb-2">处理策略</h5>
               <ul className="text-sm text-gray-400 space-y-1">
-                <li>• MCP 工具默认被视为<strong className="text-red-300">需要确认</strong></li>
-                <li>• Plan Mode 下 MCP 工具<strong className="text-red-300">会被阻断</strong></li>
-                <li>• 可通过 allowedTools 白名单单独放行</li>
-                <li>• MCP 工具的 Kind 由 MCP Server 声明</li>
+                <li>• MCP 工具名格式：<code>serverName__toolName</code></li>
+                <li>• 通配符规则验证 serverName 完全匹配前缀</li>
+                <li>• 支持 argsPattern 对参数进行正则匹配</li>
+                <li>• MCP 工具的 Kind 由 annotations 推断</li>
               </ul>
             </div>
           </div>
@@ -1670,46 +1656,43 @@ DEBUG=gemini:truncate gemini`}
             <div className="flex items-start gap-3">
               <span className="text-2xl">🔵</span>
               <div className="flex-1">
-                <h4 className="text-blue-400 font-bold mb-2">问题：Plan Mode 无法阻止 MCP 工具执行</h4>
+                <h4 className="text-blue-400 font-bold mb-2">问题：PolicyEngine 规则不生效</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <h5 className="text-sm font-semibold text-gray-300 mb-2">症状</h5>
                     <ul className="text-sm text-gray-400 space-y-1">
-                      <li>• 已启用 Plan Mode</li>
-                      <li>• MCP 修改类工具仍被执行</li>
-                      <li>• 未看到 Plan Mode 阻断提示</li>
+                      <li>• 配置了 ALLOW 规则但仍需确认</li>
+                      <li>• 配置了 DENY 规则但仍可执行</li>
+                      <li>• 规则匹配未按预期工作</li>
                     </ul>
                   </div>
                   <div>
                     <h5 className="text-sm font-semibold text-gray-300 mb-2">可能原因</h5>
                     <ul className="text-sm text-gray-400 space-y-1">
-                      <li>• 1. MCP 工具被标记为 readOnly</li>
-                      <li>• 2. MCP 工具在 allowedTools 白名单中</li>
-                      <li>• 3. MCP 工具的 shouldConfirmExecute 返回 null</li>
-                      <li>• 4. Plan Mode 配置未生效</li>
+                      <li>• 1. 规则 priority 较低被覆盖</li>
+                      <li>• 2. 规则 modes 限制不匹配当前模式</li>
+                      <li>• 3. toolName 或 argsPattern 格式错误</li>
+                      <li>• 4. MCP 工具名格式错误（需 serverName__toolName）</li>
                     </ul>
                   </div>
                 </div>
                 <div className="mt-3 bg-gray-800/50 rounded p-3">
                   <h5 className="text-sm font-semibold text-cyan-300 mb-2">调试步骤</h5>
                   <CodeBlock
-                    code={`# 1. 确认 Plan Mode 状态
-# 在 UI 中查看当前模式
+                    code={`# 1. 检查当前 ApprovalMode
+# 在 UI 中查看 DEFAULT / AUTO_EDIT / YOLO
 
-# 2. 检查 MCP 工具的 annotations
-# 在 MCP Server 日志中查看工具声明
+# 2. 检查 Policy 配置
+cat ~/.config/gemini/policy.toml
 
-# 3. 检查 allowedTools 配置
-cat ~/.config/gemini/settings.json | jq '.tools.allowed'
+# 3. 验证规则优先级
+# 高 priority 的规则优先匹配
 
 # 4. 添加调试日志
-// packages/core/src/core/coreToolScheduler.ts:752
-console.log('Plan Mode check:', {
-  isPlanMode,
-  isExitPlanModeTool,
-  confirmationDetails,
-  toolName: reqInfo.name,
-});`}
+DEBUG=gemini:policy gemini
+
+# 5. 检查 MCP 工具名格式
+# 格式应为: serverName__toolName`}
                     language="bash"
                     title="调试命令"
                   />
@@ -2141,13 +2124,15 @@ console.log('Plan Mode check:', {
         alt No confirmation needed
             Scheduler->>Scheduler: setStatus('scheduled')
         else Confirmation needed
-            Scheduler->>Config: getApprovalMode()
-            Config-->>Scheduler: PLAN | DEFAULT | AUTO_EDIT | YOLO
+            Scheduler->>Policy: PolicyEngine.check()
+            Policy-->>Scheduler: ALLOW | DENY | ASK_USER
 
-            alt PLAN mode (non-exit tool)
+            alt PolicyDecision.ALLOW
+                Scheduler->>Scheduler: setStatus('scheduled')
+            else PolicyDecision.DENY
                 Scheduler->>Scheduler: setStatus('error')
-                Scheduler-->>Chat: Plan Mode blocked
-            else YOLO or in allowedTools
+                Scheduler-->>Chat: Policy denied
+            else PolicyDecision.ASK_USER + YOLO
                 Scheduler->>Scheduler: setStatus('scheduled')
             else Need user approval
                 Scheduler->>UI: setStatus('awaiting_approval')

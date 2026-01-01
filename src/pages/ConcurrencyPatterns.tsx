@@ -32,7 +32,7 @@ export function ConcurrencyPatterns() {
         ⚡ 并发模式详解
       </h1>
       <p className="text-[var(--text-secondary)] mb-6 text-sm">
-        Innies CLI 中的并行处理、队列调度与分布式同步策略
+        Gemini CLI 中的并行处理、队列调度与分布式同步策略
       </p>
 
       {/* Tab Navigation */}
@@ -141,7 +141,7 @@ mindmap
       {/* Design Insight */}
       <HighlightBox title="💡 设计洞察" variant="blue">
         <p className="text-sm">
-          Innies CLI 采用<strong className="text-[var(--text-primary)]">混合并发策略</strong>：
+          Gemini CLI 采用<strong className="text-[var(--text-primary)]">混合并发策略</strong>：
           I/O 密集型操作（文件读取）使用高并发批处理，
           而状态关键操作（工具执行）使用严格顺序队列。
           这种组合既保证了性能，又避免了状态竞争。
@@ -557,13 +557,13 @@ private async acquireLock(lockPath: string): Promise<void> {
 
       {/* Promise Deduplication */}
       <Layer title="🔄 Promise 去重">
-        <CodeBlock language="typescript" code={`private refreshPromise: Promise<InniesCredentials> | null = null;
+        <CodeBlock language="typescript" code={`private refreshPromise: Promise<Credentials> | null = null;
 private checkPromise: Promise<void> | null = null;
 
 async getValidCredentials(
-  geminiClient: IInniesOAuth2Client,
+  geminiClient: IGoogleOAuth2Client,
   forceRefresh = false,
-): Promise<InniesCredentials> {
+): Promise<Credentials> {
   // 先检查文件是否被其他进程更新
   await this.checkAndReloadIfNeeded(geminiClient);
 

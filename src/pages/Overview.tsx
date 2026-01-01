@@ -431,11 +431,11 @@ sequenceDiagram
               <div className="text-xs text-[var(--text-muted)] mt-1">Policy 决策类型</div>
             </div>
             <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-indigo-500/30 text-center">
-              <div className="text-2xl font-bold text-indigo-400">8</div>
+              <div className="text-2xl font-bold text-indigo-400">9</div>
               <div className="text-xs text-[var(--text-muted)] mt-1">消息总线类型</div>
             </div>
             <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-emerald-500/30 text-center">
-              <div className="text-2xl font-bold text-emerald-400">5</div>
+              <div className="text-2xl font-bold text-emerald-400">4</div>
               <div className="text-xs text-[var(--text-muted)] mt-1">路由策略</div>
             </div>
             <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-rose-500/30 text-center">

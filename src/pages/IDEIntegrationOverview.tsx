@@ -19,7 +19,7 @@ flowchart TB
         LSP["LSP-like Protocol"]
     end
 
-    subgraph CLI["Innies CLI"]
+    subgraph CLI["Gemini CLI"]
         MCPServer["MCP Server"]
         IDEBridge["IDE Bridge"]
         DiffEngine["Diff Engine"]
@@ -311,7 +311,7 @@ sequenceDiagram
         <div className="space-y-4">
           <HighlightBox title="VS Code 设置" icon="💙" variant="blue">
             <ol className="space-y-2 text-sm list-decimal list-inside">
-              <li>安装 "Innies IDE Companion" 扩展</li>
+              <li>安装 "Gemini IDE Companion" 扩展</li>
               <li>扩展自动启动 MCP Server</li>
               <li>在终端运行 <code className="text-cyan-400">gemini</code></li>
               <li>CLI 自动检测并连接 MCP Server</li>
@@ -323,7 +323,7 @@ sequenceDiagram
               <li>确保 Zed 版本 &gt;= 0.140</li>
               <li>在 settings.json 中配置 assistant</li>
               <li>使用 <code className="text-cyan-400">Cmd+Shift+P</code> 打开命令面板</li>
-              <li>选择 "Innies: Start Session"</li>
+              <li>选择 "Gemini: Start Session"</li>
             </ol>
           </HighlightBox>
         </div>
@@ -474,7 +474,7 @@ async function checkPortAvailability(port: number): Promise<boolean> {
               </thead>
               <tbody>
                 <tr className="border-b border-gray-700">
-                  <td className="py-2 px-3 font-mono text-cyan-400">Innies CLI</td>
+                  <td className="py-2 px-3 font-mono text-cyan-400">Gemini CLI</td>
                   <td className="py-2 px-3">1.0.0</td>
                   <td className="py-2 px-3 text-green-400">latest</td>
                   <td className="py-2 px-3 font-mono text-gray-400">gemini --version</td>
@@ -557,7 +557,7 @@ async function checkPortAvailability(port: number): Promise<boolean> {
             code={`#!/bin/bash
 # 快速版本检查脚本
 
-echo "=== Innies CLI 环境检查 ==="
+echo "=== Gemini CLI 环境检查 ==="
 
 # CLI 版本
 echo -n "CLI: "

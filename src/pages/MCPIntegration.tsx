@@ -1138,7 +1138,7 @@ echo '{"jsonrpc":"2.0","method":"tools/list","id":1,"params":{}}' \\
               <CodeBlock
                 title="VS Code IDE Companion 调试"
                 code={`# 1. 检查扩展状态
-# 在 VS Code 中：View -> Output -> 选择 "Innies IDE Companion"
+# 在 VS Code 中：View -> Output -> 选择 "Gemini IDE Companion"
 
 # 2. 查看扩展日志
 # 在 VS Code 中：Help -> Toggle Developer Tools -> Console

@@ -34,12 +34,12 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           {/* 关键数字 */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
-              <div className="text-2xl font-bold text-[var(--terminal-green)]">16</div>
+              <div className="text-2xl font-bold text-[var(--terminal-green)]">14</div>
               <div className="text-xs text-[var(--text-muted)]">事件类型</div>
             </div>
             <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
-              <div className="text-2xl font-bold text-[var(--cyber-blue)]">∞</div>
-              <div className="text-xs text-[var(--text-muted)]">默认轮次</div>
+              <div className="text-2xl font-bold text-[var(--cyber-blue)]">100</div>
+              <div className="text-xs text-[var(--text-muted)]">MAX_TURNS</div>
             </div>
             <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
               <div className="text-2xl font-bold text-[var(--purple)]">3</div>
@@ -91,7 +91,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           <div className="flex items-center gap-2 text-sm">
             <span className="text-[var(--text-muted)]">📍 源码入口:</span>
             <code className="px-2 py-1 bg-[var(--bg-terminal)] rounded text-[var(--terminal-green)] text-xs">
-              packages/cli/src/ui/hooks/useGeminiStream.ts:786 → submitQuery()
+              packages/cli/src/ui/hooks/useGeminiStream.ts:884 → submitQuery()
             </code>
           </div>
         </div>
@@ -457,7 +457,7 @@ const request = await prepareRequest(userParts, ideContextDelta);
             <MermaidDiagram chart={streamEventsChart} title="流事件处理流程" />
 
             <div className="mt-4">
-              <h5 className="text-[var(--text-primary)] font-semibold font-mono mb-2">16 种事件类型 (GeminiEventType)</h5>
+              <h5 className="text-[var(--text-primary)] font-semibold font-mono mb-2">14 种事件类型 (GeminiEventType)</h5>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -514,6 +514,11 @@ const request = await prepareRequest(userParts, ideContextDelta);
                       <td className="py-2 px-3">终止会话</td>
                     </tr>
                     <tr className="border-b border-[var(--border-subtle)]/50">
+                      <td className="py-2 px-3 font-mono text-red-400">SessionTokenLimitExceeded</td>
+                      <td className="py-2 px-3">会话 Token 超限</td>
+                      <td className="py-2 px-3">提示用户并终止会话</td>
+                    </tr>
+                    <tr className="border-b border-[var(--border-subtle)]/50">
                       <td className="py-2 px-3 font-mono text-[var(--terminal-green)]">Finished</td>
                       <td className="py-2 px-3">响应完成</td>
                       <td className="py-2 px-3">触发工具调度</td>
@@ -528,25 +533,10 @@ const request = await prepareRequest(userParts, ideContextDelta);
                       <td className="py-2 px-3">引用来源</td>
                       <td className="py-2 px-3">附加到响应</td>
                     </tr>
-                    <tr className="border-b border-[var(--border-subtle)]/50">
+                    <tr>
                       <td className="py-2 px-3 font-mono text-[var(--text-muted)]">Retry</td>
                       <td className="py-2 px-3">重试请求</td>
                       <td className="py-2 px-3">重新发送 API 请求</td>
-                    </tr>
-                    <tr className="border-b border-[var(--border-subtle)]/50">
-                      <td className="py-2 px-3 font-mono text-red-400">ContextWindowWillOverflow</td>
-                      <td className="py-2 px-3">上下文窗口即将溢出</td>
-                      <td className="py-2 px-3">触发压缩或警告</td>
-                    </tr>
-                    <tr className="border-b border-[var(--border-subtle)]/50">
-                      <td className="py-2 px-3 font-mono text-[var(--amber)]">InvalidStream</td>
-                      <td className="py-2 px-3">流式响应无效</td>
-                      <td className="py-2 px-3">重试或错误处理</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2 px-3 font-mono text-[var(--cyber-blue)]">ModelInfo</td>
-                      <td className="py-2 px-3">模型信息</td>
-                      <td className="py-2 px-3">记录实际使用的模型</td>
                     </tr>
                   </tbody>
                 </table>

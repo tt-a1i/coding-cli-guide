@@ -32,7 +32,7 @@ export function ErrorRecoveryPatterns() {
         🛠️ 错误恢复模式
       </h1>
       <p className="text-[var(--text-secondary)] mb-6 text-sm">
-        Innies CLI 中的错误处理、重试机制与优雅降级策略
+        Gemini CLI 中的错误处理、重试机制与优雅降级策略
       </p>
 
       {/* Tab Navigation */}

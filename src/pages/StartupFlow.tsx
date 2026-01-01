@@ -1368,7 +1368,7 @@ process.env.LOG_LEVEL = 'debug';
 /*
 日志输出示例：
 
-[2024-01-15T10:30:00.123Z] [INFO] Starting Innies CLI v1.2.3
+[2024-01-15T10:30:00.123Z] [INFO] Starting Gemini CLI v1.2.3
 [2024-01-15T10:30:00.150Z] [DEBUG] Loading config from ~/.gemini/settings.json
 [2024-01-15T10:30:00.175Z] [DEBUG] Merged config: { model: "gemini-1.5-pro", ... }
 [2024-01-15T10:30:00.200Z] [INFO] Authenticating with google-oauth

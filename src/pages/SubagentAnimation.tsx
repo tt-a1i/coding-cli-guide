@@ -58,7 +58,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           <div>
             <h3 className="text-[var(--terminal-green)] font-semibold mb-2">📁 源码位置</h3>
             <code className="text-xs bg-[var(--bg-void)] p-2 rounded block border border-[var(--border-subtle)]">
-              packages/core/src/subagents/subagentManager.ts
+              packages/core/src/agents/registry.ts
             </code>
           </div>
 

@@ -210,7 +210,7 @@ export interface UIState {
   isAuthenticating: boolean;
   authError: string | null;
   isAuthDialogOpen: boolean;
-  isQwenAuth: boolean;
+  isGoogleAuth: boolean;
   deviceAuth: DeviceAuthorizationInfo | null;
   authStatus: 'idle' | 'polling' | 'success' | 'error' | 'timeout';
 

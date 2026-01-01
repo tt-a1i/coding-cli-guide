@@ -2,7 +2,7 @@
  * ZedIntegration.tsx - Zed 编辑器集成深度解析
  *
  * 详解 ACP (Agent Connection Protocol) 协议实现
- * 以及 Innies CLI 如何作为 Zed 的 AI 代理后端运行
+ * 以及 Gemini CLI 如何作为 Zed 的 AI 代理后端运行
  */
 
 import { useState } from 'react';
@@ -78,7 +78,7 @@ export function ZedIntegration() {
           <MermaidDiagram chart={`
 sequenceDiagram
     participant Z as Zed Editor
-    participant A as Innies Agent
+    participant A as Gemini Agent
     participant M as Model API
 
     rect rgb(60, 60, 80)
@@ -349,7 +349,7 @@ sequenceDiagram
 
           <MermaidDiagram chart={`
 flowchart LR
-    subgraph CLI["Innies CLI"]
+    subgraph CLI["Gemini CLI"]
         TC[Tool 需要确认] --> SP[shouldConfirmExecute]
         SP --> RQ[requestPermission]
     end

@@ -105,7 +105,7 @@ flowchart LR
           📊 Token 计算策略
         </h1>
         <p className="text-[var(--text-secondary)]">
-          深入理解 Innies CLI 如何精确计算多模态内容的 Token 数量
+          深入理解 Gemini CLI 如何精确计算多模态内容的 Token 数量
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <span className="px-2 py-1 bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] text-xs rounded">

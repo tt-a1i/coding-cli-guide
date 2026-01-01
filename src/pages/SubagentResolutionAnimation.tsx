@@ -164,7 +164,7 @@ export default function SubagentResolutionAnimation() {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 p-6">
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400 mb-2">
-          SubagentManager 优先级解析
+          AgentRegistry 优先级解析
         </h1>
         <p className="text-gray-400 mb-6">
           演示 Subagent 配置的三级优先级解析: Project → User → Builtin

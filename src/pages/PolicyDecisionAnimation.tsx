@@ -55,23 +55,19 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           </div>
 
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
-            <h4 className="text-[var(--cyber-blue)] font-bold mb-2">🏗️ 四种审批模式</h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2 text-xs">
+            <h4 className="text-[var(--cyber-blue)] font-bold mb-2">🏗️ 三种审批模式</h4>
+            <div className="grid grid-cols-3 gap-2 mt-2 text-xs">
               <div className="bg-[var(--bg-card)] p-2 rounded text-center">
-                <div className="text-green-400">suggest</div>
-                <div className="text-[var(--text-muted)]">建议模式</div>
+                <div className="text-amber-400">DEFAULT</div>
+                <div className="text-[var(--text-muted)]">默认模式</div>
               </div>
               <div className="bg-[var(--bg-card)] p-2 rounded text-center">
-                <div className="text-amber-400">auto-edit</div>
+                <div className="text-cyan-400">AUTO_EDIT</div>
                 <div className="text-[var(--text-muted)]">自动编辑</div>
               </div>
               <div className="bg-[var(--bg-card)] p-2 rounded text-center">
-                <div className="text-cyan-400">full-auto</div>
+                <div className="text-green-400">YOLO</div>
                 <div className="text-[var(--text-muted)]">全自动</div>
-              </div>
-              <div className="bg-[var(--bg-card)] p-2 rounded text-center">
-                <div className="text-red-400">none</div>
-                <div className="text-[var(--text-muted)]">询问模式</div>
               </div>
             </div>
           </div>
@@ -148,13 +144,13 @@ async checkPermission(
   // 示例请求
   // toolName: "Bash"
   // toolInput: { command: "rm -rf node_modules" }
-  // approvalMode: "suggest"
+  // approvalMode: "default"
 }`,
     visualData: {
       request: {
         toolName: 'Bash',
         toolInput: { command: 'rm -rf node_modules' },
-        approvalMode: 'suggest'
+        approvalMode: 'default'
       }
     },
     highlight: 'Bash: rm -rf',
@@ -347,36 +343,35 @@ private checkApprovalMode(
   const mode = context.approvalMode;
 
   switch (mode) {
-    case 'full-auto':
-      // 全自动模式：即使匹配危险规则也执行
+    case 'yolo':
+      // YOLO 模式：即使匹配危险规则也执行
       // 但仍遵守 DENY 规则
       if (rule.decision === 'DENY') {
         return { action: 'DENY', reason: rule.reason };
       }
       return { action: 'ALLOW' };
 
-    case 'auto-edit':
+    case 'autoEdit':
       // 自动编辑：允许文件操作，其他询问
       if (['Write', 'Edit', 'Read'].includes(this.toolName)) {
         return { action: 'ALLOW' };
       }
       break;
 
-    case 'suggest':
-    case 'none':
+    case 'default':
     default:
-      // 建议/询问模式：遵循规则
+      // 默认模式：遵循规则
       break;
   }
 
   return null; // 继续规则匹配
 }`,
     visualData: {
-      mode: 'suggest',
+      mode: 'default',
       decision: null, // 继续规则匹配
-      reason: '建议模式需遵循规则'
+      reason: '默认模式需遵循规则'
     },
-    highlight: 'suggest 模式',
+    highlight: 'DEFAULT 模式',
   },
   {
     phase: 'decision_make',

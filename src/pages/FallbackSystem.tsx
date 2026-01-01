@@ -146,8 +146,8 @@ export async function handleFallback(
   error?: unknown,
 ): Promise<string | boolean | null> {
   // 处理不同认证类型
-  if (authType === AuthType.QWEN_OAUTH) {
-    return handleQwenOAuthError(error);
+  if (authType === AuthType.GOOGLE_OAUTH) {
+    return handleGoogleOAuthError(error);
   }
 
   // 仅 Google 认证支持模型回退

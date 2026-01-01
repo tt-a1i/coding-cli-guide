@@ -33,7 +33,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
             <p className="text-[var(--text-primary)] font-medium">
               <span className="text-[var(--cyber-blue)] font-bold">一句话：</span>
-              API 配额错误检测系统，区分 Pro 配额超限、Qwen 配额耗尽和限流错误，决定是否重试或降级
+              API 配额错误检测系统，区分 Pro 配额超限、Gemini 配额耗尽和限流错误，决定是否重试或降级
             </p>
           </div>
 
@@ -101,8 +101,8 @@ export function QuotaDetection() {
 
     subgraph Detection["检测层"]
         PRO{isProQuotaExceededError}
-        QWEN{isQwenQuotaExceededError}
-        THROT{isQwenThrottlingError}
+        GEMINI{isGeminiQuotaExceededError}
+        THROT{isGeminiThrottlingError}
         GEN{isGenericQuotaExceededError}
     end
 
@@ -199,8 +199,8 @@ export function isProQuotaExceededError(error: unknown): boolean {
   return false;
 }`;
 
-  const qwenQuotaCode = `// Qwen 配额耗尽检测（不应重试）
-export function isQwenQuotaExceededError(error: unknown): boolean {
+  const geminiQuotaCode = `// Gemini 配额耗尽检测（不应重试）
+export function isGeminiQuotaExceededError(error: unknown): boolean {
   const checkMessage = (message: string): boolean => {
     const lowerMessage = message.toLowerCase();
     return (
@@ -216,8 +216,8 @@ export function isQwenQuotaExceededError(error: unknown): boolean {
   return false;
 }
 
-// Qwen 限流检测（应该重试）
-export function isQwenThrottlingError(error: unknown): boolean {
+// Gemini 限流检测（应该重试）
+export function isGeminiThrottlingError(error: unknown): boolean {
   const checkMessage = (message: string): boolean => {
     const lowerMessage = message.toLowerCase();
     return (
@@ -296,7 +296,7 @@ export function isGenericQuotaExceededError(error: unknown): boolean {
             </ul>
           </div>
           <div className="bg-[var(--bg-card)] p-4 rounded-lg border border-[var(--error)]/30">
-            <div className="text-[var(--error)] font-bold mb-2">🚫 Qwen 配额耗尽</div>
+            <div className="text-[var(--error)] font-bold mb-2">🚫 Gemini 配额耗尽</div>
             <ul className="text-sm text-[var(--text-secondary)] space-y-1">
               <li>• 停止重试</li>
               <li>• 提示用户充值</li>
@@ -333,8 +333,8 @@ export function isGenericQuotaExceededError(error: unknown): boolean {
         </HighlightBox>
       </Layer>
 
-      <Layer title="Qwen 错误检测" icon="🔮" defaultOpen={true}>
-        <CodeBlock code={qwenQuotaCode} language="typescript" title="Qwen 配额与限流检测" />
+      <Layer title="Gemini 错误检测" icon="🔮" defaultOpen={true}>
+        <CodeBlock code={geminiQuotaCode} language="typescript" title="Gemini 配额与限流检测" />
 
         <div className="mt-4 overflow-x-auto">
           <table className="w-full text-sm">
@@ -401,13 +401,13 @@ async function handleApiError(error: unknown): Promise<void> {
     return;
   }
 
-  // 2. 检查 Qwen 配额 → 停止重试
-  if (isQwenQuotaExceededError(error)) {
-    throw new QuotaExhaustedError('Qwen quota exhausted');
+  // 2. 检查 Gemini 配额 → 停止重试
+  if (isGeminiQuotaExceededError(error)) {
+    throw new QuotaExhaustedError('Gemini quota exhausted');
   }
 
   // 3. 检查限流 → 指数退避重试
-  if (isQwenThrottlingError(error)) {
+  if (isGeminiThrottlingError(error)) {
     await exponentialBackoff(retryCount);
     return retry();
   }

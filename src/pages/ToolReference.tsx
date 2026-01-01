@@ -175,7 +175,7 @@ export function ToolReference() {
                   <div className="text-gray-400">• <code className="text-cyan-300">ShellTool</code> - 执行命令</div>
                   <div className="text-gray-400">• <code className="text-cyan-300">MemoryTool</code> - 保存记忆</div>
                   <div className="text-gray-400">• <code className="text-cyan-300">TodoWriteTool</code> - 待办事项</div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">ExitPlanModeTool</code> - 退出计划</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">AskUserQuestionTool</code> - 询问用户</div>
                   <div className="text-gray-400">• <code className="text-cyan-300">WebFetchTool</code> - 网页获取</div>
                   <div className="text-gray-400">• <code className="text-cyan-300">WebSearchTool</code> - 网页搜索*</div>
                 </div>

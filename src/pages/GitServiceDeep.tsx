@@ -109,7 +109,7 @@ stateDiagram-v2
       <Layer title="核心概念" icon="🎯">
         <div className="space-y-4">
           <p className="text-gray-300">
-            GitService 是 Innies CLI 检查点系统的核心，它创建一个独立于用户仓库的「影子 Git 仓库」来跟踪文件变更。
+            GitService 是 Gemini CLI 检查点系统的核心，它创建一个独立于用户仓库的「影子 Git 仓库」来跟踪文件变更。
             这种设计确保 CLI 的版本控制不会干扰用户的 Git 工作流。
           </p>
 
@@ -167,7 +167,7 @@ export class GitService {
 
     // 专用 gitconfig，避免继承用户配置
     const gitConfigContent = \`[user]
-  name = Innies Cli
+  name = Gemini Cli
   email = gemini-code@google.com
 [commit]
   gpgsign = false

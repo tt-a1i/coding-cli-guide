@@ -13,7 +13,7 @@ import { useState, useEffect, useCallback } from 'react';
  * - convertGeminiToolsToOpenAI() - 工具 schema 转换
  */
 
-type FormatType = 'gemini' | 'openai' | 'gemini';
+type FormatType = 'gemini' | 'openai';
 type ConversionPhase =
   | 'idle'
   | 'input-parse'     // 解析输入格式
@@ -228,7 +228,7 @@ export default function MessageFormatPipelineAnimation() {
     switch (format) {
       case 'gemini': return '#4285f4';
       case 'openai': return '#10a37f';
-      case 'gemini': return '#ff6b35';
+      default: return '#888888';
     }
   };
 
