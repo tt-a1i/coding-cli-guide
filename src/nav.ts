@@ -139,8 +139,10 @@ export const navGroups: NavGroup[] = [
     defaultOpen: false,
     items: [
       { id: 'non-interactive', label: '非交互模式' },
+      { id: 'output-formatter', label: '输出格式化', highlight: true },
       { id: 'welcome-back', label: '会话恢复' },
       { id: 'chat-recording', label: '会话录制', highlight: true },
+      { id: 'summarizer-system', label: 'LLM 摘要器', highlight: true },
     ],
   },
   {
@@ -151,6 +153,9 @@ export const navGroups: NavGroup[] = [
     items: [
       { id: 'ui', label: 'UI渲染层' },
       { id: 'ui-state-management', label: 'UI 状态管理', highlight: true },
+      { id: 'ui-components', label: 'UI 组件库', highlight: true },
+      { id: 'react-hooks', label: 'React Hooks', highlight: true },
+      { id: 'key-bindings', label: '键盘绑定', highlight: true },
       { id: 'theme', label: '主题系统' },
       { id: 'telemetry', label: '遥测系统' },
     ],
@@ -252,6 +257,9 @@ export const navGroups: NavGroup[] = [
       { id: 'error-recovery-patterns', label: '错误恢复模式', highlight: true },
       { id: 'concurrency-patterns', label: '并发模式详解', highlight: true },
       { id: 'shared-token-manager', label: 'Token 共享机制', highlight: true },
+      { id: 'settings-manager', label: '设置管理器', highlight: true },
+      { id: 'quota-detection', label: '配额检测', highlight: true },
+      { id: 'code-assist', label: 'Code Assist', highlight: true },
       { id: 'startup', label: '启动流程' },
       { id: 'code', label: '核心代码' },
       { id: 'loop', label: 'Loop机制' },

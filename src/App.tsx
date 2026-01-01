@@ -155,6 +155,14 @@ const PromptRegistry = lazy(() => import('./pages/PromptRegistry').then(m => ({ 
 const CommandLoading = lazy(() => import('./pages/CommandLoading').then(m => ({ default: m.CommandLoading })));
 const PromptProcessors = lazy(() => import('./pages/PromptProcessors').then(m => ({ default: m.PromptProcessors })));
 const UIStateManagement = lazy(() => import('./pages/UIStateManagement').then(m => ({ default: m.UIStateManagement })));
+const KeyBindings = lazy(() => import('./pages/KeyBindings').then(m => ({ default: m.KeyBindings })));
+const SettingsManager = lazy(() => import('./pages/SettingsManager').then(m => ({ default: m.SettingsManager })));
+const QuotaDetection = lazy(() => import('./pages/QuotaDetection').then(m => ({ default: m.QuotaDetection })));
+const SummarizerSystem = lazy(() => import('./pages/SummarizerSystem').then(m => ({ default: m.SummarizerSystem })));
+const OutputFormatter = lazy(() => import('./pages/OutputFormatter').then(m => ({ default: m.OutputFormatter })));
+const CodeAssist = lazy(() => import('./pages/CodeAssist').then(m => ({ default: m.CodeAssist })));
+const ReactHooksOverview = lazy(() => import('./pages/ReactHooksOverview').then(m => ({ default: m.ReactHooksOverview })));
+const UIComponents = lazy(() => import('./pages/UIComponents').then(m => ({ default: m.UIComponents })));
 
 // 页面加载 fallback
 function PageLoading() {
@@ -535,6 +543,22 @@ function App() {
         return <PromptProcessors />;
       case 'ui-state-management':
         return <UIStateManagement />;
+      case 'key-bindings':
+        return <KeyBindings />;
+      case 'settings-manager':
+        return <SettingsManager />;
+      case 'quota-detection':
+        return <QuotaDetection />;
+      case 'summarizer-system':
+        return <SummarizerSystem />;
+      case 'output-formatter':
+        return <OutputFormatter />;
+      case 'code-assist':
+        return <CodeAssist />;
+      case 'react-hooks':
+        return <ReactHooksOverview />;
+      case 'ui-components':
+        return <UIComponents />;
       default:
         return <StartHere onNavigate={(tab) => navigateToTab(tab)} />;
     }
