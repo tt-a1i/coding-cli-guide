@@ -413,7 +413,7 @@ const request = await prepareRequest(userParts, ideContextDelta);
             <div className="text-[var(--cyber-blue)] font-bold">packages/cli/src/ui/hooks/useGeminiStream.ts</div>
             <div className="pl-4 space-y-1 text-[var(--text-muted)]">
               <div>:786 - <span className="text-[var(--amber)]">submitQuery()</span> - 主循环入口</div>
-              <div>:702 - <span className="text-[var(--amber)]">流事件处理循环</span> - 处理 13 种事件类型</div>
+              <div>:702 - <span className="text-[var(--amber)]">流事件处理循环</span> - 处理 14 种事件类型</div>
               <div>:994 - <span className="text-[var(--amber)]">handleCompletedTools()</span> - Continuation 触发</div>
               <div>:488 - <span className="text-[var(--amber)]">getIdeContextDelta()</span> - IDE 上下文增量</div>
             </div>
@@ -457,7 +457,7 @@ const request = await prepareRequest(userParts, ideContextDelta);
             <MermaidDiagram chart={streamEventsChart} title="流事件处理流程" />
 
             <div className="mt-4">
-              <h5 className="text-[var(--text-primary)] font-semibold font-mono mb-2">13 种事件类型</h5>
+              <h5 className="text-[var(--text-primary)] font-semibold font-mono mb-2">14 种事件类型 (GeminiEventType)</h5>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -479,14 +479,29 @@ const request = await prepareRequest(userParts, ideContextDelta);
                       <td className="py-2 px-3">收集到队列，流结束后调度</td>
                     </tr>
                     <tr className="border-b border-[var(--border-subtle)]/50">
-                      <td className="py-2 px-3 font-mono text-[var(--terminal-green)]">Finished</td>
-                      <td className="py-2 px-3">响应完成</td>
-                      <td className="py-2 px-3">触发工具调度</td>
+                      <td className="py-2 px-3 font-mono text-[var(--terminal-green)]">ToolCallResponse</td>
+                      <td className="py-2 px-3">工具执行完成</td>
+                      <td className="py-2 px-3">结果进入对话历史</td>
+                    </tr>
+                    <tr className="border-b border-[var(--border-subtle)]/50">
+                      <td className="py-2 px-3 font-mono text-orange-400">ToolCallConfirmation</td>
+                      <td className="py-2 px-3">等待用户确认</td>
+                      <td className="py-2 px-3">暂停执行，显示确认 UI</td>
+                    </tr>
+                    <tr className="border-b border-[var(--border-subtle)]/50">
+                      <td className="py-2 px-3 font-mono text-[var(--text-muted)]">UserCancelled</td>
+                      <td className="py-2 px-3">用户取消操作</td>
+                      <td className="py-2 px-3">终止当前请求</td>
                     </tr>
                     <tr className="border-b border-[var(--border-subtle)]/50">
                       <td className="py-2 px-3 font-mono text-red-400">Error</td>
-                      <td className="py-2 px-3">API 错误</td>
+                      <td className="py-2 px-3">API 或执行错误</td>
                       <td className="py-2 px-3">重试或显示错误</td>
+                    </tr>
+                    <tr className="border-b border-[var(--border-subtle)]/50">
+                      <td className="py-2 px-3 font-mono text-[var(--purple)]">ChatCompressed</td>
+                      <td className="py-2 px-3">对话历史压缩</td>
+                      <td className="py-2 px-3">token 优化，保留上下文</td>
                     </tr>
                     <tr className="border-b border-[var(--border-subtle)]/50">
                       <td className="py-2 px-3 font-mono text-[var(--purple)]">Thought</td>
@@ -494,14 +509,34 @@ const request = await prepareRequest(userParts, ideContextDelta);
                       <td className="py-2 px-3">记录但不加入历史</td>
                     </tr>
                     <tr className="border-b border-[var(--border-subtle)]/50">
-                      <td className="py-2 px-3 font-mono text-orange-400">TokenUsage</td>
-                      <td className="py-2 px-3">Token 使用统计</td>
-                      <td className="py-2 px-3">更新计数器</td>
+                      <td className="py-2 px-3 font-mono text-[var(--amber)]">MaxSessionTurns</td>
+                      <td className="py-2 px-3">达到会话轮次上限</td>
+                      <td className="py-2 px-3">终止会话</td>
+                    </tr>
+                    <tr className="border-b border-[var(--border-subtle)]/50">
+                      <td className="py-2 px-3 font-mono text-red-400">SessionTokenLimitExceeded</td>
+                      <td className="py-2 px-3">超过 token 上限</td>
+                      <td className="py-2 px-3">触发压缩或终止</td>
+                    </tr>
+                    <tr className="border-b border-[var(--border-subtle)]/50">
+                      <td className="py-2 px-3 font-mono text-[var(--terminal-green)]">Finished</td>
+                      <td className="py-2 px-3">响应完成</td>
+                      <td className="py-2 px-3">触发工具调度</td>
+                    </tr>
+                    <tr className="border-b border-[var(--border-subtle)]/50">
+                      <td className="py-2 px-3 font-mono text-orange-400">LoopDetected</td>
+                      <td className="py-2 px-3">检测到循环</td>
+                      <td className="py-2 px-3">中断并提示用户</td>
+                    </tr>
+                    <tr className="border-b border-[var(--border-subtle)]/50">
+                      <td className="py-2 px-3 font-mono text-[var(--cyber-blue)]">Citation</td>
+                      <td className="py-2 px-3">引用来源</td>
+                      <td className="py-2 px-3">附加到响应</td>
                     </tr>
                     <tr>
-                      <td className="py-2 px-3 font-mono text-[var(--text-muted)]">InputTokenCount</td>
-                      <td className="py-2 px-3">输入 token 数</td>
-                      <td className="py-2 px-3">缓存用于截断</td>
+                      <td className="py-2 px-3 font-mono text-[var(--text-muted)]">Retry</td>
+                      <td className="py-2 px-3">重试请求</td>
+                      <td className="py-2 px-3">重新发送 API 请求</td>
                     </tr>
                   </tbody>
                 </table>

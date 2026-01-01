@@ -25,7 +25,7 @@ export function SubagentArchitecture() {
           🏗️ Agent 架构深度解析
         </h1>
         <p className="text-[var(--text-secondary)]">
-          深入理解 Agent 类型系统、TOML 配置验证、执行循环和 Grace Period 机制
+          深入理解 Agent 类型系统、TOML 配置验证、执行循环和终止模式
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <span className="px-2 py-1 bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] text-xs rounded">
@@ -79,7 +79,7 @@ export function SubagentArchitecture() {
               <div className="flex items-start gap-2">
                 <span className="text-[var(--terminal-green)]">✓</span>
                 <span className="text-[var(--text-secondary)]">
-                  <strong>TOML 配置</strong>：Zod 验证，比 YAML+MD 更严格
+                  <strong>TOML 配置</strong>：结构化配置 + 系统提示词
                 </span>
               </div>
               <div className="flex items-start gap-2">
@@ -91,13 +91,13 @@ export function SubagentArchitecture() {
               <div className="flex items-start gap-2">
                 <span className="text-[var(--terminal-green)]">✓</span>
                 <span className="text-[var(--text-secondary)]">
-                  <strong>Grace Period</strong>：60 秒恢复期，优雅降级
+                  <strong>6 种终止模式</strong>：GOAL/ERROR/TIMEOUT/MAX_TURNS/ABORTED/ERROR_NO_COMPLETE_TASK_CALL
                 </span>
               </div>
               <div className="flex items-start gap-2">
                 <span className="text-[var(--terminal-green)]">✓</span>
                 <span className="text-[var(--text-secondary)]">
-                  <strong>禁止嵌套委托</strong>：toml-loader 阻止循环
+                  <strong>禁止嵌套委托</strong>：SubagentManager 阻止循环
                 </span>
               </div>
             </div>
@@ -269,18 +269,18 @@ interface AgentInputDefinition {
                 <tbody>
                   <tr className="border-b border-[var(--border-subtle)]">
                     <td className="py-2 text-[var(--terminal-green)] font-mono">GOAL</td>
-                    <td className="py-2 text-[var(--text-secondary)]">调用 complete_task 工具</td>
+                    <td className="py-2 text-[var(--text-secondary)]">Agent 成功完成所有目标</td>
                     <td className="py-2 text-[var(--text-secondary)]">正常完成</td>
                   </tr>
                   <tr className="border-b border-[var(--border-subtle)]">
                     <td className="py-2 text-[var(--amber)] font-mono">MAX_TURNS</td>
                     <td className="py-2 text-[var(--text-secondary)]">超过 runConfig.max_turns</td>
-                    <td className="py-2 text-[var(--text-secondary)]">Grace Period → 强制终止</td>
+                    <td className="py-2 text-[var(--text-secondary)]">强制终止</td>
                   </tr>
                   <tr className="border-b border-[var(--border-subtle)]">
                     <td className="py-2 text-[var(--amber)] font-mono">TIMEOUT</td>
                     <td className="py-2 text-[var(--text-secondary)]">超过 max_time_minutes</td>
-                    <td className="py-2 text-[var(--text-secondary)]">Grace Period → 强制终止</td>
+                    <td className="py-2 text-[var(--text-secondary)]">强制终止</td>
                   </tr>
                   <tr className="border-b border-[var(--border-subtle)]">
                     <td className="py-2 text-[var(--cyber-blue)] font-mono">ABORTED</td>
@@ -289,13 +289,13 @@ interface AgentInputDefinition {
                   </tr>
                   <tr className="border-b border-[var(--border-subtle)]">
                     <td className="py-2 text-red-400 font-mono">ERROR</td>
-                    <td className="py-2 text-[var(--text-secondary)]">执行过程抛出异常</td>
+                    <td className="py-2 text-[var(--text-secondary)]">执行过程发生不可恢复错误</td>
                     <td className="py-2 text-[var(--text-secondary)]">错误处理</td>
                   </tr>
                   <tr>
                     <td className="py-2 text-red-400 font-mono">ERROR_NO_COMPLETE_TASK_CALL</td>
-                    <td className="py-2 text-[var(--text-secondary)]">Grace Period 结束仍未调用</td>
-                    <td className="py-2 text-[var(--text-secondary)]">强制终止</td>
+                    <td className="py-2 text-[var(--text-secondary)]">模型停止但未调用 complete_task</td>
+                    <td className="py-2 text-[var(--text-secondary)]">60秒恢复期</td>
                   </tr>
                 </tbody>
               </table>
@@ -304,14 +304,14 @@ interface AgentInputDefinition {
         )}
       </section>
 
-      {/* TOML 配置与 Zod 验证 */}
+      {/* TOML 配置与验证 */}
       <section className="bg-[var(--bg-card)] rounded-xl p-6 border border-[var(--border-subtle)]">
         <button
           onClick={() => toggleSection('toml')}
           className="w-full flex items-center justify-between mb-4"
         >
           <h2 className="text-xl font-bold text-[var(--text-primary)] flex items-center gap-2">
-            📄 TOML 配置与 Zod 验证
+            📄 TOML 配置与验证
           </h2>
           <span className={`transform transition-transform ${expandedSections.has('toml') ? 'rotate-180' : ''}`}>
             ▼
@@ -327,9 +327,6 @@ interface AgentInputDefinition {
                 code={`# .gemini/agents/code-reviewer.toml
 name = "code-reviewer"
 description = "代码审查专家，专注于代码质量和最佳实践"
-display_name = "Code Reviewer"  # 可选
-
-# 工具白名单（可选，默认继承父级）
 tools = ["Read", "Grep", "Glob"]
 
 [prompts]
@@ -342,38 +339,38 @@ You are a code review expert. When reviewing code, focus on:
 
 Always provide specific line numbers and actionable suggestions.
 """
-query = "Review the following code: \${task}"  # 可选
 
 [model]
-model = "inherit"     # 或具体模型名
-temperature = 0.3     # 可选
+model = "gemini-2.0-flash"
+temperature = 0.3
 
 [run]
-max_turns = 50        # 可选
-timeout_mins = 10     # 可选，默认 5`}
+max_turns = 50
+timeout_mins = 10`}
               />
             </div>
 
             <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
-              <h4 className="text-[var(--cyber-blue)] font-bold mb-3">远程 Agent 批量配置</h4>
-              <CodeBlock
-                language="toml"
-                code={`# ~/.gemini/agents/remote-agents.toml
-# 单个文件可定义多个远程 Agent
-
-[[remote_agents]]
-name = "external-reviewer"
-kind = "remote"
-description = "External code review service via A2A"
-agent_card_url = "https://review.example.com/.well-known/agent.json"
-
-[[remote_agents]]
-name = "security-scanner"
-kind = "remote"
-description = "Security vulnerability scanner"
-display_name = "Security Scanner"
-agent_card_url = "https://security.example.com/.well-known/agent.json"`}
-              />
+              <h4 className="text-[var(--cyber-blue)] font-bold mb-3">配置字段说明</h4>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <h5 className="text-[var(--terminal-green)] font-bold mb-2">必需字段</h5>
+                  <ul className="space-y-1 text-[var(--text-secondary)]">
+                    <li>• <code>name</code> - 唯一标识符 (slug 格式)</li>
+                    <li>• <code>description</code> - Agent 用途说明</li>
+                    <li>• <code>[prompts].system_prompt</code> - 系统提示词</li>
+                  </ul>
+                </div>
+                <div>
+                  <h5 className="text-[var(--amber)] font-bold mb-2">可选字段</h5>
+                  <ul className="space-y-1 text-[var(--text-secondary)]">
+                    <li>• <code>tools</code> - 可用工具列表</li>
+                    <li>• <code>[model]</code> - 模型配置</li>
+                    <li>• <code>[run]</code> - 运行时配置</li>
+                    <li>• <code>display_name</code> - 显示名称</li>
+                  </ul>
+                </div>
+              </div>
             </div>
 
             <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
@@ -479,73 +476,74 @@ if ('tools' in toml && toml.tools?.includes(DELEGATE_TO_AGENT_TOOL_NAME)) {
 
         ExecuteTools --> SendMessage: 工具结果 → 继续
 
-        CheckComplete --> GracePeriod: MAX_TURNS/TIMEOUT
-        CheckComplete --> Goal: complete_task 调用
-    }
+        CheckComplete --> Goal: 有文本结果
+        CheckComplete --> Nudge: 无结果
 
-    state "Grace Period" as GracePeriod {
-        GP_Start --> GP_Wait: 60秒倒计时
-        GP_Wait --> GP_Check: 检查 complete_task
-        GP_Check --> Goal: 已调用
-        GP_Check --> ForceTerminate: 未调用
+        Nudge --> SendMessage: 提示模型输出结果
     }
-
-    GracePeriod --> GP_Start
 
     Goal --> [*]: GOAL 终止
-    ForceTerminate --> [*]: ERROR_NO_COMPLETE_TASK_CALL`}
+    MaxTurns --> [*]: MAX_TURNS 终止
+    Timeout --> [*]: TIMEOUT 终止`}
             />
 
             <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
               <h4 className="text-[var(--terminal-green)] font-bold mb-3">核心执行循环</h4>
               <CodeBlock
                 language="typescript"
-                code={`// local-executor.ts - 简化的执行循环
+                code={`// subagent.ts - 简化的执行循环
 
-class LocalAgentExecutor {
-  private turnCount = 0;
-  private completeTaskCalled = false;
-  private isInGracePeriod = false;
+class SubAgentScope {
+  private terminateMode = SubagentTerminateMode.ERROR;
+  private finalText = '';
 
-  async run(
-    signal: AbortSignal,
-    updateOutput?: (output: string | AnsiOutput) => void,
-  ): Promise<ToolResult> {
+  async run(abortController: AbortController): Promise<void> {
+    const startTime = Date.now();
+    let turnCounter = 0;
 
-    // 注入 complete_task 工具
-    const tools = this.injectCompleteTaskTool(this.definition.toolConfig?.tools);
-
-    while (!signal.aborted) {
-      this.turnCount++;
-
-      // 检查 max_turns（非 Grace Period 时）
-      if (!this.isInGracePeriod && this.turnCount > maxTurns) {
-        return this.enterGracePeriod('MAX_TURNS');
+    while (true) {
+      // 检查终止条件
+      if (this.runConfig.max_turns && turnCounter >= this.runConfig.max_turns) {
+        this.terminateMode = SubagentTerminateMode.MAX_TURNS;
+        break;
       }
 
-      // 发送消息并获取响应
-      const response = await this.chat.sendMessage(messages, tools);
+      const durationMin = (Date.now() - startTime) / (1000 * 60);
+      if (this.runConfig.max_time_minutes && durationMin >= this.runConfig.max_time_minutes) {
+        this.terminateMode = SubagentTerminateMode.TIMEOUT;
+        break;
+      }
+
+      turnCounter++;
+
+      // 发送消息并流式获取响应
+      const responseStream = await chat.sendMessageStream(model, messageParams);
+
+      for await (const streamEvent of responseStream) {
+        if (abortController.signal.aborted) {
+          this.terminateMode = AgentTerminateMode.ABORTED;
+          return;
+        }
+        // 处理流式响应...
+      }
 
       // 处理工具调用
-      if (response.functionCalls?.length) {
-        for (const call of response.functionCalls) {
-          if (call.name === 'complete_task') {
-            this.completeTaskCalled = true;
-            return { output: call.args.result };  // GOAL 终止
-          }
-          // 执行其他工具...
+      if (functionCalls.length > 0) {
+        currentMessages = await this.processFunctionCalls(functionCalls);
+      } else {
+        // 无工具调用 — 作为最终答案
+        if (roundText && roundText.trim().length > 0) {
+          this.finalText = roundText.trim();
+          this.terminateMode = SubagentTerminateMode.GOAL;
+          break;
         }
-        continue;  // 继续循环
+        // 否则，提示模型提供最终结果
+        currentMessages = [{
+          role: 'user',
+          parts: [{ text: 'Please provide the final result now.' }],
+        }];
       }
-
-      // 无工具调用时提示使用 complete_task
-      messages.push({
-        role: 'user',
-        content: 'Please use complete_task to provide final result.',
-      });
     }
-
-    return { output: 'Aborted' };  // ABORTED 终止
   }
 }`}
               />
@@ -553,59 +551,51 @@ class LocalAgentExecutor {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
-                <h4 className="text-[var(--amber)] font-bold mb-2">complete_task 工具</h4>
+                <h4 className="text-[var(--amber)] font-bold mb-2">文本响应终止</h4>
                 <CodeBlock
                   language="typescript"
-                  code={`// 自动注入的终止工具
-const COMPLETE_TASK_TOOL = {
-  name: 'complete_task',
-  description: \`
-Call this tool to complete the task.
-Provide the final result or summary.
-\`,
-  parameters: {
-    type: 'object',
-    properties: {
-      result: {
-        type: 'string',
-        description: 'The final result',
-      },
-    },
-    required: ['result'],
-  },
-};`}
+                  code={`// 处理工具调用
+if (functionCalls.length > 0) {
+  currentMessages = await this.processFunctionCalls(functionCalls);
+} else {
+  // 无工具调用 — 作为最终答案
+  if (roundText && roundText.trim().length > 0) {
+    this.finalText = roundText.trim();
+    this.terminateMode = SubagentTerminateMode.GOAL;
+    break;
+  }
+  // 否则，提示模型提供最终结果
+  currentMessages = [{
+    role: 'user',
+    parts: [{ text: 'Please provide the final result now.' }],
+  }];
+}`}
                 />
                 <p className="text-xs text-[var(--text-muted)] mt-2">
-                  与 Claude Code 的文本返回不同，gemini-cli 要求显式调用此工具
+                  模型不调用工具时的文本输出被视为最终答案，触发 GOAL 终止
                 </p>
               </div>
 
               <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
-                <h4 className="text-[var(--purple)] font-bold mb-2">Grace Period 机制</h4>
+                <h4 className="text-[var(--purple)] font-bold mb-2">Nudge 提示机制</h4>
                 <CodeBlock
                   language="typescript"
-                  code={`// local-executor.ts - Grace Period 常量
-const GRACE_PERIOD_MS = 60 * 1000; // 60秒
+                  code={`// 当模型响应为空时，发送提示消息
+// 引导模型输出最终结果
 
-async enterGracePeriod(reason: string) {
-  this.isInGracePeriod = true;
+if (!roundText || roundText.trim().length === 0) {
+  currentMessages = [{
+    role: 'user',
+    parts: [{
+      text: 'Please provide the final result now and stop calling tools.',
+    }],
+  }];
+}
 
-  // 通知 Agent 必须调用 complete_task
-  this.notify(TOOL_CALL_START, {
-    message: \`⚠️ \${reason}: Must call complete_task within 60s\`,
-  });
-
-  // 等待 Grace Period
-  await this.waitForCompleteTask(GRACE_PERIOD_MS);
-
-  if (this.completeTaskCalled) {
-    return { mode: AgentTerminateMode.GOAL };
-  }
-
-  return {
-    mode: AgentTerminateMode.ERROR_NO_COMPLETE_TASK_CALL,
-  };
-}`}
+// 这会消耗一个 turn，直到：
+// 1. 模型输出文本 → GOAL 终止
+// 2. 达到 max_turns → MAX_TURNS 终止
+// 3. 超时 → TIMEOUT 终止`}
                 />
               </div>
             </div>
@@ -904,37 +894,37 @@ await executor.run(signal, updateOutput);`}
         <div className="space-y-4">
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
             <h4 className="text-[var(--terminal-green)] font-bold mb-2">
-              为什么用 TOML 而不是 YAML+Markdown？
+              为什么用 TOML 配置格式？
             </h4>
             <ul className="text-sm text-[var(--text-secondary)] space-y-1">
-              <li>• <strong>严格验证</strong>：TOML + Zod 提供编译时类型检查</li>
-              <li>• <strong>无歧义</strong>：TOML 语法比 YAML 更严格，避免缩进问题</li>
-              <li>• <strong>多行字符串</strong>：TOML 的 """ 语法很适合 system_prompt</li>
-              <li>• <strong>工具支持</strong>：更好的 IDE 支持和错误提示</li>
+              <li>• <strong>结构化配置</strong>：TOML 清晰表达嵌套结构（[prompts], [model], [run]）</li>
+              <li>• <strong>类型友好</strong>：原生支持字符串、数字、数组等类型</li>
+              <li>• <strong>多行字符串</strong>：三引号语法支持系统提示词</li>
+              <li>• <strong>Zod 验证</strong>：运行时进行严格类型校验</li>
             </ul>
           </div>
 
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
             <h4 className="text-[var(--cyber-blue)] font-bold mb-2">
-              为什么要求 complete_task 而不是文本返回？
+              为什么用文本响应作为终止信号？
             </h4>
             <ul className="text-sm text-[var(--text-secondary)] space-y-1">
-              <li>• <strong>明确信号</strong>：工具调用是显式的终止信号，避免歧义</li>
-              <li>• <strong>结构化结果</strong>：result 参数可以包含结构化数据</li>
-              <li>• <strong>统一处理</strong>：无论 Agent 任务如何，终止方式一致</li>
-              <li>• <strong>Grace Period</strong>：可以明确检测是否调用了 complete_task</li>
+              <li>• <strong>自然流程</strong>：模型完成工具调用后自然输出总结</li>
+              <li>• <strong>简化实现</strong>：无需注入特殊工具</li>
+              <li>• <strong>防止空转</strong>：Nudge 机制确保最终输出</li>
+              <li>• <strong>灵活性</strong>：支持任意格式的最终结果</li>
             </ul>
           </div>
 
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
             <h4 className="text-[var(--amber)] font-bold mb-2">
-              为什么需要 Grace Period？
+              什么是 Nudge 提示机制？
             </h4>
             <ul className="text-sm text-[var(--text-secondary)] space-y-1">
-              <li>• <strong>优雅降级</strong>：给 Agent 最后一次机会完成任务</li>
-              <li>• <strong>避免数据丢失</strong>：Agent 可能正在生成重要结果</li>
-              <li>• <strong>60 秒足够</strong>：一个额外轮次通常足够调用 complete_task</li>
-              <li>• <strong>明确错误</strong>：ERROR_NO_COMPLETE_TASK_CALL 比 TIMEOUT 更清晰</li>
+              <li>• <strong>空响应处理</strong>：当模型不输出文本也不调用工具时触发</li>
+              <li>• <strong>引导输出</strong>：发送提示消息让模型提供最终结果</li>
+              <li>• <strong>消耗 Turn</strong>：每次 Nudge 消耗一个 turn 配额</li>
+              <li>• <strong>终止保障</strong>：最终会触发 GOAL、MAX_TURNS 或 TIMEOUT</li>
             </ul>
           </div>
 
@@ -957,7 +947,7 @@ await executor.run(signal, updateOutput);`}
         title="🔗 相关页面"
         pages={[
           { id: 'subagent', label: 'Agent 系统概览', description: '基础概念和快速入门' },
-          { id: 'agent-framework', label: 'Agent 框架', description: 'LocalAgentExecutor 与 complete_task' },
+          { id: 'agent-framework', label: 'Agent 框架', description: 'SubAgentScope 执行循环' },
           { id: 'agent-loop-anim', label: 'Agent 执行循环动画', description: '可视化 Turn 循环与终止' },
           { id: 'routing-chain-anim', label: '路由策略链动画', description: '模型选择可视化' },
           { id: 'model-routing', label: '模型路由', description: 'Flash/Pro 策略链' },

@@ -98,7 +98,7 @@ export function AgentFramework() {
 
   const architectureChart = `flowchart TD
     subgraph Config["📁 配置层"]
-      TOML[TOML 文件]
+      TOML[TOML 配置文件]
       BUILTIN[内置 Agent]
     end
 
@@ -106,11 +106,11 @@ export function AgentFramework() {
       REG[注册与管理]
       REG --> |用户级| USER["~/.gemini/agents/"]
       REG --> |项目级| PROJ[".gemini/agents/"]
-      REG --> |内置| BUILT[CodebaseInvestigator<br/>IntrospectionAgent]
+      REG --> |内置| BUILT[CodebaseInvestigator\nIntrospectionAgent]
     end
 
     subgraph Execution["⚡ 执行层"]
-      LOCAL[LocalAgentExecutor]
+      LOCAL[SubAgentScope]
       REMOTE[A2AClientManager]
     end
 
@@ -274,10 +274,9 @@ export class AgentRegistry {
 }`;
 
   const tomlConfigCode = `# ~/.gemini/agents/code-reviewer.toml
-
 name = "code-reviewer"
-display_name = "Code Reviewer"
 description = "专业代码审查，检查最佳实践和潜在问题"
+tools = ["Read", "Grep", "Glob", "LSP"]
 
 [prompts]
 system_prompt = """
@@ -289,34 +288,21 @@ You are a senior code reviewer. Analyze the code for:
 
 Current model: \${activeModel}
 Today: \${today}
+
+When asked to review code, focus on actionable feedback.
 """
-query = "Review the following code: \${query}"
 
 [model]
-model = "inherit"        # 继承父级模型
-temperature = 0.3        # 较低温度，更精确
+model = "gemini-2.0-flash"
+temperature = 0.3
 
 [run]
-max_turns = 10           # 最多 10 轮对话
-timeout_mins = 5         # 5 分钟超时
+max_turns = 10
+timeout_mins = 5`;
 
-# 可用工具列表
-tools = [
-  "Read",
-  "Grep",
-  "Glob",
-  "LSP"
-]`;
-
-  const remoteAgentTomlCode = `# ~/.gemini/agents/remote-agents.toml
-
-[[remote_agents]]
-name = "external-analyzer"
-agent_card_url = "https://example.com/.well-known/agent.json"
-
-[[remote_agents]]
-name = "cloud-processor"
-agent_card_url = "https://api.example.com/agent-card"`;
+  const remoteAgentNote = `注意：远程 Agent 通过 A2A (Agent-to-Agent) 协议调用，
+配置需要提供 agent_card_url 指向远程 Agent 的描述文件。
+详情参见 A2A 协议文档。`;
 
   const executorCode = `// LocalAgentExecutor - 执行本地 Agent 的循环逻辑
 export class LocalAgentExecutor<TOutput> {
@@ -667,8 +653,9 @@ this.emitActivity('ERROR', { error: errorMessage, context: 'tool_call' });`;
 
         <CodeBlock code={tomlConfigCode} language="toml" title="本地 Agent 配置示例" />
 
-        <div className="mt-6">
-          <CodeBlock code={remoteAgentTomlCode} language="toml" title="远程 Agent 配置示例" />
+        <div className="mt-6 bg-[var(--amber)]/10 rounded-lg p-4 border border-[var(--amber)]/30">
+          <h4 className="text-[var(--amber)] font-bold mb-2">关于远程 Agent</h4>
+          <p className="text-sm text-[var(--text-secondary)]">{remoteAgentNote}</p>
         </div>
 
         <HighlightBox title="模板变量" variant="blue" className="mt-4">
@@ -693,10 +680,10 @@ this.emitActivity('ERROR', { error: errorMessage, context: 'tool_call' });`;
         <CodeBlock code={registryCode} language="typescript" title="registry.ts" />
 
         <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <HighlightBox title="内置 Agent" variant="blue">
+          <HighlightBox title="内置 Agent (2个)" variant="blue">
             <ul className="text-sm space-y-1">
-              <li>• CodebaseInvestigator</li>
-              <li>• IntrospectionAgent</li>
+              <li>• <strong>CodebaseInvestigator</strong> - 代码库探索</li>
+              <li>• <strong>IntrospectionAgent</strong> - 自省分析</li>
               <li>• 通过设置启用/禁用</li>
             </ul>
           </HighlightBox>
@@ -940,7 +927,7 @@ this.emitActivity('ERROR', { error: errorMessage, context: 'tool_call' });`;
               </tr>
               <tr className="border-b border-[var(--border-subtle)]/50">
                 <td className="py-2 px-3 font-mono text-[var(--cyber-blue)] text-xs">agents/toml-loader.ts</td>
-                <td className="py-2 px-3 text-[var(--text-secondary)]">TOML 配置解析和 Zod 验证</td>
+                <td className="py-2 px-3 text-[var(--text-secondary)]">TOML 配置解析与验证</td>
               </tr>
               <tr className="border-b border-[var(--border-subtle)]/50">
                 <td className="py-2 px-3 font-mono text-[var(--cyber-blue)] text-xs">agents/delegate-to-agent-tool.ts</td>
@@ -976,7 +963,7 @@ this.emitActivity('ERROR', { error: errorMessage, context: 'tool_call' });`;
 
           <HighlightBox title="为什么 Agent 不能调用 delegate_to_agent?" variant="purple">
             <p className="text-sm">
-              <strong>防止递归和复杂性</strong>：TOML 加载器会验证 tools 配置，
+              <strong>防止递归和复杂性</strong>：SubagentManager 会验证 tools 配置，
               拒绝包含 delegate_to_agent 的 Agent 定义。这防止了 Agent 之间的递归调用，
               简化了执行模型和调试。
             </p>

@@ -136,14 +136,18 @@ function ToolArchitectureDiagram() {
   );
 }
 
-// 工具类型表
+// 工具类型表 - 基于 gemini-cli/packages/core/src/tools/tools.ts Kind 枚举
 function ToolKindTable() {
   const kinds = [
-    { kind: 'ReadOnlyTool', desc: '只读操作', examples: 'Read, Grep, Glob, LS', approval: '无需审批' },
-    { kind: 'EditTool', desc: '文件编辑', examples: 'Edit, Write, NotebookEdit', approval: '需要审批' },
-    { kind: 'ShellTool', desc: 'Shell 命令', examples: 'Bash, ListDir', approval: '需要审批' },
-    { kind: 'WebTool', desc: '网络操作', examples: 'WebFetch, WebSearch', approval: '可配置' },
-    { kind: 'AgentTool', desc: '代理调用', examples: 'Task, Skill', approval: '可配置' },
+    { kind: 'read', desc: '读取操作', examples: 'Read, Glob, Grep, LS', approval: '无需审批' },
+    { kind: 'edit', desc: '编辑操作', examples: 'Edit, Write, NotebookEdit', approval: '需要审批' },
+    { kind: 'delete', desc: '删除操作', examples: '文件删除', approval: '需要审批' },
+    { kind: 'move', desc: '移动操作', examples: '文件移动/重命名', approval: '需要审批' },
+    { kind: 'search', desc: '搜索操作', examples: 'WebSearch', approval: '可配置' },
+    { kind: 'execute', desc: '执行操作', examples: 'Bash, Task', approval: '需要审批' },
+    { kind: 'think', desc: '思考操作', examples: '内部推理工具', approval: '无需审批' },
+    { kind: 'fetch', desc: '获取操作', examples: 'WebFetch', approval: '可配置' },
+    { kind: 'other', desc: '其他操作', examples: 'Skill, AskUser', approval: '可配置' },
   ];
 
   return (
@@ -297,7 +301,7 @@ interface ToolInvocation<TParams, TResult> {
 
   getDescription(): string;        // 执行前的描述
   toolLocations(): ToolLocation[]; // 影响的文件路径
-  shouldConfirmExecute(): Promise<ToolCallConfirmationDetails | false>;
+  shouldConfirmExecute(abortSignal: AbortSignal): Promise<ToolCallConfirmationDetails | false>;
   execute(signal: AbortSignal, updateOutput?: Function): Promise<TResult>;
 }`}
       />
@@ -408,7 +412,7 @@ function ImplementationSection() {
       'WordCount',          // name
       'Word Count',         // displayName
       'Count words, characters, and lines in a file',  // description
-      Kind.ReadOnlyTool,    // kind (只读，无需审批)
+      Kind.Read,            // kind (只读，无需审批)
       wordCountSchema,      // parameterSchema
       false,                // isOutputMarkdown
       false,                // canUpdateOutput

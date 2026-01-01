@@ -33,7 +33,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
             <h4 className="text-[var(--terminal-green)] font-bold mb-2">🔧 设计原则</h4>
             <ul className="text-[var(--text-secondary)] text-sm space-y-1">
-              <li>• <strong>ToolKind 分类</strong>：根据危险等级分为 Read/Write/Execute，决定审批策略</li>
+              <li>• <strong>ToolKind 分类</strong>：9 种类型 (Read/Edit/Delete/Move/Search/Execute/Think/Fetch/Other)，决定审批策略</li>
               <li>• <strong>声明式定义</strong>：每个工具通过 schema 描述参数和返回值</li>
               <li>• <strong>可扩展性</strong>：支持 MCP 协议动态注册外部工具</li>
             </ul>
@@ -63,7 +63,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
               <div className="text-xs text-[var(--text-muted)]">内置工具</div>
             </div>
             <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--border-subtle)]">
-              <div className="text-xl font-bold text-[var(--amber)]">6</div>
+              <div className="text-xl font-bold text-[var(--amber)]">9</div>
               <div className="text-xs text-[var(--text-muted)]">ToolKind 类型</div>
             </div>
             <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--border-subtle)]">
@@ -213,7 +213,7 @@ export function ToolSystemArchitecture() {
     abstract readonly name: string;           // 内部名称 "read_file"
     abstract readonly displayName: string;    // 显示名称 "Read File"
     abstract readonly description: string;    // 描述（发送给 AI）
-    abstract readonly kind: Kind;             // 类型: read | write | execute
+    abstract readonly kind: Kind;             // 9 种: read | edit | delete | move | search | execute | think | fetch | other
     abstract readonly schema: FunctionDeclaration;  // JSON Schema
 
     // 输出配置
@@ -254,56 +254,125 @@ export function ToolSystemArchitecture() {
     // 返回影响的文件路径（用于权限检查）
     abstract toolLocations(): string[];
 
-    // 是否需要用户确认
-    shouldConfirmExecute(): boolean {
-        return false;  // 默认不需要
+    // 是否需要用户确认（返回确认详情或 false）
+    shouldConfirmExecute(
+        abortSignal: AbortSignal
+    ): Promise<ToolCallConfirmationDetails | false> {
+        return Promise.resolve(false);  // 默认不需要
     }
 
     // 执行工具
     abstract execute(
         signal: AbortSignal,
-        updateOutput?: (output: string) => void  // 流式更新回调
+        updateOutput?: (output: ToolResultDisplay) => void  // 流式更新回调
     ): Promise<TResult>;
 }
 
 // 执行结果
 interface ToolResult {
-    llmContent: string;      // 发送给 AI 的内容
-    returnDisplay: string;   // 显示在终端的内容
+    llmContent: PartListUnion;       // 发送给 AI 的内容（支持多种格式）
+    returnDisplay: ToolResultDisplay; // 显示内容（string | FileDiff | TodoDisplay 等）
+    error?: {                        // 可选错误信息
+        message: string;
+        type?: ToolErrorType;
+    };
 }`}
         />
       </Layer>
 
-      {/* 工具类型 */}
-      <Layer title="工具类型 (Kind)" icon="📊">
+      {/* 工具类型 - 基于 gemini-cli Kind 枚举 */}
+      <Layer title="工具类型 (Kind) - 9 种" icon="📊">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* 第一行：Read, Edit, Delete */}
           <div className="bg-green-500/10 border-2 border-green-500/30 rounded-lg p-4">
             <h4 className="text-green-400 font-bold mb-2">📖 Read (读取)</h4>
             <p className="text-sm text-gray-300 mb-2">只读操作，不修改任何内容</p>
             <ul className="text-sm text-gray-400 space-y-1">
               <li>• 通常自动执行</li>
               <li>• 不需要用户确认</li>
-              <li>• 示例: read_file, glob, grep_search</li>
+              <li>• 示例: Read, Glob, Grep, LS</li>
             </ul>
           </div>
 
           <div className="bg-orange-500/10 border-2 border-orange-500/30 rounded-lg p-4">
-            <h4 className="text-orange-400 font-bold mb-2">✏️ Write (写入)</h4>
+            <h4 className="text-orange-400 font-bold mb-2">✏️ Edit (编辑)</h4>
             <p className="text-sm text-gray-300 mb-2">修改文件内容</p>
             <ul className="text-sm text-gray-400 space-y-1">
-              <li>• 可能需要确认</li>
+              <li>• 需要用户确认</li>
               <li>• 显示 diff 预览</li>
-              <li>• 示例: write_file, edit</li>
+              <li>• 示例: Edit, Write, NotebookEdit</li>
             </ul>
           </div>
 
           <div className="bg-red-500/10 border-2 border-red-500/30 rounded-lg p-4">
-            <h4 className="text-red-400 font-bold mb-2">💻 Execute (执行)</h4>
-            <p className="text-sm text-gray-300 mb-2">执行系统命令</p>
+            <h4 className="text-red-400 font-bold mb-2">🗑️ Delete (删除)</h4>
+            <p className="text-sm text-gray-300 mb-2">删除文件或目录</p>
+            <ul className="text-sm text-gray-400 space-y-1">
+              <li>• 需要用户确认</li>
+              <li>• 高危操作</li>
+              <li>• 示例: 文件删除操作</li>
+            </ul>
+          </div>
+
+          {/* 第二行：Move, Search, Execute */}
+          <div className="bg-purple-500/10 border-2 border-purple-500/30 rounded-lg p-4">
+            <h4 className="text-purple-400 font-bold mb-2">📁 Move (移动)</h4>
+            <p className="text-sm text-gray-300 mb-2">移动或重命名文件</p>
+            <ul className="text-sm text-gray-400 space-y-1">
+              <li>• 需要用户确认</li>
+              <li>• 影响文件位置</li>
+              <li>• 示例: 文件移动/重命名</li>
+            </ul>
+          </div>
+
+          <div className="bg-blue-500/10 border-2 border-blue-500/30 rounded-lg p-4">
+            <h4 className="text-blue-400 font-bold mb-2">🔍 Search (搜索)</h4>
+            <p className="text-sm text-gray-300 mb-2">网络搜索操作</p>
+            <ul className="text-sm text-gray-400 space-y-1">
+              <li>• 可配置审批</li>
+              <li>• 访问外部资源</li>
+              <li>• 示例: WebSearch</li>
+            </ul>
+          </div>
+
+          <div className="bg-red-600/10 border-2 border-red-600/30 rounded-lg p-4">
+            <h4 className="text-red-500 font-bold mb-2">💻 Execute (执行)</h4>
+            <p className="text-sm text-gray-300 mb-2">执行系统命令或子任务</p>
             <ul className="text-sm text-gray-400 space-y-1">
               <li>• 通常需要确认</li>
               <li>• 可能进入沙箱</li>
-              <li>• 示例: run_shell_command, task</li>
+              <li>• 示例: Bash, Task</li>
+            </ul>
+          </div>
+
+          {/* 第三行：Think, Fetch, Other */}
+          <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-4">
+            <h4 className="text-cyan-400 font-bold mb-2">🧠 Think (思考)</h4>
+            <p className="text-sm text-gray-300 mb-2">内部推理和思考</p>
+            <ul className="text-sm text-gray-400 space-y-1">
+              <li>• 无需用户确认</li>
+              <li>• 内部处理</li>
+              <li>• 示例: 内部推理工具</li>
+            </ul>
+          </div>
+
+          <div className="bg-teal-500/10 border-2 border-teal-500/30 rounded-lg p-4">
+            <h4 className="text-teal-400 font-bold mb-2">🌐 Fetch (获取)</h4>
+            <p className="text-sm text-gray-300 mb-2">获取网络资源</p>
+            <ul className="text-sm text-gray-400 space-y-1">
+              <li>• 可配置审批</li>
+              <li>• 访问 URL</li>
+              <li>• 示例: WebFetch</li>
+            </ul>
+          </div>
+
+          <div className="bg-gray-500/10 border-2 border-gray-500/30 rounded-lg p-4">
+            <h4 className="text-gray-400 font-bold mb-2">📦 Other (其他)</h4>
+            <p className="text-sm text-gray-300 mb-2">其他类型操作</p>
+            <ul className="text-sm text-gray-400 space-y-1">
+              <li>• 可配置审批</li>
+              <li>• 特殊用途</li>
+              <li>• 示例: Skill, AskUser</li>
             </ul>
           </div>
         </div>
