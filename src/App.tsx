@@ -131,6 +131,7 @@ const HookSystem = lazy(() => import('./pages/HookSystem').then(m => ({ default:
 const PolicyEngine = lazy(() => import('./pages/PolicyEngine').then(m => ({ default: m.PolicyEngine })));
 const MessageBus = lazy(() => import('./pages/MessageBus').then(m => ({ default: m.MessageBus })));
 const ModelRouting = lazy(() => import('./pages/ModelRouting').then(m => ({ default: m.ModelRouting })));
+const ModelAvailability = lazy(() => import('./pages/ModelAvailability').then(m => ({ default: m.ModelAvailability })));
 const AgentFramework = lazy(() => import('./pages/AgentFramework').then(m => ({ default: m.AgentFramework })));
 const ContentFormatConversion = lazy(() => import('./pages/ContentFormatConversion').then(m => ({ default: m.ContentFormatConversion })));
 const CommandExecutionContext = lazy(() => import('./pages/CommandExecutionContext').then(m => ({ default: m.CommandExecutionContext })));
@@ -344,6 +345,8 @@ function App() {
         return <MessageBus />;
       case 'model-routing':
         return <ModelRouting />;
+      case 'model-availability':
+        return <ModelAvailability />;
       case 'approval-mode':
         return <ApprovalModeSystem />;
       case 'trusted-folders':

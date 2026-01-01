@@ -114,6 +114,7 @@ export const navGroups: NavGroup[] = [
       { id: 'policy-engine', label: 'Policy 策略引擎', highlight: true },
       { id: 'message-bus', label: '消息总线', highlight: true },
       { id: 'model-routing', label: '模型路由', highlight: true },
+      { id: 'model-availability', label: '模型可用性', highlight: true },
     ],
   },
   {

@@ -39,6 +39,7 @@ export * from './HookSystem';
 export * from './PolicyEngine';
 export * from './MessageBus';
 export * from './ModelRouting';
+export * from './ModelAvailability';
 export * from './AgentFramework';
 export * from './HookEventAnimation';
 export * from './PolicyDecisionAnimation';

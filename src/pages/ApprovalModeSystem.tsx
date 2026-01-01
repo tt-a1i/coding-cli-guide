@@ -207,10 +207,11 @@ export type WaitingToolCall = {
   outcome?: ToolConfirmationOutcome;
 };
 
-// 确认结果类型 - 来自 packages/core/src/tools/tools.ts:575
+// 确认结果类型 - 来自 packages/core/src/tools/tools.ts:721
 export enum ToolConfirmationOutcome {
   ProceedOnce = 'proceed_once',           // 批准一次
   ProceedAlways = 'proceed_always',       // 总是批准此工具
+  ProceedAlwaysAndSave = 'proceed_always_and_save', // 批准并保存到配置
   ProceedAlwaysServer = 'proceed_always_server', // 总是批准此 MCP 服务器
   ProceedAlwaysTool = 'proceed_always_tool',     // 总是批准此工具类型
   ModifyWithEditor = 'modify_with_editor', // 用外部编辑器修改后批准
@@ -620,6 +621,10 @@ export interface PolicyRule {
                   <tr className="border-b border-gray-700/50">
                     <td className="p-2"><code className="text-green-300">ProceedAlways</code></td>
                     <td className="p-2">总是批准此工具（加入 allowedTools）</td>
+                  </tr>
+                  <tr className="border-b border-gray-700/50">
+                    <td className="p-2"><code className="text-emerald-300">ProceedAlwaysAndSave</code></td>
+                    <td className="p-2">批准并保存到 TOML 配置文件</td>
                   </tr>
                   <tr className="border-b border-gray-700/50">
                     <td className="p-2"><code className="text-blue-300">ProceedAlwaysServer</code></td>
