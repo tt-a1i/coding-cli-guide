@@ -342,22 +342,28 @@ export default function SubagentResolutionAnimation() {
         <div className="mt-6 bg-black/40 backdrop-blur border border-purple-500/30 rounded-xl p-4">
           <h3 className="text-purple-400 font-bold mb-3">📄 源码参考</h3>
           <pre className="text-xs text-gray-400 overflow-x-auto">
-{`// packages/core/src/subagents/subagent-manager.ts
+{`// packages/core/src/agents/registry.ts
 
-async loadSubagent(name: string, level?: SubagentLevel): Promise<SubagentConfig | null> {
-  if (level) {
-    // 指定级别时只搜索该级别
-    return this.findSubagentByNameAtLevel(name, level);
+// 通过注册顺序实现优先级覆盖
+async initialize(): Promise<void> {
+  // 1. 加载内置 Agent (最低优先级)
+  this.loadBuiltInAgents();
+
+  // 2. 加载用户级 Agent (覆盖同名 builtin)
+  const userAgents = await loadAgentsFromDirectory(
+    Storage.getUserAgentsDir()
+  );
+  for (const agent of userAgents.agents) {
+    this.registerAgent(agent); // 覆盖同名
   }
 
-  // 按优先级搜索: project → user → builtin
-  const projectConfig = await this.findSubagentByNameAtLevel(name, 'project');
-  if (projectConfig) return projectConfig;
-
-  const userConfig = await this.findSubagentByNameAtLevel(name, 'user');
-  if (userConfig) return userConfig;
-
-  return BuiltinAgentRegistry.getBuiltinAgent(name);
+  // 3. 加载项目级 Agent (最高优先级)
+  const projectAgents = await loadAgentsFromDirectory(
+    this.config.storage.getProjectAgentsDir()
+  );
+  for (const agent of projectAgents.agents) {
+    this.registerAgent(agent); // 覆盖同名
+  }
 }`}
           </pre>
         </div>

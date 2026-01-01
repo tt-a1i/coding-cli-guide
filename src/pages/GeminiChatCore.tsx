@@ -71,7 +71,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
               <div className="text-xs text-[var(--text-muted)]">重试次数</div>
             </div>
             <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--border-subtle)]">
-              <div className="text-xl font-bold text-[var(--cyber-blue)]">13</div>
+              <div className="text-xl font-bold text-[var(--cyber-blue)]">16</div>
               <div className="text-xs text-[var(--text-muted)]">事件类型</div>
             </div>
             <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--border-subtle)]">

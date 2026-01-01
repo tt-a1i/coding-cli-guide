@@ -49,15 +49,16 @@ export function ToolReference() {
     subgraph Read["🔵 Read (只读)"]
       read_file[read_file]
       read_many[read_many_files]
+      list_dir[list_directory]
     end
 
     subgraph Search["🟢 Search (搜索)"]
-      grep[grep_search]
+      grep[search_file_content]
       glob[glob]
     end
 
     subgraph Edit["🟡 Edit (修改)"]
-      edit[edit]
+      edit[replace]
       write[write_file]
     end
 
@@ -66,13 +67,17 @@ export function ToolReference() {
     end
 
     subgraph Think["🔵 Think (思考)"]
-      todo[todo_write]
+      todo[write_todos]
       memory[save_memory]
-      exit_plan[exit_plan_mode]
+    end
+
+    subgraph Fetch["🌐 Fetch (网络)"]
+      web_search[google_web_search]
+      web_fetch[web_fetch]
     end
 
     subgraph Other["⚪ Other (其他)"]
-      task[task - 子代理]
+      task[delegate_to_agent]
     end
 
     style Read fill:#3b82f6,color:#fff
@@ -80,6 +85,7 @@ export function ToolReference() {
     style Edit fill:#f59e0b,color:#000
     style Execute fill:#f97316,color:#fff
     style Think fill:#6366f1,color:#fff
+    style Fetch fill:#06b6d4,color:#fff
     style Other fill:#6b7280,color:#fff`;
 
   // 工具调用生命周期
@@ -190,16 +196,18 @@ export function ToolReference() {
                   <div className="text-gray-400">• <code className="text-cyan-300">write_file</code></div>
                   <div className="text-gray-400">• <code className="text-cyan-300">read_file</code></div>
                   <div className="text-gray-400">• <code className="text-cyan-300">read_many_files</code></div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">grep_search</code></div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">search_file_content</code></div>
                   <div className="text-gray-400">• <code className="text-cyan-300">glob</code></div>
                   <div className="text-gray-400">• <code className="text-cyan-300">run_shell_command</code></div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">todo_write</code></div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">write_todos</code></div>
                   <div className="text-gray-400">• <code className="text-cyan-300">save_memory</code></div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">task</code></div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">exit_plan_mode</code></div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">list_directory</code></div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">google_web_search</code></div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">web_fetch</code></div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">delegate_to_agent</code></div>
                 </div>
                 <p className="text-yellow-300 text-xs mt-2">
-                  注意: LSTool、WebFetchTool 等未在此定义
+                  共 13 个内置工具 (packages/core/src/tools/tool-names.ts)
                 </p>
               </div>
             </HighlightBox>
@@ -352,7 +360,7 @@ export function ToolReference() {
               <div>packages/core/src/tools/shell.ts</div>
               <div>packages/core/src/tools/memoryTool.ts</div>
               <div>packages/core/src/tools/todoWrite.ts</div>
-              <div>packages/core/src/tools/task.ts</div>
+              <div>packages/core/src/agents/delegate-to-agent-tool.ts</div>
             </div>
           </div>
 
@@ -424,7 +432,7 @@ export function ToolReference() {
                   </tr>
                   <tr className="border-b border-gray-800 bg-red-900/10">
                     <td className="py-1 px-2 text-red-400 line-through">'grep'</td>
-                    <td className="py-1 px-2 text-green-400">'grep_search'</td>
+                    <td className="py-1 px-2 text-green-400">'search_file_content'</td>
                     <td className="py-1 px-2 font-sans text-gray-400">Grep 工具正确名称</td>
                   </tr>
                   <tr className="border-b border-gray-800 bg-red-900/10">
@@ -477,36 +485,31 @@ export function ToolReference() {
             </ul>
           </HighlightBox>
 
-          <HighlightBox title="⚠️ edit vs replace 命名不一致" variant="yellow">
+          <HighlightBox title="📌 Edit 工具命名说明" variant="blue">
             <div className="text-sm space-y-2">
-              <p className="text-yellow-200">
-                <strong>已知问题：</strong> Core 层定义的工具名是 <code className="text-cyan-300">edit</code>，
-                但 CLI 层在某些逻辑中使用了 <code className="text-orange-300">replace</code>。
+              <p className="text-blue-200">
+                <strong>命名约定：</strong> 文件编辑工具的 API 名称是 <code className="text-cyan-300">replace</code>，
+                常量名是 <code className="text-purple-300">EDIT_TOOL_NAME</code>。
               </p>
               <div>
-                <h5 className="font-semibold text-yellow-300 mb-1">具体表现</h5>
+                <h5 className="font-semibold text-blue-300 mb-1">EDIT_TOOL_NAMES 集合</h5>
                 <ul className="space-y-1 text-gray-300">
-                  <li>• <strong>Core 定义：</strong> <code className="text-cyan-300">ToolNames.EDIT = 'edit'</code></li>
-                  <li>• <strong>CLI 使用：</strong> <code className="text-orange-300">EDIT_TOOL_NAMES = new Set(['replace', 'write_file'])</code></li>
+                  <li>• <code className="text-cyan-300">replace</code> - 文件内容替换工具</li>
+                  <li>• <code className="text-cyan-300">write_file</code> - 文件写入工具</li>
                 </ul>
               </div>
               <div>
-                <h5 className="font-semibold text-yellow-300 mb-1">影响功能</h5>
+                <h5 className="font-semibold text-blue-300 mb-1">用途</h5>
                 <ul className="space-y-1 text-gray-300">
-                  <li>• <strong>AUTO_EDIT 模式：</strong> 自动批准 <code>replace</code> 而非 <code>edit</code></li>
-                  <li>• <strong>Checkpointing：</strong> 监听 <code>replace</code> 的状态变化</li>
+                  <li>• <strong>AUTO_EDIT 模式：</strong> 自动批准 EDIT_TOOL_NAMES 集合中的工具</li>
+                  <li>• <strong>Checkpointing：</strong> 在执行 EDIT_TOOL_NAMES 工具前创建检查点</li>
                 </ul>
               </div>
-              <div className="bg-yellow-900/20 border border-yellow-600/30 rounded p-2 mt-2">
-                <p className="text-xs text-yellow-200">
-                  <strong>源码位置：</strong>
-                  <br />• packages/core/src/tools/tool-names.ts:13
-                  <br />• packages/cli/src/ui/hooks/useGeminiStream.ts:75
+              <div className="bg-blue-900/20 border border-blue-600/30 rounded p-2 mt-2">
+                <p className="text-xs text-blue-200">
+                  <strong>源码：</strong> packages/core/src/tools/tool-names.ts
                 </p>
               </div>
-              <p className="text-yellow-200 mt-2">
-                <strong>建议：</strong> 在实际使用时，确认 AI 模型返回的工具调用名称与预期一致。
-              </p>
             </div>
           </HighlightBox>
         </div>
@@ -553,20 +556,21 @@ export function ToolReference() {
             </div>
           </HighlightBox>
 
-          <HighlightBox title="Plan Mode 阻断" variant="purple">
+          <HighlightBox title="ApprovalMode 限制" variant="purple">
             <div className="text-sm space-y-2">
               <p className="text-gray-300">
-                <strong>场景：</strong> 在 Plan Mode 下尝试执行修改类工具
+                <strong>场景：</strong> 在非 YOLO 模式下执行需要确认的工具
               </p>
               <CodeBlock
-                code={`// Plan Mode 系统提示
-<system-reminder>
-You are in Plan Mode. You can only use read-only tools...
-To exit Plan Mode, use the exit_plan_mode tool.
-</system-reminder>`}
+                code={`// ApprovalMode 决策
+{
+  approvalMode: 'default',  // 或 'autoEdit'
+  toolKind: 'Edit',
+  decision: PolicyDecision.ASK_USER  // 需要用户确认
+}`}
               />
               <p className="text-cyan-300">
-                <strong>恢复策略：</strong> 使用 <code>exit_plan_mode</code> 工具退出 Plan Mode
+                <strong>恢复策略：</strong> 等待用户确认或切换到 YOLO 模式
               </p>
             </div>
           </HighlightBox>
@@ -590,7 +594,7 @@ To exit Plan Mode, use the exit_plan_mode tool.
                 <td className="py-2 px-3"><code className="text-cyan-400">approvalMode</code></td>
                 <td className="py-2 px-3">ApprovalMode</td>
                 <td className="py-2 px-3"><code>DEFAULT</code></td>
-                <td className="py-2 px-3">工具审批模式（DEFAULT/YOLO/AUTO_EDIT/PLAN）</td>
+                <td className="py-2 px-3">工具审批模式（DEFAULT/AUTO_EDIT/YOLO）</td>
               </tr>
               <tr className="border-b border-gray-800">
                 <td className="py-2 px-3"><code className="text-cyan-400">allowedTools</code></td>
@@ -641,7 +645,7 @@ To exit Plan Mode, use the exit_plan_mode tool.
             <tbody className="text-gray-300 font-mono">
               <tr className="border-b border-gray-800">
                 <td className="py-2 px-3 text-purple-400">EDIT</td>
-                <td className="py-2 px-3 text-cyan-400">'edit'</td>
+                <td className="py-2 px-3 text-cyan-400">'replace'</td>
                 <td className="py-2 px-3">EditTool</td>
                 <td className="py-2 px-3 text-yellow-400">Edit</td>
               </tr>
@@ -665,7 +669,7 @@ To exit Plan Mode, use the exit_plan_mode tool.
               </tr>
               <tr className="border-b border-gray-800">
                 <td className="py-2 px-3 text-purple-400">GREP</td>
-                <td className="py-2 px-3 text-cyan-400">'grep_search'</td>
+                <td className="py-2 px-3 text-cyan-400">'search_file_content'</td>
                 <td className="py-2 px-3">GrepTool</td>
                 <td className="py-2 px-3 text-green-400">Search</td>
               </tr>
@@ -683,7 +687,7 @@ To exit Plan Mode, use the exit_plan_mode tool.
               </tr>
               <tr className="border-b border-gray-800">
                 <td className="py-2 px-3 text-purple-400">TODO_WRITE</td>
-                <td className="py-2 px-3 text-cyan-400">'todo_write'</td>
+                <td className="py-2 px-3 text-cyan-400">'write_todos'</td>
                 <td className="py-2 px-3">TodoWriteTool</td>
                 <td className="py-2 px-3 text-blue-400">Think</td>
               </tr>
@@ -694,16 +698,28 @@ To exit Plan Mode, use the exit_plan_mode tool.
                 <td className="py-2 px-3 text-blue-400">Think</td>
               </tr>
               <tr className="border-b border-gray-800">
-                <td className="py-2 px-3 text-purple-400">TASK</td>
-                <td className="py-2 px-3 text-cyan-400">'task'</td>
-                <td className="py-2 px-3">TaskTool</td>
-                <td className="py-2 px-3 text-gray-400">Other</td>
+                <td className="py-2 px-3 text-purple-400">LS</td>
+                <td className="py-2 px-3 text-cyan-400">'list_directory'</td>
+                <td className="py-2 px-3">LsTool</td>
+                <td className="py-2 px-3 text-blue-400">Read</td>
+              </tr>
+              <tr className="border-b border-gray-800">
+                <td className="py-2 px-3 text-purple-400">WEB_SEARCH</td>
+                <td className="py-2 px-3 text-cyan-400">'google_web_search'</td>
+                <td className="py-2 px-3">WebSearchTool</td>
+                <td className="py-2 px-3 text-teal-400">Fetch</td>
+              </tr>
+              <tr className="border-b border-gray-800">
+                <td className="py-2 px-3 text-purple-400">WEB_FETCH</td>
+                <td className="py-2 px-3 text-cyan-400">'web_fetch'</td>
+                <td className="py-2 px-3">WebFetchTool</td>
+                <td className="py-2 px-3 text-teal-400">Fetch</td>
               </tr>
               <tr>
-                <td className="py-2 px-3 text-purple-400">EXIT_PLAN_MODE</td>
-                <td className="py-2 px-3 text-cyan-400">'exit_plan_mode'</td>
-                <td className="py-2 px-3">ExitPlanModeTool</td>
-                <td className="py-2 px-3 text-blue-400">Think</td>
+                <td className="py-2 px-3 text-purple-400">DELEGATE_TO_AGENT</td>
+                <td className="py-2 px-3 text-cyan-400">'delegate_to_agent'</td>
+                <td className="py-2 px-3">DelegateToAgentTool</td>
+                <td className="py-2 px-3 text-gray-400">Other</td>
               </tr>
             </tbody>
           </table>
@@ -711,31 +727,32 @@ To exit Plan Mode, use the exit_plan_mode tool.
 
         <CodeBlock
           title="tool-names.ts - 源码"
-          code={`export const ToolNames = {
-  EDIT: 'edit',
-  WRITE_FILE: 'write_file',
-  READ_FILE: 'read_file',
-  READ_MANY_FILES: 'read_many_files',
-  GREP: 'grep_search',        // 注意: 不是 'grep'
-  GLOB: 'glob',
-  SHELL: 'run_shell_command', // 注意: 不是 'bash' 或 'shell'
-  TODO_WRITE: 'todo_write',
-  MEMORY: 'save_memory',      // 注意: 不是 'memory'
-  TASK: 'task',
-  EXIT_PLAN_MODE: 'exit_plan_mode',
-} as const;`}
+          code={`// packages/core/src/tools/tool-names.ts
+export const GLOB_TOOL_NAME = 'glob';
+export const WRITE_TODOS_TOOL_NAME = 'write_todos';
+export const WRITE_FILE_TOOL_NAME = 'write_file';
+export const WEB_SEARCH_TOOL_NAME = 'google_web_search';
+export const WEB_FETCH_TOOL_NAME = 'web_fetch';
+export const EDIT_TOOL_NAME = 'replace';        // 注意: 不是 'edit'
+export const SHELL_TOOL_NAME = 'run_shell_command';
+export const GREP_TOOL_NAME = 'search_file_content';
+export const READ_MANY_FILES_TOOL_NAME = 'read_many_files';
+export const READ_FILE_TOOL_NAME = 'read_file';
+export const LS_TOOL_NAME = 'list_directory';
+export const MEMORY_TOOL_NAME = 'save_memory';
+export const DELEGATE_TO_AGENT_TOOL_NAME = 'delegate_to_agent';
+
+export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 13 个内置工具`}
         />
 
         <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-3 mt-4">
           <p className="text-sm text-blue-300">
-            <strong>补充说明：</strong> 除了上述核心工具外，系统还包括:
+            <strong>补充说明：</strong> 上述表格包含 ALL_BUILTIN_TOOL_NAMES 中的全部 13 个内置工具。此外还有：
           </p>
           <ul className="text-xs text-gray-400 mt-2 space-y-1 ml-4">
-            <li>• <code className="text-cyan-300">list_directory</code> - 内建目录列表工具</li>
-            <li>• <code className="text-cyan-300">web_fetch</code> - 内建网页获取工具</li>
-            <li>• <code className="text-cyan-300">web_search</code> - 内建网页搜索工具 (可选)</li>
-            <li>• MCP 工具 - 通过 Model Context Protocol 动态注册的工具</li>
+            <li>• MCP 工具 - 通过 Model Context Protocol 动态注册的外部工具</li>
             <li>• Extension 工具 - 运行时发现的扩展工具</li>
+            <li>• Agent 内部工具 - 如 <code className="text-cyan-300">get_internal_docs</code>（仅限内部使用）</li>
           </ul>
         </div>
       </Layer>
@@ -859,8 +876,8 @@ To exit Plan Mode, use the exit_plan_mode tool.
           </div>
         </HighlightBox>
 
-        {/* grep_search */}
-        <HighlightBox title="grep_search - 内容搜索" icon="🔍" variant="green">
+        {/* search_file_content */}
+        <HighlightBox title="search_file_content - 内容搜索" icon="🔍" variant="green">
           <p className="text-sm text-gray-400 mb-2">
             来源: <code>packages/core/src/tools/grep.ts</code> | Kind: <span className="text-green-400">Search</span>
           </p>
@@ -1033,8 +1050,8 @@ To exit Plan Mode, use the exit_plan_mode tool.
           </div>
         </HighlightBox>
 
-        {/* todo_write */}
-        <HighlightBox title="todo_write - 任务管理" icon="✅" variant="blue">
+        {/* write_todos */}
+        <HighlightBox title="write_todos - 任务管理" icon="✅" variant="blue">
           <p className="text-sm text-gray-400 mb-2">
             来源: <code>packages/core/src/tools/todoWrite.ts</code> | Kind: <span className="text-blue-400">Think</span>
           </p>
@@ -1064,10 +1081,10 @@ To exit Plan Mode, use the exit_plan_mode tool.
           </div>
         </HighlightBox>
 
-        {/* task */}
-        <HighlightBox title="task - 子代理调度" icon="🤖" variant="purple">
+        {/* delegate_to_agent */}
+        <HighlightBox title="delegate_to_agent - 子代理调度" icon="🤖" variant="purple">
           <p className="text-sm text-gray-400 mb-2">
-            来源: <code>packages/core/src/tools/task.ts</code> | Kind: <span className="text-gray-400">Other</span>
+            来源: <code>packages/core/src/agents/delegate-to-agent-tool.ts</code> | Kind: <span className="text-gray-400">Other</span>
           </p>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">

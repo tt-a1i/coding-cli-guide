@@ -321,138 +321,125 @@ const phaseDescriptions: Record<AnimationPhase, string> = {
 };
 
 const phaseCode: Record<AnimationPhase, string> = {
-  idle: `// subagent-manager.ts - 子代理管理器
-class SubagentManager {
-  private builtinAgents: Map<string, SubagentDef>;
-  private userAgents: Map<string, SubagentDef>;
-  private projectAgents: Map<string, SubagentDef>;
+  idle: `// registry.ts - Agent 注册管理器
+class AgentRegistry {
+  private readonly agents = new Map<string, AgentDefinition>();
 
-  constructor() {
-    this.loadBuiltinAgents();
-    this.loadUserAgents();
-    this.loadProjectAgents();
+  async initialize(): Promise<void> {
+    this.loadBuiltInAgents();
+    await this.loadUserAgents();
+    await this.loadProjectAgents();
   }
 }`,
-  receive_task: `// subagent-manager.ts - 接收任务
-async handleComplexTask(task: Task): Promise<Result> {
-  // 分析任务复杂度
-  const subtasks = this.decomposeTask(task);
+  receive_task: `// delegate-to-agent-tool.ts - 接收委托任务
+async execute(signal: AbortSignal): Promise<ToolResult> {
+  // 查找目标 Agent
+  const agent = this.agentRegistry.getAgent(this.params.agent_name);
 
-  console.log(\`任务分解为 \${subtasks.length} 个子任务\`);
-
-  // 为每个子任务分配合适的代理
-  const assignments = subtasks.map(subtask => ({
-    subtask,
-    agent: this.findBestAgent(subtask.type),
-  }));
-
-  return this.executeAssignments(assignments);
-}`,
-  lookup_hierarchy: `// subagent-manager.ts - 层级查找
-findAgent(name: string): SubagentDef | null {
-  // 1. 优先查找项目级定义
-  if (this.projectAgents.has(name)) {
-    console.log(\`在 project 层找到: \${name}\`);
-    return this.projectAgents.get(name)!;
+  if (!agent) {
+    return { error: \`Agent not found: \${this.params.agent_name}\` };
   }
 
-  // 2. 其次查找用户级定义
-  if (this.userAgents.has(name)) {
-    console.log(\`在 user 层找到: \${name}\`);
-    return this.userAgents.get(name)!;
+  // 创建 Agent 调用
+  const invocation = this.createInvocation(agent);
+
+  return this.executeInvocation(invocation, signal);
+}`,
+  lookup_hierarchy: `// registry.ts - Agent 查找
+getAgent<T extends z.ZodTypeAny>(
+  name: string
+): AgentDefinition<T> | undefined {
+  // 通过注册顺序实现优先级:
+  // 1. builtin 先加载
+  // 2. user 覆盖同名 builtin
+  // 3. project 覆盖同名 user/builtin
+  return this.agents.get(name);
+}
+
+// 加载顺序确保正确的覆盖行为:
+// initialize() {
+//   this.loadBuiltInAgents();     // builtin
+//   loadAgentsFromDirectory(user);  // user
+//   loadAgentsFromDirectory(project); // project
+// }`,
+  spawn_agents: `// local-invocation.ts - 创建 Agent 调用
+class LocalAgentInvocation {
+  constructor(
+    readonly definition: LocalAgentDefinition,
+    readonly query: string,
+    readonly toolRegistry: ToolRegistry,
+  ) {}
+
+  getTools(): AnyDeclarativeTool[] {
+    // 解析工具配置
+    const toolNames = this.definition.toolConfig?.tools ?? [];
+    return toolNames.map(name =>
+      this.toolRegistry.getTool(name)
+    ).filter(Boolean);
   }
 
-  // 3. 最后查找内置定义
-  if (this.builtinAgents.has(name)) {
-    console.log(\`在 builtin 层找到: \${name}\`);
-    return this.builtinAgents.get(name)!;
+  getSystemPrompt(): string {
+    return this.definition.promptConfig.systemPrompt;
   }
-
-  return null;
 }`,
-  spawn_agents: `// subagent.ts - 创建子代理实例
-async spawnAgent(def: SubagentDef, task: string): Promise<Subagent> {
-  const agent: Subagent = {
-    id: generateId(),
-    definition: def,
-    status: 'spawning',
-    task,
-    context: this.createContext(def),
-  };
+  parallel_execution: `// local-executor.ts - 执行 Agent
+class LocalAgentExecutor {
+  async execute(
+    invocation: LocalAgentInvocation
+  ): Promise<AgentExecutionResult> {
+    // 构建工具声明
+    const tools = invocation.getTools();
+    const declarations = tools.map(t => t.schema);
 
-  // 初始化代理
-  await agent.initialize();
+    // 创建对话循环
+    const result = await this.runConversationLoop({
+      systemPrompt: invocation.getSystemPrompt(),
+      tools: declarations,
+      maxTurns: invocation.definition.runConfig?.max_turns,
+    });
 
-  // 设置资源限制
-  agent.setTokenLimit(def.maxTokens || 4000);
-  agent.setTimeout(def.timeout || 60000);
-
-  this.activeAgents.set(agent.id, agent);
-
-  return agent;
+    return result;
+  }
 }`,
-  parallel_execution: `// subagent-manager.ts - 并行执行
-async executeParallel(agents: Subagent[]): Promise<Result[]> {
-  // 使用 Promise.allSettled 确保所有代理都完成
-  const results = await Promise.allSettled(
-    agents.map(async (agent) => {
-      agent.status = 'running';
+  collect_results: `// local-executor.ts - 收集执行结果
+async runConversationLoop(config: LoopConfig): Promise<Result> {
+  let turnCount = 0;
+  const maxTurns = config.maxTurns ?? 10;
 
-      try {
-        const result = await agent.execute();
-        agent.status = 'completed';
-        return result;
-      } catch (error) {
-        agent.status = 'error';
-        throw error;
-      }
-    })
+  while (turnCount < maxTurns) {
+    // 发送请求到模型
+    const response = await this.model.generateContent({
+      systemInstruction: config.systemPrompt,
+      tools: config.tools,
+      contents: this.history,
+    });
+
+    // 检查是否有工具调用
+    if (!response.functionCalls?.length) {
+      return { text: response.text };
+    }
+
+    // 执行工具调用
+    await this.executeToolCalls(response.functionCalls);
+    turnCount++;
+  }
+}`,
+  synthesize: `// delegate-to-agent-tool.ts - 返回结果
+async executeInvocation(
+  invocation: LocalAgentInvocation,
+  signal: AbortSignal
+): Promise<ToolResult> {
+  const executor = new LocalAgentExecutor(
+    this.model,
+    this.toolRegistry
   );
 
-  return results.map((r, i) => ({
-    agent: agents[i].id,
-    success: r.status === 'fulfilled',
-    result: r.status === 'fulfilled' ? r.value : r.reason,
-  }));
-}`,
-  collect_results: `// subagent-manager.ts - 收集结果
-collectResults(execResults: ExecutionResult[]): CollectedResults {
-  const successful = execResults.filter(r => r.success);
-  const failed = execResults.filter(r => !r.success);
+  const result = await executor.execute(invocation);
 
+  // 返回给主对话
   return {
-    successful: successful.map(r => ({
-      agentId: r.agent,
-      result: r.result,
-      tokens: r.tokensUsed,
-    })),
-    failed: failed.map(r => ({
-      agentId: r.agent,
-      error: r.result,
-    })),
-    totalTokens: execResults.reduce((sum, r) => sum + (r.tokensUsed || 0), 0),
-  };
-}`,
-  synthesize: `// subagent-manager.ts - 合成结果
-async synthesizeResults(collected: CollectedResults): Promise<FinalResult> {
-  // 使用主模型合成各子代理的结果
-  const prompt = \`
-请合成以下子代理的执行结果：
-
-\${collected.successful.map(r => \`
-## \${r.agentId}
-\${r.result}
-\`).join('\\n')}
-
-请提供一个综合性的总结。
-\`;
-
-  const synthesis = await this.mainModel.generate(prompt);
-
-  return {
-    summary: synthesis,
-    details: collected,
-    totalTokens: collected.totalTokens,
+    llmContent: result.text,
+    returnDisplay: \`Agent \${invocation.definition.name} completed\`,
   };
 }`,
   completed: `// 执行完成后的结果结构

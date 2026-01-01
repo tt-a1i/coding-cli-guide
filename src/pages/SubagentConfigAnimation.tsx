@@ -10,7 +10,7 @@ type ParsePhase =
   | 'scan_project'
   | 'scan_user'
   | 'scan_builtin'
-  | 'parse_frontmatter'
+  | 'parse_toml'
   | 'validate_schema'
   | 'resolve_tools'
   | 'build_cache'
@@ -54,7 +54,7 @@ const sampleAgents: Record<SubagentLevel, SubagentConfig[]> = {
       description: '审查 API 设计规范',
       tools: ['read_file', 'search_code'],
       level: 'project',
-      filePath: '.gemini/agents/api-reviewer.md',
+      filePath: '.gemini/agents/api-reviewer.toml',
     },
   ],
   user: [
@@ -63,14 +63,14 @@ const sampleAgents: Record<SubagentLevel, SubagentConfig[]> = {
       description: '解释代码逻辑',
       tools: ['read_file', 'web_search'],
       level: 'user',
-      filePath: '~/.gemini/agents/code-explainer.md',
+      filePath: '~/.gemini/agents/code-explainer.toml',
     },
     {
       name: 'api-reviewer',
       description: '用户级 API 审查器',
       tools: ['read_file'],
       level: 'user',
-      filePath: '~/.gemini/agents/api-reviewer.md',
+      filePath: '~/.gemini/agents/api-reviewer.toml',
     },
   ],
   builtin: [
@@ -103,79 +103,78 @@ const parseSequence: ParseStep[] = [
       userAgents: [],
       builtinAgents: [],
     },
-    codeSnippet: `// subagent-manager.ts:40-60
-class SubagentManager {
-  private subagentsCache: Map<SubagentLevel, SubagentConfig[]>;
-  private changeListeners: Set<() => void>;
-  private projectDir: string;
-  private userDir: string;
+    codeSnippet: `// registry.ts - AgentRegistry
+class AgentRegistry {
+  private readonly agents = new Map<string, AgentDefinition>();
 
-  constructor(workspaceDir: string) {
-    this.subagentsCache = new Map();
-    this.changeListeners = new Set();
-    this.projectDir = path.join(workspaceDir, '.gemini/agents');
-    this.userDir = path.join(os.homedir(), '.gemini/agents');
+  constructor(private readonly config: Config) {}
+
+  async initialize(): Promise<void> {
+    this.loadBuiltInAgents();
+
+    // Load user-level agents: ~/.gemini/agents/
+    const userAgentsDir = Storage.getUserAgentsDir();
+    const userAgents = await loadAgentsFromDirectory(userAgentsDir);
+
+    // Load project-level agents: .gemini/agents/
+    const projectAgentsDir = this.config.storage.getProjectAgentsDir();
+    const projectAgents = await loadAgentsFromDirectory(projectAgentsDir);
   }
 }`,
   },
   {
     phase: 'scan_project',
     title: '扫描项目级配置',
-    description: '读取 .gemini/agents/*.md 文件',
+    description: '读取 .gemini/agents/*.toml 文件',
     stateChange: {
       currentLevel: 'project',
       projectAgents: sampleAgents.project,
     },
-    codeSnippet: `// subagent-manager.ts:200-230
-async listSubagentsAtLevel(level: SubagentLevel): Promise<SubagentConfig[]> {
-  if (level === 'project') {
-    const agentDir = path.join(this.workspaceDir, '.gemini/agents');
+    codeSnippet: `// toml-loader.ts - loadAgentsFromDirectory
+async function loadAgentsFromDirectory(dir: string): Promise<AgentLoadResult> {
+  const result: AgentLoadResult = { agents: [], errors: [] };
 
-    if (!fs.existsSync(agentDir)) {
-      return [];
+  const dirEntries = await fs.readdir(dir, { withFileTypes: true });
+  const tomlFiles = dirEntries.filter(
+    entry => entry.isFile() &&
+    entry.name.endsWith('.toml') &&
+    !entry.name.startsWith('_')
+  );
+
+  for (const file of tomlFiles) {
+    const filePath = path.join(dir, file.name);
+    const tomls = await parseAgentToml(filePath);
+    for (const toml of tomls) {
+      result.agents.push(tomlToAgentDefinition(toml));
     }
-
-    const files = await fs.readdir(agentDir);
-    const mdFiles = files.filter((f) => f.endsWith('.md'));
-
-    const agents: SubagentConfig[] = [];
-    for (const file of mdFiles) {
-      const filePath = path.join(agentDir, file);
-      const config = await this.parseSubagentFile(filePath, 'project');
-      if (config) agents.push(config);
-    }
-
-    return agents;
   }
+
+  return result;
 }`,
   },
   {
     phase: 'scan_user',
     title: '扫描用户级配置',
-    description: '读取 ~/.gemini/agents/*.md 文件',
+    description: '读取 ~/.gemini/agents/*.toml 文件',
     stateChange: {
       currentLevel: 'user',
       userAgents: sampleAgents.user,
     },
-    codeSnippet: `// subagent-manager.ts:232-260
-if (level === 'user') {
-  const userAgentDir = path.join(os.homedir(), '.gemini/agents');
+    codeSnippet: `// registry.ts - AgentRegistry.loadAgentsFromUserDir
+async loadAgentsFromUserDir(): Promise<void> {
+  const userAgentDir = Storage.getGlobalAgentsPath();
 
-  if (!fs.existsSync(userAgentDir)) {
-    return [];
+  const result = await loadAgentsFromDirectory(userAgentDir);
+
+  // 注册用户级 Agent
+  for (const agent of result.agents) {
+    this.registerAgent(agent, 'user');
   }
 
-  const files = await fs.readdir(userAgentDir);
-  const mdFiles = files.filter((f) => f.endsWith('.md'));
-
-  const agents: SubagentConfig[] = [];
-  for (const file of mdFiles) {
-    const filePath = path.join(userAgentDir, file);
-    const config = await this.parseSubagentFile(filePath, 'user');
-    if (config) agents.push(config);
+  // 报告加载错误
+  for (const error of result.errors) {
+    coreEvents.emitFeedback('warning', error.message);
   }
-
-  return agents;
 }`,
   },
   {
@@ -186,105 +185,104 @@ if (level === 'user') {
       currentLevel: 'builtin',
       builtinAgents: sampleAgents.builtin,
     },
-    codeSnippet: `// subagent-manager.ts:262-280
-if (level === 'builtin') {
-  return BuiltinAgentRegistry.getAllBuiltinAgents();
+    codeSnippet: `// registry.ts - loadBuiltInAgents
+private loadBuiltInAgents(): void {
+  // CodebaseInvestigatorAgent - 用于代码库探索
+  this.registerAgent(
+    CodebaseInvestigatorAgent.getDefinition(this.config)
+  );
+
+  // IntrospectionAgent - 用于内省和反思
+  this.registerAgent(
+    IntrospectionAgent.getDefinition(this.config)
+  );
 }
 
-// builtin-agents.ts
-const BuiltinAgentRegistry = {
-  agents: new Map<string, SubagentConfig>([
-    ['Explore', { name: 'Explore', description: '...', tools: [...] }],
-    ['Plan', { name: 'Plan', description: '...', tools: [...] }],
-    ['general-purpose', { ... }],
-    // ... 更多内置 agent
-  ]),
-
-  getAllBuiltinAgents(): SubagentConfig[] {
-    return Array.from(this.agents.values());
+// codebase-investigator.ts
+export class CodebaseInvestigatorAgent {
+  static readonly agentName = 'CodebaseInvestigator';
+  static getDefinition(config: Config): AgentDefinition {
+    return {
+      kind: 'local',
+      name: this.agentName,
+      description: 'Investigates the codebase...',
   },
 };`,
   },
   {
-    phase: 'parse_frontmatter',
-    title: '解析 YAML Frontmatter',
-    description: '从 Markdown 文件提取配置和 System Prompt',
+    phase: 'parse_toml',
+    title: '解析 TOML 配置',
+    description: '使用 @iarna/toml 解析配置，Zod 验证 Schema',
     stateChange: {
       activeAgent: sampleAgents.project[0],
     },
-    codeSnippet: `// subagent-manager.ts:412-450
-async parseSubagentFile(
-  filePath: string,
-  level: SubagentLevel
-): Promise<SubagentConfig | null> {
+    codeSnippet: `// toml-loader.ts - parseAgentToml
+async function parseAgentToml(filePath: string): Promise<TomlAgentDefinition[]> {
   const content = await fs.readFile(filePath, 'utf-8');
+  const raw = TOML.parse(content);
 
-  // 匹配 YAML frontmatter
-  const frontmatterRegex = /^---\\n([\\s\\S]*?)\\n---\\n([\\s\\S]*)$/;
-  const match = content.match(frontmatterRegex);
+  // 使用 Zod 验证配置
+  const result = localAgentSchema.safeParse(raw);
 
-  if (!match) {
-    console.warn(\`Invalid subagent file: \${filePath}\`);
-    return null;
+  if (!result.success) {
+    throw new AgentLoadError(filePath, formatZodError(result.error));
   }
 
-  const [, frontmatterYaml, systemPrompt] = match;
-
-  // 解析 YAML
-  const frontmatter = parseYaml(frontmatterYaml);
-
-  return {
-    name: frontmatter.name,
-    description: frontmatter.description,
-    tools: frontmatter.tools || [],
-    systemPrompt: systemPrompt.trim(),
-    filePath,
-    level,
-  };
+  return [result.data];
 }
 
-// 示例 Markdown 文件:
-// ---
-// name: api-reviewer
-// description: 审查 API 设计规范
-// tools:
-//   - read_file
-//   - search_code
-// ---
-// You are an API design reviewer...`,
+// 转换为内部 AgentDefinition
+function tomlToAgentDefinition(toml: TomlLocalAgentDefinition): AgentDefinition {
+  return {
+    kind: 'local',
+    name: toml.name,
+    description: toml.description,
+    displayName: toml.display_name,
+    promptConfig: {
+      systemPrompt: toml.prompts.system_prompt,
+      query: toml.prompts.query,
+    },
+    modelConfig: {
+      model: toml.model?.model || 'inherit',
+      temp: toml.model?.temperature ?? 1,
+    },
+    runConfig: {
+      max_turns: toml.run?.max_turns,
+      max_time_minutes: toml.run?.timeout_mins || 5,
+    },
+    toolConfig: toml.tools ? { tools: toml.tools } : undefined,
+  };
+}`,
   },
   {
     phase: 'validate_schema',
     title: '验证配置 Schema',
     description: '检查必填字段和类型',
     stateChange: {},
-    codeSnippet: `// subagent-manager.ts:452-480
-function validateSubagentConfig(config: unknown): config is SubagentConfig {
-  if (typeof config !== 'object' || config === null) {
-    return false;
-  }
+    codeSnippet: `// toml-loader.ts - Zod Schema 验证
+const localAgentSchema = z.object({
+  name: z.string().min(1),
+  description: z.string(),
+  display_name: z.string().optional(),
+  tools: z.array(z.string()).optional(),
+  prompts: z.object({
+    system_prompt: z.string(),
+    query: z.string().optional(),
+  }),
+  model: z.object({
+    model: z.string().optional(),
+    temperature: z.number().optional(),
+  }).optional(),
+  run: z.object({
+    max_turns: z.number().optional(),
+    timeout_mins: z.number().optional(),
+  }).optional(),
+});
 
-  const c = config as Record<string, unknown>;
-
-  // 必填字段
-  if (typeof c.name !== 'string' || c.name.length === 0) {
-    throw new Error('Subagent name is required');
-  }
-
-  if (typeof c.description !== 'string') {
-    throw new Error('Subagent description is required');
-  }
-
-  // 可选字段类型检查
-  if (c.tools !== undefined && !Array.isArray(c.tools)) {
-    throw new Error('tools must be an array');
-  }
-
-  if (c.modelConfig !== undefined && typeof c.modelConfig !== 'object') {
-    throw new Error('modelConfig must be an object');
-  }
-
-  return true;
+// 验证并解析
+const result = localAgentSchema.safeParse(raw);
+if (!result.success) {
+  throw new AgentLoadError(filePath, formatZodError(result.error));
 }`,
   },
   {
@@ -292,39 +290,34 @@ function validateSubagentConfig(config: unknown): config is SubagentConfig {
     title: '解析工具名称',
     description: '将显示名映射到实际工具 ID',
     stateChange: {},
-    codeSnippet: `// subagent-manager.ts:614-651
-function resolveToolNames(
-  toolNames: string[],
-  toolRegistry: ToolRegistry
-): string[] {
-  const resolvedTools: string[] = [];
+    codeSnippet: `// local-executor.ts - 工具解析
+class LocalAgentExecutor {
+  async execute(
+    invocation: LocalAgentInvocation
+  ): Promise<AgentExecutionResult> {
+    // 获取 Agent 定义中的工具配置
+    const toolConfig = invocation.definition.toolConfig;
 
-  for (const name of toolNames) {
-    // 尝试精确匹配
-    const exactMatch = toolRegistry.getToolByName(name);
-    if (exactMatch) {
-      resolvedTools.push(exactMatch.name);
-      continue;
-    }
+    // 解析工具列表
+    const resolvedTools = toolConfig?.tools?.map(toolName => {
+      // 从 ToolRegistry 获取实际工具
+      const tool = this.toolRegistry.getTool(toolName);
+      if (!tool) {
+        throw new Error(\`Tool not found: \${toolName}\`);
+      }
+      return tool;
+    });
 
-    // 尝试显示名匹配
-    const displayMatch = toolRegistry.getToolByDisplayName(name);
-    if (displayMatch) {
-      resolvedTools.push(displayMatch.name);
-      continue;
-    }
-
-    // 保留原始名称 (允许前向引用)
-    console.warn(\`Tool not found: \${name}, keeping as-is\`);
-    resolvedTools.push(name);
+    // 构建工具声明发送给模型
+    const declarations = resolvedTools?.map(
+      tool => tool.schema
+    );
   }
-
-  return resolvedTools;
 }
 
 // 示例:
-// "Read File" -> "read_file"
-// "Search Code" -> "grep"`,
+// "read_file" -> ReadFileTool
+// "replace" -> EditTool`,
   },
   {
     phase: 'build_cache',
@@ -333,24 +326,28 @@ function resolveToolNames(
     stateChange: {
       cacheStatus: 'building',
     },
-    codeSnippet: `// subagent-manager.ts:347-359
-async refreshCache(): Promise<void> {
-  const levels: SubagentLevel[] = ['project', 'user', 'builtin'];
-
-  for (const level of levels) {
-    const levelSubagents = await this.listSubagentsAtLevel(level);
-    this.subagentsCache.set(level, levelSubagents);
+    codeSnippet: `// registry.ts - Agent 注册
+async registerAgent<T extends z.ZodTypeAny>(
+  definition: AgentDefinition<T>
+): Promise<void> {
+  // 检查名称冲突
+  if (this.agents.has(definition.name)) {
+    debugLogger.warn(
+      \`Agent '\${definition.name}' already registered, overwriting\`
+    );
   }
 
-  // 缓存构建完成后通知监听器
-  this.notifyChangeListeners();
+  // 注册到 Map
+  this.agents.set(definition.name, definition);
+
+  // 注册模型配置
+  this.registerModelConfig(definition);
 }
 
-// 缓存结构:
+// 注册表结构:
 // Map {
-//   'project' => [{ name: 'api-reviewer', ... }],
-//   'user' => [{ name: 'code-explainer', ... }],
-//   'builtin' => [{ name: 'Explore', ... }],
+//   'api-reviewer' => { kind: 'local', name: 'api-reviewer', ... },
+//   'CodebaseInvestigator' => { kind: 'local', ... },
 // }`,
   },
   {
@@ -360,22 +357,23 @@ async refreshCache(): Promise<void> {
     stateChange: {
       cacheStatus: 'ready',
     },
-    codeSnippet: `// subagent-manager.ts:57-62
-private notifyChangeListeners(): void {
-  for (const listener of this.changeListeners) {
-    try {
-      listener();
-    } catch (error) {
-      console.error('Error in subagent change listener:', error);
-    }
-  }
-}
+    codeSnippet: `// events.ts - CoreEvents 通知
+coreEvents.on(CoreEvent.ModelChanged, () => {
+  // 模型变更时刷新 Agent
+  this.refreshAgents().catch((e) => {
+    debugLogger.error(
+      '[AgentRegistry] Failed to refresh agents:',
+      e
+    );
+  });
+});
 
-// 使用示例:
-manager.addChangeListener(() => {
-  // 刷新 UI 中的 subagent 列表
-  refreshSubagentDropdown();
-});`,
+// registry.ts - refreshAgents
+async refreshAgents(): Promise<void> {
+  // 清除并重新加载所有 Agent
+  this.agents.clear();
+  await this.initialize();
+}`,
   },
   {
     phase: 'complete',
@@ -385,26 +383,22 @@ manager.addChangeListener(() => {
       currentLevel: null,
       activeAgent: null,
     },
-    codeSnippet: `// subagent-manager.ts:134-161
-async loadSubagent(
-  name: string,
-  level?: SubagentLevel
-): Promise<SubagentConfig | null> {
-  if (level) {
-    // 指定层级查找
-    return this.findSubagentByNameAtLevel(name, level);
-  }
+    codeSnippet: `// registry.ts - getAgent
+getAgent<T extends z.ZodTypeAny>(
+  name: string
+): AgentDefinition<T> | undefined {
+  return this.agents.get(name) as AgentDefinition<T> | undefined;
+}
 
-  // 层级优先级: project > user > builtin
-  // (项目级配置遮蔽用户级和内置)
+// registry.ts - getAllAgents
+getAllAgents(): AgentDefinition<z.ZodTypeAny>[] {
+  return Array.from(this.agents.values());
+}
 
-  const projectConfig = await this.findSubagentByNameAtLevel(name, 'project');
-  if (projectConfig) return projectConfig;
-
-  const userConfig = await this.findSubagentByNameAtLevel(name, 'user');
-  if (userConfig) return userConfig;
-
-  return BuiltinAgentRegistry.getBuiltinAgent(name);
+// 层级优先级通过加载顺序实现:
+// 1. 先加载 builtin (loadBuiltInAgents)
+// 2. 再加载 user (会覆盖同名 builtin)
+// 3. 最后加载 project (会覆盖同名 user 和 builtin)
 }
 
 // 遮蔽示例:
@@ -507,8 +501,8 @@ function LevelHierarchy({
   );
 }
 
-// Frontmatter 解析可视化
-function FrontmatterParser({ agent }: { agent: SubagentConfig | null }) {
+// TOML 配置解析可视化
+function TomlConfigParser({ agent }: { agent: SubagentConfig | null }) {
   if (!agent) {
     return (
       <div className="bg-[var(--bg-terminal)] rounded-lg p-4 border border-[var(--border-subtle)] text-center text-[var(--text-muted)]">
@@ -517,18 +511,20 @@ function FrontmatterParser({ agent }: { agent: SubagentConfig | null }) {
     );
   }
 
-  const frontmatterYaml = `---
-name: ${agent.name}
-description: ${agent.description}
-tools:
-${agent.tools.map((t) => `  - ${t}`).join('\n')}
----`;
+  const tomlConfig = `name = "${agent.name}"
+description = "${agent.description}"
+tools = [${agent.tools.map((t) => `"${t}"`).join(', ')}]
+
+[prompts]
+system_prompt = """
+You are a specialized agent...
+"""`;
 
   return (
     <div className="bg-[var(--bg-terminal)] rounded-lg p-4 border border-[var(--border-subtle)]">
       <div className="flex items-center gap-2 mb-3">
         <span className="text-[var(--purple)]">📄</span>
-        <span className="text-sm font-mono font-bold text-[var(--text-primary)]">YAML Frontmatter</span>
+        <span className="text-sm font-mono font-bold text-[var(--text-primary)]">TOML Configuration</span>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -536,8 +532,7 @@ ${agent.tools.map((t) => `  - ${t}`).join('\n')}
         <div>
           <div className="text-xs text-[var(--text-muted)] mb-1">原始文件:</div>
           <pre className="p-2 rounded bg-black/30 text-xs font-mono text-[var(--text-secondary)] overflow-auto">
-            {frontmatterYaml}
-{'\n'}You are a specialized agent for reviewing API design...
+            {tomlConfig}
           </pre>
         </div>
 
@@ -642,10 +637,10 @@ export function SubagentConfigAnimation() {
           Subagent 配置解析动画
         </h1>
         <p className="text-[var(--text-secondary)]">
-          展示 Subagent 配置的三层解析流程：Project → User → Builtin，以及 YAML Frontmatter 解析
+          展示 Subagent 配置的三层解析流程：Project → User → Builtin，以及 TOML 配置解析
         </p>
         <p className="text-xs text-[var(--text-muted)] mt-2 font-mono">
-          核心代码: packages/core/src/subagents/subagent-manager.ts:40-799
+          核心代码: packages/core/src/agents/toml-loader.ts
         </p>
       </div>
 
@@ -722,7 +717,7 @@ export function SubagentConfigAnimation() {
           userAgents={parseState.userAgents}
           builtinAgents={parseState.builtinAgents}
         />
-        <FrontmatterParser agent={parseState.activeAgent} />
+        <TomlConfigParser agent={parseState.activeAgent} />
       </div>
 
       {/* 代码 */}

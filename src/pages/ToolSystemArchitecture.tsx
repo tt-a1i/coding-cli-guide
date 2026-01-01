@@ -59,7 +59,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
             <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--border-subtle)]">
-              <div className="text-xl font-bold text-[var(--terminal-green)]">20+</div>
+              <div className="text-xl font-bold text-[var(--terminal-green)]">13</div>
               <div className="text-xs text-[var(--text-muted)]">内置工具</div>
             </div>
             <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--border-subtle)]">
@@ -396,8 +396,8 @@ interface ToolResult {
             params={['file_path', 'content']}
           />
           <ToolCard
-            name="edit"
-            displayName="Edit File"
+            name="replace"
+            displayName="Replace"
             description="通过字符串替换编辑文件"
             kind="write"
             params={['file_path', 'old_string', 'new_string']}
@@ -417,23 +417,23 @@ interface ToolResult {
             params={['pattern', 'path?']}
           />
           <ToolCard
-            name="grep_search"
+            name="search_file_content"
             displayName="Grep"
             description="在文件中搜索文本"
             kind="read"
             params={['pattern', 'path?', 'include?']}
           />
           <ToolCard
-            name="task"
-            displayName="Task"
-            description="创建子任务或代理"
+            name="delegate_to_agent"
+            displayName="Delegate Agent"
+            description="委托任务给子代理"
             kind="execute"
-            params={['description', 'prompt']}
+            params={['agent_name', 'task']}
           />
           <ToolCard
-            name="web_search"
+            name="google_web_search"
             displayName="Web Search"
-            description="搜索网页内容"
+            description="使用 Google 搜索网页内容"
             kind="read"
             params={['query', 'max_results?']}
           />
@@ -612,7 +612,7 @@ interface ToolResult {
 core = [
     "read_file",                    # 读取文件自动批准
     "glob",                         # 文件搜索自动批准
-    "grep_search",                  # 内容搜索自动批准
+    "search_file_content",          # 内容搜索自动批准
     "run_shell_command(git *)",     # git 命令自动批准
     "run_shell_command(npm test)",  # npm test 自动批准
 ]
@@ -1368,7 +1368,7 @@ gemini mcp status`}</pre>
 
 // 场景 3: 必需字段缺失
 {
-    "tool": "edit",
+    "tool": "replace",
     "args": {
         "file_path": "/src/main.ts",
         "new_string": "hello"
@@ -1782,8 +1782,8 @@ async function executeWithCache(tool: Tool, args: Args): Promise<Result> {
     const ttl = {
         'read_file': 5000,      // 5秒（文件可能快速变化）
         'glob': 30000,          // 30秒
-        'grep_search': 10000,   // 10秒
-        'web_search': 300000    // 5分钟
+        'search_file_content': 10000,   // 10秒
+        'google_web_search': 300000    // 5分钟
     }[tool.name] || 10000;
 
     await cache.set(cacheKey, result, ttl);
@@ -1887,7 +1887,7 @@ registry.registerLazy('mcp_tool', async () => {
 });
 
 // 启动时预热常用工具
-await registry.warmup(['read_file', 'glob', 'grep_search']);
+await registry.warmup(['read_file', 'glob', 'search_file_content']);
 
 // 执行时预测性预加载
 async function executeWithPrediction(tool: string, args: Args) {

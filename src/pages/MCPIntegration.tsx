@@ -90,7 +90,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
           <div className="text-xs text-[var(--text-muted)] bg-[var(--bg-card)] px-3 py-2 rounded flex items-center gap-2">
             <span>📁</span>
-            <code>packages/core/src/mcp/</code>
+            <code>packages/core/src/tools/mcp-*.ts</code>
           </div>
         </div>
       )}
@@ -154,7 +154,7 @@ export function MCPIntegration() {
             </div>
 
             <div className="bg-purple-400/20 border border-purple-400 rounded-lg px-6 py-3 w-full max-w-md text-center">
-              <strong>MCPClientManager</strong>
+              <strong>McpClientManager</strong>
               <div className="text-xs text-gray-400">管理多个 MCP 服务器连接</div>
             </div>
 
@@ -178,91 +178,105 @@ export function MCPIntegration() {
         </div>
       </Layer>
 
-      {/* MCPClientManager */}
-      <Layer title="MCPClientManager" icon="🔧">
+      {/* McpClientManager */}
+      <Layer title="McpClientManager" icon="🔧">
         <CodeBlock
-          title="packages/core/src/mcp/mcp-client-manager.ts"
-          code={`class MCPClientManager {
-    private clients: Map<string, MCPClient> = new Map();
-    private discoveredTools: Map<string, DiscoveredMCPTool> = new Map();
+          title="packages/core/src/tools/mcp-client-manager.ts"
+          code={`// 管理多个 MCP 客户端的生命周期
+export class McpClientManager {
+    private clients: Map<string, McpClient> = new Map();
+    private readonly toolRegistry: ToolRegistry;
+    private readonly cliConfig: Config;
+    private discoveryState: MCPDiscoveryState = MCPDiscoveryState.NOT_STARTED;
 
-    // 连接并发现工具
-    async connectAndDiscover(serverConfig: MCPServerConfig) {
-        // 1. 创建 MCP 客户端
-        const client = new MCPClient(serverConfig);
+    constructor(
+        toolRegistry: ToolRegistry,
+        cliConfig: Config,
+        eventEmitter?: EventEmitter,
+    ) { ... }
 
-        // 2. 连接服务器
+    // 启动扩展的 MCP 服务器
+    async startExtension(extension: GeminiCLIExtension) {
+        await Promise.all(
+            Object.entries(extension.mcpServers ?? {}).map(([name, config]) =>
+                this.maybeDiscoverMcpServer(name, { ...config, extension }),
+            ),
+        );
+    }
+
+    // 发现 MCP 服务器的工具
+    async maybeDiscoverMcpServer(name: string, config: MCPServerConfig) {
+        const client = new McpClient(name, config, ...);
         await client.connect();
-
-        // 3. 发现可用工具
-        const tools = await client.listTools();
-
-        // 4. 注册工具
-        for (const tool of tools) {
-            const wrappedTool = new DiscoveredMCPTool(tool, client);
-            this.discoveredTools.set(tool.name, wrappedTool);
-        }
-
-        this.clients.set(serverConfig.name, client);
+        // 工具自动注册到 toolRegistry
+        this.clients.set(name, client);
     }
 
-    // 获取所有发现的工具
-    getAllDiscoveredTools(): DiscoveredMCPTool[] {
-        return Array.from(this.discoveredTools.values());
-    }
-
-    // 调用工具
-    async callTool(name: string, args: object): Promise<any> {
-        const tool = this.discoveredTools.get(name);
-        if (!tool) throw new Error(\`Tool not found: \${name}\`);
-
-        return tool.invoke(args);
+    // 获取客户端
+    getClient(serverName: string): McpClient | undefined {
+        return this.clients.get(serverName);
     }
 }`}
         />
+
+        <HighlightBox title="MCPDiscoveryState 状态" icon="📊" variant="blue">
+          <ul className="pl-5 list-disc space-y-1 text-sm">
+            <li><code className="text-cyan-400">NOT_STARTED</code> - 发现尚未开始</li>
+            <li><code className="text-yellow-400">IN_PROGRESS</code> - 发现进行中</li>
+            <li><code className="text-green-400">COMPLETED</code> - 发现已完成</li>
+          </ul>
+        </HighlightBox>
       </Layer>
 
       {/* MCP 配置 */}
       <Layer title="MCP 服务器配置" icon="⚙️">
         <JsonBlock
-          code={`// ~/.gemini/mcp/servers.json
+          code={`// ~/.gemini/settings.json (或项目级 .gemini/settings.json)
 {
-    "servers": [
-        {
-            "name": "filesystem",
+    "mcpServers": {
+        "filesystem": {
             "command": "npx",
-            "args": ["-y", "@anthropic/mcp-server-filesystem"],
+            "args": ["-y", "@modelcontextprotocol/server-filesystem"],
             "env": {
                 "ALLOWED_PATHS": "/home/user/projects"
             }
         },
-        {
-            "name": "github",
+        "github": {
             "command": "npx",
-            "args": ["-y", "@anthropic/mcp-server-github"],
+            "args": ["-y", "@modelcontextprotocol/server-github"],
             "env": {
                 "GITHUB_TOKEN": "\${GITHUB_TOKEN}"
             }
         },
-        {
-            "name": "custom-api",
+        "remote-api": {
             "url": "http://localhost:3000/mcp",
-            "auth": {
-                "type": "bearer",
-                "token": "\${API_TOKEN}"
-            }
+            "type": "sse"
         }
-    ]
+    }
 }`}
         />
 
-        <HighlightBox title="配置选项" icon="📋" variant="green">
-          <ul className="pl-5 list-disc space-y-1">
-            <li><strong>command + args</strong>: 本地进程方式启动 MCP 服务器</li>
-            <li><strong>url</strong>: HTTP/WebSocket 远程连接</li>
-            <li><strong>env</strong>: 传递给服务器的环境变量</li>
-            <li><strong>auth</strong>: 认证配置（bearer、basic、oauth）</li>
-          </ul>
+        <HighlightBox title="MCPServerConfig 配置选项" icon="📋" variant="green">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div>
+              <h5 className="font-semibold text-green-400 mb-2">传输方式</h5>
+              <ul className="space-y-1 text-gray-300">
+                <li>• <code className="text-cyan-400">command + args</code>: stdio 本地进程</li>
+                <li>• <code className="text-cyan-400">url + type:'sse'</code>: SSE 远程连接</li>
+                <li>• <code className="text-cyan-400">url + type:'http'</code>: HTTP 流式传输</li>
+                <li>• <code className="text-cyan-400">tcp</code>: WebSocket 连接</li>
+              </ul>
+            </div>
+            <div>
+              <h5 className="font-semibold text-green-400 mb-2">通用配置</h5>
+              <ul className="space-y-1 text-gray-300">
+                <li>• <code className="text-cyan-400">env</code>: 环境变量</li>
+                <li>• <code className="text-cyan-400">timeout</code>: 超时时间</li>
+                <li>• <code className="text-cyan-400">trust</code>: 信任模式</li>
+                <li>• <code className="text-cyan-400">includeTools/excludeTools</code>: 工具过滤</li>
+              </ul>
+            </div>
+          </div>
         </HighlightBox>
       </Layer>
 
