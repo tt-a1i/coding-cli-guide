@@ -22,17 +22,17 @@ export function SubagentArchitecture() {
       {/* Header */}
       <div className="border-b border-[var(--border-subtle)] pb-6">
         <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-2">
-          🏗️ Subagent 系统架构深度解析
+          🏗️ Agent 架构深度解析
         </h1>
         <p className="text-[var(--text-secondary)]">
-          深入理解子代理的优先级解析、事件系统、Hooks 机制和统计监控
+          深入理解 Agent 类型系统、TOML 配置验证、执行循环和 Grace Period 机制
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <span className="px-2 py-1 bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] text-xs rounded">
             核心模块
           </span>
           <span className="px-2 py-1 bg-[var(--cyber-blue)]/20 text-[var(--cyber-blue)] text-xs rounded">
-            packages/core/src/subagents/
+            packages/core/src/agents/
           </span>
           <span className="px-2 py-1 bg-[var(--amber)]/20 text-[var(--amber)] text-xs rounded">
             深度解析
@@ -48,27 +48,27 @@ export function SubagentArchitecture() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
-            <h3 className="text-[var(--terminal-green)] font-bold mb-3">核心类层次</h3>
+            <h3 className="text-[var(--terminal-green)] font-bold mb-3">类型系统层次</h3>
             <div className="space-y-2 text-sm font-mono">
               <div className="flex items-center gap-2">
-                <span className="text-[var(--amber)]">SubagentManager</span>
-                <span className="text-[var(--text-muted)]">← CRUD + 优先级解析</span>
+                <span className="text-[var(--amber)]">AgentDefinition</span>
+                <span className="text-[var(--text-muted)]">← 联合类型</span>
               </div>
               <div className="flex items-center gap-2 pl-4">
-                <span className="text-[var(--cyber-blue)]">SubAgentScope</span>
-                <span className="text-[var(--text-muted)]">← 执行环境</span>
+                <span className="text-[var(--terminal-green)]">LocalAgentDefinition</span>
+                <span className="text-[var(--text-muted)]">← 本地执行</span>
               </div>
-              <div className="flex items-center gap-2 pl-8">
-                <span className="text-[var(--purple)]">SubAgentEventEmitter</span>
-                <span className="text-[var(--text-muted)]">← 事件通知</span>
+              <div className="flex items-center gap-2 pl-4">
+                <span className="text-[var(--cyber-blue)]">RemoteAgentDefinition</span>
+                <span className="text-[var(--text-muted)]">← A2A 协议</span>
               </div>
-              <div className="flex items-center gap-2 pl-8">
-                <span className="text-[var(--terminal-green)]">SubagentStatistics</span>
-                <span className="text-[var(--text-muted)]">← 性能统计</span>
+              <div className="flex items-center gap-2 mt-3">
+                <span className="text-[var(--purple)]">AgentTerminateMode</span>
+                <span className="text-[var(--text-muted)]">← 6 种终止原因</span>
               </div>
-              <div className="flex items-center gap-2 pl-8">
-                <span className="text-[var(--amber)]">SubagentHooks</span>
-                <span className="text-[var(--text-muted)]">← 生命周期钩子</span>
+              <div className="flex items-center gap-2">
+                <span className="text-[var(--amber)]">SubagentActivityEvent</span>
+                <span className="text-[var(--text-muted)]">← 4 种活动事件</span>
               </div>
             </div>
           </div>
@@ -79,25 +79,25 @@ export function SubagentArchitecture() {
               <div className="flex items-start gap-2">
                 <span className="text-[var(--terminal-green)]">✓</span>
                 <span className="text-[var(--text-secondary)]">
-                  <strong>三级优先级</strong>：project → user → builtin，支持覆盖
+                  <strong>TOML 配置</strong>：Zod 验证，比 YAML+MD 更严格
                 </span>
               </div>
               <div className="flex items-start gap-2">
                 <span className="text-[var(--terminal-green)]">✓</span>
                 <span className="text-[var(--text-secondary)]">
-                  <strong>非交互模式</strong>：不询问用户，自主完成任务
+                  <strong>complete_task 工具</strong>：强制终止信号，非文本返回
                 </span>
               </div>
               <div className="flex items-start gap-2">
                 <span className="text-[var(--terminal-green)]">✓</span>
                 <span className="text-[var(--text-secondary)]">
-                  <strong>递归防护</strong>：自动移除 Task 工具避免无限嵌套
+                  <strong>Grace Period</strong>：60 秒恢复期，优雅降级
                 </span>
               </div>
               <div className="flex items-start gap-2">
                 <span className="text-[var(--terminal-green)]">✓</span>
                 <span className="text-[var(--text-secondary)]">
-                  <strong>YAML+Markdown</strong>：配置与提示词分离，易于维护
+                  <strong>禁止嵌套委托</strong>：toml-loader 阻止循环
                 </span>
               </div>
             </div>
@@ -108,147 +108,675 @@ export function SubagentArchitecture() {
           <h3 className="text-[var(--amber)] font-bold mb-3">源码位置速查</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs font-mono">
             <div className="flex justify-between">
-              <span className="text-[var(--text-muted)]">管理器</span>
-              <span className="text-[var(--cyber-blue)]">subagent-manager.ts</span>
+              <span className="text-[var(--text-muted)]">类型定义</span>
+              <span className="text-[var(--cyber-blue)]">agents/types.ts</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[var(--text-muted)]">执行作用域</span>
-              <span className="text-[var(--cyber-blue)]">subagent.ts</span>
+              <span className="text-[var(--text-muted)]">注册中心</span>
+              <span className="text-[var(--cyber-blue)]">agents/registry.ts</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[var(--text-muted)]">事件系统</span>
-              <span className="text-[var(--cyber-blue)]">subagent-events.ts</span>
+              <span className="text-[var(--text-muted)]">本地执行器</span>
+              <span className="text-[var(--cyber-blue)]">agents/local-executor.ts</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[var(--text-muted)]">生命周期钩子</span>
-              <span className="text-[var(--cyber-blue)]">subagent-hooks.ts</span>
+              <span className="text-[var(--text-muted)]">TOML 加载器</span>
+              <span className="text-[var(--cyber-blue)]">agents/toml-loader.ts</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[var(--text-muted)]">统计系统</span>
-              <span className="text-[var(--cyber-blue)]">subagent-statistics.ts</span>
+              <span className="text-[var(--text-muted)]">委托工具</span>
+              <span className="text-[var(--cyber-blue)]">agents/delegate-to-agent-tool.ts</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[var(--text-muted)]">内置代理</span>
-              <span className="text-[var(--cyber-blue)]">builtin-agents.ts</span>
+              <span className="text-[var(--text-muted)]">工具包装器</span>
+              <span className="text-[var(--cyber-blue)]">agents/subagent-tool-wrapper.ts</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 优先级解析系统 */}
+      {/* 类型系统详解 */}
       <section className="bg-[var(--bg-card)] rounded-xl p-6 border border-[var(--border-subtle)]">
         <button
-          onClick={() => toggleSection('priority')}
+          onClick={() => toggleSection('types')}
           className="w-full flex items-center justify-between mb-4"
         >
           <h2 className="text-xl font-bold text-[var(--text-primary)] flex items-center gap-2">
-            🔍 三级优先级解析系统
+            📦 类型系统详解
           </h2>
-          <span className={`transform transition-transform ${expandedSections.has('priority') ? 'rotate-180' : ''}`}>
+          <span className={`transform transition-transform ${expandedSections.has('types') ? 'rotate-180' : ''}`}>
             ▼
           </span>
         </button>
 
-        {expandedSections.has('priority') && (
+        {expandedSections.has('types') && (
           <div className="space-y-6">
             <MermaidDiagram
-              chart={`flowchart LR
-    subgraph Resolution["loadSubagent(name)"]
-        A[请求 Agent] --> B{检查 Project 级}
-        B -->|找到| C[返回 Project Agent]
-        B -->|未找到| D{检查 User 级}
-        D -->|找到| E[返回 User Agent]
-        D -->|未找到| F{检查 Builtin}
-        F -->|找到| G[返回 Builtin Agent]
-        F -->|未找到| H[返回 null]
-    end
+              chart={`classDiagram
+    class BaseAgentDefinition {
+        +string name
+        +string description
+        +string? displayName
+        +AgentInputConfig inputConfig
+    }
 
-    style C fill:#22c55e,color:#000
-    style E fill:#3b82f6,color:#fff
-    style G fill:#f59e0b,color:#000
-    style H fill:#ef4444,color:#fff`}
+    class LocalAgentDefinition {
+        +kind: "local"
+        +PromptConfig promptConfig
+        +ModelConfig modelConfig
+        +RunConfig runConfig
+        +ToolConfig? toolConfig
+    }
+
+    class RemoteAgentDefinition {
+        +kind: "remote"
+        +string agentCardUrl
+    }
+
+    class AgentTerminateMode {
+        <<enumeration>>
+        ERROR
+        TIMEOUT
+        GOAL
+        MAX_TURNS
+        ABORTED
+        ERROR_NO_COMPLETE_TASK_CALL
+    }
+
+    BaseAgentDefinition <|-- LocalAgentDefinition
+    BaseAgentDefinition <|-- RemoteAgentDefinition`}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
-                <h4 className="text-[var(--terminal-green)] font-bold mb-2">1. Project 级</h4>
-                <p className="text-sm text-[var(--text-secondary)] mb-2">
-                  项目根目录下的 <code className="text-[var(--amber)]">.gemini/agents/*.md</code>
-                </p>
-                <div className="text-xs text-[var(--text-muted)]">
-                  优先级最高，项目特定配置可覆盖全局设置
-                </div>
+                <h4 className="text-[var(--terminal-green)] font-bold mb-2">LocalAgentDefinition</h4>
+                <CodeBlock
+                  language="typescript"
+                  code={`// types.ts - 本地 Agent 定义
+interface LocalAgentDefinition {
+  kind: 'local';
+  name: string;
+  description: string;
+  displayName?: string;
+
+  promptConfig: {
+    systemPrompt: string;  // 系统提示词
+    query?: string;        // 可选的查询模板
+  };
+
+  modelConfig: {
+    model: string;         // 模型名或 "inherit"
+    temp: number;          // 温度 (默认 1)
+    top_p: number;         // top_p (默认 0.95)
+  };
+
+  runConfig: {
+    max_turns?: number;    // 最大轮次
+    max_time_minutes: number; // 超时 (默认 5)
+  };
+
+  toolConfig?: {
+    tools: string[];       // 工具白名单
+  };
+
+  inputConfig: {
+    inputs: Record<string, AgentInputDefinition>;
+  };
+}`}
+                />
               </div>
 
               <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
-                <h4 className="text-[var(--cyber-blue)] font-bold mb-2">2. User 级</h4>
-                <p className="text-sm text-[var(--text-secondary)] mb-2">
-                  用户主目录下的 <code className="text-[var(--amber)]">~/.gemini/agents/*.md</code>
-                </p>
-                <div className="text-xs text-[var(--text-muted)]">
-                  用户全局配置，跨项目共享
-                </div>
-              </div>
+                <h4 className="text-[var(--cyber-blue)] font-bold mb-2">RemoteAgentDefinition</h4>
+                <CodeBlock
+                  language="typescript"
+                  code={`// types.ts - 远程 Agent 定义
+interface RemoteAgentDefinition {
+  kind: 'remote';
+  name: string;
+  description: string;
+  displayName?: string;
 
-              <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
-                <h4 className="text-[var(--amber)] font-bold mb-2">3. Builtin</h4>
-                <p className="text-sm text-[var(--text-secondary)] mb-2">
-                  代码内置的 <code className="text-[var(--amber)]">BuiltinAgentRegistry</code>
-                </p>
-                <div className="text-xs text-[var(--text-muted)]">
-                  默认代理，不可修改或删除
-                </div>
+  // A2A 协议端点
+  agentCardUrl: string;
+
+  inputConfig: {
+    inputs: Record<string, AgentInputDefinition>;
+  };
+}
+
+// 输入参数定义
+interface AgentInputDefinition {
+  type: 'string' | 'number' | 'boolean'
+      | 'integer' | 'string[]' | 'number[]';
+  description: string;
+  required: boolean;
+}`}
+                />
               </div>
             </div>
 
-            <CodeBlock
-              language="typescript"
-              code={`// subagent-manager.ts:134-161 - 优先级解析核心逻辑
-async loadSubagent(
-  name: string,
-  level?: SubagentLevel,
-): Promise<SubagentConfig | null> {
-  if (level) {
-    // 指定级别时只搜索该级别
-    if (level === 'builtin') {
-      return BuiltinAgentRegistry.getBuiltinAgent(name);
-    }
-    return this.findSubagentByNameAtLevel(name, level);
-  }
+            <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
+              <h4 className="text-[var(--amber)] font-bold mb-3">AgentTerminateMode 枚举</h4>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-[var(--border-subtle)]">
+                    <th className="py-2 text-left text-[var(--text-muted)]">模式</th>
+                    <th className="py-2 text-left text-[var(--text-muted)]">触发条件</th>
+                    <th className="py-2 text-left text-[var(--text-muted)]">处理方式</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-b border-[var(--border-subtle)]">
+                    <td className="py-2 text-[var(--terminal-green)] font-mono">GOAL</td>
+                    <td className="py-2 text-[var(--text-secondary)]">调用 complete_task 工具</td>
+                    <td className="py-2 text-[var(--text-secondary)]">正常完成</td>
+                  </tr>
+                  <tr className="border-b border-[var(--border-subtle)]">
+                    <td className="py-2 text-[var(--amber)] font-mono">MAX_TURNS</td>
+                    <td className="py-2 text-[var(--text-secondary)]">超过 runConfig.max_turns</td>
+                    <td className="py-2 text-[var(--text-secondary)]">Grace Period → 强制终止</td>
+                  </tr>
+                  <tr className="border-b border-[var(--border-subtle)]">
+                    <td className="py-2 text-[var(--amber)] font-mono">TIMEOUT</td>
+                    <td className="py-2 text-[var(--text-secondary)]">超过 max_time_minutes</td>
+                    <td className="py-2 text-[var(--text-secondary)]">Grace Period → 强制终止</td>
+                  </tr>
+                  <tr className="border-b border-[var(--border-subtle)]">
+                    <td className="py-2 text-[var(--cyber-blue)] font-mono">ABORTED</td>
+                    <td className="py-2 text-[var(--text-secondary)]">外部 AbortSignal 触发</td>
+                    <td className="py-2 text-[var(--text-secondary)]">立即停止</td>
+                  </tr>
+                  <tr className="border-b border-[var(--border-subtle)]">
+                    <td className="py-2 text-red-400 font-mono">ERROR</td>
+                    <td className="py-2 text-[var(--text-secondary)]">执行过程抛出异常</td>
+                    <td className="py-2 text-[var(--text-secondary)]">错误处理</td>
+                  </tr>
+                  <tr>
+                    <td className="py-2 text-red-400 font-mono">ERROR_NO_COMPLETE_TASK_CALL</td>
+                    <td className="py-2 text-[var(--text-secondary)]">Grace Period 结束仍未调用</td>
+                    <td className="py-2 text-[var(--text-secondary)]">强制终止</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </section>
 
-  // 优先级搜索：project → user → builtin
-  const projectConfig = await this.findSubagentByNameAtLevel(name, 'project');
-  if (projectConfig) return projectConfig;  // Project 级优先
+      {/* TOML 配置与 Zod 验证 */}
+      <section className="bg-[var(--bg-card)] rounded-xl p-6 border border-[var(--border-subtle)]">
+        <button
+          onClick={() => toggleSection('toml')}
+          className="w-full flex items-center justify-between mb-4"
+        >
+          <h2 className="text-xl font-bold text-[var(--text-primary)] flex items-center gap-2">
+            📄 TOML 配置与 Zod 验证
+          </h2>
+          <span className={`transform transition-transform ${expandedSections.has('toml') ? 'rotate-180' : ''}`}>
+            ▼
+          </span>
+        </button>
 
-  const userConfig = await this.findSubagentByNameAtLevel(name, 'user');
-  if (userConfig) return userConfig;  // User 级次之
+        {expandedSections.has('toml') && (
+          <div className="space-y-6">
+            <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
+              <h4 className="text-[var(--terminal-green)] font-bold mb-3">本地 Agent TOML 格式</h4>
+              <CodeBlock
+                language="toml"
+                code={`# .gemini/agents/code-reviewer.toml
+name = "code-reviewer"
+description = "代码审查专家，专注于代码质量和最佳实践"
+display_name = "Code Reviewer"  # 可选
 
-  return BuiltinAgentRegistry.getBuiltinAgent(name);  // Builtin 兜底
+# 工具白名单（可选，默认继承父级）
+tools = ["Read", "Grep", "Glob"]
+
+[prompts]
+system_prompt = """
+You are a code review expert. When reviewing code, focus on:
+1. Code correctness and potential bugs
+2. Performance implications
+3. Security vulnerabilities
+4. Code style and readability
+
+Always provide specific line numbers and actionable suggestions.
+"""
+query = "Review the following code: \${task}"  # 可选
+
+[model]
+model = "inherit"     # 或具体模型名
+temperature = 0.3     # 可选
+
+[run]
+max_turns = 50        # 可选
+timeout_mins = 10     # 可选，默认 5`}
+              />
+            </div>
+
+            <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
+              <h4 className="text-[var(--cyber-blue)] font-bold mb-3">远程 Agent 批量配置</h4>
+              <CodeBlock
+                language="toml"
+                code={`# ~/.gemini/agents/remote-agents.toml
+# 单个文件可定义多个远程 Agent
+
+[[remote_agents]]
+name = "external-reviewer"
+kind = "remote"
+description = "External code review service via A2A"
+agent_card_url = "https://review.example.com/.well-known/agent.json"
+
+[[remote_agents]]
+name = "security-scanner"
+kind = "remote"
+description = "Security vulnerability scanner"
+display_name = "Security Scanner"
+agent_card_url = "https://security.example.com/.well-known/agent.json"`}
+              />
+            </div>
+
+            <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
+              <h4 className="text-[var(--purple)] font-bold mb-3">Zod Schema 验证</h4>
+              <CodeBlock
+                language="typescript"
+                code={`// toml-loader.ts - Zod 验证 Schema
+
+// 名称必须是有效的 slug
+const nameSchema = z
+  .string()
+  .regex(/^[a-z0-9-_]+$/, 'Name must be a valid slug');
+
+const localAgentSchema = z.object({
+  kind: z.literal('local').optional().default('local'),
+  name: nameSchema,
+  description: z.string().min(1),
+  display_name: z.string().optional(),
+
+  // 工具验证：必须是有效的工具名
+  tools: z.array(
+    z.string().refine((val) => isValidToolName(val), {
+      message: 'Invalid tool name',
+    }),
+  ).optional(),
+
+  prompts: z.object({
+    system_prompt: z.string().min(1),
+    query: z.string().optional(),
+  }),
+
+  model: z.object({
+    model: z.string().optional(),
+    temperature: z.number().optional(),
+  }).optional(),
+
+  run: z.object({
+    max_turns: z.number().int().positive().optional(),
+    timeout_mins: z.number().int().positive().optional(),
+  }).optional(),
+}).strict();  // strict() 禁止未知字段
+
+const remoteAgentSchema = z.object({
+  kind: z.literal('remote').optional().default('remote'),
+  name: nameSchema,
+  description: z.string().optional(),
+  display_name: z.string().optional(),
+  agent_card_url: z.string().url(),  // 必须是有效 URL
+}).strict();`}
+              />
+            </div>
+
+            <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
+              <h4 className="text-[var(--amber)] font-bold mb-3">💡 禁止嵌套委托</h4>
+              <CodeBlock
+                language="typescript"
+                code={`// toml-loader.ts:219-225 - 防止循环委托
+
+// 子代理不能包含 delegate_to_agent 工具
+if ('tools' in toml && toml.tools?.includes(DELEGATE_TO_AGENT_TOOL_NAME)) {
+  throw new AgentLoadError(
+    filePath,
+    \`Validation failed: tools list cannot include '\${DELEGATE_TO_AGENT_TOOL_NAME}'. \` +
+    \`Sub-agents cannot delegate to other agents.\`,
+  );
 }`}
+              />
+              <p className="text-xs text-[var(--text-muted)] mt-2">
+                这防止了 A → B → A 的无限循环，与 Claude Code 的递归防护类似
+              </p>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* LocalAgentExecutor 执行循环 */}
+      <section className="bg-[var(--bg-card)] rounded-xl p-6 border border-[var(--border-subtle)]">
+        <button
+          onClick={() => toggleSection('executor')}
+          className="w-full flex items-center justify-between mb-4"
+        >
+          <h2 className="text-xl font-bold text-[var(--text-primary)] flex items-center gap-2">
+            🔄 LocalAgentExecutor 执行循环
+          </h2>
+          <span className={`transform transition-transform ${expandedSections.has('executor') ? 'rotate-180' : ''}`}>
+            ▼
+          </span>
+        </button>
+
+        {expandedSections.has('executor') && (
+          <div className="space-y-6">
+            <MermaidDiagram
+              chart={`stateDiagram-v2
+    [*] --> Initialize: new LocalAgentExecutor()
+    Initialize --> SendMessage: run(signal, updateOutput)
+
+    state "执行循环" as Loop {
+        SendMessage --> StreamResponse: 发送消息
+        StreamResponse --> CheckTools: 检查响应
+
+        CheckTools --> ExecuteTools: 有工具调用
+        CheckTools --> CheckComplete: 无工具调用
+
+        ExecuteTools --> SendMessage: 工具结果 → 继续
+
+        CheckComplete --> GracePeriod: MAX_TURNS/TIMEOUT
+        CheckComplete --> Goal: complete_task 调用
+    }
+
+    state "Grace Period" as GracePeriod {
+        GP_Start --> GP_Wait: 60秒倒计时
+        GP_Wait --> GP_Check: 检查 complete_task
+        GP_Check --> Goal: 已调用
+        GP_Check --> ForceTerminate: 未调用
+    }
+
+    GracePeriod --> GP_Start
+
+    Goal --> [*]: GOAL 终止
+    ForceTerminate --> [*]: ERROR_NO_COMPLETE_TASK_CALL`}
             />
 
             <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
-              <h4 className="text-[var(--purple)] font-bold mb-3">💡 设计原因</h4>
+              <h4 className="text-[var(--terminal-green)] font-bold mb-3">核心执行循环</h4>
+              <CodeBlock
+                language="typescript"
+                code={`// local-executor.ts - 简化的执行循环
+
+class LocalAgentExecutor {
+  private turnCount = 0;
+  private completeTaskCalled = false;
+  private isInGracePeriod = false;
+
+  async run(
+    signal: AbortSignal,
+    updateOutput?: (output: string | AnsiOutput) => void,
+  ): Promise<ToolResult> {
+
+    // 注入 complete_task 工具
+    const tools = this.injectCompleteTaskTool(this.definition.toolConfig?.tools);
+
+    while (!signal.aborted) {
+      this.turnCount++;
+
+      // 检查 max_turns（非 Grace Period 时）
+      if (!this.isInGracePeriod && this.turnCount > maxTurns) {
+        return this.enterGracePeriod('MAX_TURNS');
+      }
+
+      // 发送消息并获取响应
+      const response = await this.chat.sendMessage(messages, tools);
+
+      // 处理工具调用
+      if (response.functionCalls?.length) {
+        for (const call of response.functionCalls) {
+          if (call.name === 'complete_task') {
+            this.completeTaskCalled = true;
+            return { output: call.args.result };  // GOAL 终止
+          }
+          // 执行其他工具...
+        }
+        continue;  // 继续循环
+      }
+
+      // 无工具调用时提示使用 complete_task
+      messages.push({
+        role: 'user',
+        content: 'Please use complete_task to provide final result.',
+      });
+    }
+
+    return { output: 'Aborted' };  // ABORTED 终止
+  }
+}`}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
+                <h4 className="text-[var(--amber)] font-bold mb-2">complete_task 工具</h4>
+                <CodeBlock
+                  language="typescript"
+                  code={`// 自动注入的终止工具
+const COMPLETE_TASK_TOOL = {
+  name: 'complete_task',
+  description: \`
+Call this tool to complete the task.
+Provide the final result or summary.
+\`,
+  parameters: {
+    type: 'object',
+    properties: {
+      result: {
+        type: 'string',
+        description: 'The final result',
+      },
+    },
+    required: ['result'],
+  },
+};`}
+                />
+                <p className="text-xs text-[var(--text-muted)] mt-2">
+                  与 Claude Code 的文本返回不同，gemini-cli 要求显式调用此工具
+                </p>
+              </div>
+
+              <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
+                <h4 className="text-[var(--purple)] font-bold mb-2">Grace Period 机制</h4>
+                <CodeBlock
+                  language="typescript"
+                  code={`// local-executor.ts - Grace Period 常量
+const GRACE_PERIOD_MS = 60 * 1000; // 60秒
+
+async enterGracePeriod(reason: string) {
+  this.isInGracePeriod = true;
+
+  // 通知 Agent 必须调用 complete_task
+  this.notify(TOOL_CALL_START, {
+    message: \`⚠️ \${reason}: Must call complete_task within 60s\`,
+  });
+
+  // 等待 Grace Period
+  await this.waitForCompleteTask(GRACE_PERIOD_MS);
+
+  if (this.completeTaskCalled) {
+    return { mode: AgentTerminateMode.GOAL };
+  }
+
+  return {
+    mode: AgentTerminateMode.ERROR_NO_COMPLETE_TASK_CALL,
+  };
+}`}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* delegate_to_agent 工具 */}
+      <section className="bg-[var(--bg-card)] rounded-xl p-6 border border-[var(--border-subtle)]">
+        <button
+          onClick={() => toggleSection('delegate')}
+          className="w-full flex items-center justify-between mb-4"
+        >
+          <h2 className="text-xl font-bold text-[var(--text-primary)] flex items-center gap-2">
+            🎯 delegate_to_agent 工具详解
+          </h2>
+          <span className={`transform transition-transform ${expandedSections.has('delegate') ? 'rotate-180' : ''}`}>
+            ▼
+          </span>
+        </button>
+
+        {expandedSections.has('delegate') && (
+          <div className="space-y-6">
+            <MermaidDiagram
+              chart={`flowchart TB
+    subgraph Schema["动态 Schema 生成"]
+        R[AgentRegistry] --> D1["Agent 1 定义"]
+        R --> D2["Agent 2 定义"]
+        R --> D3["Agent N 定义"]
+
+        D1 --> S1["{ agent_name: 'agent-1', ...inputs }"]
+        D2 --> S2["{ agent_name: 'agent-2', ...inputs }"]
+        D3 --> S3["{ agent_name: 'agent-n', ...inputs }"]
+
+        S1 --> U["z.discriminatedUnion('agent_name', [...])"]
+        S2 --> U
+        S3 --> U
+    end
+
+    subgraph Dispatch["调用分发"]
+        U --> Call["delegate_to_agent(params)"]
+        Call --> Check{检查 agent_name}
+        Check -->|local| LE["LocalAgentExecutor"]
+        Check -->|remote| RA["RemoteAgentInvocation"]
+    end
+
+    style U fill:#22c55e,color:#000
+    style LE fill:#3b82f6,color:#fff
+    style RA fill:#f59e0b,color:#000`}
+            />
+
+            <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
+              <h4 className="text-[var(--terminal-green)] font-bold mb-3">动态 Schema 构建</h4>
+              <CodeBlock
+                language="typescript"
+                code={`// delegate-to-agent-tool.ts - 动态 Schema 生成
+
+export class DelegateToAgentTool extends BaseDeclarativeTool {
+  constructor(registry: AgentRegistry, config: Config, messageBus?: MessageBus) {
+    const definitions = registry.getAllDefinitions();
+
+    // 为每个 Agent 生成独立的参数 Schema
+    const agentSchemas = definitions.map((def) => {
+      const inputShape: Record<string, z.ZodTypeAny> = {
+        // 固定的 agent_name 作为判别器
+        agent_name: z.literal(def.name).describe(def.description),
+      };
+
+      // 添加该 Agent 的输入参数
+      for (const [key, inputDef] of Object.entries(def.inputConfig.inputs)) {
+        // agent_name 是保留字段
+        if (key === 'agent_name') {
+          throw new Error(\`Agent '\${def.name}' cannot have input named 'agent_name'\`);
+        }
+
+        // 根据类型创建验证器
+        let validator: z.ZodTypeAny;
+        switch (inputDef.type) {
+          case 'string': validator = z.string(); break;
+          case 'number': validator = z.number(); break;
+          case 'boolean': validator = z.boolean(); break;
+          case 'integer': validator = z.number().int(); break;
+          case 'string[]': validator = z.array(z.string()); break;
+          case 'number[]': validator = z.array(z.number()); break;
+        }
+
+        if (!inputDef.required) validator = validator.optional();
+        inputShape[key] = validator.describe(inputDef.description);
+      }
+
+      return z.object(inputShape);
+    });
+
+    // 使用 discriminatedUnion 组合
+    const schema = z.discriminatedUnion('agent_name', agentSchemas);
+
+    super(
+      DELEGATE_TO_AGENT_TOOL_NAME,
+      'Delegate to Agent',
+      registry.getToolDescription(),
+      Kind.Think,
+      zodToJsonSchema(schema),
+    );
+  }
+}`}
+              />
+            </div>
+
+            <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
+              <h4 className="text-[var(--cyber-blue)] font-bold mb-3">调用分发</h4>
+              <CodeBlock
+                language="typescript"
+                code={`// delegate-to-agent-tool.ts - DelegateInvocation
+
+class DelegateInvocation extends BaseToolInvocation {
+  async execute(
+    signal: AbortSignal,
+    updateOutput?: (output: string | AnsiOutput) => void,
+  ): Promise<ToolResult> {
+
+    // 从 Registry 获取 Agent 定义
+    const definition = this.registry.getDefinition(this.params.agent_name);
+    if (!definition) {
+      throw new Error(\`Agent '\${this.params.agent_name}' not found\`);
+    }
+
+    // 提取参数（排除 agent_name）
+    const { agent_name, ...agentArgs } = this.params;
+
+    // 使用 SubagentToolWrapper 处理 local/remote 分发
+    const wrapper = new SubagentToolWrapper(
+      definition,
+      this.config,
+      this.messageBus,
+    );
+
+    // build() 会根据 kind 返回不同的 Invocation
+    const invocation = wrapper.build(agentArgs);
+
+    return invocation.execute(signal, updateOutput);
+  }
+}`}
+              />
+            </div>
+
+            <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
+              <h4 className="text-[var(--purple)] font-bold mb-3">💡 为什么用 discriminatedUnion？</h4>
               <ul className="space-y-2 text-sm text-[var(--text-secondary)]">
                 <li className="flex items-start gap-2">
                   <span className="text-[var(--terminal-green)]">1.</span>
                   <span>
-                    <strong>项目隔离</strong>：不同项目可以有同名但不同配置的代理（如 code-reviewer），
-                    项目级优先确保项目特定需求
+                    <strong>类型安全</strong>：每个 Agent 有独立的参数定义，
+                    模型只能使用对应 Agent 的参数
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-[var(--terminal-green)]">2.</span>
                   <span>
-                    <strong>渐进式覆盖</strong>：用户可以在 User 级创建个人偏好的代理配置，
-                    然后在特定项目中进一步定制
+                    <strong>自动验证</strong>：Zod 在调用时验证参数类型和必填性
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-[var(--terminal-green)]">3.</span>
                   <span>
-                    <strong>安全默认</strong>：Builtin 代理不可修改，确保核心功能始终可用，
-                    避免用户误删关键代理
+                    <strong>动态扩展</strong>：Registry 中添加新 Agent 自动更新 Schema
+                  </span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-[var(--terminal-green)]">4.</span>
+                  <span>
+                    <strong>更好的错误信息</strong>：discriminatedUnion 能精确指出哪个 Agent 的参数有问题
                   </span>
                 </li>
               </ul>
@@ -257,278 +785,14 @@ async loadSubagent(
         )}
       </section>
 
-      {/* 配置文件格式 */}
-      <section className="bg-[var(--bg-card)] rounded-xl p-6 border border-[var(--border-subtle)]">
-        <button
-          onClick={() => toggleSection('config')}
-          className="w-full flex items-center justify-between mb-4"
-        >
-          <h2 className="text-xl font-bold text-[var(--text-primary)] flex items-center gap-2">
-            📄 配置文件格式详解
-          </h2>
-          <span className={`transform transition-transform ${expandedSections.has('config') ? 'rotate-180' : ''}`}>
-            ▼
-          </span>
-        </button>
-
-        {expandedSections.has('config') && (
-          <div className="space-y-6">
-            <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
-              <h4 className="text-[var(--terminal-green)] font-bold mb-3">文件结构</h4>
-              <CodeBlock
-                language="markdown"
-                code={`---
-name: code-reviewer
-description: 代码审查专家，专注于代码质量和最佳实践
-tools:
-  - Read
-  - Grep
-  - Glob
-modelConfig:
-  temp: 0.3        # 低温度，更确定性
-  top_p: 0.9
-runConfig:
-  max_turns: 50    # 最大轮次
-  max_time_minutes: 10  # 超时限制
-color: "#22c55e"   # UI 显示颜色
----
-
-You are a code review expert. When reviewing code, focus on:
-1. Code correctness and potential bugs
-2. Performance implications
-3. Security vulnerabilities
-4. Code style and readability
-
-Always provide specific line numbers and actionable suggestions.`}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
-                <h4 className="text-[var(--cyber-blue)] font-bold mb-3">必填字段</h4>
-                <table className="w-full text-sm">
-                  <tbody>
-                    <tr className="border-b border-[var(--border-subtle)]">
-                      <td className="py-2 text-[var(--amber)] font-mono">name</td>
-                      <td className="py-2 text-[var(--text-secondary)]">代理唯一标识符</td>
-                    </tr>
-                    <tr className="border-b border-[var(--border-subtle)]">
-                      <td className="py-2 text-[var(--amber)] font-mono">description</td>
-                      <td className="py-2 text-[var(--text-secondary)]">代理功能描述</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2 text-[var(--amber)] font-mono">systemPrompt</td>
-                      <td className="py-2 text-[var(--text-secondary)]">Markdown 正文部分</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
-                <h4 className="text-[var(--purple)] font-bold mb-3">可选字段</h4>
-                <table className="w-full text-sm">
-                  <tbody>
-                    <tr className="border-b border-[var(--border-subtle)]">
-                      <td className="py-2 text-[var(--amber)] font-mono">tools</td>
-                      <td className="py-2 text-[var(--text-secondary)]">可用工具列表（默认全部）</td>
-                    </tr>
-                    <tr className="border-b border-[var(--border-subtle)]">
-                      <td className="py-2 text-[var(--amber)] font-mono">modelConfig</td>
-                      <td className="py-2 text-[var(--text-secondary)]">模型参数配置</td>
-                    </tr>
-                    <tr className="border-b border-[var(--border-subtle)]">
-                      <td className="py-2 text-[var(--amber)] font-mono">runConfig</td>
-                      <td className="py-2 text-[var(--text-secondary)]">运行时配置</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2 text-[var(--amber)] font-mono">color</td>
-                      <td className="py-2 text-[var(--text-secondary)]">UI 颜色标识</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <CodeBlock
-              language="typescript"
-              code={`// subagent-manager.ts:412-482 - 解析配置文件
-parseSubagentContent(content: string, filePath: string, level: SubagentLevel): SubagentConfig {
-  // 正则匹配 YAML frontmatter
-  const frontmatterRegex = /^---\\n([\\s\\S]*?)\\n---\\n([\\s\\S]*)$/;
-  const match = content.match(frontmatterRegex);
-
-  if (!match) {
-    throw new Error('Invalid format: missing YAML frontmatter');
-  }
-
-  const [, frontmatterYaml, systemPrompt] = match;
-  const frontmatter = parseYaml(frontmatterYaml);
-
-  // 验证必填字段
-  if (!frontmatter.name) throw new Error('Missing "name" in frontmatter');
-  if (!frontmatter.description) throw new Error('Missing "description" in frontmatter');
-
-  return {
-    name: String(frontmatter.name),
-    description: String(frontmatter.description),
-    tools: frontmatter.tools,
-    systemPrompt: systemPrompt.trim(),  // Markdown 正文作为 systemPrompt
-    filePath,
-    modelConfig: frontmatter.modelConfig,
-    runConfig: frontmatter.runConfig,
-    color: frontmatter.color,
-    level,
-  };
-}`}
-            />
-          </div>
-        )}
-      </section>
-
-      {/* 执行生命周期 */}
-      <section className="bg-[var(--bg-card)] rounded-xl p-6 border border-[var(--border-subtle)]">
-        <button
-          onClick={() => toggleSection('lifecycle')}
-          className="w-full flex items-center justify-between mb-4"
-        >
-          <h2 className="text-xl font-bold text-[var(--text-primary)] flex items-center gap-2">
-            🔄 执行生命周期详解
-          </h2>
-          <span className={`transform transition-transform ${expandedSections.has('lifecycle') ? 'rotate-180' : ''}`}>
-            ▼
-          </span>
-        </button>
-
-        {expandedSections.has('lifecycle') && (
-          <div className="space-y-6">
-            <MermaidDiagram
-              chart={`stateDiagram-v2
-    [*] --> Start: runNonInteractive()
-    Start --> SendMessage: 发送初始任务
-    SendMessage --> StreamResponse: 流式接收响应
-    StreamResponse --> CheckFunctionCalls: 检查工具调用
-
-    CheckFunctionCalls --> ExecuteTools: 有工具调用
-    CheckFunctionCalls --> CheckText: 无工具调用
-
-    ExecuteTools --> CollectResults: 并行执行工具
-    CollectResults --> SendMessage: 继续对话
-
-    CheckText --> FinalAnswer: 有文本内容
-    CheckText --> Nudge: 无内容
-    Nudge --> SendMessage: 请求最终结果
-
-    FinalAnswer --> [*]: GOAL 终止
-
-    note right of SendMessage : 检查 MAX_TURNS
-    note right of StreamResponse : 检查 TIMEOUT`}
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
-                <h4 className="text-[var(--terminal-green)] font-bold mb-3">终止条件</h4>
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-[var(--border-subtle)]">
-                      <th className="py-2 text-left text-[var(--text-muted)]">模式</th>
-                      <th className="py-2 text-left text-[var(--text-muted)]">触发条件</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="border-b border-[var(--border-subtle)]">
-                      <td className="py-2 text-[var(--terminal-green)] font-mono">GOAL</td>
-                      <td className="py-2 text-[var(--text-secondary)]">模型返回文本（任务完成）</td>
-                    </tr>
-                    <tr className="border-b border-[var(--border-subtle)]">
-                      <td className="py-2 text-[var(--amber)] font-mono">MAX_TURNS</td>
-                      <td className="py-2 text-[var(--text-secondary)]">超过 runConfig.max_turns</td>
-                    </tr>
-                    <tr className="border-b border-[var(--border-subtle)]">
-                      <td className="py-2 text-[var(--amber)] font-mono">TIMEOUT</td>
-                      <td className="py-2 text-[var(--text-secondary)]">超过 max_time_minutes</td>
-                    </tr>
-                    <tr className="border-b border-[var(--border-subtle)]">
-                      <td className="py-2 text-[var(--cyber-blue)] font-mono">CANCELLED</td>
-                      <td className="py-2 text-[var(--text-secondary)]">外部 AbortSignal 触发</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2 text-red-400 font-mono">ERROR</td>
-                      <td className="py-2 text-[var(--text-secondary)]">执行过程抛出异常</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
-                <h4 className="text-[var(--cyber-blue)] font-bold mb-3">递归防护机制</h4>
-                <CodeBlock
-                  language="typescript"
-                  code={`// subagent.ts:296-313 - 移除 Task 工具
-if (hasWildcard || asStrings.length === 0) {
-  toolsList.push(
-    ...toolRegistry
-      .getFunctionDeclarations()
-      // 关键：过滤掉 Task 工具
-      .filter((t) => t.name !== TaskTool.Name),
-  );
-} else {
-  toolsList.push(
-    ...toolRegistry.getFunctionDeclarationsFiltered(asStrings),
-  );
-}`}
-                />
-                <p className="text-xs text-[var(--text-muted)] mt-2">
-                  自动移除 Task 工具，防止子代理创建子代理导致无限递归
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
-              <h4 className="text-[var(--purple)] font-bold mb-3">模板变量替换</h4>
-              <CodeBlock
-                language="typescript"
-                code={`// subagent.ts:129-155 - 模板字符串处理
-function templateString(template: string, context: ContextState): string {
-  const placeholderRegex = /\\$\\{(\\w+)\\}/g;
-
-  // 找出所有需要的占位符
-  const requiredKeys = new Set(
-    Array.from(template.matchAll(placeholderRegex), (match) => match[1]),
-  );
-
-  // 验证所有占位符都有对应值
-  const contextKeys = new Set(context.get_keys());
-  const missingKeys = Array.from(requiredKeys).filter(
-    (key) => !contextKeys.has(key),
-  );
-
-  if (missingKeys.length > 0) {
-    throw new Error(\`Missing context values: \${missingKeys.join(', ')}\`);
-  }
-
-  // 执行替换
-  return template.replace(placeholderRegex, (_match, key) =>
-    String(context.get(key)),
-  );
-}
-
-// 使用示例：
-// systemPrompt: "分析 \${task_prompt} 中提到的问题"
-// context.set('task_prompt', '用户的具体任务描述')`}
-              />
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* 事件系统 */}
+      {/* SubagentActivityEvent */}
       <section className="bg-[var(--bg-card)] rounded-xl p-6 border border-[var(--border-subtle)]">
         <button
           onClick={() => toggleSection('events')}
           className="w-full flex items-center justify-between mb-4"
         >
           <h2 className="text-xl font-bold text-[var(--text-primary)] flex items-center gap-2">
-            📡 事件系统详解
+            📡 SubagentActivityEvent 事件系统
           </h2>
           <span className={`transform transition-transform ${expandedSections.has('events') ? 'rotate-180' : ''}`}>
             ▼
@@ -538,18 +802,13 @@ function templateString(template: string, context: ContextState): string {
         {expandedSections.has('events') && (
           <div className="space-y-6">
             <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
-              <h4 className="text-[var(--terminal-green)] font-bold mb-3">9 种事件类型</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <h4 className="text-[var(--terminal-green)] font-bold mb-3">4 种活动事件</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {[
-                  { name: 'start', desc: '代理启动', color: 'terminal-green' },
-                  { name: 'round_start', desc: '轮次开始', color: 'cyber-blue' },
-                  { name: 'round_end', desc: '轮次结束', color: 'cyber-blue' },
-                  { name: 'stream_text', desc: '流式文本', color: 'amber' },
-                  { name: 'tool_call', desc: '工具调用', color: 'purple' },
-                  { name: 'tool_result', desc: '工具结果', color: 'purple' },
-                  { name: 'tool_waiting_approval', desc: '等待审批', color: 'amber' },
-                  { name: 'finish', desc: '执行完成', color: 'terminal-green' },
-                  { name: 'error', desc: '发生错误', color: 'red-400' },
+                  { name: 'TOOL_CALL_START', desc: '工具调用开始', color: 'terminal-green' },
+                  { name: 'TOOL_CALL_END', desc: '工具调用结束', color: 'cyber-blue' },
+                  { name: 'THOUGHT_CHUNK', desc: '思考过程片段', color: 'amber' },
+                  { name: 'ERROR', desc: '执行错误', color: 'red-400' },
                 ].map((event) => (
                   <div
                     key={event.name}
@@ -566,311 +825,70 @@ function templateString(template: string, context: ContextState): string {
 
             <CodeBlock
               language="typescript"
-              code={`// subagent-events.ts - 事件接口定义
+              code={`// types.ts - SubagentActivityEvent 定义
 
-export interface SubAgentStartEvent {
-  subagentId: string;    // 唯一标识 "{name}-{random}"
-  name: string;          // 代理名称
-  model?: string;        // 使用的模型
-  tools: string[];       // 可用工具列表
-  timestamp: number;
+export enum SubagentActivityEventType {
+  TOOL_CALL_START = 'TOOL_CALL_START',
+  TOOL_CALL_END = 'TOOL_CALL_END',
+  THOUGHT_CHUNK = 'THOUGHT_CHUNK',
+  ERROR = 'ERROR',
 }
 
-export interface SubAgentToolCallEvent {
-  subagentId: string;
-  round: number;         // 当前轮次
-  callId: string;        // 工具调用 ID
-  name: string;          // 工具名称
-  args: Record<string, unknown>;  // 调用参数
-  description: string;   // 工具描述
+export interface SubagentActivityEvent {
+  type: SubagentActivityEventType;
+  agentName: string;
   timestamp: number;
+
+  // TOOL_CALL_START/END 时填充
+  toolName?: string;
+  toolArgs?: Record<string, unknown>;
+  toolResult?: string;
+  success?: boolean;
+
+  // THOUGHT_CHUNK 时填充
+  thought?: string;
+
+  // ERROR 时填充
+  error?: Error;
+  message?: string;
 }
 
-export interface SubAgentFinishEvent {
-  subagentId: string;
-  terminateReason: string;  // 终止原因
-  timestamp: number;
-  // 统计信息
-  rounds?: number;
-  totalDurationMs?: number;
-  totalToolCalls?: number;
-  successfulToolCalls?: number;
-  failedToolCalls?: number;
-  inputTokens?: number;
-  outputTokens?: number;
-  totalTokens?: number;
-}`}
+// 事件通知回调
+export type SubagentActivityNotifier = (
+  event: SubagentActivityEvent
+) => void;`}
             />
 
             <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
-              <h4 className="text-[var(--cyber-blue)] font-bold mb-3">事件监听示例</h4>
+              <h4 className="text-[var(--cyber-blue)] font-bold mb-3">事件使用示例</h4>
               <CodeBlock
                 language="typescript"
-                code={`// 在 UI 层监听子代理事件
-const eventEmitter = new SubAgentEventEmitter();
+                code={`// UI 层监听 Agent 活动
 
-eventEmitter.on('start', (event: SubAgentStartEvent) => {
-  console.log(\`🚀 子代理 \${event.name} 启动\`);
-  console.log(\`   模型: \${event.model}\`);
-  console.log(\`   工具: \${event.tools.join(', ')}\`);
-});
+const notifier: SubagentActivityNotifier = (event) => {
+  switch (event.type) {
+    case SubagentActivityEventType.TOOL_CALL_START:
+      console.log(\`🔧 \${event.agentName} → \${event.toolName}(\${JSON.stringify(event.toolArgs)})\`);
+      break;
 
-eventEmitter.on('tool_call', (event: SubAgentToolCallEvent) => {
-  console.log(\`🔧 Round \${event.round}: \${event.name}(\${JSON.stringify(event.args)})\`);
-});
+    case SubagentActivityEventType.TOOL_CALL_END:
+      const status = event.success ? '✅' : '❌';
+      console.log(\`\${status} \${event.toolName} completed\`);
+      break;
 
-eventEmitter.on('finish', (event: SubAgentFinishEvent) => {
-  console.log(\`✅ 执行完成 - \${event.terminateReason}\`);
-  console.log(\`   轮次: \${event.rounds}, 耗时: \${event.totalDurationMs}ms\`);
-  console.log(\`   工具调用: \${event.successfulToolCalls}/\${event.totalToolCalls} 成功\`);
-});
+    case SubagentActivityEventType.THOUGHT_CHUNK:
+      process.stdout.write(event.thought);  // 流式输出
+      break;
 
-// 传入 SubAgentScope 创建时
-const scope = await SubAgentScope.create(name, config, ..., eventEmitter);`}
-              />
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* Hooks 系统 */}
-      <section className="bg-[var(--bg-card)] rounded-xl p-6 border border-[var(--border-subtle)]">
-        <button
-          onClick={() => toggleSection('hooks')}
-          className="w-full flex items-center justify-between mb-4"
-        >
-          <h2 className="text-xl font-bold text-[var(--text-primary)] flex items-center gap-2">
-            🪝 Hooks 生命周期系统
-          </h2>
-          <span className={`transform transition-transform ${expandedSections.has('hooks') ? 'rotate-180' : ''}`}>
-            ▼
-          </span>
-        </button>
-
-        {expandedSections.has('hooks') && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
-                <h4 className="text-[var(--terminal-green)] font-bold mb-2">preToolUse</h4>
-                <p className="text-sm text-[var(--text-secondary)] mb-2">
-                  工具调用前触发
-                </p>
-                <div className="text-xs text-[var(--text-muted)]">
-                  可用于记录日志、验证参数
-                </div>
-              </div>
-
-              <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
-                <h4 className="text-[var(--cyber-blue)] font-bold mb-2">postToolUse</h4>
-                <p className="text-sm text-[var(--text-secondary)] mb-2">
-                  工具调用后触发
-                </p>
-                <div className="text-xs text-[var(--text-muted)]">
-                  可用于统计、错误处理
-                </div>
-              </div>
-
-              <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
-                <h4 className="text-[var(--amber)] font-bold mb-2">onStop</h4>
-                <p className="text-sm text-[var(--text-secondary)] mb-2">
-                  执行结束时触发
-                </p>
-                <div className="text-xs text-[var(--text-muted)]">
-                  可用于清理、汇总统计
-                </div>
-              </div>
-            </div>
-
-            <CodeBlock
-              language="typescript"
-              code={`// subagent-hooks.ts - Hooks 接口定义
-
-export interface PreToolUsePayload {
-  subagentId: string;
-  name: string;       // subagent name
-  toolName: string;
-  args: Record<string, unknown>;
-  timestamp: number;
-}
-
-export interface PostToolUsePayload extends PreToolUsePayload {
-  success: boolean;
-  durationMs: number;
-  errorMessage?: string;
-}
-
-export interface SubagentStopPayload {
-  subagentId: string;
-  name: string;
-  terminateReason: string;
-  summary: Record<string, unknown>;
-  timestamp: number;
-}
-
-export interface SubagentHooks {
-  preToolUse?(payload: PreToolUsePayload): Promise<void> | void;
-  postToolUse?(payload: PostToolUsePayload): Promise<void> | void;
-  onStop?(payload: SubagentStopPayload): Promise<void> | void;
-}`}
-            />
-
-            <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
-              <h4 className="text-[var(--purple)] font-bold mb-3">使用场景示例</h4>
-              <CodeBlock
-                language="typescript"
-                code={`// 自定义 Hooks 实现
-const hooks: SubagentHooks = {
-  preToolUse: async (payload) => {
-    // 记录审计日志
-    await auditLog.record({
-      action: 'tool_call_start',
-      agent: payload.name,
-      tool: payload.toolName,
-      args: payload.args,
-    });
-  },
-
-  postToolUse: async (payload) => {
-    // 更新性能指标
-    metrics.recordToolCall({
-      tool: payload.toolName,
-      duration: payload.durationMs,
-      success: payload.success,
-    });
-
-    // 错误告警
-    if (!payload.success) {
-      await alerting.notify({
-        level: 'warning',
-        message: \`Tool \${payload.toolName} failed: \${payload.errorMessage}\`,
-      });
-    }
-  },
-
-  onStop: async (payload) => {
-    // 发送执行报告
-    await reporting.sendSubagentReport({
-      agentId: payload.subagentId,
-      reason: payload.terminateReason,
-      summary: payload.summary,
-    });
-  },
+    case SubagentActivityEventType.ERROR:
+      console.error(\`❌ Error in \${event.agentName}: \${event.message}\`);
+      break;
+  }
 };
 
-// 创建带 Hooks 的 SubAgentScope
-const scope = await manager.createSubagentScope(config, runtimeContext, {
-  eventEmitter,
-  hooks,
-});`}
-              />
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* 统计系统 */}
-      <section className="bg-[var(--bg-card)] rounded-xl p-6 border border-[var(--border-subtle)]">
-        <button
-          onClick={() => toggleSection('stats')}
-          className="w-full flex items-center justify-between mb-4"
-        >
-          <h2 className="text-xl font-bold text-[var(--text-primary)] flex items-center gap-2">
-            📊 统计与监控系统
-          </h2>
-          <span className={`transform transition-transform ${expandedSections.has('stats') ? 'rotate-180' : ''}`}>
-            ▼
-          </span>
-        </button>
-
-        {expandedSections.has('stats') && (
-          <div className="space-y-6">
-            <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
-              <h4 className="text-[var(--terminal-green)] font-bold mb-3">SubagentStatistics 类</h4>
-              <CodeBlock
-                language="typescript"
-                code={`// subagent-statistics.ts - 统计数据结构
-
-export interface SubagentStatsSummary {
-  rounds: number;              // 执行轮次
-  totalDurationMs: number;     // 总耗时
-  totalToolCalls: number;      // 工具调用总数
-  successfulToolCalls: number; // 成功调用数
-  failedToolCalls: number;     // 失败调用数
-  successRate: number;         // 成功率 (%)
-  inputTokens: number;         // 输入 Token
-  outputTokens: number;        // 输出 Token
-  totalTokens: number;         // 总 Token
-  estimatedCost: number;       // 估算成本
-  toolUsage: ToolUsageStats[]; // 工具使用详情
-}
-
-export interface ToolUsageStats {
-  name: string;
-  count: number;               // 调用次数
-  success: number;             // 成功次数
-  failure: number;             // 失败次数
-  lastError?: string;          // 最后错误
-  totalDurationMs: number;     // 总耗时
-  averageDurationMs: number;   // 平均耗时
-}`}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
-                <h4 className="text-[var(--cyber-blue)] font-bold mb-3">紧凑格式输出</h4>
-                <div className="bg-[var(--bg-card)] rounded-lg p-3 font-mono text-xs">
-                  <div className="text-[var(--text-secondary)]">📋 Task Completed: 代码审查</div>
-                  <div className="text-[var(--text-secondary)]">🔧 Tool Usage: 12 calls, 91.7% success</div>
-                  <div className="text-[var(--text-secondary)]">⏱️ Duration: 45.2s | 🔁 Rounds: 5</div>
-                  <div className="text-[var(--text-secondary)]">🔢 Tokens: 15,420 (in 8,200, out 7,220)</div>
-                </div>
-              </div>
-
-              <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
-                <h4 className="text-[var(--purple)] font-bold mb-3">性能洞察生成</h4>
-                <CodeBlock
-                  language="typescript"
-                  code={`// 自动生成性能建议
-generatePerformanceTips(stats) {
-  const tips = [];
-
-  // 成功率过低
-  if (successRate < 80)
-    tips.push('Low success rate - review inputs');
-
-  // 耗时过长
-  if (totalDurationMs > 60_000)
-    tips.push('Long execution - break down tasks');
-
-  // Token 使用过高
-  if (totalTokens > 100_000)
-    tips.push('High token usage - optimize prompts');
-
-  // 慢工具检测
-  const slow = toolUsage.filter(t =>
-    t.averageDurationMs > 10_000
-  );
-  if (slow.length)
-    tips.push(\`Optimize \${slow[0].name}\`);
-
-  return tips;
-}`}
-                />
-              </div>
-            </div>
-
-            <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
-              <h4 className="text-[var(--amber)] font-bold mb-3">成本估算</h4>
-              <CodeBlock
-                language="typescript"
-                code={`// subagent-statistics.ts:89-90 - 成本计算
-const estimatedCost = this.inputTokens * 3e-5 + this.outputTokens * 6e-5;
-
-// 说明：
-// - 输入 Token: $0.00003/token = $30/1M tokens
-// - 输出 Token: $0.00006/token = $60/1M tokens
-// 这是基于典型 LLM 定价的估算值`}
+// 传入 LocalAgentExecutor
+const executor = new LocalAgentExecutor(definition, config, notifier);
+await executor.run(signal, updateOutput);`}
               />
             </div>
           </div>
@@ -886,49 +904,49 @@ const estimatedCost = this.inputTokens * 3e-5 + this.outputTokens * 6e-5;
         <div className="space-y-4">
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
             <h4 className="text-[var(--terminal-green)] font-bold mb-2">
-              为什么用 YAML + Markdown 而不是纯 JSON？
+              为什么用 TOML 而不是 YAML+Markdown？
             </h4>
             <ul className="text-sm text-[var(--text-secondary)] space-y-1">
-              <li>• <strong>可读性</strong>：System Prompt 通常很长，Markdown 格式更易编辑</li>
-              <li>• <strong>分离关注点</strong>：配置（YAML）与内容（Markdown）分离</li>
-              <li>• <strong>IDE 支持</strong>：Markdown 文件有更好的语法高亮和预览</li>
-              <li>• <strong>版本控制</strong>：Markdown 差异更易于阅读</li>
+              <li>• <strong>严格验证</strong>：TOML + Zod 提供编译时类型检查</li>
+              <li>• <strong>无歧义</strong>：TOML 语法比 YAML 更严格，避免缩进问题</li>
+              <li>• <strong>多行字符串</strong>：TOML 的 """ 语法很适合 system_prompt</li>
+              <li>• <strong>工具支持</strong>：更好的 IDE 支持和错误提示</li>
             </ul>
           </div>
 
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
             <h4 className="text-[var(--cyber-blue)] font-bold mb-2">
-              为什么自动移除 Task 工具？
+              为什么要求 complete_task 而不是文本返回？
             </h4>
             <ul className="text-sm text-[var(--text-secondary)] space-y-1">
-              <li>• <strong>防止无限递归</strong>：子代理调用 Task 创建新子代理</li>
-              <li>• <strong>资源控制</strong>：嵌套深度难以预测和控制</li>
-              <li>• <strong>调试困难</strong>：多层嵌套的错误难以追踪</li>
-              <li>• <strong>替代方案</strong>：如需复杂分解，在顶层编排多个子代理</li>
+              <li>• <strong>明确信号</strong>：工具调用是显式的终止信号，避免歧义</li>
+              <li>• <strong>结构化结果</strong>：result 参数可以包含结构化数据</li>
+              <li>• <strong>统一处理</strong>：无论 Agent 任务如何，终止方式一致</li>
+              <li>• <strong>Grace Period</strong>：可以明确检测是否调用了 complete_task</li>
             </ul>
           </div>
 
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
             <h4 className="text-[var(--amber)] font-bold mb-2">
-              为什么使用事件系统而不是回调？
+              为什么需要 Grace Period？
             </h4>
             <ul className="text-sm text-[var(--text-secondary)] space-y-1">
-              <li>• <strong>解耦</strong>：执行逻辑与 UI 更新分离</li>
-              <li>• <strong>多订阅者</strong>：多个组件可同时监听同一事件</li>
-              <li>• <strong>可测试</strong>：事件更容易模拟和断言</li>
-              <li>• <strong>可扩展</strong>：新增事件类型不影响现有代码</li>
+              <li>• <strong>优雅降级</strong>：给 Agent 最后一次机会完成任务</li>
+              <li>• <strong>避免数据丢失</strong>：Agent 可能正在生成重要结果</li>
+              <li>• <strong>60 秒足够</strong>：一个额外轮次通常足够调用 complete_task</li>
+              <li>• <strong>明确错误</strong>：ERROR_NO_COMPLETE_TASK_CALL 比 TIMEOUT 更清晰</li>
             </ul>
           </div>
 
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
             <h4 className="text-[var(--purple)] font-bold mb-2">
-              为什么 Builtin 代理不可修改？
+              local vs remote Agent 的选择？
             </h4>
             <ul className="text-sm text-[var(--text-secondary)] space-y-1">
-              <li>• <strong>稳定性保证</strong>：核心功能始终可用</li>
-              <li>• <strong>升级兼容</strong>：版本更新时内置代理自动更新</li>
-              <li>• <strong>覆盖机制</strong>：用户可在 project/user 级创建同名代理覆盖</li>
-              <li>• <strong>恢复能力</strong>：删除覆盖后自动回退到 Builtin</li>
+              <li>• <strong>local</strong>：需要访问本地工具（文件、Shell），低延迟</li>
+              <li>• <strong>remote</strong>：外部服务、专有能力、隔离执行</li>
+              <li>• <strong>A2A 协议</strong>：标准化的 Agent 互操作接口</li>
+              <li>• <strong>统一接口</strong>：delegate_to_agent 透明处理两种类型</li>
             </ul>
           </div>
         </div>
@@ -938,8 +956,8 @@ const estimatedCost = this.inputTokens * 3e-5 + this.outputTokens * 6e-5;
       <RelatedPages
         title="🔗 相关页面"
         pages={[
-          { id: 'subagent', label: '子代理系统概览', description: '基础概念和快速入门' },
-          { id: 'subagent-anim', label: '子代理执行动画', description: '可视化执行流程' },
+          { id: 'subagent', label: 'Agent 系统概览', description: '基础概念和快速入门' },
+          { id: 'subagent-anim', label: 'Agent 执行动画', description: '可视化执行流程' },
           { id: 'subagent-resolution-anim', label: '优先级解析动画', description: '三级优先级可视化' },
         ]}
       />
