@@ -54,96 +54,104 @@ const agentSequence: AgentStep[] = [
   {
     phase: 'init',
     group: 'setup',
-    title: '初始化 Agent',
-    description: 'LocalAgentExecutor 加载 Agent 配置并初始化执行环境',
-    codeSnippet: `// local-executor.ts:30-60
-class LocalAgentExecutor {
-  private turnCount = 0;
-  private startTime = Date.now();
+    title: '创建 Agent Executor',
+    description: 'LocalAgentExecutor.create() 工厂方法初始化执行环境',
+    codeSnippet: `// local-executor.ts - 工厂方法创建
+export class LocalAgentExecutor<TOutput> {
+  // 创建执行器（推荐方式）
+  static async create<TOutput>(
+    definition: LocalAgentDefinition<TOutput>,
+    runtimeContext: Config,
+    onActivity?: ActivityCallback,
+  ): Promise<LocalAgentExecutor<TOutput>> {
+    // 创建隔离的工具注册表
+    const agentToolRegistry = new ToolRegistry(runtimeContext);
 
-  async run(query: string): Promise<AgentResult> {
-    const agent = await this.registry.get(this.agentName);
+    // 只注册 Agent 定义中声明的工具
+    for (const toolName of definition.toolConfig?.tools ?? []) {
+      const tool = getToolByName(toolName);
+      if (tool) agentToolRegistry.register(tool);
+    }
 
-    // 构建初始消息
-    const messages: Message[] = [{
-      role: 'system',
-      content: this.buildSystemPrompt(agent)
-    }, {
-      role: 'user',
-      content: query
-    }];
+    // 注入 complete_task 工具（必须）
+    agentToolRegistry.register(
+      createCompleteTaskTool(definition.outputConfig)
+    );
 
-    // 注入 complete_task 工具
-    const tools = [...agent.tools, completeTaskTool];
-
-    return this.executionLoop(messages, tools);
+    return new LocalAgentExecutor(
+      definition, runtimeContext, agentToolRegistry, onActivity
+    );
   }
 }`,
-    visualData: { agentName: 'CodebaseInvestigator', turnLimit: 10, tools: 5 },
-    highlight: '加载配置',
+    visualData: { agentName: 'codebase_investigator', turnLimit: 15, tools: 5 },
+    highlight: '工厂方法创建',
   },
   {
     phase: 'turn_start',
     group: 'turn',
-    title: 'Turn 开始',
-    description: '检查终止条件后开始新一轮执行',
-    codeSnippet: `// local-executor.ts:80-110
-private async executionLoop(
-  messages: Message[],
-  tools: Tool[]
-): Promise<AgentResult> {
+    title: '执行循环开始',
+    description: 'run() 方法启动执行循环，设置超时和检查终止条件',
+    codeSnippet: `// local-executor.ts - 主执行循环
+async run(inputs: AgentInputs, signal: AbortSignal): Promise<OutputObject> {
+  const { max_time_minutes, max_turns } = this.definition.runConfig;
+  const startTime = Date.now();
+
+  // 设置超时
+  const timeoutController = new AbortController();
+  setTimeout(
+    () => timeoutController.abort(),
+    max_time_minutes * 60 * 1000
+  );
+
+  // 创建 Chat 对象
+  const chat = await this.createChatObject(inputs);
+  let currentMessage = { role: 'user', parts: [{ text: query }] };
+  let turnCounter = 0;
+
+  // 主循环
   while (true) {
-    this.turnCount++;
+    const reason = this.checkTermination(startTime, turnCounter, max_turns);
+    if (reason) break;
 
-    // 检查 MAX_TURNS
-    if (this.turnCount > this.config.maxTurns) {
-      return this.terminate('MAX_TURNS');
-    }
+    const result = await this.executeTurn(chat, currentMessage, turnCounter++);
+    if (result.status === 'stop') break;
 
-    // 检查 TIMEOUT
-    const elapsed = Date.now() - this.startTime;
-    if (elapsed > this.config.maxTimeMs) {
-      return this.terminate('TIMEOUT');
-    }
-
-    // 执行一轮
-    const result = await this.executeTurn(messages, tools);
-    if (result.terminated) {
-      return result;
-    }
+    currentMessage = result.nextMessage;
   }
 }`,
-    visualData: { turn: 1, maxTurns: 10, elapsed: '0s', maxTime: '300s' },
-    highlight: 'Turn 1/10',
+    visualData: { turn: 1, maxTurns: 15, elapsed: '0s', maxTime: '5min' },
+    highlight: 'Turn 1/15',
   },
   {
     phase: 'llm_call',
     group: 'turn',
-    title: 'LLM 调用',
-    description: 'Agent 调用 LLM 获取下一步行动',
-    codeSnippet: `// local-executor.ts:120-150
+    title: 'executeTurn 调用 LLM',
+    description: 'Agent 调用模型获取下一步行动，同时发射活动事件',
+    codeSnippet: `// local-executor.ts - 单轮执行
 private async executeTurn(
-  messages: Message[],
-  tools: Tool[]
+  chat: Chat,
+  message: Content,
+  turnNumber: number
 ): Promise<TurnResult> {
-  const response = await this.llm.chat({
-    model: this.config.model,
-    messages,
-    tools,
-    toolChoice: 'auto'
-  });
+  // 发送消息给 LLM
+  const response = await chat.sendMessage(message);
 
-  // LLM 响应
-  // {
-  //   content: "我需要先查看项目结构...",
-  //   toolCalls: [{
-  //     name: "Glob",
-  //     arguments: { pattern: "**/*.ts" }
-  //   }]
-  // }
+  // 发射思考事件
+  if (response.text) {
+    this.emitActivity('THOUGHT_CHUNK', { text: response.text });
+  }
 
-  messages.push({ role: 'assistant', ...response });
-  return this.processResponse(response, messages);
+  // 处理函数调用
+  const functionCalls = response.functionCalls();
+  if (!functionCalls || functionCalls.length === 0) {
+    // 无函数调用 → ERROR_NO_COMPLETE_TASK_CALL
+    return {
+      status: 'stop',
+      terminateReason: AgentTerminateMode.ERROR_NO_COMPLETE_TASK_CALL
+    };
+  }
+
+  return this.processFunctionCalls(functionCalls);
 }`,
     visualData: {
       response: {
@@ -156,30 +164,39 @@ private async executeTurn(
   {
     phase: 'tool_check',
     group: 'tools',
-    title: '工具调用检查',
-    description: '检查 LLM 是否请求工具调用',
-    codeSnippet: `// local-executor.ts:160-190
-private async processResponse(
-  response: LLMResponse,
-  messages: Message[]
+    title: '检查 complete_task',
+    description: '检查是否调用了 complete_task 工具',
+    codeSnippet: `// local-executor.ts - 处理函数调用
+private async processFunctionCalls(
+  functionCalls: FunctionCall[]
 ): Promise<TurnResult> {
-  // 检查是否有工具调用
-  if (!response.toolCalls || response.toolCalls.length === 0) {
-    // 无工具调用，检查是否应该结束
-    console.warn('[Agent] No tool calls, may be stuck');
-    return { terminated: false };
+  const results: FunctionResponse[] = [];
+
+  for (const call of functionCalls) {
+    // 发射工具开始事件
+    this.emitActivity('TOOL_CALL_START', {
+      name: call.name,
+      args: call.args
+    });
+
+    // 检查是否是 complete_task
+    if (call.name === 'complete_task') {
+      return this.handleCompleteTask(call);
+    }
+
+    // 执行其他工具
+    const result = await this.executeTool(call);
+
+    // 发射工具结束事件
+    this.emitActivity('TOOL_CALL_END', {
+      name: call.name,
+      output: result
+    });
+
+    results.push({ name: call.name, response: result });
   }
 
-  // 检查是否调用了 complete_task
-  const completeCall = response.toolCalls.find(
-    tc => tc.name === 'complete_task'
-  );
-  if (completeCall) {
-    return this.handleComplete(completeCall);
-  }
-
-  // 执行其他工具
-  return this.executeTools(response.toolCalls, messages);
+  return { status: 'continue', nextMessage: results };
 }`,
     visualData: { hasToolCalls: true, toolCount: 1, isComplete: false },
     highlight: '1 个工具调用',
@@ -188,39 +205,30 @@ private async processResponse(
     phase: 'tool_execute',
     group: 'tools',
     title: '执行工具',
-    description: '执行 LLM 请求的工具并收集结果',
-    codeSnippet: `// local-executor.ts:200-240
-private async executeTools(
-  toolCalls: ToolCall[],
-  messages: Message[]
-): Promise<TurnResult> {
-  const results: ToolResult[] = [];
-
-  for (const call of toolCalls) {
-    const tool = this.tools.get(call.name);
-    if (!tool) {
-      results.push({
-        name: call.name,
-        error: 'Tool not found'
-      });
-      continue;
-    }
-
-    const result = await tool.execute(call.arguments);
-    results.push({
-      name: call.name,
-      output: result
-    });
+    description: '执行 LLM 请求的工具，支持 Zod schema 验证',
+    codeSnippet: `// local-executor.ts - 工具执行
+private async executeTool(call: FunctionCall): Promise<string> {
+  const tool = this.toolRegistry.get(call.name);
+  if (!tool) {
+    return JSON.stringify({ error: \`Tool '\${call.name}' not found\` });
   }
 
-  // 添加工具结果到消息
-  messages.push({
-    role: 'tool',
-    content: results
-  });
+  try {
+    const result = await tool.execute(call.args, this.signal);
+    return typeof result === 'string'
+      ? result
+      : JSON.stringify(result);
+  } catch (error) {
+    this.emitActivity('ERROR', {
+      error: error.message,
+      context: 'tool_call'
+    });
+    return JSON.stringify({ error: error.message });
+  }
+}
 
-  return { terminated: false };
-}`,
+// 工具执行结果添加到消息历史
+// 继续下一轮...`,
     visualData: {
       executing: 'Glob',
       pattern: '**/*.ts',
@@ -231,23 +239,30 @@ private async executeTools(
   {
     phase: 'result_process',
     group: 'turn',
-    title: '处理结果',
-    description: '工具结果添加到消息历史，准备下一轮',
-    codeSnippet: `// Turn 1 完成
-// 消息历史:
-// 1. system: Agent 系统提示
-// 2. user: 原始查询
-// 3. assistant: "我需要先查看项目结构..."
-//              + toolCalls: [Glob]
-// 4. tool: Glob 结果 (42 个文件)
-
-// 继续下一轮...
-this.turnCount++;  // turn = 2
-
-// Turn 2: LLM 分析文件列表
-// Turn 3: LLM 读取关键文件
+    title: '继续循环',
+    description: '工具结果作为下一轮输入，继续执行直到 complete_task',
+    codeSnippet: `// 消息历史增长
+// 1. system: Agent 系统提示词
+// 2. user: objective 参数
+// 3. model: "我需要先查看项目结构..."
+//          + functionCalls: [Glob]
+// 4. user: Glob 结果 (42 个文件)
+// 5. model: "让我读取核心文件..."
+//          + functionCalls: [Read]
 // ...
-// Turn N: LLM 调用 complete_task`,
+
+// Turn 2, 3, 4... 继续
+while (true) {
+  const reason = this.checkTermination(startTime, turnCounter);
+  if (reason) break;  // 超时或达到轮次上限
+
+  const result = await this.executeTurn(chat, currentMessage, turnCounter++);
+  if (result.status === 'stop') {
+    // GOAL 或 ERROR
+    break;
+  }
+  currentMessage = result.nextMessage;  // 工具结果
+}`,
     visualData: { turn: 2, messageCount: 4, nextAction: '继续执行' },
     highlight: '继续 Turn 2',
   },
@@ -255,89 +270,111 @@ this.turnCount++;  // turn = 2
     phase: 'complete_check',
     group: 'complete',
     title: 'complete_task 调用',
-    description: 'LLM 调用 complete_task 表示任务完成',
-    codeSnippet: `// Turn 5: LLM 认为任务完成
-// response.toolCalls:
-{
-  name: 'complete_task',
-  arguments: {
-    result: '项目分析完成。发现以下关键模块：\\n' +
-            '1. core/ - 核心逻辑\\n' +
-            '2. tools/ - 工具实现\\n' +
-            '3. agents/ - Agent 框架'
-  }
-}
+    description: 'LLM 调用 complete_task 时进行 Zod schema 验证',
+    codeSnippet: `// local-executor.ts - 处理完成任务
+private handleCompleteTask(call: FunctionCall): TurnResult {
+  const { outputConfig } = this.definition;
 
-// handleComplete 处理
-private handleComplete(call: ToolCall): TurnResult {
-  return {
-    terminated: true,
-    mode: 'GOAL',
-    result: call.arguments.result
-  };
+  if (outputConfig) {
+    // 有 outputConfig → 使用 Zod schema 验证
+    const validation = outputConfig.schema.safeParse(
+      call.args[outputConfig.outputName]
+    );
+
+    if (!validation.success) {
+      // 验证失败 → 返回错误，让 Agent 重试
+      return {
+        status: 'continue',
+        nextMessage: [{
+          name: 'complete_task',
+          response: JSON.stringify({
+            error: 'Validation failed',
+            details: validation.error.issues
+          })
+        }]
+      };
+    }
+
+    // 验证成功 → 调用 processOutput
+    const output = this.definition.processOutput?.(validation.data)
+      ?? JSON.stringify(validation.data, null, 2);
+    return { status: 'stop', terminateReason: 'GOAL', output };
+  }
+
+  // 无 outputConfig → 直接使用 result 参数
+  return { status: 'stop', terminateReason: 'GOAL', output: call.args.result };
 }`,
     visualData: {
       completeTask: true,
-      result: '项目分析完成，发现 3 个核心模块'
+      result: '{ SummaryOfFindings: "...", RelevantLocations: [...] }'
     },
-    highlight: 'complete_task',
+    highlight: 'Zod 验证通过',
   },
   {
     phase: 'final_warning',
     group: 'complete',
-    title: '最终警告机制',
-    description: '如果接近限制仍未完成，发送警告提示',
-    codeSnippet: `// local-executor.ts:280-310
-// 如果 turnCount >= maxTurns - 1 且未调用 complete_task
+    title: '60秒恢复期',
+    description: '超时/轮次上限时，给 Agent 最后机会调用 complete_task',
+    codeSnippet: `// local-executor.ts - 恢复机制
 private async executeFinalWarningTurn(
-  messages: Message[],
-  tools: Tool[]
+  chat: Chat,
+  turnCounter: number
 ): Promise<TurnResult> {
-  // 添加警告消息
-  messages.push({
+  // 发送恢复警告
+  const warningMessage = {
     role: 'user',
-    content: \`警告：你只剩 1 轮机会。
-    必须立即调用 complete_task 工具返回结果。
-    如果不调用，任务将以 ERROR_NO_COMPLETE_TASK_CALL 终止。\`
-  });
+    parts: [{
+      text: \`⚠️ CRITICAL: You have reached the time/turn limit.
+      You MUST call complete_task NOW with your current findings.
+      If you don't call complete_task, the task will fail.\`
+    }]
+  };
 
-  // 给 Agent 60 秒宽限期
-  const response = await this.llm.chat({
-    messages,
-    tools,
-    timeout: 60000
-  });
+  // 60秒宽限期
+  const graceController = new AbortController();
+  setTimeout(() => graceController.abort(), 60000);
 
-  return this.processResponse(response, messages);
+  try {
+    const result = await this.executeTurn(
+      chat, warningMessage, turnCounter, graceController.signal
+    );
+    return result;
+  } catch (error) {
+    // 宽限期内仍未完成
+    return { status: 'stop', terminateReason: 'TIMEOUT' };
+  }
 }`,
     visualData: { warning: true, turnsLeft: 1, graceTimeout: '60s' },
-    highlight: '60s 宽限期',
+    highlight: '60s 恢复期',
   },
   {
     phase: 'terminate',
     group: 'complete',
-    title: '任务终止',
-    description: 'Agent 正常完成，返回结果',
-    codeSnippet: `// local-executor.ts:320-350
-private terminate(mode: AgentTerminateMode): AgentResult {
-  const elapsed = Date.now() - this.startTime;
-
-  return {
-    terminateMode: mode,
-    result: mode === 'GOAL' ? this.result : null,
-    turns: this.turnCount,
-    elapsedMs: elapsed,
-    success: mode === 'GOAL'
-  };
+    title: '返回 OutputObject',
+    description: 'Agent 终止，返回结果和终止原因',
+    codeSnippet: `// agents/types.ts - 输出类型
+export interface OutputObject {
+  result: string | null;
+  terminate_reason: AgentTerminateMode;
 }
 
-// 最终结果
+export enum AgentTerminateMode {
+  GOAL = 'GOAL',                                // ✅ 成功完成
+  TIMEOUT = 'TIMEOUT',                          // ⏱️ 超时
+  MAX_TURNS = 'MAX_TURNS',                      // 🔄 轮次上限
+  ABORTED = 'ABORTED',                          // 🛑 用户取消
+  ERROR = 'ERROR',                              // ❌ 执行错误
+  ERROR_NO_COMPLETE_TASK_CALL = 'ERROR_NO_COMPLETE_TASK_CALL'  // ⚠️ 未调用完成工具
+}
+
+// 最终结果示例
 {
-  terminateMode: 'GOAL',
-  result: '项目分析完成...',
-  turns: 5,
-  elapsedMs: 12500,
-  success: true
+  result: JSON.stringify({
+    SummaryOfFindings: "项目使用 TypeScript + React...",
+    ExplorationTrace: ["Used Glob...", "Read src/..."],
+    RelevantLocations: [{ FilePath: "src/core/...", ... }]
+  }, null, 2),
+  terminate_reason: 'GOAL'
 }`,
     visualData: {
       terminateMode: 'GOAL',

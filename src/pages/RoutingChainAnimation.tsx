@@ -21,14 +21,19 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
             </p>
           </div>
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
-            <h4 className="text-[var(--terminal-green)] font-bold mb-2">⛓️ 5 种路由策略</h4>
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-2 mt-2 text-xs">
-              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-red-400">Override</div>
-              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-amber-400">Classifier</div>
-              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-cyan-400">Fallback</div>
-              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-purple-400">Composite</div>
-              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-gray-400">Default</div>
+            <h4 className="text-[var(--terminal-green)] font-bold mb-2">⛓️ 策略链执行顺序</h4>
+            <div className="flex items-center gap-2 mt-2 text-xs flex-wrap">
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-purple-400 border border-purple-500/30">Composite</div>
+              <span className="text-gray-500">→</span>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-cyan-400 border border-cyan-500/30">Fallback</div>
+              <span className="text-gray-500">→</span>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-red-400 border border-red-500/30">Override</div>
+              <span className="text-gray-500">→</span>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-amber-400 border border-amber-500/30">Classifier</div>
+              <span className="text-gray-500">→</span>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-gray-400 border border-gray-500/30">Default</div>
             </div>
+            <p className="text-xs text-gray-500 mt-2">Chain of Responsibility 模式：每个策略返回 null 则继续下一个</p>
           </div>
         </div>
       )}
@@ -54,194 +59,238 @@ const routingSequence: RoutingStep[] = [
     phase: 'request',
     group: 'input',
     title: '接收路由请求',
-    description: '用户请求需要选择合适的模型执行',
-    codeSnippet: `// modelRouterService.ts:30-50
-interface RoutingRequest {
-  userMessage: string;
-  context: {
-    sessionHistory: Message[];
-    currentModel?: string;
-    userPreference?: 'flash' | 'pro';
+    description: 'ModelRouterService 接收路由上下文，包含历史消息和当前请求',
+    codeSnippet: `// routing/routingStrategy.ts - 核心类型定义
+export interface RoutingContext {
+  history: Content[];      // 对话历史
+  request: PartListUnion;  // 当前请求
+  signal: AbortSignal;     // 取消信号
+}
+
+export interface RoutingDecision {
+  model: string;           // 选择的模型
+  metadata: {
+    source: string;        // 决策来源策略
+    latencyMs: number;     // 决策耗时
+    reasoning: string;     // 决策理由
+    error?: string;        // 错误信息（如有）
   };
 }
 
-async route(request: RoutingRequest): Promise<ModelChoice> {
-  // 用户请求
-  // "帮我分析这个复杂的分布式系统架构"
-  return this.strategyChain.execute(request);
-}`,
+// RoutingStrategy: 可以返回 null 继续链
+// TerminalStrategy: 必须返回决策（链终结者）`,
     visualData: { message: '帮我分析这个复杂的分布式系统架构' },
     highlight: '复杂任务请求',
   },
   {
     phase: 'override_check',
     group: 'override',
-    title: '用户覆盖检查',
-    description: 'OverrideStrategy 检查用户是否指定了模型',
-    codeSnippet: `// strategies/overrideStrategy.ts:20-45
-class OverrideStrategy implements RoutingStrategy {
-  async execute(request: RoutingRequest): Promise<ModelChoice | null> {
-    // 检查用户偏好
-    if (request.context.userPreference) {
-      return {
-        model: request.context.userPreference,
-        reason: 'User preference override',
-        confidence: 1.0
-      };
+    title: 'CompositeStrategy 协调',
+    description: 'CompositeStrategy 作为协调者，按顺序尝试每个策略',
+    codeSnippet: `// strategies/compositeStrategy.ts - 责任链协调器
+export class CompositeStrategy implements TerminalStrategy {
+  constructor(private readonly strategies: RoutingStrategy[]) {}
+
+  async route(context: RoutingContext): Promise<RoutingDecision> {
+    const start = Date.now();
+
+    // 依次尝试每个策略
+    for (const strategy of this.strategies) {
+      try {
+        const decision = await strategy.route(context);
+        if (decision !== null) {
+          return this.finalizeDecision(decision, start);
+        }
+      } catch (error) {
+        // 策略失败不中断链，继续尝试
+        console.warn('[Router] Strategy failed:', error);
+      }
     }
 
-    // 检查环境变量
-    if (process.env.GEMINI_MODEL) {
-      return {
-        model: process.env.GEMINI_MODEL,
-        reason: 'Environment variable override'
-      };
-    }
+    // 不应该到达这里（DefaultStrategy 是终结者）
+    throw new Error('No strategy returned a decision');
+  }
 
-    return null; // 继续下一个策略
+  private finalizeDecision(decision: RoutingDecision, start: number) {
+    decision.metadata.latencyMs = Date.now() - start;
+    return decision;
   }
 }`,
-    visualData: { userPreference: null, envVar: null, result: 'continue' },
-    highlight: '无覆盖 → 继续',
+    visualData: { strategies: ['Fallback', 'Override', 'Classifier', 'Default'], current: 0 },
+    highlight: '链式调用开始',
   },
   {
     phase: 'classifier_analyze',
     group: 'classifier',
-    title: '复杂度分析',
-    description: 'ClassifierStrategy 使用 LLM 分析任务复杂度',
-    codeSnippet: `// strategies/classifierStrategy.ts:30-70
-class ClassifierStrategy implements RoutingStrategy {
-  async execute(request: RoutingRequest): Promise<ModelChoice | null> {
-    const analysis = await this.analyzeComplexity(request);
+    title: 'ClassifierStrategy 分析',
+    description: 'ClassifierStrategy 使用 LLM 分析任务复杂度，决定使用 Flash 还是 Pro',
+    codeSnippet: `// strategies/classifierStrategy.ts - 复杂度分类器
+const COMPLEXITY_RUBRIC = \`
+## COMPLEX Task Indicators (Pro model):
+- Requires 4+ distinct tool operations
+- Involves strategic planning or multi-step decisions
+- Contains ambiguity requiring clarification
+- Needs debugging or root cause analysis
+
+## SIMPLE Task Indicators (Flash model):
+- Can complete in 1-3 tool calls
+- Has clear, unambiguous instructions
+- Is routine/mechanical in nature
+\`;
+
+export class ClassifierStrategy implements RoutingStrategy {
+  async route(context: RoutingContext): Promise<RoutingDecision | null> {
+    // 清理历史（移除 FunctionCall/Response）
+    const cleanedHistory = this.filterHistory(context.history);
+    // 取最后 4 轮
+    const recentTurns = cleanedHistory.slice(-4);
+
+    const classification = await this.classify(recentTurns, context.request);
 
     return {
-      model: analysis.complexity === 'high' ? 'pro' : 'flash',
-      reason: analysis.reasoning,
-      confidence: analysis.confidence
+      model: classification === 'COMPLEX' ? PRO_MODEL : FLASH_MODEL,
+      metadata: {
+        source: 'ClassifierStrategy',
+        reasoning: \`Task classified as \${classification}\`,
+        latencyMs: 0
+      }
     };
-  }
-
-  private async analyzeComplexity(request: RoutingRequest) {
-    const prompt = \`分析以下任务的复杂度:
-    任务: \${request.userMessage}
-
-    返回 JSON:
-    {
-      "complexity": "low" | "medium" | "high",
-      "reasoning": "分析理由",
-      "confidence": 0.0-1.0
-    }\`;
-
-    return await this.llm.analyze(prompt);
   }
 }`,
     visualData: { analyzing: true, task: '分布式系统架构分析' },
-    highlight: 'LLM 分析中',
+    highlight: 'LLM 分类中',
   },
   {
     phase: 'classifier_decide',
     group: 'classifier',
     title: '分类结果',
-    description: 'LLM 返回复杂度分析结果',
-    codeSnippet: `// 分析结果
-{
-  "complexity": "high",
-  "reasoning": "任务涉及分布式系统架构分析，需要理解：
-    - 微服务通信模式
-    - 数据一致性策略
-    - 容错和扩展性
-    这些需要深度推理能力",
-  "confidence": 0.92
-}
+    description: 'LLM 返回 COMPLEX/SIMPLE 分类结果',
+    codeSnippet: `// 分类结果示例
+// 任务: "帮我分析这个复杂的分布式系统架构"
 
-// 选择模型
-complexity: "high" → model: "pro"`,
+LLM 分析:
+- 需要理解微服务通信模式 ✓
+- 涉及数据一致性策略 ✓
+- 需要考虑容错和扩展性 ✓
+- 属于战略规划类任务 ✓
+
+分类结果: COMPLEX
+
+// RoutingDecision
+{
+  model: 'gemini-2.0-flash-thinking-exp',  // Pro model
+  metadata: {
+    source: 'ClassifierStrategy',
+    reasoning: 'Task classified as COMPLEX',
+    latencyMs: 0  // 由 CompositeStrategy 填充
+  }
+}`,
     visualData: {
-      complexity: 'high',
+      complexity: 'COMPLEX',
       confidence: 0.92,
-      model: 'pro',
+      model: 'gemini-2.0-flash-thinking-exp',
       reasoning: '涉及分布式系统，需要深度推理'
     },
-    highlight: 'high → Pro',
+    highlight: 'COMPLEX → Pro',
   },
   {
     phase: 'fallback_check',
     group: 'fallback',
-    title: '故障转移检查',
-    description: 'FallbackStrategy 检查选定模型是否可用',
-    codeSnippet: `// strategies/fallbackStrategy.ts:20-50
-class FallbackStrategy implements RoutingStrategy {
-  async validate(choice: ModelChoice): Promise<ModelChoice> {
-    const isAvailable = await this.checkModelHealth(choice.model);
+    title: 'FallbackStrategy 检查',
+    description: 'FallbackStrategy 在链首位，检查模型可用性',
+    codeSnippet: `// strategies/fallbackStrategy.ts - 故障转移策略
+export class FallbackStrategy implements RoutingStrategy {
+  async route(context: RoutingContext): Promise<RoutingDecision | null> {
+    // 检查主模型是否可用
+    const primaryAvailable = await this.checkModelAvailability(
+      this.primaryModel
+    );
 
-    if (!isAvailable) {
-      console.warn('[Router] Model', choice.model, 'unavailable');
+    if (!primaryAvailable) {
+      // 主模型不可用，直接返回备用模型
       return {
-        model: this.getFallbackModel(choice.model),
-        reason: 'Fallback due to model unavailability',
-        confidence: 0.8
+        model: this.fallbackModel,
+        metadata: {
+          source: 'FallbackStrategy',
+          reasoning: 'Primary model unavailable, using fallback',
+          latencyMs: 0
+        }
       };
     }
 
-    return choice;
-  }
-
-  private getFallbackModel(model: string): string {
-    return model === 'pro' ? 'flash' : 'pro';
+    // 主模型可用，继续链中下一个策略
+    return null;
   }
 }
 
-// Pro 模型可用，无需故障转移`,
+// 本例中: 模型可用 → 返回 null → 继续链`,
     visualData: { model: 'pro', available: true, fallback: false },
-    highlight: 'Pro 可用',
+    highlight: '模型可用',
   },
   {
     phase: 'model_select',
     group: 'output',
-    title: '最终选择',
-    description: '策略链完成，返回最终模型选择',
-    codeSnippet: `// modelRouterService.ts:80-100
-async route(request: RoutingRequest): Promise<ModelChoice> {
-  // 1. Override → null (继续)
-  // 2. Classifier → { model: 'pro', confidence: 0.92 }
-  // 3. Fallback → 验证通过
+    title: '最终决策',
+    description: 'CompositeStrategy 收到非 null 决策，添加耗时并返回',
+    codeSnippet: `// compositeStrategy.ts - 最终处理
+private finalizeDecision(
+  decision: RoutingDecision,
+  start: number
+): RoutingDecision {
+  // 填充最终耗时
+  decision.metadata.latencyMs = Date.now() - start;
+  return decision;
+}
 
-  const choice: ModelChoice = {
-    model: 'gemini-2.0-pro',
-    reason: 'High complexity task requires Pro model',
-    confidence: 0.92,
-    strategy: 'ClassifierStrategy'
-  };
+// 最终 RoutingDecision
+{
+  model: 'gemini-2.0-flash-thinking-exp',
+  metadata: {
+    source: 'ClassifierStrategy',
+    reasoning: 'Task classified as COMPLEX',
+    latencyMs: 127  // 总决策耗时
+  }
+}
 
-  console.log('[Router] Selected:', choice.model);
-  return choice;
-}`,
+// Telemetry 记录
+telemetry.log('routing_decision', decision);`,
     visualData: {
       finalChoice: {
-        model: 'gemini-2.0-pro',
-        confidence: 0.92,
-        strategy: 'ClassifierStrategy'
+        model: 'gemini-2.0-flash-thinking-exp',
+        latencyMs: 127,
+        source: 'ClassifierStrategy'
       }
     },
-    highlight: 'gemini-2.0-pro',
+    highlight: 'Pro Model',
   },
   {
     phase: 'result',
     group: 'output',
-    title: '执行请求',
-    description: '使用选定模型处理用户请求',
-    codeSnippet: `// core/geminiChat.ts:150-170
-const modelChoice = await this.router.route(request);
+    title: '模型调用',
+    description: '使用选定模型执行请求',
+    codeSnippet: `// modelRouterService.ts - 执行路由
+export class ModelRouterService {
+  private readonly strategy: TerminalStrategy;
 
-const response = await this.llmClient.chat({
-  model: modelChoice.model,  // 'gemini-2.0-pro'
-  messages: request.messages,
-  tools: request.tools
-});
+  constructor(config: Config, telemetry: Telemetry) {
+    // 初始化策略链
+    this.strategy = new CompositeStrategy([
+      new FallbackStrategy(config),
+      new OverrideStrategy(config),
+      new ClassifierStrategy(config),
+      new DefaultStrategy(config),  // 终结者
+    ]);
+  }
 
-// 使用 Pro 模型处理复杂的系统架构分析
-// → 高质量的深度分析结果`,
-    visualData: { executing: true, model: 'gemini-2.0-pro' },
+  async route(context: RoutingContext): Promise<RoutingDecision> {
+    const decision = await this.strategy.route(context);
+    this.telemetry.recordRoutingDecision(decision);
+    return decision;
+  }
+}
+
+// 使用 Pro 模型处理复杂架构分析 ✓`,
+    visualData: { executing: true, model: 'gemini-2.0-flash-thinking-exp' },
     highlight: '执行中',
   },
 ];

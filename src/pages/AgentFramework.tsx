@@ -405,43 +405,158 @@ if (functionCall.name === 'complete_task') {
   taskCompleted = true;
 }`;
 
-  const builtInAgentsCode = `// CodebaseInvestigatorAgent - 代码库探索 Agent
-export const CodebaseInvestigatorAgent: LocalAgentDefinition = {
+  const builtInAgentsCode = `// CodebaseInvestigatorAgent - 使用 Zod schema 定义结构化输出
+const CodebaseInvestigationReportSchema = z.object({
+  SummaryOfFindings: z.string()
+    .describe("Investigation conclusions and insights for the main agent."),
+  ExplorationTrace: z.array(z.string())
+    .describe("Step-by-step list of actions and tools used."),
+  RelevantLocations: z.array(z.object({
+    FilePath: z.string(),
+    Reasoning: z.string(),
+    KeySymbols: z.array(z.string()),
+  })).describe("Relevant files and key symbols within them."),
+});
+
+export const CodebaseInvestigatorAgent: LocalAgentDefinition<
+  typeof CodebaseInvestigationReportSchema
+> = {
   kind: 'local',
-  name: 'codebase-investigator',
-  description: 'Explores and analyzes codebases to answer questions.',
-  promptConfig: {
-    systemPrompt: \`You are a codebase investigator...
-Work systematically using available tools.
-When done, call complete_task with your findings.\`,
+  name: 'codebase_investigator',
+  displayName: 'Codebase Investigator Agent',
+  description: \`The specialized tool for codebase analysis, architectural mapping,
+    and understanding system-wide dependencies. Invoke for vague requests,
+    bug root-cause analysis, or comprehensive feature implementation.\`,
+
+  // 输入配置
+  inputConfig: {
+    inputs: {
+      objective: {
+        description: "Comprehensive description of user's goal with context.",
+        type: 'string',
+        required: true,
+      },
+    },
   },
+
+  // 结构化输出配置（使用 Zod schema）
+  outputConfig: {
+    outputName: 'report',
+    description: 'The final investigation report as a JSON object.',
+    schema: CodebaseInvestigationReportSchema,
+  },
+
+  // 输出处理函数
+  processOutput: (output) => JSON.stringify(output, null, 2),
+
+  // 模型配置
   modelConfig: {
-    model: 'gemini-2.0-flash',  // 使用 Flash 模型
-    temp: 1,
+    model: DEFAULT_GEMINI_MODEL,  // 根据主模型选择 Flash/Pro
+    temp: 0.1,                    // 低温度，更精确
     top_p: 0.95,
-    thinkingBudget: 1024,
+    thinkingBudget: -1,           // 无限制
   },
+
+  // 运行配置
   runConfig: {
     max_time_minutes: 5,
     max_turns: 15,
   },
-  toolConfig: {
-    tools: ['Read', 'Glob', 'Grep', 'Bash', 'LSP'],
-  },
-  inputConfig: {
-    inputs: {
-      query: { type: 'string', description: 'The question to investigate', required: true },
-    },
-  },
-};
 
-// IntrospectionAgent - 自省分析 Agent
-export const IntrospectionAgent: LocalAgentDefinition = {
-  kind: 'local',
-  name: 'introspection-agent',
-  description: 'Analyzes and reflects on conversation history.',
-  // ...
+  // 工具配置 - 仅只读工具
+  toolConfig: {
+    tools: [LS_TOOL_NAME, READ_FILE_TOOL_NAME, GLOB_TOOL_NAME, GREP_TOOL_NAME],
+  },
+
+  // 提示词配置
+  promptConfig: {
+    query: \`Your task is to do a deep investigation of the codebase...
+<objective>\${objective}</objective>\`,
+    systemPrompt: \`You are **Codebase Investigator**, a hyper-specialized AI agent...
+Your **SOLE PURPOSE** is to build a complete mental model of the code.
+- **DO:** Find key modules, classes, and functions
+- **DO:** Understand *why* the code is written the way it is
+- **DO NOT:** Write the final implementation code yourself
+When finished, call \\\`complete_task\\\` with your structured report.\`,
+  },
 };`;
+
+  const delegateToolCode = `// DelegateToAgentTool - 父 Agent 委托任务给子 Agent
+export class DelegateToAgentTool extends BaseDeclarativeTool<DelegateParams, ToolResult> {
+  constructor(
+    private readonly registry: AgentRegistry,
+    private readonly config: Config,
+    messageBus?: MessageBus,
+  ) {
+    const definitions = registry.getAllDefinitions();
+
+    // 动态生成 discriminated union schema
+    const agentSchemas = definitions.map((def) => {
+      const inputShape: Record<string, z.ZodTypeAny> = {
+        agent_name: z.literal(def.name).describe(def.description),
+      };
+      // 添加 Agent 定义的输入参数
+      for (const [key, inputDef] of Object.entries(def.inputConfig.inputs)) {
+        inputShape[key] = mapTypeToZod(inputDef.type);
+      }
+      return z.object(inputShape);
+    });
+
+    const schema = z.discriminatedUnion('agent_name', agentSchemas);
+
+    super(
+      'delegate_to_agent',
+      'Delegate to Agent',
+      registry.getToolDescription(),  // 动态描述包含所有可用 Agent
+      Kind.Think,
+      zodToJsonSchema(schema),
+    );
+  }
+}
+
+// 执行委托
+class DelegateInvocation extends BaseToolInvocation<DelegateParams, ToolResult> {
+  async execute(signal: AbortSignal): Promise<ToolResult> {
+    const definition = this.registry.getDefinition(this.params.agent_name);
+
+    // 使用 SubagentToolWrapper 创建实际执行
+    const wrapper = new SubagentToolWrapper(definition, this.config);
+    const { agent_name, ...agentArgs } = this.params;
+    const invocation = wrapper.build(agentArgs);
+
+    return invocation.execute(signal);
+  }
+}`;
+
+  const activityEventCode = `// SubagentActivityEvent - Agent 执行过程中的活动事件
+export interface SubagentActivityEvent {
+  isSubagentActivityEvent: true;
+  agentName: string;
+  type: 'TOOL_CALL_START' | 'TOOL_CALL_END' | 'THOUGHT_CHUNK' | 'ERROR';
+  data: Record<string, unknown>;
+}
+
+// 在 LocalAgentExecutor 中发射事件
+private emitActivity(
+  type: SubagentActivityEvent['type'],
+  data: Record<string, unknown>,
+): void {
+  if (this.onActivity) {
+    const event: SubagentActivityEvent = {
+      isSubagentActivityEvent: true,
+      agentName: this.definition.name,
+      type,
+      data,
+    };
+    this.onActivity(event);
+  }
+}
+
+// 使用示例
+this.emitActivity('TOOL_CALL_START', { name: functionCall.name, args });
+this.emitActivity('THOUGHT_CHUNK', { text: subject });
+this.emitActivity('TOOL_CALL_END', { name: functionCall.name, output: result });
+this.emitActivity('ERROR', { error: errorMessage, context: 'tool_call' });`;
 
   return (
     <div className="space-y-8">
@@ -640,18 +755,19 @@ export const IntrospectionAgent: LocalAgentDefinition = {
       {/* 内置 Agent */}
       <Layer title="内置 Agent">
         <p className="text-[var(--text-secondary)] mb-4">
-          Gemini CLI 内置了两个常用 Agent，可通过设置启用：
+          Gemini CLI 内置了两个常用 Agent，可通过设置启用。
+          注意 CodebaseInvestigator 使用 <strong>Zod schema</strong> 定义结构化输出：
         </p>
 
-        <CodeBlock code={builtInAgentsCode} language="typescript" title="内置 Agent 定义" />
+        <CodeBlock code={builtInAgentsCode} language="typescript" title="codebase-investigator.ts - 使用 Zod Schema" />
 
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
           <HighlightBox title="CodebaseInvestigator" variant="blue">
             <p className="text-sm mb-2">代码库探索和分析 Agent</p>
             <ul className="text-sm space-y-1 text-[var(--text-muted)]">
-              <li>• 探索代码结构和实现</li>
-              <li>• 使用 Flash 模型（快速）</li>
-              <li>• 工具: Read, Glob, Grep, Bash, LSP</li>
+              <li>• <strong>结构化输出</strong>: Zod schema 验证</li>
+              <li>• <strong>只读工具</strong>: ls, Read, Glob, Grep</li>
+              <li>• <strong>Scratchpad</strong>: 系统化探索方法</li>
               <li>• 最多 15 轮，5 分钟超时</li>
             </ul>
           </HighlightBox>
@@ -665,6 +781,54 @@ export const IntrospectionAgent: LocalAgentDefinition = {
             </ul>
           </HighlightBox>
         </div>
+      </Layer>
+
+      {/* delegate_to_agent 工具 */}
+      <Layer title="delegate_to_agent 委托工具">
+        <p className="text-[var(--text-secondary)] mb-4">
+          父 Agent 通过 <code className="text-[var(--cyber-blue)]">delegate_to_agent</code> 工具
+          将任务委托给子 Agent。该工具动态生成 <strong>discriminated union schema</strong>，
+          根据 agent_name 参数路由到不同的 Agent。
+        </p>
+
+        <CodeBlock code={delegateToolCode} language="typescript" title="delegate-to-agent-tool.ts" />
+
+        <HighlightBox title="工作原理" variant="blue" className="mt-4">
+          <ol className="text-sm space-y-2 list-decimal list-inside">
+            <li>从 AgentRegistry 获取所有已注册的 Agent 定义</li>
+            <li>为每个 Agent 生成 Zod schema（包含 agent_name 和其 inputConfig）</li>
+            <li>使用 <code>z.discriminatedUnion</code> 合并为统一的工具 schema</li>
+            <li>执行时根据 agent_name 查找定义，通过 SubagentToolWrapper 创建执行</li>
+          </ol>
+        </HighlightBox>
+      </Layer>
+
+      {/* 活动事件 */}
+      <Layer title="SubagentActivityEvent 活动事件">
+        <p className="text-[var(--text-secondary)] mb-4">
+          Agent 执行过程中会发射活动事件，用于 UI 展示和监控。支持 4 种事件类型：
+        </p>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--cyber-blue)]/30">
+            <div className="text-lg font-bold text-[var(--cyber-blue)]">TOOL_CALL_START</div>
+            <div className="text-xs text-[var(--text-muted)]">工具调用开始</div>
+          </div>
+          <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--terminal-green)]/30">
+            <div className="text-lg font-bold text-[var(--terminal-green)]">TOOL_CALL_END</div>
+            <div className="text-xs text-[var(--text-muted)]">工具调用结束</div>
+          </div>
+          <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--purple)]/30">
+            <div className="text-lg font-bold text-[var(--purple)]">THOUGHT_CHUNK</div>
+            <div className="text-xs text-[var(--text-muted)]">思考片段</div>
+          </div>
+          <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-red-500/30">
+            <div className="text-lg font-bold text-red-400">ERROR</div>
+            <div className="text-xs text-[var(--text-muted)]">错误事件</div>
+          </div>
+        </div>
+
+        <CodeBlock code={activityEventCode} language="typescript" title="types.ts - 活动事件" />
       </Layer>
 
       {/* 终止模式 */}
@@ -746,6 +910,83 @@ export const IntrospectionAgent: LocalAgentDefinition = {
             <p className="text-sm">
               Agent 执行过程会记录 AgentStartEvent、AgentFinishEvent 和 RecoveryAttemptEvent，
               用于监控和分析。
+            </p>
+          </HighlightBox>
+        </div>
+      </Layer>
+
+      {/* 关键文件与入口 */}
+      <Layer title="关键文件与入口">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-[var(--border-subtle)]">
+                <th className="text-left py-2 px-3 text-[var(--text-muted)]">文件</th>
+                <th className="text-left py-2 px-3 text-[var(--text-muted)]">职责</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--cyber-blue)] text-xs">agents/types.ts</td>
+                <td className="py-2 px-3 text-[var(--text-secondary)]">核心类型定义：AgentTerminateMode、BaseAgentDefinition、LocalAgentDefinition、RemoteAgentDefinition</td>
+              </tr>
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--cyber-blue)] text-xs">agents/registry.ts</td>
+                <td className="py-2 px-3 text-[var(--text-secondary)]">AgentRegistry - Agent 注册、发现和管理</td>
+              </tr>
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--cyber-blue)] text-xs">agents/local-executor.ts</td>
+                <td className="py-2 px-3 text-[var(--text-secondary)]">LocalAgentExecutor - 本地 Agent 执行循环</td>
+              </tr>
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--cyber-blue)] text-xs">agents/toml-loader.ts</td>
+                <td className="py-2 px-3 text-[var(--text-secondary)]">TOML 配置解析和 Zod 验证</td>
+              </tr>
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--cyber-blue)] text-xs">agents/delegate-to-agent-tool.ts</td>
+                <td className="py-2 px-3 text-[var(--text-secondary)]">DelegateToAgentTool - 委托工具实现</td>
+              </tr>
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--cyber-blue)] text-xs">agents/subagent-tool-wrapper.ts</td>
+                <td className="py-2 px-3 text-[var(--text-secondary)]">SubagentToolWrapper - 统一 Local/Remote 调用</td>
+              </tr>
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--cyber-blue)] text-xs">agents/codebase-investigator.ts</td>
+                <td className="py-2 px-3 text-[var(--text-secondary)]">CodebaseInvestigatorAgent 内置定义</td>
+              </tr>
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--cyber-blue)] text-xs">agents/a2a-client-manager.ts</td>
+                <td className="py-2 px-3 text-[var(--text-secondary)]">A2AClientManager - 远程 Agent 通信</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Layer>
+
+      {/* 设计决策 */}
+      <Layer title="设计决策">
+        <div className="space-y-4">
+          <HighlightBox title="为什么使用 Zod Schema?" variant="blue">
+            <p className="text-sm">
+              <strong>结构化输出验证</strong>：Agent 返回的结果通过 Zod schema 验证，
+              确保输出符合预期格式。如果验证失败，Agent 会被要求重试，
+              避免返回格式错误的结果给父 Agent。
+            </p>
+          </HighlightBox>
+
+          <HighlightBox title="为什么 Agent 不能调用 delegate_to_agent?" variant="purple">
+            <p className="text-sm">
+              <strong>防止递归和复杂性</strong>：TOML 加载器会验证 tools 配置，
+              拒绝包含 delegate_to_agent 的 Agent 定义。这防止了 Agent 之间的递归调用，
+              简化了执行模型和调试。
+            </p>
+          </HighlightBox>
+
+          <HighlightBox title="为什么有 60 秒恢复期?" variant="green">
+            <p className="text-sm">
+              <strong>优雅降级</strong>：当 Agent 因超时或达到轮次上限时，
+              给予 60 秒的恢复期让它调用 complete_task。这比直接终止更友好，
+              允许 Agent 返回部分结果而不是完全失败。
             </p>
           </HighlightBox>
         </div>
