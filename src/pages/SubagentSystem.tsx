@@ -947,10 +947,11 @@ this.emitActivity('THOUGHT_CHUNK', { text: subject });`}
       <RelatedPages
         title="🔗 相关页面"
         pages={[
-          { id: 'subagent-architecture', label: 'Agent 架构深度', description: '详细技术实现' },
-          { id: 'agent-framework', label: 'Agent 框架概览', description: '框架设计理念' },
-          { id: 'agent-loop-anim', label: 'Agent 执行循环动画', description: '可视化执行流程' },
-          { id: 'subagent-resolution-anim', label: '优先级解析动画', description: '配置加载可视化' },
+          { id: 'subagent-architecture', label: 'Agent 架构深度', description: '类型系统、TOML 验证、Grace Period' },
+          { id: 'agent-framework', label: 'Agent 框架', description: 'LocalAgentExecutor 与 complete_task' },
+          { id: 'agent-loop-anim', label: 'Agent 执行循环动画', description: '可视化 Turn 循环与终止' },
+          { id: 'hook-system', label: 'Hook 事件系统', description: '与 Hook 集成' },
+          { id: 'policy-engine', label: 'Policy 引擎', description: 'Agent 工具的权限控制' },
         ]}
       />
     </div>

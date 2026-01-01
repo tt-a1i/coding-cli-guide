@@ -957,8 +957,10 @@ await executor.run(signal, updateOutput);`}
         title="🔗 相关页面"
         pages={[
           { id: 'subagent', label: 'Agent 系统概览', description: '基础概念和快速入门' },
-          { id: 'subagent-anim', label: 'Agent 执行动画', description: '可视化执行流程' },
-          { id: 'subagent-resolution-anim', label: '优先级解析动画', description: '三级优先级可视化' },
+          { id: 'agent-framework', label: 'Agent 框架', description: 'LocalAgentExecutor 与 complete_task' },
+          { id: 'agent-loop-anim', label: 'Agent 执行循环动画', description: '可视化 Turn 循环与终止' },
+          { id: 'routing-chain-anim', label: '路由策略链动画', description: '模型选择可视化' },
+          { id: 'model-routing', label: '模型路由', description: 'Flash/Pro 策略链' },
         ]}
       />
     </div>
