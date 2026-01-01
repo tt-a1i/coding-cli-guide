@@ -162,6 +162,14 @@ export type SafetyCheckerConfig =
 // 内置 Checker 类型
 export enum InProcessCheckerType {
   ALLOWED_PATH = 'allowed-path', // 路径白名单检查
+}
+
+// Hook Checker 规则（用于 Hook 执行的安全检查）
+export interface HookCheckerRule {
+  eventName?: string;      // Hook 事件名（BeforeTool, AfterModel 等）
+  hookSource?: HookSource; // Hook 来源（project, user, system, extension）
+  checker: string;         // 检查器名称
+  priority?: number;       // 优先级（越高越先匹配）
 }`;
 
   const policyEngineCode = `// packages/core/src/policy/policy-engine.ts

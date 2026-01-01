@@ -272,6 +272,81 @@ export class BeforeModelHookOutput extends DefaultHookOutput {
   }
 }`;
 
+  // 完整的 HookOutput 类层次结构
+  const hookOutputHierarchyCode = `// packages/core/src/hooks/types.ts
+
+// 基类：DefaultHookOutput
+export class DefaultHookOutput implements HookOutput {
+  constructor(
+    public readonly continue?: boolean,
+    public readonly stopReason?: string,
+    public readonly suppressOutput?: boolean,
+    public readonly systemMessage?: string,
+    public readonly decision?: HookDecision,
+    public readonly reason?: string,
+    public readonly hookSpecificOutput?: Record<string, unknown>,
+  ) {}
+
+  // 是否是阻止性决策（block/deny）
+  isBlockingDecision(): boolean {
+    return this.decision === 'block' || this.decision === 'deny';
+  }
+
+  // 是否应该停止执行
+  shouldStopExecution(): boolean {
+    return this.continue === false || this.isBlockingDecision();
+  }
+
+  // 获取有效的停止原因
+  getEffectiveReason(): string | undefined {
+    return this.reason ?? this.stopReason;
+  }
+}
+
+// AfterModel Hook 输出：可修改模型响应
+export class AfterModelHookOutput extends DefaultHookOutput {
+  getModifiedResponse(): GenerateContentResponse | undefined {
+    if (this.hookSpecificOutput?.['llm_response']) {
+      return defaultHookTranslator.fromHookLLMResponse(
+        this.hookSpecificOutput['llm_response'] as LLMResponse
+      );
+    }
+    return undefined;
+  }
+}
+
+// BeforeToolSelection Hook 输出：可修改工具配置
+export class BeforeToolSelectionHookOutput extends DefaultHookOutput {
+  applyToolConfigModifications(
+    toolConfig: ToolConfig
+  ): ToolConfig {
+    if (this.hookSpecificOutput?.['tool_config']) {
+      const modifications = this.hookSpecificOutput['tool_config'] as ToolConfig;
+      return { ...toolConfig, ...modifications };
+    }
+    return toolConfig;
+  }
+}
+
+// 工厂函数：根据事件类型创建对应的 HookOutput
+export function createHookOutput(
+  eventName: HookEventName,
+  rawOutput: HookOutput
+): DefaultHookOutput {
+  switch (eventName) {
+    case HookEventName.BeforeTool:
+      return new BeforeToolHookOutput(...);
+    case HookEventName.BeforeModel:
+      return new BeforeModelHookOutput(...);
+    case HookEventName.AfterModel:
+      return new AfterModelHookOutput(...);
+    case HookEventName.BeforeToolSelection:
+      return new BeforeToolSelectionHookOutput(...);
+    default:
+      return new DefaultHookOutput(...);
+  }
+}`;
+
   return (
     <div className="space-y-8">
       <QuickSummary
@@ -539,6 +614,54 @@ export class BeforeModelHookOutput extends DefaultHookOutput {
             <h4 className="text-cyan-400 font-semibold mb-3">BeforeModel Hook</h4>
             <CodeBlock code={beforeModelHookCode} language="typescript" title="BeforeModel 拦截能力" />
           </div>
+        </div>
+      </Layer>
+
+      {/* 6.5. HookOutput 类层次结构 */}
+      <Layer title="HookOutput 类层次结构" icon="🏗️">
+        <div className="space-y-4">
+          <HighlightBox title="专用 HookOutput 类" variant="purple">
+            <div className="text-sm space-y-2 text-gray-300">
+              <p>不同事件类型有对应的专用 HookOutput 类，提供特定的修改能力：</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-3">
+                <div className="bg-black/30 p-2 rounded">
+                  <code className="text-cyan-300">BeforeToolHookOutput</code>
+                  <p className="text-xs text-gray-400 mt-1">getModifiedToolInput() - 修改工具输入</p>
+                </div>
+                <div className="bg-black/30 p-2 rounded">
+                  <code className="text-purple-300">BeforeModelHookOutput</code>
+                  <p className="text-xs text-gray-400 mt-1">getSyntheticResponse() - 绕过 LLM 调用</p>
+                </div>
+                <div className="bg-black/30 p-2 rounded">
+                  <code className="text-green-300">AfterModelHookOutput</code>
+                  <p className="text-xs text-gray-400 mt-1">getModifiedResponse() - 修改模型响应</p>
+                </div>
+                <div className="bg-black/30 p-2 rounded">
+                  <code className="text-amber-300">BeforeToolSelectionHookOutput</code>
+                  <p className="text-xs text-gray-400 mt-1">applyToolConfigModifications() - 修改工具配置</p>
+                </div>
+              </div>
+            </div>
+          </HighlightBox>
+
+          <CodeBlock code={hookOutputHierarchyCode} language="typescript" title="HookOutput 类层次结构与工厂函数" />
+
+          <HighlightBox title="DefaultHookOutput 基类方法" variant="blue">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+              <div className="bg-black/30 p-3 rounded">
+                <code className="text-cyan-300 font-semibold">isBlockingDecision()</code>
+                <p className="text-gray-400 mt-1">判断是否为阻止性决策（block/deny）</p>
+              </div>
+              <div className="bg-black/30 p-3 rounded">
+                <code className="text-cyan-300 font-semibold">shouldStopExecution()</code>
+                <p className="text-gray-400 mt-1">判断是否应停止执行</p>
+              </div>
+              <div className="bg-black/30 p-3 rounded">
+                <code className="text-cyan-300 font-semibold">getEffectiveReason()</code>
+                <p className="text-gray-400 mt-1">获取有效的停止原因</p>
+              </div>
+            </div>
+          </HighlightBox>
         </div>
       </Layer>
 

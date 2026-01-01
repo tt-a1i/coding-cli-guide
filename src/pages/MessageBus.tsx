@@ -183,72 +183,119 @@ export class MessageBus extends EventEmitter {
     super();
   }
 
-  // 发布消息
+  // 发布消息（带完整错误处理）
   async publish(message: Message): Promise<void> {
-    if (!this.isValidMessage(message)) {
-      throw new Error(\`Invalid message structure\`);
-    }
-
-    if (message.type === MessageBusType.TOOL_CONFIRMATION_REQUEST) {
-      // 工具确认请求：先经过 Policy 检查
-      const { decision } = await this.policyEngine.check(
-        message.toolCall,
-        message.serverName,
-      );
-
-      switch (decision) {
-        case PolicyDecision.ALLOW:
-          this.emitMessage({
-            type: MessageBusType.TOOL_CONFIRMATION_RESPONSE,
-            correlationId: message.correlationId,
-            confirmed: true,
-          });
-          break;
-
-        case PolicyDecision.DENY:
-          this.emitMessage({
-            type: MessageBusType.TOOL_POLICY_REJECTION,
-            toolCall: message.toolCall,
-          });
-          this.emitMessage({
-            type: MessageBusType.TOOL_CONFIRMATION_RESPONSE,
-            correlationId: message.correlationId,
-            confirmed: false,
-          });
-          break;
-
-        case PolicyDecision.ASK_USER:
-          // 传递给 UI 层处理
-          this.emitMessage(message);
-          break;
+    try {
+      if (!this.isValidMessage(message)) {
+        throw new Error(\`Invalid message structure: \${safeJsonStringify(message)}\`);
       }
-    } else if (message.type === MessageBusType.HOOK_EXECUTION_REQUEST) {
-      // Hook 执行请求：经过 Hook 策略检查
-      const decision = await this.policyEngine.checkHook(message);
 
-      this.emitMessage({
-        type: MessageBusType.HOOK_POLICY_DECISION,
-        eventName: message.eventName,
-        hookSource: getHookSource(message.input),
-        decision: decision === PolicyDecision.ALLOW ? 'allow' : 'deny',
-      });
+      if (message.type === MessageBusType.TOOL_CONFIRMATION_REQUEST) {
+        // 工具确认请求：先经过 Policy 检查
+        const { decision } = await this.policyEngine.check(
+          message.toolCall,
+          message.serverName,
+        );
 
-      if (decision === PolicyDecision.ALLOW) {
-        this.emitMessage(message);
-      } else {
+        switch (decision) {
+          case PolicyDecision.ALLOW:
+            this.emitMessage({
+              type: MessageBusType.TOOL_CONFIRMATION_RESPONSE,
+              correlationId: message.correlationId,
+              confirmed: true,
+            });
+            break;
+
+          case PolicyDecision.DENY:
+            this.emitMessage({
+              type: MessageBusType.TOOL_POLICY_REJECTION,
+              toolCall: message.toolCall,
+            });
+            this.emitMessage({
+              type: MessageBusType.TOOL_CONFIRMATION_RESPONSE,
+              correlationId: message.correlationId,
+              confirmed: false,
+            });
+            break;
+
+          case PolicyDecision.ASK_USER:
+            // 传递给 UI 层处理
+            this.emitMessage(message);
+            break;
+
+          default:
+            throw new Error(\`Unknown policy decision: \${decision}\`);
+        }
+      } else if (message.type === MessageBusType.HOOK_EXECUTION_REQUEST) {
+        // Hook 执行请求：经过 Hook 策略检查
+        const decision = await this.policyEngine.checkHook(message);
+
+        // 发送策略决策事件（用于可观测性）
         this.emitMessage({
-          type: MessageBusType.HOOK_EXECUTION_RESPONSE,
-          correlationId: message.correlationId,
-          success: false,
-          error: new Error('Hook execution denied by policy'),
+          type: MessageBusType.HOOK_POLICY_DECISION,
+          eventName: message.eventName,
+          hookSource: getHookSource(message.input),
+          decision: decision === PolicyDecision.ALLOW ? 'allow' : 'deny',
+          reason: decision !== PolicyDecision.ALLOW
+            ? 'Hook execution denied by policy'
+            : undefined,
         });
+
+        if (decision === PolicyDecision.ALLOW) {
+          this.emitMessage(message);
+        } else {
+          // Hook 不支持交互式确认，直接返回错误
+          this.emitMessage({
+            type: MessageBusType.HOOK_EXECUTION_RESPONSE,
+            correlationId: message.correlationId,
+            success: false,
+            error: new Error('Hook execution denied by policy'),
+          });
+        }
+      } else {
+        // 其他消息类型直接转发
+        this.emitMessage(message);
       }
-    } else {
-      // 其他消息类型直接转发
-      this.emitMessage(message);
+    } catch (error) {
+      // 错误不抛出，而是通过 'error' 事件发送
+      this.emit('error', error);
     }
   }
 }`;
+
+  // 错误处理机制代码
+  const errorHandlingCode = `// 错误处理机制
+
+// 1. 订阅错误事件
+messageBus.on('error', (error: Error) => {
+  console.error('[MessageBus Error]', error.message);
+  // 可以发送到日志系统或监控平台
+  telemetry.recordError('message_bus', error);
+});
+
+// 2. ToolExecutionFailure 接口
+export interface ToolExecutionFailure<E = Error> {
+  type: MessageBusType.TOOL_EXECUTION_FAILURE;
+  correlationId: string;
+  error: E;
+}
+
+// 3. HookExecutionResponse 可包含错误
+export interface HookExecutionResponse {
+  type: MessageBusType.HOOK_EXECUTION_RESPONSE;
+  correlationId: string;
+  success: boolean;
+  error?: Error;  // 失败时包含错误信息
+}
+
+// 4. 使用示例：处理工具执行失败
+messageBus.subscribe(
+  MessageBusType.TOOL_EXECUTION_FAILURE,
+  (message: ToolExecutionFailure) => {
+    console.error(\`Tool execution failed: \${message.error.message}\`);
+    // 可以触发重试逻辑或通知用户
+  }
+);`;
 
   const subscribePatternCode = `// 订阅消息
 subscribe<T extends Message>(
@@ -556,7 +603,50 @@ if (response.confirmed) {
         </div>
       </Layer>
 
-      {/* 7. 策略更新 */}
+      {/* 7. 错误处理机制 */}
+      <Layer title="错误处理机制" icon="⚠️">
+        <div className="space-y-4">
+          <HighlightBox title="错误不抛出，通过事件传递" variant="red">
+            <div className="text-sm space-y-2 text-gray-300">
+              <p>
+                MessageBus 的 <code className="bg-black/30 px-1 rounded">publish()</code> 方法将整个逻辑包裹在 try-catch 中，
+                错误不会抛出导致程序崩溃，而是通过 <code className="bg-black/30 px-1 rounded">'error'</code> 事件发送。
+              </p>
+              <p className="text-amber-400">
+                这保证了消息总线的稳定性，即使某个消息处理失败，其他消息仍可正常处理。
+              </p>
+            </div>
+          </HighlightBox>
+
+          <CodeBlock code={errorHandlingCode} language="typescript" title="错误处理示例" />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <HighlightBox title="错误类型" variant="blue">
+              <div className="text-sm space-y-2">
+                <ul className="text-gray-400 space-y-1">
+                  <li>• <code className="text-red-300">Invalid message structure</code>: 消息格式错误</li>
+                  <li>• <code className="text-red-300">Unknown policy decision</code>: 未知策略决策</li>
+                  <li>• <code className="text-red-300">Request timed out</code>: 请求超时</li>
+                  <li>• <code className="text-red-300">Hook execution denied</code>: Hook 执行被拒绝</li>
+                </ul>
+              </div>
+            </HighlightBox>
+
+            <HighlightBox title="错误观测性" variant="green">
+              <div className="text-sm space-y-2">
+                <ul className="text-gray-400 space-y-1">
+                  <li>• 订阅 <code className="text-cyan-300">'error'</code> 事件监控错误</li>
+                  <li>• 错误可发送到遥测系统</li>
+                  <li>• 支持自定义错误处理逻辑</li>
+                  <li>• 可结合日志系统记录</li>
+                </ul>
+              </div>
+            </HighlightBox>
+          </div>
+        </div>
+      </Layer>
+
+      {/* 8. 策略更新 */}
       <Layer title="动态策略更新" icon="🔄">
         <div className="space-y-4">
           <CodeBlock
