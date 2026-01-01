@@ -8,7 +8,6 @@ import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 type TabType = 'overview' | 'retry' | 'fallback' | 'token' | 'timeout';
 
 const relatedPages: RelatedPage[] = [
-  { id: 'shared-token-manager', label: 'Token 管理器', description: '多进程 Token 共享机制' },
   { id: 'retry', label: '重试与降级', description: '指数退避与模型降级策略' },
   { id: 'error', label: '错误处理', description: '错误分类与处理策略' },
   { id: 'content-gen', label: 'ContentGenerator', description: 'API 调用层详解' },
@@ -520,56 +519,6 @@ sequenceDiagram
 `} />
       </Layer>
 
-      {/* Token Manager Implementation */}
-      <Layer title="📦 SharedTokenManager 实现">
-        <CodeBlock language="typescript" code={`// packages/core/src/gemini/sharedTokenManager.ts
-
-export class SharedTokenManager {
-  private memoryCache: { credentials: GeminiCredentials | null; mtime: number };
-  private refreshPromise: Promise<GeminiCredentials> | null = null;
-
-  async getValidCredentials(
-    geminiClient: IGeminiOAuth2Client,
-    forceRefresh = false,
-  ): Promise<GeminiCredentials> {
-    // 1. 检查其他进程是否更新了凭证文件
-    await this.checkAndReloadIfNeeded(geminiClient);
-
-    // 2. 缓存有效且未过期，直接返回
-    if (!forceRefresh && this.memoryCache.credentials &&
-        this.isTokenValid(this.memoryCache.credentials)) {
-      return this.memoryCache.credentials;
-    }
-
-    // 3. 使用 Promise 链防止并发刷新
-    let currentRefreshPromise = this.refreshPromise;
-    if (!currentRefreshPromise) {
-      currentRefreshPromise = this.performTokenRefresh(geminiClient, forceRefresh);
-      this.refreshPromise = currentRefreshPromise;
-    }
-
-    try {
-      return await currentRefreshPromise;
-    } finally {
-      // 4. 清理 Promise 引用
-      if (this.refreshPromise === currentRefreshPromise) {
-        this.refreshPromise = null;
-      }
-    }
-  }
-
-  private async checkAndReloadIfNeeded(geminiClient: IGeminiOAuth2Client): Promise<void> {
-    const currentMtime = await this.getFileMtime();
-
-    // 文件被其他进程修改
-    if (currentMtime > this.memoryCache.mtime) {
-      this.memoryCache.credentials = await this.loadFromFile();
-      this.memoryCache.mtime = currentMtime;
-    }
-  }
-}`} />
-      </Layer>
-
       {/* Transparent Retry */}
       <Layer title="🔄 透明认证重试">
         <CodeBlock language="typescript" code={`// packages/core/src/gemini/geminiContentGenerator.ts
@@ -590,7 +539,7 @@ private async executeWithCredentialManagement<T>(
   } catch (error) {
     // 认证错误：强制刷新后重试
     if (this.isAuthError(error)) {
-      await this.sharedManager.getValidCredentials(this.geminiClient, true);
+      await this.tokenManager.getValidCredentials(this.oauthClient, true);
       return await attemptOperation();
     }
     throw error;

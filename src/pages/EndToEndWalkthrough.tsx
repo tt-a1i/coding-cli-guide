@@ -521,7 +521,7 @@ data: [DONE]`}
             <div className="text-cyan-300 font-semibold">Q：如何调试整个流程？</div>
             <div className="text-gray-400 mt-1">
               A：设置 <code className="text-yellow-400">DEBUG=1</code> 环境变量可输出详细日志；
-              <code className="text-yellow-400">INNIES_LOG_LEVEL=debug</code> 可控制日志级别。
+              <code className="text-yellow-400">GEMINI_LOG_LEVEL=debug</code> 可控制日志级别。
             </div>
           </div>
         </div>

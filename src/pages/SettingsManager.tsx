@@ -94,10 +94,10 @@ export function SettingsManager() {
 
   const settingsMergeChart = `flowchart TD
     subgraph Sources["配置源"]
-        SD[SystemDefaults<br/>/etc/qwen-code/system-defaults.json]
-        SYS[System<br/>/etc/qwen-code/settings.json]
-        USER[User<br/>~/.innies/settings.json]
-        WS[Workspace<br/>.innies/settings.json]
+        SD[SystemDefaults<br/>/etc/gemini-cli/system-defaults.json]
+        SYS[System<br/>/etc/gemini-cli/settings.json]
+        USER[User<br/>~/.gemini/settings.json]
+        WS[Workspace<br/>.gemini/settings.json]
     end
 
     subgraph Process["处理流程"]
@@ -138,23 +138,23 @@ export function SettingsManager() {
 
   const scopeEnum = `// 配置作用域枚举
 export enum SettingScope {
-  User = 'User',           // 用户级 (~/.innies/settings.json)
-  Workspace = 'Workspace', // 项目级 (.innies/settings.json)
-  System = 'System',       // 系统级 (/etc/qwen-code/settings.json)
+  User = 'User',           // 用户级 (~/.gemini/settings.json)
+  Workspace = 'Workspace', // 项目级 (.gemini/settings.json)
+  System = 'System',       // 系统级 (/etc/gemini-cli/settings.json)
   SystemDefaults = 'SystemDefaults', // 系统默认值
 }
 
 // 配置文件路径
 export const USER_SETTINGS_PATH = Storage.getGlobalSettingsPath();
-// → ~/.innies/settings.json
+// → ~/.gemini/settings.json
 
 function getSystemSettingsPath(): string {
   if (platform() === 'darwin') {
-    return '/Library/Application Support/QwenCode/settings.json';
+    return '/Library/Application Support/GeminiCLI/settings.json';
   } else if (platform() === 'win32') {
-    return 'C:\\\\ProgramData\\\\qwen-code\\\\settings.json';
+    return 'C:\\\\ProgramData\\\\gemini-cli\\\\settings.json';
   } else {
-    return '/etc/qwen-code/settings.json';
+    return '/etc/gemini-cli/settings.json';
   }
 }`;
 
@@ -295,15 +295,15 @@ function getMergeStrategyForPath(path: string[]): MergeStrategy | undefined {
             <ul className="text-sm text-[var(--text-secondary)] space-y-2">
               <li className="flex items-start gap-2">
                 <span className="text-[var(--text-muted)]">User:</span>
-                <code className="text-xs">~/.innies/settings.json</code>
+                <code className="text-xs">~/.gemini/settings.json</code>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-[var(--terminal-green)]">Workspace:</span>
-                <code className="text-xs">.innies/settings.json</code>
+                <code className="text-xs">.gemini/settings.json</code>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-[var(--error)]">System:</span>
-                <code className="text-xs">/etc/qwen-code/settings.json</code>
+                <code className="text-xs">/etc/gemini-cli/settings.json</code>
               </li>
             </ul>
           </div>
@@ -335,25 +335,25 @@ function getMergeStrategyForPath(path: string[]): MergeStrategy | undefined {
             <tbody className="text-[var(--text-secondary)]">
               <tr className="border-b border-[var(--border-subtle)]/30">
                 <td className="py-2 text-[var(--text-muted)]">SystemDefaults</td>
-                <td><code className="text-xs">/etc/qwen-code/system-defaults.json</code></td>
+                <td><code className="text-xs">/etc/gemini-cli/system-defaults.json</code></td>
                 <td>最低</td>
                 <td>企业默认值</td>
               </tr>
               <tr className="border-b border-[var(--border-subtle)]/30">
                 <td className="py-2 text-[var(--cyber-blue)]">User</td>
-                <td><code className="text-xs">~/.innies/settings.json</code></td>
+                <td><code className="text-xs">~/.gemini/settings.json</code></td>
                 <td>中</td>
                 <td>用户个人配置</td>
               </tr>
               <tr className="border-b border-[var(--border-subtle)]/30">
                 <td className="py-2 text-[var(--terminal-green)]">Workspace</td>
-                <td><code className="text-xs">.innies/settings.json</code></td>
+                <td><code className="text-xs">.gemini/settings.json</code></td>
                 <td>高</td>
                 <td>项目特定配置</td>
               </tr>
               <tr className="border-b border-[var(--border-subtle)]/30">
                 <td className="py-2 text-[var(--error)]">System</td>
-                <td><code className="text-xs">/etc/qwen-code/settings.json</code></td>
+                <td><code className="text-xs">/etc/gemini-cli/settings.json</code></td>
                 <td>最高</td>
                 <td>企业强制覆盖</td>
               </tr>

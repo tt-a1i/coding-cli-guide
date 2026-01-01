@@ -379,8 +379,6 @@ export function useSelectionList<T>({
       color: 'terminal-green',
       hooks: [
         { name: 'useAuth', desc: '认证状态管理' },
-        { name: 'useQwenAuth', desc: 'Qwen OAuth 认证' },
-        { name: 'useInniesAuth', desc: 'Innies 认证' },
         { name: 'useQuotaAndFallback', desc: '配额检测与回退处理' },
       ],
     },

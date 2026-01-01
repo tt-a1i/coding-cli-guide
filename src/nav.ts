@@ -227,7 +227,6 @@ export const navGroups: NavGroup[] = [
       { id: 'session-metrics-anim', label: '会话指标聚合', highlight: true },
       { id: 'gemini-chat-flow-anim', label: 'GeminiChat 流程', highlight: true },
       { id: 'token-limit-matcher-anim', label: 'Token 限制匹配', highlight: true },
-      { id: 'shared-token-manager-anim', label: 'Token 管理器', highlight: true },
       { id: 'shell-injection-anim', label: 'Shell 注入处理', highlight: true },
       { id: 'at-file-processor-anim', label: '@File 处理器', highlight: true },
       { id: 'image-tokenizer-anim', label: 'Image Tokenizer 解析', highlight: true },
@@ -254,7 +253,6 @@ export const navGroups: NavGroup[] = [
     icon: '📚',
     defaultOpen: false,
     items: [
-      { id: 'upstream-diff', label: '上游改造总览', highlight: true },
       { id: 'config', label: '配置系统' },
       { id: 'auth', label: '认证流程' },
       { id: 'google-authentication', label: 'Google OAuth 详解', highlight: true },
@@ -262,7 +260,6 @@ export const navGroups: NavGroup[] = [
       { id: 'design-tradeoffs', label: '设计权衡分析', highlight: true },
       { id: 'error-recovery-patterns', label: '错误恢复模式', highlight: true },
       { id: 'concurrency-patterns', label: '并发模式详解', highlight: true },
-      { id: 'shared-token-manager', label: 'Token 共享机制', highlight: true },
       { id: 'settings-manager', label: '设置管理器', highlight: true },
       { id: 'quota-detection', label: '配额检测', highlight: true },
       { id: 'code-assist', label: 'Code Assist', highlight: true },

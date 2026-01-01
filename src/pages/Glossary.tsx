@@ -168,7 +168,7 @@ const glossaryTerms: Term[] = [
     term: 'TokenManager',
     definition: 'Token 计数和管理服务，实时跟踪输入输出的 token 使用量，触发压缩策略。',
     category: 'core',
-    relatedPage: 'shared-token-manager-anim',
+    relatedPage: 'token-accounting',
   },
 
   // Session

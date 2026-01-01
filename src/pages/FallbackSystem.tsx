@@ -95,9 +95,6 @@ export function FallbackSystem() {
 
   const fallbackFlowChart = `flowchart TD
     fail([模型调用失败])
-    check{检查认证类型}
-    qwen[Qwen OAuth 错误处理]
-    google[Google Auth 回退]
     handler{UI Handler<br/>用户决策}
     retry[retry: 激活回退<br/>继续重试]
     stop[stop: 激活回退<br/>停止当前请求]
@@ -105,11 +102,7 @@ export function FallbackSystem() {
     activate[activateFallbackMode]
     done([完成])
 
-    fail --> check
-    check -->|QWEN_OAUTH| qwen
-    check -->|LOGIN_WITH_GOOGLE| google
-    qwen --> done
-    google --> handler
+    fail --> handler
     handler -->|retry| retry
     handler -->|stop| stop
     handler -->|auth| auth
@@ -119,7 +112,6 @@ export function FallbackSystem() {
     auth --> done
 
     style fail fill:#ef4444,color:#fff
-    style check fill:#f59e0b,color:#000
     style handler fill:#a855f7,color:#fff
     style retry fill:#22c55e,color:#000
     style stop fill:#22c55e,color:#000
@@ -190,46 +182,6 @@ export async function handleFallback(
     default:
       throw new Error(\`Unexpected fallback intent: "\${intent}"\`);
   }
-}`;
-
-  const qwenErrorHandlerCode = `// Qwen OAuth 错误处理
-
-async function handleQwenOAuthError(error?: unknown): Promise<string | null> {
-  if (!error) return null;
-
-  const errorMessage = error instanceof Error
-    ? error.message.toLowerCase()
-    : String(error).toLowerCase();
-  const errorCode = (error as { status?: number })?.status;
-
-  // 认证错误检测
-  const isAuthError =
-    errorCode === 401 ||
-    errorCode === 403 ||
-    errorMessage.includes('unauthorized') ||
-    errorMessage.includes('forbidden') ||
-    errorMessage.includes('invalid api key') ||
-    (errorMessage.includes('token') && errorMessage.includes('expired'));
-
-  // 限流错误检测
-  const isRateLimitError =
-    errorCode === 429 ||
-    errorMessage.includes('rate limit') ||
-    errorMessage.includes('too many requests');
-
-  if (isAuthError) {
-    console.warn('Qwen OAuth authentication error detected');
-    console.log('Note: You may need to re-authenticate with Qwen OAuth');
-    return null;
-  }
-
-  if (isRateLimitError) {
-    console.warn('Qwen API rate limit encountered');
-    // 重试机制会处理 backoff
-    return null;
-  }
-
-  return null;
 }`;
 
   const activateFallbackCode = `// 激活回退模式
@@ -319,41 +271,7 @@ interface Config {
         </div>
       </Layer>
 
-      {/* 3. Qwen OAuth 错误处理 */}
-      <Layer title="Qwen OAuth 错误处理" icon="🔐">
-        <div className="space-y-4">
-          <CodeBlock code={qwenErrorHandlerCode} language="typescript" title="Qwen OAuth 错误检测" />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <HighlightBox title="认证错误 (Auth Error)" variant="red">
-              <div className="text-sm space-y-2 text-gray-300">
-                <p><strong>触发条件：</strong></p>
-                <ul className="text-gray-400 space-y-1">
-                  <li>• HTTP 401 / 403</li>
-                  <li>• "unauthorized" / "forbidden"</li>
-                  <li>• "invalid api key"</li>
-                  <li>• "token expired"</li>
-                </ul>
-                <p className="mt-2"><strong>处理：</strong>提示用户重新认证</p>
-              </div>
-            </HighlightBox>
-
-            <HighlightBox title="限流错误 (Rate Limit)" variant="yellow">
-              <div className="text-sm space-y-2 text-gray-300">
-                <p><strong>触发条件：</strong></p>
-                <ul className="text-gray-400 space-y-1">
-                  <li>• HTTP 429</li>
-                  <li>• "rate limit"</li>
-                  <li>• "too many requests"</li>
-                </ul>
-                <p className="mt-2"><strong>处理：</strong>交由重试机制 backoff</p>
-              </div>
-            </HighlightBox>
-          </div>
-        </div>
-      </Layer>
-
-      {/* 4. 回退模式激活 */}
+      {/* 3. 回退模式激活 */}
       <Layer title="回退模式激活" icon="⚡">
         <div className="space-y-4">
           <CodeBlock code={activateFallbackCode} language="typescript" title="activateFallbackMode" />

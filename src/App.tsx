@@ -12,12 +12,10 @@ import { Overview } from './pages/Overview';
 const Glossary = lazy(() => import('./pages/Glossary'));
 const LearningPathGuide = lazy(() => import('./pages/LearningPathGuide').then(m => ({ default: m.LearningPathGuide })));
 const EndToEndWalkthrough = lazy(() => import('./pages/EndToEndWalkthrough').then(m => ({ default: m.EndToEndWalkthrough })));
-const UpstreamDiffOverview = lazy(() => import('./pages/UpstreamDiffOverview').then(m => ({ default: m.UpstreamDiffOverview })));
 const StartupFlow = lazy(() => import('./pages/StartupFlow').then(m => ({ default: m.StartupFlow })));
 const StartupChain = lazy(() => import('./pages/StartupChain').then(m => ({ default: m.StartupChain })));
 const ConfigSystem = lazy(() => import('./pages/ConfigSystem').then(m => ({ default: m.ConfigSystem })));
 const AuthenticationFlow = lazy(() => import('./pages/AuthenticationFlow').then(m => ({ default: m.AuthenticationFlow })));
-const SharedTokenManager = lazy(() => import('./pages/SharedTokenManager').then(m => ({ default: m.SharedTokenManager })));
 const RequestLifecycle = lazy(() => import('./pages/RequestLifecycle').then(m => ({ default: m.RequestLifecycle })));
 const InteractionLoop = lazy(() => import('./pages/InteractionLoop').then(m => ({ default: m.InteractionLoop })));
 const GeminiChatCore = lazy(() => import('./pages/GeminiChatCore').then(m => ({ default: m.GeminiChatCore })));
@@ -100,7 +98,6 @@ const ReactToolSchedulerAnimation = lazy(() => import('./pages/ReactToolSchedule
 const SessionMetricsAnimation = lazy(() => import('./pages/SessionMetricsAnimation'));
 const GeminiChatFlowAnimation = lazy(() => import('./pages/GeminiChatFlowAnimation'));
 const TokenLimitMatcherAnimation = lazy(() => import('./pages/TokenLimitMatcherAnimation'));
-const SharedTokenManagerAnimation = lazy(() => import('./pages/SharedTokenManagerAnimation'));
 const ShellInjectionProcessorAnimation = lazy(() => import('./pages/ShellInjectionProcessorAnimation'));
 const AtFileProcessorAnimation = lazy(() => import('./pages/AtFileProcessorAnimation'));
 const ImageTokenizerAnimation = lazy(() => import('./pages/ImageTokenizerAnimation'));
@@ -257,8 +254,6 @@ function App() {
         return <StartHere onNavigate={(tab) => navigateToTab(tab)} />;
       case 'e2e':
         return <EndToEndWalkthrough />;
-      case 'upstream-diff':
-        return <UpstreamDiffOverview />;
       case 'overview':
         return <Overview />;
       case 'learning-path':
@@ -273,8 +268,6 @@ function App() {
         return <ConfigSystem />;
       case 'auth':
         return <AuthenticationFlow />;
-      case 'shared-token-manager':
-        return <SharedTokenManager />;
       case 'lifecycle':
         return <RequestLifecycle />;
       case 'interaction-loop':
@@ -471,8 +464,6 @@ function App() {
         return <GeminiChatFlowAnimation />;
       case 'token-limit-matcher-anim':
         return <TokenLimitMatcherAnimation />;
-      case 'shared-token-manager-anim':
-        return <SharedTokenManagerAnimation />;
       case 'shell-injection-anim':
         return <ShellInjectionProcessorAnimation />;
       case 'at-file-processor-anim':

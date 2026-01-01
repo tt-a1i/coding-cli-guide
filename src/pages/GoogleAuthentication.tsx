@@ -9,7 +9,7 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { useNavigation } from '../contexts/NavigationContext';
 
 export function GoogleAuthentication() {
-  const [activeTab, setActiveTab] = useState<'flow' | 'pkce' | 'manager' | 'events'>('flow');
+  const [activeTab, setActiveTab] = useState<'flow' | 'pkce' | 'events'>('flow');
   const { navigate } = useNavigation();
 
   return (
@@ -27,9 +27,8 @@ export function GoogleAuthentication() {
         <ul style={{ margin: 0, lineHeight: 1.8 }}>
           <li><strong>认证协议</strong>：OAuth 2.0 Device Authorization Grant (RFC 8628)</li>
           <li><strong>安全增强</strong>：PKCE (Proof Key for Code Exchange) 防止授权码拦截</li>
-          <li><strong>Token 管理</strong>：SharedTokenManager 单例实现跨会话 Token 同步</li>
           <li><strong>存储位置</strong>：<code>~/.gemini/oauth_creds.json</code> (权限 0600)</li>
-          <li><strong>刷新策略</strong>：Token 过期前 30 秒自动刷新，分布式锁防止竞争</li>
+          <li><strong>刷新策略</strong>：Token 过期前自动刷新</li>
         </ul>
       </div>
 
@@ -43,7 +42,6 @@ export function GoogleAuthentication() {
         {[
           { key: 'flow', label: '🔄 Device Flow', icon: '🔄' },
           { key: 'pkce', label: '🔒 PKCE 安全', icon: '🔒' },
-          { key: 'manager', label: '📦 Token Manager', icon: '📦' },
           { key: 'events', label: '📡 事件系统', icon: '📡' }
         ].map(tab => (
           <button
@@ -334,179 +332,6 @@ const token = await client.pollDeviceToken({
         </section>
       )}
 
-      {/* Token Manager Tab */}
-      {activeTab === 'manager' && (
-        <section>
-          <h2>📦 SharedTokenManager</h2>
-
-          <p>
-            <code>SharedTokenManager</code> 是一个单例服务，解决了多个 CLI 进程同时运行时的 Token 刷新竞争问题。
-            它使用<strong>文件锁</strong>实现分布式同步，并通过<strong>内存缓存</strong>减少磁盘 I/O。
-          </p>
-
-          <MermaidDiagram chart={`
-stateDiagram-v2
-    [*] --> CheckCache: getValidCredentials()
-
-    state CheckCache {
-        [*] --> FileModCheck
-        FileModCheck --> ReloadFromFile: 文件已更新
-        FileModCheck --> UseMemoryCache: 文件未变化
-        ReloadFromFile --> UseMemoryCache
-    }
-
-    CheckCache --> TokenValid: 检查 Token 有效性
-    TokenValid --> ReturnToken: Token 有效 (未过期)
-    TokenValid --> AcquireLock: Token 过期或即将过期
-
-    state AcquireLock {
-        [*] --> TryCreateLock
-        TryCreateLock --> LockSuccess: 创建成功
-        TryCreateLock --> CheckStaleLock: EEXIST
-
-        CheckStaleLock --> RemoveStaleLock: lockAge > 10s
-        CheckStaleLock --> WaitRetry: lockAge <= 10s
-
-        RemoveStaleLock --> TryCreateLock
-        WaitRetry --> TryCreateLock: 100ms 后重试
-
-        LockSuccess --> [*]
-    }
-
-    AcquireLock --> DoubleCheck: 锁定成功
-    DoubleCheck --> ReturnToken: 其他进程已刷新
-    DoubleCheck --> RefreshToken: 确需刷新
-
-    RefreshToken --> SaveToFile: 刷新成功
-    SaveToFile --> UpdateCache
-    UpdateCache --> ReleaseLock
-    ReleaseLock --> ReturnToken
-
-    ReturnToken --> [*]
-`} />
-
-          <h3>关键配置常量</h3>
-          <CodeBlock language="typescript" code={`// packages/core/src/gemini/sharedTokenManager.ts
-
-// Token 刷新缓冲区 - 在过期前 30 秒开始刷新
-const TOKEN_REFRESH_BUFFER_MS = 30 * 1000;
-
-// 文件锁超时 - 超过 10 秒认为是残留锁
-const LOCK_TIMEOUT_MS = 10000;
-
-// 缓存检查间隔 - 每 5 秒检查一次文件是否被其他进程更新
-const CACHE_CHECK_INTERVAL_MS = 5000;
-
-// 锁获取配置
-const DEFAULT_LOCK_CONFIG = {
-  maxAttempts: 20,       // 最多尝试 20 次
-  attemptInterval: 100,  // 初始间隔 100ms
-  maxInterval: 2000,     // 最大间隔 2 秒 (指数退避)
-};`} />
-
-          <h3>分布式锁实现</h3>
-          <CodeBlock language="typescript" code={`// 文件锁获取算法
-private async acquireLock(lockPath: string): Promise<void> {
-  let currentInterval = 100;  // 初始间隔
-
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    try {
-      // 原子性创建锁文件 (flag: 'wx' = exclusive)
-      await fs.writeFile(lockPath, randomUUID(), { flag: 'wx' });
-      return;  // 成功获取锁
-    } catch (error) {
-      if (error.code === 'EEXIST') {
-        // 检查是否是过期的锁
-        const stats = await fs.stat(lockPath);
-        const lockAge = Date.now() - stats.mtimeMs;
-
-        if (lockAge > LOCK_TIMEOUT_MS) {
-          // 原子性移除过期锁
-          const tempPath = \`\${lockPath}.stale.\${randomUUID()}\`;
-          await fs.rename(lockPath, tempPath);
-          await fs.unlink(tempPath);
-          continue;  // 立即重试
-        }
-
-        // 等待并指数退避
-        await new Promise(r => setTimeout(r, currentInterval));
-        currentInterval = Math.min(currentInterval * 1.5, 2000);
-      } else {
-        throw error;
-      }
-    }
-  }
-
-  throw new TokenManagerError(TokenError.LOCK_TIMEOUT, '获取锁超时');
-}`} />
-
-          <h3>内存缓存与文件同步</h3>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
-            <div className="card" style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '1rem', borderRadius: '8px' }}>
-              <h4 style={{ color: 'var(--cyber-blue)', margin: '0 0 0.5rem 0' }}>📝 MemoryCache 结构</h4>
-              <CodeBlock language="typescript" code={`interface MemoryCache {
-  credentials: GeminiCredentials | null;
-  fileModTime: number;   // 上次读取的文件修改时间
-  lastCheck: number;     // 上次检查时间戳
-}`} />
-            </div>
-
-            <div className="card" style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '1rem', borderRadius: '8px' }}>
-              <h4 style={{ color: 'var(--terminal-green)', margin: '0 0 0.5rem 0' }}>🔄 同步策略</h4>
-              <ul style={{ margin: 0, fontSize: '0.9rem' }}>
-                <li>每 5 秒检查文件 mtime</li>
-                <li>mtime 变化则重新加载</li>
-                <li>写入时使用原子重命名</li>
-                <li>进程退出时清理锁文件</li>
-              </ul>
-            </div>
-          </div>
-
-          <h3>Token 错误类型</h3>
-          <CodeBlock language="typescript" code={`// 错误分类便于上层精确处理
-export enum TokenError {
-  REFRESH_FAILED = 'REFRESH_FAILED',     // 刷新请求失败
-  NO_REFRESH_TOKEN = 'NO_REFRESH_TOKEN', // 没有 refresh_token
-  LOCK_TIMEOUT = 'LOCK_TIMEOUT',         // 获取锁超时
-  FILE_ACCESS_ERROR = 'FILE_ACCESS_ERROR', // 文件读写错误
-  NETWORK_ERROR = 'NETWORK_ERROR',       // 网络错误
-}
-
-// 使用示例
-try {
-  const creds = await sharedManager.getValidCredentials(client);
-} catch (error) {
-  if (error instanceof TokenManagerError) {
-    switch (error.type) {
-      case TokenError.NO_REFRESH_TOKEN:
-        // 需要重新走 Device Flow
-        break;
-      case TokenError.NETWORK_ERROR:
-        // 可以离线使用缓存的 Token（如果尚未过期）
-        break;
-    }
-  }
-}`} />
-
-          <div className="info-box" style={{
-            background: 'rgba(139, 92, 246, 0.1)',
-            borderLeft: '4px solid var(--purple-accent)',
-            padding: '1rem',
-            borderRadius: '8px',
-            marginTop: '1rem'
-          }}>
-            <h4 style={{ color: 'var(--purple-accent)', margin: '0 0 0.5rem 0' }}>💡 设计亮点</h4>
-            <ul style={{ margin: 0, fontSize: '0.9rem' }}>
-              <li><strong>Double-Check</strong>：获取锁后再次检查文件，避免重复刷新</li>
-              <li><strong>原子写入</strong>：先写 .tmp 文件再 rename，防止写入中断</li>
-              <li><strong>优雅降级</strong>：进程崩溃时通过 lockAge 检测清理残留锁</li>
-              <li><strong>权限控制</strong>：credentials 文件权限 0600，目录权限 0700</li>
-            </ul>
-          </div>
-        </section>
-      )}
-
       {/* Events Tab */}
       {activeTab === 'events' && (
         <section>
@@ -742,19 +567,6 @@ await fs.writeFile(filePath, content, { mode: 0o600 });     // 文件: rw-------
           }}>
             <h4 style={{ color: 'var(--purple-accent)', margin: '0 0 0.5rem 0' }}>⚙️ 配置系统</h4>
             <p style={{ margin: 0, fontSize: '0.9rem' }}>设置和环境变量</p>
-          </button>
-
-          <button onClick={() => navigate('shared-token-manager-anim')} className="card" style={{
-            padding: '1rem',
-            textDecoration: 'none',
-            background: 'rgba(16, 185, 129, 0.1)',
-            borderRadius: '8px',
-            border: 'none',
-            cursor: 'pointer',
-            textAlign: 'left'
-          }}>
-            <h4 style={{ color: 'var(--terminal-green)', margin: '0 0 0.5rem 0' }}>🎬 Token 管理器动画</h4>
-            <p style={{ margin: 0, fontSize: '0.9rem' }}>可视化流程演示</p>
           </button>
 
           <button onClick={() => navigate('oauth-device-flow-anim')} className="card" style={{

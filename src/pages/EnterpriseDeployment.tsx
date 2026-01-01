@@ -65,7 +65,6 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
 const relatedPages: RelatedPage[] = [
   { id: 'auth', label: '认证流程', description: 'OAuth 与 Token 管理机制' },
-  { id: 'shared-token-manager', label: 'Token 共享管理', description: '多进程 Token 共享与竞态处理' },
   { id: 'google-authentication', label: 'Google OAuth 认证', description: 'Google OAuth 设备流程详解' },
   { id: 'config', label: '配置系统', description: '环境变量与配置文件管理' },
   { id: 'sandbox', label: '沙箱系统', description: '容器化部署与安全隔离' },
@@ -505,9 +504,7 @@ cp -r new-version/app/* portable-win-x64/app/`}
                 </p>
                 <div className="bg-[var(--terminal-green)]/10 rounded p-2 text-sm">
                   <strong className="text-[var(--terminal-green)]">✅ 解决：</strong>
-                  <span className="text-[var(--text-secondary)]"> 使用文件锁（</span>
-                  <code>SharedTokenManager</code>
-                  <span className="text-[var(--text-secondary)]">）确保只有一个进程刷新。</span>
+                  <span className="text-[var(--text-secondary)]"> 使用文件锁确保只有一个进程刷新 Token。</span>
                 </div>
               </div>
             </div>

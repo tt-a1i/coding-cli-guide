@@ -419,12 +419,11 @@ const learningPaths: LearningPath[] = [
       },
       {
         title: 'Token 计费系统',
-        pages: ['Token计费系统', 'Token 计数动画', 'Token 限制匹配动画', 'Token 共享机制'],
+        pages: ['Token计费系统', 'Token 计数动画', 'Token 限制匹配动画'],
         keyConceptsCn: [
           '理解 tokenLimits 匹配机制',
           '掌握文本和图像 Token 计算',
           '了解模型名归一化',
-          '理解 SharedTokenManager 并发控制',
         ],
         estimatedTime: '2 小时',
         checkpoint: '知道如何计算一次请求的 Token 数吗？',

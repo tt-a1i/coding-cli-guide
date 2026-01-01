@@ -3,7 +3,6 @@ import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
-import { useNavigation } from '../contexts/NavigationContext';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 function CollapsibleSection({
@@ -37,10 +36,7 @@ function CollapsibleSection({
 }
 
 export function AuthenticationFlow() {
-  const { navigate } = useNavigation();
-
   const relatedPages: RelatedPage[] = [
-    { id: 'shared-token-manager', label: 'Token 共享机制', description: 'SharedTokenManager 完整架构' },
     { id: 'google-authentication', label: 'Google OAuth 详解', description: '设备授权流程详解' },
     { id: 'startup-chain', label: '启动链路', description: '认证如何触发' },
     { id: 'config', label: '配置系统', description: '认证相关配置项' },
@@ -62,7 +58,7 @@ export function AuthenticationFlow() {
             • <strong>核心标准</strong>: RFC 8628 (Device Authorization Grant) + RFC 7636 (PKCE)
           </li>
           <li>
-            • <strong>Token 管理</strong>: SharedTokenManager 单例处理跨进程同步和自动刷新
+            • <strong>Token 管理</strong>: 单例模式处理跨进程同步和自动刷新
           </li>
           <li>
             • <strong>刷新策略</strong>: 提前 30 秒刷新，失败时触发重新认证
@@ -177,7 +173,7 @@ export function AuthenticationFlow() {
         end
     end
 
-    CLI->>CLI: 保存 Token 到 SharedTokenManager
+    CLI->>CLI: 保存 Token 到本地缓存
     Note over CLI: 后续请求使用 access_token`}
         />
 
@@ -454,7 +450,7 @@ for (let attempt = 0; attempt < maxAttempts; attempt++) {
           chart={`sequenceDiagram
     autonumber
     participant Client as GeminiOAuth2Client
-    participant Manager as SharedTokenManager
+    participant Manager as TokenManager
     participant File as 凭据文件
     participant Auth as 认证服务器
 
@@ -543,117 +539,6 @@ async refreshAccessToken(): Promise<TokenRefreshResponse> {
 }`}
         />
       </Layer>
-
-      {/* SharedTokenManager 集成 */}
-      <CollapsibleSection title="SharedTokenManager 跨进程同步" icon="🔗">
-        <HighlightBox title="设计目标" icon="🎯" variant="green">
-          <ul className="text-sm space-y-1">
-            <li>• <strong>单例模式</strong>: 进程内唯一实例，避免重复刷新</li>
-            <li>• <strong>文件锁</strong>: 跨进程互斥，防止并发刷新</li>
-            <li>• <strong>mtime 检测</strong>: 发现其他进程的刷新结果</li>
-            <li>• <strong>内存缓存</strong>: 减少文件 I/O</li>
-          </ul>
-        </HighlightBox>
-
-        <MermaidDiagram
-          title="多进程 Token 共享"
-          chart={`flowchart TB
-    subgraph Process1["进程 1"]
-        A1[getValidCredentials]
-        B1[检查内存缓存]
-        C1[获取文件锁]
-    end
-
-    subgraph Process2["进程 2"]
-        A2[getValidCredentials]
-        B2[检查内存缓存]
-        C2[等待文件锁...]
-    end
-
-    subgraph SharedFile["共享文件系统"]
-        F[oauth_creds.json]
-        L[oauth_creds.lock]
-    end
-
-    subgraph AuthServer["认证服务器"]
-        AS[/oauth2/token]
-    end
-
-    A1 --> B1
-    B1 -->|过期| C1
-    C1 -->|获取成功| D1[刷新 Token]
-    D1 --> AS
-    AS --> E1[写入新 Token]
-    E1 --> F
-    E1 --> G1[释放锁]
-    G1 --> L
-
-    A2 --> B2
-    B2 -->|过期| C2
-    C2 -.->|等待| L
-    L -.->|锁释放| H2[检查文件 mtime]
-    H2 --> F
-    F --> I2[读取新 Token]
-    I2 --> J2[更新内存缓存]
-
-    style F fill:#2d3748
-    style L fill:#4a5568
-    style AS fill:#276749`}
-        />
-
-        <CodeBlock
-          title="文件锁获取 (指数退避)"
-          code={`// packages/core/src/gemini/sharedTokenManager.ts:701-765
-
-const DEFAULT_LOCK_CONFIG = {
-  maxAttempts: 20,      // 最大尝试次数
-  attemptInterval: 100, // 初始间隔 100ms
-  maxInterval: 2000,    // 最大间隔 2 秒
-};
-
-private async acquireLock(lockPath: string): Promise<void> {
-  const lockId = randomUUID(); // 安全的锁标识
-  let currentInterval = attemptInterval;
-
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    try {
-      // 原子创建锁文件 (exclusive mode)
-      await fs.writeFile(lockPath, lockId, { flag: 'wx' });
-      return; // 成功获取锁
-    } catch (error) {
-      if (error.code === 'EEXIST') {
-        // 锁已存在，检查是否过期
-        const stats = await fs.stat(lockPath);
-        const lockAge = Date.now() - stats.mtimeMs;
-
-        if (lockAge > LOCK_TIMEOUT_MS) { // 10 秒超时
-          // 原子移除过期锁
-          const tempPath = \`\${lockPath}.stale.\${randomUUID()}\`;
-          await fs.rename(lockPath, tempPath);
-          await fs.unlink(tempPath);
-          continue; // 立即重试
-        }
-
-        // 等待后重试 (指数退避)
-        await sleep(currentInterval);
-        currentInterval = Math.min(currentInterval * 1.5, maxInterval);
-      }
-    }
-  }
-  throw new TokenManagerError(TokenError.LOCK_TIMEOUT, 'Lock acquisition timeout');
-}`}
-        />
-
-        <div className="mt-4 p-4 bg-gray-800 rounded-lg">
-          <h4 className="text-cyan-400 font-semibold mb-2">相关页面</h4>
-          <p className="text-sm text-gray-300">
-            详细的 SharedTokenManager 架构和实现请参考：
-            <button onClick={() => navigate('shared-token-manager')} className="text-cyan-400 hover:underline ml-2 bg-transparent border-none cursor-pointer">
-              → Token 共享机制
-            </button>
-          </p>
-        </div>
-      </CollapsibleSection>
 
       {/* OpenAI 兼容 API */}
       <Layer title="OpenAI 兼容 API 配置" icon="🔧">
@@ -855,9 +740,9 @@ try {
                 <td className="py-2 px-3">GeminiOAuth2Client, authWithGeminiDeviceFlow</td>
               </tr>
               <tr className="border-b border-gray-700">
-                <td className="py-2 px-3">Token 共享管理</td>
-                <td className="py-2 px-3"><code>packages/core/src/gemini/sharedTokenManager.ts</code></td>
-                <td className="py-2 px-3">SharedTokenManager, acquireLock</td>
+                <td className="py-2 px-3">Token 管理</td>
+                <td className="py-2 px-3"><code>packages/core/src/gemini/tokenManager.ts</code></td>
+                <td className="py-2 px-3">TokenManager, acquireLock</td>
               </tr>
               <tr className="border-b border-gray-700">
                 <td className="py-2 px-3">PKCE 工具</td>

@@ -494,7 +494,7 @@ private updateConversation(updateFn: (conv: ConversationRecord) => void) {
             <HighlightBox title="存储路径" variant="blue">
               <div className="text-sm space-y-2 text-gray-300">
                 <code className="block bg-black/30 px-2 py-1 rounded text-xs">
-                  ~/.innies/tmp/&lt;project_hash&gt;/chats/
+                  ~/.gemini/tmp/&lt;project_hash&gt;/chats/
                 </code>
                 <p className="mt-2">文件名格式：</p>
                 <code className="block bg-black/30 px-2 py-1 rounded text-xs">

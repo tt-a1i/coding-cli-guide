@@ -1375,8 +1375,8 @@ console.log(getTokenLimits('gpt-4o'));
 // 输出: { input: 128000, output: 16384 }
 
 # 临时覆盖（环境变量）
-export INNIES_TOKEN_LIMIT=1000000
-export INNIES_OUTPUT_LIMIT=8192`}
+export GEMINI_TOKEN_LIMIT=1000000
+export GEMINI_OUTPUT_LIMIT=8192`}
               language="bash"
               title="调试命令"
             />
@@ -1884,7 +1884,7 @@ function disposeDefaultTokenizer(): Promise<void>;`}
           <div className="space-y-2">
             <h5 className="text-gray-300 font-semibold">覆盖 Token 限制</h5>
             <p className="text-gray-400">
-              使用环境变量 <code className="text-cyan-300">INNIES_TOKEN_LIMIT</code>
+              使用环境变量 <code className="text-cyan-300">GEMINI_TOKEN_LIMIT</code>
               临时覆盖自动检测的限制值。
             </p>
           </div>
@@ -1899,11 +1899,9 @@ function RelatedPagesSection() {
   const { navigate } = useNavigation();
   const pages = [
     { id: 'token-management-strategy', label: 'Token 计算策略', desc: '计算策略详解' },
-    { id: 'shared-token-manager', label: 'Token 共享机制', desc: 'SharedTokenManager 实现' },
     { id: 'memory', label: '上下文管理', desc: '了解基于 Token 的压缩策略' },
     { id: 'token-counting-anim', label: 'Token 计数动画', desc: '可视化 Token 计算过程' },
     { id: 'token-limit-matcher-anim', label: 'Token 限制匹配动画', desc: '模式匹配过程可视化' },
-    { id: 'shared-token-manager-anim', label: 'Token 管理器动画', desc: '并发控制可视化' },
   ];
 
   return (

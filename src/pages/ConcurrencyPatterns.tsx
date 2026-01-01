@@ -11,7 +11,6 @@ export function ConcurrencyPatterns() {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
 
   const relatedPages: RelatedPage[] = [
-    { id: 'shared-token-manager', label: 'Token 共享机制', description: '分布式锁实战案例' },
     { id: 'tool-scheduler', label: '工具调度详解', description: '工具队列调度' },
     { id: 'file-discovery', label: '文件发现系统', description: 'BFS 并行搜索' },
     { id: 'streaming-response-processing', label: '流式响应处理', description: '异步流处理' },
@@ -477,7 +476,7 @@ function LockTab() {
     <div className="flex flex-col gap-6">
       <Layer title="🔐 分布式 Token 锁">
         <p className="text-[var(--text-secondary)] mb-4">
-          SharedTokenManager 使用<strong className="text-[var(--text-primary)]">文件锁</strong>协调多进程间的 Token 刷新：
+          Token 管理器使用<strong className="text-[var(--text-primary)]">文件锁</strong>协调多进程间的 Token 刷新：
         </p>
 
         <MermaidDiagram chart={`

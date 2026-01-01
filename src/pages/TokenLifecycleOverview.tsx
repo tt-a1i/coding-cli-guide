@@ -7,7 +7,6 @@ import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 const relatedPages: RelatedPage[] = [
   { id: 'token-accounting', label: 'Token 计费系统', description: 'Token 计费与统计机制' },
   { id: 'token-management-strategy', label: 'Token 计算策略', description: 'Token 估算与预算策略' },
-  { id: 'shared-token-manager', label: 'Token 共享机制', description: '跨会话 Token 管理' },
   { id: 'memory', label: '上下文管理', description: '基于 Token 的压缩策略' },
   { id: 'history-compression-anim', label: '历史压缩动画', description: '历史压缩可视化演示' },
   { id: 'token-counting-anim', label: 'Token 计数动画', description: 'Token 计数过程演示' },

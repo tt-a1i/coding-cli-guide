@@ -806,7 +806,7 @@ normalize("gemini-2.5-pro-preview") → "gemini-2.5-pro"`}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-[var(--terminal-green)]/30">
             <div className="text-[var(--terminal-green)] font-bold mb-2">
-              Gemini SharedTokenManager
+              Gemini Token 管理
             </div>
             <ul className="text-sm text-[var(--text-secondary)] space-y-1">
               <li>• 单例模式，线程安全</li>

@@ -153,18 +153,11 @@ export function StartHere({ onNavigate }: StartHereProps) {
         {/* Where to go */}
         <div className="bg-[var(--bg-void)] rounded-lg p-4 border border-[var(--border-subtle)]">
           <h4 className="text-[var(--text-primary)] font-semibold mb-3 text-sm">🔗 相关资源</h4>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
             <div className="flex items-center gap-2 text-[var(--text-secondary)]">
               <span className="text-[var(--cyber-blue)]">📘</span>
               <span><strong>用户文档</strong> → <code className="text-[var(--cyber-blue)]">/docs</code> 目录</span>
             </div>
-            <button
-              onClick={() => onNavigate?.('upstream-diff')}
-              className="flex items-center gap-2 text-[var(--text-secondary)] hover:text-[var(--amber)] transition-colors text-left"
-            >
-              <span className="text-[var(--amber)]">🔀</span>
-              <span><strong>上游改造</strong> → <code className="text-[var(--amber)] hover:underline">查看详情</code></span>
-            </button>
             <div className="flex items-center gap-2 text-[var(--text-secondary)]">
               <span className="text-[var(--purple)]">🏢</span>
               <span><strong>版本记录</strong> → <code className="text-[var(--purple)]">CHANGELOG.md</code></span>

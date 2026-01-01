@@ -298,62 +298,6 @@ export class ModelConfigCache {
       {/* Service Tab */}
       {activeTab === 'service' && (
         <div className="space-y-6">
-          <Layer title="模型服务发现" icon="🔍">
-            <p className="text-[var(--text-secondary)] mb-4">
-              <code className="text-[var(--cyber-blue)]">fetchInniesModels</code> 从 Innies 后端获取可用模型列表，
-              支持按 modelType 过滤，返回标准化的模型摘要信息。
-            </p>
-
-            <CodeBlock
-              code={`// packages/core/src/gemini/geminiModelService.ts
-
-export interface InniesModelSummary {
-  id: string;           // 模型标识符
-  label: string;        // 显示名称
-  description?: string; // 描述
-  provider?: string;    // 提供商
-  modelType?: number;   // 模型类型
-  baseURL?: string;     // API 端点
-  apiKey?: string;      // API 密钥
-  raw: Record<string, unknown>; // 原始数据
-}
-
-export async function fetchInniesModels(
-  options?: InniesModelSearchOptions,
-): Promise<InniesModelSummary[]> {
-  const sharedManager = SharedTokenManager.getInstance();
-  const geminiClient = new InniesOAuth2Client();
-  const credentials = await sharedManager.getValidCredentials(geminiClient);
-
-  const accessToken = credentials.access_token;
-  if (!accessToken) {
-    throw new Error('No Innies access token available for model search.');
-  }
-
-  const url = new URL(INNIES_MODEL_SEARCH_ENDPOINT);
-  url.searchParams.set('modelType', (options?.modelType ?? 4).toString());
-  url.searchParams.set('query', '');
-
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: {
-      Accept: 'application/json',
-      Authorization: \`Bearer \${accessToken}\`,
-      'x-request-id': randomUUID(),
-    },
-    signal: options?.signal,
-  });
-
-  const payload = await response.json();
-  const records = normalizeModelRecords(payload);
-  return records
-    .map(mapRecordToSummary)
-    .filter((entry): entry is InniesModelSummary => entry !== null);
-}`}
-              language="typescript"
-            />
-          </Layer>
-
           <Layer title="字段映射策略" icon="🔗">
             <p className="text-[var(--text-muted)] mb-4">
               由于不同后端返回的字段名不一致，使用灵活的字段解析策略：

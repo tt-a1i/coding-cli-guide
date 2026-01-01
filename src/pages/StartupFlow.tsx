@@ -413,7 +413,7 @@ function getNodeMemoryArgs(isDebugMode: boolean): string[] {
   }
 
   // 检查是否已经在子进程中运行（避免无限重启）
-  if (process.env.INNIES_MEMORY_CONFIGURED === 'true') {
+  if (process.env.GEMINI_MEMORY_CONFIGURED === 'true') {
     console.warn('内存已配置但仍不足，继续使用当前设置');
     return [];
   }
@@ -439,7 +439,7 @@ async function relaunchAppInChildProcess(memoryArgs: string[]): Promise<void> {
   // 设置环境变量标记已配置
   const env = {
     ...process.env,
-    INNIES_MEMORY_CONFIGURED: 'true'
+    GEMINI_MEMORY_CONFIGURED: 'true'
   };
 
   // 启动子进程
@@ -479,7 +479,7 @@ async function relaunchAppInChildProcess(memoryArgs: string[]): Promise<void> {
 │  2. 堆限制 < 4GB * 0.9 ?                                        │
 │     ├─ 否 → 继续执行                                            │
 │     └─ 是 → 需要重启                                            │
-│  3. 检查 INNIES_MEMORY_CONFIGURED                               │
+│  3. 检查 GEMINI_MEMORY_CONFIGURED                               │
 │     ├─ 已设置 → 警告并继续（避免无限循环）                       │
 │     └─ 未设置 → 启动子进程                                       │
 └─────────────────────────────────────────────────────────────────┘
@@ -488,7 +488,7 @@ async function relaunchAppInChildProcess(memoryArgs: string[]): Promise<void> {
 ┌─────────────────────────────────────────────────────────────────┐
 │ 子进程 (4GB 堆限制)                                              │
 ├─────────────────────────────────────────────────────────────────┤
-│  INNIES_MEMORY_CONFIGURED=true                                   │
+│  GEMINI_MEMORY_CONFIGURED=true                                   │
 │  --max-old-space-size=4096                                      │
 │  正常执行 CLI 逻辑                                               │
 └─────────────────────────────────────────────────────────────────┘
@@ -612,9 +612,9 @@ async function loadJsonSafe(filePath: string): Promise<any | null> {
 // 环境变量映射
 function loadEnvConfig(): Partial<CliConfig> {
   const mapping: Record<string, keyof CliConfig> = {
-    'INNIES_MODEL': 'model',
-    'INNIES_SANDBOX': 'sandbox',
-    'INNIES_THEME': 'theme',
+    'GEMINI_MODEL': 'model',
+    'GEMINI_SANDBOX': 'sandbox',
+    'GEMINI_THEME': 'theme',
     'OPENAI_API_KEY': 'apiKey',
     'OPENAI_BASE_URL': 'baseUrl',
     'OPENAI_MODEL': 'model',
@@ -647,7 +647,7 @@ function loadEnvConfig(): Partial<CliConfig> {
 ┌───────────────────────────────────────────────────────────────┐
 │  优先级 40: 命令行参数 (--model, --sandbox)                    │
 ├───────────────────────────────────────────────────────────────┤
-│  优先级 30: 环境变量 (OPENAI_API_KEY, INNIES_MODEL)           │
+│  优先级 30: 环境变量 (OPENAI_API_KEY, GEMINI_MODEL)           │
 ├───────────────────────────────────────────────────────────────┤
 │  优先级 20: 项目配置 (.gemini/settings.json)                    │
 ├───────────────────────────────────────────────────────────────┤

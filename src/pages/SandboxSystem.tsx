@@ -1437,7 +1437,7 @@ docker run --rm -it ghcr.io/google/generative-ai-cli:latest echo "Hello"
 docker logs <container_id>
 
 # 7. 增加启动超时
-export INNIES_SANDBOX_TIMEOUT=120  # 秒`} />
+export GEMINI_SANDBOX_TIMEOUT=120  # 秒`} />
         </div>
 
         {/* 问题 4 */}
