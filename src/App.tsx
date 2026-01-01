@@ -163,6 +163,12 @@ const OutputFormatter = lazy(() => import('./pages/OutputFormatter').then(m => (
 const CodeAssist = lazy(() => import('./pages/CodeAssist').then(m => ({ default: m.CodeAssist })));
 const ReactHooksOverview = lazy(() => import('./pages/ReactHooksOverview').then(m => ({ default: m.ReactHooksOverview })));
 const UIComponents = lazy(() => import('./pages/UIComponents').then(m => ({ default: m.UIComponents })));
+const TextBuffer = lazy(() => import('./pages/TextBuffer').then(m => ({ default: m.TextBuffer })));
+const ChatCompression = lazy(() => import('./pages/ChatCompression').then(m => ({ default: m.ChatCompression })));
+const NonInteractiveDeep = lazy(() => import('./pages/NonInteractiveDeep').then(m => ({ default: m.NonInteractiveDeep })));
+const IDEClient = lazy(() => import('./pages/IDEClient').then(m => ({ default: m.IDEClient })));
+const MessageRendering = lazy(() => import('./pages/MessageRendering').then(m => ({ default: m.MessageRendering })));
+const ContextSystem = lazy(() => import('./pages/ContextSystem').then(m => ({ default: m.ContextSystem })));
 
 // 页面加载 fallback
 function PageLoading() {
@@ -559,6 +565,18 @@ function App() {
         return <ReactHooksOverview />;
       case 'ui-components':
         return <UIComponents />;
+      case 'text-buffer':
+        return <TextBuffer />;
+      case 'chat-compression':
+        return <ChatCompression />;
+      case 'non-interactive-deep':
+        return <NonInteractiveDeep />;
+      case 'ide-client':
+        return <IDEClient />;
+      case 'message-rendering':
+        return <MessageRendering />;
+      case 'context-system':
+        return <ContextSystem />;
       default:
         return <StartHere onNavigate={(tab) => navigateToTab(tab)} />;
     }
