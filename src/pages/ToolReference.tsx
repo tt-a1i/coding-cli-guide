@@ -155,7 +155,7 @@ export function ToolReference() {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <HighlightBox title="Core 内置工具 (14个)" variant="blue">
+            <HighlightBox title="Core 内置工具 (13个)" variant="blue">
               <div className="text-sm space-y-2">
                 <p className="text-gray-300 font-semibold">来源: config.ts:1092-1178</p>
                 <p className="text-gray-400 text-xs mb-2">
