@@ -47,7 +47,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
               <div className="text-xs text-[var(--text-muted)]">审批模式</div>
             </div>
             <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
-              <div className="text-2xl font-bold text-[var(--terminal-green)]">6</div>
+              <div className="text-2xl font-bold text-[var(--terminal-green)]">9</div>
               <div className="text-xs text-[var(--text-muted)]">工具 Kind</div>
             </div>
             <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
@@ -338,8 +338,8 @@ export interface PolicyRule {
           <div>
             <h4 className="text-cyan-400 font-semibold mb-2">输入参数</h4>
             <ul className="text-gray-300 list-disc list-inside space-y-1 ml-4">
-              <li><strong>当前 ApprovalMode</strong>：DEFAULT / AUTO_EDIT / YOLO</li>
-              <li><strong>工具 Kind 类型</strong>：Read / Search / Fetch / Edit / Delete / Execute</li>
+              <li><strong>当前 ApprovalMode</strong>：PLAN / DEFAULT / AUTO_EDIT / YOLO</li>
+              <li><strong>工具 Kind 类型</strong>：Read / Edit / Delete / Move / Search / Execute / Think / Fetch / Other（共 9 种）</li>
               <li><strong>allowedTools 白名单</strong>：配置文件中定义的自动批准工具列表</li>
               <li><strong>文件夹信任状态</strong>：isTrustedFolder() 返回值</li>
             </ul>
@@ -576,7 +576,7 @@ export interface PolicyRule {
             <h4 className="text-cyan-400 font-semibold mb-2">工具 Kind 分类</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-gray-800/50 rounded-lg p-4">
-                <h5 className="font-semibold text-green-400 mb-2">自动批准类 (Kind: Read/Search/Fetch)</h5>
+                <h5 className="font-semibold text-green-400 mb-2">自动批准类 (Kind: Read/Search/Fetch/Think/Other)</h5>
                 <ul className="text-sm text-gray-300 space-y-1">
                   <li>• <code className="text-cyan-300">read_file</code> - 读取文件</li>
                   <li>• <code className="text-cyan-300">read_many_files</code> - 批量读取</li>
@@ -589,7 +589,7 @@ export interface PolicyRule {
               </div>
 
               <div className="bg-gray-800/50 rounded-lg p-4">
-                <h5 className="font-semibold text-yellow-400 mb-2">需确认类 (Kind: Edit/Execute)</h5>
+                <h5 className="font-semibold text-yellow-400 mb-2">需确认类 (Kind: Edit/Delete/Move/Execute)</h5>
                 <ul className="text-sm text-gray-300 space-y-1">
                   <li>• <code className="text-orange-300">write_file</code> - 写入文件</li>
                   <li>• <code className="text-orange-300">edit</code> - 编辑文件</li>

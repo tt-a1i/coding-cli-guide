@@ -1127,9 +1127,9 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 13 个内置工具`}
           <div className="bg-gradient-to-r from-[var(--terminal-green)]/10 to-[var(--cyber-blue)]/10 rounded-lg p-5 border border-[var(--terminal-green)]/30">
             <h4 className="text-[var(--terminal-green)] font-bold font-mono mb-3">Kind 分类驱动权限</h4>
             <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
-              工具按 Kind（Read、Search、Edit、Execute、Think）分类，而非按功能分类。
+              工具按 Kind（Read、Edit、Delete、Move、Search、Execute、Think、Fetch、Other，共 9 种）分类，而非按功能分类。
               这种设计让审批系统可以基于操作类型而非工具名称做决策：
-              只读操作自动放行，修改操作需要确认。这既保证了安全性，又不影响使用体验。
+              只读操作（Read/Search/Fetch/Think）自动放行，修改操作（Edit/Delete/Move/Execute）需要确认。
             </p>
           </div>
 

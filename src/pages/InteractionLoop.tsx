@@ -413,7 +413,7 @@ const request = await prepareRequest(userParts, ideContextDelta);
             <div className="text-[var(--cyber-blue)] font-bold">packages/cli/src/ui/hooks/useGeminiStream.ts</div>
             <div className="pl-4 space-y-1 text-[var(--text-muted)]">
               <div>:786 - <span className="text-[var(--amber)]">submitQuery()</span> - 主循环入口</div>
-              <div>:702 - <span className="text-[var(--amber)]">流事件处理循环</span> - 处理 16 种事件类型</div>
+              <div>:702 - <span className="text-[var(--amber)]">流事件处理循环</span> - 处理 14 种事件类型</div>
               <div>:994 - <span className="text-[var(--amber)]">handleCompletedTools()</span> - Continuation 触发</div>
               <div>:488 - <span className="text-[var(--amber)]">getIdeContextDelta()</span> - IDE 上下文增量</div>
             </div>
@@ -457,7 +457,7 @@ const request = await prepareRequest(userParts, ideContextDelta);
             <MermaidDiagram chart={streamEventsChart} title="流事件处理流程" />
 
             <div className="mt-4">
-              <h5 className="text-[var(--text-primary)] font-semibold font-mono mb-2">16 种事件类型 (GeminiEventType)</h5>
+              <h5 className="text-[var(--text-primary)] font-semibold font-mono mb-2">14 种事件类型 (GeminiEventType)</h5>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>

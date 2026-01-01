@@ -545,7 +545,7 @@ abstract class BaseDeclarativeTool<TParams, TResult> {
     readonly name: string;          // 工具名称，如 "read_file"
     readonly description: string;   // 描述，告诉 AI 这个工具做什么
     readonly parameters: Schema;    // JSON Schema 参数定义
-    readonly kind: Kind;            // 类型：Read, Write, Execute
+    readonly kind: Kind;            // 9 种类型：Read/Edit/Delete/Move/Search/Execute/Think/Fetch/Other
 
     // 验证参数（子类实现）
     protected abstract validateToolParamValues(
