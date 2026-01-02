@@ -45,7 +45,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
               <div className="text-xs text-[var(--text-muted)]">Agent 类型</div>
             </div>
             <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
-              <div className="text-2xl font-bold text-[var(--terminal-green)]">5</div>
+              <div className="text-2xl font-bold text-[var(--terminal-green)]">6</div>
               <div className="text-xs text-[var(--text-muted)]">终止模式</div>
             </div>
             <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
@@ -156,13 +156,14 @@ export function AgentFramework() {
     style TURN fill:#1a1a2e,stroke:#00d4ff,stroke-width:2px`;
 
   const agentTypesCode = `// Agent 终止模式
-// packages/core/src/subagents/types.ts:172-193
-export enum SubagentTerminateMode {
+// packages/core/src/agents/types.ts
+export enum AgentTerminateMode {
   ERROR = 'ERROR',                           // 执行错误
   TIMEOUT = 'TIMEOUT',                       // 超时
   GOAL = 'GOAL',                             // 成功完成
   MAX_TURNS = 'MAX_TURNS',                   // 达到轮次上限
-  CANCELLED = 'CANCELLED',                   // 被取消
+  ABORTED = 'ABORTED',                       // 外部中止信号
+  ERROR_NO_COMPLETE_TASK_CALL = 'ERROR_NO_COMPLETE_TASK_CALL',  // 未调用 complete_task
 }
 
 // 基础 Agent 定义
@@ -855,8 +856,13 @@ this.emitActivity('ERROR', { error: errorMessage, context: 'tool_call' });`;
                 <td className="py-2 px-3 text-red-400">✗</td>
               </tr>
               <tr className="border-b border-[var(--border-subtle)]/50">
-                <td className="py-2 px-3 text-red-400 font-bold">CANCELLED</td>
-                <td className="py-2 px-3 text-[var(--text-secondary)]">用户取消 (AbortSignal)</td>
+                <td className="py-2 px-3 text-red-400 font-bold">ABORTED</td>
+                <td className="py-2 px-3 text-[var(--text-secondary)]">外部中止信号 (AbortSignal)</td>
+                <td className="py-2 px-3 text-red-400">✗</td>
+              </tr>
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 text-red-400 font-bold">ERROR_NO_COMPLETE_TASK_CALL</td>
+                <td className="py-2 px-3 text-[var(--text-secondary)]">停止调用工具但未调用 complete_task</td>
                 <td className="py-2 px-3 text-red-400">✗</td>
               </tr>
             </tbody>

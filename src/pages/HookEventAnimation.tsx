@@ -56,15 +56,18 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
             <h4 className="text-[var(--cyber-blue)] font-bold mb-2">🔧 11 种事件类型</h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2 text-xs">
+            <div className="grid grid-cols-3 md:grid-cols-4 gap-2 mt-2 text-xs">
               <div className="bg-[var(--bg-card)] p-2 rounded text-center text-[var(--terminal-green)]">BeforeTool</div>
               <div className="bg-[var(--bg-card)] p-2 rounded text-center text-[var(--terminal-green)]">AfterTool</div>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-cyan-400">BeforeAgent</div>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-cyan-400">AfterAgent</div>
               <div className="bg-[var(--bg-card)] p-2 rounded text-center text-[var(--cyber-blue)]">BeforeModel</div>
               <div className="bg-[var(--bg-card)] p-2 rounded text-center text-[var(--cyber-blue)]">AfterModel</div>
               <div className="bg-[var(--bg-card)] p-2 rounded text-center text-[var(--amber)]">SessionStart</div>
               <div className="bg-[var(--bg-card)] p-2 rounded text-center text-[var(--amber)]">SessionEnd</div>
               <div className="bg-[var(--bg-card)] p-2 rounded text-center text-[var(--purple)]">PreCompress</div>
               <div className="bg-[var(--bg-card)] p-2 rounded text-center text-[var(--purple)]">BeforeToolSelection</div>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-orange-400">Notification</div>
             </div>
           </div>
 

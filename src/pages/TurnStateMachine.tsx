@@ -80,7 +80,7 @@ function Introduction({
             <h4 className="text-green-400 font-bold mb-2">📊 关键数字</h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <div className="text-center">
-                <div className="text-xl font-bold text-purple-400">14</div>
+                <div className="text-xl font-bold text-purple-400">17</div>
                 <div className="text-xs text-gray-500">事件类型</div>
               </div>
               <div className="text-center">
@@ -213,12 +213,28 @@ function EventTypesSection() {
       example: '{ type: "max_session_turns" }',
     },
     {
-      type: 'SessionTokenLimitExceeded',
-      icon: '📈',
+      type: 'ContextWindowWillOverflow',
+      icon: '⚠️',
+      color: 'amber',
+      description: '上下文窗口即将溢出',
+      when: 'Token 数接近模型上限时',
+      example: '{ type: "context_window_will_overflow" }',
+    },
+    {
+      type: 'InvalidStream',
+      icon: '🚫',
       color: 'red',
-      description: '超过会话 Token 限制',
-      when: 'totalTokens > sessionTokenLimit 时',
-      example: '{ type: "session_token_limit_exceeded", value: { currentTokens: 150000, limit: 100000 } }',
+      description: '无效的流数据',
+      when: '流解析失败或格式错误时',
+      example: '{ type: "invalid_stream" }',
+    },
+    {
+      type: 'ModelInfo',
+      icon: 'ℹ️',
+      color: 'blue',
+      description: '返回当前模型信息',
+      when: '获取模型元数据时',
+      example: '{ type: "model_info", value: { model: "gemini-pro", ... } }',
     },
   ];
 

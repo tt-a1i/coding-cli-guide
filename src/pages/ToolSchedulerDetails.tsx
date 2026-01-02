@@ -417,7 +417,7 @@ private async checkAndNotifyCompletion(): Promise<void> {
   }
 }`;
 
-  const toolCallStatusCode = `// packages/core/src/core/coreToolScheduler.ts:46-123
+  const toolCallStatusCode = `// packages/core/src/scheduler/types.ts:38-115
 
 // 工具调用状态类型定义
 export type ValidatingToolCall = {
@@ -453,7 +453,7 @@ export type ExecutingToolCall = {
   request: ToolCallRequestInfo;
   tool: AnyDeclarativeTool;
   invocation: AnyToolInvocation;
-  liveOutput?: ToolResultDisplay; // 实时输出
+  liveOutput?: string | AnsiOutput; // 实时输出（ANSI 格式）
   startTime?: number;
   outcome?: ToolConfirmationOutcome;
   pid?: number;                   // 进程 ID (Shell 工具)
