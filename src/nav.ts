@@ -24,7 +24,6 @@ export const navGroups: NavGroup[] = [
       { id: 'overview', label: '架构概览' },
       { id: 'e2e', label: '端到端走读', highlight: true },
       { id: 'glossary', label: '术语表' },
-      { id: 'enterprise-deployment', label: '企业部署', highlight: true },
     ],
   },
   {
