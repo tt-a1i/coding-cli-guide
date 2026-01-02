@@ -4,49 +4,74 @@ import { useState, useEffect, useCallback } from 'react';
 /**
  * 会话状态机动画
  *
- * 可视化 Turn 类的事件流转
- * 源码: packages/core/src/core/turn.ts
+ * 可视化 Client/Turn 事件流转（ServerGeminiStreamEvent）
+ * 源码: packages/core/src/core/client.ts + packages/core/src/core/turn.ts
  *
- * GeminiEventType 枚举:
- * Content, ToolCallRequest, ToolCallResponse, Thought,
- * Finished, Error, Retry, ChatCompressed, LoopDetected
+ * GeminiEventType 枚举（turn.ts）:
+ * content, thought, tool_call_request, tool_call_response, tool_call_confirmation,
+ * citation, finished, retry, invalid_stream, error, user_cancelled,
+ * chat_compressed, loop_detected, max_session_turns, context_window_will_overflow, model_info
  */
 
 type GeminiEventType =
-  | 'Content'
-  | 'ToolCallRequest'
-  | 'ToolCallResponse'
-  | 'Thought'
-  | 'Finished'
-  | 'Error'
-  | 'Retry'
-  | 'ChatCompressed'
-  | 'LoopDetected'
-  | 'Citation'
-  | 'UserCancelled';
+  | 'content'
+  | 'tool_call_request'
+  | 'tool_call_response'
+  | 'tool_call_confirmation'
+  | 'user_cancelled'
+  | 'error'
+  | 'chat_compressed'
+  | 'thought'
+  | 'max_session_turns'
+  | 'finished'
+  | 'loop_detected'
+  | 'citation'
+  | 'retry'
+  | 'context_window_will_overflow'
+  | 'invalid_stream'
+  | 'model_info';
 
 interface TurnEvent {
   type: GeminiEventType;
-  value?: string;
+  value?: unknown;
   timestamp: number;
 }
 
 type TurnPhase =
   | 'idle'
   | 'streaming'
+  | 'waiting_confirmation'
   | 'tool_execution'
-  | 'waiting_response'
+  | 'error'
   | 'completed';
 
 const SAMPLE_EVENTS: TurnEvent[] = [
-  { type: 'Content', value: '我来帮你分析这个文件...', timestamp: 0 },
-  { type: 'Thought', value: '需要先读取文件内容，然后进行分析', timestamp: 200 },
-  { type: 'Content', value: '让我读取文件', timestamp: 400 },
-  { type: 'ToolCallRequest', value: 'Read({file_path: "/src/app.ts"})', timestamp: 600 },
-  { type: 'ToolCallResponse', value: 'export default function App() {...}', timestamp: 1000 },
-  { type: 'Content', value: '这是一个 React 组件文件...', timestamp: 1200 },
-  { type: 'Citation', value: 'https://react.dev/learn', timestamp: 1400 },
-  { type: 'Finished', value: 'STOP', timestamp: 1600 },
+  { type: 'model_info', value: 'gemini-2.0-flash', timestamp: 0 },
+  { type: 'content', value: '我来帮你分析这个文件…', timestamp: 200 },
+  {
+    type: 'thought',
+    value: { subject: '计划', description: '需要先读取文件内容，然后做结构分析' },
+    timestamp: 350,
+  },
+  { type: 'content', value: '先读取文件内容。', timestamp: 450 },
+  {
+    type: 'tool_call_request',
+    value: { name: 'read_file', args: { file_path: 'src/app.ts' }, callId: 'call_1' },
+    timestamp: 650,
+  },
+  {
+    type: 'tool_call_confirmation',
+    value: { request: { callId: 'call_1', name: 'read_file' }, details: { type: 'info', title: 'Confirm: read_file' } },
+    timestamp: 800,
+  },
+  {
+    type: 'tool_call_response',
+    value: { callId: 'call_1', name: 'read_file', resultDisplay: 'export default function App() { … }' },
+    timestamp: 1100,
+  },
+  { type: 'content', value: '这是一个 React 组件文件…', timestamp: 1300 },
+  { type: 'citation', value: 'Citations:\nhttps://react.dev/learn', timestamp: 1500 },
+  { type: 'finished', value: { reason: 'STOP' }, timestamp: 1700 },
 ];
 
 export default function SessionStateMachineAnimation() {
@@ -83,8 +108,8 @@ export default function SessionStateMachineAnimation() {
     }
 
     if (currentEventIndex === -1) {
-      addLog('🚀 Turn.run() 开始');
-      addLog('  await chat.sendMessageStream()');
+      addLog('🚀 client.sendMessageStream() 开始');
+      addLog('  yield* processTurn() → turn.run()');
       setPhase('streaming');
       setCurrentEventIndex(0);
       return;
@@ -97,41 +122,93 @@ export default function SessionStateMachineAnimation() {
       setEvents(prev => [...prev, event]);
 
       switch (event.type) {
-        case 'Content':
-          setStreamContent(prev => prev + event.value);
-          addLog(`📝 Content: "${event.value?.slice(0, 30)}..."`);
+        case 'content': {
+          const text = typeof event.value === 'string' ? event.value : '';
+          setStreamContent(prev => prev + text);
+          addLog(`📝 content: "${text.slice(0, 30)}..."`);
           break;
+        }
 
-        case 'Thought':
-          addLog(`💭 Thought: "${event.value?.slice(0, 40)}..."`);
+        case 'thought': {
+          const thoughtText =
+            typeof event.value === 'string'
+              ? event.value
+              : JSON.stringify(event.value);
+          addLog(`💭 thought: "${thoughtText.slice(0, 60)}..."`);
           break;
+        }
 
-        case 'ToolCallRequest':
-          setPendingToolCalls(prev => [...prev, event.value || '']);
+        case 'tool_call_request': {
+          const toolCallText =
+            typeof event.value === 'string'
+              ? event.value
+              : JSON.stringify(event.value);
+          setPendingToolCalls(prev => [...prev, toolCallText]);
           setPhase('tool_execution');
-          addLog(`⚡ ToolCallRequest: ${event.value}`);
+          addLog(`⚡ tool_call_request: ${toolCallText}`);
           break;
+        }
 
-        case 'ToolCallResponse':
+        case 'tool_call_confirmation': {
+          setPhase('waiting_confirmation');
+          addLog('🛡️ tool_call_confirmation: waiting for user decision');
+          break;
+        }
+
+        case 'tool_call_response': {
           setPendingToolCalls([]);
           setPhase('streaming');
-          addLog(`📥 ToolCallResponse received`);
+          addLog('📥 tool_call_response received');
+          break;
+        }
+
+        case 'citation':
+          addLog(`🔗 citation: ${String(event.value)}`);
           break;
 
-        case 'Citation':
-          addLog(`🔗 Citation: ${event.value}`);
+        case 'finished':
+          addLog(`🏁 finished: ${JSON.stringify(event.value)}`);
           break;
 
-        case 'Finished':
-          addLog(`🏁 Finished: reason=${event.value}`);
+        case 'model_info':
+          addLog(`🤖 model_info: ${String(event.value)}`);
           break;
 
-        case 'Error':
-          addLog(`❌ Error: ${event.value}`);
+        case 'chat_compressed':
+          addLog('📦 chat_compressed');
           break;
 
-        case 'Retry':
-          addLog(`🔄 Retry requested`);
+        case 'context_window_will_overflow':
+          addLog(`⚠️ context_window_will_overflow: ${JSON.stringify(event.value)}`);
+          break;
+
+        case 'invalid_stream':
+          setPhase('error');
+          addLog('⛔ invalid_stream');
+          break;
+
+        case 'max_session_turns':
+          addLog('⏱️ max_session_turns');
+          break;
+
+        case 'loop_detected':
+          addLog('🔁 loop_detected');
+          break;
+
+        case 'retry':
+          setStreamContent('');
+          setPendingToolCalls([]);
+          addLog('🔄 retry: UI should discard partial content');
+          break;
+
+        case 'user_cancelled':
+          setPhase('error');
+          addLog('🚫 user_cancelled');
+          break;
+
+        case 'error':
+          setPhase('error');
+          addLog(`❌ error: ${JSON.stringify(event.value)}`);
           break;
       }
 
@@ -143,33 +220,43 @@ export default function SessionStateMachineAnimation() {
 
   const getEventColor = (type: GeminiEventType) => {
     switch (type) {
-      case 'Content': return 'var(--terminal-green)';
-      case 'Thought': return '#a855f7';
-      case 'ToolCallRequest': return 'var(--amber)';
-      case 'ToolCallResponse': return 'var(--cyber-blue)';
-      case 'Finished': return 'var(--terminal-green)';
-      case 'Error': return '#ef4444';
-      case 'Retry': return 'var(--amber)';
-      case 'Citation': return 'var(--cyber-blue)';
-      case 'ChatCompressed': return '#6b7280';
-      case 'LoopDetected': return '#ef4444';
-      case 'UserCancelled': return '#6b7280';
+      case 'content': return 'var(--terminal-green)';
+      case 'thought': return '#a855f7';
+      case 'tool_call_request': return 'var(--amber)';
+      case 'tool_call_confirmation': return '#f59e0b';
+      case 'tool_call_response': return 'var(--cyber-blue)';
+      case 'finished': return 'var(--terminal-green)';
+      case 'error': return '#ef4444';
+      case 'retry': return 'var(--amber)';
+      case 'citation': return 'var(--cyber-blue)';
+      case 'chat_compressed': return '#6b7280';
+      case 'loop_detected': return '#ef4444';
+      case 'user_cancelled': return '#6b7280';
+      case 'context_window_will_overflow': return '#f59e0b';
+      case 'invalid_stream': return '#ef4444';
+      case 'model_info': return 'var(--cyber-blue)';
+      case 'max_session_turns': return '#6b7280';
     }
   };
 
   const getEventIcon = (type: GeminiEventType) => {
     switch (type) {
-      case 'Content': return '📝';
-      case 'Thought': return '💭';
-      case 'ToolCallRequest': return '⚡';
-      case 'ToolCallResponse': return '📥';
-      case 'Finished': return '🏁';
-      case 'Error': return '❌';
-      case 'Retry': return '🔄';
-      case 'Citation': return '🔗';
-      case 'ChatCompressed': return '📦';
-      case 'LoopDetected': return '🔁';
-      case 'UserCancelled': return '🚫';
+      case 'content': return '📝';
+      case 'thought': return '💭';
+      case 'tool_call_request': return '⚡';
+      case 'tool_call_confirmation': return '🛡️';
+      case 'tool_call_response': return '📥';
+      case 'finished': return '🏁';
+      case 'error': return '❌';
+      case 'retry': return '🔄';
+      case 'citation': return '🔗';
+      case 'chat_compressed': return '📦';
+      case 'loop_detected': return '🔁';
+      case 'user_cancelled': return '🚫';
+      case 'context_window_will_overflow': return '⚠️';
+      case 'invalid_stream': return '⛔';
+      case 'model_info': return '🤖';
+      case 'max_session_turns': return '⏱️';
     }
   };
 
@@ -203,7 +290,7 @@ export default function SessionStateMachineAnimation() {
           GeminiEventType
         </h3>
         <div className="flex flex-wrap gap-2">
-          {['Content', 'Thought', 'ToolCallRequest', 'ToolCallResponse', 'Finished', 'Error', 'Retry', 'Citation'].map((type) => (
+          {['model_info', 'content', 'thought', 'tool_call_request', 'tool_call_confirmation', 'tool_call_response', 'citation', 'finished', 'error', 'retry'].map((type) => (
             <span
               key={type}
               className="text-xs font-mono px-2 py-1 rounded flex items-center gap-1"
@@ -252,7 +339,10 @@ export default function SessionStateMachineAnimation() {
                     </div>
                     {event.value && (
                       <div className="text-xs text-[var(--muted)] font-mono truncate">
-                        {event.value.slice(0, 40)}...
+                        {(typeof event.value === 'string'
+                          ? event.value
+                          : JSON.stringify(event.value) ?? String(event.value)
+                        ).slice(0, 40)}...
                       </div>
                     )}
                   </div>
@@ -276,7 +366,8 @@ export default function SessionStateMachineAnimation() {
                 className="text-lg font-mono font-bold"
                 style={{
                   color: phase === 'completed' ? 'var(--terminal-green)' :
-                         phase === 'tool_execution' ? 'var(--amber)' : 'var(--cyber-blue)'
+                         phase === 'error' ? '#ef4444' :
+                         phase === 'tool_execution' || phase === 'waiting_confirmation' ? 'var(--amber)' : 'var(--cyber-blue)'
                 }}
               >
                 {phase.toUpperCase().replace('_', ' ')}
@@ -326,13 +417,17 @@ export default function SessionStateMachineAnimation() {
                 <span className={`w-2 h-2 rounded-full ${phase === 'streaming' ? 'bg-[var(--terminal-green)] animate-pulse' : 'bg-[var(--muted)]/30'}`} />
                 STREAMING
               </div>
-              <div className="ml-4 text-[var(--muted)]">↓ ToolCallRequest</div>
+              <div className="ml-4 text-[var(--muted)]">↓ tool_call_request</div>
+              <div className={`flex items-center gap-2 ${phase === 'waiting_confirmation' ? 'text-[var(--amber)]' : 'text-[var(--muted)]'}`}>
+                <span className={`w-2 h-2 rounded-full ${phase === 'waiting_confirmation' ? 'bg-[var(--amber)] animate-pulse' : 'bg-[var(--muted)]/30'}`} />
+                WAITING_CONFIRMATION
+              </div>
+              <div className="ml-4 text-[var(--muted)]">↓ tool_call_response</div>
               <div className={`flex items-center gap-2 ${phase === 'tool_execution' ? 'text-[var(--amber)]' : 'text-[var(--muted)]'}`}>
                 <span className={`w-2 h-2 rounded-full ${phase === 'tool_execution' ? 'bg-[var(--amber)] animate-pulse' : 'bg-[var(--muted)]/30'}`} />
                 TOOL_EXECUTION
               </div>
-              <div className="ml-4 text-[var(--muted)]">↓ ToolCallResponse</div>
-              <div className="ml-4 text-[var(--muted)]">↓ Finished</div>
+              <div className="ml-4 text-[var(--muted)]">↓ finished</div>
               <div className={`flex items-center gap-2 ${phase === 'completed' ? 'text-[var(--terminal-green)]' : 'text-[var(--muted)]'}`}>
                 <span className={`w-2 h-2 rounded-full ${phase === 'completed' ? 'bg-[var(--terminal-green)]' : 'bg-[var(--muted)]/30'}`} />
                 COMPLETED
@@ -373,39 +468,27 @@ export default function SessionStateMachineAnimation() {
       {/* 源码说明 */}
       <div className="bg-[var(--bg-secondary)] rounded-lg p-4 border border-[var(--border)]">
         <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
-          源码: turn.ts
+          源码: client.ts / turn.ts（简化）
         </h3>
         <pre className="text-xs font-mono text-[var(--text-secondary)] bg-black/30 p-3 rounded overflow-x-auto">
-{`class Turn {
-  readonly pendingToolCalls: ToolCallRequestInfo[] = [];
-  finishReason: FinishReason | undefined = undefined;
+{`// packages/core/src/core/client.ts
+yield { type: GeminiEventType.ModelInfo, value: modelToUse };
+const resultStream = turn.run(modelConfigKey, request, signal);
+for await (const event of resultStream) {
+  yield event; // content / thought / tool_call_request / finished / ...
+}
 
-  async *run(model: string, req: PartListUnion, signal: AbortSignal):
-    AsyncGenerator<ServerGeminiStreamEvent> {
-
-    const responseStream = await this.chat.sendMessageStream(model, {message: req});
-
-    for await (const streamEvent of responseStream) {
-      if (signal?.aborted) {
-        yield { type: GeminiEventType.UserCancelled };
-        return;
-      }
-
-      // Handle: Retry, Content, Thought, ToolCallRequest, Citation, Finished
-      const resp = streamEvent.value as GenerateContentResponse;
-
-      if (resp.text) yield { type: GeminiEventType.Content, value: resp.text };
-
-      for (const fnCall of resp.functionCalls ?? []) {
-        this.pendingToolCalls.push(/* ... */);
-        yield { type: GeminiEventType.ToolCallRequest, value: /* ... */ };
-      }
-
-      if (finishReason) {
-        yield { type: GeminiEventType.Finished, value: { reason, usageMetadata } };
-      }
-    }
+// packages/core/src/core/turn.ts
+for await (const streamEvent of chat.sendMessageStream(...)) {
+  if (streamEvent.type === StreamEventType.RETRY) {
+    yield { type: GeminiEventType.Retry };
+    continue;
   }
+  const resp = streamEvent.value;
+  if (resp has thought) yield { type: GeminiEventType.Thought, value: thoughtSummary };
+  if (resp has text) yield { type: GeminiEventType.Content, value: text };
+  if (resp has functionCalls) yield { type: GeminiEventType.ToolCallRequest, value: ToolCallRequestInfo };
+  if (finishReason) yield { type: GeminiEventType.Finished, value: { reason, usageMetadata } };
 }`}
         </pre>
       </div>

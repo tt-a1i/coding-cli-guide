@@ -588,31 +588,24 @@ graph TB
               </thead>
               <tbody className="divide-y divide-gray-700">
                 <tr className="bg-gray-900/50">
-                  <td className="px-4 py-2 text-green-400 font-semibold">suggest</td>
-                  <td className="px-4 py-2 text-gray-400">需确认</td>
+                  <td className="px-4 py-2 text-amber-400 font-semibold">default</td>
+                  <td className="px-4 py-2 text-gray-400">自动</td>
                   <td className="px-4 py-2 text-gray-400">需确认</td>
                   <td className="px-4 py-2 text-gray-400">需确认</td>
                   <td className="px-4 py-2 text-gray-500">新手/敏感环境</td>
                 </tr>
                 <tr className="bg-gray-900/30">
-                  <td className="px-4 py-2 text-blue-400 font-semibold">auto-edit</td>
+                  <td className="px-4 py-2 text-blue-400 font-semibold">autoEdit</td>
                   <td className="px-4 py-2 text-gray-400">自动</td>
                   <td className="px-4 py-2 text-gray-400">自动</td>
                   <td className="px-4 py-2 text-gray-400">需确认</td>
                   <td className="px-4 py-2 text-gray-500">日常开发</td>
                 </tr>
-                <tr className="bg-gray-900/50">
-                  <td className="px-4 py-2 text-yellow-400 font-semibold">full-auto</td>
-                  <td className="px-4 py-2 text-gray-400">自动</td>
-                  <td className="px-4 py-2 text-gray-400">自动</td>
-                  <td className="px-4 py-2 text-gray-400">自动 (沙箱)</td>
-                  <td className="px-4 py-2 text-gray-500">自动化脚本</td>
-                </tr>
                 <tr className="bg-gray-900/30">
                   <td className="px-4 py-2 text-red-400 font-semibold">yolo</td>
                   <td className="px-4 py-2 text-gray-400">自动</td>
                   <td className="px-4 py-2 text-gray-400">自动</td>
-                  <td className="px-4 py-2 text-gray-400">自动 (无沙箱)</td>
+                  <td className="px-4 py-2 text-gray-400">自动（仍建议沙箱）</td>
                   <td className="px-4 py-2 text-gray-500">仅限测试环境</td>
                 </tr>
               </tbody>

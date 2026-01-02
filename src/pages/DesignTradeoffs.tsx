@@ -197,7 +197,7 @@ graph TD
 
       {/* Code Example */}
       <Layer title="📝 信任边界实现">
-        <CodeBlock language="typescript" code={`// packages/core/src/config/config.ts
+        <CodeBlock language="typescript" code={`// packages/cli/src/config/config.ts
 
 export enum ApprovalMode {
   DEFAULT = 'default',    // 标准：每个操作需确认
@@ -209,7 +209,7 @@ export enum ApprovalMode {
 function validateApprovalMode(mode: ApprovalMode, cwd: string): ApprovalMode {
   const isTrusted = isTrustedFolder(cwd);
 
-  if (!isTrusted && (mode === 'yolo' || mode === 'auto-edit')) {
+  if (!isTrusted && mode !== ApprovalMode.DEFAULT) {
     console.warn(\`⚠️ 非信任目录，降级为 DEFAULT 模式\`);
     return ApprovalMode.DEFAULT;
   }

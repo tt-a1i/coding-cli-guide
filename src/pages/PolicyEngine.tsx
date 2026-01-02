@@ -271,50 +271,44 @@ function ruleMatches(
   return true;
 }`;
 
-  const tomlConfigCode = `# .gemini/policy.toml - Policy 配置示例
+  const tomlConfigCode = `# ~/.gemini/policies/my-rules.toml - Policy 配置示例
 
-# 默认决策
-[defaults]
-decision = "ask_user"
-non_interactive = false
-
-# 工具规则
-[[rules]]
-tool_name = "read_file"
+# 允许执行 git status（无需确认）
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = "git status"
 decision = "allow"
 priority = 100
 
-[[rules]]
-tool_name = "run_shell_command"
-args_pattern = "^git\\s"  # 只允许 git 命令
-decision = "allow"
-priority = 50
-
-[[rules]]
-tool_name = "run_shell_command"
+# 其他 git 命令仍需要确认
+[[rule]]
+toolName = "run_shell_command"
+commandPrefix = "git "
 decision = "ask_user"
-priority = 10
-
-# MCP 服务器工具（通配符）
-[[rules]]
-tool_name = "trusted-server__*"
-decision = "allow"
-priority = 80
-
-[[rules]]
-tool_name = "untrusted-server__*"
-decision = "deny"
 priority = 90
 
-# Safety Checker
-[[checkers]]
-tool_name = "write_file"
+# 例：禁止危险命令（使用 argsPattern 匹配 stable JSON）
+[[rule]]
+toolName = "run_shell_command"
+argsPattern = '"command":"rm -rf'
+decision = "deny"
+priority = 200
+
+# 注意：modes 当前只允许在内置（Tier 1）策略中使用；
+# 用户/管理员策略里会被忽略并产生告警（见 packages/core/src/policy/toml-loader.ts）。
+
+# Safety Checker：限制 write_file 可写路径（allowed-path）
+[[safety_checker]]
+toolName = "write_file"
 priority = 100
-[checkers.checker]
+
+[safety_checker.checker]
 type = "in-process"
 name = "allowed-path"
-[checkers.checker.config]
-excluded_args = ["temp_path"]`;
+required_context = ["environment"]
+
+[safety_checker.checker.config]
+included_args = ["file_path"]`;
 
   const hookPolicyCode = `// Hook 执行的策略检查
 async checkHook(
@@ -527,18 +521,22 @@ async checkHook(
       {/* 6. TOML 配置 */}
       <Layer title="TOML 配置" icon="⚙️">
         <div className="space-y-4">
-          <CodeBlock code={tomlConfigCode} language="toml" title=".gemini/policy.toml" />
+          <CodeBlock code={tomlConfigCode} language="toml" title="~/.gemini/policies/my-rules.toml" />
 
           <div className="bg-gray-800/50 rounded-lg p-4">
             <h4 className="text-cyan-400 font-semibold mb-2">配置文件位置</h4>
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2">
-                <code className="bg-black/30 px-2 py-1 rounded text-gray-300">.gemini/policy.toml</code>
-                <span className="text-gray-400">项目级配置</span>
+                <code className="bg-black/30 px-2 py-1 rounded text-gray-300">packages/core/src/policy/policies/*.toml</code>
+                <span className="text-gray-400">内置默认策略（Default tier）</span>
               </div>
               <div className="flex items-center gap-2">
-                <code className="bg-black/30 px-2 py-1 rounded text-gray-300">~/.config/gemini/policy.toml</code>
-                <span className="text-gray-400">用户级配置</span>
+                <code className="bg-black/30 px-2 py-1 rounded text-gray-300">~/.gemini/policies/*.toml</code>
+                <span className="text-gray-400">用户策略（User tier）</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <code className="bg-black/30 px-2 py-1 rounded text-gray-300">/etc/gemini-cli/policies/*.toml</code>
+                <span className="text-gray-400">管理员策略（Admin tier，macOS 在 /Library/Application Support/GeminiCli/policies）</span>
               </div>
             </div>
           </div>

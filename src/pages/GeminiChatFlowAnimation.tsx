@@ -6,9 +6,8 @@ import { useState, useCallback } from 'react';
  * 可视化 geminiChat.ts 的核心逻辑：
  * 1. sendMessageStream - 流式消息发送
  * 2. History 管理 (curated vs comprehensive)
- * 3. Stream 事件处理 (CHUNK, RETRY)
- * 4. processStreamResponse - 响应处理和验证
- * 5. stopBeforeSecondMutator - 截断优化
+ * 3. StreamEventType 处理 (chunk, retry)
+ * 4. processStreamResponse - 响应收集与校验（InvalidStreamError）
  *
  * 源码位置: packages/core/src/core/geminiChat.ts
  */
@@ -25,9 +24,13 @@ interface Content {
 
 interface StreamChunk {
   id: number;
-  type: 'content' | 'thought' | 'tool_call' | 'finish' | 'retry';
-  text?: string;
+  // geminiChat.ts: StreamEventType = 'chunk' | 'retry'
+  type: 'chunk' | 'retry';
+  // 下面是对 GenerateContentResponse chunk 的“摘要”，用于教学可视化
+  thoughtText?: string;
+  text?: string; // 非 thought 文本
   toolName?: string;
+  toolArgs?: string;
   finishReason?: string;
   hasUsageMetadata?: boolean;
 }
@@ -69,46 +72,42 @@ export default function GeminiChatFlowAnimation() {
     const chunks: StreamChunk[] = [];
     let id = 0;
 
-    // 添加一些思考
-    if (Math.random() > 0.5) {
-      chunks.push({
-        id: id++,
-        type: 'thought',
-        text: '让我分析一下这段代码...',
-      });
-    }
+    // Attempt 1: 返回“只有 thought、没有 finishReason/工具/文本”的无效流（触发 InvalidStreamError）
+    chunks.push({
+      id: id++,
+      type: 'chunk',
+      thoughtText: '让我先快速分析一下…',
+    });
+    chunks.push({
+      id: id++,
+      type: 'chunk',
+      thoughtText: '（这个 attempt 结尾没有 finishReason）',
+    });
 
-    // 主要内容
+    // sendMessageStream 的下一个 attempt 会先 yield RETRY，提示 UI 丢弃上一轮 partial content
+    chunks.push({ id: id++, type: 'retry' });
+
+    // Attempt 2: 正常完成（包含文本 + finishReason + usageMetadata）
+    chunks.push({
+      id: id++,
+      type: 'chunk',
+      thoughtText: '我会按：定位瓶颈 → 复杂度分析 → 给出改法 的顺序来回答。',
+    });
+
     const contentParts = [
-      '我来帮你分析这段代码',
-      '的性能问题。',
-      '\n\n首先，我注意到',
-      '这里有一个 O(n²) 的循环，',
-      '可以优化为 O(n)。',
+      '我来帮你分析这段代码的性能问题。',
+      '\n\n首先，我注意到这里有一个 O(n²) 的循环，',
+      '可以通过缓存/哈希表把它优化为 O(n)。',
     ];
 
     for (const part of contentParts) {
-      chunks.push({
-        id: id++,
-        type: 'content',
-        text: part,
-      });
+      chunks.push({ id: id++, type: 'chunk', text: part });
     }
 
-    // 可能有工具调用
-    if (Math.random() > 0.4) {
-      chunks.push({
-        id: id++,
-        type: 'tool_call',
-        toolName: 'Read',
-        text: '{ "file_path": "src/app.ts" }',
-      });
-    }
-
-    // 结束
+    // 结束块：finishReason + usageMetadata（真实实现里二者来自 GenerateContentResponse）
     chunks.push({
       id: id++,
-      type: 'finish',
+      type: 'chunk',
       finishReason: 'STOP',
       hasUsageMetadata: true,
     });
@@ -207,7 +206,7 @@ export default function GeminiChatFlowAnimation() {
     // Process each chunk
     const collectedParts: string[] = [];
     let foundToolCall = false;
-    let foundFinish = false;
+    let finishReason: string | undefined;
 
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
@@ -216,21 +215,40 @@ export default function GeminiChatFlowAnimation() {
 
       if (chunk.type === 'retry') {
         setRetryCount(prev => prev + 1);
-        addLog('收到 RETRY 事件，重置部分内容');
-      } else if (chunk.type === 'thought') {
-        addLog(`[Thought] ${chunk.text?.slice(0, 30)}...`);
-      } else if (chunk.type === 'content') {
-        collectedParts.push(chunk.text || '');
-        setModelResponseParts([...collectedParts]);
-        addLog(`[Content] "${chunk.text?.slice(0, 20)}..."`);
-      } else if (chunk.type === 'tool_call') {
-        foundToolCall = true;
-        setHasToolCall(true);
-        addLog(`[ToolCall] ${chunk.toolName}`);
-      } else if (chunk.type === 'finish') {
-        foundFinish = true;
-        setHasFinishReason(true);
-        addLog(`[Finish] reason=${chunk.finishReason}`);
+        collectedParts.splice(0, collectedParts.length);
+        foundToolCall = false;
+        finishReason = undefined;
+        setModelResponseParts([]);
+        setHasToolCall(false);
+        setHasFinishReason(false);
+        addLog('收到 RETRY 事件：丢弃上一轮 partial content，并开始下一次 attempt');
+      } else {
+        // StreamEventType.CHUNK（GenerateContentResponse 的教学摘要）
+        if (chunk.thoughtText) {
+          addLog(`[Thought] ${chunk.thoughtText.slice(0, 30)}...`);
+        }
+
+        if (chunk.text) {
+          collectedParts.push(chunk.text);
+          setModelResponseParts([...collectedParts]);
+          addLog(`[Content] "${chunk.text.slice(0, 20)}..."`);
+        }
+
+        if (chunk.toolName) {
+          foundToolCall = true;
+          setHasToolCall(true);
+          addLog(`[FunctionCall] ${chunk.toolName} ${chunk.toolArgs ? chunk.toolArgs : ''}`.trim());
+        }
+
+        if (chunk.finishReason) {
+          finishReason = chunk.finishReason;
+          setHasFinishReason(true);
+          addLog(`[Finish] reason=${chunk.finishReason}`);
+        }
+
+        if (chunk.hasUsageMetadata) {
+          addLog('[Usage] usageMetadata recorded');
+        }
       }
 
       await new Promise(r => setTimeout(r, 300));
@@ -242,9 +260,20 @@ export default function GeminiChatFlowAnimation() {
     await new Promise(r => setTimeout(r, 500));
 
     const responseText = collectedParts.join('').trim();
-    const isValid = foundToolCall || (foundFinish && responseText.length > 0);
-    addLog(`hasToolCall=${foundToolCall}, hasFinishReason=${foundFinish}, text.length=${responseText.length}`);
-    addLog(isValid ? '✓ 响应有效' : '✗ 响应无效');
+    let invalidReason: string | null = null;
+    if (!foundToolCall) {
+      if (!finishReason) {
+        invalidReason = 'NO_FINISH_REASON';
+      } else if (finishReason === 'MALFORMED_FUNCTION_CALL') {
+        invalidReason = 'MALFORMED_FUNCTION_CALL';
+      } else if (responseText.length === 0) {
+        invalidReason = 'NO_RESPONSE_TEXT';
+      }
+    }
+
+    const isValid = invalidReason === null;
+    addLog(`hasToolCall=${foundToolCall}, finishReason=${finishReason ?? 'undefined'}, text.length=${responseText.length}`);
+    addLog(isValid ? '✓ 响应有效' : `✗ 响应无效 (${invalidReason})`);
     await new Promise(r => setTimeout(r, 400));
 
     // Phase 8: Consolidate parts
@@ -425,20 +454,38 @@ while (i < history.length) {
                     }`}
                   >
                     <span className={`w-6 h-6 rounded flex items-center justify-center text-xs ${
-                      chunk.type === 'content' ? 'bg-blue-500/30 text-blue-400' :
-                      chunk.type === 'thought' ? 'bg-purple-500/30 text-purple-400' :
-                      chunk.type === 'tool_call' ? 'bg-yellow-500/30 text-yellow-400' :
-                      chunk.type === 'retry' ? 'bg-red-500/30 text-red-400' :
-                      'bg-green-500/30 text-green-400'
+                      chunk.type === 'retry'
+                        ? 'bg-red-500/30 text-red-400'
+                        : chunk.finishReason
+                          ? 'bg-green-500/30 text-green-400'
+                          : chunk.toolName
+                            ? 'bg-yellow-500/30 text-yellow-400'
+                            : chunk.text
+                              ? 'bg-blue-500/30 text-blue-400'
+                              : 'bg-purple-500/30 text-purple-400'
                     }`}>
-                      {chunk.type === 'content' ? 'C' :
-                       chunk.type === 'thought' ? 'T' :
-                       chunk.type === 'tool_call' ? '🔧' :
-                       chunk.type === 'retry' ? 'R' : '✓'}
+                      {chunk.type === 'retry'
+                        ? 'R'
+                        : chunk.finishReason
+                          ? '✓'
+                          : chunk.toolName
+                            ? '🔧'
+                            : chunk.text
+                              ? 'C'
+                              : 'T'}
                     </span>
-                    <span className="font-mono text-xs text-slate-400">{chunk.type}</span>
+                    <span className="font-mono text-xs text-slate-400">
+                      {chunk.type === 'retry'
+                        ? 'retry'
+                        : `chunk${chunk.finishReason ? ' (finish)' : chunk.toolName ? ' (functionCall)' : chunk.text ? ' (content)' : ' (thought)'}`}
+                    </span>
                     <span className="text-xs text-slate-500 truncate flex-1">
-                      {chunk.text?.slice(0, 25) || chunk.toolName || chunk.finishReason}
+                      {(chunk.finishReason ||
+                        (chunk.toolName ? `${chunk.toolName} ${chunk.toolArgs ?? ''}`.trim() : undefined) ||
+                        chunk.text ||
+                        chunk.thoughtText ||
+                        ''
+                      ).slice(0, 25)}
                     </span>
                   </div>
                 ))}
@@ -494,21 +541,29 @@ while (i < history.length) {
             <div className="bg-slate-900/80 rounded-xl p-4 border border-slate-600/30">
               <div className="text-xs text-slate-400 mb-2">sendMessageStream() 核心流程</div>
               <pre className="text-[10px] text-emerald-400/80 overflow-x-auto">
-{`async *sendMessageStream(model, params, prompt_id) {
-  await this.sendPromise;  // 等待前一个消息
+{`// packages/core/src/core/geminiChat.ts（简化）
+async sendMessageStream(modelConfigKey, message, prompt_id, signal) {
+  await this.sendPromise; // 串行化：等待上一条消息处理完成
 
-  const userContent = createUserContent(params.message);
-  this.history.push(userContent);  // 添加用户消息
+  this.history.push(createUserContent(message)); // 只 push 一次（重试不重复 push）
+  const requestContents = this.getHistory(true); // curated history
 
-  const requestContents = this.getHistory(true);  // 获取有效历史
+  return (async function* streamWithRetries() {
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      if (attempt > 0) yield { type: StreamEventType.RETRY }; // UI 丢弃上轮 partial content
 
-  for (attempt = 0; attempt < maxAttempts; attempt++) {
-    const stream = await this.makeApiCallAndProcessStream(...);
+      const stream = await makeApiCallAndProcessStream(
+        attempt > 0 ? { ...modelConfigKey, isRetry: true } : modelConfigKey,
+        requestContents,
+        prompt_id,
+        signal,
+      );
 
-    for await (const chunk of stream) {
-      yield { type: StreamEventType.CHUNK, value: chunk };
+      for await (const chunk of stream) {
+        yield { type: StreamEventType.CHUNK, value: chunk };
+      }
     }
-  }
+  })();
 }`}
               </pre>
             </div>
@@ -517,16 +572,18 @@ while (i < history.length) {
             <div className="bg-slate-900/80 rounded-xl p-4 border border-slate-600/30">
               <div className="text-xs text-slate-400 mb-2">processStreamResponse() 验证</div>
               <pre className="text-[10px] text-emerald-400/80 overflow-x-auto">
-{`// 验证流完整性
-if (!hasToolCall && (!hasFinishReason || !responseText)) {
-  if (!hasFinishReason) {
-    throw new InvalidStreamError('NO_FINISH_REASON');
-  } else {
-    throw new InvalidStreamError('NO_RESPONSE_TEXT');
+{`// packages/core/src/core/geminiChat.ts（关键逻辑）
+// A stream is successful if:
+// 1) hasToolCall, OR
+// 2) has finishReason (not MALFORMED_FUNCTION_CALL) AND non-empty responseText
+if (!hasToolCall) {
+  if (!finishReason) throw new InvalidStreamError('NO_FINISH_REASON');
+  if (finishReason === FinishReason.MALFORMED_FUNCTION_CALL) {
+    throw new InvalidStreamError('MALFORMED_FUNCTION_CALL');
   }
+  if (!responseText) throw new InvalidStreamError('NO_RESPONSE_TEXT');
 }
 
-// 保存到历史
 this.history.push({ role: 'model', parts: consolidatedParts });`}
               </pre>
             </div>
@@ -569,28 +626,35 @@ this.history.push({ role: 'model', parts: consolidatedParts });`}
           </button>
         </div>
 
-        {/* stopBeforeSecondMutator */}
+        {/* InvalidStreamError + RETRY */}
         <div className="mt-8 bg-slate-800/50 rounded-xl p-6 border border-emerald-500/20">
-          <h3 className="text-lg font-semibold text-emerald-300 mb-4">⚡ stopBeforeSecondMutator 优化</h3>
+          <h3 className="text-lg font-semibold text-emerald-300 mb-4">🔁 InvalidStreamError 重试语义</h3>
           <div className="grid grid-cols-2 gap-6">
             <div>
               <div className="text-sm text-slate-400 mb-2">作用</div>
               <p className="text-sm text-slate-300">
-                在第二个 mutator 函数调用之前截断响应流。
-                Mutator 类型工具（Write, Edit, Bash 等）会修改状态，
-                让模型在执行一个 mutator 后获得反馈，再决定下一步。
+                当模型返回的流内容不符合“可继续对话”的最小条件时，
+                <code className="text-emerald-200">processStreamResponse()</code> 会抛出
+                <code className="text-emerald-200">InvalidStreamError</code>。
+                在符合条件时（如 Gemini 2 模型的内容错误），
+                <code className="text-emerald-200">sendMessageStream()</code> 会触发一次重试，
+                并先 yield 一个 <code className="text-emerald-200">RETRY</code> 事件，提示 UI 丢弃上一轮 partial content。
               </p>
             </div>
             <div className="bg-slate-900/50 rounded-lg p-4">
               <pre className="text-xs text-emerald-400/80">
-{`// 检测 mutator 工具调用
-if (isMutatorFunctionCall(part)) {
-  if (foundMutatorFunctionCall) {
-    // 第二个 mutator，截断并返回
-    yield truncatedChunk;
-    return;
+{`// packages/core/src/core/geminiChat.ts（简化）
+for (let attempt = 0; attempt < maxAttempts; attempt++) {
+  if (attempt > 0) yield { type: StreamEventType.RETRY };
+
+  try {
+    for await (const chunk of processStreamResponse(...)) {
+      yield { type: StreamEventType.CHUNK, value: chunk };
+    }
+    break; // success
+  } catch (e) {
+    // InvalidStreamError / network retryable errors → retry (if attempts left)
   }
-  foundMutatorFunctionCall = true;
 }`}
               </pre>
             </div>

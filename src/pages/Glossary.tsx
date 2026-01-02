@@ -73,7 +73,7 @@ const glossaryTerms: Term[] = [
   // Security
   {
     term: 'ApprovalMode',
-    definition: '审批模式，控制工具执行前是否需要用户确认。Plan（最严格）→ Default → AutoEdit → YOLO（最宽松）。',
+    definition: '审批模式，控制工具执行前是否需要用户确认。Default → AutoEdit → YOLO（由严格到宽松）。',
     category: 'security',
     relatedPage: 'approval-mode',
   },

@@ -96,8 +96,8 @@ export function SlashCommands() {
           <CommandCard name="/tools" desc="列出可用工具（只显示名称）" />
           <CommandCard name="/tools desc" desc="显示工具详细描述" />
           <CommandCard name="/tools nodesc" desc="隐藏工具描述" />
-          <CommandCard name="/approval-mode [mode]" desc="更改审批模式 (plan|default|auto-edit|yolo)" />
-          <CommandCard name="/approval-mode plan --project" desc="设置项目级审批模式" />
+          <CommandCard name="/policies list" desc="列出当前生效的 Policy 规则" />
+          <CommandCard name="/permissions trust [path]" desc="管理文件夹信任（未提供 path 时使用当前目录）" />
         </div>
 
         {/* MCP 与扩展 */}
@@ -516,8 +516,8 @@ flowchart TB
                   </tr>
                   <tr>
                     <td className="px-3 py-2 text-gray-300">切换审批模式</td>
-                    <td className="px-3 py-2 text-cyan-400 font-mono">/approval-mode auto-edit</td>
-                    <td className="px-3 py-2 text-gray-500">改变工具执行的确认级别</td>
+                    <td className="px-3 py-2 text-cyan-400 font-mono">Shift+Tab / Ctrl+Y</td>
+                    <td className="px-3 py-2 text-gray-500">Shift+Tab：default ↔ autoEdit；Ctrl+Y：default ↔ yolo</td>
                   </tr>
                 </tbody>
               </table>

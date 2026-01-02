@@ -499,23 +499,26 @@ function AdvancedFeaturesSection() {
 
       <CodeBlock
         title="请求用户确认"
-        code={`async shouldConfirmExecute(
-  abortSignal: AbortSignal,
-): Promise<ToolCallConfirmationDetails | false> {
-  // 检查审批模式
-  const approvalMode = this.config.getApprovalMode();
-  if (approvalMode === ApprovalMode.TRUST) {
-    return false;  // 信任模式无需确认
+        code={`// 推荐：Invocation 继承 BaseToolInvocation，让 MessageBus/PolicyEngine 决定是否需要确认
+class MyInvocation extends BaseToolInvocation<MyParams, ToolResult> {
+  getDescription(): string {
+    return \`Edit \${this.params.file_path}\`;
   }
 
-  // 返回确认详情
-  return {
-    type: 'edit',  // 或 'shell', 'agent' 等
-    details: {
-      filePath: this.params.file_path,
-      diff: createDiff(oldContent, newContent),
-    },
-  };
+  // 仅在 PolicyEngine 决策为 ASK_USER 时才会调用（ALLOW 直接执行，DENY 会抛错）
+  protected async getConfirmationDetails(
+    _abortSignal: AbortSignal,
+  ): Promise<ToolCallConfirmationDetails> {
+    return {
+      type: 'edit',
+      title: \`Confirm: \${this._toolDisplayName || this._toolName}\`,
+      fileDiff: createDiff(oldContent, newContent),
+      onConfirm: async (outcome) => {
+        // ProceedAlways/ProceedAlwaysAndSave → 发布 UPDATE_POLICY（写入 auto-saved.toml）
+        await this.publishPolicyUpdate(outcome);
+      },
+    };
+  }
 }`}
       />
 

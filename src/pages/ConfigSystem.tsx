@@ -315,9 +315,8 @@ export function getSystemDefaultsPath(): string {
   // tools - 工具设置
   // ═══════════════════════════════════════════
   "tools": {
-    "approvalMode": "default",  // plan | default | auto-edit | yolo
     "autoAccept": false,
-    "sandbox": false,           // boolean | "docker" | "podman"
+    "sandbox": false,           // boolean | string（sandbox profile path）
     "useRipgrep": true,
     "useBuiltinRipgrep": true,
     "core": null,               // 限制核心工具：["read_file", "edit", ...]
@@ -325,7 +324,7 @@ export function getSystemDefaultsPath(): string {
       "run_shell_command(git status)",
       "run_shell_command(npm test)"
     ],
-    "exclude": ["web_search"],  // 排除的工具
+    "exclude": ["google_web_search"],  // 排除的工具
     "discoveryCommand": null,
     "callCommand": null,
     "shell": {
@@ -418,69 +417,76 @@ export function getSystemDefaultsPath(): string {
         </HighlightBox>
 
         <CodeBlock
-          title="packages/cli/src/config/settings.ts:63-138 - 迁移映射表"
+          title="packages/cli/src/config/settings.ts:71-139 - 迁移映射表"
           code={`// v1 字段 → v2 路径的完整映射表
 const MIGRATION_MAP: Record<string, string> = {
-  // General
-  vimMode: 'general.vimMode',
-  preferredEditor: 'general.preferredEditor',
-  disableAutoUpdate: 'general.disableAutoUpdate',
+  accessibility: 'ui.accessibility',
+  allowedTools: 'tools.allowed',
+  allowMCPServers: 'mcp.allowed',
+  autoAccept: 'tools.autoAccept',
+  autoConfigureMaxOldSpaceSize: 'advanced.autoConfigureMemory',
+  bugCommand: 'advanced.bugCommand',
+  chatCompression: 'model.compressionThreshold',
   checkpointing: 'general.checkpointing',
+  coreTools: 'tools.core',
+  contextFileName: 'context.fileName',
+  customThemes: 'ui.customThemes',
+  customWittyPhrases: 'ui.customWittyPhrases',
+  debugKeystrokeLogging: 'general.debugKeystrokeLogging',
+  disableAutoUpdate: 'general.disableAutoUpdate',
+  disableUpdateNag: 'general.disableUpdateNag',
+  dnsResolutionOrder: 'advanced.dnsResolutionOrder',
+  enableHooks: 'tools.enableHooks',
   enablePromptCompletion: 'general.enablePromptCompletion',
-
-  // UI
-  theme: 'ui.theme',
-  hideBanner: 'ui.hideBanner',
-  hideTips: 'ui.hideTips',
-  hideFooter: 'ui.hideFooter',
+  enforcedAuthType: 'security.auth.enforcedType',
+  excludeTools: 'tools.exclude',
+  excludeMCPServers: 'mcp.excluded',
+  excludedProjectEnvVars: 'advanced.excludedEnvVars',
+  extensionManagement: 'experimental.extensionManagement',
+  extensions: 'extensions',
+  fileFiltering: 'context.fileFiltering',
+  folderTrustFeature: 'security.folderTrust.featureEnabled',
+  folderTrust: 'security.folderTrust.enabled',
+  hasSeenIdeIntegrationNudge: 'ide.hasSeenNudge',
   hideWindowTitle: 'ui.hideWindowTitle',
-  showMemoryUsage: 'ui.showMemoryUsage',
-  showLineNumbers: 'ui.showLineNumbers',
+  showStatusInTitle: 'ui.showStatusInTitle',
+  hideTips: 'ui.hideTips',
+  hideBanner: 'ui.hideBanner',
+  hideFooter: 'ui.hideFooter',
   hideCWD: 'ui.footer.hideCWD',
   hideSandboxStatus: 'ui.footer.hideSandboxStatus',
-  accessibility: 'ui.accessibility',
-  customWittyPhrases: 'ui.customWittyPhrases',
-  enableWelcomeBack: 'ui.enableWelcomeBack',
-
-  // Model
-  model: 'model.name',                    // ⚠️ string → model.name
-  maxSessionTurns: 'model.maxSessionTurns',
-  sessionTokenLimit: 'model.sessionTokenLimit',
-  skipNextSpeakerCheck: 'model.skipNextSpeakerCheck',
-  chatCompression: 'model.chatCompression',
-  summarizeToolOutput: 'model.summarizeToolOutput',
-  contentGenerator: 'model.generationConfig',
-
-  // Tools
-  allowedTools: 'tools.allowed',
-  excludeTools: 'tools.exclude',
-  coreTools: 'tools.core',
-  autoAccept: 'tools.autoAccept',
-  approvalMode: 'tools.approvalMode',
-  sandbox: 'tools.sandbox',
-  shouldUseNodePtyShell: 'tools.shell.enableInteractiveShell',
-  shellPager: 'tools.shell.pager',
-  toolDiscoveryCommand: 'tools.discoveryCommand',
-  toolCallCommand: 'tools.callCommand',
-
-  // Security
-  selectedAuthType: 'security.auth.selectedType',
-  enforcedAuthType: 'security.auth.enforcedType',
-  useExternalAuth: 'security.auth.useExternal',
-  folderTrust: 'security.folderTrust.enabled',
-
-  // MCP
-  mcpServers: 'mcpServers',               // ⚠️ 保持顶层
-  allowMCPServers: 'mcp.allowed',
-  excludeMCPServers: 'mcp.excluded',
-  mcpServerCommand: 'mcp.serverCommand',
-
-  // Context
-  contextFileName: 'context.fileName',
+  hideModelInfo: 'ui.footer.hideModelInfo',
+  hideContextSummary: 'ui.hideContextSummary',
+  showMemoryUsage: 'ui.showMemoryUsage',
+  showLineNumbers: 'ui.showLineNumbers',
+  showCitations: 'ui.showCitations',
+  ideMode: 'ide.enabled',
   includeDirectories: 'context.includeDirectories',
+  loadMemoryFromIncludeDirectories: 'context.loadFromIncludeDirectories',
+  maxSessionTurns: 'model.maxSessionTurns',
+  mcpServers: 'mcpServers',
+  mcpServerCommand: 'mcp.serverCommand',
   memoryImportFormat: 'context.importFormat',
   memoryDiscoveryMaxDirs: 'context.discoveryMaxDirs',
-  fileFiltering: 'context.fileFiltering',
+  model: 'model.name',
+  preferredEditor: 'general.preferredEditor',
+  retryFetchErrors: 'general.retryFetchErrors',
+  sandbox: 'tools.sandbox',
+  selectedAuthType: 'security.auth.selectedType',
+  enableInteractiveShell: 'tools.shell.enableInteractiveShell',
+  shellPager: 'tools.shell.pager',
+  shellShowColor: 'tools.shell.showColor',
+  shellInactivityTimeout: 'tools.shell.inactivityTimeout',
+  skipNextSpeakerCheck: 'model.skipNextSpeakerCheck',
+  summarizeToolOutput: 'model.summarizeToolOutput',
+  telemetry: 'telemetry',
+  theme: 'ui.theme',
+  toolDiscoveryCommand: 'tools.discoveryCommand',
+  toolCallCommand: 'tools.callCommand',
+  usageStatisticsEnabled: 'privacy.usageStatisticsEnabled',
+  useExternalAuth: 'security.auth.useExternal',
+  useRipgrep: 'tools.useRipgrep',
+  vimMode: 'general.vimMode',
 };`}
         />
 
@@ -501,7 +507,6 @@ const MIGRATION_MAP: Record<string, string> = {
               <tr className="border-b border-gray-800"><td className="py-1"><code>excludeTools</code></td><td><code>tools.exclude</code></td></tr>
               <tr className="border-b border-gray-800"><td className="py-1"><code>coreTools</code></td><td><code>tools.core</code></td></tr>
               <tr className="border-b border-gray-800"><td className="py-1"><code>autoAccept</code></td><td><code>tools.autoAccept</code></td></tr>
-              <tr className="border-b border-gray-800"><td className="py-1"><code>approvalMode</code></td><td><code>tools.approvalMode</code></td></tr>
               <tr className="border-b border-gray-800"><td className="py-1"><code>sandbox</code></td><td><code>tools.sandbox</code></td></tr>
               <tr className="border-b border-gray-800"><td className="py-1"><code>shouldUseNodePtyShell</code></td><td><code>tools.shell.enableInteractiveShell</code></td></tr>
               <tr className="border-b border-gray-800"><td className="py-1"><code>selectedAuthType</code></td><td><code>security.auth.selectedType</code></td></tr>
@@ -1297,7 +1302,7 @@ export class LoadedSettings {
             </div>
             <div className="bg-white/5 rounded p-2">
               <code className="text-cyan-400">--approval-mode</code>
-              <span className="text-gray-400 ml-2">plan|default|auto-edit|yolo</span>
+              <span className="text-gray-400 ml-2">default|auto_edit|yolo</span>
             </div>
             <div className="bg-white/5 rounded p-2">
               <code className="text-cyan-400">--yolo</code>
@@ -1337,23 +1342,34 @@ export class LoadedSettings {
         </div>
 
         <CodeBlock
-          title="packages/cli/src/config/config.ts:72-88 - approvalMode 解析"
-          code={`const VALID_APPROVAL_MODE_VALUES = ['default', 'auto-edit', 'yolo'] as const;
-
-function parseApprovalModeValue(value: string): ApprovalMode {
-  const normalized = value.trim().toLowerCase();
-  switch (normalized) {
-    case 'default':
-      return ApprovalMode.DEFAULT;
+          title="packages/cli/src/config/config.ts:477-519 - approvalMode 解析"
+          code={`// Determine approval mode with backward compatibility
+let approvalMode: ApprovalMode;
+if (argv.approvalMode) {
+  // New --approval-mode flag takes precedence
+  switch (argv.approvalMode) {
     case 'yolo':
-      return ApprovalMode.YOLO;
+      approvalMode = ApprovalMode.YOLO;
+      break;
     case 'auto_edit':
-    case 'autoedit':
-    case 'auto-edit':
-      return ApprovalMode.AUTO_EDIT;
+      approvalMode = ApprovalMode.AUTO_EDIT;
+      break;
+    case 'default':
+      approvalMode = ApprovalMode.DEFAULT;
+      break;
     default:
-      throw new Error(\`Invalid approval mode: \${value}\`);
+      throw new Error(
+        \`Invalid approval mode: \${argv.approvalMode}. Valid values are: yolo, auto_edit, default\`,
+      );
   }
+} else {
+  // Legacy --yolo flag
+  approvalMode = argv.yolo || false ? ApprovalMode.YOLO : ApprovalMode.DEFAULT;
+}
+
+// Force approval mode to default if the folder is not trusted.
+if (!trustedFolder && approvalMode !== ApprovalMode.DEFAULT) {
+  approvalMode = ApprovalMode.DEFAULT;
 }`}
         />
       </Layer>
@@ -1403,7 +1419,7 @@ function parseApprovalModeValue(value: string): ApprovalMode {
             <li>项目级 <code>.gemini/commands/</code> <strong>不加载</strong></li>
             <li>项目级 <code>.gemini/extensions/</code> <strong>不加载</strong></li>
             <li>项目级 <code>.env</code> 文件 <strong>不加载</strong></li>
-            <li><code>tools.approvalMode</code> 受限，不能使用 <code>yolo</code></li>
+            <li>approvalMode 被强制降级为 <code>default</code>（无法启用 <code>auto_edit</code>/<code>yolo</code>）</li>
           </ul>
         </HighlightBox>
 
@@ -1420,7 +1436,7 @@ if (
   approvalMode = ApprovalMode.DEFAULT;
 }
 
-// ⚠️ yolo 和 auto-edit 在不受信任目录强制降级为 default`}
+// ⚠️ yolo 和 auto_edit 在不受信任目录强制降级为 default`}
         />
 
         <HighlightBox title="信任检查触发时机" icon="⏱️" variant="purple">
@@ -1492,7 +1508,7 @@ if (
     LoadMemory --> MergeMcp[mergeMcpServers<br/>合并 MCP 服务器配置]
 
     MergeMcp --> ApprovalCheck{approvalMode<br/>校验}
-    ApprovalCheck -->|不受信任 & yolo/auto-edit| ForceDefault[强制降级至 default]
+    ApprovalCheck -->|不受信任 & yolo/auto_edit| ForceDefault[强制降级至 default]
     ApprovalCheck -->|合法| KeepMode[保持 approval mode]
 
     ForceDefault --> CreateConfig[new Config]
@@ -1556,16 +1572,33 @@ if (
   // 6️⃣ 确定 approval mode（带后向兼容）
   let approvalMode: ApprovalMode;
   if (argv.approvalMode) {
-    approvalMode = parseApprovalModeValue(argv.approvalMode);
-  } else if (argv.yolo) {
-    approvalMode = ApprovalMode.YOLO;
-  } else if (settings.tools?.approvalMode) {
-    approvalMode = parseApprovalModeValue(settings.tools.approvalMode);
+    // New --approval-mode flag takes precedence
+    switch (argv.approvalMode) {
+      case 'yolo':
+        approvalMode = ApprovalMode.YOLO;
+        break;
+      case 'auto_edit':
+        approvalMode = ApprovalMode.AUTO_EDIT;
+        break;
+      case 'default':
+        approvalMode = ApprovalMode.DEFAULT;
+        break;
+      default:
+        throw new Error(
+          \`Invalid approval mode: \${argv.approvalMode}. Valid values are: yolo, auto_edit, default\`,
+        );
+    }
   } else {
+    // Legacy --yolo flag
+    approvalMode = argv.yolo || false ? ApprovalMode.YOLO : ApprovalMode.DEFAULT;
+  }
+
+  // 7️⃣ YOLO 可被 settings 禁用（禁用时强制降级）
+  if (settings.security?.disableYoloMode && approvalMode === ApprovalMode.YOLO) {
     approvalMode = ApprovalMode.DEFAULT;
   }
 
-  // 7️⃣ 🔐 强制安全降级：不受信任 → 降级至 default
+  // 8️⃣ 🔐 强制安全降级：不受信任 → 降级至 default
   if (!trustedFolder && approvalMode !== ApprovalMode.DEFAULT) {
     logger.warn('Approval mode overridden to "default" because the current folder is not trusted.');
     approvalMode = ApprovalMode.DEFAULT;
@@ -2744,7 +2777,6 @@ class LoadedSettings {
             <div className="text-sm text-gray-300">
               <p className="mb-2"><strong className="text-red-400">安全风险</strong>：恶意仓库可能包含危险配置</p>
               <ul className="text-gray-400 space-y-1 text-xs">
-                <li>• <code>tools.approvalMode: "yolo"</code> - 自动执行任意命令</li>
                 <li>• <code>mcpServers</code> - 启动恶意 MCP 服务器</li>
                 <li>• <code>tools.allowed</code> - 跳过危险操作确认</li>
               </ul>

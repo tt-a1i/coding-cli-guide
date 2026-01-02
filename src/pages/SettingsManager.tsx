@@ -142,6 +142,8 @@ export enum SettingScope {
   Workspace = 'Workspace', // 项目级 (.gemini/settings.json)
   System = 'System',       // 系统级 (/etc/gemini-cli/settings.json)
   SystemDefaults = 'SystemDefaults', // 系统默认值
+  // 仅扩展使用（当前 settings dialog 不支持）
+  Session = 'Session',
 }
 
 // 配置文件路径
@@ -149,8 +151,11 @@ export const USER_SETTINGS_PATH = Storage.getGlobalSettingsPath();
 // → ~/.gemini/settings.json
 
 function getSystemSettingsPath(): string {
+  if (process.env['GEMINI_CLI_SYSTEM_SETTINGS_PATH']) {
+    return process.env['GEMINI_CLI_SYSTEM_SETTINGS_PATH'];
+  }
   if (platform() === 'darwin') {
-    return '/Library/Application Support/GeminiCLI/settings.json';
+    return '/Library/Application Support/GeminiCli/settings.json';
   } else if (platform() === 'win32') {
     return 'C:\\\\ProgramData\\\\gemini-cli\\\\settings.json';
   } else {
@@ -163,8 +168,9 @@ const MIGRATION_MAP: Record<string, string> = {
   // 旧路径 → 新路径
   'accessibility': 'ui.accessibility',
   'allowedTools': 'tools.allowed',
+  'allowMCPServers': 'mcp.allowed',
   'autoAccept': 'tools.autoAccept',
-  'chatCompression': 'model.chatCompression',
+  'chatCompression': 'model.compressionThreshold',
   'checkpointing': 'general.checkpointing',
   'customThemes': 'ui.customThemes',
   'enforcedAuthType': 'security.auth.enforcedType',
@@ -176,7 +182,6 @@ const MIGRATION_MAP: Record<string, string> = {
   'sandbox': 'tools.sandbox',
   'theme': 'ui.theme',
   'vimMode': 'general.vimMode',
-  'approvalMode': 'tools.approvalMode',
   // ... 50+ 更多字段
 };
 

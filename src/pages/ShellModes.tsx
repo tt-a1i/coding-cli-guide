@@ -831,8 +831,7 @@ signal.addEventListener('abort', () => {
       "sudo",
       "su"
     ]
-  },
-  "approvalMode": "DEFAULT"
+  }
 }
 
 // 自定义命令 TOML

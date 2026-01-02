@@ -507,13 +507,12 @@ if (sandboxConfig) {
             <div className="text-sm space-y-3">
               <p className="font-semibold text-gray-200">审批模式优先级（从高到低）：</p>
               <ol className="space-y-2 ml-4">
-                <li>1. <code className="text-cyan-400">--approval-mode</code> CLI 参数</li>
-                <li>2. <code className="text-cyan-400">--yolo</code> 参数 → ApprovalMode.YOLO</li>
-                <li>3. <code className="text-cyan-400">settings.tools.approvalMode</code> 配置</li>
-                <li>4. <code className="text-cyan-400">ApprovalMode.DEFAULT</code> 默认值</li>
+                <li>1. <code className="text-cyan-400">--approval-mode</code> CLI 参数（default / auto_edit / yolo）</li>
+                <li>2. 兼容旧参数 <code className="text-cyan-400">--yolo</code> / <code className="text-cyan-400">-y</code> → approvalMode=yolo</li>
+                <li>3. 无参数时默认 <code className="text-cyan-400">default</code></li>
               </ol>
               <p className="text-xs text-gray-500 mt-2">
-                非信任文件夹强制使用 DEFAULT 模式，忽略 YOLO/AUTO_EDIT
+                约束：不可信文件夹强制降级为 default；若 settings.security.disableYoloMode=true，则无法启动/切换到 yolo
               </p>
             </div>
           </HighlightBox>
@@ -709,7 +708,6 @@ main().catch((error) => {
     }
   },
   "tools": {
-    "approvalMode": "DEFAULT",      // DEFAULT | YOLO | AUTO_EDIT
     "sandbox": "docker",            // 沙箱类型
     "allowed": [                    // 工具白名单
       "read_file",

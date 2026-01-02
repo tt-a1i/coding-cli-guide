@@ -123,302 +123,166 @@ const policySequence: PolicyStep[] = [
     phase: 'request_receive',
     group: 'request',
     title: '接收工具请求',
-    description: 'Policy Engine 接收工具执行请求，包含工具名称和参数',
-    codeSnippet: `// policy-engine.ts:30-60
-interface ToolRequest {
-  toolName: string;
-  toolInput: Record<string, unknown>;
-  context: {
-    sessionId: string;
-    workingDirectory: string;
-    approvalMode: ApprovalMode;
-  };
-}
+    description: 'MessageBus 将工具调用交给 PolicyEngine.check()，产出 allow/deny/ask_user 决策',
+    codeSnippet: `// packages/core/src/confirmation-bus/message-bus.ts
+// (ToolInvocation.shouldConfirmExecute → MessageBus → PolicyEngine)
+const { decision } = await policyEngine.check(toolCall, serverName);
 
-async checkPermission(
-  request: ToolRequest
-): Promise<PolicyDecision> {
-  // 收到工具请求
-  console.debug('[Policy] Checking permission for', request.toolName);
-
-  // 示例请求
-  // toolName: "Bash"
-  // toolInput: { command: "rm -rf node_modules" }
-  // approvalMode: "default"
+switch (decision) {
+  case PolicyDecision.ALLOW:
+    // MessageBus 回复 confirmed=true
+    break;
+  case PolicyDecision.DENY:
+    // MessageBus 回复 confirmed=false，并发出 TOOL_POLICY_REJECTION
+    break;
+  case PolicyDecision.ASK_USER:
+    // MessageBus 将请求转发到 UI（需要用户确认）
+    break;
 }`,
     visualData: {
       request: {
-        toolName: 'Bash',
-        toolInput: { command: 'rm -rf node_modules' },
-        approvalMode: 'default'
+        toolCall: { name: 'run_shell_command', args: { command: 'npm test' } },
+        serverName: undefined,
+        approvalMode: 'default',
       }
     },
-    highlight: 'Bash: rm -rf',
+    highlight: 'run_shell_command: npm test',
   },
   {
     phase: 'rule_load',
     group: 'rules',
     title: '加载规则配置',
-    description: '从 TOML 配置文件加载 Policy 规则',
-    codeSnippet: `// policy-loader.ts:20-50
-async loadPolicyRules(): Promise<PolicyRule[]> {
-  const rules: PolicyRule[] = [];
+    description: '启动阶段将默认/用户/管理员 TOML 合并为 rules + checkers，并按 tier 计算优先级',
+    codeSnippet: `// packages/core/src/policy/config.ts
+const policyDirs = getPolicyDirectories(/* defaultPoliciesDir */);
+const { rules: tomlRules, checkers: tomlCheckers } =
+  await loadPoliciesFromToml(policyDirs, getPolicyTier);
 
-  // 1. 项目级规则
-  const projectRules = await loadFromPath(
-    '.gemini/policy.toml'
-  );
-  rules.push(...projectRules);
-
-  // 2. 用户级规则
-  const userRules = await loadFromPath(
-    '~/.gemini/policy.toml'
-  );
-  rules.push(...userRules);
-
-  // 3. 内置安全规则
-  rules.push(...getBuiltinSafetyRules());
-
-  return rules;
-}
-
-// 加载结果
-// 项目级: 3 条规则
-// 用户级: 2 条规则
-// 内置: 5 条规则`,
+return {
+  rules: [...tomlRules, /* settings-based rules */],
+  checkers: [...tomlCheckers],
+  defaultDecision: PolicyDecision.ASK_USER,
+  approvalMode,
+};`,
     visualData: {
       sources: [
-        { level: '项目级', path: '.gemini/policy.toml', count: 3 },
-        { level: '用户级', path: '~/.gemini/policy.toml', count: 2 },
-        { level: '内置', path: 'built-in safety', count: 5 },
+        { level: 'Admin tier', path: '/etc/gemini-cli/policies/*.toml', count: 0 },
+        { level: 'User tier', path: '~/.gemini/policies/*.toml', count: 0 },
+        { level: 'Default tier', path: 'packages/core/src/policy/policies/*.toml', count: 15 },
       ],
-      total: 10
+      total: 15,
     },
-    highlight: '10 条规则',
+    highlight: '加载 policies/*.toml',
   },
   {
     phase: 'rule_match_tool',
     group: 'rules',
     title: '工具名称匹配',
-    description: '根据工具名称筛选匹配的规则，支持通配符',
-    codeSnippet: `// policy-engine.ts:80-110
-private matchToolName(
-  rule: PolicyRule,
-  toolName: string
-): boolean {
-  const pattern = rule.tool;
-
-  // 精确匹配
-  if (pattern === toolName) {
-    return true;
+    description: 'ruleMatches() 检查 toolName（支持 MCP wildcard：server__*，并做防伪前缀校验）',
+    codeSnippet: `// packages/core/src/policy/policy-engine.ts
+if (rule.toolName) {
+  if (rule.toolName.endsWith('__*')) {
+    const prefix = rule.toolName.slice(0, -3);
+    if (serverName !== undefined && serverName !== prefix) return false;
+    if (!toolCall.name?.startsWith(prefix + '__')) return false;
+  } else if (toolCall.name !== rule.toolName) {
+    return false;
   }
-
-  // 通配符匹配
-  if (pattern.includes('*')) {
-    const regex = new RegExp(
-      '^' + pattern.replace('*', '.*') + '$'
-    );
-    return regex.test(toolName);
-  }
-
-  return false;
-}
-
-// 匹配示例
-// rule.tool: "Bash"     → match: true
-// rule.tool: "Bash:*"   → match: true
-// rule.tool: "*"        → match: true
-// rule.tool: "Write"    → match: false`,
+}`,
     visualData: {
       rules: [
-        { tool: 'Bash', match: true, priority: 1 },
-        { tool: 'Bash:rm*', match: true, priority: 2 },
-        { tool: '*', match: true, priority: 10 },
-        { tool: 'Write', match: false, priority: 0 },
+        { tool: 'toolName="run_shell_command" (1.010)', match: true, priority: 1.01 },
+        { tool: 'toolName="write_file" (1.010)', match: false, priority: 1.01 },
+        { tool: 'toolName="yolo allow-all" (1.999, modes=["yolo"])', match: true, priority: 1.999 },
       ],
-      matched: 3
+      matched: 2,
     },
-    highlight: '3 条规则匹配',
+    highlight: 'match toolName',
   },
   {
     phase: 'rule_match_params',
     group: 'rules',
     title: '参数模式匹配',
-    description: '检查工具参数是否匹配规则的参数模式',
-    codeSnippet: `// policy-engine.ts:120-160
-private matchParams(
-  rule: PolicyRule,
-  toolInput: Record<string, unknown>
-): boolean {
-  if (!rule.params) {
-    return true; // 无参数限制，直接匹配
-  }
-
-  for (const [key, pattern] of Object.entries(rule.params)) {
-    const value = toolInput[key];
-
-    if (typeof pattern === 'string') {
-      // 字符串模式匹配
-      const regex = new RegExp(pattern);
-      if (!regex.test(String(value))) {
-        return false;
-      }
-    }
-  }
-
-  return true;
+    description: '将 args 进行 stableStringify，并用 argsPattern 正则匹配（commandPrefix 会在加载时转换成 argsPattern）',
+    codeSnippet: `// packages/core/src/policy/policy-engine.ts
+// Only compute stringifiedArgs if needed
+if (toolCall.args && rules.some((r) => r.argsPattern)) {
+  stringifiedArgs = stableStringify(toolCall.args);
 }
 
-// 规则参数模式
-// params.command: "rm\\s+-rf"
-// 实际参数: "rm -rf node_modules"
-// → 匹配成功`,
+if (rule.argsPattern) {
+  if (stringifiedArgs === undefined) return false;
+  if (!rule.argsPattern.test(stringifiedArgs)) return false;
+}`,
     visualData: {
       rule: {
-        tool: 'Bash',
-        params: { command: 'rm\\s+-rf' },
-        decision: 'ASK_USER'
+        toolName: 'run_shell_command',
+        argsPattern: '"command":"npm test',
+        decision: 'ALLOW',
       },
-      input: { command: 'rm -rf node_modules' },
-      matched: true
+      input: { command: 'npm test' },
+      matched: false,
     },
-    highlight: '参数匹配成功',
+    highlight: 'match argsPattern',
   },
   {
     phase: 'safety_check',
     group: 'safety',
     title: '安全检查器',
-    description: 'SafetyChecker 执行额外的安全检查',
-    codeSnippet: `// safety-checker.ts:30-70
-class SafetyChecker {
-  async check(request: ToolRequest): Promise<SafetyResult> {
-    const checks: SafetyCheck[] = [];
-
-    // 1. 危险命令检测
-    if (request.toolName === 'Bash') {
-      const dangerous = this.detectDangerousCommands(
-        request.toolInput.command
-      );
-      if (dangerous) {
-        checks.push({
-          type: 'dangerous_command',
-          severity: 'high',
-          message: 'Detected destructive command: rm -rf'
-        });
-      }
+    description: '若配置了 Safety Checker（external / in-process），可将决策升级为 ask_user 或 deny',
+    codeSnippet: `// packages/core/src/policy/policy-engine.ts
+if (decision !== PolicyDecision.DENY && checkerRunner) {
+  for (const checkerRule of this.checkers) {
+    if (ruleMatches(checkerRule, toolCall, stringifiedArgs, serverName, this.approvalMode)) {
+      const result = await checkerRunner.runChecker(toolCall, checkerRule.checker);
+      if (result.decision === SafetyCheckDecision.DENY) return { decision: PolicyDecision.DENY, rule: matchedRule };
+      if (result.decision === SafetyCheckDecision.ASK_USER) decision = PolicyDecision.ASK_USER;
     }
-
-    // 2. 路径越界检测
-    const pathEscape = this.detectPathEscape(request);
-    if (pathEscape) {
-      checks.push({
-        type: 'path_escape',
-        severity: 'medium',
-        message: 'Command may access paths outside project'
-      });
-    }
-
-    return { passed: checks.length === 0, checks };
   }
 }`,
     visualData: {
       checks: [
-        { type: 'dangerous_command', severity: 'high', passed: false },
-        { type: 'path_escape', severity: 'medium', passed: true },
+        { type: 'allowed-path (in-process)', severity: 'low', passed: true },
       ],
-      overallPassed: false
+      overallPassed: true,
     },
-    highlight: '检测到危险命令',
+    highlight: 'Safety checker pass',
   },
   {
     phase: 'approval_mode_check',
     group: 'decision',
     title: '审批模式检查',
-    description: '根据当前审批模式决定是否需要用户确认',
-    codeSnippet: `// policy-engine.ts:180-220
-private checkApprovalMode(
-  rule: PolicyRule,
-  context: RequestContext
-): PolicyDecision | null {
-  const mode = context.approvalMode;
-
-  switch (mode) {
-    case 'yolo':
-      // YOLO 模式：即使匹配危险规则也执行
-      // 但仍遵守 DENY 规则
-      if (rule.decision === 'DENY') {
-        return { action: 'DENY', reason: rule.reason };
-      }
-      return { action: 'ALLOW' };
-
-    case 'autoEdit':
-      // 自动编辑：允许文件操作，其他询问
-      if (['Write', 'Edit', 'Read'].includes(this.toolName)) {
-        return { action: 'ALLOW' };
-      }
-      break;
-
-    case 'default':
-    default:
-      // 默认模式：遵循规则
-      break;
+    description: 'ruleMatches() 会按当前 ApprovalMode 过滤 rules（modes 目前只允许 Tier 1 默认策略使用）',
+    codeSnippet: `// packages/core/src/policy/policy-engine.ts
+if (rule.modes && rule.modes.length > 0) {
+  if (!rule.modes.includes(currentApprovalMode)) {
+    return false;
   }
-
-  return null; // 继续规则匹配
 }`,
     visualData: {
-      mode: 'default',
-      decision: null, // 继续规则匹配
-      reason: '默认模式需遵循规则'
+      decision: 'ASK_USER',
+      reason: '默认模式：run_shell_command 默认 ask_user（除非被策略 allowlist）',
+      severity: 'warning',
     },
-    highlight: 'DEFAULT 模式',
+    highlight: 'filter by approvalMode',
   },
   {
     phase: 'decision_make',
     group: 'decision',
     title: '生成决策',
-    description: '综合规则匹配和安全检查结果，生成最终决策',
-    codeSnippet: `// policy-engine.ts:230-270
-private makeDecision(
-  matchedRules: PolicyRule[],
-  safetyResult: SafetyResult
-): PolicyDecision {
-  // 优先级：DENY > ASK_USER > ALLOW
+    description: '取最高优先级匹配规则的决策；若无匹配则使用 defaultDecision；最后应用 non-interactive 转换',
+    codeSnippet: `// packages/core/src/policy/policy-engine.ts
+// No matching rule → use default decision
+if (!decision) decision = this.applyNonInteractiveMode(this.defaultDecision);
 
-  // 1. 检查是否有 DENY 规则
-  const denyRule = matchedRules.find(r => r.decision === 'DENY');
-  if (denyRule) {
-    return {
-      action: 'DENY',
-      reason: denyRule.reason || 'Operation not allowed'
-    };
-  }
-
-  // 2. 安全检查未通过 → ASK_USER
-  if (!safetyResult.passed) {
-    return {
-      action: 'ASK_USER',
-      reason: safetyResult.checks[0].message,
-      severity: 'warning'
-    };
-  }
-
-  // 3. 检查 ASK_USER 规则
-  const askRule = matchedRules.find(r => r.decision === 'ASK_USER');
-  if (askRule) {
-    return {
-      action: 'ASK_USER',
-      reason: askRule.reason
-    };
-  }
-
-  // 4. 默认允许
-  return { action: 'ALLOW' };
-}`,
+return {
+  decision: this.applyNonInteractiveMode(decision),
+  rule: matchedRule,
+};`,
     visualData: {
       decision: 'ASK_USER',
-      reason: 'Detected destructive command: rm -rf',
-      severity: 'warning'
+      reason: '未匹配 allow 规则 → 默认 ask_user（interactive mode 会弹窗）',
+      severity: 'warning',
     },
     highlight: 'ASK_USER',
   },
@@ -426,46 +290,19 @@ private makeDecision(
     phase: 'ask_user',
     group: 'user',
     title: '请求用户确认',
-    description: '通过 MessageBus 发送确认请求到 UI 层',
-    codeSnippet: `// policy-engine.ts:280-310
-private async requestUserConfirmation(
-  request: ToolRequest,
-  decision: PolicyDecision
-): Promise<UserResponse> {
-  const confirmRequest: ToolConfirmationRequest = {
-    type: 'TOOL_CONFIRMATION_REQUEST',
-    toolName: request.toolName,
-    toolInput: request.toolInput,
-    reason: decision.reason,
-    severity: decision.severity,
-    options: ['allow', 'deny', 'allow_always']
-  };
-
-  // 发送到 MessageBus
-  const response = await this.messageBus.request(
-    confirmRequest
-  );
-
-  return response;
+    description: 'MessageBus 将 request 交给 UI；工具侧会生成 ToolCallConfirmationDetails（Diff/命令/风险提示）',
+    codeSnippet: `// packages/core/src/tools/tools.ts (BaseToolInvocation)
+if (decision === 'ASK_USER') {
+  return this.getConfirmationDetails(abortSignal);
 }
 
-// UI 显示确认对话框
-// ┌─────────────────────────────────────┐
-// │ ⚠️  Tool requires confirmation      │
-// │                                     │
-// │ Tool: Bash                          │
-// │ Command: rm -rf node_modules        │
-// │                                     │
-// │ Reason: Detected destructive command│
-// │                                     │
-// │ [Allow] [Deny] [Allow Always]       │
-// └─────────────────────────────────────┘`,
+// packages/cli/src/ui - UI 展示确认对话框（包含 ProceedOnce / Always / Save 等选项）`,
     visualData: {
       dialog: {
-        tool: 'Bash',
-        command: 'rm -rf node_modules',
-        reason: 'Detected destructive command',
-        options: ['allow', 'deny', 'allow_always']
+        tool: 'run_shell_command',
+        command: 'npm test',
+        reason: 'ASK_USER (default policy for run_shell_command)',
+        options: ['proceed_once', 'proceed_always_and_save', 'cancel'],
       }
     },
     highlight: '等待用户响应',
@@ -474,81 +311,34 @@ private async requestUserConfirmation(
     phase: 'user_response',
     group: 'user',
     title: '用户响应',
-    description: '用户选择允许执行该命令',
-    codeSnippet: `// message-bus.ts:80-110
-// 用户点击 "Allow"
-const userResponse: ToolConfirmationResponse = {
-  type: 'TOOL_CONFIRMATION_RESPONSE',
-  requestId: 'req_12345',
-  decision: 'allow',
-  timestamp: Date.now()
-};
-
-// MessageBus 转发响应到 Policy Engine
-messageBus.emit('confirmation_response', userResponse);
-
-// Policy Engine 处理响应
-handleUserResponse(response: UserResponse): PolicyDecision {
-  switch (response.decision) {
-    case 'allow':
-      return { action: 'ALLOW' };
-
-    case 'deny':
-      return { action: 'DENY', reason: 'User denied' };
-
-    case 'allow_always':
-      // 添加到白名单
-      this.addToWhitelist(request);
-      return { action: 'ALLOW' };
-  }
-}`,
+    description: '用户选择 “Always allow + save”，MessageBus 收到 UPDATE_POLICY 并写入 auto-saved.toml',
+    codeSnippet: `// packages/core/src/policy/config.ts
+// MessageBusType.UPDATE_POLICY → createPolicyUpdater() 处理
+// 1) policyEngine.addRule({ toolName, decision: allow, priority: 2.95, argsPattern })
+// 2) persist=true 时写入 ~/.gemini/policies/auto-saved.toml（原子写）`,
     visualData: {
-      response: 'allow',
-      finalDecision: 'ALLOW'
+      response: 'proceed_always_and_save',
+      finalDecision: 'ALLOW',
     },
-    highlight: '用户选择 Allow',
+    highlight: 'Always allow + save',
   },
   {
     phase: 'result_return',
     group: 'result',
     title: '返回决策结果',
-    description: 'Policy Engine 返回最终决策，工具继续执行',
-    codeSnippet: `// policy-engine.ts:320-350
-async checkPermission(
-  request: ToolRequest
-): Promise<PolicyDecision> {
-  // ... 规则匹配和安全检查 ...
-
-  const decision = this.makeDecision(
-    matchedRules,
-    safetyResult
-  );
-
-  if (decision.action === 'ASK_USER') {
-    const userResponse = await this.requestUserConfirmation(
-      request,
-      decision
-    );
-    return this.handleUserResponse(userResponse);
-  }
-
-  return decision;
-}
-
-// 最终决策
-{
-  action: 'ALLOW',
-  source: 'user_confirmation',
-  timestamp: Date.now()
-}
-
-// → 工具 Bash 执行 "rm -rf node_modules"`,
+    description: '后续相同工具调用将匹配到新规则（优先级 2.95），从而直接允许并跳过确认',
+    codeSnippet: `// packages/core/src/policy/policy-engine.ts
+// Next time:
+// - matchedRule: user auto-saved rule (priority 2.95)
+// - decision: allow
+// ToolInvocation.shouldConfirmExecute() → returns false → CoreToolScheduler 直接执行`,
     visualData: {
       finalDecision: {
         action: 'ALLOW',
-        source: 'user_confirmation'
+        source: 'auto-saved policy',
       },
-      toolExecuted: true
+      toolExecuted: true,
+      executedLabel: 'run_shell_command: npm test',
     },
     highlight: 'ALLOW → 执行',
   },
@@ -663,6 +453,47 @@ function SafetyCheckVisualizer({ checks, overallPassed }: { checks?: Array<{ typ
 function ConfirmDialogVisualizer({ dialog }: { dialog?: { tool: string; command: string; reason: string; options: string[] } }) {
   if (!dialog) return null;
 
+  const getOptionLabel = (opt: string) => {
+    switch (opt) {
+      case 'proceed_once':
+        return 'Proceed once';
+      case 'proceed_always':
+        return 'Always allow';
+      case 'proceed_always_and_save':
+        return 'Always allow + save';
+      case 'proceed_always_server':
+        return 'Always allow server';
+      case 'proceed_always_tool':
+        return 'Always allow tool';
+      case 'modify_with_editor':
+        return 'Modify with editor';
+      case 'cancel':
+        return 'Cancel';
+      default:
+        return opt;
+    }
+  };
+
+  const getOptionClassName = (opt: string) => {
+    switch (opt) {
+      case 'proceed_once':
+        return 'bg-green-600 text-white';
+      case 'proceed_always':
+      case 'proceed_always_and_save':
+        return 'bg-emerald-600 text-white';
+      case 'proceed_always_server':
+        return 'bg-purple-600 text-white';
+      case 'proceed_always_tool':
+        return 'bg-indigo-600 text-white';
+      case 'modify_with_editor':
+        return 'bg-amber-500 text-black';
+      case 'cancel':
+        return 'bg-gray-600 text-white';
+      default:
+        return 'bg-gray-600 text-white';
+    }
+  };
+
   return (
     <div className="mb-6 p-4 rounded-lg border-2 border-amber-500/50" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}>
       <div className="flex items-center gap-2 mb-4">
@@ -687,13 +518,9 @@ function ConfirmDialogVisualizer({ dialog }: { dialog?: { tool: string; command:
         {dialog.options.map((opt, i) => (
           <button
             key={i}
-            className={`px-4 py-2 rounded text-sm font-medium ${
-              opt === 'allow' ? 'bg-green-600 text-white' :
-              opt === 'deny' ? 'bg-red-600 text-white' :
-              'bg-gray-600 text-white'
-            }`}
+            className={`px-4 py-2 rounded text-sm font-medium ${getOptionClassName(opt)}`}
           >
-            {opt === 'allow' ? 'Allow' : opt === 'deny' ? 'Deny' : 'Allow Always'}
+            {getOptionLabel(opt)}
           </button>
         ))}
       </div>
@@ -702,7 +529,7 @@ function ConfirmDialogVisualizer({ dialog }: { dialog?: { tool: string; command:
 }
 
 // 决策结果可视化
-function DecisionVisualizer({ decision, severity }: { decision?: string; reason?: string; severity?: string }) {
+function DecisionVisualizer({ decision, reason, severity }: { decision?: string; reason?: string; severity?: string }) {
   if (!decision) return null;
 
   const color = decisionColors[decision] || '#6b7280';
@@ -728,6 +555,7 @@ function DecisionVisualizer({ decision, severity }: { decision?: string; reason?
       >
         {decision}
       </div>
+      {reason && <div className="mt-2 text-sm text-gray-300">{reason}</div>}
     </div>
   );
 }
@@ -968,7 +796,7 @@ export function PolicyDecisionAnimation() {
                 <span className="font-bold text-white">工具执行中</span>
               </div>
               <code className="text-sm text-[var(--terminal-green)]">
-                Bash: rm -rf node_modules
+                {typeof step.visualData.executedLabel === 'string' ? (step.visualData.executedLabel as string) : 'Executing tool…'}
               </code>
             </div>
           )}

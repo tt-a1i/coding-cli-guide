@@ -52,7 +52,7 @@ const sampleAgents: Record<SubagentLevel, SubagentConfig[]> = {
     {
       name: 'api-reviewer',
       description: '审查 API 设计规范',
-      tools: ['read_file', 'search_code'],
+      tools: ['read_file', 'search_file_content'],
       level: 'project',
       filePath: '.gemini/agents/api-reviewer.toml',
     },
@@ -61,7 +61,7 @@ const sampleAgents: Record<SubagentLevel, SubagentConfig[]> = {
     {
       name: 'code-explainer',
       description: '解释代码逻辑',
-      tools: ['read_file', 'web_search'],
+      tools: ['read_file', 'google_web_search'],
       level: 'user',
       filePath: '~/.gemini/agents/code-explainer.toml',
     },
@@ -75,18 +75,18 @@ const sampleAgents: Record<SubagentLevel, SubagentConfig[]> = {
   ],
   builtin: [
     {
-      name: 'Explore',
-      description: '快速探索代码库',
-      tools: ['glob', 'grep', 'read_file'],
+      name: 'codebase_investigator',
+      description: '深度理解代码库结构与依赖',
+      tools: ['list_directory', 'read_file', 'glob', 'search_file_content'],
       level: 'builtin',
-      filePath: 'builtin://explore',
+      filePath: 'builtin://codebase_investigator',
     },
     {
-      name: 'Plan',
-      description: '设计实现方案',
-      tools: ['read_file', 'search_code', 'web_search'],
+      name: 'introspection_agent',
+      description: '回答关于 Gemini CLI 本身的问题（基于内部文档）',
+      tools: ['get_internal_docs'],
       level: 'builtin',
-      filePath: 'builtin://plan',
+      filePath: 'builtin://introspection_agent',
     },
   ],
 };

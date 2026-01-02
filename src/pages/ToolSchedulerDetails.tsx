@@ -1769,7 +1769,7 @@ DEBUG=gemini:policy gemini
                 <p className="text-xs text-gray-400">
                   自动批准 Edit/Write 类工具，只对 Shell 命令需要确认。
                 </p>
-                <code className="text-xs text-cyan-300">gemini --auto-edit</code>
+                <code className="text-xs text-cyan-300">gemini --approval-mode=auto_edit</code>
               </div>
               <div className="bg-gray-800/50 rounded p-2">
                 <h5 className="text-xs font-semibold text-gray-300 mb-1">策略 2: 配置常用命令白名单</h5>

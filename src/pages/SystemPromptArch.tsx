@@ -197,7 +197,7 @@ export function SystemPromptArch() {
           <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
             <h4 className="font-semibold text-green-400 mb-2">✅ Task Management</h4>
             <ul className="text-sm text-gray-300 space-y-1">
-              <li>• 强制使用 todo_write 工具</li>
+              <li>• 强制使用 write_todos 工具</li>
               <li>• 计划阶段分解任务</li>
               <li>• 完成即标记 completed</li>
               <li>• 防止 AI "迷路"</li>
@@ -227,7 +227,7 @@ export function SystemPromptArch() {
 - **Do Not revert changes:** Do not revert changes unless asked.
 
 # Task Management
-You have access to the todo_write tool. Use these tools VERY frequently.
+You have access to the write_todos tool. Use these tools VERY frequently.
 If you do not use this tool when planning, you may forget important
 tasks - and that is unacceptable.
 

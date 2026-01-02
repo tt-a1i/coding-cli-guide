@@ -36,14 +36,14 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
             <p className="text-[var(--text-primary)] font-medium">
               <span className="text-[var(--purple)] font-bold">一句话：</span>
-              通过 4 种模式（Plan + Default → Auto-Edit → YOLO）控制 AI 执行工具的权限，平衡安全性与便利性
+              通过 3 种 ApprovalMode（default / autoEdit / yolo）控制工具调用的确认与自动批准，并在不可信工作区强制降级到 default
             </p>
           </div>
 
           {/* 关键数字 */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
-              <div className="text-2xl font-bold text-[var(--purple)]">4</div>
+              <div className="text-2xl font-bold text-[var(--purple)]">3</div>
               <div className="text-xs text-[var(--text-muted)]">审批模式</div>
             </div>
             <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
@@ -62,20 +62,32 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
           {/* 模式切换 */}
           <div>
-            <h4 className="text-sm font-semibold text-[var(--text-muted)] mb-2">模式切换（Shift+Tab）</h4>
-            <div className="flex items-center gap-2 flex-wrap text-sm">
-              <span className="px-3 py-1.5 bg-[var(--cyber-blue)]/20 text-[var(--cyber-blue)] rounded-lg border border-[var(--cyber-blue)]/30">
-                Default ⚠️
-              </span>
-              <span className="text-[var(--text-muted)]">→</span>
-              <span className="px-3 py-1.5 bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] rounded-lg border border-[var(--terminal-green)]/30">
-                Auto-Edit ✏️
-              </span>
-              <span className="text-[var(--text-muted)]">→</span>
-              <span className="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-lg border border-red-500/30">
-                YOLO 🚀
-              </span>
-              <span className="text-[var(--text-muted)]">↻</span>
+            <h4 className="text-sm font-semibold text-[var(--text-muted)] mb-2">模式切换（快捷键）</h4>
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="px-2 py-1 bg-[var(--bg-terminal)] rounded border border-[var(--border-subtle)] text-xs font-mono text-[var(--text-muted)]">
+                  Shift+Tab
+                </span>
+                <span className="px-3 py-1.5 bg-[var(--cyber-blue)]/20 text-[var(--cyber-blue)] rounded-lg border border-[var(--cyber-blue)]/30">
+                  Default
+                </span>
+                <span className="text-[var(--text-muted)]">↔</span>
+                <span className="px-3 py-1.5 bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] rounded-lg border border-[var(--terminal-green)]/30">
+                  Auto Edit
+                </span>
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="px-2 py-1 bg-[var(--bg-terminal)] rounded border border-[var(--border-subtle)] text-xs font-mono text-[var(--text-muted)]">
+                  Ctrl+Y
+                </span>
+                <span className="px-3 py-1.5 bg-[var(--cyber-blue)]/20 text-[var(--cyber-blue)] rounded-lg border border-[var(--cyber-blue)]/30">
+                  Default
+                </span>
+                <span className="text-[var(--text-muted)]">↔</span>
+                <span className="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-lg border border-red-500/30">
+                  YOLO
+                </span>
+              </div>
             </div>
           </div>
 
@@ -84,7 +96,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
             <div className="bg-green-500/10 rounded-lg p-3 border border-green-500/30">
               <h4 className="text-sm font-semibold text-green-400 mb-1">✅ 自动批准</h4>
               <p className="text-xs text-[var(--text-secondary)]">
-                Read、Glob、Grep、WebSearch 等只读工具在所有模式下自动执行
+                默认策略会允许 read-only 工具（如 read_file、list_directory、glob、search_file_content、google_web_search）
               </p>
             </div>
             <div className="bg-red-500/10 rounded-lg p-3 border border-red-500/30">
@@ -99,7 +111,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           <div className="flex items-center gap-2 text-sm">
             <span className="text-[var(--text-muted)]">📍 源码入口:</span>
             <code className="px-2 py-1 bg-[var(--bg-terminal)] rounded text-[var(--terminal-green)] text-xs">
-              packages/core/src/core/coreToolScheduler.ts:740 → shouldConfirmExecute()
+              packages/core/src/tools/tools.ts:98 → BaseToolInvocation.shouldConfirmExecute()
             </code>
           </div>
         </div>
@@ -112,40 +124,35 @@ export function ApprovalModeSystem() {
   const [isSummaryExpanded, setIsSummaryExpanded] = useState(true);
   // 工具审批决策流程 - Mermaid flowchart (基于 PolicyEngine)
   const approvalDecisionFlowChart = `flowchart TD
-    start([AI 请求执行工具])
-    policy[PolicyEngine.check<br/>规则匹配]
-    policy_result{Policy<br/>决策结果}
-    is_yolo{YOLO 模式?}
-    is_auto_edit{Auto-Edit 模式?}
-    is_readonly{只读工具?}
-    is_edit_tool{编辑类工具?}
-    policy_deny([Policy 拒绝<br/>抛出错误])
-    auto_approve([自动批准<br/>立即执行])
-    prompt_user([等待用户确认<br/>显示 Diff])
+    start([ToolInvocation.shouldConfirmExecute()])
+    bus[MessageBus.publish<br/>TOOL_CONFIRMATION_REQUEST]
+    policy[PolicyEngine.check<br/>rules + safety checkers]
+    decision{PolicyDecision}
+    allow([ALLOW → 不展示确认])
+    deny([DENY → 抛错/拒绝])
+    ask([ASK_USER → 返回确认详情])
+    autoApproved{Auto-approve?}
+    prompt_user([UI 展示确认<br/>Diff/参数/风险])
+    user_choice{用户选择}
+    proceed([Proceed → 执行])
+    cancel([Cancel → 取消])
 
-    start --> policy
-    policy --> policy_result
-    policy_result -->|ALLOW| auto_approve
-    policy_result -->|DENY| policy_deny
-    policy_result -->|ASK_USER| is_yolo
-    is_yolo -->|Yes| auto_approve
-    is_yolo -->|No| is_auto_edit
-    is_auto_edit -->|Yes| is_edit_tool
-    is_auto_edit -->|"No (default)"| is_readonly
-    is_edit_tool -->|"Yes (Edit/Write)"| auto_approve
-    is_edit_tool -->|"No (Shell等)"| prompt_user
-    is_readonly -->|"Yes (Read/Glob)"| auto_approve
-    is_readonly -->|No| prompt_user
+    start --> bus --> policy --> decision
+    decision -->|allow| allow
+    decision -->|deny| deny
+    decision -->|ask_user| ask
+    ask --> autoApproved
+    autoApproved -->|YOLO 或 allowlisted| proceed
+    autoApproved -->|需要用户确认| prompt_user --> user_choice
+    user_choice -->|Proceed| proceed
+    user_choice -->|Cancel| cancel
 
     style start fill:#22d3ee,color:#000
-    style policy_deny fill:#ef4444,color:#fff
-    style auto_approve fill:#22c55e,color:#000
+    style deny fill:#ef4444,color:#fff
+    style allow fill:#22c55e,color:#000
     style prompt_user fill:#f59e0b,color:#000
-    style policy_result fill:#a855f7,color:#fff
-    style is_yolo fill:#a855f7,color:#fff
-    style is_auto_edit fill:#a855f7,color:#fff
-    style is_readonly fill:#a855f7,color:#fff
-    style is_edit_tool fill:#a855f7,color:#fff`;
+    style decision fill:#a855f7,color:#fff
+    style autoApproved fill:#a855f7,color:#fff`;
 
   // 工具调用状态机 - Mermaid stateDiagram
   const toolCallStateChart = `stateDiagram-v2
@@ -173,27 +180,27 @@ export function ApprovalModeSystem() {
     note right of scheduled : 已排期
     note right of executing : 执行中`;
 
-  const approvalModeEnum = `// packages/core/src/config/config.ts:102-107
+  const approvalModeEnum = `// packages/core/src/policy/types.ts
 
 export enum ApprovalMode {
-  PLAN = 'plan',           // 计划模式：只生成计划，不执行
-  DEFAULT = 'default',     // 默认模式：只读自动，修改需确认
-  AUTO_EDIT = 'auto-edit', // 自动编辑：文件编辑自动批准
-  YOLO = 'yolo',           // YOLO模式：所有工具自动执行
+  DEFAULT = 'default',   // 默认：只读自动，修改需确认
+  AUTO_EDIT = 'autoEdit', // Auto Edit：自动批准 replace/write_file（由 policy rules 控制）
+  YOLO = 'yolo',         // YOLO：自动批准所有工具调用
+}`;
+
+  const setApprovalModeCode = `// packages/core/src/config/config.ts
+setApprovalMode(mode: ApprovalMode): void {
+  // 不可信文件夹：禁止开启特权模式（autoEdit / yolo）
+  if (!this.isTrustedFolder() && mode !== ApprovalMode.DEFAULT) {
+    throw new Error('Cannot enable privileged approval modes in an untrusted folder.');
+  }
+  this.policyEngine.setApprovalMode(mode);
 }
 
-// 模式切换顺序 (Shift+Tab)：跳过 PLAN，循环 DEFAULT → AUTO_EDIT → YOLO
-export const APPROVAL_MODES = Object.values(ApprovalMode);
-// ['plan', 'default', 'auto-edit', 'yolo']`;
-
-  const setApprovalModeCode = `// PolicyEngine.setApprovalMode
-// packages/core/src/policy/policy-engine.ts:132-134
+// packages/core/src/policy/policy-engine.ts
 setApprovalMode(mode: ApprovalMode): void {
   this.approvalMode = mode;
-}
-
-// 不可信文件夹的模式限制由配置层面控制
-// 而非 PolicyEngine 内部检查`;
+}`;
 
   const toolConfirmationCode = `// packages/core/src/tools/tools.ts
 
@@ -222,9 +229,9 @@ export enum ToolConfirmationOutcome {
 // packages/core/src/policy/types.ts
 
 export enum PolicyDecision {
-  ALLOW = 'ALLOW',      // 自动批准执行
-  DENY = 'DENY',        // 拒绝执行
-  ASK_USER = 'ASK_USER', // 需要用户确认
+  ALLOW = 'allow',        // 允许执行
+  DENY = 'deny',          // 拒绝执行
+  ASK_USER = 'ask_user',  // 需要用户确认
 }
 
 // PolicyRule 规则结构
@@ -240,18 +247,18 @@ export interface PolicyRule {
 // 来源: packages/core/src/utils/tool-utils.ts
 {
   "tools": {
-    // 允许自动执行的工具（使用 tool name，非 displayName）
+    // 跳过确认的 allowlist（支持 run_shell_command(...) 这种 invocation pattern）
     "allowed": [
-      "read_file",
       "glob",
-      "grep_search",
-      "web_search",
-      "web_fetch"
+      "read_file",
+      "list_directory",
+      "search_file_content",
+      "google_web_search",
+      "run_shell_command(git status)"
     ],
 
-    // 或者排除某些工具
+    // 排除某些工具（强制拒绝/禁用）
     "exclude": [
-      "run_shell_command",
       "write_file"
     ]
   }
@@ -271,8 +278,11 @@ export interface PolicyRule {
 
   const keyboardShortcutsCode = `// 审批模式相关快捷键
 
-// Shift+Tab: 循环切换审批模式
-// default → auto-edit → yolo → default ...
+// Shift+Tab: Toggle Auto Edit
+// default ↔ autoEdit
+
+// Ctrl+Y: Toggle YOLO
+// default ↔ yolo
 
 // 工具确认对话框快捷键
 // y / Enter  : 批准执行
@@ -330,19 +340,19 @@ export interface PolicyRule {
             <h4 className="text-cyan-400 font-semibold mb-2">触发条件</h4>
             <ul className="text-gray-300 list-disc list-inside space-y-1 ml-4">
               <li>AI 请求执行任意工具调用时</li>
-              <li>用户通过 Shift+Tab 切换审批模式时</li>
-              <li>用户通过 <code className="bg-black/30 px-1 rounded">/approval</code> 命令设置模式时</li>
-              <li>进入不可信文件夹时（自动降级到 default）</li>
+              <li>用户通过 Shift+Tab / Ctrl+Y 切换审批模式时</li>
+              <li>启动时通过 <code className="bg-black/30 px-1 rounded">--approval-mode</code> / <code className="bg-black/30 px-1 rounded">--yolo</code> 设置初始模式时</li>
+              <li>进入不可信文件夹时（强制使用 default）</li>
             </ul>
           </div>
 
           <div>
             <h4 className="text-cyan-400 font-semibold mb-2">输入参数</h4>
             <ul className="text-gray-300 list-disc list-inside space-y-1 ml-4">
-              <li><strong>当前 ApprovalMode</strong>：PLAN / DEFAULT / AUTO_EDIT / YOLO</li>
+              <li><strong>当前 ApprovalMode</strong>：DEFAULT / AUTO_EDIT / YOLO</li>
               <li><strong>工具 Kind 类型</strong>：Read / Edit / Delete / Move / Search / Execute / Think / Fetch / Other（共 9 种）</li>
               <li><strong>allowedTools 白名单</strong>：配置文件中定义的自动批准工具列表</li>
-              <li><strong>文件夹信任状态</strong>：isTrustedFolder() 返回值</li>
+              <li><strong>文件夹信任状态</strong>：trustedFolder / isTrustedFolder() 返回值</li>
             </ul>
           </div>
 
@@ -386,7 +396,7 @@ export interface PolicyRule {
             <h4 className="text-cyan-400 font-semibold mb-2">状态变化</h4>
             <ul className="text-gray-300 list-disc list-inside space-y-1 ml-4">
               <li>工具调用状态：validating → scheduled / awaiting_approval / error</li>
-              <li>审批模式切换：default → auto-edit → yolo（循环）</li>
+              <li>审批模式切换：Shift+Tab（default ↔ autoEdit），Ctrl+Y（default ↔ yolo）</li>
               <li>ToolConfirmationOutcome 记录：记录用户的批准/拒绝决策</li>
             </ul>
           </div>
@@ -395,8 +405,8 @@ export interface PolicyRule {
             <h4 className="text-cyan-400 font-semibold mb-2">副作用</h4>
             <ul className="text-gray-300 list-disc list-inside space-y-1 ml-4">
               <li>触发 telemetry 事件记录（工具确认/拒绝/模式切换）</li>
-              <li>更新 allowedTools 白名单（用户选择"总是批准"时）</li>
-              <li>更新会话配置（模式切换时）</li>
+              <li>用户选择 “Always allow (+ save)” 时，持久化 Policy 规则到 <code className="bg-black/30 px-1 rounded">~/.gemini/policies/auto-saved.toml</code></li>
+              <li>模式切换只影响当前会话（不写入 settings.json）</li>
             </ul>
           </div>
         </div>
@@ -408,19 +418,19 @@ export interface PolicyRule {
           <div className="grid grid-cols-1 gap-2 text-sm">
             <div className="flex items-start gap-2">
               <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
-                packages/core/src/config/config.ts:102-107
+                packages/core/src/policy/types.ts:45-57
               </code>
               <span className="text-gray-400">ApprovalMode 枚举定义</span>
             </div>
             <div className="flex items-start gap-2">
               <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
-                packages/core/src/tools/tools.ts:575-594
+                packages/core/src/tools/tools.ts:98-130
               </code>
-              <span className="text-gray-400">ToolConfirmationOutcome 枚举、Kind 枚举</span>
+              <span className="text-gray-400">BaseToolInvocation.shouldConfirmExecute()（通过 MessageBus 询问 Policy）</span>
             </div>
             <div className="flex items-start gap-2">
               <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
-                packages/core/src/core/coreToolScheduler.ts:740-790
+                packages/core/src/core/coreToolScheduler.ts:602-654
               </code>
               <span className="text-gray-400">shouldConfirmExecute 确认决策核心逻辑</span>
             </div>
@@ -444,9 +454,15 @@ export interface PolicyRule {
             </div>
             <div className="flex items-start gap-2">
               <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
-                packages/cli/src/ui/commands/approvalModeCommand.ts
+                packages/cli/src/ui/hooks/useAutoAcceptIndicator.ts:30-98
               </code>
-              <span className="text-gray-400">/approval 命令实现</span>
+              <span className="text-gray-400">Shift+Tab / Ctrl+Y 模式切换（Auto Edit / YOLO）</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
+                packages/cli/src/config/config.ts:477-519
+              </code>
+              <span className="text-gray-400">--approval-mode / --yolo 解析与不可信目录降级</span>
             </div>
           </div>
         </div>
@@ -509,19 +525,24 @@ export interface PolicyRule {
       <Layer title="关键分支与边界条件" icon="⚡">
         <div className="space-y-4">
           <div>
-            <h4 className="text-cyan-400 font-semibold mb-2">模式切换循环</h4>
+            <h4 className="text-cyan-400 font-semibold mb-2">模式切换规则</h4>
             <div className="bg-gray-800/50 rounded-lg p-4">
-              <div className="flex items-center justify-center gap-4 text-lg flex-wrap">
-                <span className="px-4 py-2 bg-blue-500/20 border border-blue-500 rounded">default</span>
-                <span className="text-gray-500">→</span>
-                <span className="px-4 py-2 bg-green-500/20 border border-green-500 rounded">auto-edit</span>
-                <span className="text-gray-500">→</span>
-                <span className="px-4 py-2 bg-red-500/20 border border-red-500 rounded">yolo</span>
-                <span className="text-gray-500">→</span>
-                <span className="text-gray-400">循环回 default</span>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center justify-center gap-3 flex-wrap">
+                  <span className="px-2 py-1 bg-gray-700 rounded text-gray-300 font-mono">Shift+Tab</span>
+                  <span className="px-4 py-2 bg-blue-500/20 border border-blue-500 rounded">default</span>
+                  <span className="text-gray-500">↔</span>
+                  <span className="px-4 py-2 bg-green-500/20 border border-green-500 rounded">autoEdit</span>
+                </div>
+                <div className="flex items-center justify-center gap-3 flex-wrap">
+                  <span className="px-2 py-1 bg-gray-700 rounded text-gray-300 font-mono">Ctrl+Y</span>
+                  <span className="px-4 py-2 bg-blue-500/20 border border-blue-500 rounded">default</span>
+                  <span className="text-gray-500">↔</span>
+                  <span className="px-4 py-2 bg-red-500/20 border border-red-500 rounded">yolo</span>
+                </div>
               </div>
               <p className="text-center text-gray-400 mt-4">
-                使用 <kbd className="px-2 py-1 bg-gray-700 rounded">Shift+Tab</kbd> 快捷键循环切换模式
+                提示：不可信文件夹会阻止启用 <code className="bg-black/30 px-1 rounded">autoEdit</code> / <code className="bg-black/30 px-1 rounded">yolo</code>
               </p>
             </div>
             <CodeBlock code={approvalModeEnum} language="typescript" title="审批模式枚举定义" />
@@ -582,10 +603,10 @@ export interface PolicyRule {
                   <li>• <code className="text-cyan-300">read_file</code> - 读取文件</li>
                   <li>• <code className="text-cyan-300">read_many_files</code> - 批量读取</li>
                   <li>• <code className="text-cyan-300">glob</code> - 文件匹配</li>
-                  <li>• <code className="text-cyan-300">grep_search</code> - 内容搜索</li>
-                  <li>• <code className="text-cyan-300">web_search</code> - 网页搜索</li>
+                  <li>• <code className="text-cyan-300">search_file_content</code> - 内容搜索</li>
+                  <li>• <code className="text-cyan-300">google_web_search</code> - 网页搜索</li>
                   <li>• <code className="text-cyan-300">web_fetch</code> - 获取网页</li>
-                  <li>• <code className="text-cyan-300">todo_write</code> - 任务管理</li>
+                  <li>• <code className="text-cyan-300">write_todos</code> - 任务管理</li>
                 </ul>
               </div>
 
@@ -593,7 +614,7 @@ export interface PolicyRule {
                 <h5 className="font-semibold text-yellow-400 mb-2">需确认类 (Kind: Edit/Delete/Move/Execute)</h5>
                 <ul className="text-sm text-gray-300 space-y-1">
                   <li>• <code className="text-orange-300">write_file</code> - 写入文件</li>
-                  <li>• <code className="text-orange-300">edit</code> - 编辑文件</li>
+                  <li>• <code className="text-orange-300">replace</code> - 编辑文件</li>
                   <li>• <code className="text-orange-300">run_shell_command</code> - 执行命令</li>
                   <li>• <code className="text-orange-300">save_memory</code> - 保存记忆</li>
                   <li>• <code className="text-orange-300">MCP 工具</code> - 外部服务器工具</li>
@@ -847,7 +868,7 @@ priority = 10`}
               <tr className="bg-gray-800/50">
                 <th className="border border-gray-700 p-3 text-left text-gray-400">工具类型 (Kind)</th>
                 <th className="border border-gray-700 p-3 text-center text-blue-400">default</th>
-                <th className="border border-gray-700 p-3 text-center text-green-400">auto-edit</th>
+                <th className="border border-gray-700 p-3 text-center text-green-400">autoEdit</th>
                 <th className="border border-gray-700 p-3 text-center text-red-400">yolo</th>
               </tr>
             </thead>
@@ -872,8 +893,8 @@ priority = 10`}
                 <td className="border border-gray-700 p-3">
                   <code className="text-cyan-300">Fetch</code> 网络请求
                 </td>
-                <td className="border border-gray-700 p-3 text-center text-green-400">✅ 自动</td>
-                <td className="border border-gray-700 p-3 text-center text-green-400">✅ 自动</td>
+                <td className="border border-gray-700 p-3 text-center text-yellow-400">⚠️ 确认</td>
+                <td className="border border-gray-700 p-3 text-center text-yellow-400">⚠️ 确认</td>
                 <td className="border border-gray-700 p-3 text-center text-green-400">✅ 自动</td>
               </tr>
               <tr className="bg-gray-800/30">
@@ -913,6 +934,7 @@ priority = 10`}
         </div>
         <p className="text-xs text-gray-400 mt-2">
           注：🚫 拒绝 = Policy DENY，不执行工具 | ⚠️ 确认 = 等待用户批准 | ✅ 自动 = 自动执行
+          （例如 <code className="bg-black/30 px-1 rounded">google_web_search</code> 属于只读，默认自动；<code className="bg-black/30 px-1 rounded">web_fetch</code> 默认需要确认）
         </p>
       </section>
 
@@ -926,26 +948,26 @@ priority = 10`}
 
         <div className="bg-gray-800/50 rounded-lg p-4 mb-4">
           <h4 className="text-purple-400 font-semibold mb-3">模式切换流程</h4>
-          <div className="flex items-center justify-center gap-4 text-sm flex-wrap">
-            <div className="bg-blue-500/20 border border-blue-500 rounded px-4 py-2 text-center">
-              <div className="text-blue-400 font-bold">Default Mode</div>
-              <div className="text-xs text-gray-400">需要确认</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+            <div className="bg-gray-900/40 border border-gray-700 rounded p-3">
+              <div className="flex items-center justify-between">
+                <div className="text-blue-400 font-bold">default</div>
+                <span className="text-gray-400 font-mono text-xs">Shift+Tab</span>
+              </div>
+              <div className="text-gray-400 text-xs mt-1">默认：需要确认（除 read-only）</div>
+              <div className="mt-2 text-center text-gray-500">↔</div>
+              <div className="text-green-400 font-bold text-center">autoEdit</div>
+              <div className="text-gray-400 text-xs mt-1 text-center">自动批准 replace/write_file（由 policy rules 控制）</div>
             </div>
-            <div className="flex flex-col items-center">
-              <span className="text-gray-400">Shift+Tab</span>
-              <span className="text-gray-500">→</span>
-            </div>
-            <div className="bg-green-500/20 border border-green-500 rounded px-4 py-2 text-center">
-              <div className="text-green-400 font-bold">Auto-Edit</div>
-              <div className="text-xs text-gray-400">文件编辑自动</div>
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="text-gray-400">Shift+Tab</span>
-              <span className="text-gray-500">→</span>
-            </div>
-            <div className="bg-red-500/20 border border-red-500 rounded px-4 py-2 text-center">
-              <div className="text-red-400 font-bold">YOLO Mode</div>
-              <div className="text-xs text-gray-400">全部自动</div>
+            <div className="bg-gray-900/40 border border-gray-700 rounded p-3">
+              <div className="flex items-center justify-between">
+                <div className="text-blue-400 font-bold">default</div>
+                <span className="text-gray-400 font-mono text-xs">Ctrl+Y</span>
+              </div>
+              <div className="text-gray-400 text-xs mt-1">默认：需要确认（除 read-only）</div>
+              <div className="mt-2 text-center text-gray-500">↔</div>
+              <div className="text-red-400 font-bold text-center">yolo</div>
+              <div className="text-gray-400 text-xs mt-1 text-center">自动批准所有工具调用</div>
             </div>
           </div>
         </div>
@@ -957,7 +979,7 @@ priority = 10`}
               <ul className="space-y-1">
                 <li>• PolicyDecision.ALLOW 返回</li>
                 <li>• YOLO 模式所有工具</li>
-                <li>• AUTO_EDIT 模式编辑类工具</li>
+                <li>• AUTO_EDIT 模式启用 <code className="bg-black/30 px-1 rounded">modes=["autoEdit"]</code> 的 allow 规则（如 write_file / replace）</li>
                 <li>• 匹配 Policy 规则的工具</li>
               </ul>
             </div>
@@ -983,7 +1005,7 @@ priority = 10`}
             <ul className="text-sm text-gray-300 space-y-1">
               <li>✓ 日常开发使用 default 模式</li>
               <li>✓ 审查不熟悉的代码时仔细看 Diff</li>
-              <li>✓ 只在可信项目中使用 auto-edit</li>
+              <li>✓ 只在可信项目中使用 autoEdit</li>
               <li>✓ 仔细阅读 Diff 后再批准</li>
               <li>✓ 配置合理的 allowedTools</li>
             </ul>
@@ -1005,45 +1027,44 @@ priority = 10`}
       <Layer title="为什么这样设计审批系统？" icon="💡">
         <div className="space-y-4">
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
-            <h4 className="text-[var(--purple)] font-bold mb-2">🎚️ 为什么需要 4 种模式？</h4>
+            <h4 className="text-[var(--purple)] font-bold mb-2">🎚️ 为什么需要 3 种模式？</h4>
             <div className="text-sm text-[var(--text-secondary)] space-y-2">
-              <p><strong>决策</strong>：提供 Plan + Default → Auto-Edit → YOLO 四种模式。</p>
+              <p><strong>决策</strong>：提供 Default / Auto Edit / YOLO 三种模式。</p>
               <p><strong>原因</strong>：</p>
               <ul className="list-disc pl-5 space-y-1">
-                <li><strong>Plan 模式</strong>：只生成计划不执行，适合代码审查和规划阶段</li>
                 <li><strong>场景多样</strong>：日常开发 vs 快速原型 vs 完全自动有不同的安全需求</li>
                 <li><strong>渐进信任</strong>：用户可以从保守模式开始，逐步放宽</li>
-                <li><strong>可选粒度</strong>：Auto-Edit 精准区分读取/编辑，YOLO 则完全自动</li>
+                <li><strong>可选粒度</strong>：Auto Edit 让 “文件改动” 更高效，YOLO 则在明确接受风险时全自动</li>
               </ul>
-              <p><strong>权衡</strong>：Shift+Tab 只在 Default/Auto-Edit/YOLO 间切换，Plan 通过 --plan 启动。</p>
+              <p><strong>权衡</strong>：Shift+Tab 只切换 default ↔ autoEdit；Ctrl+Y 切换 default ↔ yolo。</p>
             </div>
           </div>
 
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
             <h4 className="text-[var(--terminal-green)] font-bold mb-2">📖 为什么只读工具始终自动批准？</h4>
             <div className="text-sm text-[var(--text-secondary)] space-y-2">
-              <p><strong>决策</strong>：Read、Glob、Grep、WebSearch 等只读工具在所有模式下自动执行。</p>
+              <p><strong>决策</strong>：read-only 工具（如 read_file、list_directory、glob、search_file_content、google_web_search）默认自动执行。</p>
               <p><strong>原因</strong>：</p>
               <ul className="list-disc pl-5 space-y-1">
                 <li><strong>无副作用</strong>：只读操作不会修改系统状态</li>
                 <li><strong>高频使用</strong>：AI 需要频繁读取文件来理解代码</li>
                 <li><strong>用户体验</strong>：每次读取都确认会严重影响效率</li>
               </ul>
-              <p><strong>边界</strong>：即使是只读，敏感文件（如 .env）仍受文件系统权限保护。</p>
+              <p><strong>边界</strong>：<code className="bg-black/30 px-1 rounded">web_fetch</code> 属于 Fetch/网络请求，默认需要确认；敏感文件（如 .env）也仍受文件系统权限保护。</p>
             </div>
           </div>
 
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
             <h4 className="text-[var(--amber)] font-bold mb-2">🔄 为什么用 Shift+Tab 而非配置文件？</h4>
             <div className="text-sm text-[var(--text-secondary)] space-y-2">
-              <p><strong>决策</strong>：模式切换通过快捷键 Shift+Tab 实时切换，而非启动参数或配置。</p>
+              <p><strong>决策</strong>：支持运行时快捷键切换（Shift+Tab / Ctrl+Y），同时也支持 CLI 启动参数设置初始模式。</p>
               <p><strong>原因</strong>：</p>
               <ul className="list-disc pl-5 space-y-1">
                 <li><strong>情境变化</strong>：同一会话中可能需要切换模式（如从审计转到修复）</li>
                 <li><strong>直观反馈</strong>：状态栏实时显示当前模式，用户清楚权限状态</li>
-                <li><strong>零配置</strong>：默认模式合理，无需预先配置</li>
+                <li><strong>零配置</strong>：默认模式足够安全，只有在需要提效时才切换</li>
               </ul>
-              <p><strong>补充</strong>：<code className="bg-black/30 px-1 rounded">--dangerously-skip-permissions</code> 仍可通过命令行启用 YOLO。</p>
+              <p><strong>补充</strong>：通过 <code className="bg-black/30 px-1 rounded">--approval-mode=auto_edit</code> 或 <code className="bg-black/30 px-1 rounded">--approval-mode=yolo</code> / <code className="bg-black/30 px-1 rounded">--yolo</code> 设置初始模式。</p>
             </div>
           </div>
 
@@ -1057,14 +1078,14 @@ priority = 10`}
                 <li><strong>主动信任</strong>：强制用户先阅读代码，再决定是否信任</li>
                 <li><strong>分层防御</strong>：即使用户习惯性按确认，也不会在陌生项目中自动执行</li>
               </ul>
-              <p><strong>信任方式</strong>：通过 <code className="bg-black/30 px-1 rounded">/trust</code> 命令或配置显式添加信任。</p>
+              <p><strong>信任方式</strong>：通过 <code className="bg-black/30 px-1 rounded">/permissions trust</code> 命令显式添加信任。</p>
             </div>
           </div>
 
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--red)]">
             <h4 className="text-[var(--red)] font-bold mb-2">⚠️ 为什么 Shell 命令需要特殊处理？</h4>
             <div className="text-sm text-[var(--text-secondary)] space-y-2">
-              <p><strong>决策</strong>：Shell 命令（Bash 工具）即使在 Auto-Edit 模式也需要确认。</p>
+              <p><strong>决策</strong>：Shell 命令（run_shell_command）即使在 Auto Edit 模式也需要确认。</p>
               <p><strong>原因</strong>：</p>
               <ul className="list-disc pl-5 space-y-1">
                 <li><strong>能力过大</strong>：Shell 可以执行任意系统命令，影响范围无法预估</li>

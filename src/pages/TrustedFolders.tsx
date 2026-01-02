@@ -307,15 +307,15 @@ async function checkIDETrust(): Promise<boolean | null> {
 
           <HighlightBox title="4. 审批模式受限" variant="red">
             <p className="text-sm text-gray-300">
-              只能使用 <code>plan</code> 或 <code>default</code> 模式，
-              无法使用 <code>auto-edit</code> 或 <code>yolo</code>。
+              只能使用 <code>default</code> 模式，
+              无法启用 <code>autoEdit</code> 或 <code>yolo</code>（会被强制降级或直接报错）。
             </p>
           </HighlightBox>
 
-          <HighlightBox title="5. 工具自动接受禁用" variant="red">
+          <HighlightBox title="5. 项目级工具策略忽略" variant="red">
             <p className="text-sm text-gray-300">
-              即使全局设置了自动接受，
-              在不可信文件夹中仍会提示确认。
+              不加载项目级 <code>.gemini/settings.json</code> 中的工具配置（如 <code>tools.allowed</code> / <code>tools.exclude</code>），
+              防止仓库通过配置诱导你自动执行危险操作。
             </p>
           </HighlightBox>
 
@@ -436,9 +436,9 @@ async function checkIDETrust(): Promise<boolean | null> {
               │                  │  │                  │
               │ • Load settings  │  │ • Ignore settings│
               │ • Load .env      │  │ • Ignore .env    │
-              │ • All modes      │  │ • plan/default   │
+              │ • All modes      │  │ • default only   │
               │ • Extensions OK  │  │ • No extensions  │
-              │ • Auto-accept OK │  │ • Always confirm │
+              │ • Auto-accept OK │  │ • default only   │
               └──────────────────┘  └──────────────────┘`}
           </pre>
         </div>
