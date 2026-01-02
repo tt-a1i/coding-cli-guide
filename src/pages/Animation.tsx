@@ -189,7 +189,7 @@ ReadFileToolInvocation.execute({
     message: '返回 ToolResult',
     messageColor: 'bg-[var(--amber)]/10',
     extra: `{
-  llmContent: "{\\"name\\": \\"@anthropic/gemini-cli\\", ...}",
+  llmContent: "{\\"name\\": \\"@google/gemini-cli\\", ...}",
   returnDisplay: "package.json (1.2KB)"
 }`,
   },
@@ -215,7 +215,7 @@ ReadFileToolInvocation.execute({
     message: '最终回复 (finishReason: STOP)',
     messageColor: 'bg-[var(--purple)]/10',
     extra: `{
-  content: "package.json 的 name 是 @anthropic/gemini-cli",
+  content: "package.json 的 name 是 @google/gemini-cli",
   finishReason: "STOP"  // 无更多工具调用
 }`,
   },

@@ -1232,7 +1232,7 @@ DEBUG=gemini:tokens gemini
 # 与本地计算值进行对比
 
 # 调试方法 3: 单独测试 tokenizer
-import { getDefaultTokenizer } from '@anthropic/gemini-core';
+import { getDefaultTokenizer } from '@google/gemini-cli-core';
 const tokenizer = getDefaultTokenizer();
 const result = await tokenizer.calculateTokens(yourContent);
 console.log(result.breakdown);`}
@@ -1273,7 +1273,7 @@ console.log(result.breakdown);`}
 # 在 CLI 界面中查看状态栏的 Token 计数
 
 # 检查模型限制是否正确匹配
-import { getTokenLimits } from '@anthropic/gemini-core';
+import { getTokenLimits } from '@google/gemini-cli-core';
 console.log(getTokenLimits('your-model-name'));
 
 # 调整压缩阈值（在 settings.json）
@@ -1328,7 +1328,7 @@ console.log('First 8 bytes:', buffer.subarray(0, 8));
 # 检查 WebP 签名: 52 49 46 46 xx xx xx xx 57 45 42 50
 
 # 手动测试图片 tokenizer
-import { ImageTokenizer } from '@anthropic/gemini-core';
+import { ImageTokenizer } from '@google/gemini-cli-core';
 const tokenizer = new ImageTokenizer();
 const tokens = await tokenizer.calculateTokens(base64Data, 'image/png');`}
               language="bash"
@@ -1365,12 +1365,12 @@ const tokens = await tokenizer.calculateTokens(base64Data, 'image/png');`}
             </div>
             <CodeBlock
               code={`# 检查归一化后的模型名称
-import { normalizeModelName } from '@anthropic/gemini-core';
+import { normalizeModelName } from '@google/gemini-cli-core';
 console.log(normalizeModelName('openai/gpt-4o-2024-08-06'));
 // 输出: gpt-4o
 
 # 验证模式匹配结果
-import { getTokenLimits } from '@anthropic/gemini-core';
+import { getTokenLimits } from '@google/gemini-cli-core';
 console.log(getTokenLimits('gpt-4o'));
 // 输出: { input: 128000, output: 16384 }
 

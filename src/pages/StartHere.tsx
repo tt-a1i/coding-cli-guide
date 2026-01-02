@@ -525,7 +525,7 @@ export function StartHere({ onNavigate }: StartHereProps) {
         </div>
         <h2 className="text-lg font-bold font-mono text-[var(--text-primary)] mb-3">关于本文档</h2>
         <p className="text-sm text-[var(--text-secondary)] mb-6 font-mono">
-          基于 <a href="https://github.com/anthropics/gemini-cli" className="text-[var(--terminal-green)] hover:underline hover:text-[var(--terminal-green)] transition-colors">gemini-cli</a> 源码分析，
+          基于 <a href="https://github.com/google-gemini/gemini-cli" className="text-[var(--terminal-green)] hover:underline hover:text-[var(--terminal-green)] transition-colors">gemini-cli</a> 源码分析，
           所有结论均附带源文件路径和行号引用。
         </p>
         <div className="flex justify-center gap-8 text-xs font-mono text-[var(--text-muted)]">

@@ -509,7 +509,7 @@ async function checkPortAvailability(port: number): Promise<boolean> {
 
           <HighlightBox title="自动更新机制" icon="🔄" variant="green">
             <ul className="space-y-2 text-sm">
-              <li><strong>CLI</strong>：运行 <code className="text-cyan-400">npm update -g @anthropic-ai/claude-code</code> 或使用包管理器更新</li>
+              <li><strong>CLI</strong>：运行 <code className="text-cyan-400">npm update -g @google/gemini-cli</code> 或使用包管理器更新</li>
               <li><strong>VS Code 扩展</strong>：自动更新，或手动在扩展面板更新</li>
               <li><strong>Zed</strong>：自动更新，或通过 About 菜单检查</li>
             </ul>

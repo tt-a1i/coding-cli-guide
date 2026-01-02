@@ -1119,8 +1119,8 @@ export PATH="$(npm config get prefix)/bin:$PATH"
 sudo chown -R $(whoami) $(npm config get prefix)/{lib/node_modules,bin,share}
 
 # 方案 D: 重新安装
-npm uninstall -g @anthropics/gemini-cli
-npm install -g @anthropics/gemini-cli`}
+npm uninstall -g @google/gemini-cli
+npm install -g @google/gemini-cli`}
             language="bash"
             title="启动问题诊断"
           />
