@@ -40,13 +40,13 @@ type DetectionLayer = 'tool' | 'content' | 'llm';
 
 const SAMPLE_TOOL_CALLS: Omit<ToolCall, 'hash' | 'timestamp'>[] = [
   { id: 't1', name: 'Read', args: '{"file_path": "/src/app.ts"}' },
-  { id: 't2', name: 'Edit', args: '{"file_path": "/src/app.ts", "old": "a", "new": "b"}' },
+  { id: 't2', name: 'Edit', args: '{"file_path": "/src/app.ts", "old_string": "a", "new_string": "b"}' },
   { id: 't3', name: 'Read', args: '{"file_path": "/src/app.ts"}' },
-  { id: 't4', name: 'Edit', args: '{"file_path": "/src/app.ts", "old": "a", "new": "b"}' },
+  { id: 't4', name: 'Edit', args: '{"file_path": "/src/app.ts", "old_string": "a", "new_string": "b"}' },
   { id: 't5', name: 'Read', args: '{"file_path": "/src/app.ts"}' },
-  { id: 't6', name: 'Edit', args: '{"file_path": "/src/app.ts", "old": "a", "new": "b"}' },
-  { id: 't7', name: 'Edit', args: '{"file_path": "/src/app.ts", "old": "a", "new": "b"}' },
-  { id: 't8', name: 'Edit', args: '{"file_path": "/src/app.ts", "old": "a", "new": "b"}' },
+  { id: 't6', name: 'Edit', args: '{"file_path": "/src/app.ts", "old_string": "a", "new_string": "b"}' },
+  { id: 't7', name: 'Edit', args: '{"file_path": "/src/app.ts", "old_string": "a", "new_string": "b"}' },
+  { id: 't8', name: 'Edit', args: '{"file_path": "/src/app.ts", "old_string": "a", "new_string": "b"}' },
 ];
 
 const SAMPLE_CONTENT = "The function calculates. The function calculates. The function calculates. The function calculates. The function calculates. The function calculates. The function calculates. The function calculates. The function calculates. The function calculates. The function calculates. ";

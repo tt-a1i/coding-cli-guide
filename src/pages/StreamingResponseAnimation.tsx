@@ -43,8 +43,8 @@ const SAMPLE_EVENTS: StreamEvent[] = [
   { type: 'Content', value: '让我帮你', timestamp: 100 },
   { type: 'Content', value: '检查这个文件', timestamp: 200 },
   { type: 'Content', value: '的内容。', timestamp: 300 },
-  { type: 'ToolCallRequest', value: 'read_file({ path: "src/app.ts" })', timestamp: 400 },
-  { type: 'ToolCallRequest', value: 'grep({ pattern: "export" })', timestamp: 500 },
+  { type: 'ToolCallRequest', value: 'read_file({ file_path: "src/app.ts" })', timestamp: 400 },
+  { type: 'ToolCallRequest', value: 'search_file_content({ pattern: "export" })', timestamp: 500 },
   { type: 'Finished', value: 'STOP', timestamp: 600 },
 ];
 

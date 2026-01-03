@@ -460,7 +460,7 @@ export function convertOpenAIChunkToGemini(
         functionCall: {
           id: "call_abc123",
           name: "read_file",
-          args: { path: "/package.json" }
+          args: { file_path: "/package.json" }
         }
       }],
       role: "model"
@@ -519,7 +519,7 @@ function mapUsageMetadata(usage: OpenAI.CompletionUsage) {
           functionCall: {
             id: "call_abc123",
             name: "read_file",
-            args: { path: "/package.json" }
+            args: { file_path: "/package.json" }
           }
         }
       ],

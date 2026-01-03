@@ -981,7 +981,7 @@ Turn 5: Read({ file_path: "/project/src/config.ts " })              // 加空格
 模糊匹配：归一化后全部相同 -> 触发检测！
 
 归一化结果：
-Turn 1-5: { toolName: "Read", normalizedArgs: { path: "config.ts", offset: "NUMBER" } }
+Turn 1-5: { toolName: "Read", normalizedArgs: { file_path: "config.ts", offset: "NUMBER" } }
 */`}
             language="typescript"
             title="模糊匹配检测"

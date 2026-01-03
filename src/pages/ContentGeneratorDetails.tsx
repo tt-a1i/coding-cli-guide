@@ -553,7 +553,7 @@ private tryRepairAndParse(buffer: string): Record<string, unknown> | null {
             </div>
             <div className="bg-black/30 rounded p-3">
               <div className="text-xs text-gray-400 mb-1">解析结果</div>
-              <code className="text-sm">{`{ completed: true, args: { path: "/src/app.ts" } }`}</code>
+              <code className="text-sm">{`{ completed: true, args: { file_path: "/src/app.ts" } }`}</code>
             </div>
           </div>
         </HighlightBox>

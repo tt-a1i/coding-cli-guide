@@ -727,28 +727,27 @@ export type ToolCall =
         <MermaidDiagram chart={confirmationDecisionChart} title="确认决策流程" />
         <CodeBlock code={shouldConfirmCode} language="typescript" title="确认决策核心代码" />
 
-        <HighlightBox title="⚠️ 工具命名不一致警告" variant="yellow">
+        <HighlightBox title="⚠️ 工具命名提示" variant="yellow">
           <div className="text-sm space-y-2">
             <p className="text-yellow-200">
-              <strong>已知问题：</strong> Core 层定义的工具名是 <code className="text-cyan-300">edit</code>，
-              但 CLI 层的 EDIT_TOOL_NAMES 使用 <code className="text-cyan-300">replace</code>。
+              <strong>关键点：</strong> Gemini CLI 的“编辑文件”工具 API 名称是 <code className="text-cyan-300">replace</code>（不是 <code className="text-cyan-300">edit</code>）。
             </p>
             <div>
               <h5 className="font-semibold text-yellow-300 mb-1">影响范围</h5>
               <ul className="space-y-1 text-gray-300">
-                <li>• <strong>AUTO_EDIT 模式：</strong> 自动批准 <code className="text-orange-300">replace</code> 和 <code className="text-orange-300">write_file</code>，而非 <code className="text-cyan-300">edit</code></li>
+                <li>• <strong>AUTO_EDIT 模式：</strong> 自动批准 <code className="text-orange-300">replace</code> 和 <code className="text-orange-300">write_file</code></li>
                 <li>• <strong>Checkpointing：</strong> 监听 <code className="text-orange-300">replace</code> 和 <code className="text-orange-300">write_file</code> 的 awaiting_approval 状态</li>
               </ul>
             </div>
             <div>
               <h5 className="font-semibold text-yellow-300 mb-1">源码位置</h5>
               <ul className="space-y-1 text-gray-400 text-xs font-mono">
-                <li>• packages/core/src/tools/tool-names.ts:13 - <code className="text-cyan-300">EDIT: 'edit'</code></li>
-                <li>• packages/cli/src/ui/hooks/useGeminiStream.ts:75 - <code className="text-orange-300">new Set(['replace', 'write_file'])</code></li>
+                <li>• gemini-cli/packages/core/src/tools/tool-names.ts - <code className="text-cyan-300">EDIT_TOOL_NAME = 'replace'</code></li>
+                <li>• gemini-cli/packages/core/src/tools/edit.ts - <code className="text-cyan-300">export interface EditToolParams</code></li>
               </ul>
             </div>
             <p className="text-yellow-200 mt-2">
-              <strong>建议：</strong> 在实际使用时确认 AI 返回的工具调用名称与 CLI 预期是否一致。
+              <strong>建议：</strong> 当看到 <code className="text-cyan-300">edit</code> 时，优先把它当作旧文档/误用并改为 <code className="text-cyan-300">replace</code>。
             </p>
           </div>
         </HighlightBox>
@@ -1206,7 +1205,7 @@ const abortHandler = () => {
             <div>
               <h5 className="text-sm font-semibold text-gray-300 mb-2">场景描述</h5>
               <p className="text-sm text-gray-400">
-                AI 在一次响应中返回多个工具调用（如同时调用 read_file、edit、run_shell_command）。
+                AI 在一次响应中返回多个工具调用（如同时调用 read_file、replace、run_shell_command）。
                 这些工具需要以正确的顺序处理。
               </p>
               <div className="mt-2 bg-blue-500/10 p-2 rounded text-xs">

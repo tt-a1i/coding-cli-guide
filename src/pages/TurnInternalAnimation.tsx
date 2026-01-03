@@ -246,7 +246,7 @@ case GeminiEventType.Content:
           parts: [{
             functionCall: {
               name: 'read_file',
-              args: { path: '/package.json' }
+              args: { file_path: '/package.json' }
             }
           }],
           role: 'model'
@@ -282,13 +282,13 @@ for (const part of functionCallParts) {
   {
     type: 'tool_call_detected',
     description: '检测到 read_file 工具调用',
-    data: { name: 'read_file', args: { path: '/package.json' } },
+    data: { name: 'read_file', args: { file_path: '/package.json' } },
     stateChange: {},
     code: `// turn.ts:305 - 工具调用检测
 // 从 functionCall 中提取信息:
 const functionCall = {
   name: 'read_file',           // 工具名称
-  args: { path: '/package.json' }  // 参数对象
+  args: { file_path: '/package.json' }  // 参数对象
 };
 
 // 验证工具是否存在
@@ -307,13 +307,13 @@ if (!tool) {
     data: {
       callId: 'call_001',
       name: 'read_file',
-      args: { path: '/package.json' }
+      args: { file_path: '/package.json' }
     },
     stateChange: {
       pendingToolCalls: [{
         callId: 'call_001',
         name: 'read_file',
-        args: { path: '/package.json' }
+        args: { file_path: '/package.json' }
       }]
     },
     code: `// turn.ts:318 - 存储并发出事件

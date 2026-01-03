@@ -36,9 +36,9 @@ interface TrackedToolCall {
 }
 
 const SAMPLE_TOOLS: Omit<TrackedToolCall, 'status' | 'responseSubmittedToGemini' | 'liveOutput' | 'resultDisplay'>[] = [
-  { callId: 'tc-001', name: 'read_file', args: '{ path: "src/app.ts" }' },
-  { callId: 'tc-002', name: 'run_shell_command', args: '{ cmd: "npm test" }' },
-  { callId: 'tc-003', name: 'write_file', args: '{ path: "output.json" }' },
+  { callId: 'tc-001', name: 'read_file', args: '{ file_path: "src/app.ts" }' },
+  { callId: 'tc-002', name: 'run_shell_command', args: '{ command: "npm test" }' },
+  { callId: 'tc-003', name: 'write_file', args: '{ file_path: "output.json", content: "{\\n  \\"ok\\": true\\n}" }' },
 ];
 
 const STATUS_FLOW: ToolStatus[] = ['scheduled', 'validating', 'awaiting_approval', 'executing', 'success'];

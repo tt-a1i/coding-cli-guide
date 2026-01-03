@@ -442,7 +442,7 @@ function HistoryInjection({ phase }: { phase: BuildPhase }) {
         <div className="p-2 bg-[var(--cyber-blue)]/10 rounded border border-[var(--cyber-blue-dim)]">
           <div className="text-[var(--cyber-blue)] mb-1">role: "model"</div>
           <div className="text-[var(--text-muted)]">
-            functionCall: read_file({'{'}path: "/package.json"{'}'})
+            functionCall: read_file({'{'}file_path: "/package.json"{'}'})
           </div>
         </div>
 

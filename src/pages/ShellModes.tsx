@@ -16,7 +16,7 @@ export function ShellModes() {
         shell_exec_service["ShellExecutionService.execute()"]
         pty_check{启用 PTY?}
         pty_mode["executeWithPty()<br/>支持交互式命令"]
-        child_process["executeWithChildProcess()<br/>仅捕获输出"]
+        child_process["childProcessFallback()<br/>仅捕获输出"]
         direct_output["直接输出到终端"]
     end
 
@@ -25,10 +25,14 @@ export function ShellModes() {
         toml_shell_input["TOML: prompt 中 !{command}"]
         shell_injector["shellProcessor.ts<br/>ShellProcessor.process()"]
         arg_substitution["参数替换:<br/>{{args}} → shell-escaped"]
-        permission_check["checkCommandPermissions()<br/>权限检查"]
-        approval_check{需要确认?}
-        confirm_dialog["ConfirmationRequiredError<br/>弹出确认对话框"]
-        add_allowlist["添加到 sessionShellAllowlist"]
+        permission_check["checkCommandPermissions()<br/>(default deny)"]
+        hard_denial{Hard denial?}
+        blocked_error["Error: hard denial<br/>无法确认绕过"]
+        needs_confirm{需要确认?}
+        confirm_dialog["ShellConfirmationDialog<br/>Allow once / session / cancel"]
+        allow_once["Allow once<br/>one-time allowlist"]
+        allow_session["Allow for session<br/>update sessionShellAllowlist"]
+        rerun["重新执行 slash command"]
         inject_exec["ShellExecutionService.execute()"]
         inject_prompt["输出注入到 prompt"]
         send_to_ai["发送给 AI Model"]
@@ -49,11 +53,16 @@ export function ShellModes() {
     toml_shell_input --> shell_injector
     shell_injector --> arg_substitution
     arg_substitution --> permission_check
-    permission_check --> approval_check
-    approval_check -->|非 YOLO| confirm_dialog
-    approval_check -->|YOLO/Allowlist| inject_exec
-    confirm_dialog -->|用户确认| add_allowlist
-    add_allowlist --> inject_exec
+    permission_check --> hard_denial
+    hard_denial -->|Yes| blocked_error
+    hard_denial -->|No| needs_confirm
+    needs_confirm -->|No (YOLO/allowlisted)| inject_exec
+    needs_confirm -->|Yes| confirm_dialog
+    confirm_dialog -->|Allow once| allow_once
+    confirm_dialog -->|Allow session| allow_session
+    allow_once --> rerun
+    allow_session --> rerun
+    rerun --> inject_exec
     inject_exec --> inject_prompt
     inject_prompt --> send_to_ai
 
@@ -63,6 +72,7 @@ export function ShellModes() {
     style toml_shell_input fill:#a78bfa,color:#000
     style pty_mode fill:#10b981,color:#000
     style confirm_dialog fill:#f59e0b,color:#000
+    style blocked_error fill:#ef4444,color:#fff
     style direct_output fill:#22c55e,color:#000
     style send_to_ai fill:#8b5cf6,color:#fff`;
 
@@ -103,35 +113,61 @@ export function ShellModes() {
 
   // 权限检查流程
   const permissionCheckChart = `flowchart TD
-    start([checkCommandPermissions])
-    extract_roots["提取命令根<br/>getCommandRoots()"]
-    check_blocklist{在 blocklist?}
-    hard_denial([isHardDenial = true<br/>直接拒绝])
-    check_session{在 sessionAllowlist?}
-    check_config{在配置 allowlist?}
-    check_needs_perm["isCommandNeedsPermission()<br/>安全命令判断"]
-    needs_perm{需要权限?}
-    auto_approve([allAllowed = true<br/>自动批准])
-    need_confirm([allAllowed = false<br/>需要确认])
+    start([checkCommandPermissions(command, config, sessionAllowlist?)])
+    parse["parseCommandDetails(command)<br/>Bash(tree-sitter) / PowerShell parser"]
+    parse_ok{parse ok?}
+    hard_parse([Hard deny<br/>无法安全解析])
 
-    start --> extract_roots
-    extract_roots --> check_blocklist
-    check_blocklist -->|Yes| hard_denial
-    check_blocklist -->|No| check_session
-    check_session -->|Yes| auto_approve
-    check_session -->|No| check_config
-    check_config -->|Yes| auto_approve
-    check_config -->|No| check_needs_perm
-    check_needs_perm --> needs_perm
-    needs_perm -->|Yes| need_confirm
-    needs_perm -->|No| auto_approve
+    wildcard_block{tools.exclude includes<br/>run_shell_command/ShellTool?}
+    hard_shell_disabled([Hard deny<br/>shell tool disabled])
+    exclude_match{any segment matches<br/>tools.exclude patterns?}
+    hard_exclude([Hard deny<br/>blocked by configuration])
 
-    style hard_denial fill:#ef4444,color:#fff
-    style auto_approve fill:#22c55e,color:#000
-    style need_confirm fill:#f59e0b,color:#000
-    style check_blocklist fill:#dc2626,color:#fff
-    style check_session fill:#10b981,color:#000
-    style check_config fill:#10b981,color:#000`;
+    wildcard_allow{tools.core includes<br/>run_shell_command/ShellTool?}
+    allow_all([Allowed<br/>wildcard allow])
+
+    mode{sessionAllowlist provided?}
+
+    default_deny["Default deny mode<br/>(custom command injection)"]
+    deny_check{each segment allowed<br/>by sessionAllowlist OR tools.core?}
+    soft_deny([Soft deny<br/>needs user confirmation])
+
+    default_allow["Default allow mode<br/>(direct tool invocation)"]
+    strict{tools.core has any<br/>run_shell_command(...) patterns?}
+    allow_check{each segment matches<br/>tools.core?}
+    soft_deny2([Soft deny<br/>blocked by strict allowlist])
+
+    allow_default([Allowed])
+
+    start --> parse --> parse_ok
+    parse_ok -->|No| hard_parse
+    parse_ok -->|Yes| wildcard_block
+    wildcard_block -->|Yes| hard_shell_disabled
+    wildcard_block -->|No| exclude_match
+    exclude_match -->|Yes| hard_exclude
+    exclude_match -->|No| wildcard_allow
+    wildcard_allow -->|Yes| allow_all
+    wildcard_allow -->|No| mode
+
+    mode -->|Yes| default_deny --> deny_check
+    deny_check -->|All allowed| allow_default
+    deny_check -->|Disallowed| soft_deny
+
+    mode -->|No| default_allow --> strict
+    strict -->|No| allow_default
+    strict -->|Yes| allow_check
+    allow_check -->|All allowed| allow_default
+    allow_check -->|Disallowed| soft_deny2
+
+    style hard_parse fill:#ef4444,color:#fff
+    style hard_shell_disabled fill:#ef4444,color:#fff
+    style hard_exclude fill:#ef4444,color:#fff
+    style soft_deny fill:#f59e0b,color:#000
+    style soft_deny2 fill:#f59e0b,color:#000
+    style allow_all fill:#22c55e,color:#000
+    style allow_default fill:#22c55e,color:#000
+    style default_deny fill:#a78bfa,color:#000
+    style default_allow fill:#22d3ee,color:#000`;
 
   return (
     <div className="space-y-8">
@@ -197,7 +233,9 @@ export function ShellModes() {
               <tr className="border-b border-gray-800">
                 <td className="py-2 font-semibold text-gray-400">权限模型</td>
                 <td>用户权限（等同直接在 terminal 执行）</td>
-                <td>受 <code>tools.allowed/blocklist</code> 限制</td>
+                <td>
+                  默认 <code>deny</code>（需确认/会话白名单）；同时受 <code>tools.exclude</code>（硬拒绝）与 <code>tools.core</code>（全局允许）影响
+                </td>
               </tr>
               <tr>
                 <td className="py-2 font-semibold text-gray-400">示例</td>
@@ -298,8 +336,9 @@ export function ShellModes() {
           <div className="text-sm">
             <p className="mb-2">两种模式都会设置以下环境变量：</p>
             <ul className="list-disc pl-5 space-y-1 text-gray-300">
-              <li><code className="text-green-300">QWEN_CODE=1</code> - 标记命令在 CLI 中运行</li>
-              <li><code className="text-green-300">PAGER</code> - 配置的分页器（如 cat）</li>
+              <li><code className="text-green-300">GEMINI_CLI=1</code> - 标记命令在 Gemini CLI 中运行</li>
+              <li><code className="text-green-300">TERM=xterm-256color</code> - 提供基础终端能力</li>
+              <li><code className="text-green-300">PAGER</code> / <code className="text-green-300">GIT_PAGER</code> - 默认 <code>cat</code> 或使用 <code>tools.shell.pager</code></li>
               <li>其他继承自父进程的环境变量</li>
             </ul>
           </div>
@@ -313,27 +352,27 @@ export function ShellModes() {
             <h4 className="text-cyan-400 font-semibold mb-3">交互式 Shell 路径</h4>
             <div className="text-sm space-y-2">
               <SourceLink
-                path="packages/cli/src/ui/hooks/shellCommandProcessor.ts:79"
+                path="gemini-cli/packages/cli/src/ui/hooks/shellCommandProcessor.ts:66"
                 desc="useShellCommandProcessor - Shell 命令处理主入口"
               />
               <SourceLink
-                path="packages/cli/src/ui/hooks/shellCommandProcessor.ts:87"
-                desc="addItemToHistory - 添加到历史记录"
+                path="gemini-cli/packages/cli/src/ui/hooks/shellCommandProcessor.ts:33"
+                desc="addShellCommandToGeminiHistory - 将执行结果写入模型历史"
               />
               <SourceLink
-                path="packages/cli/src/ui/hooks/shellCommandProcessor.ts:164"
+                path="gemini-cli/packages/cli/src/ui/hooks/shellCommandProcessor.ts:154"
                 desc="ShellExecutionService.execute() - 调用执行服务"
               />
               <SourceLink
-                path="packages/core/src/services/shellExecutionService.ts:119"
+                path="gemini-cli/packages/core/src/services/shellExecutionService.ts:174"
                 desc="ShellExecutionService.execute() - 执行入口"
               />
               <SourceLink
-                path="packages/core/src/services/shellExecutionService.ts:131"
+                path="gemini-cli/packages/core/src/services/shellExecutionService.ts:448"
                 desc="executeWithPty() - PTY 模式执行"
               />
               <SourceLink
-                path="packages/core/src/services/shellExecutionService.ts:145"
+                path="gemini-cli/packages/core/src/services/shellExecutionService.ts:239"
                 desc="childProcessFallback() - 子进程模式执行"
               />
             </div>
@@ -343,23 +382,23 @@ export function ShellModes() {
             <h4 className="text-purple-400 font-semibold mb-3">自定义命令注入路径</h4>
             <div className="text-sm space-y-2">
               <SourceLink
-                path="packages/cli/src/services/prompt-processors/shellProcessor.ts:54"
+                path="gemini-cli/packages/cli/src/services/prompt-processors/shellProcessor.ts:54"
                 desc="ShellProcessor class - 注入处理器"
               />
               <SourceLink
-                path="packages/cli/src/services/prompt-processors/shellProcessor.ts:66"
+                path="gemini-cli/packages/cli/src/services/prompt-processors/shellProcessor.ts:66"
                 desc="processString() - 处理 prompt 中的 !{} 注入"
               />
               <SourceLink
-                path="packages/cli/src/services/prompt-processors/shellProcessor.ts:86"
+                path="gemini-cli/packages/cli/src/services/prompt-processors/injectionParser.ts:31"
                 desc="extractInjections() - 提取所有注入点"
               />
               <SourceLink
-                path="packages/cli/src/services/prompt-processors/shellProcessor.ts:99"
+                path="gemini-cli/packages/cli/src/services/prompt-processors/shellProcessor.ts:100"
                 desc="参数转义: {{args}} → escapeShellArg()"
               />
               <SourceLink
-                path="packages/cli/src/services/prompt-processors/shellProcessor.ts:25"
+                path="gemini-cli/packages/cli/src/services/prompt-processors/shellProcessor.ts:25"
                 desc="ConfirmationRequiredError - 确认异常类"
               />
             </div>
@@ -369,20 +408,20 @@ export function ShellModes() {
             <h4 className="text-orange-400 font-semibold mb-3">run_shell_command (AI 使用)</h4>
             <div className="text-sm space-y-2">
               <SourceLink
-                path="packages/core/src/tools/shell.ts:52"
+                path="gemini-cli/packages/core/src/tools/shell.ts:58"
                 desc="ShellToolInvocation class - Shell 工具实现"
               />
               <SourceLink
-                path="packages/core/src/tools/shell.ts:82"
-                desc="shouldConfirmExecute() - 权限检查逻辑"
+                path="gemini-cli/packages/core/src/tools/shell.ts:106"
+                desc="getConfirmationDetails() - 生成确认对话框与会话 allowlist"
               />
               <SourceLink
-                path="packages/core/src/tools/shell.ts:114"
+                path="gemini-cli/packages/core/src/tools/shell.ts:153"
                 desc="execute() - Shell 工具执行入口"
               />
               <SourceLink
-                path="packages/core/src/utils/shell-utils.ts"
-                desc="checkCommandPermissions() - 权限检查工具函数"
+                path="gemini-cli/packages/core/src/utils/shell-permissions.ts:40"
+                desc="checkCommandPermissions() - Shell 命令限制检查"
               />
             </div>
           </div>
@@ -416,7 +455,7 @@ export function ShellModes() {
           <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
             <h4 className="text-blue-400 font-semibold mb-2">PTY vs 子进程选择</h4>
             <CodeBlock
-              code={`// packages/core/src/services/shellExecutionService.ts:119
+              code={`// gemini-cli/packages/core/src/services/shellExecutionService.ts:174
 static async execute(
   commandToExecute: string,
   cwd: string,
@@ -454,25 +493,35 @@ static async execute(
           <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
             <h4 className="text-purple-400 font-semibold mb-2">安全确认决策</h4>
             <CodeBlock
-              code={`// packages/cli/src/services/prompt-processors/shellProcessor.ts:120
-for (const injection of injections) {
-  const { allAllowed, isHardDenial, disallowedCommands } =
-    checkCommandPermissions(injection.resolvedCommand, config);
+              code={`// gemini-cli/packages/cli/src/services/prompt-processors/shellProcessor.ts:118
+const { sessionShellAllowlist } = context.session;
+const commandsToConfirm = new Set<string>();
+
+for (const injection of resolvedInjections) {
+  const command = injection.resolvedCommand;
+  if (!command) continue;
+
+  const { allAllowed, disallowedCommands, blockReason, isHardDenial } =
+    checkCommandPermissions(command, config, sessionShellAllowlist);
 
   if (!allAllowed) {
     if (isHardDenial) {
-      // 硬拒绝：命令在 blocklist 中
-      throw new Error(\`Blocked: \${injection.resolvedCommand}\`);
+      // 硬拒绝：配置阻止/无法安全解析
+      throw new Error(\`Blocked command: "\${command}". Reason: \${blockReason}\`);
     }
 
-    // 非 YOLO 需要确认
+    // 软拒绝：仅在非 YOLO 时触发确认
     if (config.getApprovalMode() !== ApprovalMode.YOLO) {
-      throw new ConfirmationRequiredError(
-        'Shell command requires approval',
-        disallowedCommands
-      );
+      disallowedCommands.forEach((uc) => commandsToConfirm.add(uc));
     }
   }
+}
+
+if (commandsToConfirm.size > 0) {
+  throw new ConfirmationRequiredError(
+    'Shell command confirmation required',
+    Array.from(commandsToConfirm),
+  );
 }`}
               language="typescript"
               title="确认决策逻辑"
@@ -480,10 +529,10 @@ for (const injection of injections) {
             <div className="mt-3 text-sm text-gray-300">
               <strong>决策分支:</strong>
               <ul className="list-disc pl-5 mt-1 space-y-1">
-                <li><strong>硬拒绝:</strong> 命令在 blocklist → 直接抛出错误</li>
-                <li><strong>自动批准:</strong> 命令在 allowlist 或 sessionShellAllowlist → 执行</li>
-                <li><strong>YOLO 模式:</strong> 所有命令自动批准 → 执行</li>
-                <li><strong>需要确认:</strong> 其他情况 → 抛出 ConfirmationRequiredError</li>
+                <li><strong>硬拒绝:</strong> 命令无法安全解析，或命中 <code>tools.exclude</code> → 直接抛错</li>
+                <li><strong>自动批准:</strong> 命令在 <code>sessionShellAllowlist</code> 或 <code>tools.core</code> → 执行</li>
+                <li><strong>YOLO 模式:</strong> 对软拒绝不再弹确认 → 直接执行（仍无法绕过硬拒绝）</li>
+                <li><strong>需要确认:</strong> 软拒绝且非 YOLO → 抛出 <code>ConfirmationRequiredError</code></li>
               </ul>
             </div>
           </div>
@@ -491,7 +540,7 @@ for (const injection of injections) {
           <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
             <h4 className="text-green-400 font-semibold mb-2">二进制输出检测</h4>
             <CodeBlock
-              code={`// packages/core/src/services/shellExecutionService.ts:167
+              code={`// gemini-cli/packages/core/src/tools/shell.ts:220
 (event: ShellOutputEvent) => {
   switch (event.type) {
     case 'data':
@@ -531,7 +580,7 @@ for (const injection of injections) {
           <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
             <h4 className="text-yellow-400 font-semibold mb-2">参数转义边界</h4>
             <CodeBlock
-              code={`// packages/cli/src/services/prompt-processors/shellProcessor.ts:99
+              code={`// gemini-cli/packages/cli/src/services/prompt-processors/shellProcessor.ts:99
 const { shell } = getShellConfiguration();
 const userArgsEscaped = escapeShellArg(userArgsRaw, shell);
 
@@ -590,9 +639,9 @@ for (const injection of injections) {
               <div>
                 <strong>失败场景:</strong>
                 <ul className="list-disc pl-5 mt-1">
-                  <li>命令在 blocklist 中（硬拒绝）</li>
-                  <li>用户拒绝确认对话框</li>
-                  <li>命令需要权限但未获得批准</li>
+                  <li>命令无法安全解析（硬拒绝）</li>
+                  <li>命令命中 <code>tools.exclude</code>（硬拒绝）</li>
+                  <li>用户在 ShellConfirmationDialog 选择 No / Esc（取消）</li>
                 </ul>
               </div>
               <div>
@@ -600,7 +649,7 @@ for (const injection of injections) {
                 <ul className="list-disc pl-5 mt-1">
                   <li><strong>硬拒绝:</strong> 直接返回错误，不执行</li>
                   <li><strong>用户拒绝:</strong> 取消执行，不影响后续命令</li>
-                  <li><strong>YOLO 模式:</strong> 用户可切换到 YOLO 绕过所有检查</li>
+                  <li><strong>YOLO 模式:</strong> 跳过软拒绝确认，但仍无法绕过硬拒绝</li>
                 </ul>
               </div>
             </div>
@@ -749,25 +798,25 @@ signal.addEventListener('abort', () => {
                     <td className="p-2"><code className="text-purple-300">tools.allowed</code></td>
                     <td className="p-2">string[]</td>
                     <td className="p-2"><code>[]</code></td>
-                    <td className="p-2">允许自动执行的命令白名单</td>
+                    <td className="p-2">工具调用自动批准（跳过确认对话框）；支持 <code>run_shell_command(git)</code> 这类前缀匹配</td>
                   </tr>
                   <tr className="border-b border-gray-700/50">
-                    <td className="p-2"><code className="text-purple-300">tools.blocklist</code></td>
+                    <td className="p-2"><code className="text-purple-300">tools.exclude</code></td>
                     <td className="p-2">string[]</td>
                     <td className="p-2"><code>[]</code></td>
-                    <td className="p-2">禁止执行的命令黑名单</td>
+                    <td className="p-2">工具/命令硬拒绝（最高优先级）；例如 <code>run_shell_command(rm -rf)</code></td>
                   </tr>
                   <tr className="border-b border-gray-700/50">
-                    <td className="p-2"><code className="text-purple-300">approvalMode</code></td>
+                    <td className="p-2"><code className="text-purple-300">--approval-mode</code></td>
                     <td className="p-2">enum</td>
-                    <td className="p-2"><code>DEFAULT</code></td>
-                    <td className="p-2">确认模式 (YOLO/DEFAULT/AUTO_EDIT)</td>
+                    <td className="p-2"><code>default</code></td>
+                    <td className="p-2">确认模式（default / auto_edit / yolo；未信任目录会强制 default）</td>
                   </tr>
                   <tr>
                     <td className="p-2"><code className="text-purple-300">sessionShellAllowlist</code></td>
                     <td className="p-2">Set&lt;string&gt;</td>
                     <td className="p-2">运行时</td>
-                    <td className="p-2">本次会话确认过的命令</td>
+                    <td className="p-2">自定义命令注入的会话白名单（Allow for this session 会写入）</td>
                   </tr>
                 </tbody>
               </table>
@@ -787,23 +836,28 @@ signal.addEventListener('abort', () => {
                 </thead>
                 <tbody className="text-gray-300">
                   <tr className="border-b border-gray-700/50">
-                    <td className="p-2"><code className="text-green-300">QWEN_CODE</code></td>
-                    <td className="p-2">CLI 设置</td>
-                    <td className="p-2">标记命令在 CLI 环境中运行，值为 "1"</td>
+                    <td className="p-2"><code className="text-green-300">GEMINI_CLI</code></td>
+                    <td className="p-2">ShellExecutionService</td>
+                    <td className="p-2">标记命令在 Gemini CLI 环境中运行，值为 "1"</td>
+                  </tr>
+                  <tr className="border-b border-gray-700/50">
+                    <td className="p-2"><code className="text-green-300">TERM</code></td>
+                    <td className="p-2">ShellExecutionService</td>
+                    <td className="p-2">强制设置为 <code>xterm-256color</code></td>
                   </tr>
                   <tr className="border-b border-gray-700/50">
                     <td className="p-2"><code className="text-green-300">PAGER</code></td>
-                    <td className="p-2">配置</td>
-                    <td className="p-2">分页器程序（通常为 "cat" 避免交互）</td>
+                    <td className="p-2">ShellExecutionService</td>
+                    <td className="p-2">默认 <code>cat</code>，或使用 <code>tools.shell.pager</code></td>
                   </tr>
                   <tr className="border-b border-gray-700/50">
-                    <td className="p-2"><code className="text-green-300">SHELL</code></td>
-                    <td className="p-2">系统</td>
-                    <td className="p-2">用户默认 shell 路径</td>
+                    <td className="p-2"><code className="text-green-300">GIT_PAGER</code></td>
+                    <td className="p-2">ShellExecutionService</td>
+                    <td className="p-2">与 <code>PAGER</code> 同步，避免 git 进入交互分页</td>
                   </tr>
                   <tr>
                     <td className="p-2"><code className="text-green-300">PATH</code></td>
-                    <td className="p-2">继承</td>
+                    <td className="p-2">继承（可能被净化）</td>
                     <td className="p-2">命令搜索路径</td>
                   </tr>
                 </tbody>
@@ -822,14 +876,12 @@ signal.addEventListener('abort', () => {
       "showColor": true
     },
     "allowed": [
-      "git status",
-      "git diff",
-      "npm test"
+      "run_shell_command(git)",
+      "run_shell_command(npm test)"
     ],
-    "blocklist": [
-      "rm -rf /",
-      "sudo",
-      "su"
+    "exclude": [
+      "run_shell_command(rm -rf)",
+      "run_shell_command(sudo)"
     ]
   }
 }
@@ -885,7 +937,7 @@ prompt = """
             </p>
             <ul className="text-sm text-gray-300 list-disc pl-5 space-y-1">
               <li><code>!command</code> 无安全检查，用户直接操作</li>
-              <li><code>!{'{command}'}</code> 受 allowlist/blocklist 限制，需要权限检查</li>
+              <li><code>!{'{command}'}</code> 默认 deny + ShellConfirmationDialog；命中 <code>tools.exclude</code> 或无法安全解析会被硬拒绝</li>
             </ul>
           </div>
 

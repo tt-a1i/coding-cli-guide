@@ -170,7 +170,7 @@ private hashToolCall(toolCall: ToolCall): string {
     visualData: {
       toolCall: {
         name: 'read_file',
-        arguments: { path: '/src/index.ts' }
+        arguments: { file_path: '/src/index.ts' }
       },
       hash: 'a3f2b8c1e9d04567'
     },

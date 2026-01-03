@@ -344,7 +344,7 @@ flowchart LR
           <div className="grid md:grid-cols-2 gap-4">
             <div className="bg-gray-900/50 rounded p-3">
               <p className="text-red-400 font-semibold text-sm mb-1">路径遍历攻击</p>
-              <code className="text-xs text-gray-400 block">{"{ \"path\": \"../../etc/passwd\" }"}</code>
+              <code className="text-xs text-gray-400 block">{"{ \"file_path\": \"../../etc/passwd\" }"}</code>
               <p className="text-xs text-gray-500 mt-1">试图读取系统敏感文件</p>
             </div>
             <div className="bg-gray-900/50 rounded p-3">
@@ -359,7 +359,7 @@ flowchart LR
             </div>
             <div className="bg-gray-900/50 rounded p-3">
               <p className="text-red-400 font-semibold text-sm mb-1">无效 JSON</p>
-              <code className="text-xs text-gray-400 block">{"{ path: /home/user }"}</code>
+              <code className="text-xs text-gray-400 block">{"{ file_path: /home/user }"}</code>
               <p className="text-xs text-gray-500 mt-1">格式错误导致解析失败</p>
             </div>
           </div>

@@ -62,7 +62,7 @@ class StreamingToolCallParser {
     title: '接收 OpenAI 流式 Chunk',
     description: 'API 返回不一致的 chunk：可能是空字符串、部分 JSON、或完整对象',
     bufferStates: [
-      { index: 0, content: '{"na', depth: 0, inString: false, escapes: 0, toolId: 'call_abc123' },
+      { index: 0, content: '{"di', depth: 0, inString: false, escapes: 0, toolId: 'call_abc123' },
     ],
     codeSnippet: `// 接收到的 chunk 示例
 chunk.choices[0].delta = {
@@ -70,8 +70,8 @@ chunk.choices[0].delta = {
     index: 0,
     id: "call_abc123",
     function: {
-      name: "read_file",
-      arguments: '{"na'  // 部分 JSON!
+      name: "list_directory",
+      arguments: '{"di'  // 部分 JSON!
     }
   }]
 }
@@ -85,7 +85,7 @@ chunk.choices[0].delta = {
     title: '检测索引碰撞',
     description: '当相同索引被不同 ID 的工具调用重用时，分配新索引',
     bufferStates: [
-      { index: 0, content: '{"name":"foo.txt"}', depth: 0, inString: false, escapes: 0, toolId: 'call_abc123' },
+      { index: 0, content: '{"dir_path":"src"}', depth: 0, inString: false, escapes: 0, toolId: 'call_abc123' },
       { index: 1, content: '{"pat', depth: 0, inString: false, escapes: 0, toolId: 'call_def456' },
     ],
     codeSnippet: `// streamingToolCallParser.ts:45-65
@@ -116,7 +116,7 @@ handleChunk(chunk: ToolCallChunk): void {
     title: '追踪 JSON 嵌套深度',
     description: '跟踪 { } 和 [ ] 的嵌套层级，只在深度为 0 时尝试解析',
     bufferStates: [
-      { index: 0, content: '{"name":"foo.txt","options":{"recursive":', depth: 2, inString: false, escapes: 0, toolId: 'call_abc123' },
+      { index: 0, content: '{"dir_path":"src","file_filtering_options":{"respect_git_ignore":', depth: 2, inString: false, escapes: 0, toolId: 'call_abc123' },
     ],
     codeSnippet: `// streamingToolCallParser.ts:80-110
 processCharacter(index: number, char: string): void {
@@ -153,16 +153,16 @@ processCharacter(index: number, char: string): void {
     title: '检查字符串状态',
     description: '追踪是否在字符串字面量内，避免误判 { } 字符',
     bufferStates: [
-      { index: 0, content: '{"path":"/home/{user}/file', depth: 1, inString: true, escapes: 0, toolId: 'call_abc123' },
+      { index: 0, content: '{"dir_path":"/home/{user}/repo', depth: 1, inString: true, escapes: 0, toolId: 'call_abc123' },
     ],
     codeSnippet: `// 字符串内的 { 不应影响深度计数
-const content = '{"path": "/home/{user}/file.txt"}';
+const content = '{"dir_path": "/home/{user}/repo"}';
 //                            ^^^^^
 //                     这里的 { } 是字符串内容！
 
 // 状态追踪
 {
-  buffer: '{"path":"/home/{user}/file',
+  buffer: '{"dir_path":"/home/{user}/repo',
   depth: 1,       // 只有外层 { 计入
   inString: true, // 当前在字符串内
   escapes: 0      // 无转义
@@ -179,8 +179,8 @@ if (char === '"' && !escaped) {
     title: 'Buffer 累积',
     description: '持续累积字符直到 depth 回到 0',
     bufferStates: [
-      { index: 0, content: '{"name":"foo.txt","recursive":true}', depth: 0, inString: false, escapes: 0, toolId: 'call_abc123' },
-      { index: 1, content: '{"pattern":"*.ts","case', depth: 1, inString: false, escapes: 0, toolId: 'call_def456' },
+      { index: 0, content: '{"dir_path":"src","file_filtering_options":{"respect_git_ignore":true}}', depth: 0, inString: false, escapes: 0, toolId: 'call_abc123' },
+      { index: 1, content: '{"pattern":"*.ts","dir_path":"src","include":', depth: 1, inString: false, escapes: 0, toolId: 'call_def456' },
     ],
     codeSnippet: `// streamingToolCallParser.ts:120-135
 appendToBuffer(index: number, content: string): void {
@@ -207,7 +207,7 @@ appendToBuffer(index: number, content: string): void {
     title: '尝试标准 JSON 解析',
     description: '深度为 0 时尝试 JSON.parse()，可能失败',
     bufferStates: [
-      { index: 0, content: '{"name":"foo.txt","recursive":true}', depth: 0, inString: false, escapes: 0, toolId: 'call_abc123' },
+      { index: 0, content: '{"dir_path":"src","file_filtering_options":{"respect_git_ignore":true}}', depth: 0, inString: false, escapes: 0, toolId: 'call_abc123' },
     ],
     codeSnippet: `// streamingToolCallParser.ts:140-160
 attemptParse(index: number): ParseResult | null {
@@ -224,8 +224,8 @@ attemptParse(index: number): ParseResult | null {
 }
 
 // 成功！
-JSON.parse('{"name":"foo.txt","recursive":true}')
-// → { name: "foo.txt", recursive: true }`,
+JSON.parse('{"dir_path":"src","file_filtering_options":{"respect_git_ignore":true}}')
+// → { dir_path: "src", file_filtering_options: { respect_git_ignore: true } }`,
     highlight: '解析成功',
   },
   {
@@ -233,7 +233,7 @@ JSON.parse('{"name":"foo.txt","recursive":true}')
     title: '自动修复机制',
     description: '检测到 inString=true 时自动闭合引号重试',
     bufferStates: [
-      { index: 1, content: '{"pattern":"*.ts","caseSensitive', depth: 1, inString: true, escapes: 0, toolId: 'call_def456' },
+      { index: 1, content: '{"pattern":"*.ts","dir_path":"src","include":"*.ts', depth: 1, inString: true, escapes: 0, toolId: 'call_def456' },
     ],
     codeSnippet: `// streamingToolCallParser.ts:165-190
 attemptRepair(index: number, buffer: string): ParseResult | null {
@@ -311,13 +311,13 @@ safeJsonParse(buffer: string): ParseResult | null {
 [
   {
     toolCallId: "call_abc123",
-    name: "read_file",
-    arguments: { name: "foo.txt", recursive: true }
+    name: "list_directory",
+    arguments: { dir_path: "src", file_filtering_options: { respect_git_ignore: true } }
   },
   {
     toolCallId: "call_def456",
-    name: "grep",
-    arguments: { pattern: "*.ts" }
+    name: "search_file_content",
+    arguments: { pattern: "*.ts", dir_path: "src" }
   }
 ]
 
@@ -435,12 +435,12 @@ function BufferVisualizer({
 // 流式数据可视化
 function StreamVisualizer({ currentPhase }: { currentPhase: ParserPhase }) {
   const chunks = [
-    '{"na',
-    'me":"',
-    'foo.',
-    'txt",',
-    '"recursive":',
-    'true}',
+    '{"di',
+    'r_path":',
+    '"src",',
+    '"file_filtering_options":{',
+    '"respect_git_ignore":',
+    'true}}',
   ];
 
   const getChunkIndex = () => {

@@ -119,25 +119,25 @@ const DEMO_SCENARIOS = [
   {
     name: '正常解析',
     chunks: [
-      { index: 0, chunk: '{"name":', id: 'call_1', name: 'read_file' },
-      { index: 0, chunk: '"test.ts",', id: 'call_1' },
-      { index: 0, chunk: '"path":', id: 'call_1' },
-      { index: 0, chunk: '"/src/test.ts"}', id: 'call_1' },
+      { index: 0, chunk: '{"file_path":', id: 'call_1', name: 'read_file' },
+      { index: 0, chunk: '"/src/test.ts",', id: 'call_1' },
+      { index: 0, chunk: '"offset":0,', id: 'call_1' },
+      { index: 0, chunk: '"limit":200}', id: 'call_1' },
     ],
   },
   {
     name: '索引碰撞',
     chunks: [
-      { index: 0, chunk: '{"file":', id: 'call_1', name: 'read' },
+      { index: 0, chunk: '{"file_path":', id: 'call_1', name: 'read_file' },
       { index: 0, chunk: '"a.ts"}', id: 'call_1' },
-      { index: 0, chunk: '{"file":', id: 'call_2', name: 'write' }, // 碰撞！同索引不同 ID
-      { index: 0, chunk: '"b.ts"}', id: 'call_2' },
+      { index: 0, chunk: '{"file_path":', id: 'call_2', name: 'write_file' }, // 碰撞！同索引不同 ID
+      { index: 0, chunk: '"b.ts","content":"hello"}', id: 'call_2' },
     ],
   },
   {
     name: '未闭合字符串修复',
     chunks: [
-      { index: 0, chunk: '{"content":', id: 'call_1', name: 'write' },
+      { index: 0, chunk: '{"file_path":"out.txt","content":', id: 'call_1', name: 'write_file' },
       { index: 0, chunk: '"Hello World', id: 'call_1' }, // 未闭合的字符串
       { index: 0, chunk: '}', id: 'call_1' }, // depth=0 但 inString=true
     ],

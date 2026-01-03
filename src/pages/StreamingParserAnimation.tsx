@@ -51,7 +51,7 @@ const streamChunks: StreamChunk[] = [
   },
   {
     id: 3,
-    content: 'uments": {"path": "/use',
+    content: 'uments": {"file_path": "/use',
     type: 'tool_args',
     description: '嵌套对象开始 depth=2，累积 arguments',
   },
@@ -661,8 +661,8 @@ repair.repair('{"name": "read_fi')
 // → '{"name": "read_fi"}'
 
 // 场景 2: 嵌套对象未闭合
-repair.repair('{"name": "edit", "args": {"path": "/src')
-// → '{"name": "edit", "args": {"path": "/src"}}'
+repair.repair('{"name": "replace", "args": {"file_path": "/src')
+// → '{"name": "replace", "args": {"file_path": "/src"}}'
 
 // 场景 3: 数组中断
 repair.repair('{"files": ["/a", "/b')
@@ -933,15 +933,15 @@ class MultiToolParser {
                   <tr className="border-b border-[var(--border-subtle)]/50">
                     <td className="py-2 px-3">1</td>
                     <td className="py-2 px-3 text-cyan-400">0</td>
-                    <td className="py-2 px-3">{"{"}"path":</td>
-                    <td className="py-2 px-3 text-green-400">{"{"}"path":</td>
+                    <td className="py-2 px-3">{"{"}"file_path":</td>
+                    <td className="py-2 px-3 text-green-400">{"{"}"file_path":</td>
                     <td className="py-2 px-3 text-gray-500">-</td>
                   </tr>
                   <tr className="border-b border-[var(--border-subtle)]/50">
                     <td className="py-2 px-3">2</td>
                     <td className="py-2 px-3 text-purple-400">1</td>
                     <td className="py-2 px-3">{"{"}"pattern":</td>
-                    <td className="py-2 px-3 text-green-400">{"{"}"path":</td>
+                    <td className="py-2 px-3 text-green-400">{"{"}"file_path":</td>
                     <td className="py-2 px-3 text-purple-400">{"{"}"pattern":</td>
                   </tr>
                   <tr className="border-b border-[var(--border-subtle)]/50">
@@ -1295,7 +1295,7 @@ const checkpoints = [
 // 原因: arguments 字段本身就是字符串，需要二次解析
 {
     "name": "read_file",
-    "arguments": "{\\"path\\": \\"/src/main.ts\\"}"  // 注意是字符串！
+    "arguments": "{\\"file_path\\": \\"/src/main.ts\\"}"  // 注意是字符串！
 }
 
 // 正确处理
@@ -1304,7 +1304,7 @@ const args = JSON.parse(toolCall.arguments);  // 二次解析
 // 场景 2: 参数被截断
 // 原因: 流中断 + 修复不完整
 {
-    "path": "/src/main.ts"  // 原本是 "/src/main.tsx"
+    "file_path": "/src/main.ts"  // 原本是 "/src/main.tsx"
 }
 
 // 检测方法

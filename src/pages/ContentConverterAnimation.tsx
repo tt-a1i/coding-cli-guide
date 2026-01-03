@@ -155,7 +155,15 @@ convertGeminiToolsToOpenAI(tools: Tool[]): ChatCompletionTool[] {
         functionDeclarations: [{
           name: 'read_file',
           description: '读取文件内容',
-          parameters: { type: 'object', properties: { path: { type: 'string' } } }
+          parameters: {
+            type: 'object',
+            properties: {
+              file_path: { type: 'string' },
+              offset: { type: 'number' },
+              limit: { type: 'number' },
+            },
+            required: ['file_path'],
+          }
         }]
       },
       openaiTool: {
@@ -163,7 +171,15 @@ convertGeminiToolsToOpenAI(tools: Tool[]): ChatCompletionTool[] {
         function: {
           name: 'read_file',
           description: '读取文件内容',
-          parameters: { type: 'object', properties: { path: { type: 'string' } } }
+          parameters: {
+            type: 'object',
+            properties: {
+              file_path: { type: 'string' },
+              offset: { type: 'number' },
+              limit: { type: 'number' },
+            },
+            required: ['file_path'],
+          }
         }
       }
     },
@@ -212,7 +228,7 @@ private convertContent(content: Content): ChatCompletionMessageParam {
         role: 'model',
         parts: [
           { text: '我来读取这个文件' },
-          { functionCall: { name: 'read_file', args: { path: 'index.ts' } } }
+          { functionCall: { name: 'read_file', args: { file_path: 'index.ts', offset: 0, limit: 200 } } }
         ]
       },
       openaiMessage: {
@@ -221,7 +237,7 @@ private convertContent(content: Content): ChatCompletionMessageParam {
         tool_calls: [{
           id: 'call_xxx',
           type: 'function',
-          function: { name: 'read_file', arguments: '{"path":"index.ts"}' }
+          function: { name: 'read_file', arguments: '{"file_path":"index.ts","offset":0,"limit":200}' }
         }]
       }
     },
@@ -253,14 +269,14 @@ private buildToolCallMessage(
 }
 
 // 关键转换:
-// Gemini: { name: "read", args: { path: "x.ts" } }
-// OpenAI: { name: "read", arguments: '{"path":"x.ts"}' }
+// Gemini: { name: "read", args: { file_path: "x.ts" } }
+// OpenAI: { name: "read", arguments: '{"file_path":"x.ts"}' }
 //                         ^^^^^^^^^ 字符串化！`,
     visualData: {
       gemini: {
         functionCall: {
           name: 'read_file',
-          args: { path: 'index.ts', encoding: 'utf-8' }
+          args: { file_path: 'index.ts', offset: 0, limit: 200 }
         }
       },
       openai: {
@@ -269,7 +285,7 @@ private buildToolCallMessage(
           type: 'function',
           function: {
             name: 'read_file',
-            arguments: '{"path":"index.ts","encoding":"utf-8"}'
+            arguments: '{"file_path":"index.ts","offset":0,"limit":200}'
           }
         }]
       }

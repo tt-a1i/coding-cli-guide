@@ -823,17 +823,17 @@ if (input.length > MAX_INPUT_LENGTH) {
     {
       "id": "call_1",
       "name": "read_file",
-      "args": { "path": "src/a.ts" }
+      "args": { "file_path": "src/a.ts" }
     },
     {
       "id": "call_2",
       "name": "read_file",
-      "args": { "path": "src/b.ts" }
+      "args": { "file_path": "src/b.ts" }
     },
     {
       "id": "call_3",
       "name": "read_file",
-      "args": { "path": "src/c.ts" }
+      "args": { "file_path": "src/c.ts" }
     }
   ]
 }
@@ -859,17 +859,17 @@ await Promise.all([
             code={`用户: "读取 package.json 并更新版本号为 2.0.0"
 
 第 1 轮:
-├─ AI: tool_call { name: "read_file", args: { path: "package.json" } }
+├─ AI: tool_call { name: "read_file", args: { file_path: "package.json" } }
 ├─ CLI: 执行 ReadFileTool
 └─ 结果: { content: "{\\"version\\": \\"1.0.0\\"...}" }
 
 第 2 轮:
-├─ AI: tool_call { name: "edit", args: {
-│      path: "package.json",
-│      old_str: "\\"version\\": \\"1.0.0\\"",
-│      new_str: "\\"version\\": \\"2.0.0\\""
+├─ AI: tool_call { name: "replace", args: {
+│      file_path: "package.json",
+│      old_string: "\\"version\\": \\"1.0.0\\"",
+│      new_string: "\\"version\\": \\"2.0.0\\""
 │  }}
-├─ CLI: 执行 EditTool
+├─ CLI: 执行 EditTool (tool name: replace)
 └─ 结果: { success: true, diff: "..." }
 
 第 3 轮:

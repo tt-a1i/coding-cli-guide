@@ -30,7 +30,7 @@ export function IDEDiffProtocol() {
 
   // Diff View 完整交互流程
   const diffFlowChart = `flowchart TD
-    tool([AI 调用<br/>write_file/edit])
+    tool([AI 调用<br/>write_file/replace])
     check_ide{IDE 已连接<br/>且支持 Diff?}
     acquire_mutex[获取 diffMutex<br/>单 Diff 锁]
     send_open[MCP: openDiff<br/>filePath, newContent]
@@ -425,7 +425,7 @@ this.client.setNotificationHandler(
           <div className="bg-gray-800/50 rounded-lg p-4">
             <h4 className="font-semibold text-cyan-400 mb-3">触发条件</h4>
             <ul className="text-sm text-gray-300 space-y-1">
-              <li>• AI 调用 <code className="text-cyan-300">write_file</code> 或 <code className="text-cyan-300">edit</code> 工具</li>
+              <li>• AI 调用 <code className="text-cyan-300">write_file</code> 或 <code className="text-cyan-300">replace</code> 工具</li>
               <li>• IDE 集成已启用（<code className="text-cyan-300">/ide enable</code>）</li>
               <li>• VS Code 插件已安装并连接成功</li>
               <li>• 工作区路径匹配 CLI 运行目录</li>
