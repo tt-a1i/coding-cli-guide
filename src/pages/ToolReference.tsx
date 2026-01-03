@@ -207,7 +207,7 @@ export function ToolReference() {
                   <div className="text-gray-400">• <code className="text-cyan-300">delegate_to_agent</code></div>
                 </div>
                 <p className="text-yellow-300 text-xs mt-2">
-                  共 13 个内置工具 (packages/core/src/tools/tool-names.ts)
+                  共 14 个内置工具 (packages/core/src/tools/tool-names.ts)
                 </p>
               </div>
             </HighlightBox>
@@ -715,6 +715,12 @@ export function ToolReference() {
                 <td className="py-2 px-3">WebFetchTool</td>
                 <td className="py-2 px-3 text-teal-400">Fetch</td>
               </tr>
+              <tr className="border-b border-gray-800">
+                <td className="py-2 px-3 text-purple-400">ACTIVATE_SKILL</td>
+                <td className="py-2 px-3 text-cyan-400">'activate_skill'</td>
+                <td className="py-2 px-3">ActivateSkillTool</td>
+                <td className="py-2 px-3 text-gray-400">Other</td>
+              </tr>
               <tr>
                 <td className="py-2 px-3 text-purple-400">DELEGATE_TO_AGENT</td>
                 <td className="py-2 px-3 text-cyan-400">'delegate_to_agent'</td>
@@ -740,14 +746,15 @@ export const READ_MANY_FILES_TOOL_NAME = 'read_many_files';
 export const READ_FILE_TOOL_NAME = 'read_file';
 export const LS_TOOL_NAME = 'list_directory';
 export const MEMORY_TOOL_NAME = 'save_memory';
+export const ACTIVATE_SKILL_TOOL_NAME = 'activate_skill';
 export const DELEGATE_TO_AGENT_TOOL_NAME = 'delegate_to_agent';
 
-export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 13 个内置工具`}
+export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
         />
 
         <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-3 mt-4">
           <p className="text-sm text-blue-300">
-            <strong>补充说明：</strong> 上述表格包含 ALL_BUILTIN_TOOL_NAMES 中的全部 13 个内置工具。此外还有：
+            <strong>补充说明：</strong> 上述表格包含 ALL_BUILTIN_TOOL_NAMES 中的全部 14 个内置工具。此外还有：
           </p>
           <ul className="text-xs text-gray-400 mt-2 space-y-1 ml-4">
             <li>• MCP 工具 - 通过 Model Context Protocol 动态注册的外部工具</li>
@@ -1078,6 +1085,41 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 13 个内置工具`}
           <div className="mt-2 text-xs text-gray-400">
             <p>TodoItem 结构:</p>
             <pre className="mt-1 text-cyan-400">{`{ id: string, content: string, status: 'pending' | 'in_progress' | 'completed' }`}</pre>
+          </div>
+        </HighlightBox>
+
+        {/* activate_skill */}
+        <HighlightBox title="activate_skill - 激活技能" icon="🧩" variant="purple">
+          <p className="text-sm text-gray-400 mb-2">
+            来源: <code>packages/core/src/tools/activate-skill.ts</code> | Kind: <span className="text-gray-400">Other</span>
+          </p>
+          <p className="text-sm text-gray-300 mb-3">
+            激活 Agent Skills（技能系统）。执行后会把技能指令以 <code>&lt;ACTIVATED_SKILL&gt;</code> 包裹返回给模型，
+            并附带该技能目录的文件结构（作为可用资源提示）。默认策略为 <code>ask_user</code>，因为它会把本地内容注入到对话上下文中。
+          </p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="text-left text-gray-400 border-b border-gray-700">
+                  <th className="py-1 px-2">参数</th>
+                  <th className="py-1 px-2">类型</th>
+                  <th className="py-1 px-2">必需</th>
+                  <th className="py-1 px-2">说明</th>
+                </tr>
+              </thead>
+              <tbody className="text-gray-300 font-mono">
+                <tr>
+                  <td className="py-1 px-2 text-cyan-400">name</td>
+                  <td className="py-1 px-2">string</td>
+                  <td className="py-1 px-2 text-green-400">Yes</td>
+                  <td className="py-1 px-2 font-sans">要激活的 skill 名称（启用 skills 后会被收敛为枚举）</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-3 text-xs text-gray-400">
+            相关：<code>packages/core/src/services/skillManager.ts</code>（技能发现）、
+            <code>packages/core/src/core/prompts.ts</code>（System Prompt 注入可用技能清单）。
           </div>
         </HighlightBox>
 

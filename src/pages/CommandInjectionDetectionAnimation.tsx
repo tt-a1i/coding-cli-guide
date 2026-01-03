@@ -4,15 +4,13 @@ import { useState, useEffect, useCallback } from 'react';
 /**
  * 命令注入检测动画
  *
- * 可视化 Shell 命令安全检测流程
- * 源码: packages/core/src/utils/shellReadOnlyChecker.ts + shell-utils.ts
+ * 可视化 Shell 命令的“权限 + 策略”安全决策流程
+ * 源码: packages/core/src/utils/shell-permissions.ts + packages/core/src/policy/policy-engine.ts + shell-utils.ts
  *
- * 检测项目:
- * - 只读命令白名单 (READ_ONLY_ROOT_COMMANDS)
- * - 命令替换检测 ($(), ``, <(), >())
- * - 写重定向检测 (>)
- * - Git 子命令检查
- * - find/sed 危险参数检测
+ * 本动画聚焦:
+ * - checkCommandPermissions(): tools.exclude / tools.core（allowlist+blocklist）与 sessionAllowlist（default deny）
+ * - PolicyEngine.checkShellCommand(): redirection 检测（allowRedirection=false 时把 ALLOW 降级为 ASK_USER）
+ * - shell-utils: splitCommands/hasRedirection/getCommandRoots（解析能力）
  */
 
 interface SecurityCheck {
@@ -31,21 +29,27 @@ interface CommandAnalysis {
   requiresPermission: boolean;
 }
 
-const READ_ONLY_COMMANDS = new Set([
-  'awk', 'cat', 'cd', 'cut', 'df', 'du', 'echo', 'env', 'find',
-  'git', 'grep', 'head', 'less', 'ls', 'more', 'printenv', 'printf',
-  'ps', 'pwd', 'rg', 'sed', 'sort', 'stat', 'tail', 'tree', 'uniq', 'wc', 'which'
-]);
+// 演示用配置（简化版）：模拟 settings.tools.exclude / settings.tools.core
+const EXAMPLE_TOOLS_EXCLUDE = [
+  'run_shell_command(rm -rf)',
+  'run_shell_command(sudo)',
+] as const;
+
+const EXAMPLE_TOOLS_CORE = [
+  'run_shell_command(git)',
+  'run_shell_command(npm test)',
+] as const;
+
+// 演示：PolicyRule.allowRedirection=false 时，含重定向的命令会从 ALLOW 降级为 ASK_USER
+const EXAMPLE_ALLOW_REDIRECTION = false;
 
 const SAMPLE_COMMANDS = [
-  { cmd: 'ls -la /tmp', expected: 'safe' },
-  { cmd: 'cat /etc/passwd', expected: 'safe' },
+  { cmd: 'git status', expected: 'safe' },
   { cmd: 'git status && git log', expected: 'safe' },
   { cmd: 'rm -rf /', expected: 'blocked' },
-  { cmd: 'echo $(cat /etc/shadow)', expected: 'blocked' },
-  { cmd: 'find / -exec rm {} \\;', expected: 'blocked' },
+  { cmd: 'sudo rm -rf /', expected: 'blocked' },
   { cmd: 'npm test > output.log', expected: 'warning' },
-  { cmd: 'git push origin main', expected: 'warning' },
+  { cmd: 'python -c "print(1)"', expected: 'warning' },
 ];
 
 export default function CommandInjectionDetectionAnimation() {
@@ -68,71 +72,104 @@ export default function CommandInjectionDetectionAnimation() {
 
   // 模拟安全检测
   const analyzeCommand = useCallback((cmd: string): CommandAnalysis => {
-    const segments = cmd.split(/\s*&&\s*|\s*\|\|\s*|\s*;\s*/);
-    const rootCommand = cmd.trim().split(/\s+/)[0] || '';
+    const segments = cmd
+      .split(/\s*(?:&&|\|\||;|\|)\s*/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const rootCommand = segments[0]?.split(/\s+/)[0] || '';
     const checks: SecurityCheck[] = [];
 
-    // 1. 只读命令检查
-    const isReadOnlyCommand = READ_ONLY_COMMANDS.has(rootCommand.toLowerCase());
+    const hasBalancedQuotes = (value: string) => {
+      const doubleQuotes = (value.match(/"/g) || []).length;
+      const singleQuotes = (value.match(/'/g) || []).length;
+      return doubleQuotes % 2 === 0 && singleQuotes % 2 === 0;
+    };
+
+    const parsePattern = (pattern: string): { tool: string; arg?: string } | null => {
+      const openParen = pattern.indexOf('(');
+      if (openParen === -1) {
+        return { tool: pattern };
+      }
+      if (!pattern.endsWith(')')) {
+        return null;
+      }
+      return {
+        tool: pattern.substring(0, openParen),
+        arg: pattern.substring(openParen + 1, pattern.length - 1),
+      };
+    };
+
+    const matchesPatterns = (command: string, patterns: readonly string[]) => {
+      for (const pattern of patterns) {
+        const parsed = parsePattern(pattern);
+        if (!parsed) continue;
+        if (parsed.tool !== 'run_shell_command' && parsed.tool !== 'ShellTool') continue;
+        if (!parsed.arg) return true;
+        if (command === parsed.arg || command.startsWith(parsed.arg + ' ')) return true;
+      }
+      return false;
+    };
+
+    // 1) 解析是否可控（上游用 shell parser；这里用“引号平衡”做近似演示）
+    const parseOk = hasBalancedQuotes(cmd);
     checks.push({
-      name: 'READ_ONLY_ROOT_COMMANDS',
-      passed: isReadOnlyCommand,
-      detail: isReadOnlyCommand ? `"${rootCommand}" is whitelisted` : `"${rootCommand}" not in whitelist`,
-      severity: isReadOnlyCommand ? 'safe' : 'warning',
+      name: 'parseCommandDetails()',
+      passed: parseOk,
+      detail: parseOk ? 'Parsed (simulated) OK' : 'Parse failed (simulated): unbalanced quotes',
+      severity: parseOk ? 'safe' : 'blocked',
     });
 
-    // 2. 命令替换检测
-    const hasCommandSubstitution = /\$\(|\`|<\(|>\(/.test(cmd);
+    // 2) tools.exclude（blocklist，优先级最高）
+    const isWildcardBlocked = EXAMPLE_TOOLS_EXCLUDE.some(
+      (p) => p === 'run_shell_command' || p === 'ShellTool',
+    );
+    const blockedSegment = isWildcardBlocked
+      ? segments[0]
+      : segments.find((seg) => matchesPatterns(seg, EXAMPLE_TOOLS_EXCLUDE));
+
     checks.push({
-      name: 'detectCommandSubstitution()',
-      passed: !hasCommandSubstitution,
-      detail: hasCommandSubstitution ? 'Found: $() or `` or <() or >()' : 'No command substitution',
-      severity: hasCommandSubstitution ? 'blocked' : 'safe',
+      name: 'checkCommandPermissions(): tools.exclude',
+      passed: !blockedSegment,
+      detail: blockedSegment ? `Blocked: ${JSON.stringify(blockedSegment)}` : 'Not blocked by tools.exclude',
+      severity: blockedSegment ? 'blocked' : 'safe',
     });
 
-    // 3. 写重定向检测
-    const hasWriteRedirection = />(?!>)/.test(cmd) && !/>>/.test(cmd);
+    // 3) tools.core（strict allowlist：出现 run_shell_command(...) 时，未覆盖会变成 soft denial）
+    const isWildcardAllowed = EXAMPLE_TOOLS_CORE.some(
+      (p) => p === 'run_shell_command' || p === 'ShellTool',
+    );
+    const hasSpecificAllowed = EXAMPLE_TOOLS_CORE.some((p) => p.includes('('));
+
+    const allowlistMiss =
+      !isWildcardAllowed && hasSpecificAllowed
+        ? segments.find((seg) => !matchesPatterns(seg, EXAMPLE_TOOLS_CORE))
+        : undefined;
+
     checks.push({
-      name: 'containsWriteRedirection()',
-      passed: !hasWriteRedirection,
-      detail: hasWriteRedirection ? 'Found: > (write redirection)' : 'No write redirection',
-      severity: hasWriteRedirection ? 'warning' : 'safe',
+      name: 'checkCommandPermissions(): tools.core',
+      passed: !allowlistMiss,
+      detail: allowlistMiss
+        ? `Not allowlisted: ${JSON.stringify(allowlistMiss)} (strict allowlist active)`
+        : isWildcardAllowed
+          ? 'Wildcard allow for shell'
+          : hasSpecificAllowed
+            ? 'Covered by allowlist patterns'
+            : 'No strict allowlist configured',
+      severity: allowlistMiss ? 'warning' : 'safe',
     });
 
-    // 4. 危险命令检测
-    const dangerousCommands = ['rm', 'sudo', 'chmod', 'chown', 'mkfs', 'dd'];
-    const hasDangerous = dangerousCommands.some(dc => cmd.toLowerCase().includes(dc));
+    // 4) PolicyEngine：含重定向时默认把 ALLOW 降级为 ASK_USER（除非 allowRedirection=true）
+    const hasRedirection = /[><]/.test(cmd);
+    const needsRedirectionConfirm = hasRedirection && !EXAMPLE_ALLOW_REDIRECTION;
+
     checks.push({
-      name: 'Dangerous Command Check',
-      passed: !hasDangerous,
-      detail: hasDangerous ? `Found dangerous command` : 'No dangerous commands',
-      severity: hasDangerous ? 'blocked' : 'safe',
+      name: 'PolicyEngine.checkShellCommand(): hasRedirection()',
+      passed: !needsRedirectionConfirm,
+      detail: needsRedirectionConfirm
+        ? 'Found redirection; ALLOW → ASK_USER (allowRedirection=false)'
+        : 'No redirection downgrade',
+      severity: needsRedirectionConfirm ? 'warning' : 'safe',
     });
-
-    // 5. Git 子命令检查
-    if (rootCommand === 'git') {
-      const gitArgs = cmd.split(/\s+/).slice(1);
-      const subcommand = gitArgs[0] || '';
-      const readOnlyGitSubcommands = ['status', 'log', 'diff', 'branch', 'remote', 'show', 'blame'];
-      const isReadOnlyGit = readOnlyGitSubcommands.includes(subcommand);
-      checks.push({
-        name: 'READ_ONLY_GIT_SUBCOMMANDS',
-        passed: isReadOnlyGit,
-        detail: isReadOnlyGit ? `"git ${subcommand}" is read-only` : `"git ${subcommand}" may modify repo`,
-        severity: isReadOnlyGit ? 'safe' : 'warning',
-      });
-    }
-
-    // 6. find 危险参数检测
-    if (rootCommand === 'find') {
-      const hasDangerousFind = /-exec|-delete|-fprint/.test(cmd);
-      checks.push({
-        name: 'BLOCKED_FIND_FLAGS',
-        passed: !hasDangerousFind,
-        detail: hasDangerousFind ? 'Found: -exec or -delete' : 'Safe find usage',
-        severity: hasDangerousFind ? 'blocked' : 'safe',
-      });
-    }
 
     const hasBlocked = checks.some(c => c.severity === 'blocked');
     const hasWarning = checks.some(c => c.severity === 'warning');
@@ -157,7 +194,7 @@ export default function CommandInjectionDetectionAnimation() {
     }
 
     if (currentCommandIndex === -1) {
-      addLog('🔒 isShellCommandReadOnly() 开始扫描');
+      addLog('🔒 checkCommandPermissions() + PolicyEngine.checkShellCommand() 开始扫描');
       setCurrentCommandIndex(0);
       return;
     }
@@ -170,11 +207,11 @@ export default function CommandInjectionDetectionAnimation() {
       setAnalyses(prev => [...prev, analysis]);
 
       if (analysis.isAllowed && !analysis.requiresPermission) {
-        addLog(`  ✓ 允许执行 (只读)`);
+        addLog(`  ✓ ALLOW（无需确认）`);
       } else if (analysis.requiresPermission) {
-        addLog(`  ⚠️ 需要用户确认`);
+        addLog(`  ⚠️ ASK_USER（需要确认）`);
       } else {
-        addLog(`  ✗ 已阻止 (安全策略)`);
+        addLog(`  ✗ DENY（配置阻止）`);
       }
 
       setCurrentCommandIndex(prev => prev + 1);
@@ -216,7 +253,7 @@ export default function CommandInjectionDetectionAnimation() {
             命令注入检测
           </h1>
           <p className="text-[var(--muted)] text-sm mt-1">
-            shellReadOnlyChecker - 命令安全验证流程
+            shell-permissions + policy-engine - Shell 安全决策流程
           </p>
         </div>
         <button
@@ -231,21 +268,47 @@ export default function CommandInjectionDetectionAnimation() {
         </button>
       </div>
 
-      {/* 只读命令白名单 */}
+      {/* 示例配置 */}
       <div className="bg-[var(--bg-secondary)] rounded-lg p-4 border border-[var(--border)]">
         <h3 className="text-sm font-semibold text-[var(--terminal-green)] mb-3 font-mono">
-          READ_ONLY_ROOT_COMMANDS
+          Example Settings (tools.exclude / tools.core)
         </h3>
-        <div className="flex flex-wrap gap-2">
-          {Array.from(READ_ONLY_COMMANDS).slice(0, 20).map((cmd) => (
-            <span
-              key={cmd}
-              className="text-xs font-mono px-2 py-1 rounded bg-[var(--terminal-green)]/10 text-[var(--terminal-green)] border border-[var(--terminal-green)]/30"
-            >
-              {cmd}
-            </span>
-          ))}
-          <span className="text-xs text-[var(--muted)]">+{READ_ONLY_COMMANDS.size - 20} more</span>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <div className="text-xs text-[var(--muted)] mb-2 font-mono">tools.exclude</div>
+            <div className="flex flex-wrap gap-2">
+              {EXAMPLE_TOOLS_EXCLUDE.map((p) => (
+                <span
+                  key={p}
+                  className="text-xs font-mono px-2 py-1 rounded bg-red-500/10 text-red-300 border border-red-500/30"
+                >
+                  {p}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <div className="text-xs text-[var(--muted)] mb-2 font-mono">tools.core</div>
+            <div className="flex flex-wrap gap-2">
+              {EXAMPLE_TOOLS_CORE.map((p) => (
+                <span
+                  key={p}
+                  className="text-xs font-mono px-2 py-1 rounded bg-[var(--cyber-blue)]/10 text-[var(--cyber-blue)] border border-[var(--cyber-blue)]/30"
+                >
+                  {p}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <div className="text-xs text-[var(--muted)] mb-2 font-mono">PolicyRule.allowRedirection</div>
+            <div className="text-xs font-mono px-2 py-1 rounded bg-[var(--amber)]/10 text-[var(--amber)] border border-[var(--amber)]/30 inline-block">
+              {String(EXAMPLE_ALLOW_REDIRECTION)}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -365,32 +428,23 @@ export default function CommandInjectionDetectionAnimation() {
       {/* 源码说明 */}
       <div className="bg-[var(--bg-secondary)] rounded-lg p-4 border border-[var(--border)]">
         <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
-          源码: shellReadOnlyChecker.ts
+          源码: shell-permissions.ts + policy-engine.ts
         </h3>
         <pre className="text-xs font-mono text-[var(--text-secondary)] bg-black/30 p-3 rounded overflow-x-auto">
-{`export function isShellCommandReadOnly(command: string): boolean {
-  // 1. Split command into segments (&&, ||, ;)
-  const segments = splitCommands(command);
+{`// packages/core/src/utils/shell-permissions.ts（简化）
+export function checkCommandPermissions(command, config, sessionAllowlist?) {
+  // 1) parseCommandDetails(command) 失败 → Hard deny
+  // 2) tools.exclude：匹配到 run_shell_command(...) → Hard deny
+  // 3) tools.core：
+  //    - 有 run_shell_command(...) → strict allowlist（未覆盖 → Soft deny）
+  //    - 有 run_shell_command → wildcard allow
+  // 4) sessionAllowlist 存在时 → default deny（用于自定义命令注入）
+}
 
-  for (const segment of segments) {
-    // 2. Check for command substitution $(), \`\`, <(), >()
-    if (detectCommandSubstitution(stripped)) return false;
-
-    // 3. Check for write redirection >
-    if (containsWriteRedirection(stripped)) return false;
-
-    // 4. Normalize and get root command
-    const { root, args } = skipEnvironmentAssignments(tokens);
-
-    // 5. Check against READ_ONLY_ROOT_COMMANDS whitelist
-    if (!READ_ONLY_ROOT_COMMANDS.has(normalizedRoot)) return false;
-
-    // 6. Special handling for find, sed, git
-    if (normalizedRoot === 'find') return evaluateFindCommand([root, ...args]);
-    if (normalizedRoot === 'git') return evaluateGitCommand([root, ...args]);
-  }
-
-  return true; // All segments passed
+// packages/core/src/policy/policy-engine.ts（简化）
+private async checkShellCommand(toolName, command, ruleDecision, ..., allowRedirection?) {
+  // splitCommands(command) → 逐段递归 check()
+  // 若含重定向且 allowRedirection=false：ALLOW → ASK_USER
 }`}
         </pre>
       </div>

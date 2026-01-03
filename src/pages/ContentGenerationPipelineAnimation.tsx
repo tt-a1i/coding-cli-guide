@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 /**
  * 内容生成管道动画
  *
- * 可视化 Gemini ↔ OpenAI 双向转换和流式处理
- * 源码: packages/core/src/core/openaiContentGenerator/pipeline.ts
+ * 可视化 Gemini ↔ OpenAI 双向转换和流式处理（Innies/Qwen 的兼容层）
+ * 源码: packages/core/src/core/openaiContentGenerator/pipeline.ts（fork-only）
  *
  * 管道阶段:
  * 1. Gemini Request → OpenAI Request 转换
@@ -264,7 +264,7 @@ export default function ContentGenerationPipelineAnimation() {
             内容生成管道
           </h1>
           <p className="text-[var(--muted)] text-sm mt-1">
-            ContentGenerationPipeline - Gemini ↔ OpenAI 双向转换
+            ContentGenerationPipeline - Gemini ↔ OpenAI 双向转换（fork-only）
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -289,6 +289,11 @@ export default function ContentGenerationPipelineAnimation() {
             {isPlaying ? '⏹ 停止' : '▶ 开始'}
           </button>
         </div>
+      </div>
+
+      <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 text-sm text-gray-300">
+        <strong className="text-amber-400">注意：</strong>本页展示的是 Innies/Qwen CLI 为了对接 OpenAI 兼容 API 而引入的内容生成管道；
+        上游 Gemini CLI 的核心链路不需要进行 Gemini ↔ OpenAI 的消息/工具格式互转。
       </div>
 
       {/* 管道阶段 */}

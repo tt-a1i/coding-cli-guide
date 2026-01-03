@@ -35,6 +35,7 @@ const CustomCommands = lazy(() => import('./pages/CustomCommands').then(m => ({ 
 const ShellModes = lazy(() => import('./pages/ShellModes').then(m => ({ default: m.ShellModes })));
 const AtCommands = lazy(() => import('./pages/AtCommands').then(m => ({ default: m.AtCommands })));
 const MemorySystemSplit = lazy(() => import('./pages/MemorySystemSplit').then(m => ({ default: m.MemorySystemSplit })));
+const AgentSkills = lazy(() => import('./pages/AgentSkills').then(m => ({ default: m.AgentSkills })));
 const SubagentSystem = lazy(() => import('./pages/SubagentSystem').then(m => ({ default: m.SubagentSystem })));
 const MCPIntegration = lazy(() => import('./pages/MCPIntegration').then(m => ({ default: m.MCPIntegration })));
 const ExtensionSystem = lazy(() => import('./pages/ExtensionSystem').then(m => ({ default: m.ExtensionSystem })));
@@ -325,6 +326,8 @@ function App() {
         return <MemorySystemSplit />;
       case 'agent-framework':
         return <AgentFramework />;
+      case 'agent-skills':
+        return <AgentSkills />;
       case 'subagent':
         return <SubagentSystem />;
       case 'mcp':

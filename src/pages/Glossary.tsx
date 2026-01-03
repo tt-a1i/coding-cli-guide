@@ -124,9 +124,10 @@ const glossaryTerms: Term[] = [
   },
   {
     term: 'Skill',
-    definition: '技能系统，用户可定义的命令扩展。通过 /skill-name 调用，可以封装常用工作流。',
+    definition:
+      'Agent Skills（技能系统）：启用 experimental.skills 后，CLI 会从 ~/.gemini/skills 与 .gemini/skills 扫描 */SKILL.md；模型可通过 activate_skill 激活技能并获得 <ACTIVATED_SKILL> 指令注入；用户可用 /skills 列表/启用/禁用。',
     category: 'extension',
-    relatedPage: 'custom-cmd',
+    relatedPage: 'agent-skills',
   },
 
   // UI & System

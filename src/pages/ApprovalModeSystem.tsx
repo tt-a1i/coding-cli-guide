@@ -239,6 +239,7 @@ export interface PolicyRule {
   toolName?: string;      // 工具名，支持通配符 serverName__*
   argsPattern?: RegExp;   // 参数匹配正则
   modes?: ApprovalMode[]; // 限定模式
+  allowRedirection?: boolean; // shell 命令含重定向时是否仍允许 ALLOW（否则会降级为 ASK_USER）
   decision: PolicyDecision;
   priority?: number;      // 优先级，高优先
 }`;

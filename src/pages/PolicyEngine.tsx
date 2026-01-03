@@ -140,6 +140,7 @@ export type HookSource = 'project' | 'user' | 'system' | 'extension';`;
 export interface PolicyRule {
   toolName?: string;       // 工具名称（支持通配符 serverName__*）
   argsPattern?: RegExp;    // 参数匹配正则
+  allowRedirection?: boolean; // 仅对 shell 生效：含重定向时是否仍允许 ALLOW（否则会降级 ASK_USER）
   decision: PolicyDecision; // 决策结果
   priority?: number;       // 优先级（越高越先匹配）
   modes?: ApprovalMode[];  // 适用的审批模式
@@ -603,6 +604,19 @@ async checkHook(
                 <li>任一子命令 ASK_USER → 整体 ASK_USER</li>
                 <li>全部子命令 ALLOW → 整体 ALLOW</li>
               </ul>
+            </div>
+          </HighlightBox>
+
+          <HighlightBox title="重定向降级（allowRedirection）" variant="orange">
+            <div className="text-sm space-y-2 text-gray-300">
+              <p>
+                上游新增了 <code className="bg-black/30 px-1 rounded">PolicyRule.allowRedirection</code>：
+                当命令（或子命令）包含重定向符号（如 <code className="bg-black/30 px-1 rounded">&gt;</code> / <code className="bg-black/30 px-1 rounded">&lt;</code>）时，
+                即使命中 <code className="bg-black/30 px-1 rounded">ALLOW</code> 规则，默认也会被降级为 <code className="bg-black/30 px-1 rounded">ASK_USER</code>。
+              </p>
+              <p className="text-gray-400">
+                目的：避免“看似 allowlisted 的 shell 命令”通过重定向隐式写文件或覆盖内容；如果你确实希望放行重定向，需要在规则中显式设置 <code className="bg-black/30 px-1 rounded">allowRedirection=true</code>。
+              </p>
             </div>
           </HighlightBox>
         </div>

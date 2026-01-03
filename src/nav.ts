@@ -91,6 +91,7 @@ export const navGroups: NavGroup[] = [
     defaultOpen: false,
     items: [
       { id: 'agent-framework', label: 'Agent 框架', highlight: true },
+      { id: 'agent-skills', label: 'Agent Skills', highlight: true },
       { id: 'subagent', label: '子代理系统' },
       { id: 'subagent-architecture', label: '子代理架构深度', highlight: true },
       { id: 'mcp', label: 'MCP集成' },

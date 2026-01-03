@@ -91,7 +91,7 @@ export function SystemPromptArch() {
             <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold">1</div>
             <div className="flex-1 bg-blue-500/10 rounded-lg p-3 border-l-2 border-blue-500">
               <div className="font-semibold text-blue-300">加载基础 Prompt (Base Prompt)</div>
-              <p className="text-sm text-gray-400">检查 QWEN_SYSTEM_MD 环境变量，决定使用默认内置 Prompt 还是从文件加载</p>
+              <p className="text-sm text-gray-400">检查 GEMINI_SYSTEM_MD 环境变量，决定使用默认内置 Prompt 还是从文件加载</p>
             </div>
           </div>
 
@@ -123,22 +123,22 @@ export function SystemPromptArch() {
 
       <Layer title="基础 Prompt 加载逻辑" icon="📄">
         <p className="text-gray-300 mb-4">
-          系统支持两种 Prompt 来源：内置默认值或用户自定义文件。通过环境变量 <code>QWEN_SYSTEM_MD</code> 控制：
+          系统支持两种 Prompt 来源：内置默认值或用户自定义文件。通过环境变量 <code>GEMINI_SYSTEM_MD</code> 控制：
         </p>
 
         <CodeBlock
           title="prompts.ts - Base Prompt Loading"
           code={`export function getCoreSystemPrompt(
+  config: Config,
   userMemory?: string,
-  model?: string,
 ): string {
   // 默认路径：.gemini/system.md
-  let systemMdPath = path.resolve(path.join(QWEN_CONFIG_DIR, 'system.md'));
+  let systemMdPath = path.resolve(path.join(GEMINI_DIR, 'system.md'));
 
   // 解析环境变量
-  const systemMdResolution = resolvePathFromEnv(process.env['QWEN_SYSTEM_MD']);
+  const systemMdResolution = resolvePathFromEnv(process.env['GEMINI_SYSTEM_MD']);
 
-  // QWEN_SYSTEM_MD 可以是：
+  // GEMINI_SYSTEM_MD 可以是：
   // - "true" / "1"    → 启用，使用默认路径
   // - "/custom/path"  → 启用，使用自定义路径
   // - "false" / "0"   → 禁用，使用内置 Prompt
@@ -158,6 +158,11 @@ export function SystemPromptArch() {
     : \`You are Gemini CLI, an interactive CLI agent...\`;  // 内置默认
 }`}
         />
+
+        <div className="mt-3 bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 text-sm text-gray-300">
+          <strong className="text-amber-400">补充：</strong>本页默认以 <code>gemini-cli</code> 上游实现为准（<code>GEMINI_*</code> 环境变量）。
+          若你阅读的是 Innies/Qwen fork，可能会看到以 <code>QWEN_*</code> 为前缀的同类开关，语义相同但命名不同。
+        </div>
 
         <HighlightBox title="设计考量" icon="🎯" variant="blue">
           <p className="text-sm text-gray-300">
@@ -384,8 +389,9 @@ enabling sandboxing.
 
         <HighlightBox title="环境变量覆盖" icon="⚙️" variant="orange">
           <p className="text-sm text-gray-300">
-            用户可以通过设置 <code>QWEN_CODE_TOOL_CALL_STYLE</code> 环境变量来强制指定格式，
-            这在使用自定义模型或调试时非常有用。支持的值：<code>gemini-1.5-flash</code>、<code>gemini-vision</code>、<code>general</code>
+            <strong>注意：</strong>这一段属于 Innies/Qwen 的多厂商兼容层（通过 prompt 注入 tool-call examples）。
+            上游 <code>gemini-cli</code> 主要依赖 API 级别的 tools schema + <code>functionCall/functionResponse</code>，不需要此环境变量。
+            如需兼容层行为，可通过 <code>QWEN_CODE_TOOL_CALL_STYLE</code> 强制指定示例格式（用于调试/自定义模型）。
           </p>
         </HighlightBox>
       </Layer>
@@ -432,7 +438,7 @@ return \`\${basePrompt}\${memorySuffix}\`;
           除了初始的 System Prompt，在运行过程中还会动态注入上下文信息：
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-cyan-900/20 border border-cyan-500/30 rounded-lg p-4">
             <h4 className="font-semibold text-cyan-400 mb-2">🌍 环境上下文</h4>
             <p className="text-xs text-gray-400 mb-2">会话开始时注入的环境信息：</p>
@@ -466,13 +472,31 @@ requiring specialized analysis.
 - **custom_agent**: Your custom agent`}
             />
           </div>
+
+          <div className="bg-purple-900/20 border border-purple-500/30 rounded-lg p-4">
+            <h4 className="font-semibold text-purple-400 mb-2">🧩 Agent Skills</h4>
+            <p className="text-xs text-gray-400 mb-2">当启用 skills 且存在可用技能时注入：</p>
+            <CodeBlock
+              title="Available Agent Skills (prompts.ts)"
+              code={`# Available Agent Skills
+You have access to the following specialized skills...
+To activate a skill, call \`activate_skill\` with the skill's name.
+
+<available_skills>
+  <skill>...</skill>
+</available_skills>
+
+- Skill Guidance: treat <INSTRUCTIONS> as expert rules`}
+            />
+          </div>
         </div>
 
         <HighlightBox title="静态 vs 动态上下文" icon="📌" variant="blue">
           <p className="text-sm text-gray-300">
             <strong>System Prompt</strong> 在会话开始时设置，定义 AI 的基本人格和规则。<br/>
             <strong>Environment Context</strong> 在初始历史中注入，包含日期、平台、工作目录等环境信息。<br/>
-            <strong>Agent Directory</strong> 通过 <code>registry.getDirectoryContext()</code> 动态生成可用代理列表。
+            <strong>Agent Directory</strong> 通过 <code>registry.getDirectoryContext()</code> 动态生成可用代理列表。<br/>
+            <strong>Agent Skills</strong> 则列出可激活的技能元信息；激活后会把技能指令以 <code>&lt;ACTIVATED_SKILL&gt;</code> 注入到上下文中。
           </p>
         </HighlightBox>
       </Layer>
@@ -537,12 +561,12 @@ requiring specialized analysis.
         <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-700">
           <div className="font-mono text-sm space-y-2">
             <div className="flex items-center gap-2">
-              <span className="text-blue-400">getCoreSystemPrompt(userMemory, model)</span>
+              <span className="text-blue-400">getCoreSystemPrompt(config, userMemory)</span>
             </div>
             <div className="pl-4 text-gray-400">│</div>
             <div className="pl-4 flex items-center gap-2">
               <span className="text-yellow-400">├──</span>
-              <span className="text-gray-300">检查 QWEN_SYSTEM_MD 环境变量</span>
+              <span className="text-gray-300">检查 GEMINI_SYSTEM_MD 环境变量</span>
             </div>
             <div className="pl-4 flex items-center gap-2">
               <span className="text-yellow-400">│   ├──</span>
@@ -570,7 +594,7 @@ requiring specialized analysis.
             </div>
             <div className="pl-4 flex items-center gap-2">
               <span className="text-green-400">├──</span>
-              <span className="text-gray-300">可选: 写入 QWEN_WRITE_SYSTEM_MD</span>
+              <span className="text-gray-300">可选: 写入 GEMINI_WRITE_SYSTEM_MD</span>
             </div>
             <div className="pl-4 flex items-center gap-2">
               <span className="text-purple-400">├──</span>
@@ -612,16 +636,16 @@ requiring specialized analysis.
             <h4 className="font-semibold text-purple-400 mb-3">🔑 关键环境变量</h4>
             <ul className="text-sm text-gray-300 space-y-2">
               <li className="flex items-start gap-2">
-                <code className="text-purple-400">QWEN_SYSTEM_MD</code>
+                <code className="text-purple-400">GEMINI_SYSTEM_MD</code>
                 <span>自定义 System Prompt 文件路径</span>
               </li>
               <li className="flex items-start gap-2">
-                <code className="text-purple-400">QWEN_WRITE_SYSTEM_MD</code>
+                <code className="text-purple-400">GEMINI_WRITE_SYSTEM_MD</code>
                 <span>导出当前 Prompt 到文件</span>
               </li>
               <li className="flex items-start gap-2">
-                <code className="text-purple-400">QWEN_CODE_TOOL_CALL_STYLE</code>
-                <span>强制指定工具调用格式</span>
+                <code className="text-purple-400">GEMINI_PROMPT_*</code>
+                <span>按段开关 Prompt 片段（可选）</span>
               </li>
               <li className="flex items-start gap-2">
                 <code className="text-purple-400">SANDBOX</code>
@@ -634,7 +658,7 @@ requiring specialized analysis.
         <div className="mt-4 p-4 bg-[var(--terminal-green)]/10 rounded-lg border border-[var(--terminal-green)]/30">
           <p className="text-sm text-gray-300">
             <span className="text-[var(--terminal-green)] font-bold">💡 实践提示</span>:
-            调试 System Prompt 时，可以设置 <code>QWEN_WRITE_SYSTEM_MD=./debug-prompt.md</code>，
+            调试 System Prompt 时，可以设置 <code>GEMINI_WRITE_SYSTEM_MD=./debug-prompt.md</code>，
             这会将完整的 System Prompt 写入文件，方便检查最终生成的内容。
           </p>
         </div>

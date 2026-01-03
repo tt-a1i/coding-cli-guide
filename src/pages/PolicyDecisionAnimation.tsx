@@ -96,6 +96,7 @@ type PolicyPhase =
   | 'rule_load'
   | 'rule_match_tool'
   | 'rule_match_params'
+  | 'shell_command_check'
   | 'safety_check'
   | 'approval_mode_check'
   | 'decision_make'
@@ -224,6 +225,40 @@ if (rule.argsPattern) {
       matched: false,
     },
     highlight: 'match argsPattern',
+  },
+  {
+    phase: 'shell_command_check',
+    group: 'decision',
+    title: 'Shell 命令细分检查',
+    description:
+      '当 tool 是 run_shell_command 时，PolicyEngine 会解析/拆分命令并递归检查每一段；命令包含重定向时默认会把 ALLOW 降级为 ASK_USER（除非 rule.allowRedirection=true）',
+    codeSnippet: `// packages/core/src/policy/policy-engine.ts
+if (toolCall.name && SHELL_TOOL_NAMES.includes(toolCall.name)) {
+  const args = toolCall.args as { command?: string; dir_path?: string };
+  decision = await this.checkShellCommand(
+    toolCall.name,
+    args?.command,
+    rule.decision,
+    serverName,
+    args?.dir_path,
+    rule.allowRedirection,
+  );
+}
+
+// checkShellCommand(): redirection downgrade
+if (!allowRedirection && hasRedirection(subCmd)) {
+  if (aggregateDecision === PolicyDecision.ALLOW) {
+    aggregateDecision = PolicyDecision.ASK_USER;
+  }
+}`,
+    visualData: {
+      tool: 'run_shell_command',
+      command: 'npm test > output.log',
+      allowRedirection: false,
+      parsed: ['npm test > output.log'],
+      decision: 'ASK_USER (downgraded)',
+    },
+    highlight: 'ALLOW → ASK_USER（redirection）',
   },
   {
     phase: 'safety_check',

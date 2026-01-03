@@ -113,8 +113,8 @@ export function EndToEndWalkthrough() {
     preprocess["消息预处理<br/>@file/@memory/@url"]
     buildReq["构建请求<br/>history + tools + system prompt"]
     stream["流式响应<br/>token/parts"]
-    finish{"finish_reason?"}
-    toolCalls["tool_calls<br/>解析 + 校验"]
+    hasFc{"parts[].functionCall ?"}
+    toolCalls["functionCall<br/>解析 + 校验"]
     approval["审批/沙箱/可信文件夹"]
     exec["执行工具"]
     addResult["结果入历史"]
@@ -122,9 +122,9 @@ export function EndToEndWalkthrough() {
     final["最终输出"]
     persist["持久化<br/>日志/统计/记忆"]
 
-    start --> preprocess --> buildReq --> stream --> finish
-    finish -->|tool_calls| toolCalls --> approval --> exec --> addResult --> nextRound --> buildReq
-    finish -->|stop| final --> persist
+    start --> preprocess --> buildReq --> stream --> hasFc
+    hasFc -->|Yes| toolCalls --> approval --> exec --> addResult --> nextRound --> buildReq
+    hasFc -->|No| final --> persist
 
     style start fill:#4a9eff,stroke:#2563eb,stroke-width:2px
     style final fill:#22c55e,stroke:#16a34a,stroke-width:2px
@@ -149,15 +149,15 @@ export function EndToEndWalkthrough() {
         CLI-->>User: 实时渲染
     end
 
-    alt finish_reason = tool_calls
-        CLI->>Scheduler: 解析工具调用
+    alt parts[].functionCall 存在
+        CLI->>Scheduler: 解析 functionCall
         Scheduler->>Scheduler: 参数校验
         Scheduler->>Scheduler: 审批检查
         Scheduler->>Tool: 执行工具
         Tool-->>Scheduler: 工具结果
         Scheduler-->>CLI: 结果入历史
         CLI->>API: 下一轮请求
-    else finish_reason = stop
+    else 无 functionCall（文本输出）
         CLI-->>User: 最终输出
         CLI->>CLI: 持久化会话
     end`;
@@ -182,9 +182,12 @@ export function EndToEndWalkthrough() {
           <ol className="list-decimal pl-5 space-y-1">
             <li>CLI 接收用户输入，先做 <code className="text-yellow-400">@file/@memory/@url</code> 等预处理</li>
             <li>把历史对话 + 系统提示词 + 工具定义组装成一次 API 请求，走<strong className="text-green-400">流式输出</strong></li>
-            <li>如果模型返回 <code className="text-yellow-400">tool_calls</code>，CLI 解析并进入工具调度：校验参数 → 走审批/沙箱 → 执行工具</li>
-            <li>工具结果写回历史，再发起下一轮请求，直到 <code className="text-yellow-400">finish_reason=stop</code> 输出最终答案</li>
+            <li>如果响应中包含 <code className="text-yellow-400">functionCall</code>（<code>parts[].functionCall</code>），CLI 进入工具调度：校验参数 → 走审批/沙箱 → 执行工具</li>
+            <li>工具结果以 <code className="text-yellow-400">functionResponse</code> 写回历史，再发起下一轮请求，直到不再出现 functionCall，输出最终答案</li>
           </ol>
+          <div className="mt-3 text-xs text-gray-400">
+            注：Innies/Qwen 的 OpenAI 兼容层可能出现 <code>tool_calls</code>/<code>finish_reason=tool_calls</code>；上游 Gemini CLI 的核心链路以 <code>functionCall/functionResponse</code> 为准。
+          </div>
         </div>
       </div>
 
@@ -305,10 +308,10 @@ export function EndToEndWalkthrough() {
           duration="~1-60s（取决于响应长度）"
           description="接收 API 的流式响应，实时解析并渲染到终端。同时检测工具调用标记。"
           keyPoints={[
-            'SSE 流解析（Server-Sent Events）',
+            '迭代读取 GenAI stream chunk',
             '增量 token 渲染到终端',
-            '工具调用检测（function_call / tool_calls）',
-            '流式 JSON 解析（处理不完整的 JSON）',
+            '工具调用检测（parts[].functionCall）',
+            'chunk 合并（text/parts 聚合）',
             '错误检测与重试触发',
           ]}
           sourceFiles={[
@@ -321,12 +324,14 @@ export function EndToEndWalkthrough() {
         <div className="mt-4 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
           <h5 className="text-cyan-400 font-semibold mb-2">流式响应格式</h5>
           <pre className="text-xs text-gray-300 overflow-x-auto">
-{`data: {"choices":[{"delta":{"content":"Hello"}}]}
-data: {"choices":[{"delta":{"content":" world"}}]}
-data: {"choices":[{"delta":{"tool_calls":[...]}}]}
-data: {"choices":[{"finish_reason":"tool_calls"}]}
-data: [DONE]`}
+{`chunk: { candidates: [{ content: { parts: [{ text: "Hello" }] } }] }
+chunk: { candidates: [{ content: { parts: [{ text: " world" }] } }] }
+chunk: { candidates: [{ content: { parts: [{ functionCall: { name: "read_file", args: {...} } }] } }] }
+chunk: { candidates: [{ finishReason: "STOP" }] }`}
           </pre>
+          <div className="mt-2 text-xs text-gray-500">
+            注：示例为概念化结构；上游以 <code>parts[].functionCall</code> 判定是否进入工具回合。
+          </div>
         </div>
       </CollapsibleSection>
 
@@ -337,7 +342,7 @@ data: [DONE]`}
           duration="~10ms - 数分钟（取决于工具）"
           description="解析模型返回的工具调用，进行参数校验、审批检查，然后执行工具并收集结果。"
           keyPoints={[
-            '解析 tool_calls JSON',
+            '解析 parts[].functionCall',
             '参数类型校验（zod schema）',
             '审批模式检查（需要用户确认？）',
             '沙箱隔离执行（如启用）',
@@ -346,19 +351,19 @@ data: [DONE]`}
           sourceFiles={[
             { path: 'packages/core/src/core/coreToolScheduler.ts', function: 'processToolCall()' },
             { path: 'packages/core/src/tools/*.ts', function: '各工具实现' },
-            { path: 'packages/core/src/security/approvalService.ts', function: 'checkApproval()' },
+            { path: 'packages/core/src/confirmation-bus/message-bus.ts', function: 'shouldConfirmExecute()' },
           ]}
         />
 
         <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
           <HighlightBox title="常用工具" variant="blue">
             <ul className="text-xs text-gray-300 space-y-1">
-              <li>• <code>Read</code> - 读取文件</li>
-              <li>• <code>Write</code> - 写入文件</li>
-              <li>• <code>Edit</code> - 编辑文件</li>
-              <li>• <code>Bash</code> - 执行命令</li>
-              <li>• <code>Glob</code> - 文件搜索</li>
-              <li>• <code>Grep</code> - 内容搜索</li>
+              <li>• <code>read_file</code> - 读取文件</li>
+              <li>• <code>write_file</code> - 写入文件</li>
+              <li>• <code>replace</code> - 局部替换编辑</li>
+              <li>• <code>run_shell_command</code> - 执行命令</li>
+              <li>• <code>glob</code> - 文件搜索</li>
+              <li>• <code>search_file_content</code> - 内容搜索</li>
             </ul>
           </HighlightBox>
           <HighlightBox title="审批触发条件" variant="purple">
@@ -386,10 +391,10 @@ data: [DONE]`}
         <StageCard
           number={6}
           title="循环与终止"
-          duration="循环直到 stop"
-          description="工具结果写入历史后，判断是否继续循环。如果模型认为任务完成，返回 stop；否则继续下一轮。"
+          duration="循环直到无 functionCall"
+          description="工具结果写入历史后，判断是否继续循环。如果下一次响应仍包含 functionCall，则继续下一轮；否则输出最终文本并结束。"
           keyPoints={[
-            '工具结果格式化为 function_response',
+            '工具结果格式化为 functionResponse',
             '追加到 messages 历史',
             '检查循环次数限制（防无限循环）',
             '检测重复模式（循环检测）',
@@ -417,7 +422,7 @@ data: [DONE]`}
           number={7}
           title="最终输出与持久化"
           duration="~50-200ms"
-          description="模型返回 finish_reason=stop 后，渲染最终输出并持久化会话状态，以便下次恢复。"
+          description="当响应不再包含 functionCall 时，渲染最终输出并持久化会话状态，以便下次恢复。"
           keyPoints={[
             '渲染最终 Markdown 输出',
             '保存会话历史到磁盘',
@@ -443,9 +448,9 @@ data: [DONE]`}
           </HighlightBox>
           <HighlightBox title="存储位置" variant="green">
             <ul className="text-xs text-gray-300 space-y-1">
-              <li>• <code>~/.gemini/sessions/</code></li>
-              <li>• <code>~/.gemini/logs/</code></li>
-              <li>• <code>.gemini/memory/</code>（项目级）</li>
+              <li>• <code>~/.gemini/history/&lt;project-hash&gt;/</code></li>
+              <li>• <code>~/.gemini/memory.md</code>（全局）</li>
+              <li>• <code>.gemini/settings.json</code>（项目级）</li>
             </ul>
           </HighlightBox>
         </div>
@@ -455,7 +460,7 @@ data: [DONE]`}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <HighlightBox title="CLI 交互主循环" variant="green">
             <div className="text-sm text-gray-300">
-              关注：输入 → 流式输出 → tool_calls → 下一轮
+              关注：输入 → 流式输出 → functionCall → 下一轮
               <div className="mt-2 text-xs text-gray-500">
                 <code>packages/cli/src/ui/hooks/useGeminiStream.ts</code>
               </div>
@@ -504,7 +509,7 @@ data: [DONE]`}
             </div>
           </div>
           <div className="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
-            <div className="text-cyan-300 font-semibold">Q：tool_calls 出错怎么兜底？</div>
+            <div className="text-cyan-300 font-semibold">Q：functionCall 出错怎么兜底？</div>
             <div className="text-gray-400 mt-1">
               A：参数校验 + 重试/回退策略 + 将错误结果入历史，让模型可自我修正下一轮调用。
               详见「错误处理」「重试回退」页面。
