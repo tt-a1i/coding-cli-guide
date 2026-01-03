@@ -36,29 +36,32 @@ function ToolCard({ icon, name, tools, status, statusColor }: ToolCardProps) {
 
 const stepContents = [
   {
-    title: 'AI 返回 tool_calls',
+    title: 'AI 返回 functionCall',
     code: `{
-    "tool_calls": [
-        {
-            "id": "call_abc123",
-            "function": {
-                "name": "read_file",
-                "arguments": "{\\"absolute_path\\": \\"/path/to/file.txt\\"}"
-            }
-        }
-    ]
+  "role": "model",
+  "parts": [
+    {
+      "functionCall": {
+        "id": "call_abc123",
+        "name": "read_file",
+        "args": { "file_path": "package.json", "offset": 0, "limit": 50 }
+      }
+    }
+  ]
 }`,
-    description: 'AI 决定要读取文件，返回工具调用请求。',
+    description: 'AI 决定要读取文件，通过 functionCall 请求工具调用。',
     isJson: true,
   },
   {
     title: '解析参数',
     code: `// coreToolScheduler.ts
-const { name, arguments: argsJson } = toolCall.function;
-const params = JSON.parse(argsJson);
+const functionCall = content.parts.find((p) => p.functionCall)?.functionCall;
+const toolName = functionCall?.name;
+const callId = functionCall?.id ?? \`\${promptId}-0\`;
+const params = functionCall?.args ?? {};
 
-// params = { absolute_path: "/path/to/file.txt" }`,
-    description: 'CLI 解析 JSON 字符串，提取参数。',
+// params = { file_path: "package.json", offset: 0, limit: 50 }`,
+    description: 'Gemini 的 functionCall.args 已经是对象结构，一般无需 JSON.parse。',
     isJson: false,
   },
   {
@@ -75,17 +78,13 @@ const tool = this.toolRegistry.getTool("read_file");
     code: `// read-file.ts - validateToolParamValues
 validateToolParamValues(params) {
     // 1. 路径不能为空
-    if (params.absolute_path.trim() === '') {
-        return "路径不能为空";
+    if (params.file_path.trim() === '') {
+        return "file_path 不能为空";
     }
 
-    // 2. 必须是绝对路径
-    if (!path.isAbsolute(params.absolute_path)) {
-        return "必须是绝对路径";
-    }
-
-    // 3. 必须在工作区内（安全检查）
-    if (!workspaceContext.isPathWithinWorkspace(params.absolute_path)) {
+    // 2. 解析到目标目录并做安全检查（必须在工作区/允许范围内）
+    const resolvedPath = path.resolve(targetDir, params.file_path);
+    if (!workspaceContext.isPathWithinWorkspace(resolvedPath)) {
         return "路径必须在工作区内";
     }
 
@@ -106,7 +105,7 @@ const result = await invocation.execute();
 async execute() {
     // 使用 Node.js fs 模块读取文件
     const content = await processSingleFileContent(
-        this.params.absolute_path,
+        this.resolvedPath,
         targetDir,
         fileSystemService,
         offset,
@@ -129,11 +128,17 @@ async execute() {
     returnDisplay: "Read 50 lines from package.json"
 }
 
-// llmContent 被加入消息历史，发给 AI
-this.conversationHistory.push({
-    role: "tool",
-    tool_call_id: "call_abc123",
-    content: result.llmContent
+// llmContent 会被包装为 functionResponse，再加入历史发给模型
+const responseParts = convertToFunctionResponse(
+    toolName,
+    callId,
+    result.llmContent,
+    model
+);
+
+this.history.push({
+    role: "user",
+    parts: responseParts
 });
 
 // returnDisplay 显示在终端给用户看`,
@@ -149,6 +154,13 @@ export function ToolDetails() {
   return (
     <div>
       <h2 className="text-2xl text-cyan-400 mb-5">工具执行细节</h2>
+
+      <HighlightBox title="范围提示" icon="⚠️" variant="orange">
+        <p className="text-sm text-gray-300">
+          本页以 Gemini CLI 的 <code className="bg-black/30 px-1 rounded">functionCall / functionResponse</code> 机制为准。
+          Innies/Qwen CLI 的 OpenAI 兼容模式会出现 <code className="bg-black/30 px-1 rounded">tool_calls</code> 与 <code className="bg-black/30 px-1 rounded">role=tool</code> 等结构，属于额外兼容层。
+        </p>
+      </HighlightBox>
 
       {/* 工具生命周期 */}
       <Layer title="工具调用的完整生命周期" icon="🔄">
@@ -208,14 +220,14 @@ export function ToolDetails() {
           <ToolCard
             icon="📖"
             name="读取类"
-            tools={['ReadFile - 读取文件', 'Glob - 文件模式匹配', 'Grep - 内容搜索']}
+            tools={['ReadFile - 读取文件', 'Glob - 文件模式匹配', 'SearchFileContent - 内容搜索']}
             status="✅ 安全，不修改文件"
             statusColor="text-green-500"
           />
           <ToolCard
             icon="✏️"
             name="写入类"
-            tools={['WriteFile - 写入文件', 'Edit - 编辑文件']}
+            tools={['WriteFile - 写入文件', 'Replace - 编辑文件']}
             status="⚠️ 需要用户确认"
             statusColor="text-orange-500"
           />

@@ -342,33 +342,35 @@ async negotiate(): Promise<ServerCapabilities> {
 
   return this.serverCapabilities;
 }`,
-  `// mcp-tool.ts - 工具注册
-registerTools(client: MCPClient): void {
-  const tools = client.getAvailableTools();
+  `// mcp-client.ts / discoverTools() - 工具发现 + 注册
+async discover(): Promise<void> {
+  const tools = await discoverTools(
+    serverName,
+    serverConfig,
+    mcpClient,
+    cliConfig,
+  );
 
   for (const tool of tools) {
-    // 创建工具包装器
-    const wrappedTool: Tool = {
-      name: \`mcp_\${client.name}_\${tool.name}\`,
-      description: tool.description,
-      parameters: tool.inputSchema,
-      execute: async (args) => {
-        return await client.callTool(tool.name, args);
-      },
-    };
-
-    // 注册到全局工具注册表
-    this.toolRegistry.register(wrappedTool);
+    // 注意：MCP 工具默认使用 toolDef.name（会做字符合法化）
+    // 如果与已有工具重名，会自动升级为 <serverName>__<toolName>
+    toolRegistry.registerTool(tool);
   }
+  toolRegistry.sortTools();
 }`,
-  `// 发现完成后的工具注册表状态
+  `// 发现完成后的工具注册表状态（示例）
 {
   tools: {
-    "mcp_filesystem_read_file": { source: "mcp", server: "filesystem" },
-    "mcp_filesystem_write_file": { source: "mcp", server: "filesystem" },
-    "mcp_memory_store": { source: "mcp", server: "memory" },
-    "mcp_github_create_issue": { source: "mcp", server: "github" },
-    // ...更多工具
+    "read_file": { source: "builtin" },
+    "write_file": { source: "builtin" },
+
+    // 与内置工具同名 -> 自动加 serverName__ 前缀
+    "filesystem__read_file": { source: "mcp", server: "filesystem", policyName: "filesystem__read_file" },
+    "filesystem__write_file": { source: "mcp", server: "filesystem", policyName: "filesystem__write_file" },
+
+    // 无冲突 -> LLM 可见名称可能不带前缀，但策略仍用 serverName__toolName
+    "store": { source: "mcp", server: "memory", policyName: "memory__store" },
+    "create_issue": { source: "mcp", server: "github", policyName: "github__create_issue" }
   },
   totalTools: 9,
   mcpServers: 3,  // 1 个服务器启动失败

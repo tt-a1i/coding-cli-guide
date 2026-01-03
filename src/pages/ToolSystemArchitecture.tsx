@@ -2337,7 +2337,10 @@ const loggingHook: ToolExecutionHooks = {
 
 /**
  * MCP 服务器提供的工具会自动注册到 ToolRegistry
- * 工具名称格式: mcp_<serverName>_<toolName>
+ * 工具名称：
+ * - 默认：<toolName>（会做字符合法化）
+ * - 若发生冲突：<serverName>__<toolName>（自动加命名空间）
+ * 策略匹配/通配符通常使用 <serverName>__*
  */
 export interface McpToolAdapter {
     // 将 MCP 工具转换为内部工具格式

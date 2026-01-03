@@ -522,6 +522,12 @@ yield {
         // 源码位置: packages/core/src/core/openaiContentGenerator/pipeline.ts
       </p>
 
+      <div className="mb-6 bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 text-sm text-amber-200">
+        注意：本页展示的是 Innies/Qwen CLI 的 OpenAI 兼容流式输出（SSE chunks / tool_calls）如何被组装；
+        上游 Gemini CLI 使用 <code className="bg-black/30 px-1 rounded">@google/genai</code> 的流式响应结构，
+        不需要解析 OpenAI 的 <code className="bg-black/30 px-1 rounded">tool_calls</code>。
+      </div>
+
       {/* Controls */}
       <div className="flex gap-3 mb-6 flex-wrap">
         <button

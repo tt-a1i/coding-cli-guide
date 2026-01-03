@@ -328,38 +328,30 @@ const response = await client.request({
       <Layer title="工具调用流程" icon="⚡">
         <CodeBlock
           title="调用 MCP 工具"
-          code={`// 1. AI 决定调用工具
+          code={`// 1) 模型返回 functionCall（Gemini / GenAI SDK）
+// 注意：工具名来自 ToolRegistry 暴露给模型的 FunctionDeclaration.name
 {
-    "tool_calls": [{
-        "name": "mcp_filesystem_read_file",
-        "arguments": { "path": "/home/user/file.txt" }
-    }]
+  role: "model",
+  parts: [{
+    functionCall: {
+      name: "filesystem__read_file",       // 发生命名冲突时会自动加 serverName__ 前缀
+      args: { path: "/home/user/file.txt" } // 参数形状来自 MCP server 的 inputSchema
+    }
+  }]
 }
 
-// 2. CLI 识别这是 MCP 工具
-const isMCPTool = name.startsWith('mcp_');
+// 2) ToolScheduler 路由到 DiscoveredMCPTool（无需通过前缀做字符串判断）
+const tool = toolRegistry.getToolByName("filesystem__read_file");
+if (tool instanceof DiscoveredMCPTool) {
+  // 3) 由 DiscoveredMCPToolInvocation 负责把调用转发给 MCP server
+  // - 对策略检查使用 composite name: "<serverName>__<serverToolName>"
+  // - 对 MCP server 调用使用原始 tool 名（serverToolName）
+  const result = await tool.execute({ path: "/home/user/file.txt" }, signal);
+}
 
-// 3. 解析服务器和工具名
-const [_, serverName, toolName] = name.split('_');
-// serverName = "filesystem", toolName = "read_file"
-
-// 4. 调用 MCP 服务器
-const result = await mcpClient.request({
-    method: 'tools/call',
-    params: {
-        name: toolName,
-        arguments: args
-    }
-});
-
-// 5. 返回结果
+// 4) MCP 返回 CallToolResult（content blocks）
 {
-    "content": [
-        {
-            "type": "text",
-            "text": "文件内容..."
-        }
-    ]
+  content: [{ type: "text", text: "文件内容..." }]
 }`}
         />
       </Layer>
@@ -368,48 +360,72 @@ const result = await mcpClient.request({
       <Layer title="MCPTool 包装类" icon="📦">
         <CodeBlock
           title="DiscoveredMCPTool"
-          code={`class DiscoveredMCPTool extends BaseDeclarativeTool {
-    private mcpClient: MCPClient;
-    private mcpToolDef: MCPToolDefinition;
+          code={`// packages/core/src/tools/mcp-tool.ts（关键片段）
+class DiscoveredMCPTool extends BaseDeclarativeTool {
+  constructor(
+    private readonly mcpTool: CallableTool,
+    readonly serverName: string,
+    readonly serverToolName: string,
+    description: string,
+    readonly parameterSchema: unknown,
+    readonly trust?: boolean,
+    nameOverride?: string,
+  ) {
+    super(
+      nameOverride ?? generateValidName(serverToolName), // LLM 可见名称
+      \`\${serverToolName} (\${serverName} MCP Server)\`,
+      description,
+      Kind.Other,
+      parameterSchema,
+      true,
+    );
+  }
 
-    constructor(toolDef: MCPToolDefinition, client: MCPClient) {
-        super();
-        this.mcpToolDef = toolDef;
-        this.mcpClient = client;
-    }
+  // 当工具名发生冲突时，ToolRegistry 会把 MCP 工具升级为 fully-qualified 名称
+  // 形如：<serverName>__<serverToolName>
+  asFullyQualifiedTool(): DiscoveredMCPTool {
+    return new DiscoveredMCPTool(
+      this.mcpTool,
+      this.serverName,
+      this.serverToolName,
+      this.description,
+      this.parameterSchema,
+      this.trust,
+      \`\${this.serverName}__\${this.serverToolName}\`,
+    );
+  }
 
-    // 工具元数据
-    get name() {
-        return \`mcp_\${this.mcpClient.serverName}_\${this.mcpToolDef.name}\`;
-    }
+  protected createInvocation(params: object): ToolInvocation {
+    return new DiscoveredMCPToolInvocation(
+      this.mcpTool,
+      this.serverName,
+      this.serverToolName,
+      this.displayName,
+      this.trust,
+      params,
+    );
+  }
+}
 
-    get description() {
-        return this.mcpToolDef.description;
-    }
+class DiscoveredMCPToolInvocation extends BaseToolInvocation {
+  constructor(
+    private readonly mcpTool: CallableTool,
+    private readonly serverName: string,
+    private readonly serverToolName: string,
+    displayName: string,
+    trust: boolean | undefined,
+    params: Record<string, unknown>,
+  ) {
+    // 策略检查使用 composite 名称：<serverName>__<serverToolName>
+    super(params, undefined, \`\${serverName}__\${serverToolName}\`, displayName, serverName);
+  }
 
-    get schema(): FunctionDeclaration {
-        return {
-            name: this.name,
-            description: this.description,
-            parameters: this.mcpToolDef.inputSchema
-        };
-    }
-
-    // 执行工具
-    async execute(params: object): Promise<ToolResult> {
-        const response = await this.mcpClient.request({
-            method: 'tools/call',
-            params: {
-                name: this.mcpToolDef.name,
-                arguments: params
-            }
-        });
-
-        return {
-            llmContent: this.formatResponse(response),
-            returnDisplay: \`MCP: \${this.mcpToolDef.name} completed\`
-        };
-    }
+  async execute(signal: AbortSignal): Promise<ToolResult> {
+    // MCP server 调用仍使用原始 tool 名（serverToolName）
+    const functionCalls = [{ name: this.serverToolName, args: this.params }];
+    const rawParts = await this.mcpTool.callTool(functionCalls);
+    return { llmContent: transformMcpContentToParts(rawParts) };
+  }
 }`}
         />
       </Layer>
@@ -618,30 +634,27 @@ async cleanupOnTimeout() {
               </div>
               <CodeBlock
                 title="命名空间隔离机制"
-                code={`// MCP 工具的命名规则
-// 格式: mcp_{serverName}_{toolName}
+                code={`// ToolRegistry：当 MCP 工具名与现有工具冲突时，自动加命名空间
+// 格式：<serverName>__<serverToolName>
+// 例：filesystem 的 read_file 与内置 read_file 冲突 → filesystem__read_file
 
-// 服务器 A 的 read_file → mcp_filesystem_read_file
-// 服务器 B 的 read_file → mcp_github_read_file
-
-// 这样即使工具名相同，全局名称也不会冲突
-get name() {
-  return \`mcp_\${this.serverName}_\${this.originalToolName}\`;
+// packages/core/src/tools/tool-registry.ts（关键片段）
+registerTool(tool: AnyDeclarativeTool): void {
+  if (this.allKnownTools.has(tool.name)) {
+    if (tool instanceof DiscoveredMCPTool) {
+      tool = tool.asFullyQualifiedTool(); // <serverName>__<serverToolName>
+    } else {
+      debugLogger.warn(\`Tool "\${tool.name}" already registered. Overwriting.\`);
+    }
+  }
+  this.allKnownTools.set(tool.name, tool);
 }
 
-// 但如果服务器名称也相同呢？
-// MCPClientManager 使用 Map 存储，后注册的会覆盖先注册的
-class MCPClientManager {
-  private clients: Map<string, MCPClient> = new Map();
-
-  async connectServer(config: MCPServerConfig) {
-    // 问题：如果 config.name 重复，会静默覆盖
-    // 正确做法：检查并报错
-    if (this.clients.has(config.name)) {
-      throw new Error(\`MCP server '\${config.name}' already registered\`);
-    }
-    // ...
-  }
+// McpClientManager：同名 server 的配置不会“静默合并”，会被跳过并提示
+// packages/core/src/tools/mcp-client-manager.ts（关键片段）
+if (existing && existing.getServerConfig().extension !== config.extension) {
+  debugLogger.warn(\`Skipping MCP config for server "\${name}" as it already exists.\`);
+  return;
 }`}
               />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1274,70 +1287,53 @@ class MCPConnectionPool {
             </div>
           </div>
 
-          {/* 优化 2: 懒加载与按需连接 */}
+          {/* 策略 2: Trusted Folder gate + 发现队列 */}
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg border border-[var(--border-subtle)] overflow-hidden">
             <div className="bg-purple-500/10 px-4 py-2 border-b border-[var(--border-subtle)]">
-              <h4 className="text-purple-400 font-bold">优化 2: 懒加载与按需连接</h4>
+              <h4 className="text-purple-400 font-bold">策略 2: Trusted Folder gate + 发现队列</h4>
             </div>
             <div className="p-4 space-y-3">
               <p className="text-sm text-[var(--text-secondary)]">
-                不要在启动时连接所有 MCP 服务器，而是在首次使用时才建立连接。
+                上游实现不会在“非可信文件夹”里自动连接/发现 MCP 服务器；在可信文件夹内则会按队列串行触发发现，避免并发重复发现造成状态竞争。
               </p>
               <CodeBlock
-                title="懒加载实现"
-                code={`// 启动时只加载配置，不建立连接
-class MCPClientManager {
-  private configs: Map<string, MCPServerConfig> = new Map();
-  private clients: Map<string, MCPClient> = new Map();
+                title="上游实现（关键片段）"
+                code={`// packages/core/src/tools/mcp-client-manager.ts（关键片段）
+maybeDiscoverMcpServer(name: string, config: MCPServerConfig) {
+  // 1) allow/blocked 名单过滤（settings.mcp.allowed / settings.mcp.excluded）
+  if (!this.isAllowedMcpServer(name)) return;
 
-  constructor(configs: MCPServerConfig[]) {
-    // 只存储配置
-    for (const config of configs) {
-      this.configs.set(config.name, config);
-    }
-    // 不立即连接！
+  // 2) 非可信文件夹：直接跳过 MCP discovery
+  if (!this.cliConfig.isTrustedFolder()) return;
+
+  // 3) 扩展未启用：跳过
+  if (config.extension && !config.extension.isActive) return;
+
+  // 4) 同名 server 冲突：跳过并提示（避免覆盖）
+  const existing = this.clients.get(name);
+  if (existing && existing.getServerConfig().extension !== config.extension) {
+    debugLogger.warn(\`Skipping MCP config for server "\${name}" as it already exists.\`);
+    return;
   }
 
-  // 工具列表：返回所有可能的工具（包括未连接的）
-  async getAvailableTools(): Promise<ToolInfo[]> {
-    const tools: ToolInfo[] = [];
+  // 5) 串行发现队列：上一轮 discovery 完成后再开始下一轮
+  const currentDiscovery = (async () => {
+    const client = existing ?? new McpClient(name, config, toolRegistry, ...);
+    if (!existing) this.clients.set(name, client);
 
-    for (const [name, config] of this.configs) {
-      if (this.clients.has(name)) {
-        // 已连接，返回实际工具
-        tools.push(...this.clients.get(name)!.getTools());
-      } else {
-        // 未连接，返回占位符
-        tools.push({
-          name: \`mcp_\${name}_*\`,
-          description: \`[Lazy] Tools from \${name} server\`,
-          lazyLoad: true,
-          serverName: name
-        });
-      }
-    }
+    await client.connect();
+    await client.discover(this.cliConfig);
+  })();
 
-    return tools;
-  }
-
-  // 首次调用时才连接
-  async callTool(fullName: string, args: object) {
-    const [, serverName] = fullName.match(/^mcp_(.+?)_/) || [];
-
-    if (!this.clients.has(serverName)) {
-      // 按需连接
-      await this.connect(serverName);
-    }
-
-    return this.clients.get(serverName)!.callTool(/*...*/);
-  }
+  this.discoveryPromise = this.discoveryPromise
+    ? this.discoveryPromise.catch(() => {}).then(() => currentDiscovery)
+    : currentDiscovery;
 }`}
               />
               <div className="bg-amber-500/10 border border-amber-500/30 rounded p-3">
                 <h5 className="text-amber-400 text-sm font-semibold mb-1">⚠️ 权衡</h5>
                 <p className="text-xs text-[var(--text-muted)]">
-                  懒加载会导致首次工具调用延迟增加，但显著减少 CLI 启动时间。
-                  对于不常用的 MCP 服务器，懒加载收益更大。
+                  Trusted Folder gate 会让“未信任目录”下的 MCP 能力不可用，但能显著降低风险并减少不必要的外部进程/网络连接。
                 </p>
               </div>
             </div>
@@ -1388,12 +1384,12 @@ async function executeMCPToolsBatch(
 
 // 使用示例
 const toolCalls = [
-  { name: 'mcp_fs_read_file', args: { path: '/a.txt' } },
-  { name: 'mcp_fs_read_file', args: { path: '/b.txt' } },
-  { name: 'mcp_github_get_issue', args: { issue: 123 } }
+  { name: 'filesystem__read_file', args: { path: '/a.txt' } },
+  { name: 'filesystem__read_file', args: { path: '/b.txt' } },
+  { name: 'github__get_issue', args: { issue: 123 } }
 ];
 
-// 并行执行：fs 的两个调用 + github 的一个调用
+// 并行执行：filesystem 的两个调用 + github 的一个调用
 const results = await executeMCPToolsBatch(toolCalls, manager);`}
               />
               <div className="grid grid-cols-2 gap-3 text-center">
@@ -1679,11 +1675,11 @@ export interface MCPEvents {
     participant Client as MCPClient
     participant Server as MCP Server
 
-    AI->>Scheduler: 请求调用 mcp_fs_read_file
+    AI->>Scheduler: 请求调用 filesystem__read_file
     Scheduler->>Scheduler: 检查是否需要确认
-    Scheduler->>Manager: callTool("mcp_fs_read_file", args)
-    Manager->>Manager: 解析服务器名 "fs"
-    Manager->>Client: getClient("fs")
+    Scheduler->>Manager: callTool("filesystem__read_file", args)
+    Manager->>Manager: 解析服务器名 "filesystem"
+    Manager->>Client: getClient("filesystem")
 
     alt 连接不存在
         Client->>Server: 建立连接
@@ -1819,16 +1815,19 @@ class LoggingMiddleware implements MCPMiddleware {
           </div>
 
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
-            <h4 className="text-[var(--amber)] font-bold mb-2">🏷️ 为什么用 mcp_ 前缀命名工具？</h4>
+            <h4 className="text-[var(--amber)] font-bold mb-2">🏷️ 为什么用 serverName__ 前缀命名工具？</h4>
             <div className="text-sm text-[var(--text-secondary)] space-y-2">
-              <p><strong>决策</strong>：MCP 工具名采用 <code className="bg-black/30 px-1 rounded">mcp_{'{serverName}'}_{'{toolName}'}</code> 格式。</p>
+              <p>
+                <strong>决策</strong>：当 MCP 工具名与现有工具发生冲突时，ToolRegistry 会将其升级为{' '}
+                <code className="bg-black/30 px-1 rounded">{'{serverName}'}__{'{toolName}'}</code>（fully-qualified）格式。
+              </p>
               <p><strong>原因</strong>：</p>
               <ul className="list-disc pl-5 space-y-1">
-                <li><strong>命名空间隔离</strong>：避免与内置工具名冲突（如内置的 Read vs MCP 的 read_file）</li>
-                <li><strong>来源可追溯</strong>：AI 和用户都能清楚知道工具来自哪个 MCP 服务器</li>
-                <li><strong>路由简化</strong>：通过前缀即可快速判断是否是 MCP 工具，无需查表</li>
+                <li><strong>命名空间隔离</strong>：避免与内置工具/其他扩展工具重名（冲突时才需要命名空间）</li>
+                <li><strong>来源可追溯</strong>：当名称被升级后，模型与用户都能直观看到来源 server</li>
+                <li><strong>策略表达力</strong>：Policy 支持 <code>{'{serverName}'}__*</code> 通配符，便于按 server 统一授权/拒绝</li>
               </ul>
-              <p><strong>替代方案</strong>：考虑过用元数据标记来源，但会增加工具调用的复杂度。</p>
+              <p><strong>补充</strong>：执行/审批时不会依赖字符串前缀来“猜测来源”，而是通过工具对象本身（serverName 等元数据）做路由与展示。</p>
             </div>
           </div>
 

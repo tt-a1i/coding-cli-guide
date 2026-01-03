@@ -258,15 +258,15 @@ sequenceDiagram
     UI->>Core: sendMessage(userInput)
     Note over Core: 构建消息历史<br/>附加工具定义
 
-    Core->>API: POST /chat/completions
-    Note over API: 流式返回<br/>SSE 格式
+    Core->>API: generateContentStream(history + tools)
+    Note over API: 流式返回<br/>GenerateContentResponse chunks
 
-    API-->>Core: data: {"delta": "让我读取..."}
+    API-->>Core: chunk (text)
     Core-->>UI: onChunk(text)
     UI-->>User: 实时显示文字
 
-    API-->>Core: data: {"tool_calls": [...]}
-    Note over Core: finish_reason: tool_calls
+    API-->>Core: chunk (parts[].functionCall)
+    Note over Core: functionCall detected
 
     Core->>Hook: beforeToolExecution
     Hook-->>Core: hook result (env vars)
@@ -290,7 +290,7 @@ sequenceDiagram
 
     Core->>API: POST (with tool result)
     API-->>Core: data: {"content": "文件内容是..."}
-    Note over Core: finish_reason: stop
+    Note over Core: finishReason: STOP
 
     Core-->>UI: onComplete(response)
     UI-->>User: 显示最终回复

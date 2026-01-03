@@ -293,6 +293,10 @@ export default function MessageFormatPipelineAnimation() {
         </div>
       </div>
 
+      <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 text-sm text-amber-200">
+        注意：此转换管道属于 Innies/Qwen CLI 的多厂商兼容层；上游 Gemini CLI 不需要进行 Gemini ↔ OpenAI 的消息/工具格式互转。
+      </div>
+
       {/* 阶段进度 */}
       <div className="bg-[var(--bg-secondary)] rounded-lg p-4 border border-[var(--border)]">
         <div className="flex items-center justify-between text-xs font-mono mb-2">

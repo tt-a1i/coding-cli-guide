@@ -34,8 +34,9 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
             <h4 className="text-[var(--amber)] font-bold mb-2">🔧 为什么这样设计</h4>
             <p className="text-[var(--text-secondary)] text-sm">
-              AI Agent 需要自主决策何时完成任务。通过 <code className="text-[var(--amber)] bg-[var(--amber)]/10 px-1 rounded">finish_reason</code> 判断：
-              STOP 表示任务完成，TOOL_USE 表示需要执行工具后继续。这让 AI 可以连续执行多个操作直到任务真正完成。
+              AI Agent 需要自主决策何时完成任务。GeminiChat 的 Continuation 主要通过检测响应{' '}
+              <code className="text-[var(--amber)] bg-[var(--amber)]/10 px-1 rounded">parts[].functionCall</code> 来决定是否需要执行工具并继续；
+              <code className="text-[var(--amber)] bg-[var(--amber)]/10 px-1 rounded">finishReason</code> 更多用于流式完整性与错误处理（例如 MALFORMED_FUNCTION_CALL）。
             </p>
           </div>
 
@@ -174,8 +175,8 @@ export function GeminiChatCore() {
                 <li>发现问题后，尝试修复</li>
               </ul>
               <div className="mt-3 bg-[var(--terminal-green)]/10 rounded p-2 text-xs">
-                <code>finish_reason: "tool_calls"</code> → 继续<br/>
-                <code>finish_reason: "stop"</code> → 结束
+                <code>parts[].functionCall</code> → 执行工具并继续<br/>
+                <code>无 functionCall 且有文本</code> → 结束
               </div>
             </div>
 
@@ -485,16 +486,16 @@ history: Content[] = [
           <div className="flex items-center gap-3 bg-green-500/10 p-3 rounded-lg">
             <span className="text-2xl">✅</span>
             <div>
-              <strong className="text-green-400">finish_reason: "stop"</strong>
-              <p className="text-sm text-gray-400">AI 完成回答，无需更多工具调用</p>
+              <strong className="text-green-400">无 functionCall</strong>
+              <p className="text-sm text-gray-400">响应包含有效文本且不需要工具，结束本轮</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 bg-orange-500/10 p-3 rounded-lg">
             <span className="text-2xl">🔄</span>
             <div>
-              <strong className="text-orange-400">finish_reason: "tool_calls"</strong>
-              <p className="text-sm text-gray-400">需要执行工具，执行后继续循环</p>
+              <strong className="text-orange-400">检测到 functionCall</strong>
+              <p className="text-sm text-gray-400">执行工具并把 functionResponse 写回历史，继续下一轮</p>
             </div>
           </div>
 
@@ -547,7 +548,7 @@ history: Content[] = [
             <div className="text-cyan-400">↓</div>
 
             <div className="bg-yellow-400/20 border border-yellow-400 rounded-lg px-6 py-3 text-center">
-              <strong>检查 tool_calls?</strong>
+              <strong>检查 functionCall?</strong>
             </div>
 
             <div className="flex gap-8 items-start">
@@ -2504,7 +2505,7 @@ sequenceDiagram
     User->>IL: 输入消息
     IL->>GC: sendMessageStream(message)
 
-    loop 直到 finish_reason = stop
+    loop 直到无 functionCall
         GC->>GC: history.push(message)
         GC->>CG: generateContentStream(history)
 

@@ -2009,7 +2009,7 @@ DEBUG=gemini:policy gemini
         McpServer[MCP Servers]
     end
 
-    GeminiChat -->|"tool_calls"| Scheduler
+    GeminiChat -->|"functionCall parts"| Scheduler
     Scheduler -->|"shouldConfirmExecute"| Config
     Config -->|"ApprovalMode + allowedTools"| Scheduler
     Scheduler -->|"validate"| ToolRegistry
@@ -2043,7 +2043,7 @@ DEBUG=gemini:policy gemini
               <div className="border-l-2 border-cyan-500 pl-3">
                 <h5 className="text-sm font-semibold text-cyan-300">GeminiChat</h5>
                 <p className="text-xs text-gray-400">
-                  主交互循环，解析 AI 响应中的 tool_calls，调用 schedule() 调度执行。
+                  主交互循环，解析 AI 响应中的 functionCall（工具调用），调用 schedule() 调度执行。
                 </p>
                 <code className="text-xs text-gray-500">packages/core/src/gemini-chat/gemini-chat.ts</code>
               </div>
@@ -2111,8 +2111,8 @@ DEBUG=gemini:policy gemini
     participant Tool as Tool Instance
     participant UI as ToolApproval UI
 
-    AI->>Chat: Response with tool_calls
-    Chat->>Scheduler: schedule(tool_calls, signal)
+    AI->>Chat: Response with functionCalls
+    Chat->>Scheduler: schedule(functionCalls, signal)
 
     loop For each tool_call
         Scheduler->>Scheduler: validateParams()

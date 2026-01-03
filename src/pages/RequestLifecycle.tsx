@@ -116,7 +116,7 @@ export function RequestLifecycle() {
     node_add_hist["添加到历史记录"]
     node_api_req["API 请求<br/>generateContentStream"]
     node_stream_resp["流式响应处理"]
-    node_check_finish{"Finish Reason?"}
+    node_check_finish{"包含 functionCall?"}
     node_schedule_tools["工具调度<br/>CoreToolScheduler"]
     node_exec_tools["工具执行"]
     node_tool_result["结果入历史"]
@@ -130,8 +130,8 @@ export function RequestLifecycle() {
     node_add_hist --> node_api_req
     node_api_req --> node_stream_resp
     node_stream_resp --> node_check_finish
-    node_check_finish -->|tool_calls| node_schedule_tools
-    node_check_finish -->|stop| node_final_resp
+    node_check_finish -->|Yes| node_schedule_tools
+    node_check_finish -->|No| node_final_resp
     node_schedule_tools --> node_exec_tools
     node_exec_tools --> node_tool_result
     node_tool_result --> node_next_round
@@ -196,8 +196,8 @@ export function RequestLifecycle() {
     Processing --> APIRequest: 消息预处理完成
     APIRequest --> Streaming: 开始流式响应
 
-    Streaming --> ToolScheduling: finish_reason=tool_calls
-    Streaming --> Complete: finish_reason=stop
+    Streaming --> ToolScheduling: functionCall detected
+    Streaming --> Complete: no functionCall
 
     ToolScheduling --> ToolValidating: 验证参数
     ToolValidating --> ToolAwaiting: 需要用户确认
@@ -576,19 +576,19 @@ function setupAbortController(): AbortController {
       <section>
         <Layer title="关键分支与边界条件" icon="⚡">
           <div className="space-y-4">
-            <HighlightBox title="finish_reason 判断" variant="purple">
+            <HighlightBox title="Continuation 判断" variant="purple">
               <div className="text-sm space-y-2">
                 <p className="text-[var(--text-secondary)]">
-                  <strong className="text-[var(--terminal-green)]">stop</strong>: AI 完成响应，结束当前轮次
+                  <strong className="text-[var(--amber)]">parts[].functionCall</strong>: 需要执行工具，执行后继续下一轮
                 </p>
                 <p className="text-[var(--text-secondary)]">
-                  <strong className="text-[var(--amber)]">tool_calls</strong>: 需要执行工具，继续下一轮
+                  <strong className="text-[var(--terminal-green)]">无 functionCall 且有文本</strong>: 结束当前轮次
                 </p>
                 <p className="text-[var(--text-secondary)]">
-                  <strong className="text-[var(--cyber-blue)]">length</strong>: 达到 token 上限，可能需要续写
+                  <strong className="text-[var(--cyber-blue)]">finishReason=MAX_TOKENS</strong>: 达到 token 上限，可能需要续写
                 </p>
                 <p className="text-[var(--text-secondary)]">
-                  <strong className="text-red-400">safety</strong>: 内容安全拦截，终止响应
+                  <strong className="text-red-400">finishReason=SAFETY</strong>: 内容安全拦截，终止响应
                 </p>
               </div>
             </HighlightBox>
@@ -617,25 +617,26 @@ function setupAbortController(): AbortController {
             <CodeBlock
               code={`// 关键分支示例
 
-// 1. finish_reason 分支
-if (finishReason === 'stop') {
+// 1. Continuation 分支（Gemini：由 functionCall 决定是否继续）
+const functionCalls = extractFunctionCallsFromParts(consolidatedParts);
+if (functionCalls.length === 0) {
   // 结束循环，持久化记录
   await persistChatLog();
   return;
-} else if (finishReason === 'tool_calls') {
-  // 执行工具，继续下一轮
-  await scheduleTools(toolCalls);
-  continue;
 }
 
+// 执行工具，继续下一轮
+await scheduleTools(functionCalls);
+continue;
+
 // 2. 工具调用分支
-if (toolCalls.length === 1) {
+if (functionCalls.length === 1) {
   // 单个工具调用
-  await scheduleToolCall(toolCalls[0]);
+  await scheduleToolCall(functionCalls[0]);
 } else {
   // 多个工具调用 - 并行执行
   await Promise.all(
-    toolCalls.map(call => scheduleToolCall(call))
+    functionCalls.map(call => scheduleToolCall(call))
   );
 }
 
@@ -817,23 +818,30 @@ if (input.length > MAX_INPUT_LENGTH) {
 
           <div className="mt-4">
             <CodeBlock
-              code={`// AI 返回多个 tool_calls 示例
+              code={`// AI 返回多个 functionCall 示例（同一轮并行工具调用）
 {
-  "tool_calls": [
+  "role": "model",
+  "parts": [
     {
-      "id": "call_1",
-      "name": "read_file",
-      "args": { "file_path": "src/a.ts" }
+      "functionCall": {
+        "id": "call_1",
+        "name": "read_file",
+        "args": { "file_path": "src/a.ts" }
+      }
     },
     {
-      "id": "call_2",
-      "name": "read_file",
-      "args": { "file_path": "src/b.ts" }
+      "functionCall": {
+        "id": "call_2",
+        "name": "read_file",
+        "args": { "file_path": "src/b.ts" }
+      }
     },
     {
-      "id": "call_3",
-      "name": "read_file",
-      "args": { "file_path": "src/c.ts" }
+      "functionCall": {
+        "id": "call_3",
+        "name": "read_file",
+        "args": { "file_path": "src/c.ts" }
+      }
     }
   ]
 }

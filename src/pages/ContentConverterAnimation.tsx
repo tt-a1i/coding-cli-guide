@@ -748,6 +748,10 @@ export function ContentConverterAnimation() {
         <div className="text-xs text-gray-600 mt-1 font-mono">
           核心文件: packages/core/src/core/openaiContentGenerator/converter.ts
         </div>
+        <div className="mt-4 bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 text-sm text-amber-200">
+          注意：本页描述的是 Innies/Qwen CLI 为了对接 OpenAI 兼容 API 而引入的格式转换层；
+          上游 Gemini CLI 没有 <code className="bg-black/30 px-1 rounded">openaiContentGenerator</code> 这条链路。
+        </div>
       </div>
 
       {/* 进度条 */}
