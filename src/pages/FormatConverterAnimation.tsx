@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { JsonBlock } from '../components/JsonBlock';
+import { HighlightBox } from '../components/HighlightBox';
 
 // 转换阶段
 type ConversionPhase =
@@ -654,6 +655,13 @@ export function FormatConverterAnimation() {
           消息格式转换管道
         </h2>
       </div>
+
+      <HighlightBox title="🧭 fork-only 提示" icon="⚠️" variant="yellow">
+        <p className="m-0 text-sm text-[var(--text-secondary)]">
+          上游 Gemini CLI 的主线不会进行 “Gemini SDK ↔ OpenAI API” 的双向转换；它直接调用 <code>@google/genai</code>。
+          本动画用于解释当 fork 通过 OpenAI 兼容协议接入其他模型时，转换管道是如何工作的。
+        </p>
+      </HighlightBox>
 
       <p className="text-sm text-[var(--text-muted)] font-mono mb-6">
         // Gemini SDK 格式 ↔ OpenAI API 格式的双向转换

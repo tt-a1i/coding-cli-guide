@@ -62,7 +62,7 @@ function Introduction({
                 <li className="flex items-start gap-2">
                   <span className="text-[var(--cyber-blue)]">•</span>
                   <span>
-                    <strong>finish_reason</strong>: AI 响应的终止原因，"stop" 表示完成
+                    <strong>finishReason / Finished</strong>: 当前 turn 的结束标记（上游通过 GeminiEventType.Finished 事件暴露）
                   </span>
                 </li>
                 <li className="flex items-start gap-2">
@@ -186,8 +186,9 @@ export function LoopMechanism() {
           </p>
           <p className="mt-2">
             直到 AI 的{' '}
-            <code className="bg-black/30 px-1 rounded">finish_reason</code> 是
-            "stop"（表示完成），循环才结束。
+            <code className="bg-black/30 px-1 rounded">Finished</code> 事件出现（通常对应 <code className="bg-black/30 px-1 rounded">finishReason=STOP</code>），
+            且本轮没有新的 <code className="bg-black/30 px-1 rounded">ToolCallRequest</code>，循环才结束。
+            <span className="text-[var(--text-muted)]">（注：OpenAI 兼容层常用 finish_reason/tool_calls 表达类似语义）</span>
           </p>
         </HighlightBox>
       </Layer>
@@ -225,7 +226,7 @@ export function LoopMechanism() {
             <LoopNode
               icon="✅"
               title="完成"
-              description='finish_reason = "stop"'
+              description='Finished (finishReason="STOP")'
               variant="success"
             />
           </div>
@@ -382,7 +383,7 @@ enum GeminiEventType {
             [
               '第 3 轮',
               '生成最终回复："共找到 15 个文件，总计 2,345 行"',
-              '显示给用户，finish_reason = "stop"',
+              '显示给用户，Finished: finishReason=STOP',
             ],
           ]}
         />
@@ -390,8 +391,7 @@ enum GeminiEventType {
         <HighlightBox title="AI 可以并行调用多个工具" icon="💡">
           <p>
             一次响应中可以包含多个{' '}
-            <code className="bg-black/30 px-1 rounded">tool_calls</code>，
-            工具调度器会并行执行它们，提高效率。
+            <code className="bg-black/30 px-1 rounded">functionCalls</code>（对应多个 ToolCallRequest 事件），工具调度器会并行执行它们，提高效率。
           </p>
         </HighlightBox>
       </Layer>

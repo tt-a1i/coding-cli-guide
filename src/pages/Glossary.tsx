@@ -25,7 +25,7 @@ const glossaryTerms: Term[] = [
   },
   {
     term: 'Continuation',
-    definition: 'AI 完成工具调用后自动继续对话的机制。当 finish_reason 不是 STOP 时，系统将工具结果反馈给 AI 继续处理。',
+    definition: '工具调用后的自动续写机制：当本轮流中出现 ToolCallRequest 时，CLI 执行工具并将 FunctionResponse 作为 continuation 回注给模型继续处理；直到收到 Finished（finishReason=STOP）且没有新的 ToolCallRequest。注：OpenAI 兼容层常用 finish_reason/tool_calls 表达类似语义。',
     category: 'core',
     relatedPage: 'gemini-chat',
     example: 'AI 读取文件后，需要继续分析内容，自动触发 Continuation',
@@ -38,9 +38,9 @@ const glossaryTerms: Term[] = [
   },
   {
     term: 'finish_reason',
-    definition: 'API 返回的终止原因。STOP 表示正常结束，TOOL_USE 表示需要执行工具，MAX_TOKENS 表示达到长度限制。',
+    definition: '（fork-only）OpenAI-compatible 响应中的终止原因字段，常见值如 stop/tool_calls/length。上游 Gemini CLI 使用 finishReason（candidates[0].finishReason）并通过 GeminiEventType.Finished 事件对外暴露。',
     category: 'core',
-    relatedPage: 'gemini-chat',
+    relatedPage: 'content-format-conversion',
   },
 
   // Tool System

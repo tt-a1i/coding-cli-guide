@@ -415,6 +415,13 @@ export function StreamingParserAnimation() {
         </h2>
       </div>
 
+      <HighlightBox title="🧭 fork-only 提示" icon="⚠️" variant="yellow">
+        <p className="m-0 text-sm text-[var(--text-secondary)]">
+          上游 Gemini CLI 的主线不会解析 SSE 文本流或 OpenAI <code>tool_calls</code> 增量 JSON；它直接消费结构化 <code>functionCalls</code> 并在 <code>Turn.run()</code> 中产出事件流。
+          本页动画用于解释当 fork 通过 OpenAI 兼容协议接入其他模型时，为什么需要“流式工具调用解析器”。
+        </p>
+      </HighlightBox>
+
       <p className="text-sm text-[var(--text-muted)] font-mono mb-6">
         // 展示如何从流式 SSE 响应中实时解析工具调用
         <br />

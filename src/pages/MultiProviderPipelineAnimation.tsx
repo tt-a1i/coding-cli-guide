@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { HighlightBox } from '../components/HighlightBox';
 
 /**
  * Multi-Provider Content Pipeline 动画
@@ -441,6 +442,13 @@ export default function MultiProviderPipelineAnimation() {
           </button>
         </div>
       </div>
+
+      <HighlightBox title="🧭 fork-only 提示" icon="⚠️" variant="yellow">
+        <p className="m-0 text-sm text-[var(--text-secondary)]">
+          本动画聚焦“多厂商 + OpenAI-compatible 适配 + 格式转换 + tool_calls 流式解析”的兼容层。
+          上游 Gemini CLI 的主线不需要这条转换管道；它直接消费 <code>@google/genai</code> 的结构化响应流并在 <code>Turn.run()</code> 中产出事件。
+        </p>
+      </HighlightBox>
 
       {/* Configuration Panel */}
       <div className="grid grid-cols-2 gap-4">

@@ -1,10 +1,11 @@
 // @ts-nocheck
 import { useState, useEffect, useCallback } from 'react';
+import { HighlightBox } from '../components/HighlightBox';
 
 /**
  * 流式响应解码器动画
  *
- * 可视化 SSE chunk 解析和工具调用重组流程
+ * （fork-only）可视化 OpenAI-compatible SSE chunk 解析和工具调用重组流程
  * 源码: packages/core/src/core/openaiContentGenerator/streamingToolCallParser.ts
  *
  * 核心功能:
@@ -197,6 +198,13 @@ export default function StreamingDecoderAnimation() {
           {isPlaying ? '⏹ 停止' : '▶ 开始'}
         </button>
       </div>
+
+      <HighlightBox title="🧭 fork-only 提示" icon="⚠️" variant="yellow">
+        <p className="m-0 text-sm text-[var(--text-secondary)]">
+          上游 Gemini CLI 的主线不会解析 SSE 文本流或 <code>tool_calls</code> 增量 JSON；它直接消费结构化 <code>functionCalls</code>。
+          本动画用于解释当 fork 通过 OpenAI 兼容协议接入其他模型时，为何需要这类“流式拼接/修复”解析器。
+        </p>
+      </HighlightBox>
 
       <div className="grid grid-cols-12 gap-6">
         {/* SSE 流 */}

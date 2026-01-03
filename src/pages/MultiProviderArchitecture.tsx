@@ -593,6 +593,14 @@ export function MultiProviderArchitecture() {
         onToggle={() => setIsIntroExpanded(!isIntroExpanded)}
       />
 
+      <HighlightBox title="🧭 fork-only 提示" icon="⚠️" variant="yellow">
+        <p className="m-0 text-sm text-[var(--text-secondary)]">
+          上游 Gemini CLI 本身不包含 “OpenAI/DeepSeek 多厂商接入 + Gemini ↔ OpenAI 格式转换” 这条链路；
+          这通常是 fork 为了兼容更多模型而额外引入的适配层。本页内容用于理解兼容层设计，
+          了解上游主线请优先阅读 <code>content-gen</code>、<code>streaming-response-processing</code>、<code>model-availability</code> 与 <code>fallback-system</code>。
+        </p>
+      </HighlightBox>
+
       {/* Core Interface */}
       <Layer title="ContentGenerator 接口" icon="📋">
         <HighlightBox title="统一抽象" icon="💡" variant="green">
@@ -639,15 +647,16 @@ export function MultiProviderArchitecture() {
           <CodeBlock
             title="AuthType 枚举"
             language="typescript"
-            code={`export enum AuthType {
-  LOGIN_WITH_GOOGLE = 'oauth-personal',   // Gemini via Google OAuth
-  USE_GEMINI = 'gemini-api-key',          // Direct Gemini API key
-  USE_VERTEX_AI = 'vertex-ai',            // Google Vertex AI
-  CLOUD_SHELL = 'cloud-shell',            // Google Cloud Shell
-  USE_OPENAI = 'openai',                  // OpenAI-compatible
-  QWEN_OAUTH = 'google-oauth',              // Google OAuth (推荐)
-  QWEN_OAUTH = 'google-oauth',          // Google OAuth
-}`}
+            code={`// 上游 Gemini CLI（gemini-cli/packages/core/src/core/contentGenerator.ts）
+export enum AuthType {
+  LOGIN_WITH_GOOGLE = 'oauth-personal',
+  USE_GEMINI = 'gemini-api-key',
+  USE_VERTEX_AI = 'vertex-ai',
+  LEGACY_CLOUD_SHELL = 'cloud-shell',
+  COMPUTE_ADC = 'compute-default-credentials',
+}
+
+// fork-only：部分 fork 会额外加入 USE_OPENAI 等枚举来支持 OpenAI-compatible 端点。`}
           />
         </div>
       </Layer>

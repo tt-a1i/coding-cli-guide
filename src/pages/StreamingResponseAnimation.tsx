@@ -103,7 +103,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
                 <div className="text-[var(--terminal-green)] font-semibold text-sm">2. 发送请求</div>
                 <div className="text-xs text-[var(--text-muted)] mt-1">
                   sendMessageStream<br/>
-                  建立 SSE 连接
+                  启动 SDK 流式迭代
                 </div>
               </div>
               <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--amber)]/30">

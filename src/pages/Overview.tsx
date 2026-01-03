@@ -231,7 +231,7 @@ export function Overview() {
             <div className="text-[var(--text-muted)] text-2xl hidden md:block">↻</div>
           </div>
           <p className="text-center text-sm text-[var(--text-muted)] mt-4 font-mono">
-            这个循环持续进行，直到 AI 返回 finish_reason: STOP
+            这个循环持续进行，直到收到 Finished 事件（finishReason=STOP）且没有新的 ToolCallRequest
           </p>
         </div>
       </Layer>
@@ -403,8 +403,9 @@ sequenceDiagram
             [
               '什么是 Continuation？',
               <span key="6">
-                当 AI 返回 <code className="bg-black/30 px-1 rounded">finish_reason != STOP</code> 时，
-                CLI 自动将工具结果反馈给 AI <strong>继续对话</strong>
+                当流中出现 <code className="bg-black/30 px-1 rounded">ToolCallRequest</code> 时，
+                CLI 执行工具并将 <code className="bg-black/30 px-1 rounded">functionResponse</code> 作为 continuation 回注给 AI <strong>继续对话</strong>
+                <span className="text-[var(--text-muted)]">（OpenAI 兼容层可能用 finish_reason/tool_calls 表达同样语义）</span>
               </span>,
             ],
           ]}

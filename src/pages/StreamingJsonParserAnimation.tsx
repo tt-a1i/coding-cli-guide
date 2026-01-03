@@ -2,7 +2,7 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 
 /**
  * 流式 JSON 解析器动画
- * 基于 streamingToolCallParser.ts 的实现
+ * （fork-only）基于 streamingToolCallParser.ts 的实现
  * 展示字符级深度跟踪、字符串状态、碰撞检测和自动修复
  */
 
@@ -24,7 +24,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           <div>
             <h3 className="text-cyan-400 font-semibold mb-2">🎯 核心概念</h3>
             <p className="text-gray-300">
-              当 AI 返回工具调用时，JSON 参数是<strong>流式传输</strong>的——一次只收到几个字符。
+              在 OpenAI-compatible 的流式输出里，工具调用参数（<code>tool_calls</code>）常常是<strong>增量分片</strong>的——一次只收到几个字符。
               解析器需要在数据不完整时就开始解析，并能处理多个并发的工具调用。
             </p>
           </div>

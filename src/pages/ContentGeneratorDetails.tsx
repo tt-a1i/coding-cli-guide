@@ -6,12 +6,13 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 const relatedPages: RelatedPage[] = [
-  { id: 'streaming-response-processing', label: '流式响应处理', description: '流式解析与 Chunk 处理' },
-  { id: 'content-format-conversion', label: '格式转换', description: 'Gemini/OpenAI 格式双向转换' },
-  { id: 'multi-provider', label: '多厂商架构', description: '多 AI 提供商支持' },
-  { id: 'streaming-tool-parser-anim', label: '工具调用解析', description: '流式 JSON 解析动画' },
-  { id: 'error-recovery-patterns', label: '错误恢复模式', description: '重试与降级策略' },
-  { id: 'content-pipeline-anim', label: '生成管道动画', description: '可视化内容生成流程' },
+  { id: 'gemini-chat', label: 'GeminiChat 核心', description: 'sendMessageStream 与调用点' },
+  { id: 'streaming-response-processing', label: '流式响应处理', description: 'Turn.run 事件解码' },
+  { id: 'turn-state-machine', label: 'Turn 状态机', description: '事件驱动生命周期' },
+  { id: 'retry', label: '重试回退', description: 'InvalidStreamError / backoff' },
+  { id: 'tool-scheduler', label: '工具调度详解', description: 'ToolCallRequest → continuation' },
+  { id: 'content-format-conversion', label: 'fork-only：格式转换', description: 'Gemini ↔ OpenAI 兼容层' },
+  { id: 'multi-provider', label: 'fork-only：多厂商架构', description: '非上游主线' },
 ];
 
 export function ContentGeneratorDetails() {
@@ -23,47 +24,47 @@ export function ContentGeneratorDetails() {
       <Layer title="30秒速览" icon="⚡">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-4">
-            <h4 className="text-cyan-400 font-bold mb-2">核心类</h4>
+            <h4 className="text-cyan-400 font-bold mb-2">上游主线：调用链</h4>
             <CodeBlock
               code={`// 主要类层次
-ContentGenerationPipeline     // 流式执行管道
-├── OpenAIContentConverter    // 格式转换器
-│   └── StreamingToolCallParser // 流式工具调用解析
-├── TelemetryService          // 遥测日志
-└── ErrorHandler              // 错误处理
+useGeminiStream.submitQuery()
+  → geminiClient.sendMessageStream()
+    → Turn.run()                       // 事件归一（GeminiEventType）
+      → GeminiChat.sendMessageStream() // 处理重试 + history 维护
+        → config.getContentGenerator().generateContentStream()
 
-// 入口点
-OpenAIContentGenerator.generateContentStream()
-  → pipeline.executeStream()
-    → processStreamWithLogging()
-      → handleChunkMerging()`}
+// 上游 ContentGenerator 体系（gemini-cli/packages/core/src/core/contentGenerator.ts）
+ContentGenerator (interface)
+├─ LoggingContentGenerator      // 包装与日志
+├─ RecordingContentGenerator    // 可选：录制响应
+├─ FakeContentGenerator         // 可选：回放/测试
+└─ GoogleGenAI.models           // 真正调用 @google/genai 的实现`}
             />
           </div>
           <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
-            <h4 className="text-purple-400 font-bold mb-2">关键技术挑战</h4>
+            <h4 className="text-purple-400 font-bold mb-2">关键点（上游）</h4>
             <ul className="text-sm text-gray-300 space-y-2">
-              <li>• <strong>流式JSON解析</strong>: 工具参数分片到达，需要深度追踪</li>
-              <li>• <strong>格式转换</strong>: Gemini ↔ OpenAI 双向转换</li>
-              <li>• <strong>Chunk合并</strong>: finishReason 和 usageMetadata 分开到达</li>
-              <li>• <strong>Index碰撞</strong>: 不同tool_call使用相同index</li>
-              <li>• <strong>字符串边界</strong>: JSON字符串内的特殊字符处理</li>
+              <li>• <strong>结构化 functionCalls</strong>: <code>resp.functionCalls</code> 直接提供 <code>args</code> 对象</li>
+              <li>• <strong>Finished 触发点</strong>: 仅当 <code>finishReason</code> 存在才发 <code>GeminiEventType.Finished</code></li>
+              <li>• <strong>InvalidStream 重试</strong>: 无效流抛 <code>InvalidStreamError</code> → yield <code>Retry</code></li>
+              <li>• <strong>Thought/Citation</strong>: Thought 单独事件；citations 暂存到 Finished 统一输出</li>
+              <li>• <strong>fork-only 兼容层</strong>: OpenAI <code>tool_calls</code> / SSE / 格式转换不属于上游主线</li>
             </ul>
           </div>
         </div>
 
         <div className="mt-4 bg-green-500/10 border border-green-500/30 rounded-lg p-4">
-          <h4 className="text-green-400 font-bold mb-2">流式处理管道概览</h4>
+          <h4 className="text-green-400 font-bold mb-2">上游流式管道概览</h4>
           <MermaidDiagram
             chart={`flowchart LR
-    A[OpenAI Stream] --> B[convertOpenAIChunkToGemini]
-    B --> C{Empty?}
-    C -->|Yes| D[Skip]
-    C -->|No| E[handleChunkMerging]
-    E --> F{finishReason?}
-    F -->|Yes| G[Hold for merge]
-    F -->|No| H[Yield response]
-    G --> I[Merge usageMetadata]
-    I --> H`}
+    A[@google/genai stream] --> B[GeminiChat.sendMessageStream]
+    B --> C[Turn.run 事件解码]
+    C --> D{GeminiEventType}
+    D -->|Thought| T[UI Thought]
+    D -->|Content| X[UI TextBuffer]
+    D -->|ToolCallRequest| Y[ToolScheduler]
+    D -->|Finished| Z[结束 turn + usage]
+    B --> R[Retry 通知 (StreamEventType.RETRY)]`}
           />
         </div>
       </Layer>
@@ -77,30 +78,102 @@ OpenAIContentGenerator.generateContentStream()
           </p>
         </HighlightBox>
 
+        <HighlightBox title="⚠️ 重要：上游主线 vs fork-only" icon="🧭" variant="yellow">
+          <p className="m-0 text-sm text-gray-200">
+            上游 Gemini CLI 的主线只需要 <code>@google/genai</code> 的结构化流（<code>GenerateContentResponse</code> + <code>functionCalls</code>）。
+            如果你的 fork 通过 OpenAI 兼容协议接入其他模型，才会额外引入 <code>tool_calls</code>/SSE/格式转换等兼容层。
+          </p>
+        </HighlightBox>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <div className="bg-white/5 rounded-lg p-4 border border-cyan-400/30">
-            <h4 className="text-cyan-400 font-bold mb-2">OpenAI 兼容</h4>
+            <h4 className="text-cyan-400 font-bold mb-2">上游：Gemini CLI（GoogleGenAI）</h4>
+            <code className="text-xs text-gray-400 block mb-2">
+              gemini-cli/packages/core/src/core/contentGenerator.ts
+            </code>
+            <p className="text-sm text-gray-300">
+              通过 <code>createContentGenerator()</code> 生成 <code>ContentGenerator</code> 实例，底层调用 <code>GoogleGenAI.models</code>（或 Code Assist）。
+            </p>
+          </div>
+          <div className="bg-white/5 rounded-lg p-4 border border-purple-400/30">
+            <h4 className="text-purple-400 font-bold mb-2">fork-only：OpenAI 兼容层</h4>
             <code className="text-xs text-gray-400 block mb-2">
               packages/core/src/core/openaiContentGenerator/
             </code>
             <p className="text-sm text-gray-300">
-              支持 OpenAI API 格式的所有提供商（OpenAI、Azure、本地模型等）
-            </p>
-          </div>
-          <div className="bg-white/5 rounded-lg p-4 border border-purple-400/30">
-            <h4 className="text-purple-400 font-bold mb-2">Google OAuth</h4>
-            <code className="text-xs text-gray-400 block mb-2">
-              packages/core/src/gemini/geminiContentGenerator.ts
-            </code>
-            <p className="text-sm text-gray-300">
-              Gemini 特定实现，免费 2000 请求/天
+              当通过 OpenAI 兼容协议接入其他模型时，才需要请求/响应格式转换与 <code>tool_calls</code> 流式解析。
             </p>
           </div>
         </div>
       </Layer>
 
+      {/* 上游：ContentGenerator */}
+      <Layer title="上游：ContentGenerator 接口与工厂" icon="🏭">
+        <CodeBlock
+          title="contentGenerator.ts（上游）"
+          code={`// gemini-cli/packages/core/src/core/contentGenerator.ts
+
+export interface ContentGenerator {
+  generateContent(request: GenerateContentParameters, userPromptId: string): Promise<GenerateContentResponse>;
+  generateContentStream(request: GenerateContentParameters, userPromptId: string): Promise<AsyncGenerator<GenerateContentResponse>>;
+  countTokens(request: CountTokensParameters): Promise<CountTokensResponse>;
+  embedContent(request: EmbedContentParameters): Promise<EmbedContentResponse>;
+}
+
+export type ContentGeneratorConfig = {
+  apiKey?: string;
+  vertexai?: boolean;
+  authType?: AuthType;
+  proxy?: string;
+};
+
+export async function createContentGenerator(
+  config: ContentGeneratorConfig,
+  gcConfig: Config,
+  sessionId?: string,
+): Promise<ContentGenerator> {
+  // Fake / Recording / Logging / GoogleGenAI.models / Code Assist ...
+}`}
+        />
+
+        <HighlightBox title="为什么要抽象 ContentGenerator？" icon="🧩" variant="green">
+          <ul className="m-0 text-sm leading-relaxed">
+            <li><strong>GeminiChat 只依赖接口</strong>：不关心底层是 API Key、Vertex、还是 OAuth Code Assist</li>
+            <li><strong>可插拔 wrapper</strong>：Logging/Recording/Fake 组合起来方便测试、录制与排障</li>
+            <li><strong>上层拿到统一的 GenerateContentResponse 流</strong>：Turn.run 再做事件归一</li>
+          </ul>
+        </HighlightBox>
+      </Layer>
+
+      <Layer title="上游：GeminiChat 如何调用 ContentGenerator" icon="📤">
+        <CodeBlock
+          title="makeApiCallAndProcessStream（上游）"
+          code={`// gemini-cli/packages/core/src/core/geminiChat.ts (simplified)
+
+return this.config.getContentGenerator().generateContentStream(
+  {
+    model: modelToUse,
+    contents: contentsToUse,
+    config: {
+      ...generateContentConfig,
+      systemInstruction: this.systemInstruction,
+      tools: this.tools,
+      abortSignal,
+    },
+  },
+  prompt_id,
+);`}
+        />
+        <HighlightBox title="与 Turn.run 的边界" icon="📌" variant="blue">
+          <p className="m-0 text-sm text-gray-200">
+            <code>GeminiChat</code> 负责“发请求 + 重试 + history + hooks”；<code>Turn.run</code> 负责“把响应流解码为 GeminiEventType”。
+            UI 只消费事件流，不直接依赖底层 SDK 返回结构。
+          </p>
+        </HighlightBox>
+      </Layer>
+
       {/* OpenAI ContentGenerator */}
-      <Layer title="OpenAI ContentGenerator 架构" icon="🔧">
+      <Layer title="Fork-only：OpenAI ContentGenerator 架构" icon="🔧">
         <CodeBlock
           title="类结构"
           code={`class OpenAIContentGenerator implements ContentGenerator {
@@ -123,7 +196,7 @@ OpenAIContentGenerator.generateContentStream()
       </Layer>
 
       {/* generateContentStream */}
-      <Layer title="generateContentStream() 方法" icon="📤">
+      <Layer title="Fork-only：generateContentStream()（OpenAI stream）" icon="📤">
         <CodeBlock
           title="核心生成方法"
           code={`async *generateContentStream(
@@ -152,7 +225,7 @@ OpenAIContentGenerator.generateContentStream()
       </Layer>
 
       {/* 格式转换 */}
-      <Layer title="请求格式转换" icon="🔄">
+      <Layer title="Fork-only：请求格式转换（Gemini ↔ OpenAI）" icon="🔄">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div>
             <h4 className="text-cyan-400 font-bold mb-2">Gemini 格式 (内部)</h4>
@@ -226,7 +299,7 @@ OpenAIContentGenerator.generateContentStream()
       </Layer>
 
       {/* 响应转换 */}
-      <Layer title="响应格式转换" icon="📥">
+      <Layer title="Fork-only：响应格式转换（OpenAI → Gemini）" icon="📥">
         <CodeBlock
           title="OpenAIContentConverter.convertOpenAIResponseToGemini()"
           code={`convertOpenAIResponseToGemini(chunk: ChatCompletionChunk) {
@@ -268,7 +341,7 @@ OpenAIContentGenerator.generateContentStream()
       </Layer>
 
       {/* 工具定义转换 */}
-      <Layer title="工具定义转换" icon="🔧">
+      <Layer title="Fork-only：工具定义转换（FunctionDeclaration → OpenAI Tool）" icon="🔧">
         <CodeBlock
           title="convertToolsToOpenAI()"
           code={`convertToolsToOpenAI(tools: Tool[]): OpenAITool[] {
@@ -303,33 +376,26 @@ OpenAIContentGenerator.generateContentStream()
       </Layer>
 
       {/* 配置选项 */}
-      <Layer title="ContentGenerator 配置" icon="⚙️">
+      <Layer title="配置：ContentGeneratorConfig（上游）" icon="⚙️">
         <CodeBlock
-          code={`interface ContentGeneratorConfig {
-    // 模型配置
-    model: string;              // 模型名称
+          code={`// gemini-cli/packages/core/src/core/contentGenerator.ts
 
-    // 认证
-    apiKey?: string;            // API 密钥
-    baseUrl?: string;           // 基础 URL（自定义端点）
-    authType: AuthType;         // 认证类型
+export enum AuthType {
+  LOGIN_WITH_GOOGLE = 'oauth-personal',
+  USE_GEMINI = 'gemini-api-key',
+  USE_VERTEX_AI = 'vertex-ai',
+  LEGACY_CLOUD_SHELL = 'cloud-shell',
+  COMPUTE_ADC = 'compute-default-credentials',
+}
 
-    // 请求配置
-    timeout?: number;           // 超时时间（毫秒）
-    maxRetries?: number;        // 最大重试次数
+export type ContentGeneratorConfig = {
+  apiKey?: string;
+  vertexai?: boolean;
+  authType?: AuthType;
+  proxy?: string;
+};
 
-    // 采样参数
-    samplingParams?: {
-        temperature?: number;   // 温度 (0-2)
-        top_p?: number;         // Top-p 采样
-        top_k?: number;         // Top-k 采样
-        max_tokens?: number;    // 最大输出 token
-    };
-
-    // 高级选项
-    disableCacheControl?: boolean;  // 禁用缓存
-    enableThinking?: boolean;       // 启用思考模式
-}`}
+// fork-only：如果通过 OpenAI 兼容协议接入其他模型，可能会扩展出 baseUrl/timeout/maxRetries 等字段。`}
         />
       </Layer>
 
@@ -403,7 +469,7 @@ OpenAIContentGenerator.generateContentStream()
       </Layer>
 
       {/* StreamingToolCallParser 详解 */}
-      <Layer title="StreamingToolCallParser 流式工具调用解析" icon="🔧">
+      <Layer title="Fork-only：StreamingToolCallParser（tool_calls 增量解析）" icon="🔧">
         <HighlightBox title="核心问题：流式 JSON 解析" icon="⚠️" variant="orange">
           <p className="mb-2">
             当 AI 调用工具时，参数是一个 JSON 对象。但在流式传输中，这个 JSON 被分割成多个小片段依次到达。

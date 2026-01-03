@@ -337,9 +337,10 @@ export function StartHere({ onNavigate }: StartHereProps) {
           <div className="bg-[var(--bg-void)] rounded-lg p-5 border-l-4 border-[var(--amber)]">
             <h3 className="font-semibold text-[var(--amber)] mb-2">「Continuation 驱动循环」</h3>
             <p className="text-[var(--text-secondary)] leading-relaxed">
-              当 AI 需要工具时，它返回特殊的 finish_reason。CLI 执行工具后，
-              将结果反馈给 AI 继续对话。这个「请求→工具→反馈→请求」的循环，
-              使 AI 能够自主完成多步骤任务，而不需要用户每一步都参与。
+              上游 Gemini CLI 中，当模型需要工具时会在流中发出 <code className="bg-black/30 px-1 rounded">ToolCallRequest</code> 事件（来源于结构化 <code className="bg-black/30 px-1 rounded">functionCalls</code>）。
+              CLI 执行工具后，将 <code className="bg-black/30 px-1 rounded">functionResponse</code> 作为 continuation 回注给模型继续对话。
+              这个「请求→工具→反馈→请求」的循环，让 AI 能够自主完成多步骤任务。
+              <span className="text-[var(--text-muted)]">（注：在 OpenAI 兼容层里，同等语义常表现为 finish_reason=tool_calls）</span>
             </p>
           </div>
 
@@ -365,7 +366,9 @@ export function StartHere({ onNavigate }: StartHereProps) {
             <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
               CLI 的核心是一个 <code className="text-[var(--cyber-blue)] bg-[var(--cyber-blue)]/10 px-1 rounded">useGeminiStream</code> Hook，
               实现了 用户输入 → AI 思考 → 工具调用 → 结果反馈 的无限循环。
-              这个循环通过 <code className="text-[var(--cyber-blue)] bg-[var(--cyber-blue)]/10 px-1 rounded">finish_reason</code> 控制是否继续。
+              是否继续主要取决于是否出现 <code className="text-[var(--cyber-blue)] bg-[var(--cyber-blue)]/10 px-1 rounded">ToolCallRequest</code> 并触发 continuation；
+              本轮流的结束由 <code className="text-[var(--cyber-blue)] bg-[var(--cyber-blue)]/10 px-1 rounded">Finished</code>/<code className="text-[var(--cyber-blue)] bg-[var(--cyber-blue)]/10 px-1 rounded">finishReason</code> 标记。
+              <span className="text-[var(--text-muted)]">（OpenAI 兼容层可能出现 finish_reason/tool_calls）</span>
             </p>
           </HighlightBox>
 

@@ -24,6 +24,13 @@ export function AIToolInteraction() {
         </div>
       </div>
 
+      <HighlightBox title="🧭 术语对齐（上游 Gemini CLI）" icon="⚠️" variant="yellow">
+        <p className="m-0 text-sm text-gray-200">
+          上游 Gemini CLI 的主线使用 <code>functionCall</code>/<code>functionResponse</code>（结构化参数）并在 <code>Turn.run()</code> 中产出 <code>ToolCallRequest</code> 事件；
+          <code>tool_calls</code>/<code>role=tool</code>/<code>finish_reason</code> 属于 OpenAI-compatible 兼容层术语（fork-only）。
+        </p>
+      </HighlightBox>
+
       {/* 核心概念总览 */}
       <Layer title="交互流程全景图" icon="🗺️" defaultOpen>
         <p className="mb-4">
@@ -42,14 +49,14 @@ sequenceDiagram
 
     Note over AI: 分析意图<br/>选择工具<br/>生成参数
 
-    AI-->>CLI: tool_calls: read_file
+    AI-->>CLI: functionCall: read_file({file_path:"package.json"})
 
     Note over CLI: 解析工具调用<br/>验证参数
 
     CLI->>Tool: 执行 read_file
     Tool-->>CLI: 文件内容
 
-    CLI->>AI: 工具结果 (role: tool)
+    CLI->>AI: functionResponse: read_file_result(...)
 
     Note over AI: 理解结果<br/>生成回复
 

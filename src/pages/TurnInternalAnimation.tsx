@@ -20,7 +20,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
             <h3 className="text-[var(--terminal-green)] font-semibold mb-2">🎯 核心概念</h3>
             <p className="text-[var(--text-secondary)]">
               <strong>Turn</strong> 代表一次完整的 AI 响应周期。从收到第一个流式 chunk 开始，
-              到收到 finish_reason 结束，中间经历思考提取、内容输出、工具调用检测等多个事件。
+              到收到 Finished（finishReason）结束，中间经历思考提取、内容输出、工具调用检测等多个事件。
             </p>
           </div>
 

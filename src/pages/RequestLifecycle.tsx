@@ -70,7 +70,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
             <h4 className="text-sm font-semibold text-[var(--text-muted)] mb-3">🛑 何时终止循环？</h4>
             <div className="grid grid-cols-3 gap-2 text-xs">
               <div className="p-2 bg-[var(--bg-void)] rounded border border-[var(--terminal-green)]/30">
-                <div className="text-[var(--terminal-green)] font-medium">finish_reason: stop</div>
+                <div className="text-[var(--terminal-green)] font-medium">Finished: finishReason=STOP</div>
                 <div className="text-[var(--text-muted)]">AI 完成回答</div>
               </div>
               <div className="p-2 bg-[var(--bg-void)] rounded border border-[var(--amber)]/30">
@@ -494,7 +494,7 @@ function setupAbortController(): AbortController {
               <ul className="text-sm text-[var(--text-secondary)] space-y-1">
                 <li>• 流式文本内容</li>
                 <li>• 工具调用请求</li>
-                <li>• finish_reason 标记</li>
+                <li>• Finished/finishReason 标记</li>
                 <li>• 错误信息</li>
               </ul>
             </HighlightBox>
@@ -867,12 +867,12 @@ await Promise.all([
             code={`用户: "读取 package.json 并更新版本号为 2.0.0"
 
 第 1 轮:
-├─ AI: tool_call { name: "read_file", args: { file_path: "package.json" } }
+├─ AI: ToolCallRequest { name: "read_file", args: { file_path: "package.json" } }
 ├─ CLI: 执行 ReadFileTool
 └─ 结果: { content: "{\\"version\\": \\"1.0.0\\"...}" }
 
 第 2 轮:
-├─ AI: tool_call { name: "replace", args: {
+├─ AI: ToolCallRequest { name: "replace", args: {
 │      file_path: "package.json",
 │      old_string: "\\"version\\": \\"1.0.0\\"",
 │      new_string: "\\"version\\": \\"2.0.0\\""
@@ -882,7 +882,7 @@ await Promise.all([
 
 第 3 轮:
 ├─ AI: "已将 package.json 的版本号从 1.0.0 更新为 2.0.0"
-└─ finish_reason: "stop"`}
+└─ Finished: finishReason="STOP"`}
             language="text"
             title="多轮工具调用示例"
           />

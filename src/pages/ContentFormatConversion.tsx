@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { CodeBlock } from '../components/CodeBlock';
+import { HighlightBox } from '../components/HighlightBox';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
@@ -100,17 +101,24 @@ stateDiagram-v2
           🔄 内容格式转换
         </h1>
         <p className="text-[var(--text-secondary)]">
-          深入理解 Gemini ↔ OpenAI 格式的双向转换机制
+          （fork-only）深入理解 Gemini ↔ OpenAI 格式的双向转换机制
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <span className="px-2 py-1 bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] text-xs rounded">
-            核心机制
+            fork-only / 兼容层
           </span>
           <span className="px-2 py-1 bg-[var(--cyber-blue)]/20 text-[var(--cyber-blue)] text-xs rounded">
             packages/core/src/core/openaiContentGenerator/
           </span>
         </div>
       </div>
+
+      <HighlightBox title="🧭 fork-only 提示" icon="⚠️" variant="yellow">
+        <p className="m-0 text-sm text-[var(--text-secondary)]">
+          上游 Gemini CLI 直接使用 <code>@google/genai</code> 的 <code>GenerateContentParameters</code>/<code>GenerateContentResponse</code>，
+          不需要 Gemini ↔ OpenAI 的格式转换。本页描述的是为了接入 OpenAI-compatible 端点而引入的转换与流式解析层。
+        </p>
+      </HighlightBox>
 
       {/* 30秒速览 */}
       <section className="bg-gradient-to-r from-[var(--cyber-blue)]/10 to-[var(--cyber-purple)]/10 rounded-xl p-6 border border-[var(--border-subtle)]">
