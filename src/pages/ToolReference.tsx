@@ -24,24 +24,28 @@ export function ToolReference() {
   const toolRegistrationFlow = `flowchart TD
     start([启动 Gemini CLI])
     init_config[初始化 Config]
-    register_tools[registerTools]
-    create_instances[创建工具实例]
-    group_by_kind[按 Kind 分组]
-    build_schema[构建 JSON Schema]
-    gemini_tools[Gemini Tools Array]
+    create_registry[createToolRegistry]
+    register_core[注册核心工具]
+    register_optional[条件注册 tools<br/>write_todos / agents]
+    discover[discoverAllTools<br/>discovered_tool_*]
+    sort[sortTools]
+    build_schema[生成 FunctionDeclaration<br/>parametersJsonSchema]
+    gemini_tools[传给模型的 tools[]]
     available[工具可用]
 
     start --> init_config
-    init_config --> register_tools
-    register_tools --> create_instances
-    create_instances --> group_by_kind
-    group_by_kind --> build_schema
+    init_config --> create_registry
+    create_registry --> register_core
+    register_core --> register_optional
+    register_optional --> discover
+    discover --> sort
+    sort --> build_schema
     build_schema --> gemini_tools
     gemini_tools --> available
 
     style start fill:#22d3ee,color:#000
     style available fill:#22c55e,color:#000
-    style register_tools fill:#a855f7,color:#fff
+    style create_registry fill:#a855f7,color:#fff
     style build_schema fill:#f59e0b,color:#000`;
 
   // 工具 Kind 分类系统
@@ -49,16 +53,17 @@ export function ToolReference() {
     subgraph Read["🔵 Read (只读)"]
       read_file[read_file]
       read_many[read_many_files]
-      list_dir[list_directory]
     end
 
     subgraph Search["🟢 Search (搜索)"]
+      list_dir[list_directory]
       grep[search_file_content]
       glob[glob]
+      web_search[google_web_search]
     end
 
     subgraph Edit["🟡 Edit (修改)"]
-      edit[replace]
+      replace[replace]
       write[write_file]
     end
 
@@ -67,17 +72,17 @@ export function ToolReference() {
     end
 
     subgraph Think["🔵 Think (思考)"]
-      todo[write_todos]
       memory[save_memory]
+      delegate[delegate_to_agent]
     end
 
     subgraph Fetch["🌐 Fetch (网络)"]
-      web_search[google_web_search]
       web_fetch[web_fetch]
     end
 
     subgraph Other["⚪ Other (其他)"]
-      task[delegate_to_agent]
+      todo[write_todos]
+      skill[activate_skill]
     end
 
     style Read fill:#3b82f6,color:#fff
@@ -93,20 +98,21 @@ export function ToolReference() {
     participant AI as AI Model
     participant Scheduler as ToolScheduler
     participant Registry as Tool Registry
-    participant Tool as Tool Implementation
+    participant Tool as DeclarativeTool
+    participant Inv as ToolInvocation
 
     AI->>Scheduler: schedule(tool_call)
     Scheduler->>Registry: getToolByName(name)
-    Registry-->>Scheduler: Tool Instance
-    Scheduler->>Tool: validateParams(args)
-    Tool-->>Scheduler: validation result
-    Scheduler->>Tool: shouldConfirmExecute()
-    Tool-->>Scheduler: null (auto-approve) or details
-    Scheduler->>Tool: execute(params)
-    activate Tool
-    Tool->>Tool: process logic
-    Tool-->>Scheduler: output (string | Part[])
-    deactivate Tool
+    Registry-->>Scheduler: DeclarativeTool
+    Scheduler->>Tool: build(args) (schema validate)
+    Tool-->>Scheduler: ToolInvocation | Error
+    Scheduler->>Inv: shouldConfirmExecute()
+    Inv-->>Scheduler: false | confirmationDetails | Error(DENY)
+    Scheduler->>Inv: execute(signal, updateOutput?)
+    activate Inv
+    Inv->>Inv: process logic
+    Inv-->>Scheduler: ToolResult
+    deactivate Inv
     Scheduler->>Scheduler: convertToFunctionResponse()
     Scheduler-->>AI: FunctionResponse`;
 
@@ -155,32 +161,35 @@ export function ToolReference() {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <HighlightBox title="Core 内置工具 (13个)" variant="blue">
+            <HighlightBox title="Core 注册工具（默认 + 条件）" variant="blue">
               <div className="text-sm space-y-2">
-                <p className="text-gray-300 font-semibold">来源: config.ts:1092-1178</p>
+                <p className="text-gray-300 font-semibold">来源: packages/core/src/config/config.ts#createToolRegistry()</p>
                 <p className="text-gray-400 text-xs mb-2">
-                  在 <code className="text-cyan-300">createToolRegistry()</code> 中注册的所有核心工具
+                  这是“默认会注册到 ToolRegistry 的工具实现”。实际启用还会受 <code className="text-cyan-300">coreTools</code>、
+                  <code className="text-cyan-300">allowedTools</code>、平台能力（ripgrep）、agents 开关等影响。
                 </p>
                 <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
-                  <div className="text-gray-400">• <code className="text-cyan-300">TaskTool</code> - 子任务委托</div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">LSTool</code> - 列出目录</div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">ReadFileTool</code> - 读取文件</div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">ReadManyFilesTool</code> - 批量读取</div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">GrepTool</code> - 内容搜索</div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">RipGrepTool</code> - 快速搜索*</div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">GlobTool</code> - 文件匹配</div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">EditTool</code> - 编辑文件</div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">SmartEditTool</code> - 智能编辑*</div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">WriteFileTool</code> - 写入文件</div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">ShellTool</code> - 执行命令</div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">MemoryTool</code> - 保存记忆</div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">TodoWriteTool</code> - 待办事项</div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">AskUserQuestionTool</code> - 询问用户</div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">WebFetchTool</code> - 网页获取</div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">WebSearchTool</code> - 网页搜索*</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">LSTool</code> - list_directory</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">ReadFileTool</code> - read_file</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">GrepTool</code> - search_file_content</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">RipGrepTool</code> - search_file_content*</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">GlobTool</code> - glob</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">SmartEditTool</code> - replace</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">WriteFileTool</code> - write_file</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">ShellTool</code> - run_shell_command</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">WebFetchTool</code> - web_fetch</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">WebSearchTool</code> - google_web_search</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">MemoryTool</code> - save_memory</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">ActivateSkillTool</code> - activate_skill</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">WriteTodosTool</code> - write_todos†</div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">DelegateToAgentTool</code> - delegate_to_agent‡</div>
                 </div>
                 <p className="text-yellow-300 text-xs mt-2">
-                  * 条件注册: RipGrep/Grep、SmartEdit/Edit 二选一；WebSearch 需配置
+                  * RipGrep/Grep 在运行时二选一（对模型同名）。† 仅在 useWriteTodos 开启时注册。‡ 仅在 agents 启用且 allowedTools 允许时注册。
+                </p>
+                <p className="text-gray-400 text-xs mt-2">
+                  备注：仓库中存在 <code className="text-cyan-300">ReadManyFilesTool</code> 实现与 <code className="text-cyan-300">read_many_files</code> 名称常量，
+                  但默认 createToolRegistry() 当前未注册它（不同版本可能调整）。
                 </p>
               </div>
             </HighlightBox>
@@ -192,18 +201,19 @@ export function ToolReference() {
                   核心工具名称常量（非完整工具列表）
                 </p>
                 <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
-                  <div className="text-gray-400">• <code className="text-cyan-300">edit</code></div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">write_file</code></div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">read_file</code></div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">read_many_files</code></div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">search_file_content</code></div>
                   <div className="text-gray-400">• <code className="text-cyan-300">glob</code></div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">run_shell_command</code></div>
                   <div className="text-gray-400">• <code className="text-cyan-300">write_todos</code></div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">save_memory</code></div>
-                  <div className="text-gray-400">• <code className="text-cyan-300">list_directory</code></div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">write_file</code></div>
                   <div className="text-gray-400">• <code className="text-cyan-300">google_web_search</code></div>
                   <div className="text-gray-400">• <code className="text-cyan-300">web_fetch</code></div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">replace</code></div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">run_shell_command</code></div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">search_file_content</code></div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">read_many_files</code></div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">read_file</code></div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">list_directory</code></div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">save_memory</code></div>
+                  <div className="text-gray-400">• <code className="text-cyan-300">activate_skill</code></div>
                   <div className="text-gray-400">• <code className="text-cyan-300">delegate_to_agent</code></div>
                 </div>
                 <p className="text-yellow-300 text-xs mt-2">
@@ -238,7 +248,7 @@ export function ToolReference() {
               </div>
               <div className="flex items-center space-x-2">
                 <span className="text-green-400">🔧 Built-in</span>
-                <span>→ 其他内建工具 (运行时注册, 非 ToolNames)</span>
+                <span>→ 其他内建工具 (运行时注册, 非 tool-names.ts 常量)</span>
               </div>
               <div className="flex items-center space-x-2">
                 <span className="text-purple-400">🔌 Dynamic</span>
@@ -305,7 +315,7 @@ export function ToolReference() {
             />
           </HighlightBox>
 
-          <HighlightBox title="OpenAI 兼容格式" variant="green">
+          <HighlightBox title="（fork-only）OpenAI 兼容格式" variant="green">
             <CodeBlock
               code={`// 发送到 OpenAI API 时转换为
 {
@@ -319,8 +329,8 @@ export function ToolReference() {
 
         <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-3 mt-4">
           <p className="text-sm text-yellow-300">
-            <strong>重要：</strong> Gemini CLI 内部统一使用 Gemini 格式，
-            仅在与 OpenAI 兼容 API 通信时才进行格式转换。
+            <strong>重要：</strong> 上游 Gemini CLI 内部统一使用 Gemini 格式（<code>functionCall</code>/<code>functionResponse</code>）。
+            OpenAI 的 <code>role=tool</code>/<code>tool_calls</code> 属于某些 fork 的额外兼容层，不是上游核心链路。
           </p>
         </div>
       </Layer>
@@ -336,12 +346,12 @@ export function ToolReference() {
                 <span className="text-purple-400">核心工具名称常量</span>
               </div>
               <div className="flex justify-between">
-                <code>packages/core/src/tools/tools.ts:584</code>
-                <span className="text-purple-400">Kind 枚举定义</span>
+                <code>packages/core/src/tools/tools.ts</code>
+                <span className="text-purple-400">Kind / ToolInvocation / 基类</span>
               </div>
               <div className="flex justify-between">
-                <code>packages/core/src/tools/tools.ts:1-500</code>
-                <span className="text-purple-400">工具基类和接口</span>
+                <code>packages/core/src/tools/tool-registry.ts</code>
+                <span className="text-purple-400">注册表 + 发现机制</span>
               </div>
             </div>
             <div className="mt-2 text-xs text-yellow-300">
@@ -352,14 +362,21 @@ export function ToolReference() {
           <div className="bg-gray-900 rounded-lg p-4">
             <h4 className="text-cyan-400 font-bold mb-2">工具实现文件</h4>
             <div className="text-xs font-mono space-y-1 text-gray-400">
+              <div>packages/core/src/tools/smart-edit.ts</div>
               <div>packages/core/src/tools/edit.ts</div>
               <div>packages/core/src/tools/write-file.ts</div>
               <div>packages/core/src/tools/read-file.ts</div>
+              <div>packages/core/src/tools/read-many-files.ts</div>
               <div>packages/core/src/tools/grep.ts</div>
+              <div>packages/core/src/tools/ripGrep.ts</div>
               <div>packages/core/src/tools/glob.ts</div>
+              <div>packages/core/src/tools/ls.ts</div>
               <div>packages/core/src/tools/shell.ts</div>
               <div>packages/core/src/tools/memoryTool.ts</div>
-              <div>packages/core/src/tools/todoWrite.ts</div>
+              <div>packages/core/src/tools/write-todos.ts</div>
+              <div>packages/core/src/tools/activate-skill.ts</div>
+              <div>packages/core/src/tools/web-fetch.ts</div>
+              <div>packages/core/src/tools/web-search.ts</div>
               <div>packages/core/src/agents/delegate-to-agent-tool.ts</div>
             </div>
           </div>
@@ -368,8 +385,8 @@ export function ToolReference() {
             <h4 className="text-cyan-400 font-bold mb-2">注册和调度</h4>
             <div className="text-xs font-mono space-y-1 text-gray-400">
               <div className="flex justify-between">
-                <code>packages/core/src/config/config.ts:1092</code>
-                <span className="text-green-400">registerTools()</span>
+                <code>packages/core/src/config/config.ts#createToolRegistry()</code>
+                <span className="text-green-400">组装 ToolRegistry</span>
               </div>
               <div className="flex justify-between">
                 <code>packages/core/src/core/coreToolScheduler.ts</code>
@@ -413,7 +430,8 @@ export function ToolReference() {
         <div className="space-y-4">
           <HighlightBox title="工具名称区分大小写" variant="red">
             <p className="text-sm text-gray-300 mb-2">
-              工具名称必须完全匹配 <code>ToolNames</code> 常量，大小写敏感。
+              工具名称必须完全匹配 <code>ToolRegistry</code> 中已注册的工具名（大小写敏感）。
+              <code>tool-names.ts</code> 是内置工具名常量表，但实际可用工具还包括 discovered_tool_* 与 MCP 工具。
             </p>
             <div className="overflow-x-auto">
               <table className="w-full text-xs">
@@ -452,22 +470,27 @@ export function ToolReference() {
 
           <HighlightBox title="Kind 分类决定审批行为" variant="purple">
             <div className="text-sm space-y-2">
-              <p className="text-gray-300">工具的 Kind 决定了是否需要用户确认：</p>
+              <p className="text-gray-300">
+                <code>Kind</code> 是 PolicyEngine 决策的重要维度之一，但不是“硬编码的自动批准/必须确认”。最终取决于：policy rules、approvalMode、
+                以及 shell 子命令/重定向等解析结果。
+              </p>
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-gray-800/50 rounded p-2">
-                  <h5 className="font-semibold text-green-300 mb-1">自动批准 Kind</h5>
+                  <h5 className="font-semibold text-green-300 mb-1">常见默认更“容易放行”</h5>
                   <ul className="space-y-1 text-gray-400 text-xs">
                     <li>• <code className="text-blue-300">Read</code> - 只读操作</li>
                     <li>• <code className="text-green-300">Search</code> - 搜索操作</li>
-                    <li>• <code className="text-blue-300">Think</code> - 思考类工具</li>
+                    <li>• <code className="text-teal-300">Fetch</code> - 抓取类工具</li>
+                    <li>• <code className="text-cyan-300">Think</code> - 代理/记忆等</li>
                   </ul>
                 </div>
                 <div className="bg-gray-800/50 rounded p-2">
-                  <h5 className="font-semibold text-yellow-300 mb-1">需要确认 Kind</h5>
+                  <h5 className="font-semibold text-yellow-300 mb-1">常见默认更“需要确认”</h5>
                   <ul className="space-y-1 text-gray-400 text-xs">
                     <li>• <code className="text-yellow-300">Edit</code> - 修改文件</li>
                     <li>• <code className="text-orange-300">Execute</code> - 执行命令</li>
-                    <li>• <code className="text-gray-300">Other</code> - 其他操作</li>
+                    <li>• <code className="text-red-300">Delete/Move</code> - 破坏性操作</li>
+                    <li>• <code className="text-gray-300">Other</code> - 注入/扩展类操作</li>
                   </ul>
                 </div>
               </div>
@@ -481,7 +504,7 @@ export function ToolReference() {
             <ul className="text-xs text-gray-400 space-y-1">
               <li>• 必需参数缺失 → <code className="text-red-400">error: Missing required parameter</code></li>
               <li>• 类型不匹配 → <code className="text-red-400">error: Invalid parameter type</code></li>
-              <li>• 路径必须为绝对路径 → <code className="text-red-400">error: Path must be absolute</code></li>
+              <li>• 路径/目录不在工作区 → <code className="text-red-400">error: Path is not within workspace</code></li>
             </ul>
           </HighlightBox>
 
@@ -521,7 +544,7 @@ export function ToolReference() {
           <HighlightBox title="工具未找到" variant="red">
             <div className="text-sm space-y-2">
               <p className="text-gray-300">
-                <strong>错误：</strong> 工具名称不存在于 ToolNames 或工具未注册
+                <strong>错误：</strong> 工具名称未在 ToolRegistry 中注册（或被禁用）
               </p>
               <CodeBlock
                 code={`// 错误响应
@@ -532,7 +555,7 @@ export function ToolReference() {
 }`}
               />
               <p className="text-cyan-300">
-                <strong>恢复策略：</strong> 检查 <code>ToolNames</code> 常量表，使用正确的工具名称
+                <strong>恢复策略：</strong> 检查当前会话的工具列表（ToolRegistry）或参考 <code>tool-names.ts</code> 的内置工具名常量
               </p>
             </div>
           </HighlightBox>
@@ -546,8 +569,8 @@ export function ToolReference() {
                 code={`// 错误响应
 {
   status: 'error',
-  error: 'Invalid parameter: file_path must be absolute',
-  received: './relative/path.ts'
+  error: 'Invalid parameters provided. Reason: "file_path" must be a string',
+  received: { file_path: 123 }
 }`}
               />
               <p className="text-cyan-300">
@@ -626,10 +649,10 @@ export function ToolReference() {
       </Layer>
 
       {/* 工具名称常量表 */}
-      <Layer title="核心工具名称常量表 (ToolNames)" icon="🏷️">
+      <Layer title="tool-names.ts 常量表（14 个内置工具名）" icon="🏷️">
         <p className="text-gray-300 mb-4">
           来源: <code className="text-cyan-400">packages/core/src/tools/tool-names.ts</code>
-          <span className="text-yellow-400 ml-2">(核心工具定义,非全部工具)</span>
+          <span className="text-yellow-400 ml-2">(工具名常量表 ≠ 实际会话可用工具)</span>
         </p>
 
         <div className="overflow-x-auto">
@@ -646,7 +669,7 @@ export function ToolReference() {
               <tr className="border-b border-gray-800">
                 <td className="py-2 px-3 text-purple-400">EDIT</td>
                 <td className="py-2 px-3 text-cyan-400">'replace'</td>
-                <td className="py-2 px-3">EditTool</td>
+                <td className="py-2 px-3">SmartEditTool / EditTool</td>
                 <td className="py-2 px-3 text-yellow-400">Edit</td>
               </tr>
               <tr className="border-b border-gray-800">
@@ -670,7 +693,7 @@ export function ToolReference() {
               <tr className="border-b border-gray-800">
                 <td className="py-2 px-3 text-purple-400">GREP</td>
                 <td className="py-2 px-3 text-cyan-400">'search_file_content'</td>
-                <td className="py-2 px-3">GrepTool</td>
+                <td className="py-2 px-3">GrepTool / RipGrepTool</td>
                 <td className="py-2 px-3 text-green-400">Search</td>
               </tr>
               <tr className="border-b border-gray-800">
@@ -688,8 +711,8 @@ export function ToolReference() {
               <tr className="border-b border-gray-800">
                 <td className="py-2 px-3 text-purple-400">TODO_WRITE</td>
                 <td className="py-2 px-3 text-cyan-400">'write_todos'</td>
-                <td className="py-2 px-3">TodoWriteTool</td>
-                <td className="py-2 px-3 text-blue-400">Think</td>
+                <td className="py-2 px-3">WriteTodosTool</td>
+                <td className="py-2 px-3 text-gray-400">Other</td>
               </tr>
               <tr className="border-b border-gray-800">
                 <td className="py-2 px-3 text-purple-400">MEMORY</td>
@@ -700,14 +723,14 @@ export function ToolReference() {
               <tr className="border-b border-gray-800">
                 <td className="py-2 px-3 text-purple-400">LS</td>
                 <td className="py-2 px-3 text-cyan-400">'list_directory'</td>
-                <td className="py-2 px-3">LsTool</td>
-                <td className="py-2 px-3 text-blue-400">Read</td>
+                <td className="py-2 px-3">LSTool</td>
+                <td className="py-2 px-3 text-green-400">Search</td>
               </tr>
               <tr className="border-b border-gray-800">
                 <td className="py-2 px-3 text-purple-400">WEB_SEARCH</td>
                 <td className="py-2 px-3 text-cyan-400">'google_web_search'</td>
                 <td className="py-2 px-3">WebSearchTool</td>
-                <td className="py-2 px-3 text-teal-400">Fetch</td>
+                <td className="py-2 px-3 text-green-400">Search</td>
               </tr>
               <tr className="border-b border-gray-800">
                 <td className="py-2 px-3 text-purple-400">WEB_FETCH</td>
@@ -725,7 +748,7 @@ export function ToolReference() {
                 <td className="py-2 px-3 text-purple-400">DELEGATE_TO_AGENT</td>
                 <td className="py-2 px-3 text-cyan-400">'delegate_to_agent'</td>
                 <td className="py-2 px-3">DelegateToAgentTool</td>
-                <td className="py-2 px-3 text-gray-400">Other</td>
+                <td className="py-2 px-3 text-blue-400">Think</td>
               </tr>
             </tbody>
           </table>
@@ -766,10 +789,10 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
 
       {/* 工具参数 Schema 详解 */}
       <Layer title="工具参数 Schema (详解)" icon="📋">
-        {/* edit */}
-        <HighlightBox title="edit - 文件编辑" icon="✏️" variant="yellow">
+        {/* replace */}
+        <HighlightBox title="replace - 文件编辑" icon="✏️" variant="yellow">
           <p className="text-sm text-gray-400 mb-2">
-            来源: <code>packages/core/src/tools/edit.ts</code> | Kind: <span className="text-yellow-400">Edit</span>
+            来源: <code>packages/core/src/tools/smart-edit.ts</code> | Kind: <span className="text-yellow-400">Edit</span>
           </p>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
@@ -786,7 +809,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
                   <td className="py-1 px-2 text-cyan-400">file_path</td>
                   <td className="py-1 px-2">string</td>
                   <td className="py-1 px-2 text-green-400">Yes</td>
-                  <td className="py-1 px-2 font-sans">绝对路径</td>
+                  <td className="py-1 px-2 font-sans">文件路径（会 resolve 到 targetDir；建议使用相对路径）</td>
                 </tr>
                 <tr className="border-b border-gray-800">
                   <td className="py-1 px-2 text-cyan-400">old_string</td>
@@ -831,7 +854,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
                   <td className="py-1 px-2 text-cyan-400">file_path</td>
                   <td className="py-1 px-2">string</td>
                   <td className="py-1 px-2 text-green-400">Yes</td>
-                  <td className="py-1 px-2 font-sans">绝对路径</td>
+                  <td className="py-1 px-2 font-sans">文件路径（会 resolve 到 targetDir；建议使用相对路径）</td>
                 </tr>
                 <tr>
                   <td className="py-1 px-2 text-cyan-400">content</td>
@@ -861,10 +884,10 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
               </thead>
               <tbody className="text-gray-300 font-mono">
                 <tr className="border-b border-gray-800">
-                  <td className="py-1 px-2 text-cyan-400">absolute_path</td>
+                  <td className="py-1 px-2 text-cyan-400">file_path</td>
                   <td className="py-1 px-2">string</td>
                   <td className="py-1 px-2 text-green-400">Yes</td>
-                  <td className="py-1 px-2 font-sans">绝对路径</td>
+                  <td className="py-1 px-2 font-sans">文件路径（会 resolve 到 targetDir；offset 为 0-based 行号）</td>
                 </tr>
                 <tr className="border-b border-gray-800">
                   <td className="py-1 px-2 text-cyan-400">offset</td>
@@ -906,22 +929,16 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
                   <td className="py-1 px-2 font-sans">正则表达式</td>
                 </tr>
                 <tr className="border-b border-gray-800">
-                  <td className="py-1 px-2 text-cyan-400">path</td>
+                  <td className="py-1 px-2 text-cyan-400">dir_path</td>
                   <td className="py-1 px-2">string</td>
                   <td className="py-1 px-2 text-gray-400">No</td>
-                  <td className="py-1 px-2 font-sans">搜索目录</td>
+                  <td className="py-1 px-2 font-sans">搜索目录（相对 targetDir；会做 workspace 校验）</td>
                 </tr>
                 <tr className="border-b border-gray-800">
                   <td className="py-1 px-2 text-cyan-400">include</td>
                   <td className="py-1 px-2">string</td>
                   <td className="py-1 px-2 text-gray-400">No</td>
                   <td className="py-1 px-2 font-sans">文件过滤 (如 "*.js")</td>
-                </tr>
-                <tr>
-                  <td className="py-1 px-2 text-cyan-400">maxResults</td>
-                  <td className="py-1 px-2">number</td>
-                  <td className="py-1 px-2 text-gray-400">No</td>
-                  <td className="py-1 px-2 font-sans">最大结果数 (默认20, 最大100)</td>
                 </tr>
               </tbody>
             </table>
@@ -951,10 +968,10 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
                   <td className="py-1 px-2 font-sans">Glob 模式 (如 "**/*.ts")</td>
                 </tr>
                 <tr className="border-b border-gray-800">
-                  <td className="py-1 px-2 text-cyan-400">path</td>
+                  <td className="py-1 px-2 text-cyan-400">dir_path</td>
                   <td className="py-1 px-2">string</td>
                   <td className="py-1 px-2 text-gray-400">No</td>
-                  <td className="py-1 px-2 font-sans">搜索目录</td>
+                  <td className="py-1 px-2 font-sans">搜索目录（相对 targetDir；会做 workspace 校验）</td>
                 </tr>
                 <tr className="border-b border-gray-800">
                   <td className="py-1 px-2 text-cyan-400">case_sensitive</td>
@@ -1002,22 +1019,16 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
                   <td className="py-1 px-2 font-sans">要执行的命令</td>
                 </tr>
                 <tr className="border-b border-gray-800">
-                  <td className="py-1 px-2 text-cyan-400">is_background</td>
-                  <td className="py-1 px-2">boolean</td>
-                  <td className="py-1 px-2 text-green-400">Yes</td>
-                  <td className="py-1 px-2 font-sans">是否后台执行</td>
-                </tr>
-                <tr className="border-b border-gray-800">
                   <td className="py-1 px-2 text-cyan-400">description</td>
                   <td className="py-1 px-2">string</td>
                   <td className="py-1 px-2 text-gray-400">No</td>
                   <td className="py-1 px-2 font-sans">命令简述</td>
                 </tr>
                 <tr>
-                  <td className="py-1 px-2 text-cyan-400">directory</td>
+                  <td className="py-1 px-2 text-cyan-400">dir_path</td>
                   <td className="py-1 px-2">string</td>
                   <td className="py-1 px-2 text-gray-400">No</td>
-                  <td className="py-1 px-2 font-sans">工作目录 (绝对路径)</td>
+                  <td className="py-1 px-2 font-sans">工作目录（相对 targetDir；不传则使用当前工作目录）</td>
                 </tr>
               </tbody>
             </table>
@@ -1046,12 +1057,6 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
                   <td className="py-1 px-2 text-green-400">Yes</td>
                   <td className="py-1 px-2 font-sans">要记住的事实</td>
                 </tr>
-                <tr>
-                  <td className="py-1 px-2 text-cyan-400">scope</td>
-                  <td className="py-1 px-2">'global' | 'project'</td>
-                  <td className="py-1 px-2 text-gray-400">No</td>
-                  <td className="py-1 px-2 font-sans">保存范围</td>
-                </tr>
               </tbody>
             </table>
           </div>
@@ -1060,7 +1065,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
         {/* write_todos */}
         <HighlightBox title="write_todos - 任务管理" icon="✅" variant="blue">
           <p className="text-sm text-gray-400 mb-2">
-            来源: <code>packages/core/src/tools/todoWrite.ts</code> | Kind: <span className="text-blue-400">Think</span>
+            来源: <code>packages/core/src/tools/write-todos.ts</code> | Kind: <span className="text-gray-400">Other</span>
           </p>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
@@ -1095,7 +1100,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
           </p>
           <p className="text-sm text-gray-300 mb-3">
             激活 Agent Skills（技能系统）。执行后会把技能指令以 <code>&lt;ACTIVATED_SKILL&gt;</code> 包裹返回给模型，
-            并附带该技能目录的文件结构（作为可用资源提示）。默认策略为 <code>ask_user</code>，因为它会把本地内容注入到对话上下文中。
+            并附带该技能目录的文件结构（作为可用资源提示）。通常在 PolicyEngine 决策为 <code>ASK_USER</code> 时，会展示确认提示并列出将共享的资源。
           </p>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
@@ -1126,7 +1131,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
         {/* delegate_to_agent */}
         <HighlightBox title="delegate_to_agent - 子代理调度" icon="🤖" variant="purple">
           <p className="text-sm text-gray-400 mb-2">
-            来源: <code>packages/core/src/agents/delegate-to-agent-tool.ts</code> | Kind: <span className="text-gray-400">Other</span>
+            来源: <code>packages/core/src/agents/delegate-to-agent-tool.ts</code> | Kind: <span className="text-blue-400">Think</span>
           </p>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
@@ -1140,22 +1145,16 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
               </thead>
               <tbody className="text-gray-300 font-mono">
                 <tr className="border-b border-gray-800">
-                  <td className="py-1 px-2 text-cyan-400">description</td>
-                  <td className="py-1 px-2">string</td>
+                  <td className="py-1 px-2 text-cyan-400">agent_name</td>
+                  <td className="py-1 px-2">string (enum)</td>
                   <td className="py-1 px-2 text-green-400">Yes</td>
-                  <td className="py-1 px-2 font-sans">任务简述 (3-5 词)</td>
-                </tr>
-                <tr className="border-b border-gray-800">
-                  <td className="py-1 px-2 text-cyan-400">prompt</td>
-                  <td className="py-1 px-2">string</td>
-                  <td className="py-1 px-2 text-green-400">Yes</td>
-                  <td className="py-1 px-2 font-sans">任务指令</td>
+                  <td className="py-1 px-2 font-sans">要委托的 agent 名称（由 AgentRegistry 动态生成）</td>
                 </tr>
                 <tr>
-                  <td className="py-1 px-2 text-cyan-400">subagent_type</td>
-                  <td className="py-1 px-2">string</td>
-                  <td className="py-1 px-2 text-green-400">Yes</td>
-                  <td className="py-1 px-2 font-sans">子代理类型</td>
+                  <td className="py-1 px-2 text-cyan-400">...agentInputs</td>
+                  <td className="py-1 px-2">depends on agent</td>
+                  <td className="py-1 px-2 text-gray-400">Depends</td>
+                  <td className="py-1 px-2 font-sans">不同 agent 暴露不同输入参数（由 inputConfig 定义）</td>
                 </tr>
               </tbody>
             </table>
@@ -1169,27 +1168,27 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
           <div className="bg-gradient-to-r from-[var(--terminal-green)]/10 to-[var(--cyber-blue)]/10 rounded-lg p-5 border border-[var(--terminal-green)]/30">
             <h4 className="text-[var(--terminal-green)] font-bold font-mono mb-3">Kind 分类驱动权限</h4>
             <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
-              工具按 Kind（Read、Edit、Delete、Move、Search、Execute、Think、Fetch、Other，共 9 种）分类，而非按功能分类。
-              这种设计让审批系统可以基于操作类型而非工具名称做决策：
-              只读操作（Read/Search/Fetch/Think）自动放行，修改操作（Edit/Delete/Move/Execute）需要确认。
+              工具按 Kind（read/edit/delete/move/search/execute/think/fetch/other）分类，提供一个“粗粒度安全语义”。
+              PolicyEngine 会结合 Kind、toolName、argsPattern（尤其是 shell）、serverName（MCP）与 approvalMode 等信息，输出
+              ALLOW / ASK_USER / DENY。
             </p>
           </div>
 
           <div className="bg-gradient-to-r from-[var(--amber)]/10 to-[var(--purple)]/10 rounded-lg p-5 border border-[var(--amber)]/30">
             <h4 className="text-[var(--amber)] font-bold font-mono mb-3">统一的参数规范</h4>
             <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
-              所有工具使用 JSON Schema 定义参数。文件路径必须是绝对路径，这避免了工作目录歧义；
-              必需参数和可选参数清晰区分，让 AI 能够正确构造调用请求。
-              统一的规范减少了工具开发者的心智负担，也让 AI 更容易学习工具使用模式。
+              所有工具通过 <code>parametersJsonSchema</code> 描述参数结构，CLI 用 SchemaValidator 做统一校验。
+              常见字段名（如 <code>file_path</code>/<code>dir_path</code>/<code>prompt</code>）在工具间保持一致；
+              路径通常会在工具内部 resolve 到 targetDir，并在必要时做 workspace 校验与过滤（.gitignore/.geminiignore）。
             </p>
           </div>
 
           <div className="bg-gradient-to-r from-[var(--cyber-blue)]/10 to-[var(--terminal-green)]/10 rounded-lg p-5 border border-[var(--cyber-blue)]/30">
-            <h4 className="text-[var(--cyber-blue)] font-bold font-mono mb-3">内部格式统一</h4>
+            <h4 className="text-[var(--cyber-blue)] font-bold font-mono mb-3">内部协议统一（上游）</h4>
             <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
-              无论后端使用哪个 AI 厂商，内部统一使用 Gemini 格式的 FunctionResponse。
-              这种设计将厂商差异隔离在转换层，核心工具逻辑完全不感知底层 API 的格式变化。
-              添加新厂商支持只需实现格式转换，不需要修改任何工具代码。
+              上游 gemini-cli 端到端使用 Gemini 的 <code>functionCall</code>/<code>functionResponse</code> 与结构化流式事件；
+              不包含 OpenAI 的 <code>tool_calls</code>/<code>role=tool</code> 转换逻辑。
+              如需对接 OpenAI-compatible API，通常会在 fork 的外围增加格式转换层（fork-only）。
             </p>
           </div>
         </div>

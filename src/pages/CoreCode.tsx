@@ -384,90 +384,52 @@ async *sendMessageStream(
       {/* ContentGenerator */}
       <Layer title="ContentGenerator - API 调用层" icon="📡">
         <div className="text-sm text-gray-400 font-mono mb-4">
-          packages/core/src/core/openaiContentGenerator/
+          packages/core/src/core/contentGenerator.ts
         </div>
 
         <p className="text-gray-300 mb-4">
-          ContentGenerator 是与 LLM API 交互的抽象层，支持多种 API 格式：
+          ContentGenerator 是与 Gemini API（或 Code Assist Server）交互的抽象层：上游主线直接使用 <code>@google/genai</code> 的
+          <code>GoogleGenAI</code>，并用 <code>LoggingContentGenerator</code>/<code>RecordingContentGenerator</code> 做装饰增强。
         </p>
 
         <CodeBlock
-          title="ContentGenerator 接口"
+          title="ContentGenerator 接口与创建（上游摘录）"
           language="typescript"
-          code={`// 内容生成器接口（支持多厂商）
-interface ContentGenerator {
-  // 生成流式响应
-  generateContentStream(
-    contents: Content[],
-    signal: AbortSignal
-  ): AsyncGenerator<GenerateContentResponse>;
-
-  // 统计 Token
-  countTokens(contents: Content[]): Promise<number>;
+          code={`// packages/core/src/core/contentGenerator.ts
+export interface ContentGenerator {
+  generateContent(request: GenerateContentParameters, userPromptId: string): Promise<GenerateContentResponse>;
+  generateContentStream(request: GenerateContentParameters, userPromptId: string): Promise<AsyncGenerator<GenerateContentResponse>>;
+  countTokens(request: CountTokensParameters): Promise<CountTokensResponse>;
+  embedContent(request: EmbedContentParameters): Promise<EmbedContentResponse>;
 }
 
-// OpenAI 兼容实现
-class OpenAIContentGenerator implements ContentGenerator {
-  private readonly client: OpenAI;
-  private readonly converter: OpenAIContentConverter;
-
-  async *generateContentStream(contents, signal) {
-    // 1. 转换为 OpenAI 格式
-    const messages = this.converter.toOpenAIMessages(contents);
-
-    // 2. 调用 OpenAI API
-    const stream = await this.client.chat.completions.create({
-      model: this.modelId,
-      messages,
-      tools: this.getToolDefinitions(),
-      stream: true
-    });
-
-    // 3. 转换响应为 Gemini 格式
-    for await (const chunk of stream) {
-      yield this.converter.convertOpenAIChunkToGemini(chunk);
+export async function createContentGenerator(
+  config: ContentGeneratorConfig,
+  gcConfig: Config,
+  sessionId?: string,
+): Promise<ContentGenerator> {
+  const generator = await (async () => {
+    if (config.authType === AuthType.LOGIN_WITH_GOOGLE || config.authType === AuthType.COMPUTE_ADC) {
+      return new LoggingContentGenerator(
+        await createCodeAssistContentGenerator(httpOptions, config.authType, gcConfig, sessionId),
+        gcConfig,
+      );
     }
-  }
+
+    const googleGenAI = new GoogleGenAI({ apiKey: config.apiKey, vertexai: config.vertexai, httpOptions });
+    return new LoggingContentGenerator(googleGenAI.models, gcConfig);
+  })();
+
+  return gcConfig.recordResponses ? new RecordingContentGenerator(generator, gcConfig.recordResponses) : generator;
 }`}
         />
 
-        <div className="mt-6">
-          <CodeBlock
-            title="流式工具调用解析"
-            language="typescript"
-            code={`// 处理 OpenAI 流式响应中的工具调用
-class StreamingToolCallParser {
-  private buffers: Map<number, string> = new Map();  // 每个工具调用的 JSON 缓冲
-  private depths: Map<number, number> = new Map();   // JSON 嵌套深度
-
-  addChunk(index: number, chunk: string, id?: string, name?: string) {
-    // 累积 JSON 片段
-    const buffer = (this.buffers.get(index) || '') + chunk;
-    this.buffers.set(index, buffer);
-
-    // 更新嵌套深度
-    let depth = this.depths.get(index) || 0;
-    for (const char of chunk) {
-      if (char === '{' || char === '[') depth++;
-      if (char === '}' || char === ']') depth--;
-    }
-    this.depths.set(index, depth);
-
-    // 深度为 0 时尝试解析
-    if (depth === 0 && buffer) {
-      try {
-        const args = JSON.parse(buffer);
-        return { complete: true, value: args };
-      } catch {
-        return { complete: false };
-      }
-    }
-
-    return { complete: false };
-  }
-}`}
-          />
-        </div>
+        <HighlightBox title="与 OpenAI/tool_calls 的差异" icon="🧭" variant="yellow">
+          <p className="m-0 text-sm text-gray-300">
+            上游 Gemini CLI 的主线不会解析 SSE 文本流或 OpenAI <code>tool_calls</code> 增量 JSON；它直接从 SDK 响应读取结构化
+            <code>functionCalls</code>，并在 <code>Turn.run()</code> 里产出 <code>ToolCallRequest</code> 事件。
+          </p>
+        </HighlightBox>
       </Layer>
 
       {/* ToolRegistry */}
@@ -481,51 +443,51 @@ class StreamingToolCallParser {
           language="typescript"
           code={`// 工具注册表 - 管理所有可用工具
 class ToolRegistry {
-    private tools = new Map<string, Tool>();
+    private allKnownTools = new Map<string, AnyDeclarativeTool>();
 
     // 注册工具
-    register(tool: Tool) {
-        this.tools.set(tool.name, tool);
+    registerTool(tool: AnyDeclarativeTool) {
+        this.allKnownTools.set(tool.name, tool);
     }
 
     // 获取工具
     getTool(name: string) {
-        return this.tools.get(name);
+        return this.allKnownTools.get(name);
     }
 
-    // 获取所有工具定义（发送给 AI）
-    getToolDefinitions(): ToolDefinition[] {
-        return Array.from(this.tools.values()).map(tool => ({
-            type: 'function',
-            function: {
-                name: tool.name,
-                description: tool.description,
-                parameters: tool.parameters
-            }
-        }));
+    // 获取所有工具定义（发送给模型，@google/genai FunctionDeclaration）
+    getAllToolDefinitions(): FunctionDeclaration[] {
+        return Array.from(this.allKnownTools.values()).map(tool => tool.schema);
     }
 }
 
-// 初始化时注册所有工具
-function createToolRegistry(config: Config) {
-    const registry = new ToolRegistry();
+// 上游入口：Config.createToolRegistry()
+async function createToolRegistry(config: Config) {
+    const registry = new ToolRegistry(config);
+    registry.setMessageBus(config.getMessageBus());
 
     // 文件操作工具
-    registry.register(new ReadFileTool(config));
-    registry.register(new WriteFileTool(config));
-    registry.register(new EditTool(config));
+    registry.registerTool(new ReadFileTool(config, config.getMessageBus()));    // read_file
+    registry.registerTool(new WriteFileTool(config, config.getMessageBus()));   // write_file
+    registry.registerTool(new SmartEditTool(config, config.getMessageBus()));   // replace
 
     // 搜索工具
-    registry.register(new GlobTool(config));
-    registry.register(new GrepTool(config));
+    registry.registerTool(new LSTool(config, config.getMessageBus()));          // list_directory
+    registry.registerTool(new GlobTool(config, config.getMessageBus()));        // glob
+    registry.registerTool(new GrepTool(config, config.getMessageBus()));        // search_file_content (或 RipGrepTool)
+    registry.registerTool(new WebSearchTool(config, config.getMessageBus()));   // google_web_search
 
     // 执行工具
-    registry.register(new BashTool(config));
+    registry.registerTool(new ShellTool(config, config.getMessageBus()));       // run_shell_command
 
     // 特殊工具
-    registry.register(new TaskTool(config));     // 子代理
-    registry.register(new WebSearchTool(config)); // 网页搜索
+    registry.registerTool(new MemoryTool(config.getMessageBus()));              // save_memory
+    registry.registerTool(new WebFetchTool(config, config.getMessageBus()));    // web_fetch
+    registry.registerTool(new ActivateSkillTool(config, config.getMessageBus()));// activate_skill
+    // 条件注册：write_todos / delegate_to_agent（agents enabled + allowedTools）
 
+    await registry.discoverAllTools(); // discovered_tool_*
+    registry.sortTools();
     return registry;
 }`}
         />
@@ -540,52 +502,61 @@ function createToolRegistry(config: Config) {
         <CodeBlock
           title="工具基类实现"
           language="typescript"
-          code={`// 所有工具都继承这个基类
-abstract class BaseDeclarativeTool<TParams, TResult> {
-    readonly name: string;          // 工具名称，如 "read_file"
-    readonly description: string;   // 描述，告诉 AI 这个工具做什么
-    readonly parameters: Schema;    // JSON Schema 参数定义
-    readonly kind: Kind;            // 9 种类型：Read/Edit/Delete/Move/Search/Execute/Think/Fetch/Other
-
-    // 验证参数（子类实现）
-    protected abstract validateToolParamValues(
-        params: TParams
-    ): string | null;
-
-    // 创建执行实例（子类实现）
-    protected abstract createInvocation(
-        params: TParams
-    ): ToolInvocation<TParams, TResult>;
-
-    // 调用工具的入口
-    async invoke(params: TParams): Promise<TResult> {
-        // 1. 验证参数
-        const error = this.validateToolParamValues(params);
-        if (error) throw new ToolValidationError(error);
-
-        // 2. 创建调用实例
-        const invocation = this.createInvocation(params);
-
-        // 3. 执行并返回结果
-        return invocation.execute();
-    }
+          code={`// packages/core/src/tools/tools.ts（上游结构，节选）
+export enum Kind {
+  Read = 'read',
+  Edit = 'edit',
+  Delete = 'delete',
+  Move = 'move',
+  Search = 'search',
+  Execute = 'execute',
+  Think = 'think',
+  Fetch = 'fetch',
+  Other = 'other',
 }
 
-// 具体工具示例：Read 工具
-class ReadFileTool extends BaseDeclarativeTool<ReadParams, string> {
-    name = 'Read';
-    description = 'Reads a file from the local filesystem...';
-    kind = Kind.Read;
+export interface ToolInvocation<TParams extends object, TResult extends ToolResult> {
+  params: TParams;
+  getDescription(): string;
+  toolLocations(): ToolLocation[];
+  shouldConfirmExecute(abortSignal: AbortSignal): Promise<ToolCallConfirmationDetails | false>;
+  execute(
+    signal: AbortSignal,
+    updateOutput?: (output: string | AnsiOutput) => void,
+    shellExecutionConfig?: ShellExecutionConfig,
+  ): Promise<TResult>;
+}
 
-    validateToolParamValues(params: ReadParams) {
-        if (!params.file_path) return 'file_path is required';
-        if (!path.isAbsolute(params.file_path)) return 'file_path must be absolute';
-        return null;
-    }
+export abstract class DeclarativeTool<TParams extends object, TResult extends ToolResult> {
+  constructor(
+    readonly name: string,
+    readonly displayName: string,
+    readonly description: string,
+    readonly kind: Kind,
+    readonly parameterSchema: unknown,
+  ) {}
 
-    createInvocation(params: ReadParams) {
-        return new ReadFileInvocation(params, this.config);
-    }
+  get schema(): FunctionDeclaration {
+    return { name: this.name, description: this.description, parametersJsonSchema: this.parameterSchema };
+  }
+
+  abstract build(params: TParams): ToolInvocation<TParams, TResult>;
+}
+
+export abstract class BaseDeclarativeTool<TParams extends object, TResult extends ToolResult>
+  extends DeclarativeTool<TParams, TResult> {
+  build(params: TParams): ToolInvocation<TParams, TResult> {
+    const errors = SchemaValidator.validate(this.schema.parametersJsonSchema, params);
+    if (errors) throw new Error(errors);
+    return this.createInvocation(params, this.messageBus, this.name, this.displayName);
+  }
+
+  protected abstract createInvocation(
+    params: TParams,
+    messageBus?: MessageBus,
+    _toolName?: string,
+    _toolDisplayName?: string,
+  ): ToolInvocation<TParams, TResult>;
 }`}
         />
       </Layer>
@@ -603,60 +574,39 @@ class ReadFileTool extends BaseDeclarativeTool<ReadParams, string> {
         <CodeBlock
           title="工具调度器核心"
           language="typescript"
-          code={`// 工具调用状态
-type ToolCallState =
-  | 'validating'      // 验证参数中
-  | 'scheduled'       // 已调度，等待执行
-  | 'waiting'         // 等待用户审批
-  | 'executing'       // 执行中
-  | 'success'         // 成功完成
-  | 'cancelled'       // 用户取消
-  | 'errored';        // 执行出错
+          code={`// packages/core/src/core/coreToolScheduler.ts（概念化伪代码，贴近上游结构）
+type Status =
+  | 'validating'
+  | 'scheduled'
+  | 'awaiting_approval'
+  | 'executing'
+  | 'success'
+  | 'cancelled'
+  | 'error';
 
 class CoreToolScheduler {
-  private toolCalls: Map<string, ToolCall> = new Map();
+  constructor(private readonly toolRegistry: ToolRegistry) {}
 
-  // 调度工具执行
-  async schedule(request: ToolCallRequestInfo): Promise<void> {
-    const toolCall: ToolCall = {
-      id: request.callId,
-      state: 'validating',
-      request,
-      startTime: Date.now(),
-    };
-
-    this.toolCalls.set(request.callId, toolCall);
-
-    // 验证工具是否存在
+  async schedule(request: ToolCallRequestInfo, signal: AbortSignal): Promise<ToolCallResponseInfo> {
+    // 1) 找到工具（name 必须匹配 ToolRegistry）
     const tool = this.toolRegistry.getTool(request.name);
-    if (!tool) {
-      this.updateState(request.callId, 'errored', 'Tool not found');
-      return;
+    if (!tool) return createErrorResponse(request, new Error(\`Tool not found: \${request.name}\`));
+
+    // 2) schema 校验 + build -> ToolInvocation
+    const invocation = tool.build(request.args);
+
+    // 3) PolicyEngine / MessageBus 决策是否需要确认
+    const confirmation = await invocation.shouldConfirmExecute(signal);
+    if (confirmation) {
+      // UI 渲染 confirmationDetails，并在用户确认后继续
+      await waitForUserDecision(confirmation);
     }
 
-    // 检查是否需要用户审批
-    if (this.requiresApproval(tool, request.args)) {
-      this.updateState(request.callId, 'waiting');
-      return;  // 等待用户操作
-    }
+    // 4) 执行工具（可选 updateOutput 用于流式输出）
+    const result = await invocation.execute(signal, updateOutput);
 
-    // 执行工具
-    await this.execute(request.callId);
-  }
-
-  // 执行工具
-  async execute(callId: string): Promise<void> {
-    const toolCall = this.toolCalls.get(callId);
-    this.updateState(callId, 'executing');
-
-    try {
-      const tool = this.toolRegistry.getTool(toolCall.request.name);
-      const result = await tool.invoke(toolCall.request.args);
-
-      this.updateState(callId, 'success', result);
-    } catch (error) {
-      this.updateState(callId, 'errored', error.message);
-    }
+    // 5) ToolResult -> functionResponse parts（continuation 回注给模型）
+    return convertToFunctionResponse(request, result);
   }
 }`}
         />

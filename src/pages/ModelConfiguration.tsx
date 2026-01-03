@@ -51,108 +51,58 @@ export function ModelConfiguration() {
       {/* Token Limits Tab */}
       {activeTab === 'limits' && (
         <div className="space-y-6">
-          <Layer title="Token 限制匹配系统" icon="📏">
+          <Layer title="Token 限制（上游 tokenLimit）" icon="📏">
             <p className="text-[var(--text-secondary)] mb-4">
-              通过正则模式匹配确定模型的上下文窗口大小和最大输出长度。
-              模型名称先标准化（去除前缀、版本后缀），然后按"最具体→最通用"顺序匹配。
+              上游 gemini-cli 的 <code className="text-[var(--cyber-blue)]">tokenLimit(model)</code> 是一个{' '}
+              <strong>switch-case</strong> 映射：它只返回“上下文窗口上限”，没有 output token limit，也没有 PATTERNS/normalize 正则匹配。
             </p>
 
-            <MermaidDiagram chart={`
+            <MermaidDiagram
+              chart={`
 flowchart LR
-    subgraph Input["输入"]
-        M[模型名称<br/>"openai/gpt-4.1-20250219"]
-    end
+    M[model string] --> S[tokenLimit(model)<br/>switch-case]
+    S --> R[token limit]
 
-    subgraph Normalize["标准化"]
-        N1[移除前缀<br/>"gpt-4.1-20250219"]
-        N2[移除版本后缀<br/>"gpt-4.1"]
-    end
-
-    subgraph Match["模式匹配"]
-        P1["^gpt-4.1.*$ → 1M"]
-        P2["^gpt-4o.*$ → 128K"]
-        P3["默认 → 128K"]
-    end
-
-    subgraph Result["结果"]
-        R[1,048,576 tokens]
-    end
-
-    M --> N1 --> N2 --> P1
-    P1 --> R
-
-    style P1 fill:#276749
+    style S fill:#276749
     style R fill:#1e3a5f
-`} />
+`}
+            />
           </Layer>
 
-          <Layer title="输入上下文限制 (PATTERNS)" icon="📊">
-            <div className="overflow-x-auto">
-              <table className="w-full border-collapse text-sm">
-                <thead>
-                  <tr className="border-b border-[var(--border-subtle)]">
-                    <th className="text-left p-3 text-[var(--text-muted)]">模型系列</th>
-                    <th className="text-left p-3 text-[var(--text-muted)]">输入上下文</th>
-                    <th className="text-left p-3 text-[var(--text-muted)]">匹配模式</th>
-                  </tr>
-                </thead>
-                <tbody className="text-[var(--text-secondary)]">
-                  {[
-                    { model: 'Gemini 2.5 Pro', limit: '1M (1,048,576)', pattern: '^gemini-2\\.5-pro.*$' },
-                    { model: 'Gemini 2.0 Flash', limit: '1M (1,048,576)', pattern: '^gemini-2\\.0-flash.*$' },
-                    { model: 'GPT-4.1', limit: '1M (1,048,576)', pattern: '^gpt-4\\.1.*$' },
-                    { model: 'GPT-4o', limit: '128K (131,072)', pattern: '^gpt-4o.*$' },
-                    { model: 'Claude Sonnet 4', limit: '1M (1,048,576)', pattern: '^claude-sonnet-4.*$' },
-                    { model: 'Claude 3.5 Sonnet', limit: '200K (200,000)', pattern: '^claude-3\\.5-sonnet.*$' },
-                    { model: 'Gemini-1.5-Pro', limit: '1M (1,048,576)', pattern: '^gemini-1.5-pro(-.*)?$' },
-                    { model: 'Gemini-1.5-Pro', limit: '256K (262,144)', pattern: '^gemini-1.5-pro(-preview)?(-.*)?$' },
-                    { model: 'Gemini-1.0', limit: '128K (131,072)', pattern: '^gemini-1.0\\.5.*$' },
-                    { model: 'DeepSeek R1', limit: '128K (131,072)', pattern: '^deepseek-r1(?:-.*)?$' },
-                    { model: 'Kimi K2-0905', limit: '256K (262,144)', pattern: '^kimi-k2-0905$' },
-                    { model: 'Llama 4 Scout', limit: '10M (10,485,760)', pattern: '^llama-4-scout.*$' },
-                    { model: '默认', limit: '128K (131,072)', pattern: '(无匹配时)' },
-                  ].map((row, i) => (
-                    <tr key={i} className="border-b border-[var(--border-subtle)]/50">
-                      <td className={`p-3 ${row.model === '默认' ? 'text-[var(--text-muted)]' : 'text-[var(--cyber-blue)]'}`}>
-                        {row.model}
-                      </td>
-                      <td className="p-3">{row.limit}</td>
-                      <td className="p-3">
-                        <code className="text-[var(--purple)] text-xs">{row.pattern}</code>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Layer>
-
-          <Layer title="输出 Token 限制 (OUTPUT_PATTERNS)" icon="📤">
+          <Layer title="映射表（上游 tokenLimits.ts）" icon="📊">
             <div className="overflow-x-auto mb-4">
               <table className="w-full border-collapse text-sm">
                 <thead>
                   <tr className="border-b border-[var(--border-subtle)]">
-                    <th className="text-left p-3 text-[var(--text-muted)]">模型</th>
-                    <th className="text-left p-3 text-[var(--text-muted)]">最大输出</th>
-                    <th className="text-left p-3 text-[var(--text-muted)]">匹配模式</th>
+                    <th className="text-left p-3 text-[var(--text-muted)]">case</th>
+                    <th className="text-left p-3 text-[var(--text-muted)]">token limit</th>
+                    <th className="text-left p-3 text-[var(--text-muted)]">models</th>
                   </tr>
                 </thead>
                 <tbody className="text-[var(--text-secondary)]">
                   {[
-                    { model: 'Gemini-1.5-Pro', limit: '64K (65,536)', pattern: '^gemini-1.5-pro(-.*)?$' },
-                    { model: 'Gemini-1.5-Pro', limit: '64K (65,536)', pattern: '^gemini-1.5-pro(-preview)?(-.*)?$' },
-                    { model: 'Gemini-1.5-Vision', limit: '32K (32,768)', pattern: '^gemini-1.5-flash-vision$' },
-                    { model: 'Gemini Vision-Max-Latest', limit: '8K (8,192)', pattern: '^gemini-1.5-pro-vision-latest$' },
-                    { model: '默认', limit: '4K (4,096)', pattern: '(无匹配时)' },
+                    {
+                      c: "case 'gemini-1.5-pro'",
+                      limit: '2,097,152',
+                      models: 'gemini-1.5-pro',
+                    },
+                    {
+                      c: 'case (1M group)',
+                      limit: '1,048,576',
+                      models:
+                        'gemini-1.5-flash / gemini-2.5-pro* / gemini-2.5-flash* / gemini-2.0-flash',
+                    },
+                    {
+                      c: "case 'gemini-2.0-flash-preview-image-generation'",
+                      limit: '32,000',
+                      models: 'gemini-2.0-flash-preview-image-generation',
+                    },
+                    { c: 'default', limit: '1,048,576', models: 'fallback' },
                   ].map((row, i) => (
                     <tr key={i} className="border-b border-[var(--border-subtle)]/50">
-                      <td className={`p-3 ${row.model === '默认' ? 'text-[var(--text-muted)]' : 'text-[var(--amber)]'}`}>
-                        {row.model}
-                      </td>
+                      <td className="p-3 text-[var(--cyber-blue)]">{row.c}</td>
                       <td className="p-3">{row.limit}</td>
-                      <td className="p-3">
-                        <code className="text-[var(--purple)] text-xs">{row.pattern}</code>
-                      </td>
+                      <td className="p-3 text-[var(--text-muted)]">{row.models}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -161,34 +111,30 @@ flowchart LR
 
             <CodeBlock
               code={`// packages/core/src/core/tokenLimits.ts
+export const DEFAULT_TOKEN_LIMIT = 1_048_576;
 
-export function tokenLimit(
-  model: Model,
-  type: TokenLimitType = 'input',
-): TokenCount {
-  const norm = normalize(model);
-
-  // 根据类型选择模式表
-  const patterns = type === 'output' ? OUTPUT_PATTERNS : PATTERNS;
-
-  // 按顺序匹配（最具体 → 最通用）
-  for (const [regex, limit] of patterns) {
-    if (regex.test(norm)) {
-      return limit;
-    }
+export function tokenLimit(model: string): number {
+  switch (model) {
+    case 'gemini-1.5-pro':
+      return 2_097_152;
+    case 'gemini-1.5-flash':
+    case 'gemini-2.5-pro':
+    case 'gemini-2.5-flash':
+    case 'gemini-2.0-flash':
+      return 1_048_576;
+    case 'gemini-2.0-flash-preview-image-generation':
+      return 32_000;
+    default:
+      return DEFAULT_TOKEN_LIMIT;
   }
-
-  // 返回默认值
-  return type === 'output'
-    ? DEFAULT_OUTPUT_TOKEN_LIMIT   // 4,096
-    : DEFAULT_TOKEN_LIMIT;         // 131,072
-}
-
-// 使用示例
-tokenLimit('gpt-4.1-20250219');           // 1,048,576 (1M)
-tokenLimit('gemini-1.5-pro', 'output'); // 65,536 (64K)`}
+}`}
               language="typescript"
             />
+
+            <p className="text-[var(--text-secondary)] mt-4">
+              注意：这个 limit 会与 <code>lastPromptTokenCount</code>（来自上一次 <code>usageMetadata</code>）一起用于计算 remaining tokens，并决定是否触发{' '}
+              <code>ContextWindowWillOverflow</code> 预警。
+            </p>
           </Layer>
         </div>
       )}

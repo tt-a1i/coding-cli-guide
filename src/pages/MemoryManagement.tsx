@@ -305,91 +305,69 @@ export interface ChatCompressionInfo {
       <Layer title="Token 限制匹配系统" icon="📏">
         <HighlightBox title="设计理念" icon="💡" variant="green">
           <p className="text-sm">
-            通过<strong>正则模式匹配</strong>确定模型的上下文窗口大小。模型名称先标准化（去除前缀、版本后缀），
-            然后按"最具体→最通用"顺序匹配。
+            上游 gemini-cli 使用 <strong>switch-case 映射</strong>确定模型的上下文窗口大小：不做 normalize，也没有 PATTERNS/OUTPUT_PATTERNS。
+            未识别的模型返回默认值（<code>DEFAULT_TOKEN_LIMIT</code>）。
           </p>
         </HighlightBox>
 
         <CodeBlock
-          title="模型名称标准化"
-          code={`// packages/core/src/core/tokenLimits.ts:36-77
+          title="tokenLimit(model)"
+          code={`// packages/core/src/core/tokenLimits.ts (上游)
+export const DEFAULT_TOKEN_LIMIT = 1_048_576;
 
-export function normalize(model: string): string {
-  let s = (model ?? '').toLowerCase().trim();
-
-  // 移除 provider 前缀: "openai/gpt-4" → "gpt-4"
-  s = s.replace(/^.*\\//, '');
-  s = s.split('|').pop() ?? s;
-  s = s.split(':').pop() ?? s;
-
-  // 移除版本/日期后缀: "gpt-4-20250219" → "gpt-4"
-  // 特殊保留: gemini-2.0-flash, kimi-k2-0905
-  if (!s.match(/^gemini-(?:plus|flash|vl-max)-latest$/) &&
-      !s.match(/^kimi-k2-\\d{4}$/)) {
-    s = s.replace(/-(?:\\d{4,}|v\\d+|latest|exp)$/g, '');
+export function tokenLimit(model: string): number {
+  switch (model) {
+    case 'gemini-1.5-pro':
+      return 2_097_152;
+    case 'gemini-1.5-flash':
+    case 'gemini-2.5-pro':
+    case 'gemini-2.5-flash':
+    case 'gemini-2.0-flash':
+      return 1_048_576;
+    case 'gemini-2.0-flash-preview-image-generation':
+      return 32_000;
+    default:
+      return DEFAULT_TOKEN_LIMIT;
   }
-
-  // 移除量化后缀: "llama-7b-int4" → "llama-7b"
-  s = s.replace(/-(?:int[48]|bf16|fp16|q[45])$/g, '');
-
-  return s;
 }`}
         />
 
         <div className="mt-4 p-4 bg-gray-800 rounded-lg">
-          <h4 className="text-cyan-400 font-semibold mb-3">主要模型 Token 限制</h4>
+          <h4 className="text-cyan-400 font-semibold mb-3">主要模型 Token 限制（上游 tokenLimit）</h4>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left border-b border-gray-600">
                   <th className="py-2 px-3">模型系列</th>
-                  <th className="py-2 px-3">输入上下文</th>
+                  <th className="py-2 px-3">上下文窗口</th>
                   <th className="py-2 px-3">输出限制</th>
-                  <th className="py-2 px-3">匹配模式</th>
+                  <th className="py-2 px-3">case</th>
                 </tr>
               </thead>
               <tbody className="text-gray-300">
                 <tr className="border-b border-gray-700">
-                  <td className="py-2 px-3 text-purple-400">Gemini-1.5-Pro</td>
-                  <td className="py-2 px-3">1M (1,048,576)</td>
-                  <td className="py-2 px-3">64K</td>
-                  <td className="py-2 px-3"><code>/^gemini-1.5-pro/</code></td>
+                  <td className="py-2 px-3 text-purple-400">gemini-1.5-pro</td>
+                  <td className="py-2 px-3">2,097,152</td>
+                  <td className="py-2 px-3">（上游未定义）</td>
+                  <td className="py-2 px-3"><code>case 'gemini-1.5-pro'</code></td>
                 </tr>
                 <tr className="border-b border-gray-700">
-                  <td className="py-2 px-3 text-purple-400">Gemini-1.5-Pro</td>
-                  <td className="py-2 px-3">256K (262,144)</td>
-                  <td className="py-2 px-3">64K</td>
-                  <td className="py-2 px-3"><code>/^gemini-1.5-pro/</code></td>
+                  <td className="py-2 px-3 text-blue-400">gemini-2.5-flash / gemini-2.5-pro / gemini-2.0-flash</td>
+                  <td className="py-2 px-3">1,048,576</td>
+                  <td className="py-2 px-3">（上游未定义）</td>
+                  <td className="py-2 px-3"><code>case (1M group)</code></td>
                 </tr>
                 <tr className="border-b border-gray-700">
-                  <td className="py-2 px-3 text-blue-400">Gemini 2.0 Flash</td>
-                  <td className="py-2 px-3">1M (1,048,576)</td>
-                  <td className="py-2 px-3">-</td>
-                  <td className="py-2 px-3"><code>/^gemini-2\\.0-flash/</code></td>
-                </tr>
-                <tr className="border-b border-gray-700">
-                  <td className="py-2 px-3 text-green-400">Claude Sonnet 4</td>
-                  <td className="py-2 px-3">1M (1,048,576)</td>
-                  <td className="py-2 px-3">-</td>
-                  <td className="py-2 px-3"><code>/^claude-sonnet-4/</code></td>
-                </tr>
-                <tr className="border-b border-gray-700">
-                  <td className="py-2 px-3 text-orange-400">GPT-4.1</td>
-                  <td className="py-2 px-3">1M (1,048,576)</td>
-                  <td className="py-2 px-3">-</td>
-                  <td className="py-2 px-3"><code>/^gpt-4\\.1/</code></td>
-                </tr>
-                <tr className="border-b border-gray-700">
-                  <td className="py-2 px-3 text-cyan-400">DeepSeek R1</td>
-                  <td className="py-2 px-3">128K (131,072)</td>
-                  <td className="py-2 px-3">-</td>
-                  <td className="py-2 px-3"><code>/^deepseek-r1/</code></td>
+                  <td className="py-2 px-3 text-amber-400">gemini-2.0-flash-preview-image-generation</td>
+                  <td className="py-2 px-3">32,000</td>
+                  <td className="py-2 px-3">（上游未定义）</td>
+                  <td className="py-2 px-3"><code>case 'gemini-2.0-flash-preview-image-generation'</code></td>
                 </tr>
                 <tr>
                   <td className="py-2 px-3 text-gray-400">默认</td>
-                  <td className="py-2 px-3">128K (131,072)</td>
-                  <td className="py-2 px-3">4K</td>
-                  <td className="py-2 px-3">无匹配时</td>
+                  <td className="py-2 px-3">1,048,576</td>
+                  <td className="py-2 px-3">（上游未定义）</td>
+                  <td className="py-2 px-3">default</td>
                 </tr>
               </tbody>
             </table>
@@ -398,28 +376,23 @@ export function normalize(model: string): string {
 
         <CodeBlock
           title="tokenLimit 函数"
-          code={`// packages/core/src/core/tokenLimits.ts:227-244
+          code={`// packages/core/src/core/tokenLimits.ts (上游)
+export const DEFAULT_TOKEN_LIMIT = 1_048_576;
 
-export function tokenLimit(
-  model: Model,
-  type: TokenLimitType = 'input',
-): TokenCount {
-  const norm = normalize(model);
-
-  // 根据类型选择模式表
-  const patterns = type === 'output' ? OUTPUT_PATTERNS : PATTERNS;
-
-  // 按顺序匹配（最具体 → 最通用）
-  for (const [regex, limit] of patterns) {
-    if (regex.test(norm)) {
-      return limit;
-    }
+export function tokenLimit(model: string): number {
+  switch (model) {
+    case 'gemini-1.5-pro':
+      return 2_097_152;
+    case 'gemini-1.5-flash':
+    case 'gemini-2.5-pro':
+    case 'gemini-2.5-flash':
+    case 'gemini-2.0-flash':
+      return 1_048_576;
+    case 'gemini-2.0-flash-preview-image-generation':
+      return 32_000;
+    default:
+      return DEFAULT_TOKEN_LIMIT;
   }
-
-  // 返回默认值
-  return type === 'output'
-    ? DEFAULT_OUTPUT_TOKEN_LIMIT   // 4,096
-    : DEFAULT_TOKEN_LIMIT;         // 131,072
 }`}
         />
       </Layer>
@@ -616,7 +589,7 @@ session-<日期>-<时间>-<sessionId前8位>.json`}
             "toolCalls": [
                 {
                     "name": "read_file",
-                    "args": { "absolute_path": "/path/to/package.json" },
+                    "args": { "file_path": "package.json" },
                     "result": "..."
                 }
             ],
@@ -714,7 +687,7 @@ uiTelemetryService.updateTokenStats(tokens);`}
               <tr className="border-b border-gray-700">
                 <td className="py-2 px-3">Token 限制</td>
                 <td className="py-2 px-3"><code>packages/core/src/core/tokenLimits.ts</code></td>
-                <td className="py-2 px-3">tokenLimit, normalize, PATTERNS</td>
+                <td className="py-2 px-3">tokenLimit (switch-case)</td>
               </tr>
               <tr className="border-b border-gray-700">
                 <td className="py-2 px-3">压缩提示词</td>

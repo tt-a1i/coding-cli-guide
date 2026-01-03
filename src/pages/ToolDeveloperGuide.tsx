@@ -344,7 +344,7 @@ function ImplementationSection() {
   properties: {
     file_path: {
       type: 'string',
-      description: 'The absolute path to the file to count words in',
+      description: 'File path (typically resolved under targetDir)',
     },
     include_spaces: {
       type: 'boolean',
@@ -360,11 +360,13 @@ function ImplementationSection() {
       <CodeBlock
         title="执行实例实现"
         code={`class WordCountInvocation extends BaseToolInvocation<WordCountParams, ToolResult> {
+  private readonly resolvedPath: string;
   constructor(
     private readonly config: Config,
     params: WordCountParams,
   ) {
     super(params);
+    this.resolvedPath = path.resolve(this.config.getTargetDir(), this.params.file_path);
   }
 
   // 描述本次操作
@@ -374,20 +376,20 @@ function ImplementationSection() {
 
   // 声明影响的路径（用于权限检查）
   toolLocations(): ToolLocation[] {
-    return [{ path: this.params.file_path }];
+    return [{ path: this.resolvedPath }];
   }
 
   // 执行核心逻辑
   async execute(signal: AbortSignal): Promise<ToolResult> {
     // 检查取消信号
     if (signal.aborted) {
-      return { output: 'Aborted' };
+      return { llmContent: 'Aborted', returnDisplay: 'Aborted' };
     }
 
     // 读取文件
     const content = await this.config
       .getFileSystemService()
-      .readTextFile(this.params.file_path);
+      .readTextFile(this.resolvedPath);
 
     // 统计
     const words = content.split(/\\s+/).filter(w => w.length > 0).length;
@@ -396,9 +398,8 @@ function ImplementationSection() {
       : content.replace(/\\s/g, '').length;
     const lines = content.split('\\n').length;
 
-    return {
-      output: \`Words: \${words}\\nCharacters: \${chars}\\nLines: \${lines}\`,
-    };
+    const summary = \`Words: \${words}\\nCharacters: \${chars}\\nLines: \${lines}\`;
+    return { llmContent: summary, returnDisplay: summary };
   }
 }`}
       />
@@ -412,7 +413,7 @@ function ImplementationSection() {
       'WordCount',          // name
       'Word Count',         // displayName
       'Count words, characters, and lines in a file',  // description
-      Kind.Read,            // kind (只读，无需审批)
+      Kind.Read,            // kind（作为 PolicyEngine 决策输入之一）
       wordCountSchema,      // parameterSchema
       false,                // isOutputMarkdown
       false,                // canUpdateOutput
@@ -421,10 +422,10 @@ function ImplementationSection() {
 
   // 自定义验证逻辑（可选）
   validateToolParams(params: WordCountParams): string | null {
-    if (!params.file_path.startsWith('/')) {
-      return 'file_path must be an absolute path';
+    if (!params.file_path || typeof params.file_path !== 'string') {
+      return 'file_path must be a string';
     }
-    return null;  // 验证通过
+    return null;
   }
 
   // 构建执行实例
@@ -437,16 +438,20 @@ function ImplementationSection() {
       <h4 className="text-lg font-semibold text-gray-200 mt-6">5. 注册工具</h4>
       <CodeBlock
         title="在 ToolRegistry 中注册"
-        code={`// packages/core/src/tools/tool-registry.ts
+        code={`// packages/core/src/config/config.ts (概念化示例)
 import { WordCountTool } from './wordCount.js';
 
-export function createToolRegistry(config: Config): ToolRegistry {
-  const registry = new ToolRegistry();
+// 上游是 Config.createToolRegistry() 方法，这里用伪代码表达“把工具注册进 ToolRegistry”
+export async function createToolRegistry(config: Config): Promise<ToolRegistry> {
+  const registry = new ToolRegistry(config);
+  registry.setMessageBus(config.getMessageBus());
 
   // ... 其他工具注册
 
   registry.registerTool(new WordCountTool(config));
 
+  await registry.discoverAllTools();
+  registry.sortTools();
   return registry;
 }`}
       />
@@ -474,21 +479,18 @@ function AdvancedFeaturesSection() {
         title="流式输出示例"
         code={`async execute(
   signal: AbortSignal,
-  updateOutput?: (output: ToolResultDisplay) => void,
+  updateOutput?: (output: string) => void,
 ): Promise<ToolResult> {
   for (let i = 0; i < 100; i++) {
     if (signal.aborted) break;
 
     // 更新进度
-    updateOutput?.({
-      output: \`Processing... \${i + 1}%\`,
-      isPartial: true,
-    });
+    updateOutput?.(\`Processing... \${i + 1}%\`);
 
     await new Promise(r => setTimeout(r, 100));
   }
 
-  return { output: 'Done!' };
+  return { llmContent: 'Done!', returnDisplay: 'Done!' };
 }`}
       />
 
@@ -545,13 +547,13 @@ class MyInvocation extends BaseToolInvocation<MyParams, ToolResult> {
         title="使用 ToolErrorType"
         code={`import { ToolErrorType } from './tool-error.js';
 
-// 在执行中返回错误信息
+// ToolResult: llmContent(给模型) + returnDisplay(给用户) + error(可选)
 if (!fileExists) {
   return {
-    output: '',
+    llmContent: \`Error: file not found: \${filePath}\`,
+    returnDisplay: \`File not found: \${filePath}\`,
     error: {
-      display: \`File not found: \${filePath}\`,
-      raw: \`ENOENT: \${filePath}\`,
+      message: \`ENOENT: \${filePath}\`,
       type: ToolErrorType.FILE_NOT_FOUND,
     },
   };
@@ -559,10 +561,10 @@ if (!fileExists) {
       />
 
       <DesignRationaleCard
-        title="为什么区分 display 和 raw 错误信息"
-        why="display 用于展示给用户，raw 用于调试和日志"
-        how="ToolResult 可以包含 error 对象，分别指定两种格式"
-        benefit="用户看到友好提示，开发者可以看到详细错误"
+        title="为什么区分 llmContent / returnDisplay / error.message"
+        why="模型需要“事实结果/失败原因”，用户需要“可读摘要”，系统需要“可分类错误类型”"
+        how="llmContent 用于写入对话历史；returnDisplay 用于终端渲染；error.message/type 用于恢复与日志"
+        benefit="同一份执行结果同时满足：对话延续、可视化展示、可恢复/可观测"
       />
     </div>
   );

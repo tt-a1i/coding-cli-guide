@@ -514,11 +514,6 @@ const request = await prepareRequest(userParts, ideContextDelta);
                       <td className="py-2 px-3">终止会话</td>
                     </tr>
                     <tr className="border-b border-[var(--border-subtle)]/50">
-                      <td className="py-2 px-3 font-mono text-red-400">SessionTokenLimitExceeded</td>
-                      <td className="py-2 px-3">会话 Token 超限</td>
-                      <td className="py-2 px-3">提示用户并终止会话</td>
-                    </tr>
-                    <tr className="border-b border-[var(--border-subtle)]/50">
                       <td className="py-2 px-3 font-mono text-[var(--terminal-green)]">Finished</td>
                       <td className="py-2 px-3">响应完成</td>
                       <td className="py-2 px-3">触发工具调度</td>

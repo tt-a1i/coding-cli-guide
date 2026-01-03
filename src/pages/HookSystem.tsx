@@ -275,75 +275,84 @@ export class BeforeModelHookOutput extends DefaultHookOutput {
   // 完整的 HookOutput 类层次结构
   const hookOutputHierarchyCode = `// packages/core/src/hooks/types.ts
 
-// 基类：DefaultHookOutput
+// 基类：DefaultHookOutput（注意：shouldStopExecution 只看 continue===false）
 export class DefaultHookOutput implements HookOutput {
-  constructor(
-    public readonly continue?: boolean,
-    public readonly stopReason?: string,
-    public readonly suppressOutput?: boolean,
-    public readonly systemMessage?: string,
-    public readonly decision?: HookDecision,
-    public readonly reason?: string,
-    public readonly hookSpecificOutput?: Record<string, unknown>,
-  ) {}
+  continue?: boolean;
+  stopReason?: string;
+  suppressOutput?: boolean;
+  systemMessage?: string;
+  decision?: HookDecision;
+  reason?: string;
+  hookSpecificOutput?: Record<string, unknown>;
 
-  // 是否是阻止性决策（block/deny）
+  constructor(data: Partial<HookOutput> = {}) {
+    this.continue = data.continue;
+    this.stopReason = data.stopReason;
+    this.suppressOutput = data.suppressOutput;
+    this.systemMessage = data.systemMessage;
+    this.decision = data.decision;
+    this.reason = data.reason;
+    this.hookSpecificOutput = data.hookSpecificOutput;
+  }
+
   isBlockingDecision(): boolean {
     return this.decision === 'block' || this.decision === 'deny';
   }
 
-  // 是否应该停止执行
   shouldStopExecution(): boolean {
-    return this.continue === false || this.isBlockingDecision();
+    return this.continue === false;
   }
 
-  // 获取有效的停止原因
-  getEffectiveReason(): string | undefined {
-    return this.reason ?? this.stopReason;
+  getEffectiveReason(): string {
+    return this.stopReason || this.reason || 'No reason provided';
+  }
+
+  getBlockingError(): { blocked: boolean; reason: string } {
+    return this.isBlockingDecision()
+      ? { blocked: true, reason: this.getEffectiveReason() }
+      : { blocked: false, reason: '' };
   }
 }
 
-// AfterModel Hook 输出：可修改模型响应
-export class AfterModelHookOutput extends DefaultHookOutput {
-  getModifiedResponse(): GenerateContentResponse | undefined {
-    if (this.hookSpecificOutput?.['llm_response']) {
-      return defaultHookTranslator.fromHookLLMResponse(
-        this.hookSpecificOutput['llm_response'] as LLMResponse
-      );
+// BeforeTool：允许 hook 修改 tool_input（coreToolHookTriggers 会 tool.build() 重建 invocation）
+export class BeforeToolHookOutput extends DefaultHookOutput {
+  getModifiedToolInput(): Record<string, unknown> | undefined {
+    if (this.hookSpecificOutput && 'tool_input' in this.hookSpecificOutput) {
+      const input = this.hookSpecificOutput['tool_input'];
+      return typeof input === 'object' && input !== null && !Array.isArray(input)
+        ? (input as Record<string, unknown>)
+        : undefined;
     }
     return undefined;
   }
 }
 
-// BeforeToolSelection Hook 输出：可修改工具配置
+// BeforeToolSelection：可修改 toolConfig（比如并行/禁止某些工具）
 export class BeforeToolSelectionHookOutput extends DefaultHookOutput {
-  applyToolConfigModifications(
-    toolConfig: ToolConfig
-  ): ToolConfig {
-    if (this.hookSpecificOutput?.['tool_config']) {
-      const modifications = this.hookSpecificOutput['tool_config'] as ToolConfig;
-      return { ...toolConfig, ...modifications };
-    }
-    return toolConfig;
+  override applyToolConfigModifications(target: {
+    toolConfig?: GenAIToolConfig;
+    tools?: ToolListUnion;
+  }) {
+    /* ...translator: HookToolConfig -> SDK ToolConfig... */
+    return target;
   }
 }
 
-// 工厂函数：根据事件类型创建对应的 HookOutput
-export function createHookOutput(
-  eventName: HookEventName,
-  rawOutput: HookOutput
-): DefaultHookOutput {
+// AfterModel：可修改响应；如果 continue=false，会合成一个 finishReason=STOP 的响应
+export class AfterModelHookOutput extends DefaultHookOutput {
+  getModifiedResponse(): GenerateContentResponse | undefined {
+    /* ... */
+    return undefined;
+  }
+}
+
+export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
   switch (eventName) {
-    case HookEventName.BeforeTool:
-      return new BeforeToolHookOutput(...);
-    case HookEventName.BeforeModel:
-      return new BeforeModelHookOutput(...);
-    case HookEventName.AfterModel:
-      return new AfterModelHookOutput(...);
-    case HookEventName.BeforeToolSelection:
-      return new BeforeToolSelectionHookOutput(...);
-    default:
-      return new DefaultHookOutput(...);
+    case 'BeforeModel': return new BeforeModelHookOutput(data);
+    case 'AfterModel': return new AfterModelHookOutput(data);
+    case 'BeforeToolSelection': return new BeforeToolSelectionHookOutput(data);
+    case 'BeforeTool': return new BeforeToolHookOutput(data);
+    default: return new DefaultHookOutput(data);
   }
 }`;
 
@@ -608,6 +617,23 @@ export function createHookOutput(
           <div>
             <h4 className="text-cyan-400 font-semibold mb-3">BeforeTool Hook</h4>
             <CodeBlock code={beforeToolHookCode} language="typescript" title="BeforeTool 输入输出" />
+
+            <HighlightBox title="STOP_EXECUTION：Hook 可立刻终止整个 Agent" icon="🛑" variant="orange">
+              <div className="text-sm space-y-2 text-gray-300">
+                <p>
+                  上游实现中，若 Hook 输出 <code className="bg-black/30 px-1 rounded">{"{ continue: false }"}</code>，会被视为
+                  <strong>“停止执行”</strong>：
+                </p>
+                <ul className="pl-5 list-disc space-y-1">
+                  <li>
+                    <strong>BeforeTool/AfterTool</strong>：<code>coreToolHookTriggers</code> 返回带 <code>ToolErrorType.STOP_EXECUTION</code> 的 ToolResult，CLI 立即停止后续循环。
+                  </li>
+                  <li>
+                    <strong>AfterModel</strong>：<code>AfterModelHookOutput</code> 会合成一个 <code>finishReason=STOP</code> 的响应，提前结束本轮生成。
+                  </li>
+                </ul>
+              </div>
+            </HighlightBox>
           </div>
 
           <div>

@@ -500,7 +500,7 @@ async function runConversationLoop(chat: Chat) {
           <HighlightBox title="性能考虑" color="green">
             <ul className="text-sm text-[var(--text-secondary)] space-y-1">
               <li>• 压缩会产生额外 LLM 调用</li>
-              <li>• Token 计算使用 tiktoken 缓存</li>
+              <li>• Token 预估使用 ASCII/CJK 启发式 + countTokens（媒体）</li>
               <li>• 摘要模型可配置为更快的模型</li>
             </ul>
           </HighlightBox>

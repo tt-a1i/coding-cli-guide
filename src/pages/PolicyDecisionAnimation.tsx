@@ -245,7 +245,15 @@ if (toolCall.name && SHELL_TOOL_NAMES.includes(toolCall.name)) {
   );
 }
 
-// checkShellCommand(): redirection downgrade
+// checkShellCommand(): parse + recurse + redirection downgrade
+await initializeShellParsers();
+const subCommands = splitCommands(command);
+if (subCommands.length === 0) {
+  // 解析失败更保守：回退为 ASK_USER
+  return this.applyNonInteractiveMode(PolicyDecision.ASK_USER);
+}
+
+// If any sub-command is redirected, downgrade ALLOW → ASK_USER unless allowRedirection=true
 if (!allowRedirection && hasRedirection(subCmd)) {
   if (aggregateDecision === PolicyDecision.ALLOW) {
     aggregateDecision = PolicyDecision.ASK_USER;

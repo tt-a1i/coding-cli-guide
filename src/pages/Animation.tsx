@@ -66,7 +66,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
               <div className="text-[var(--text-muted)]">// 主循环入口</div>
               <div>packages/core/src/core/geminiChat.ts</div>
               <div className="text-[var(--text-muted)] mt-1">// 工具调度</div>
-              <div>packages/core/src/tools/toolScheduler.ts</div>
+              <div>packages/core/src/core/coreToolScheduler.ts</div>
             </div>
           </div>
 
@@ -131,9 +131,9 @@ const animSteps = [
     message: 'generateContentStream + tools',
     messageColor: 'bg-[var(--cyber-blue)]/10',
     extra: `{
-  // Gemini SDK 格式 (内部会转换为 OpenAI 格式)
+  // Gemini SDK (GenerateContent) 请求结构（上游主线没有 OpenAI 兼容层转换）
   contents: [{ role: "user", parts: [...] }],
-  tools: [{ functionDeclarations: [read_file, edit, shell, ...] }]
+  tools: [{ functionDeclarations: [ /* FunctionDeclaration[] */ ] }]
 }`,
   },
   {
@@ -143,10 +143,10 @@ const animSteps = [
     message: 'FunctionCall: read_file',
     messageColor: 'bg-[var(--purple)]/10',
     extra: `{
-  // StreamingToolCallParser 解析流式 JSON
+  // SDK chunk 里可直接读取 functionCalls（由 candidates.parts 推导的 getter）
   functionCalls: [{
     name: "read_file",
-    args: { absolute_path: "/path/to/package.json" }
+    args: { file_path: "package.json" }
   }],
   finishReason: "TOOL_USE"
 }`,
@@ -177,10 +177,9 @@ const animSteps = [
     to: '🔧 工具',
     message: '执行 read_file 工具',
     messageColor: 'bg-[var(--amber)]/10',
-    extra: `// ToolInvocation.execute()
-ReadFileToolInvocation.execute({
-  absolute_path: "/path/to/package.json"
-})`,
+    extra: `// tool.build(args) → invocation.execute()
+const invocation = readFileTool.build({ file_path: "package.json" });
+await invocation.execute(signal);`,
   },
   {
     from: '← CLI',
@@ -232,7 +231,7 @@ const stepDescriptions = [
   '$ 点击播放开始演示',
   '> 用户输入问题：帮我读取 package.json',
   '> CLI 调用 generateContentStream，发送用户消息和工具定义',
-  '< AI 返回 FunctionCall，StreamingToolCallParser 解析流式响应',
+  '< AI 返回 FunctionCall（functionCalls getter 可直接读取）',
   '? CLI 检查 shouldConfirmExecute()，需要用户确认',
   '✓ 用户批准执行工具',
   '> CLI 调用 ReadFileToolInvocation.execute()',

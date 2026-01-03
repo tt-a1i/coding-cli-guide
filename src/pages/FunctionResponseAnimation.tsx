@@ -210,11 +210,13 @@ private createErrorResponse(
 
 // 错误类型枚举:
 enum ToolErrorType {
-  VALIDATION = 'validation',     // 参数验证失败
-  EXECUTION = 'execution',       // 执行时错误
-  TIMEOUT = 'timeout',           // 超时
-  PERMISSION = 'permission',     // 权限不足
-  CANCELLED = 'cancelled'        // 用户取消
+  INVALID_TOOL_PARAMS = 'invalid_tool_params',
+  FILE_NOT_FOUND = 'file_not_found',
+  EXECUTION_FAILED = 'execution_failed',
+  UNHANDLED_EXCEPTION = 'unhandled_exception',
+  // Hook 触发：立刻停止整个 agent 执行
+  STOP_EXECUTION = 'stop_execution',
+  // ...（上游还有很多更细的错误类型）
 }`,
   },
   {

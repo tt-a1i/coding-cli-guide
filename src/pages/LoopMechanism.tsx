@@ -244,61 +244,80 @@ async *sendMessageStream(
   request: PartListUnion,
   signal: AbortSignal,
   prompt_id: string,
-  turns: number = MAX_TURNS  // 默认最大 100 轮
+  turns: number = MAX_TURNS,  // 默认最大 100 轮
+  isInvalidStreamRetry: boolean = false,
 ): AsyncGenerator<ServerGeminiStreamEvent, Turn> {
 
-  // 1. 递增会话轮次计数
-  this.sessionTurnCount++;
+  if (!isInvalidStreamRetry) {
+    this.config.resetTurn();
+  }
 
-  // 2. 检查最大轮次限制
-  if (this.sessionTurnCount > this.config.get('maxSessionTurns')) {
+  const boundedTurns = Math.min(turns, MAX_TURNS);
+  let turn = new Turn(this.getChat(), prompt_id);
+
+  // 关键：processTurn() 做上下文溢出检查、压缩、模型选择与 Turn.run() 执行
+  turn = yield* this.processTurn(
+    request,
+    signal,
+    prompt_id,
+    boundedTurns,
+    isInvalidStreamRetry,
+  );
+
+  return turn;
+}
+
+// client.ts: processTurn() 中的 Token/上下文检查（简化）
+private async *processTurn(
+  request: PartListUnion,
+  signal: AbortSignal,
+  prompt_id: string,
+  boundedTurns: number,
+  isInvalidStreamRetry: boolean,
+): AsyncGenerator<ServerGeminiStreamEvent, Turn> {
+  let turn = new Turn(this.getChat(), prompt_id);
+
+  this.sessionTurnCount++;
+  if (this.config.getMaxSessionTurns() > 0 && this.sessionTurnCount > this.config.getMaxSessionTurns()) {
     yield { type: GeminiEventType.MaxSessionTurns };
     return turn;
   }
 
-  // 3. 尝试压缩历史（如果需要）
-  const compressed = await this.tryCompressHistory();
-  if (compressed) {
-    yield { type: GeminiEventType.ChatCompressed };
-  }
+  const modelForLimitCheck = this._getActiveModelForCurrentTurn();
+  const estimatedRequestTokenCount = await calculateRequestTokenCount(
+    request,
+    this.getContentGeneratorOrFail(),
+    modelForLimitCheck,
+  );
+  const remainingTokenCount =
+    tokenLimit(modelForLimitCheck) - this.getChat().getLastPromptTokenCount();
 
-  // 4. 检查 Token 限制
-  const tokenCount = await this.countSessionTokens();
-  if (tokenCount > this.config.get('sessionTokenLimit')) {
-    yield { type: GeminiEventType.SessionTokenLimitExceeded };
+  // 95% 阈值：避免请求把上下文窗口打满导致失败
+  if (estimatedRequestTokenCount > remainingTokenCount * 0.95) {
+    yield {
+      type: GeminiEventType.ContextWindowWillOverflow,
+      value: { estimatedRequestTokenCount, remainingTokenCount },
+    };
     return turn;
   }
 
-  // 5. 循环检测（防止 AI 陷入重复行为）
-  const loopDetected = await this.loopDetector.turnStarted(signal);
-  if (loopDetected) {
-    yield { type: GeminiEventType.LoopDetected };
-    return turn;
+  // 压缩历史（如果需要）
+  const compressed = await this.tryCompressChat(prompt_id, false);
+  if (compressed.compressionStatus === CompressionStatus.COMPRESSED) {
+    yield { type: GeminiEventType.ChatCompressed, value: compressed };
   }
 
-  // 6. 创建新的 Turn 并执行
-  const turn = new Turn(this.getChat(), prompt_id);
-  for await (const event of turn.run(model, request, signal)) {
-    // 实时循环检测
-    if (this.loopDetector.addAndCheck(event)) {
-      yield { type: GeminiEventType.LoopDetected };
-      return turn;
-    }
+  // 选择模型并执行 Turn.run()
+  yield { type: GeminiEventType.ModelInfo, value: modelToUse };
+  for await (const event of turn.run(modelConfigKey, request, linkedSignal)) {
     yield event;
   }
 
-  // 7. 检查是否需要继续（没有待处理的工具调用时）
-  if (turn.pendingToolCalls.length === 0 && !signal.aborted) {
-    // Next Speaker 检查：AI 是否需要继续发言？
-    const shouldContinue = await this.checkNextSpeaker();
-    if (shouldContinue) {
-      // 递归调用，继续对话
-      yield* this.sendMessageStream(
-        [{ text: '' }],  // 空消息触发继续
-        signal,
-        prompt_id,
-        turns - 1
-      );
+  // 无 pending tool 且 nextSpeaker=model → continuation
+  if (!turn.pendingToolCalls.length && !signal.aborted) {
+    const nextSpeakerCheck = await checkNextSpeaker(...);
+    if (nextSpeakerCheck?.next_speaker === 'model') {
+      yield* this.sendMessageStream([{ text: 'Please continue.' }], signal, prompt_id, boundedTurns - 1);
     }
   }
 
@@ -346,11 +365,13 @@ enum GeminiEventType {
   ChatCompressed = 'chat_compressed',     // 历史被压缩
   Thought = 'thought',                    // AI 思考
   MaxSessionTurns = 'max_session_turns',  // 达到最大轮次
-  SessionTokenLimitExceeded = 'session_token_limit_exceeded',
   Finished = 'finished',                  // 完成
   LoopDetected = 'loop_detected',         // 检测到循环
   Citation = 'citation',                  // 引用
   Retry = 'retry',                        // 重试
+  ContextWindowWillOverflow = 'context_window_will_overflow', // 上下文窗口将溢出
+  InvalidStream = 'invalid_stream',        // 无效流
+  ModelInfo = 'model_info',                // 当前使用的模型
 }`}
         />
       </Layer>

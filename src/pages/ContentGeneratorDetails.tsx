@@ -246,10 +246,10 @@ return this.config.getContentGenerator().generateContentStream(
                 {
                     "name": "read_file",
                     "description": "读取文件内容",
-                    "parameters": {
+                    "parametersJsonSchema": {
                         "type": "object",
                         "properties": {
-                            "absolute_path": { "type": "string" }
+                            "file_path": { "type": "string" }
                         }
                     }
                 }
@@ -283,7 +283,7 @@ return this.config.getContentGenerator().generateContentStream(
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "absolute_path": { "type": "string" }
+                        "file_path": { "type": "string" }
                     }
                 }
             }

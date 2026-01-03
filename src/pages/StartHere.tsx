@@ -448,7 +448,7 @@ export function StartHere({ onNavigate }: StartHereProps) {
             <div className="col-span-3 bg-[var(--amber)]/10 rounded-lg p-3 border border-[var(--amber)]/30">
               <div className="text-[var(--amber)] font-semibold mb-2">Tool System</div>
               <div className="text-[var(--text-muted)]">
-                Scheduler • Executor • 20+ Tools
+                Scheduler • Executor • 14 Tools (+ MCP)
               </div>
             </div>
             <div className="col-span-2 bg-[var(--purple)]/10 rounded-lg p-3 border border-[var(--purple)]/30">

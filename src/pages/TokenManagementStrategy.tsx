@@ -1,705 +1,205 @@
-import { useState } from 'react';
+import { Layer } from '../components/Layer';
+import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 const relatedPages: RelatedPage[] = [
-  { id: 'token-counting-anim', label: 'Token 计数动画', description: '可视化 Token 计算过程' },
-  { id: 'image-tokenizer-anim', label: '图片 Token 动画', description: '图片尺寸归一化演示' },
-  { id: 'request-tokenizer-anim', label: '请求 Token 动画', description: '多模态内容处理' },
-  { id: 'context-compression-anim', label: '上下文压缩动画', description: '历史消息压缩策略' },
-  { id: 'loop', label: '循环机制', description: 'Token 限制与循环控制' },
+  { id: 'token-accounting', label: 'Token计费系统', description: '预估与 usageMetadata 的边界' },
+  { id: 'token-lifecycle-overview', label: 'Token生命周期全景', description: '从输入到 Finished 的全链路' },
+  { id: 'token-counting-anim', label: 'Token 计数动画', description: 'estimateTokenCountSync / countTokens 分支' },
+  { id: 'token-limit-matcher-anim', label: 'Token 限制匹配', description: 'tokenLimit(model) 的来源' },
+  { id: 'chat-compression', label: '聊天压缩系统', description: 'tryCompressChat 如何影响上下文' },
+  { id: 'retry', label: '重试回退', description: 'InvalidStreamError 与重试信号' },
 ];
 
 export function TokenManagementStrategy() {
-  const [expandedSections, setExpandedSections] = useState<Set<string>>(
-    new Set(['quickstart'])
-  );
-
-  const toggleSection = (id: string) => {
-    setExpandedSections((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-
-  const architectureDiagram = `
-graph TB
-    subgraph Input["输入层"]
-        REQ[CountTokensParameters<br/>多模态请求]
-    end
-
-    subgraph Processor["DefaultRequestTokenizer"]
-        GROUP[processAndGroupContents<br/>按类型分组]
-
-        subgraph Types["内容类型分支"]
-            TEXT[textContents<br/>📝 文本]
-            IMAGE[imageContents<br/>🖼️ 图片]
-            AUDIO[audioContents<br/>🔊 音频]
-            OTHER[otherContents<br/>📄 其他]
-        end
-
-        subgraph Calculators["计算器"]
-            TT[TextTokenizer<br/>tiktoken]
-            IT[ImageTokenizer<br/>维度解析]
-            AT[AudioCalc<br/>大小估算]
-            OT[TextTokenizer<br/>JSON序列化]
-        end
-    end
-
-    subgraph Output["输出层"]
-        RESULT[TokenCalculationResult<br/>totalTokens + breakdown]
-    end
-
-    REQ --> GROUP
-    GROUP --> TEXT & IMAGE & AUDIO & OTHER
-    TEXT --> TT
-    IMAGE --> IT
-    AUDIO --> AT
-    OTHER --> OT
-    TT & IT & AT & OT --> RESULT
-
-    style Input fill:#1a365d,stroke:#3182ce
-    style Processor fill:#1a202c,stroke:#4a5568
-    style Output fill:#22543d,stroke:#38a169
-`;
-
-  const imageScalingDiagram = `
-flowchart LR
-    subgraph Input["原始图片"]
-        IMG[w × h 像素]
-    end
-
-    subgraph Normalize["Step 1: 归一化"]
-        NORM["hBar = round(h/28)×28<br/>wBar = round(w/28)×28"]
-    end
-
-    subgraph Scale["Step 2: 边界处理"]
-        CHECK{"hBar×wBar"}
-        LARGE["> 12.8M<br/>缩小"]
-        SMALL["< 3136<br/>放大"]
-        OK["正常"]
-    end
-
-    subgraph Calc["Step 3: 计算"]
-        TOKEN["tokens = pixels/784 + 2"]
-    end
-
-    IMG --> NORM --> CHECK
-    CHECK -->|大图| LARGE --> TOKEN
-    CHECK -->|小图| SMALL --> TOKEN
-    CHECK -->|标准| OK --> TOKEN
-
-    style Input fill:#3182ce,stroke:#2b6cb0
-    style Scale fill:#d69e2e,stroke:#b7791f
-    style Calc fill:#38a169,stroke:#2f855a
+  const overviewDiagram = `
+flowchart TD
+  A[准备发送请求] --> B[remainingTokenCount = tokenLimit(model) - lastPromptTokenCount]
+  B --> C[estimatedRequestTokenCount = calculateRequestTokenCount(request)]
+  C --> D{estimatedRequestTokenCount > remainingTokenCount * 0.95?}
+  D -- Yes --> E[Yield ContextWindowWillOverflow 并中止本轮]
+  D -- No --> F[tryCompressChat()]
+  F --> G[Turn.run(): decode stream → GeminiEventType]
+  G --> H[usageMetadata 出现时更新 lastPromptTokenCount]
+  G --> I[Finished(reason + usageMetadata)]
 `;
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
+    <div className="space-y-8 animate-fadeIn">
       <div className="border-b border-[var(--border-subtle)] pb-6">
         <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-2">
-          📊 Token 计算策略
+          📊 Token 计算策略（上游 Gemini CLI）
         </h1>
         <p className="text-[var(--text-secondary)]">
-          深入理解 Gemini CLI 如何精确计算多模态内容的 Token 数量
+          核心目标只有一个：在请求发出去之前尽量避免“上下文窗口溢出”，同时把真实 usage 记录下来用于 UI/遥测/会话记录。
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <span className="px-2 py-1 bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] text-xs rounded">
             核心机制
           </span>
           <span className="px-2 py-1 bg-[var(--cyber-blue)]/20 text-[var(--cyber-blue)] text-xs rounded">
-            packages/core/src/utils/request-tokenizer/
+            gemini-cli/packages/core/src/utils/tokenCalculation.ts
+          </span>
+          <span className="px-2 py-1 bg-[var(--purple)]/20 text-[var(--purple)] text-xs rounded">
+            gemini-cli/packages/core/src/core/client.ts
           </span>
         </div>
       </div>
 
-      {/* 30秒速览 */}
-      <section className="bg-gradient-to-r from-[var(--terminal-green)]/10 to-[var(--cyber-blue)]/10 rounded-xl p-6 border border-[var(--border-subtle)]">
-        <h2 className="text-xl font-bold text-[var(--text-primary)] mb-4 flex items-center gap-2">
-          ⚡ 30秒速览
-        </h2>
+      <HighlightBox title="⚡ 30 秒速览" variant="blue">
+        <ul className="m-0 leading-relaxed">
+          <li><strong>两套数字</strong>：预估 token（本地估算/可选 API） vs 真实 token（usageMetadata）</li>
+          <li><strong>预警机制</strong>：接近溢出直接 yield <code>ContextWindowWillOverflow</code>，避免 API 失败</li>
+          <li><strong>估算策略</strong>：纯文本走字符启发式；带图片/文件走 <code>countTokens</code> API（失败再降级）</li>
+          <li><strong>压缩位置</strong>：在通过溢出检查后才尝试 <code>tryCompressChat</code>（优化历史，不救“超大请求”）</li>
+          <li><strong>真实对齐</strong>：一旦响应 chunk 带 <code>usageMetadata.promptTokenCount</code>，就更新 <code>lastPromptTokenCount</code></li>
+        </ul>
+      </HighlightBox>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
-            <div className="text-2xl mb-2">📝</div>
-            <h3 className="text-[var(--terminal-green)] font-bold mb-1">文本</h3>
-            <p className="text-[var(--text-secondary)] text-sm">tiktoken (cl100k_base)</p>
-            <p className="text-xs text-[var(--text-muted)] mt-1">Fallback: 1 token ≈ 4 chars</p>
-          </div>
-          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
-            <div className="text-2xl mb-2">🖼️</div>
-            <h3 className="text-[var(--cyber-purple)] font-bold mb-1">图片</h3>
-            <p className="text-[var(--text-secondary)] text-sm">28×28 px = 1 token</p>
-            <p className="text-xs text-[var(--text-muted)] mt-1">Min: 4, Max: 16384 tokens</p>
-          </div>
-          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
-            <div className="text-2xl mb-2">🔊</div>
-            <h3 className="text-[var(--amber)] font-bold mb-1">音频</h3>
-            <p className="text-[var(--text-secondary)] text-sm">1 token / 100 bytes</p>
-            <p className="text-xs text-[var(--text-muted)] mt-1">Min: 10 tokens</p>
-          </div>
-          <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
-            <div className="text-2xl mb-2">📄</div>
-            <h3 className="text-[var(--cyber-blue)] font-bold mb-1">其他</h3>
-            <p className="text-[var(--text-secondary)] text-sm">JSON 序列化后按文本计算</p>
-            <p className="text-xs text-[var(--text-muted)] mt-1">函数调用/文件引用</p>
-          </div>
-        </div>
-      </section>
+      <Layer title="关键文件（上游源码）" icon="📁" defaultOpen>
+        <ul className="text-sm text-[var(--text-secondary)] space-y-2">
+          <li>
+            <code className="bg-black/30 px-1 rounded">gemini-cli/packages/core/src/utils/tokenCalculation.ts</code>：
+            <span className="text-[var(--text-muted)]">estimateTokenCountSync / calculateRequestTokenCount</span>
+          </li>
+          <li>
+            <code className="bg-black/30 px-1 rounded">gemini-cli/packages/core/src/core/tokenLimits.ts</code>：
+            <span className="text-[var(--text-muted)]">tokenLimit(model)（上下文窗口）</span>
+          </li>
+          <li>
+            <code className="bg-black/30 px-1 rounded">gemini-cli/packages/core/src/core/client.ts</code>：
+            <span className="text-[var(--text-muted)]">processTurn 里的溢出检查与 ChatCompressed 事件</span>
+          </li>
+          <li>
+            <code className="bg-black/30 px-1 rounded">gemini-cli/packages/core/src/core/geminiChat.ts</code>：
+            <span className="text-[var(--text-muted)]">usageMetadata → lastPromptTokenCount 更新与录制</span>
+          </li>
+        </ul>
+      </Layer>
 
-      {/* 架构总览 */}
-      <section>
-        <button
-          onClick={() => toggleSection('arch')}
-          className="w-full flex items-center justify-between p-4 bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)] hover:border-[var(--cyber-blue)] transition-colors"
-        >
-          <span className="text-lg font-bold text-[var(--text-primary)]">
-            🏗️ Token 计算架构
-          </span>
-          <span className="text-[var(--text-muted)]">
-            {expandedSections.has('arch') ? '收起' : '展开'}
-          </span>
-        </button>
-        {expandedSections.has('arch') && (
-          <div className="mt-4 p-4 bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)]">
-            <MermaidDiagram chart={architectureDiagram} />
-          </div>
-        )}
-      </section>
+      <Layer title="策略总览：先算再发" icon="🧭" defaultOpen>
+        <p className="text-[var(--text-secondary)] mb-4">
+          这张图对应上游 <code>GeminiClient.processTurn()</code> 的关键顺序：先算剩余空间、再估本次请求、过线就预警并停止。
+        </p>
+        <MermaidDiagram chart={overviewDiagram} />
+      </Layer>
 
-      {/* 图片 Token 计算详解 */}
-      <section>
-        <button
-          onClick={() => toggleSection('image')}
-          className="w-full flex items-center justify-between p-4 bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)] hover:border-[var(--cyber-purple)] transition-colors"
-        >
-          <span className="text-lg font-bold text-[var(--text-primary)]">
-            🖼️ 图片 Token 计算详解
-          </span>
-          <span className="text-[var(--text-muted)]">
-            {expandedSections.has('image') ? '收起' : '展开'}
-          </span>
-        </button>
-        {expandedSections.has('image') && (
-          <div className="mt-4 space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {/* 核心公式 */}
-              <div className="p-4 bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)]">
-                <h3 className="text-[var(--cyber-purple)] font-bold mb-4">核心公式</h3>
-                <CodeBlock
-                  code={`// 核心常量 (imageTokenizer.ts:22-31)
-PIXELS_PER_TOKEN = 28 × 28 = 784
-MIN_TOKENS_PER_IMAGE = 4
-MAX_TOKENS_PER_IMAGE = 16384
-VISION_SPECIAL_TOKENS = 2  // vision_bos + vision_eos
+      <Layer title="预估 1：estimateTokenCountSync（字符启发式）" icon="🧮">
+        <p className="text-[var(--text-secondary)] mb-4">
+          上游对“纯文本/轻量 part”使用本地启发式：ASCII 约 <code>0.25 token/char</code>，非 ASCII（含 CJK）用更保守的
+          <code>1.3 token/char</code>；非文本 part（functionCall/response 等）用 <code>JSON.length/4</code> 估算。
+        </p>
+        <CodeBlock
+          language="typescript"
+          code={`// gemini-cli/packages/core/src/utils/tokenCalculation.ts
+const ASCII_TOKENS_PER_CHAR = 0.25;
+const NON_ASCII_TOKENS_PER_CHAR = 1.3;
 
-// Token 计算
-imageTokens = floor(pixels / 784) + 2`}
-                  language="typescript"
-                />
-                <div className="mt-4 space-y-2">
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="text-[var(--terminal-green)]">✓</span>
-                    <span className="text-[var(--text-secondary)]">标准计算: 28×28 像素块 = 1 个 token</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="text-[var(--amber)]">⚖️</span>
-                    <span className="text-[var(--text-secondary)]">边界归一化: 尺寸向 28 的倍数取整</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="text-[var(--cyber-blue)]">📦</span>
-                    <span className="text-[var(--text-secondary)]">特殊 Token: 始终 +2 (vision_bos/eos)</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* 缩放策略 */}
-              <div className="p-4 bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)]">
-                <h3 className="text-[var(--amber)] font-bold mb-4">缩放策略</h3>
-                <CodeBlock
-                  code={`// 缩放逻辑 (imageTokenizer.ts:275-297)
-function calculateTokensWithScaling(w, h) {
-  // Step 1: 归一化到 28 像素倍数
-  let hBar = round(h / 28) * 28
-  let wBar = round(w / 28) * 28
-
-  // Step 2: 边界处理
-  const minPixels = 4 × 784 = 3,136
-  const maxPixels = 16384 × 784 = 12,845,056
-
-  if (hBar × wBar > maxPixels) {
-    // 大图缩小
-    const beta = sqrt(h × w / maxPixels)
-    hBar = floor(h / beta / 28) * 28
-    wBar = floor(w / beta / 28) * 28
-  } else if (hBar × wBar < minPixels) {
-    // 小图放大
-    const beta = sqrt(minPixels / (h × w))
-    hBar = ceil(h × beta / 28) * 28
-    wBar = ceil(w × beta / 28) * 28
-  }
-
-  return floor(hBar × wBar / 784) + 2
-}`}
-                  language="typescript"
-                />
-              </div>
-            </div>
-
-            {/* 缩放图解 */}
-            <div className="p-4 bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)]">
-              <h3 className="text-[var(--text-primary)] font-bold mb-4">缩放流程图</h3>
-              <MermaidDiagram chart={imageScalingDiagram} />
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* 支持的图片格式 */}
-      <section>
-        <button
-          onClick={() => toggleSection('formats')}
-          className="w-full flex items-center justify-between p-4 bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)] hover:border-[var(--terminal-green)] transition-colors"
-        >
-          <span className="text-lg font-bold text-[var(--text-primary)]">
-            🔍 图片格式解析
-          </span>
-          <span className="text-[var(--text-muted)]">
-            {expandedSections.has('formats') ? '收起' : '展开'}
-          </span>
-        </button>
-        {expandedSections.has('formats') && (
-          <div className="mt-4 p-4 bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)]">
-            <p className="text-[var(--text-secondary)] mb-4">
-              ImageTokenizer 支持从二进制数据中直接解析多种图片格式的尺寸，无需依赖外部库：
-            </p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[
-                { format: 'PNG', method: 'extractPngDimensions', location: 'IHDR chunk @ bytes 16-23', color: 'terminal-green' },
-                { format: 'JPEG', method: 'extractJpegDimensions', location: 'SOF markers (0xC0-0xCF)', color: 'amber' },
-                { format: 'WebP', method: 'extractWebpDimensions', location: 'VP8/VP8L/VP8X format', color: 'cyber-blue' },
-                { format: 'GIF', method: 'extractGifDimensions', location: 'Header @ bytes 6-9', color: 'cyber-purple' },
-                { format: 'BMP', method: 'extractBmpDimensions', location: 'Header @ bytes 18-25', color: 'amber' },
-                { format: 'TIFF', method: 'extractTiffDimensions', location: 'IFD tags 0x0100/0x0101', color: 'cyber-pink' },
-                { format: 'HEIC', method: 'extractHeicDimensions', location: 'ispe box in meta', color: 'cyber-blue' },
-                { format: 'Fallback', method: '默认', location: '512×512', color: 'text-muted' },
-              ].map((fmt) => (
-                <div key={fmt.format} className={`bg-[var(--${fmt.color})]/10 rounded-lg p-3 border border-[var(--${fmt.color})]/30`}>
-                  <div className={`text-[var(--${fmt.color})] font-bold text-lg`}>{fmt.format}</div>
-                  <div className="text-xs text-[var(--text-muted)] mt-2 font-mono">{fmt.method}</div>
-                  <div className="text-xs text-[var(--text-secondary)] mt-1">{fmt.location}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* 文本 Token 计算 */}
-      <section>
-        <button
-          onClick={() => toggleSection('text')}
-          className="w-full flex items-center justify-between p-4 bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)] hover:border-[var(--terminal-green)] transition-colors"
-        >
-          <span className="text-lg font-bold text-[var(--text-primary)]">
-            📝 文本 Token 计算
-          </span>
-          <span className="text-[var(--text-muted)]">
-            {expandedSections.has('text') ? '收起' : '展开'}
-          </span>
-        </button>
-        {expandedSections.has('text') && (
-          <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div className="p-4 bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)]">
-              <h3 className="text-[var(--terminal-green)] font-bold mb-4">TextTokenizer 实现</h3>
-              <CodeBlock
-                code={`// textTokenizer.ts
-class TextTokenizer {
-  private encoding: Tiktoken | null = null;
-  private encodingName = 'cl100k_base';  // 默认编码
-
-  // 懒加载初始化
-  private async ensureEncoding() {
-    if (this.encoding) return;
-    this.encoding = get_encoding(this.encodingName);
-  }
-
-  async calculateTokens(text: string): Promise<number> {
-    await this.ensureEncoding();
-
-    if (this.encoding) {
-      return this.encoding.encode(text).length;
+export function estimateTokenCountSync(parts: Part[]): number {
+  let totalTokens = 0;
+  for (const part of parts) {
+    if (typeof part.text === 'string') {
+      for (const char of part.text) {
+        totalTokens += char.codePointAt(0)! <= 127
+          ? ASCII_TOKENS_PER_CHAR
+          : NON_ASCII_TOKENS_PER_CHAR;
+      }
+    } else {
+      totalTokens += JSON.stringify(part).length / 4;
     }
-
-    // Fallback: 1 token ≈ 4 characters
-    return Math.ceil(text.length / 4);
   }
-
-  dispose() {
-    this.encoding?.free();  // 释放 WASM 资源
-  }
+  return Math.floor(totalTokens);
 }`}
-                language="typescript"
-              />
-            </div>
+        />
+        <HighlightBox title="为什么不是 tiktoken？" icon="💡" variant="yellow">
+          <p className="m-0 text-sm text-[var(--text-secondary)]">
+            Gemini CLI 的上游主线不依赖 OpenAI 分词器；它需要一个“快速、无外部依赖、可保守估计”的方案来做预警与流程控制，
+            精确 usage 则交给 API 返回的 <code>usageMetadata</code>。
+          </p>
+        </HighlightBox>
+      </Layer>
 
-            <div className="p-4 bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)]">
-              <h3 className="text-[var(--terminal-green)] font-bold mb-4">设计要点</h3>
-              <div className="space-y-4">
-                <div className="flex items-start gap-3">
-                  <span className="text-lg">⚡</span>
-                  <div>
-                    <div className="text-[var(--text-primary)] font-medium">懒加载初始化</div>
-                    <p className="text-sm text-[var(--text-secondary)]">
-                      tiktoken 编码器仅在首次需要时加载，避免启动开销
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="text-lg">⚠️</span>
-                  <div>
-                    <div className="text-[var(--text-primary)] font-medium">优雅降级</div>
-                    <p className="text-sm text-[var(--text-secondary)]">
-                      如果 tiktoken 加载失败，使用字符估算 (1:4 比例)
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="text-lg">🧹</span>
-                  <div>
-                    <div className="text-[var(--text-primary)] font-medium">资源管理</div>
-                    <p className="text-sm text-[var(--text-secondary)]">
-                      dispose() 释放 WASM 内存，避免内存泄漏
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="text-lg">📦</span>
-                  <div>
-                    <div className="text-[var(--text-primary)] font-medium">批量处理</div>
-                    <p className="text-sm text-[var(--text-secondary)]">
-                      calculateTokensBatch() 复用编码器实例
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </section>
+      <Layer title="预估 2：calculateRequestTokenCount（遇到媒体就用 API）" icon="🔀">
+        <p className="text-[var(--text-secondary)] mb-4">
+          当请求包含图片/文件等媒体 part（<code>inlineData</code>/<code>fileData</code>）时，本地很难可靠估算，
+          上游会调用 <code>countTokens</code> API；如果 API 失败，再降级为本地启发式。
+        </p>
+        <CodeBlock
+          language="typescript"
+          code={`// gemini-cli/packages/core/src/utils/tokenCalculation.ts
+export async function calculateRequestTokenCount(request, contentGenerator, model) {
+  const parts = normalizeToParts(request);
+  const hasMedia = parts.some((p) => 'inlineData' in p || 'fileData' in p);
 
-      {/* 内容处理流水线 */}
-      <section>
-        <button
-          onClick={() => toggleSection('pipeline')}
-          className="w-full flex items-center justify-between p-4 bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)] hover:border-[var(--amber)] transition-colors"
-        >
-          <span className="text-lg font-bold text-[var(--text-primary)]">
-            🔄 内容处理流水线
-          </span>
-          <span className="text-[var(--text-muted)]">
-            {expandedSections.has('pipeline') ? '收起' : '展开'}
-          </span>
-        </button>
-        {expandedSections.has('pipeline') && (
-          <div className="mt-4 p-4 bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)]">
-            <CodeBlock
-              code={`// requestTokenizer.ts:243-327 - 内容分类逻辑
-private processPart(part, textContents, imageContents, audioContents, otherContents) {
-  // 1. 纯字符串 → textContents
-  if (typeof part === 'string') {
-    textContents.push(part);
-    return;
-  }
-
-  // 2. text 属性 → textContents
-  if ('text' in part && part.text) {
-    textContents.push(part.text);
-    return;
-  }
-
-  // 3. inlineData → 根据 MIME 类型分类
-  if ('inlineData' in part && part.inlineData) {
-    const { data, mimeType } = part.inlineData;
-    if (mimeType.startsWith('image/')) {
-      imageContents.push({ data, mimeType });
-    } else if (mimeType.startsWith('audio/')) {
-      audioContents.push({ data, mimeType });
+  if (hasMedia) {
+    try {
+      const resp = await contentGenerator.countTokens({
+        model,
+        contents: [{ role: 'user', parts }],
+      });
+      return resp.totalTokens ?? 0;
+    } catch {
+      return estimateTokenCountSync(parts);
     }
-    return;
   }
 
-  // 4. fileData → otherContents (JSON序列化)
-  if ('fileData' in part) {
-    otherContents.push(JSON.stringify(part.fileData));
-    return;
-  }
-
-  // 5. functionCall/functionResponse → otherContents
-  if ('functionCall' in part || 'functionResponse' in part) {
-    otherContents.push(JSON.stringify(part));
-    return;
-  }
+  return estimateTokenCountSync(parts);
 }`}
-              language="typescript"
-            />
+        />
+      </Layer>
 
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-3 bg-[var(--bg-terminal)]/50 rounded-lg">
-                <h4 className="text-[var(--text-primary)] font-bold mb-2">支持的内容类型</h4>
-                <ul className="space-y-1 text-sm">
-                  <li className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-[var(--terminal-green)] rounded-full"></span>
-                    <span className="text-[var(--text-secondary)]">string - 纯文本</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-[var(--terminal-green)] rounded-full"></span>
-                    <span className="text-[var(--text-secondary)]">TextPart - {`{ text: "..." }`}</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-[var(--cyber-purple)] rounded-full"></span>
-                    <span className="text-[var(--text-secondary)]">InlineData (image/*) - 图片</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-[var(--amber)] rounded-full"></span>
-                    <span className="text-[var(--text-secondary)]">InlineData (audio/*) - 音频</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="w-2 h-2 bg-[var(--cyber-blue)] rounded-full"></span>
-                    <span className="text-[var(--text-secondary)]">FunctionCall/Response - 工具调用</span>
-                  </li>
-                </ul>
-              </div>
+      <Layer title="预警：ContextWindowWillOverflow（95% 阈值）" icon="🚨">
+        <p className="text-[var(--text-secondary)] mb-4">
+          上游把“溢出风险”作为一个<strong>事件</strong>抛给 UI，而不是赌一把把请求发出去。
+          条件是 <code>estimatedRequestTokenCount &gt; remainingTokenCount * 0.95</code>。
+        </p>
+        <CodeBlock
+          language="typescript"
+          code={`// gemini-cli/packages/core/src/core/client.ts (simplified)
+const estimatedRequestTokenCount = await calculateRequestTokenCount(request, contentGenerator, model);
+const remainingTokenCount = tokenLimit(model) - chat.getLastPromptTokenCount();
 
-              <div className="p-3 bg-[var(--bg-terminal)]/50 rounded-lg">
-                <h4 className="text-[var(--text-primary)] font-bold mb-2">Fallback 策略</h4>
-                <ul className="space-y-1 text-sm">
-                  <li className="flex items-start gap-2">
-                    <span className="text-[var(--amber)]">⚠️</span>
-                    <span className="text-[var(--text-secondary)]">tiktoken 失败 → 字符数/4</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-[var(--amber)]">⚠️</span>
-                    <span className="text-[var(--text-secondary)]">图片格式不支持 → 512×512</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-[var(--amber)]">⚠️</span>
-                    <span className="text-[var(--text-secondary)]">图片解析失败 → 最小 6 tokens</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-[var(--amber)]">⚠️</span>
-                    <span className="text-[var(--text-secondary)]">完全失败 → JSON.stringify 后估算</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* 计算示例 */}
-      <section>
-        <button
-          onClick={() => toggleSection('examples')}
-          className="w-full flex items-center justify-between p-4 bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)] hover:border-[var(--cyber-pink)] transition-colors"
-        >
-          <span className="text-lg font-bold text-[var(--text-primary)]">
-            📐 计算示例
-          </span>
-          <span className="text-[var(--text-muted)]">
-            {expandedSections.has('examples') ? '收起' : '展开'}
-          </span>
-        </button>
-        {expandedSections.has('examples') && (
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* 示例 1: 小图放大 */}
-            <div className="p-4 bg-[var(--bg-card)] rounded-lg border border-[var(--cyber-pink)]/30">
-              <h4 className="text-[var(--cyber-pink)] font-bold mb-3">示例 1: 小图放大</h4>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-[var(--text-muted)]">原始尺寸:</span>
-                  <span className="text-[var(--text-primary)]">50 × 50 px</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--text-muted)]">像素数:</span>
-                  <span className="text-[var(--text-primary)]">2,500</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--text-muted)]">最小阈值:</span>
-                  <span className="text-[var(--amber)]">3,136 (需放大)</span>
-                </div>
-                <div className="border-t border-[var(--border-subtle)] my-2"></div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--text-muted)]">beta:</span>
-                  <span className="text-[var(--text-primary)]">√(3136/2500) ≈ 1.12</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--text-muted)]">放大后:</span>
-                  <span className="text-[var(--text-primary)]">56 × 56 px</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--text-muted)]">Token:</span>
-                  <span className="text-[var(--terminal-green)] font-bold">4 + 2 = 6</span>
-                </div>
-              </div>
-            </div>
-
-            {/* 示例 2: 标准图片 */}
-            <div className="p-4 bg-[var(--bg-card)] rounded-lg border border-[var(--cyber-pink)]/30">
-              <h4 className="text-[var(--cyber-pink)] font-bold mb-3">示例 2: 标准图片</h4>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-[var(--text-muted)]">原始尺寸:</span>
-                  <span className="text-[var(--text-primary)]">1920 × 1080 px</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--text-muted)]">归一化:</span>
-                  <span className="text-[var(--text-primary)]">1932 × 1092 px</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--text-muted)]">像素数:</span>
-                  <span className="text-[var(--text-primary)]">2,109,744</span>
-                </div>
-                <div className="border-t border-[var(--border-subtle)] my-2"></div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--text-muted)]">计算:</span>
-                  <span className="text-[var(--text-primary)]">2109744 / 784</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--text-muted)]">图片Token:</span>
-                  <span className="text-[var(--text-primary)]">2691</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--text-muted)]">总Token:</span>
-                  <span className="text-[var(--terminal-green)] font-bold">2691 + 2 = 2693</span>
-                </div>
-              </div>
-            </div>
-
-            {/* 示例 3: 大图缩小 */}
-            <div className="p-4 bg-[var(--bg-card)] rounded-lg border border-[var(--cyber-pink)]/30">
-              <h4 className="text-[var(--cyber-pink)] font-bold mb-3">示例 3: 大图缩小</h4>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-[var(--text-muted)]">原始尺寸:</span>
-                  <span className="text-[var(--text-primary)]">8000 × 6000 px</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--text-muted)]">像素数:</span>
-                  <span className="text-[var(--text-primary)]">48,000,000</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--text-muted)]">最大阈值:</span>
-                  <span className="text-[var(--amber)]">12,845,056 (需缩小)</span>
-                </div>
-                <div className="border-t border-[var(--border-subtle)] my-2"></div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--text-muted)]">beta:</span>
-                  <span className="text-[var(--text-primary)]">√(48M/12.8M) ≈ 1.93</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--text-muted)]">缩小后:</span>
-                  <span className="text-[var(--text-primary)]">4144 × 3108 px</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-[var(--text-muted)]">Token:</span>
-                  <span className="text-[var(--terminal-green)] font-bold">16384 + 2 = 16386</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* 单例模式 */}
-      <section>
-        <button
-          onClick={() => toggleSection('singleton')}
-          className="w-full flex items-center justify-between p-4 bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)] hover:border-[var(--cyber-blue)] transition-colors"
-        >
-          <span className="text-lg font-bold text-[var(--text-primary)]">
-            🔗 单例模式与资源管理
-          </span>
-          <span className="text-[var(--text-muted)]">
-            {expandedSections.has('singleton') ? '收起' : '展开'}
-          </span>
-        </button>
-        {expandedSections.has('singleton') && (
-          <div className="mt-4 p-4 bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)]">
-            <CodeBlock
-              code={`// request-tokenizer/index.ts - 单例管理
-let defaultTokenizer: DefaultRequestTokenizer | null = null;
-
-export function getDefaultTokenizer(): DefaultRequestTokenizer {
-  if (!defaultTokenizer) {
-    defaultTokenizer = new DefaultRequestTokenizer();
-  }
-  return defaultTokenizer;
-}
-
-export async function disposeDefaultTokenizer(): Promise<void> {
-  if (defaultTokenizer) {
-    await defaultTokenizer.dispose();  // 释放 tiktoken WASM
-    defaultTokenizer = null;
-  }
+if (estimatedRequestTokenCount > remainingTokenCount * 0.95) {
+  yield {
+    type: GeminiEventType.ContextWindowWillOverflow,
+    value: { estimatedRequestTokenCount, remainingTokenCount },
+  };
+  return turn;
 }`}
-              language="typescript"
-            />
+        />
+        <HighlightBox title="读者要记住的点" icon="📌" variant="green">
+          <ul className="m-0 text-sm text-[var(--text-secondary)] space-y-1">
+            <li>这是“请求发出前”的保护门槛；不是模型返回的 finishReason。</li>
+            <li>它主要保护上下文窗口（input context），不是输出长度。</li>
+            <li>通过预估做早停：宁可保守拒绝，也不要让 API 直接报错。</li>
+          </ul>
+        </HighlightBox>
+      </Layer>
 
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-3 bg-[var(--terminal-green)]/10 rounded-lg border border-[var(--terminal-green)]/30">
-                <h4 className="text-[var(--terminal-green)] font-bold mb-2">为什么使用单例?</h4>
-                <ul className="text-sm text-[var(--text-secondary)] space-y-1">
-                  <li>• tiktoken 编码器加载开销大</li>
-                  <li>• WASM 模块只需初始化一次</li>
-                  <li>• 全局共享减少内存占用</li>
-                </ul>
-              </div>
-              <div className="p-3 bg-[var(--amber)]/10 rounded-lg border border-[var(--amber)]/30">
-                <h4 className="text-[var(--amber)] font-bold mb-2">何时调用 dispose?</h4>
-                <ul className="text-sm text-[var(--text-secondary)] space-y-1">
-                  <li>• 应用程序退出时</li>
-                  <li>• 长时间不需要时释放内存</li>
-                  <li>• 需要重新配置编码时</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* 源码参考 */}
-      <section className="bg-[var(--bg-terminal)]/30 rounded-xl p-6 border border-[var(--border-subtle)]">
-        <h3 className="text-lg font-bold text-[var(--text-secondary)] mb-4">📚 源码参考</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-          <div>
-            <h4 className="text-[var(--text-muted)] mb-2">核心文件</h4>
-            <ul className="space-y-1 text-[var(--text-secondary)]">
-              <li>• packages/core/src/utils/request-tokenizer/index.ts</li>
-              <li>• packages/core/src/utils/request-tokenizer/requestTokenizer.ts</li>
-              <li>• packages/core/src/utils/request-tokenizer/imageTokenizer.ts</li>
-              <li>• packages/core/src/utils/request-tokenizer/textTokenizer.ts</li>
-            </ul>
-          </div>
-          <div>
-            <h4 className="text-[var(--text-muted)] mb-2">关键接口</h4>
-            <ul className="space-y-1 text-[var(--text-secondary)]">
-              <li>• RequestTokenizer - 请求 Token 计算接口</li>
-              <li>• TokenCalculationResult - 计算结果结构</li>
-              <li>• ImageMetadata - 图片元数据</li>
-              <li>• TokenizerConfig - 配置选项</li>
-            </ul>
-          </div>
-        </div>
-      </section>
+      <Layer title="对齐：usageMetadata 更新 lastPromptTokenCount" icon="🧾">
+        <p className="text-[var(--text-secondary)] mb-4">
+          一旦模型在流式 chunk 里返回 <code>usageMetadata</code>，上游会把它记录到会话记录，并用
+          <code>promptTokenCount</code> 更新 <code>lastPromptTokenCount</code>（后续溢出判断更准）。
+        </p>
+        <CodeBlock
+          language="typescript"
+          code={`// gemini-cli/packages/core/src/core/geminiChat.ts (simplified)
+for await (const chunk of streamResponse) {
+  if (chunk.usageMetadata) {
+    chatRecordingService.recordMessageTokens(chunk.usageMetadata);
+    if (chunk.usageMetadata.promptTokenCount !== undefined) {
+      lastPromptTokenCount = chunk.usageMetadata.promptTokenCount;
+    }
+  }
+  yield chunk;
+}`}
+        />
+      </Layer>
 
       <RelatedPages pages={relatedPages} />
     </div>
   );
 }
 
-export default TokenManagementStrategy;

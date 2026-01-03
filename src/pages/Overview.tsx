@@ -53,11 +53,11 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
               </div>
               <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--amber)]/30 text-center">
                 <div className="text-[var(--amber)] font-semibold text-sm">Tool Layer</div>
-                <div className="text-xs text-[var(--text-muted)] mt-1">20+ 工具<br/>本地执行</div>
+                <div className="text-xs text-[var(--text-muted)] mt-1">14 内置工具<br/>+ MCP 扩展</div>
               </div>
               <div className="bg-[var(--bg-card)] p-3 rounded border border-[var(--purple)]/30 text-center">
                 <div className="text-[var(--purple)] font-semibold text-sm">API Layer</div>
-                <div className="text-xs text-[var(--text-muted)] mt-1">多厂商<br/>统一抽象</div>
+                <div className="text-xs text-[var(--text-muted)] mt-1">Google GenAI<br/>+ Code Assist</div>
               </div>
             </div>
           </div>
@@ -344,7 +344,7 @@ sequenceDiagram
                   <td className="px-4 py-2 text-purple-400 font-semibold">API Layer</td>
                   <td className="px-4 py-2 text-gray-300">HTTP 请求体</td>
                   <td className="px-4 py-2 text-gray-400">AI 推理（云端黑盒）</td>
-                  <td className="px-4 py-2 text-gray-300">SSE 流式响应</td>
+                  <td className="px-4 py-2 text-gray-300">流式响应（chunks/events）</td>
                 </tr>
               </tbody>
             </table>
@@ -353,7 +353,7 @@ sequenceDiagram
 
         <HighlightBox title="流式处理的意义" icon="⚡" variant="green">
           <p className="mb-2">
-            为什么要用流式（SSE）而不是等完整响应？
+            为什么要用流式而不是等完整响应？
           </p>
           <ul className="pl-5 list-disc space-y-1">
             <li><strong>用户体验</strong>：用户能立即看到 AI 在"思考"，不用盯着空白等待</li>
@@ -416,7 +416,7 @@ sequenceDiagram
       <Layer title="关键数字" icon="📊">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
           <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-[var(--border-subtle)] text-center">
-            <div className="text-2xl font-bold text-[var(--terminal-green)]">20+</div>
+            <div className="text-2xl font-bold text-[var(--terminal-green)]">14</div>
             <div className="text-xs text-[var(--text-muted)] mt-1">内置工具</div>
           </div>
           <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-[var(--border-subtle)] text-center">
@@ -428,8 +428,8 @@ sequenceDiagram
             <div className="text-xs text-[var(--text-muted)] mt-1">审批模式</div>
           </div>
           <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-[var(--border-subtle)] text-center">
-            <div className="text-2xl font-bold text-[var(--purple)]">3</div>
-            <div className="text-xs text-[var(--text-muted)] mt-1">AI 厂商</div>
+            <div className="text-2xl font-bold text-[var(--purple)]">5</div>
+            <div className="text-xs text-[var(--text-muted)] mt-1">认证方式</div>
           </div>
           <div className="bg-[var(--bg-panel)] rounded-lg p-4 border border-[var(--border-subtle)] text-center">
             <div className="text-2xl font-bold text-red-400">2M</div>

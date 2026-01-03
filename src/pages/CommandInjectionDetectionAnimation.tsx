@@ -110,13 +110,16 @@ export default function CommandInjectionDetectionAnimation() {
       return false;
     };
 
-    // 1) 解析是否可控（上游用 shell parser；这里用“引号平衡”做近似演示）
+    // 1) 解析是否可控（上游用 splitCommands()/parseCommandDetails；这里用“引号平衡”做近似演示）
     const parseOk = hasBalancedQuotes(cmd);
     checks.push({
       name: 'parseCommandDetails()',
       passed: parseOk,
-      detail: parseOk ? 'Parsed (simulated) OK' : 'Parse failed (simulated): unbalanced quotes',
-      severity: parseOk ? 'safe' : 'blocked',
+      detail: parseOk
+        ? 'Parsed (simulated) OK'
+        : 'Parse failed (simulated): unbalanced quotes → 上游会回退为 ASK_USER（更保守）',
+      // 上游 parse 失败不会直接 DENY，而是回退为 ASK_USER（需要确认）
+      severity: parseOk ? 'safe' : 'warning',
     });
 
     // 2) tools.exclude（blocklist，优先级最高）
@@ -159,6 +162,7 @@ export default function CommandInjectionDetectionAnimation() {
     });
 
     // 4) PolicyEngine：含重定向时默认把 ALLOW 降级为 ASK_USER（除非 allowRedirection=true）
+    // 上游 hasRedirection() 会尽量用 shell 解析器（PowerShell / tree-sitter bash），失败时回退到 /[><]/。
     const hasRedirection = /[><]/.test(cmd);
     const needsRedirectionConfirm = hasRedirection && !EXAMPLE_ALLOW_REDIRECTION;
 
