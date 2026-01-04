@@ -172,8 +172,8 @@ export function ConfigSystem() {
           <div className="bg-green-500/10 border-2 border-green-500/30 rounded-lg p-4">
             <h4 className="text-green-400 font-bold mb-2">🏢 System Defaults</h4>
             <code className="text-xs text-gray-400 block mb-2">
-              /etc/gemini-code/system-defaults.json (Linux)<br/>
-              /Library/Application Support/GeminiCode/system-defaults.json (macOS)
+              /etc/gemini-cli/system-defaults.json (Linux)<br/>
+              /Library/Application Support/GeminiCli/system-defaults.json (macOS)
             </code>
             <p className="text-sm text-gray-300">
               系统级默认值，可被用户/项目覆盖
@@ -183,8 +183,8 @@ export function ConfigSystem() {
           <div className="bg-red-500/10 border-2 border-red-500/30 rounded-lg p-4">
             <h4 className="text-red-400 font-bold mb-2">🔒 System Settings (Override)</h4>
             <code className="text-xs text-gray-400 block mb-2">
-              /etc/gemini-code/settings.json (Linux)<br/>
-              /Library/Application Support/GeminiCode/settings.json (macOS)
+              /etc/gemini-cli/settings.json (Linux)<br/>
+              /Library/Application Support/GeminiCli/settings.json (macOS)
             </code>
             <p className="text-sm text-gray-300">
               系统管理员强制覆盖，优先级最高
@@ -197,23 +197,23 @@ export function ConfigSystem() {
           code={`// 获取系统级覆盖配置路径
 export function getSystemSettingsPath(): string {
   // 环境变量覆盖
-  if (process.env['QWEN_CODE_SYSTEM_SETTINGS_PATH']) {
-    return process.env['QWEN_CODE_SYSTEM_SETTINGS_PATH'];
+  if (process.env['GEMINI_CLI_SYSTEM_SETTINGS_PATH']) {
+    return process.env['GEMINI_CLI_SYSTEM_SETTINGS_PATH'];
   }
   // 平台特定路径
   if (platform() === 'darwin') {
-    return '/Library/Application Support/GeminiCode/settings.json';
+    return '/Library/Application Support/GeminiCli/settings.json';
   } else if (platform() === 'win32') {
-    return 'C:\\\\ProgramData\\\\gemini-code\\\\settings.json';
+    return 'C:\\\\ProgramData\\\\gemini-cli\\\\settings.json';
   } else {
-    return '/etc/gemini-code/settings.json';
+    return '/etc/gemini-cli/settings.json';
   }
 }
 
 // 获取系统级默认配置路径
 export function getSystemDefaultsPath(): string {
-  if (process.env['QWEN_CODE_SYSTEM_DEFAULTS_PATH']) {
-    return process.env['QWEN_CODE_SYSTEM_DEFAULTS_PATH'];
+  if (process.env['GEMINI_CLI_SYSTEM_DEFAULTS_PATH']) {
+    return process.env['GEMINI_CLI_SYSTEM_DEFAULTS_PATH'];
   }
   return path.join(
     path.dirname(getSystemSettingsPath()),
@@ -368,11 +368,9 @@ export function getSystemDefaultsPath(): string {
       "enabled": false
     },
     "auth": {
-      "selectedType": "gemini_oauth",  // gemini_oauth | api_key | ...
+      "selectedType": "oauth-personal",  // oauth-personal | gemini-api-key | vertex-ai | compute-default-credentials | cloud-shell
       "enforcedType": null,
       "useExternal": false,
-      "apiKey": null,
-      "baseUrl": null
     }
   },
 
@@ -939,10 +937,13 @@ workspaceSettings = resolveEnvVarsInObject(workspaceResult.settings);`}
         <CodeBlock
           title="常用环境变量"
           code={`# 认证相关
-OPENAI_API_KEY=sk-...          # OpenAI 兼容 API 密钥
-OPENAI_BASE_URL=https://...    # 自定义 API 端点
-OPENAI_MODEL=gemini-1.5-pro   # 默认模型
-GEMINI_MODEL=gemini-1.5-pro     # Gemini 模型（优先级高于 OPENAI_MODEL）
+GEMINI_API_KEY=...              # Gemini API Key（AuthType=gemini-api-key）
+GOOGLE_API_KEY=...              # Vertex AI API key（可选）
+GOOGLE_CLOUD_PROJECT=...        # Vertex AI project
+GOOGLE_CLOUD_LOCATION=...       # Vertex AI location
+
+# 默认模型
+GEMINI_MODEL=gemini-2.5-pro     # 覆盖默认模型选择
 
 # 沙箱
 GEMINI_SANDBOX=true            # 启用沙箱 (true|docker|podman)
@@ -953,6 +954,14 @@ GEMINI_TELEMETRY_ENABLED=true
 GEMINI_TELEMETRY_TARGET=local  # local | gcp
 GEMINI_TELEMETRY_OTLP_ENDPOINT=http://localhost:4317
 
+# OAuth/存储
+GEMINI_FORCE_ENCRYPTED_FILE_STORAGE=true  # 强制使用更安全的 token 存储
+NO_BROWSER=true                 # 禁止自动打开浏览器（改用手动授权码）
+
+# Prompt 调试
+GEMINI_SYSTEM_MD=./GEMINI.md
+GEMINI_WRITE_SYSTEM_MD=/tmp/system.md
+
 # 调试
 DEBUG=1                        # 调试模式
 NO_COLOR=1                     # 禁用颜色输出
@@ -961,11 +970,12 @@ NO_COLOR=1                     # 禁用颜色输出
 TAVILY_API_KEY=tvly-...        # Tavily API 密钥
 
 # IDE
-QWEN_CODE_IDE_PORT=3000        # IDE MCP 端口
+GEMINI_CLI_IDE_SERVER_PORT=54321
+GEMINI_CLI_IDE_WORKSPACE_PATH=/path/to/project
 
 # 系统配置路径覆盖
-QWEN_CODE_SYSTEM_SETTINGS_PATH=/custom/path/settings.json
-QWEN_CODE_SYSTEM_DEFAULTS_PATH=/custom/path/defaults.json
+GEMINI_CLI_SYSTEM_SETTINGS_PATH=/custom/path/settings.json
+GEMINI_CLI_SYSTEM_DEFAULTS_PATH=/custom/path/system-defaults.json
 
 # 代理
 HTTPS_PROXY=http://proxy:8080
@@ -992,7 +1002,7 @@ function findEnvFile(startDir: string): string | null {
 
   while (true) {
     // 1. 优先查找 .gemini/.env（项目特定）
-    const geminiEnvPath = path.join(currentDir, QWEN_DIR, '.env');
+    const geminiEnvPath = path.join(currentDir, GEMINI_DIR, '.env');
     if (fs.existsSync(geminiEnvPath)) {
       return geminiEnvPath;
     }
@@ -1007,7 +1017,7 @@ function findEnvFile(startDir: string): string | null {
     const parentDir = path.dirname(currentDir);
     if (parentDir === currentDir || !parentDir) {
       // 到达根目录，检查 home 目录
-      const homeGeminiEnvPath = path.join(homedir(), QWEN_DIR, '.env');
+      const homeGeminiEnvPath = path.join(homedir(), GEMINI_DIR, '.env');
       if (fs.existsSync(homeGeminiEnvPath)) {
         return homeGeminiEnvPath;
       }
@@ -1044,7 +1054,7 @@ function findEnvFile(startDir: string): string | null {
 
       // 获取排除列表
       const excludedVars = settings?.advanced?.excludedEnvVars || DEFAULT_EXCLUDED_ENV_VARS;
-      const isProjectEnvFile = !envFilePath.includes(QWEN_DIR);
+      const isProjectEnvFile = !envFilePath.includes(GEMINI_DIR);
 
       for (const key in parsedEnv) {
         if (Object.hasOwn(parsedEnv, key)) {
@@ -2676,7 +2686,7 @@ class LoadedSettings {
             <div className="space-y-2">
               <h5 className="text-gray-300 font-semibold">环境变量覆盖</h5>
               <p className="text-gray-400">
-                使用 <code className="text-cyan-300">QWEN_CODE_SYSTEM_SETTINGS_PATH</code>
+                使用 <code className="text-cyan-300">GEMINI_CLI_SYSTEM_SETTINGS_PATH</code>
                 等环境变量覆盖默认路径。
               </p>
             </div>

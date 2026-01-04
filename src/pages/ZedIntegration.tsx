@@ -85,7 +85,7 @@ sequenceDiagram
         Note over Z,A: 初始化阶段
         Z->>A: initialize(protocolVersion, capabilities)
         A->>Z: InitializeResponse(authMethods, agentCapabilities)
-        Z->>A: authenticate(methodId: "gemini_oauth")
+        Z->>A: authenticate(methodId: "oauth-personal")
         A->>Z: AuthenticateResponse(success)
     end
 
@@ -255,8 +255,9 @@ sequenceDiagram
     return {
       protocolVersion: 1,
       authMethods: [
-        { id: 'use_openai', name: 'Use OpenAI API' },
-        { id: 'gemini_oauth', name: 'Google OAuth' },
+        { id: 'oauth-personal', name: 'Log in with Google' },
+        { id: 'gemini-api-key', name: 'Use Gemini API key' },
+        { id: 'vertex-ai', name: 'Vertex AI' },
       ],
       agentCapabilities: {
         loadSession: false,

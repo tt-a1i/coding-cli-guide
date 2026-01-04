@@ -37,692 +37,250 @@ function CollapsibleSection({
 
 export function AuthenticationFlow() {
   const relatedPages: RelatedPage[] = [
-    { id: 'google-authentication', label: 'Google OAuth 详解', description: '设备授权流程详解' },
+    { id: 'google-authentication', label: 'Google OAuth 详解', description: 'Loopback/手动授权码两条路径' },
     { id: 'startup-chain', label: '启动链路', description: '认证如何触发' },
-    { id: 'config', label: '配置系统', description: '认证相关配置项' },
-    { id: 'oauth-device-flow-anim', label: 'OAuth 设备授权动画', description: '可视化授权流程' },
-    { id: 'error-recovery-patterns', label: '错误恢复模式', description: '认证错误处理策略' },
+    { id: 'config', label: '配置系统', description: 'security.auth 设置项' },
+    { id: 'oauth-device-flow-anim', label: 'OAuth 登录动画', description: '可视化浏览器登录回调' },
+    { id: 'error-recovery-patterns', label: '错误恢复模式', description: '认证失败后的回退策略' },
   ];
 
   return (
     <div>
-      <h2 className="text-2xl text-cyan-400 mb-5">认证流程详解</h2>
+      <h2 className="text-2xl text-cyan-400 mb-5">认证流程详解（上游 Gemini CLI）</h2>
 
-      {/* 30秒速览 */}
       <HighlightBox title="⏱️ 30秒速览" icon="🎯" variant="blue">
         <ul className="space-y-2 text-sm">
-          <li>
-            • <strong>默认方式</strong>: Google OAuth Device Code 流程，无需 API 密钥，每天 2000 请求
-          </li>
-          <li>
-            • <strong>核心标准</strong>: RFC 8628 (Device Authorization Grant) + RFC 7636 (PKCE)
-          </li>
-          <li>
-            • <strong>Token 管理</strong>: 单例模式处理跨进程同步和自动刷新
-          </li>
-          <li>
-            • <strong>刷新策略</strong>: 提前 30 秒刷新，失败时触发重新认证
-          </li>
+          <li>• <strong>默认方式</strong>：Login with Google（OAuth 浏览器登录）60 req/min &amp; 1000 req/day</li>
+          <li>• <strong>无浏览器回退</strong>：NO_BROWSER/CI/SSH 等环境触发“手动粘贴授权码”（带 PKCE）</li>
+          <li>• <strong>其他方式</strong>：Gemini API Key（<code>GEMINI_API_KEY</code>）/ Vertex AI（<code>GOOGLE_CLOUD_PROJECT</code> 等）</li>
+          <li>• <strong>凭据持久化</strong>：优先安全存储（HybridTokenStorage/Keychain），并兼容 <code>~/.gemini/oauth_creds.json</code> 迁移</li>
         </ul>
       </HighlightBox>
 
-      {/* 认证类型 */}
       <Layer title="支持的认证方式" icon="🔐">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-purple-500/10 border-2 border-purple-500/30 rounded-lg p-4">
-            <h4 className="text-purple-400 font-bold mb-2">🌟 Google OAuth (默认)</h4>
-            <p className="text-sm text-gray-300 mb-2">
-              免费使用，每天 2000 请求配额
-            </p>
+            <h4 className="text-purple-400 font-bold mb-2">🌟 Login with Google（默认）</h4>
+            <p className="text-sm text-gray-300 mb-2">个人账号免费：60 req/min &amp; 1000 req/day</p>
             <ul className="text-sm text-gray-400 space-y-1">
-              <li>• Device Code 流程 (RFC 8628)</li>
-              <li>• PKCE 增强安全 (RFC 7636)</li>
-              <li>• 自动令牌刷新</li>
+              <li>• 浏览器登录：Loopback 回调（本地 HTTP server）</li>
+              <li>• 无浏览器：手动授权码（PKCE）</li>
+              <li>• 自动刷新并持久化 tokens</li>
             </ul>
-            <code className="text-xs block mt-2 text-purple-300">authType: "gemini_oauth"</code>
-          </div>
-
-          <div className="bg-blue-500/10 border-2 border-blue-500/30 rounded-lg p-4">
-            <h4 className="text-blue-400 font-bold mb-2">🔑 OpenAI 兼容 API</h4>
-            <p className="text-sm text-gray-300 mb-2">
-              支持任何 OpenAI 兼容的端点
-            </p>
-            <ul className="text-sm text-gray-400 space-y-1">
-              <li>• OpenAI / Azure OpenAI</li>
-              <li>• 本地模型 (Ollama, vLLM)</li>
-              <li>• 其他兼容服务</li>
-            </ul>
-            <code className="text-xs block mt-2 text-blue-300">OPENAI_API_KEY + OPENAI_BASE_URL</code>
+            <code className="text-xs block mt-2 text-purple-300">AuthType: &quot;oauth-personal&quot;</code>
           </div>
 
           <div className="bg-green-500/10 border-2 border-green-500/30 rounded-lg p-4">
-            <h4 className="text-green-400 font-bold mb-2">🌐 Google Gemini</h4>
-            <p className="text-sm text-gray-300 mb-2">
-              使用 Google Gemini API
-            </p>
+            <h4 className="text-green-400 font-bold mb-2">🔑 Gemini API Key</h4>
+            <p className="text-sm text-gray-300 mb-2">适合需要精确控制模型/计费的场景</p>
             <ul className="text-sm text-gray-400 space-y-1">
-              <li>• API Key 认证</li>
-              <li>• OAuth 浏览器流程</li>
-              <li>• Cloud Shell ADC</li>
+              <li>• 通过 <code>GEMINI_API_KEY</code> 提供密钥</li>
+              <li>• 可配合 <code>GEMINI_MODEL</code> 指定默认模型</li>
             </ul>
-            <code className="text-xs block mt-2 text-green-300">authType: "use_gemini"</code>
+            <code className="text-xs block mt-2 text-green-300">AuthType: &quot;gemini-api-key&quot;</code>
+          </div>
+
+          <div className="bg-cyan-500/10 border-2 border-cyan-500/30 rounded-lg p-4">
+            <h4 className="text-cyan-400 font-bold mb-2">🏢 Vertex AI</h4>
+            <p className="text-sm text-gray-300 mb-2">企业/生产环境：项目 + 区域 + 计费</p>
+            <ul className="text-sm text-gray-400 space-y-1">
+              <li>• <code>GOOGLE_CLOUD_PROJECT</code> + <code>GOOGLE_CLOUD_LOCATION</code></li>
+              <li>• 或 <code>GOOGLE_API_KEY</code></li>
+            </ul>
+            <code className="text-xs block mt-2 text-cyan-300">AuthType: &quot;vertex-ai&quot;</code>
           </div>
 
           <div className="bg-orange-500/10 border-2 border-orange-500/30 rounded-lg p-4">
-            <h4 className="text-orange-400 font-bold mb-2">☁️ Cloud Shell</h4>
-            <p className="text-sm text-gray-300 mb-2">
-              GCP Cloud Shell 自动认证
-            </p>
+            <h4 className="text-orange-400 font-bold mb-2">☁️ Compute ADC / Cloud Shell</h4>
+            <p className="text-sm text-gray-300 mb-2">在支持的 GCP 环境中可非交互使用</p>
             <ul className="text-sm text-gray-400 space-y-1">
-              <li>• 自动检测环境</li>
-              <li>• 使用 ADC 凭据</li>
-              <li>• 无需手动配置</li>
+              <li>• 通过 metadata server 获取 token</li>
+              <li>• 常见于 Cloud Shell / GCE</li>
             </ul>
-            <code className="text-xs block mt-2 text-orange-300">authType: "cloud_shell"</code>
+            <code className="text-xs block mt-2 text-orange-300">AuthType: &quot;compute-default-credentials&quot;</code>
           </div>
         </div>
-      </Layer>
 
-      {/* RFC 8628 Device Authorization Grant */}
-      <Layer title="RFC 8628: Device Authorization Grant" icon="📜">
-        <HighlightBox title="设备授权流程适用场景" icon="💡" variant="blue">
+        <HighlightBox title="📌 AuthType 的真实来源（上游）" icon="🧾" variant="yellow">
           <p className="text-sm">
-            设备授权流程专为"输入受限设备"设计：没有浏览器的终端、智能电视、IoT 设备等。
-            用户在另一设备（手机/电脑）上完成授权，终端通过轮询获取 Token。
+            枚举定义在 <code>gemini-cli/packages/core/src/core/contentGenerator.ts</code>。
+            设置项落在 <code>security.auth.selectedType</code>（<code>gemini-cli/packages/cli/src/config/settingsSchema.ts</code>）。
           </p>
         </HighlightBox>
+      </Layer>
+
+      <Layer title="启动时的认证决策" icon="🧠">
+        <MermaidDiagram
+          title="settings → refreshAuth 的关键链路"
+          chart={`flowchart TD
+    A[加载 settings\n~/.gemini/settings.json + .gemini/settings.json] --> B{security.auth.selectedType ?}
+    B -- 有 --> C[config.refreshAuth(selectedType)]
+    B -- 无 --> D[UI 引导选择登录方式]
+    D --> C
+
+    C --> E{AuthType}
+    E -->|oauth-personal| F[getOauthClient()\n(code_assist/oauth2.ts)]
+    E -->|gemini-api-key| G[loadApiKey()\n(GEMINI_API_KEY)]
+    E -->|vertex-ai| H[Vertex/Project/Location\n(GOOGLE_CLOUD_*)]
+    E -->|compute-default-credentials| I[Compute ADC\n(metadata server)]
+    `}
+        />
+      </Layer>
+
+      <Layer title="OAuth 浏览器登录（默认）" icon="🌐">
+        <p className="text-sm text-gray-300 mb-3">
+          上游实现不是 RFC8628 的 device_code 轮询，而是 <strong>Authorization Code + Loopback 回调</strong>：
+          CLI 启动本地 HTTP Server（<code>localhost:{'{'}port{'}'}</code>），打开浏览器登录，并在回调中交换 token。
+        </p>
 
         <MermaidDiagram
-          title="Device Authorization Grant 完整时序"
+          title="Loopback OAuth 时序（核心）"
           chart={`sequenceDiagram
     autonumber
     participant CLI as Gemini CLI
-    participant Auth as 认证服务器
-    participant Browser as 用户浏览器
+    participant Local as Local HTTP Server
+    participant Browser as Browser
+    participant Google as Google OAuth
 
-    Note over CLI: 生成 PKCE code_verifier + code_challenge
+    CLI->>Local: listen http://localhost:{port}/oauth2callback
+    CLI->>CLI: authUrl = OAuth2Client.generateAuthUrl(state, redirect_uri)
+    CLI->>Browser: open(authUrl)
 
-    CLI->>Auth: POST /oauth2/device/code
-    Note right of CLI: client_id, scope, code_challenge
-    Auth-->>CLI: device_code, user_code, verification_uri
+    Browser->>Google: 登录 + 授权
+    Google-->>Browser: redirect ?code=...&state=...
+    Browser->>Local: GET /oauth2callback
+    Local-->>CLI: resolve(loginCompletePromise)
 
-    CLI->>CLI: 显示验证 URL 和用户代码
-    CLI->>Browser: 尝试打开浏览器
-
-    Note over Browser: 用户访问 verification_uri
-    Browser->>Auth: 输入 user_code
-    Auth->>Auth: 验证用户身份
-    Browser-->>Auth: 用户授权确认
-
-    loop 每 2 秒轮询 (可能被要求 slow_down)
-        CLI->>Auth: POST /oauth2/token
-        Note right of CLI: grant_type=device_code, device_code, code_verifier
-        alt 用户尚未授权
-            Auth-->>CLI: 400 authorization_pending
-        else 轮询过快
-            Auth-->>CLI: 429 slow_down
-            CLI->>CLI: 增加轮询间隔 1.5x
-        else 设备码过期
-            Auth-->>CLI: 400 expired_token
-            CLI->>CLI: 终止流程，提示用户重试
-        else 用户拒绝
-            Auth-->>CLI: 400 access_denied
-            CLI->>CLI: 终止流程，提示用户
-        else 授权成功
-            Auth-->>CLI: access_token, refresh_token, expires_in
-        end
-    end
-
-    CLI->>CLI: 保存 Token 到本地缓存
-    Note over CLI: 后续请求使用 access_token`}
+    CLI->>Google: OAuth2Client.getToken(code)
+    Google-->>CLI: access_token + refresh_token + expiry_date
+    CLI->>CLI: client.on('tokens') 持久化 + post_auth 回调
+    `}
         />
 
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-gray-800 rounded-lg p-4">
-            <h4 className="text-cyan-400 font-semibold mb-2">请求设备码</h4>
-            <CodeBlock
-              code={`POST /api/v1/oauth2/device/code
-Content-Type: application/x-www-form-urlencoded
+        <CodeBlock
+          title="packages/core/src/code_assist/oauth2.ts（节选）"
+          code={`// authWithWeb(): 本地回调 + open()
+const port = await getAvailablePort();
+const redirectUri = \`http://localhost:\${port}/oauth2callback\`;
+const state = crypto.randomBytes(32).toString('hex');
+const authUrl = client.generateAuthUrl({
+  redirect_uri: redirectUri,
+  access_type: 'offline',
+  scope: OAUTH_SCOPE,
+  state,
+});
 
-client_id=f0304373b74a44d2b584a3fb70ca9e56
-&scope=openid profile email model.completion
-&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw
-&code_challenge_method=S256`}
-            />
-          </div>
-          <div className="bg-gray-800 rounded-lg p-4">
-            <h4 className="text-green-400 font-semibold mb-2">响应</h4>
-            <CodeBlock
-              code={`{
-  "device_code": "GmRhmhcxhwAzkoEqiMEg_DnyEysN...",
-  "user_code": "WDJB-MJHT",
-  "verification_uri": "https://accounts.google.com/device",
-  "verification_uri_complete": "https://accounts.google.com/device?code=WDJB-MJHT",
-  "expires_in": 900
-}`}
-            />
-          </div>
-        </div>
-      </Layer>
+await open(authUrl);
+await Promise.race([webLogin.loginCompletePromise, timeoutPromise]);
 
-      {/* PKCE 详解 */}
-      <CollapsibleSection title="RFC 7636: PKCE 安全增强" icon="🔒">
-        <HighlightBox title="为什么需要 PKCE？" icon="⚠️" variant="yellow">
-          <p className="text-sm">
-            PKCE (Proof Key for Code Exchange) 防止授权码拦截攻击。公共客户端（如 CLI）无法安全存储 client_secret，
-            PKCE 通过动态生成的一次性密钥保护授权流程。
+// callback: exchange code -> tokens
+const { tokens } = await client.getToken({ code: qs.get('code')!, redirect_uri: redirectUri });
+client.setCredentials(tokens);`}
+        />
+
+        <HighlightBox title="什么时候不会自动打开浏览器？" icon="🧩" variant="blue">
+          <ul className="pl-5 list-disc text-sm space-y-1">
+            <li><code>NO_BROWSER=true</code> 或 config.noBrowser</li>
+            <li><code>CI=true</code>、<code>DEBIAN_FRONTEND=noninteractive</code></li>
+            <li>SSH 远程会话（非 Linux 或无 display）</li>
+            <li><code>BROWSER=www-browser</code>（blocklist）</li>
+          </ul>
+          <p className="text-xs text-gray-400 mt-2">
+            真实判断在 <code>gemini-cli/packages/core/src/utils/browser.ts</code>。
           </p>
         </HighlightBox>
-
-        <MermaidDiagram
-          title="PKCE 工作原理"
-          chart={`flowchart LR
-    subgraph 客户端
-        A[生成随机 code_verifier] --> B[SHA256 哈希]
-        B --> C[Base64URL 编码]
-        C --> D[code_challenge]
-    end
-
-    subgraph 授权请求
-        D --> E[发送 code_challenge]
-        E --> F[服务器存储]
-    end
-
-    subgraph Token交换
-        G[发送 code_verifier] --> H[服务器计算哈希]
-        H --> I{匹配?}
-        F --> I
-        I -->|是| J[返回 Token]
-        I -->|否| K[拒绝请求]
-    end
-
-    style A fill:#2d3748
-    style D fill:#2d3748
-    style J fill:#276749
-    style K fill:#9b2c2c`}
-        />
-
-        <CodeBlock
-          title="PKCE 实现代码"
-          code={`// packages/core/src/gemini/geminiOAuth.ts:47-73
-
-import crypto from 'crypto';
-
-// 生成 43-128 字符的随机 code_verifier
-export function generateCodeVerifier(): string {
-  return crypto.randomBytes(32).toString('base64url');
-}
-
-// 使用 SHA-256 生成 code_challenge
-export function generateCodeChallenge(codeVerifier: string): string {
-  const hash = crypto.createHash('sha256');
-  hash.update(codeVerifier);
-  return hash.digest('base64url');
-}
-
-// 生成配对
-export function generatePKCEPair(): {
-  code_verifier: string;
-  code_challenge: string;
-} {
-  const codeVerifier = generateCodeVerifier();
-  const codeChallenge = generateCodeChallenge(codeVerifier);
-  return { code_verifier: codeVerifier, code_challenge: codeChallenge };
-}`}
-        />
-      </CollapsibleSection>
-
-      {/* Token 生命周期 */}
-      <Layer title="Token 生命周期管理" icon="🔄">
-        <MermaidDiagram
-          title="Token 状态机"
-          chart={`stateDiagram-v2
-    [*] --> NoToken: 初始状态
-
-    NoToken --> Pending: 开始 Device Flow
-    Pending --> Valid: 用户授权成功
-    Pending --> NoToken: 超时/拒绝
-
-    Valid --> Expiring: 距过期 < 30秒
-    Valid --> Expired: 超过过期时间
-
-    Expiring --> Refreshing: 触发刷新
-    Refreshing --> Valid: 刷新成功
-    Refreshing --> NoToken: 刷新失败 (需重新认证)
-
-    Expired --> NoToken: 清除凭据
-
-    note right of Valid: access_token 可用
-    note right of Expiring: 提前 30秒开始刷新
-    note right of Refreshing: 使用 refresh_token`}
-        />
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
-            <h4 className="text-green-400 font-bold mb-2">Valid 状态</h4>
-            <ul className="text-sm text-gray-300 space-y-1">
-              <li>• access_token 有效</li>
-              <li>• 距过期 &gt; 30 秒</li>
-              <li>• 可直接使用</li>
-            </ul>
-          </div>
-          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
-            <h4 className="text-yellow-400 font-bold mb-2">Expiring 状态</h4>
-            <ul className="text-sm text-gray-300 space-y-1">
-              <li>• 距过期 &lt; 30 秒</li>
-              <li>• 触发后台刷新</li>
-              <li>• 当前 token 仍可用</li>
-            </ul>
-          </div>
-          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
-            <h4 className="text-red-400 font-bold mb-2">Expired 状态</h4>
-            <ul className="text-sm text-gray-300 space-y-1">
-              <li>• access_token 已过期</li>
-              <li>• 必须刷新或重新认证</li>
-              <li>• 请求将被拒绝</li>
-            </ul>
-          </div>
-        </div>
-
-        <CodeBlock
-          title="Token 有效性检查"
-          code={`// packages/core/src/gemini/sharedTokenManager.ts:670-675
-
-const TOKEN_REFRESH_BUFFER_MS = 30 * 1000; // 30 秒缓冲
-
-private isTokenValid(credentials: GeminiCredentials): boolean {
-  if (!credentials.expiry_date || !credentials.access_token) {
-    return false;
-  }
-  // 提前 30 秒判定为无效，触发刷新
-  return Date.now() < credentials.expiry_date - TOKEN_REFRESH_BUFFER_MS;
-}`}
-        />
       </Layer>
 
-      {/* 轮询策略 */}
-      <CollapsibleSection title="智能轮询策略" icon="⏱️">
-        <HighlightBox title="轮询行为" icon="📊" variant="blue">
-          <ul className="text-sm space-y-1">
-            <li>• <strong>初始间隔</strong>: 2 秒</li>
-            <li>• <strong>slow_down 响应</strong>: 间隔增加 1.5 倍，最大 10 秒</li>
-            <li>• <strong>最大尝试</strong>: 根据 expires_in 计算</li>
-            <li>• <strong>可取消</strong>: 支持用户中断</li>
-          </ul>
-        </HighlightBox>
+      <CollapsibleSection title="无浏览器：手动授权码（带 PKCE）" icon="🔒">
+        <p className="text-sm text-gray-300 mb-3">
+          当浏览器启动被抑制时，上游会打印一个授权 URL，并提示用户粘贴浏览器页面给出的 authorization code。
+          该路径使用 <code>google-auth-library</code> 的 PKCE 辅助（<code>generateCodeVerifierAsync()</code>）。
+        </p>
 
-        <CodeBlock
-          title="轮询实现"
-          code={`// packages/core/src/gemini/geminiOAuth.ts:638-750
-
-let pollInterval = 2000; // 2 秒初始间隔
-const maxAttempts = Math.ceil(deviceAuth.expires_in / (pollInterval / 1000));
-
-for (let attempt = 0; attempt < maxAttempts; attempt++) {
-  // 检查用户是否取消
-  if (isCancelled) {
-    return { success: false, reason: 'cancelled' };
-  }
-
-  const tokenResponse = await client.pollDeviceToken({
-    device_code: deviceAuth.device_code,
-    code_verifier,
-  });
-
-  if (isDeviceTokenSuccess(tokenResponse)) {
-    // 成功获取 Token
-    return { success: true };
-  }
-
-  if (isDeviceTokenPending(tokenResponse)) {
-    // 处理 slow_down 信号
-    if (tokenResponse.slowDown) {
-      pollInterval = Math.min(pollInterval * 1.5, 10000); // 增加 50%，最大 10 秒
-      console.debug(\`增加轮询间隔到 \${pollInterval}ms\`);
-    }
-
-    // 等待下一次轮询（支持中断）
-    await interruptibleWait(pollInterval);
-    continue;
-  }
-}`}
-        />
-
-        <div className="mt-4 bg-gray-800 rounded-lg p-4">
-          <h4 className="text-cyan-400 font-semibold mb-3">轮询响应处理表</h4>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left border-b border-gray-600">
-                  <th className="py-2 px-3">HTTP 状态</th>
-                  <th className="py-2 px-3">错误码</th>
-                  <th className="py-2 px-3">含义</th>
-                  <th className="py-2 px-3">处理方式</th>
-                </tr>
-              </thead>
-              <tbody className="text-gray-300">
-                <tr className="border-b border-gray-700">
-                  <td className="py-2 px-3">200</td>
-                  <td className="py-2 px-3 text-green-400">-</td>
-                  <td className="py-2 px-3">授权成功</td>
-                  <td className="py-2 px-3">保存 Token，结束流程</td>
-                </tr>
-                <tr className="border-b border-gray-700">
-                  <td className="py-2 px-3">400</td>
-                  <td className="py-2 px-3 text-yellow-400">authorization_pending</td>
-                  <td className="py-2 px-3">用户尚未授权</td>
-                  <td className="py-2 px-3">继续轮询</td>
-                </tr>
-                <tr className="border-b border-gray-700">
-                  <td className="py-2 px-3">429</td>
-                  <td className="py-2 px-3 text-orange-400">slow_down</td>
-                  <td className="py-2 px-3">轮询过快</td>
-                  <td className="py-2 px-3">增加间隔 1.5x，继续轮询</td>
-                </tr>
-                <tr className="border-b border-gray-700">
-                  <td className="py-2 px-3">400</td>
-                  <td className="py-2 px-3 text-red-400">access_denied</td>
-                  <td className="py-2 px-3">用户拒绝授权</td>
-                  <td className="py-2 px-3">终止流程，提示用户</td>
-                </tr>
-                <tr className="border-b border-gray-700">
-                  <td className="py-2 px-3">400</td>
-                  <td className="py-2 px-3 text-red-400">expired_token</td>
-                  <td className="py-2 px-3">设备码已过期</td>
-                  <td className="py-2 px-3">终止流程，需重新开始</td>
-                </tr>
-                <tr>
-                  <td className="py-2 px-3">401</td>
-                  <td className="py-2 px-3 text-red-400">invalid_client</td>
-                  <td className="py-2 px-3">客户端无效</td>
-                  <td className="py-2 px-3">终止流程，配置错误</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </CollapsibleSection>
-
-      {/* Token 刷新流程 */}
-      <Layer title="Token 刷新机制" icon="🔃">
         <MermaidDiagram
-          title="Token 刷新时序"
+          title="手动授权码时序（NO_BROWSER）"
           chart={`sequenceDiagram
     autonumber
-    participant Client as GeminiOAuth2Client
-    participant Manager as TokenManager
-    participant File as 凭据文件
-    participant Auth as 认证服务器
+    participant CLI as Gemini CLI
+    participant Browser as Browser
+    participant Google as Google OAuth
 
-    Client->>Manager: getValidCredentials()
-    Manager->>Manager: 检查内存缓存
-
-    alt Token 有效 (距过期 > 30秒)
-        Manager-->>Client: 返回缓存 Token
-    else Token 即将过期或无效
-        Manager->>Manager: acquireLock()
-        Note over Manager: 文件锁防止并发刷新
-
-        Manager->>File: 检查文件 mtime
-        alt 文件已被其他进程更新
-            File-->>Manager: 新 Token (其他进程已刷新)
-            Manager->>Manager: 更新内存缓存
-            Manager-->>Client: 返回新 Token
-        else 需要刷新
-            Manager->>Auth: POST /oauth2/token
-            Note right of Manager: grant_type=refresh_token
-
-            alt 刷新成功
-                Auth-->>Manager: 新 access_token
-                Manager->>File: 原子写入 (tmp + rename)
-                Manager->>Manager: 更新内存缓存
-                Manager-->>Client: 返回新 Token
-            else 刷新失败 (400)
-                Auth-->>Manager: error: invalid_grant
-                Manager->>File: 清除凭据
-                Manager->>Manager: 清除内存缓存
-                Manager-->>Client: CredentialsClearRequiredError
-            end
-        end
-
-        Manager->>Manager: releaseLock()
-    end`}
+    CLI->>CLI: codeVerifier = generateCodeVerifierAsync()
+    CLI->>CLI: authUrl = generateAuthUrl(code_challenge, redirect_uri=codeassist.google.com/authcode)
+    CLI-->>Browser: 用户复制打开 authUrl
+    Browser->>Google: 登录 + 授权
+    Google-->>Browser: 显示 authorization code
+    Browser-->>CLI: 用户粘贴 code
+    CLI->>Google: getToken(code, codeVerifier)
+    Google-->>CLI: tokens
+    `}
         />
 
         <CodeBlock
-          title="刷新 Token 实现"
-          code={`// packages/core/src/gemini/geminiOAuth.ts:391-453
+          title="packages/core/src/code_assist/oauth2.ts（节选）"
+          code={`const redirectUri = 'https://codeassist.google.com/authcode';
+const codeVerifier = await client.generateCodeVerifierAsync();
 
-async refreshAccessToken(): Promise<TokenRefreshResponse> {
-  if (!this.credentials.refresh_token) {
-    throw new Error('No refresh token available');
-  }
+const authUrl = client.generateAuthUrl({
+  redirect_uri: redirectUri,
+  access_type: 'offline',
+  scope: OAUTH_SCOPE,
+  code_challenge_method: CodeChallengeMethod.S256,
+  code_challenge: codeVerifier.codeChallenge,
+  state,
+});
 
-  const bodyData = {
-    grant_type: 'refresh_token',
-    refresh_token: this.credentials.refresh_token,
-    client_id: QWEN_OAUTH_CLIENT_ID,
-  };
-
-  const response = await fetch(QWEN_OAUTH_TOKEN_ENDPOINT, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Accept': 'application/json',
-    },
-    body: objectToUrlEncoded(bodyData),
-  });
-
-  if (!response.ok) {
-    // 400 错误表示 refresh_token 已失效
-    if (response.status === 400) {
-      await clearGeminiCredentials();
-      throw new CredentialsClearRequiredError(
-        "Refresh token expired. Please use '/auth' to re-authenticate."
-      );
-    }
-    throw new Error(\`Token refresh failed: \${response.status}\`);
-  }
-
-  const tokenData = await response.json();
-
-  // 更新凭据（保留原有 refresh_token 如果服务器未返回新的）
-  const tokens: GeminiCredentials = {
-    access_token: tokenData.access_token,
-    token_type: tokenData.token_type,
-    refresh_token: tokenData.refresh_token || this.credentials.refresh_token,
-    expiry_date: Date.now() + tokenData.expires_in * 1000,
-  };
-
-  this.setCredentials(tokens);
-  return tokenData;
-}`}
-        />
-      </Layer>
-
-      {/* OpenAI 兼容 API */}
-      <Layer title="OpenAI 兼容 API 配置" icon="🔧">
-        <CodeBlock
-          code={`# 环境变量配置
-export OPENAI_API_KEY="sk-your-api-key"
-export OPENAI_BASE_URL="https://api.openai.com/v1"  # 或自定义端点
-export OPENAI_MODEL="gpt-4"  # 可选，默认使用 settings 中的模型
-
-# 本地模型示例 (Ollama)
-export OPENAI_API_KEY="ollama"
-export OPENAI_BASE_URL="http://localhost:11434/v1"
-export OPENAI_MODEL="llama2"
-
-# Azure OpenAI 示例
-export OPENAI_API_KEY="your-azure-key"
-export OPENAI_BASE_URL="https://your-resource.openai.azure.com/openai/deployments/your-deployment"
-export OPENAI_MODEL="gpt-4"`}
-        />
-
-        <HighlightBox title="认证优先级" icon="📊" variant="blue">
-          <ol className="pl-5 list-decimal space-y-1">
-            <li><strong>环境变量</strong> - OPENAI_API_KEY 等</li>
-            <li><strong>项目配置</strong> - .gemini/settings.json</li>
-            <li><strong>用户配置</strong> - ~/.gemini/settings.json</li>
-            <li><strong>Google OAuth</strong> - 默认回退方式</li>
-          </ol>
-        </HighlightBox>
-      </Layer>
-
-      {/* Google OAuth */}
-      <CollapsibleSection title="Google OAuth 流程" icon="🌐">
-        <CodeBlock
-          title="三种认证模式"
-          code={`// packages/core/src/code_assist/oauth2.ts
-
-// 模式 1: Cloud Shell ADC (自动)
-if (isCloudShellEnvironment()) {
-    const compute = new Compute();
-    const token = await compute.getAccessToken();
-    return token;
-}
-
-// 模式 2: 浏览器 Web 流程 (PKCE)
-async function browserWebFlow(): Promise<Credentials> {
-    const codeVerifier = generateCodeVerifier();
-    const codeChallenge = generateCodeChallenge(codeVerifier);
-
-    // 启动本地 HTTP 服务器接收回调
-    const server = createLocalServer(port);
-
-    // 打开浏览器
-    const authUrl = buildAuthUrl({
-        client_id: GOOGLE_CLIENT_ID,
-        redirect_uri: \`http://localhost:\${port}/callback\`,
-        code_challenge: codeChallenge,
-        code_challenge_method: 'S256',
-        scope: SCOPES.join(' ')
-    });
-    await open(authUrl);
-
-    // 等待回调（超时 5 分钟）
-    const code = await waitForCallback(server, 300000);
-    return exchangeCodeForTokens(code, codeVerifier);
-}
-
-// 模式 3: 用户代码流程 (无浏览器环境)
-async function userCodeFlow(): Promise<Credentials> {
-    const { user_code, verification_url } = await requestUserCode();
-    console.log(\`请访问: \${verification_url}\`);
-    console.log(\`输入代码: \${user_code}\`);
-    return pollForToken();
-}`}
+// ...prompt user to paste code...
+const { tokens } = await client.getToken({
+  code,
+  codeVerifier: codeVerifier.codeVerifier,
+  redirect_uri: redirectUri,
+});
+client.setCredentials(tokens);`}
         />
       </CollapsibleSection>
 
-      {/* 认证错误处理 */}
-      <Layer title="认证错误处理" icon="⚠️">
-        <div className="space-y-3">
-          <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
-            <h4 className="text-red-400 font-bold mb-2">FatalAuthenticationError</h4>
-            <p className="text-sm text-gray-300 mb-2">认证完全失败，无法继续</p>
-            <code className="text-xs text-gray-400">处理：退出程序，提示用户检查凭据</code>
-          </div>
-
-          <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4">
-            <h4 className="text-orange-400 font-bold mb-2">CredentialsClearRequiredError</h4>
-            <p className="text-sm text-gray-300 mb-2">凭据过期或无效，需要清除并重新认证</p>
-            <code className="text-xs text-gray-400">处理：清除缓存，重新触发 Device Flow</code>
-          </div>
-
-          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
-            <h4 className="text-yellow-400 font-bold mb-2">TokenManagerError</h4>
-            <p className="text-sm text-gray-300 mb-2">Token 管理操作失败（刷新、锁获取、文件访问）</p>
-            <code className="text-xs text-gray-400">
-              类型：REFRESH_FAILED | NO_REFRESH_TOKEN | LOCK_TIMEOUT | FILE_ACCESS_ERROR | NETWORK_ERROR
-            </code>
-          </div>
-        </div>
-
-        <CodeBlock
-          title="错误恢复流程"
-          code={`// packages/core/src/gemini/geminiOAuth.ts:490-558
-
-try {
-  const credentials = await sharedManager.getValidCredentials(client);
-  client.setCredentials(credentials);
-  return client;
-} catch (error) {
-  if (error instanceof TokenManagerError) {
-    switch (error.type) {
-      case TokenError.NO_REFRESH_TOKEN:
-        console.debug('No refresh token, proceeding with device flow');
-        break;
-      case TokenError.REFRESH_FAILED:
-        console.debug('Token refresh failed, proceeding with device flow');
-        break;
-      case TokenError.NETWORK_ERROR:
-        console.warn('Network error, trying device flow');
-        break;
-    }
-  }
-
-  // 重新触发 Device Flow
-  const result = await authWithGeminiDeviceFlow(client, config);
-  if (!result.success) {
-    switch (result.reason) {
-      case 'timeout':
-        throw new Error('Google OAuth authentication timed out');
-      case 'cancelled':
-        throw new Error('Authentication was cancelled by user');
-      case 'rate_limit':
-        throw new Error('Too many requests, please try again later');
-      default:
-        throw new Error('Authentication failed');
-    }
-  }
-  return client;
-}`}
-        />
-      </Layer>
-
-      {/* Token 存储 */}
-      <Layer title="Token 存储与安全" icon="💾">
-        <HighlightBox title="存储位置" icon="📁" variant="green">
-          <ul className="pl-5 list-disc space-y-1">
-            <li><code>~/.gemini/oauth_creds.json</code> - Google OAuth Token</li>
-            <li><code>~/.gemini/oauth_creds.lock</code> - 刷新锁文件</li>
-            <li><code>~/.gemini/google_oauth_creds.json</code> - Google OAuth Token</li>
+      <Layer title="凭据存储与刷新" icon="💾">
+        <HighlightBox title="存储策略" icon="📁" variant="green">
+          <ul className="pl-5 list-disc text-sm space-y-1">
+            <li>token 更新由 <code>google-auth-library</code> 管理（自动刷新）</li>
+            <li>Gemini CLI 监听 <code>client.on('tokens')</code> 并持久化更新</li>
+            <li>支持将旧的 <code>~/.gemini/oauth_creds.json</code> 迁移到更安全的存储</li>
           </ul>
         </HighlightBox>
 
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-gray-800 rounded-lg p-4">
-            <h4 className="text-cyan-400 font-semibold mb-2">文件权限</h4>
-            <ul className="text-sm text-gray-300 space-y-1">
-              <li>• 目录: <code>0o700</code> (仅所有者)</li>
-              <li>• 文件: <code>0o600</code> (仅所有者读写)</li>
-            </ul>
-          </div>
-          <div className="bg-gray-800 rounded-lg p-4">
-            <h4 className="text-cyan-400 font-semibold mb-2">原子写入</h4>
-            <ul className="text-sm text-gray-300 space-y-1">
-              <li>• 先写入临时文件 (.tmp.uuid)</li>
-              <li>• 再原子 rename 到目标路径</li>
-              <li>• 防止写入中断导致数据损坏</li>
-            </ul>
-          </div>
-        </div>
+        <CodeBlock
+          title="packages/core/src/code_assist/oauth2.ts（节选）"
+          code={`client.on('tokens', async (tokens: Credentials) => {
+  // 持久化更新的 token（HybridTokenStorage / file fallback）
+  if (process.env['GEMINI_FORCE_ENCRYPTED_FILE_STORAGE'] === 'true') {
+    await OAuthCredentialStorage.saveCredentials(tokens);
+  } else {
+    await cacheCredentials(tokens);
+  }
+});`}
+        />
 
         <CodeBlock
-          title="凭据文件结构"
-          code={`// ~/.gemini/oauth_creds.json
-{
-  "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "refresh_token": "dGhpcyBpcyBhIHJlZnJlc2ggdG9rZW4...",
-  "token_type": "Bearer",
-  "expiry_date": 1735200000000,
-  "resource_url": "https://generativelanguage.googleapis.com"
-}`}
+          title="packages/core/src/config/storage.ts（路径）"
+          code={`export const GEMINI_DIR = '.gemini';
+export const OAUTH_FILE = 'oauth_creds.json';
+
+Storage.getGlobalGeminiDir()   // -> ~/.gemini
+Storage.getOAuthCredsPath()    // -> ~/.gemini/oauth_creds.json`}
         />
       </Layer>
 
-      {/* 源码导航 */}
+      <CollapsibleSection title="fork-only：OpenAI-compatible 认证" icon="🧭">
+        <HighlightBox title="⚠️ 不属于上游 Gemini CLI" icon="⚠️" variant="yellow">
+          <p className="text-sm">
+            如果你阅读的是基于 Gemini CLI 的 fork（例如接入 OpenAI-compatible 端点），可能会出现
+            <code>OPENAI_API_KEY</code>/<code>OPENAI_BASE_URL</code> 等环境变量与额外的认证/兼容层。
+            上游主线仅覆盖 Google OAuth / Gemini API Key / Vertex AI / Compute ADC。
+          </p>
+        </HighlightBox>
+      </CollapsibleSection>
+
       <Layer title="源码导航" icon="📂">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -730,34 +288,34 @@ try {
               <tr className="text-left border-b border-gray-600">
                 <th className="py-2 px-3">功能</th>
                 <th className="py-2 px-3">文件路径</th>
-                <th className="py-2 px-3">关键函数/类</th>
+                <th className="py-2 px-3">关键点</th>
               </tr>
             </thead>
             <tbody className="text-gray-300">
               <tr className="border-b border-gray-700">
-                <td className="py-2 px-3">Google OAuth 客户端</td>
-                <td className="py-2 px-3"><code>packages/core/src/gemini/geminiOAuth.ts</code></td>
-                <td className="py-2 px-3">GeminiOAuth2Client, authWithGeminiDeviceFlow</td>
+                <td className="py-2 px-3">AuthType 枚举</td>
+                <td className="py-2 px-3"><code>gemini-cli/packages/core/src/core/contentGenerator.ts</code></td>
+                <td className="py-2 px-3">LOGIN_WITH_GOOGLE / USE_GEMINI / USE_VERTEX_AI / COMPUTE_ADC</td>
               </tr>
               <tr className="border-b border-gray-700">
-                <td className="py-2 px-3">Token 管理</td>
-                <td className="py-2 px-3"><code>packages/core/src/gemini/tokenManager.ts</code></td>
-                <td className="py-2 px-3">TokenManager, acquireLock</td>
+                <td className="py-2 px-3">OAuth 实现</td>
+                <td className="py-2 px-3"><code>gemini-cli/packages/core/src/code_assist/oauth2.ts</code></td>
+                <td className="py-2 px-3">authWithWeb / authWithUserCode / shouldAttemptBrowserLaunch</td>
               </tr>
               <tr className="border-b border-gray-700">
-                <td className="py-2 px-3">PKCE 工具</td>
-                <td className="py-2 px-3"><code>packages/core/src/gemini/geminiOAuth.ts:47-73</code></td>
-                <td className="py-2 px-3">generatePKCEPair, generateCodeChallenge</td>
+                <td className="py-2 px-3">安全存储/迁移</td>
+                <td className="py-2 px-3"><code>gemini-cli/packages/core/src/code_assist/oauth-credential-storage.ts</code></td>
+                <td className="py-2 px-3">HybridTokenStorage + migrateFromFileStorage</td>
               </tr>
               <tr className="border-b border-gray-700">
-                <td className="py-2 px-3">Google OAuth</td>
-                <td className="py-2 px-3"><code>packages/core/src/code_assist/oauth2.ts</code></td>
-                <td className="py-2 px-3">browserWebFlow, userCodeFlow</td>
+                <td className="py-2 px-3">路径/配置目录</td>
+                <td className="py-2 px-3"><code>gemini-cli/packages/core/src/config/storage.ts</code></td>
+                <td className="py-2 px-3">~/.gemini/* 的统一入口</td>
               </tr>
               <tr>
-                <td className="py-2 px-3">OpenAI API 集成</td>
-                <td className="py-2 px-3"><code>packages/core/src/openai/openAIContentGenerator.ts</code></td>
-                <td className="py-2 px-3">OpenAIContentGenerator</td>
+                <td className="py-2 px-3">Zed 认证方法列表</td>
+                <td className="py-2 px-3"><code>gemini-cli/packages/cli/src/zed-integration/zedIntegration.ts</code></td>
+                <td className="py-2 px-3">authMethods id=AuthType.*</td>
               </tr>
             </tbody>
           </table>

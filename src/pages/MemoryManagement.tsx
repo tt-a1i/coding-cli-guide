@@ -453,7 +453,7 @@ export function tokenLimit(model: string): number {
             code={`<state_snapshot>
 ## 已完成任务
 - 创建了 AuthenticationFlow.tsx 页面
-- 添加了 OAuth2 设备授权流程文档
+- 添加了 OAuth（loopback）登录流程文档
 
 ## 当前状态
 正在扩展 MemoryManagement.tsx 文档

@@ -247,7 +247,7 @@ sequenceDiagram
     rows,
     env: {
       ...process.env,
-      QWEN_CODE: '1',
+      GEMINI_CLI: '1',
       TERM: 'xterm-256color',
       PAGER: shellExecutionConfig.pager ?? 'cat',
     },

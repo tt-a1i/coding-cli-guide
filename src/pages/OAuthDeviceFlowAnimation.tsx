@@ -1,217 +1,280 @@
-// @ts-nocheck
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 /**
- * OAuth 设备授权流动画
+ * OAuth 登录流程动画（上游 gemini-cli）
  *
- * 可视化 geminiOAuth.ts 设备授权流程
- * 源码: packages/core/src/gemini/geminiOAuth.ts
+ * 对齐源码：
+ * - gemini-cli/packages/core/src/code_assist/oauth2.ts
+ * - gemini-cli/packages/core/src/utils/browser.ts
  *
- * 核心流程:
- * 1. requestDeviceAuthorization() - 获取 deviceCode
- * 2. 打开浏览器验证页面
- * 3. pollDeviceToken() - 轮询等待用户授权
- * 4. 获取 access_token + refresh_token
- * 5. cacheGeminiCredentials() - 缓存凭证
+ * 重点：上游主线是“浏览器登录 + loopback 回调”，不是 RFC8628 device_code 轮询。
+ * 无浏览器环境（NO_BROWSER/CI/SSH 等）会回退为“手动粘贴授权码”（带 PKCE）。
  */
 
-type AuthPhase =
+type Mode = 'web' | 'manual';
+
+type Phase =
   | 'idle'
-  | 'requesting_device_code'
-  | 'waiting_for_user'
-  | 'polling'
-  | 'polling_slow_down'
-  | 'success'
-  | 'timeout'
-  | 'error';
+  | 'decide_mode'
+  | 'web_start_server'
+  | 'web_generate_auth_url'
+  | 'web_open_browser'
+  | 'web_wait_callback'
+  | 'web_exchange_token'
+  | 'manual_generate_pkce'
+  | 'manual_print_auth_url'
+  | 'manual_wait_code'
+  | 'manual_exchange_token'
+  | 'persist_tokens'
+  | 'success';
 
-interface PollAttempt {
-  attempt: number;
-  result: 'pending' | 'slow_down' | 'success' | 'error';
-  interval: number;
-}
-
-const OAUTH_ENDPOINTS = {
-  deviceCode: '/api/v1/authn/device/code',
-  token: '/api/v1/authn/device/token',
-  refresh: '/api/v1/authn/token',
+type TokenBundle = {
+  accessToken: string;
+  refreshToken?: string;
+  expiryDateMs: number;
 };
+
+function shortToken(token: string) {
+  if (!token) return '';
+  return token.length <= 18 ? token : `${token.slice(0, 8)}…${token.slice(-6)}`;
+}
 
 export default function OAuthDeviceFlowAnimation() {
   const [isPlaying, setIsPlaying] = useState(false);
-  const [phase, setPhase] = useState<AuthPhase>('idle');
-  const [deviceCode, setDeviceCode] = useState<string | null>(null);
-  const [verificationUrl, setVerificationUrl] = useState<string | null>(null);
-  const [pollAttempts, setPollAttempts] = useState<PollAttempt[]>([]);
-  const [currentPollInterval, setCurrentPollInterval] = useState(2000);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [refreshToken, setRefreshToken] = useState<string | null>(null);
-  const [expiryDate, setExpiryDate] = useState<number | null>(null);
+  const [phase, setPhase] = useState<Phase>('idle');
+  const [mode, setMode] = useState<Mode>('web');
+
+  // Environment signals (simulated)
+  const [noBrowserEnv, setNoBrowserEnv] = useState(false);
+  const [ciEnv, setCiEnv] = useState(false);
+  const [sshEnv, setSshEnv] = useState(false);
+  const [hasDisplay, setHasDisplay] = useState(true);
+  const [browserBlocklisted, setBrowserBlocklisted] = useState(false);
+
+  const [port, setPort] = useState<number | null>(null);
+  const [state, setStateValue] = useState<string | null>(null);
+  const [redirectUri, setRedirectUri] = useState<string | null>(null);
+  const [authUrl, setAuthUrl] = useState<string | null>(null);
+  const [authCode, setAuthCode] = useState<string | null>(null);
+
+  const [pkce, setPkce] = useState<{ verifier: string; challenge: string } | null>(null);
+  const [tokens, setTokens] = useState<TokenBundle | null>(null);
   const [logs, setLogs] = useState<string[]>([]);
-  const [userAuthorized, setUserAuthorized] = useState(false);
+
+  const shouldAttemptBrowserLaunch = useMemo(() => {
+    if (noBrowserEnv) return false;
+    if (ciEnv) return false;
+    if (browserBlocklisted) return false;
+    if (sshEnv && !hasDisplay) return false;
+    return true;
+  }, [browserBlocklisted, ciEnv, hasDisplay, noBrowserEnv, sshEnv]);
 
   const addLog = useCallback((message: string) => {
-    setLogs(prev => [...prev.slice(-15), `[${new Date().toISOString().slice(11, 19)}] ${message}`]);
+    const ts = new Date().toISOString().slice(11, 19);
+    setLogs((prev) => [...prev.slice(-14), `[${ts}] ${message}`]);
   }, []);
 
-  const resetAnimation = useCallback(() => {
+  const reset = useCallback(() => {
     setIsPlaying(false);
     setPhase('idle');
-    setDeviceCode(null);
-    setVerificationUrl(null);
-    setPollAttempts([]);
-    setCurrentPollInterval(2000);
-    setAccessToken(null);
-    setRefreshToken(null);
-    setExpiryDate(null);
+    setMode('web');
+    setPort(null);
+    setStateValue(null);
+    setRedirectUri(null);
+    setAuthUrl(null);
+    setAuthCode(null);
+    setPkce(null);
+    setTokens(null);
     setLogs([]);
-    setUserAuthorized(false);
   }, []);
 
-  // Phase machine
+  const start = useCallback(() => {
+    reset();
+    setTimeout(() => {
+      setIsPlaying(true);
+      setPhase('decide_mode');
+    }, 50);
+  }, [reset]);
+
+  const simulateCallback = useCallback(() => {
+    if (phase !== 'web_wait_callback') return;
+    const code = `code_${Math.random().toString(36).slice(2, 10)}`;
+    setAuthCode(code);
+    addLog(`收到回调：/oauth2callback?code=${code}&state=${state ?? '…'}`);
+    setPhase('web_exchange_token');
+  }, [addLog, phase, state]);
+
+  const simulatePasteCode = useCallback(() => {
+    if (phase !== 'manual_wait_code') return;
+    const code = `code_${Math.random().toString(36).slice(2, 10)}`;
+    setAuthCode(code);
+    addLog(`用户粘贴授权码：${code}`);
+    setPhase('manual_exchange_token');
+  }, [addLog, phase]);
+
   useEffect(() => {
     if (!isPlaying) return;
 
-    let timer: NodeJS.Timeout;
+    let timer: ReturnType<typeof setTimeout> | null = null;
 
     switch (phase) {
-      case 'idle':
-        addLog('🔐 getGeminiOAuthClient() 开始');
-        setPhase('requesting_device_code');
-        break;
-
-      case 'requesting_device_code':
-        addLog('📤 requestDeviceAuthorization()');
-        addLog(`  → POST ${OAUTH_ENDPOINTS.deviceCode}`);
+      case 'decide_mode': {
+        const m: Mode = shouldAttemptBrowserLaunch ? 'web' : 'manual';
+        setMode(m);
+        addLog(`browser policy: shouldAttemptBrowserLaunch=${String(shouldAttemptBrowserLaunch)}`);
+        addLog(m === 'web' ? '选择：Web 登录（loopback 回调）' : '选择：手动授权码（NO_BROWSER）');
         timer = setTimeout(() => {
-          const code = 'ABCD-' + Math.random().toString(36).substring(2, 6).toUpperCase();
-          setDeviceCode(code);
-          setVerificationUrl(`http://aikb.yuwei.com/login?device_code=${code}`);
-          addLog(`  ✓ deviceCode: ${code}`);
-          setPhase('waiting_for_user');
-        }, 800);
+          setPhase(m === 'web' ? 'web_start_server' : 'manual_generate_pkce');
+        }, 400);
         break;
+      }
 
-      case 'waiting_for_user':
-        addLog('🌐 open(verificationUrl)');
-        addLog('⏳ 等待用户在浏览器中授权...');
+      case 'web_start_server': {
+        addLog('启动本地回调服务器：listen localhost:{port}/oauth2callback');
+        setPort(43127);
+        timer = setTimeout(() => setPhase('web_generate_auth_url'), 600);
+        break;
+      }
+
+      case 'web_generate_auth_url': {
+        const p = port ?? 43127;
+        const s = Math.random().toString(16).slice(2) + Math.random().toString(16).slice(2);
+        const ru = `http://localhost:${p}/oauth2callback`;
+        setStateValue(s);
+        setRedirectUri(ru);
+        setAuthUrl(`https://accounts.google.com/o/oauth2/v2/auth?...&redirect_uri=${encodeURIComponent(ru)}&state=${s}`);
+        addLog('生成 authUrl（state + redirect_uri），准备 open(authUrl)');
+        timer = setTimeout(() => setPhase('web_open_browser'), 600);
+        break;
+      }
+
+      case 'web_open_browser': {
+        addLog('open(authUrl)：尝试打开浏览器');
+        timer = setTimeout(() => setPhase('web_wait_callback'), 500);
+        break;
+      }
+
+      case 'web_wait_callback': {
+        addLog('等待浏览器回调…（超时保护 5 分钟）');
         timer = setTimeout(() => {
-          setPhase('polling');
-        }, 1500);
+          const code = `code_${Math.random().toString(36).slice(2, 10)}`;
+          setAuthCode(code);
+          addLog(`收到回调：/oauth2callback?code=${code}&state=${state ?? '…'}`);
+          setPhase('web_exchange_token');
+        }, 2200);
         break;
+      }
 
-      case 'polling':
-        if (userAuthorized) {
-          // User clicked authorize
-          addLog(`📥 pollDeviceToken() → 成功!`);
-          setPollAttempts(prev => [...prev, {
-            attempt: prev.length + 1,
-            result: 'success',
-            interval: currentPollInterval
-          }]);
-          const token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.' + Math.random().toString(36).substring(2, 20);
-          const refresh = 'refresh_' + Math.random().toString(36).substring(2, 15);
-          setAccessToken(token);
-          setRefreshToken(refresh);
-          setExpiryDate(Date.now() + 3600 * 1000);
-          setPhase('success');
-        } else {
-          // Continue polling
-          const attempt = pollAttempts.length + 1;
-          addLog(`📥 pollDeviceToken() 第 ${attempt} 次`);
-          addLog(`  → POST ${OAUTH_ENDPOINTS.token}`);
-
-          timer = setTimeout(() => {
-            // Simulate slow_down after 3 attempts
-            if (attempt === 3) {
-              addLog(`  ⚠️ 429 slow_down`);
-              setCurrentPollInterval(prev => Math.min(prev * 1.5, 10000));
-              setPollAttempts(prev => [...prev, { attempt, result: 'slow_down', interval: currentPollInterval }]);
-              setPhase('polling_slow_down');
-            } else {
-              addLog(`  ⏳ authorization_pending`);
-              setPollAttempts(prev => [...prev, { attempt, result: 'pending', interval: currentPollInterval }]);
-              // Re-trigger polling after interval
-              timer = setTimeout(() => setPhase('polling'), currentPollInterval / 3);
-            }
-          }, 600);
-        }
+      case 'web_exchange_token': {
+        addLog(`getToken(code) → tokens (access/refresh/expiry)`);
+        setTokens({
+          accessToken: `ya29.${Math.random().toString(36).slice(2)}`,
+          refreshToken: `1//0g${Math.random().toString(36).slice(2)}`,
+          expiryDateMs: Date.now() + 60 * 60 * 1000,
+        });
+        timer = setTimeout(() => setPhase('persist_tokens'), 700);
         break;
+      }
 
-      case 'polling_slow_down':
-        addLog(`⏱️ 增加轮询间隔到 ${currentPollInterval}ms`);
+      case 'manual_generate_pkce': {
+        const verifier = Math.random().toString(36).repeat(3).slice(2, 50);
+        const challenge = `S256(${verifier.slice(0, 10)}…)`;
+        setPkce({ verifier, challenge });
+        addLog('生成 PKCE：code_verifier + code_challenge');
+        timer = setTimeout(() => setPhase('manual_print_auth_url'), 600);
+        break;
+      }
+
+      case 'manual_print_auth_url': {
+        const s = Math.random().toString(16).slice(2) + Math.random().toString(16).slice(2);
+        setStateValue(s);
+        setRedirectUri('https://codeassist.google.com/authcode');
+        setAuthUrl(
+          `https://accounts.google.com/o/oauth2/v2/auth?...&redirect_uri=${encodeURIComponent(
+            'https://codeassist.google.com/authcode',
+          )}&code_challenge=${encodeURIComponent(pkce?.challenge ?? '...')}&state=${s}`,
+        );
+        addLog('打印授权 URL：请在浏览器中打开并复制 authorization code');
+        timer = setTimeout(() => setPhase('manual_wait_code'), 600);
+        break;
+      }
+
+      case 'manual_wait_code': {
+        addLog('等待用户粘贴授权码…');
         timer = setTimeout(() => {
-          setPhase('polling');
-        }, 800);
+          const code = `code_${Math.random().toString(36).slice(2, 10)}`;
+          setAuthCode(code);
+          addLog(`用户粘贴授权码：${code}`);
+          setPhase('manual_exchange_token');
+        }, 2600);
         break;
+      }
 
-      case 'success':
-        addLog('✅ 认证成功!');
-        addLog('💾 cacheGeminiCredentials()');
-        timer = setTimeout(() => {
-          addLog('🔒 凭证已安全存储');
-          setIsPlaying(false);
-        }, 1000);
+      case 'manual_exchange_token': {
+        addLog('getToken(code, codeVerifier) → tokens');
+        setTokens({
+          accessToken: `ya29.${Math.random().toString(36).slice(2)}`,
+          refreshToken: `1//0g${Math.random().toString(36).slice(2)}`,
+          expiryDateMs: Date.now() + 60 * 60 * 1000,
+        });
+        timer = setTimeout(() => setPhase('persist_tokens'), 800);
         break;
+      }
 
-      default:
+      case 'persist_tokens': {
+        addLog(`client.on('tokens')：保存 token（HybridTokenStorage / ~/.gemini/oauth_creds.json 迁移）`);
+        timer = setTimeout(() => setPhase('success'), 700);
         break;
+      }
+
+      case 'success': {
+        addLog('✅ 登录完成');
+        setIsPlaying(false);
+        break;
+      }
     }
 
     return () => {
       if (timer) clearTimeout(timer);
     };
-  }, [isPlaying, phase, pollAttempts, currentPollInterval, userAuthorized, addLog]);
+  }, [isPlaying, phase]);
 
-  const handleUserAuthorize = () => {
-    if (phase === 'polling' || phase === 'polling_slow_down') {
-      setUserAuthorized(true);
-      setPhase('polling');
-    }
-  };
-
-  const getPhaseColor = (p: AuthPhase) => {
+  const phaseBadgeColor = (p: Phase) => {
     switch (p) {
-      case 'idle': return 'var(--muted)';
-      case 'requesting_device_code': return 'var(--cyber-blue)';
-      case 'waiting_for_user': return 'var(--amber)';
-      case 'polling':
-      case 'polling_slow_down': return 'var(--purple)';
-      case 'success': return 'var(--terminal-green)';
-      case 'timeout':
-      case 'error': return '#ef4444';
-      default: return 'var(--muted)';
+      case 'idle':
+        return 'var(--text-muted)';
+      case 'decide_mode':
+        return 'var(--amber)';
+      case 'success':
+        return 'var(--terminal-green)';
+      default:
+        return 'var(--cyber-blue)';
     }
   };
 
   return (
     <div className="p-6 space-y-6">
-      {/* 标题区 */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--terminal-green)] font-mono">
-            OAuth 设备授权流
-          </h1>
-          <p className="text-[var(--muted)] text-sm mt-1">
-            geminiOAuth - Device Code Grant Flow (RFC 8628)
+          <h1 className="text-2xl font-bold text-[var(--terminal-green)] font-mono">OAuth 登录流程（上游 gemini-cli）</h1>
+          <p className="text-[var(--text-muted)] text-sm mt-1">
+            Web loopback 回调 + NO_BROWSER 手动授权码（PKCE）
           </p>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-[var(--muted)]">Phase:</span>
-            <span
-              className="px-2 py-0.5 rounded text-xs font-mono"
-              style={{
-                backgroundColor: `${getPhaseColor(phase)}20`,
-                color: getPhaseColor(phase),
-                border: `1px solid ${getPhaseColor(phase)}30`
-              }}
-            >
-              {phase}
-            </span>
-          </div>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-[var(--text-muted)]">Phase:</span>
+          <span
+            className="px-2 py-0.5 rounded text-xs font-mono"
+            style={{
+              backgroundColor: `${phaseBadgeColor(phase)}20`,
+              color: phaseBadgeColor(phase),
+              border: `1px solid ${phaseBadgeColor(phase)}30`,
+            }}
+          >
+            {phase}
+          </span>
           <button
-            onClick={() => isPlaying ? resetAnimation() : (resetAnimation(), setTimeout(() => setIsPlaying(true), 100))}
+            onClick={() => (isPlaying ? reset() : start())}
             className={`px-4 py-2 rounded font-mono text-sm transition-all ${
               isPlaying
                 ? 'bg-red-500/20 text-red-400 border border-red-500/30'
@@ -223,288 +286,133 @@ export default function OAuthDeviceFlowAnimation() {
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-6">
-        {/* 左侧: 流程图 */}
-        <div className="col-span-4">
-          <div className="bg-[var(--bg-secondary)] rounded-lg p-4 border border-[var(--border)]">
-            <h3 className="text-sm font-semibold text-[var(--cyber-blue)] mb-4 font-mono">
-              Device Code Flow
-            </h3>
-
-            <div className="space-y-4">
-              {/* Step 1: Request Device Code */}
-              <div className={`relative p-3 rounded-lg border transition-all ${
-                phase === 'requesting_device_code'
-                  ? 'bg-[var(--cyber-blue)]/20 border-[var(--cyber-blue)]/50 animate-pulse'
-                  : deviceCode
-                  ? 'bg-[var(--terminal-green)]/10 border-[var(--terminal-green)]/30'
-                  : 'bg-black/20 border-[var(--border)]'
-              }`}>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="w-6 h-6 rounded-full bg-[var(--cyber-blue)]/20 flex items-center justify-center text-xs text-[var(--cyber-blue)]">1</span>
-                  <span className="text-sm font-mono text-[var(--text-primary)]">Request Device Code</span>
-                </div>
-                <code className="text-xs text-[var(--muted)] block">
-                  POST /device/code
-                </code>
-                {deviceCode && (
-                  <div className="mt-2 p-2 bg-black/30 rounded text-xs font-mono">
-                    <span className="text-[var(--muted)]">deviceCode: </span>
-                    <span className="text-[var(--terminal-green)]">{deviceCode}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Arrow */}
-              <div className="flex justify-center">
-                <span className="text-[var(--muted)]">↓</span>
-              </div>
-
-              {/* Step 2: User Authorization */}
-              <div className={`relative p-3 rounded-lg border transition-all ${
-                phase === 'waiting_for_user'
-                  ? 'bg-[var(--amber)]/20 border-[var(--amber)]/50 animate-pulse'
-                  : userAuthorized
-                  ? 'bg-[var(--terminal-green)]/10 border-[var(--terminal-green)]/30'
-                  : 'bg-black/20 border-[var(--border)]'
-              }`}>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="w-6 h-6 rounded-full bg-[var(--amber)]/20 flex items-center justify-center text-xs text-[var(--amber)]">2</span>
-                  <span className="text-sm font-mono text-[var(--text-primary)]">User Authorization</span>
-                </div>
-                {verificationUrl && (
-                  <div className="mt-2 space-y-2">
-                    <code className="text-xs text-[var(--muted)] block truncate">
-                      {verificationUrl}
-                    </code>
-                    {(phase === 'polling' || phase === 'polling_slow_down' || phase === 'waiting_for_user') && !userAuthorized && (
-                      <button
-                        onClick={handleUserAuthorize}
-                        className="w-full py-2 rounded bg-[var(--amber)]/20 text-[var(--amber)] border border-[var(--amber)]/30 text-xs font-mono hover:bg-[var(--amber)]/30 transition-all"
-                      >
-                        🔓 模拟用户授权
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Arrow */}
-              <div className="flex justify-center">
-                <span className="text-[var(--muted)]">↓</span>
-              </div>
-
-              {/* Step 3: Poll for Token */}
-              <div className={`relative p-3 rounded-lg border transition-all ${
-                phase === 'polling' || phase === 'polling_slow_down'
-                  ? 'bg-purple-500/20 border-purple-500/50 animate-pulse'
-                  : accessToken
-                  ? 'bg-[var(--terminal-green)]/10 border-[var(--terminal-green)]/30'
-                  : 'bg-black/20 border-[var(--border)]'
-              }`}>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center text-xs text-purple-400">3</span>
-                  <span className="text-sm font-mono text-[var(--text-primary)]">Poll for Token</span>
-                </div>
-                <code className="text-xs text-[var(--muted)] block">
-                  POST /device/token (每 {currentPollInterval}ms)
-                </code>
-                {pollAttempts.length > 0 && (
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {pollAttempts.map((pa, i) => (
-                      <span
-                        key={i}
-                        className={`text-xs px-1.5 py-0.5 rounded ${
-                          pa.result === 'success'
-                            ? 'bg-[var(--terminal-green)]/20 text-[var(--terminal-green)]'
-                            : pa.result === 'slow_down'
-                            ? 'bg-[var(--amber)]/20 text-[var(--amber)]'
-                            : 'bg-[var(--muted)]/20 text-[var(--muted)]'
-                        }`}
-                      >
-                        #{pa.attempt}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Arrow */}
-              <div className="flex justify-center">
-                <span className="text-[var(--muted)]">↓</span>
-              </div>
-
-              {/* Step 4: Token Received */}
-              <div className={`relative p-3 rounded-lg border transition-all ${
-                phase === 'success'
-                  ? 'bg-[var(--terminal-green)]/20 border-[var(--terminal-green)]/50'
-                  : accessToken
-                  ? 'bg-[var(--terminal-green)]/10 border-[var(--terminal-green)]/30'
-                  : 'bg-black/20 border-[var(--border)]'
-              }`}>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="w-6 h-6 rounded-full bg-[var(--terminal-green)]/20 flex items-center justify-center text-xs text-[var(--terminal-green)]">4</span>
-                  <span className="text-sm font-mono text-[var(--text-primary)]">Token Received</span>
-                </div>
-                {accessToken && (
-                  <div className="mt-2 space-y-1 text-xs font-mono">
-                    <div className="p-1.5 bg-black/30 rounded truncate">
-                      <span className="text-[var(--muted)]">access_token: </span>
-                      <span className="text-[var(--terminal-green)]">{accessToken.slice(0, 30)}...</span>
-                    </div>
-                    <div className="p-1.5 bg-black/30 rounded">
-                      <span className="text-[var(--muted)]">refresh_token: </span>
-                      <span className="text-[var(--cyber-blue)]">{refreshToken}</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+      {/* Environment toggles */}
+      <div className="bg-[var(--bg-panel)] border border-[var(--border-subtle)] rounded-lg p-4">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="text-sm font-mono text-[var(--terminal-green)]">Env Signals（模拟）</div>
+          <div className="text-xs text-[var(--text-muted)] font-mono">
+            shouldAttemptBrowserLaunch={String(shouldAttemptBrowserLaunch)} → mode={mode}
           </div>
         </div>
-
-        {/* 中间: 状态详情 */}
-        <div className="col-span-5">
-          <div className="bg-[var(--bg-secondary)] rounded-lg p-4 border border-[var(--border)] h-full">
-            <h3 className="text-sm font-semibold text-[var(--amber)] mb-4 font-mono">
-              GeminiCredentials
-            </h3>
-
-            <div className="space-y-4">
-              {/* Credential Fields */}
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { key: 'access_token', value: accessToken, color: 'var(--terminal-green)' },
-                  { key: 'refresh_token', value: refreshToken, color: 'var(--cyber-blue)' },
-                  { key: 'token_type', value: accessToken ? 'Bearer' : null, color: 'var(--muted)' },
-                  { key: 'expiry_date', value: expiryDate ? new Date(expiryDate).toISOString() : null, color: 'var(--amber)' },
-                ].map(({ key, value, color }) => (
-                  <div
-                    key={key}
-                    className={`p-3 rounded-lg border ${
-                      value
-                        ? 'bg-black/30 border-[var(--border)]'
-                        : 'bg-black/10 border-[var(--border)] opacity-50'
-                    }`}
-                  >
-                    <div className="text-xs text-[var(--muted)] font-mono mb-1">{key}</div>
-                    <div
-                      className="text-sm font-mono truncate"
-                      style={{ color: value ? color : 'var(--muted)' }}
-                    >
-                      {value ? (key === 'access_token' ? value.slice(0, 20) + '...' : value) : 'null'}
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* OAuth Config */}
-              <div className="p-3 bg-black/30 rounded-lg border border-[var(--border)]">
-                <h4 className="text-xs font-mono text-[var(--muted)] mb-2">OAuth 配置</h4>
-                <div className="space-y-1 text-xs font-mono">
-                  <div><span className="text-[var(--muted)]">baseUrl:</span> <span className="text-[var(--text-secondary)]">http://aikb.yuwei.com</span></div>
-                  <div><span className="text-[var(--muted)]">clientId:</span> <span className="text-[var(--text-secondary)]">security-admin-console</span></div>
-                  <div><span className="text-[var(--muted)]">grantType:</span> <span className="text-[var(--cyber-blue)]">urn:ietf:params:oauth:grant-type:device_code</span></div>
-                </div>
-              </div>
-
-              {/* Poll Interval Visualization */}
-              <div className="p-3 bg-purple-500/10 rounded-lg border border-purple-500/30">
-                <h4 className="text-xs font-mono text-purple-400 mb-2">轮询间隔</h4>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 h-2 bg-black/30 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-purple-500 transition-all duration-300"
-                      style={{ width: `${Math.min(currentPollInterval / 100, 100)}%` }}
-                    />
-                  </div>
-                  <span className="text-xs font-mono text-purple-400">{currentPollInterval}ms</span>
-                </div>
-                <p className="text-xs text-[var(--muted)] mt-2">
-                  收到 429 slow_down 时自动增加间隔 (最大 10s)
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 右侧: 日志 */}
-        <div className="col-span-3">
-          <div className="bg-black/80 rounded-lg p-4 border border-[var(--border)] h-full">
-            <h3 className="text-xs font-semibold text-[var(--muted)] mb-2 font-mono">
-              Auth Log
-            </h3>
-            <div className="space-y-1 text-xs font-mono h-80 overflow-y-auto">
-              {logs.length === 0 ? (
-                <div className="text-[var(--muted)]">等待开始...</div>
-              ) : (
-                logs.map((log, i) => (
-                  <div
-                    key={i}
-                    className={`${
-                      log.includes('✓') || log.includes('✅') ? 'text-[var(--terminal-green)]' :
-                      log.includes('⚠️') ? 'text-[var(--amber)]' :
-                      log.includes('📤') || log.includes('📥') ? 'text-[var(--cyber-blue)]' :
-                      log.includes('⏳') ? 'text-purple-400' :
-                      log.includes('🔐') || log.includes('💾') ? 'text-[var(--amber)]' :
-                      'text-[var(--text-secondary)]'
-                    }`}
-                  >
-                    {log}
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-3 text-sm">
+          {[
+            { id: 'NO_BROWSER', v: noBrowserEnv, set: setNoBrowserEnv },
+            { id: 'CI', v: ciEnv, set: setCiEnv },
+            { id: 'SSH_CONNECTION', v: sshEnv, set: setSshEnv },
+            { id: 'DISPLAY/GUI', v: hasDisplay, set: setHasDisplay },
+            { id: 'BROWSER=www-browser', v: browserBlocklisted, set: setBrowserBlocklisted },
+          ].map((t) => (
+            <button
+              key={t.id}
+              onClick={() => t.set(!t.v)}
+              className={`px-3 py-2 rounded-lg border font-mono transition-colors ${
+                t.v
+                  ? 'bg-[var(--terminal-green)]/10 border-[var(--terminal-green)]/40 text-[var(--terminal-green)]'
+                  : 'bg-[var(--bg-void)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+              }`}
+              disabled={isPlaying}
+              title={isPlaying ? '停止后可调整' : '点击切换'}
+            >
+              {t.id}
+              <span className="ml-2 opacity-60">{t.v ? 'ON' : 'OFF'}</span>
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* 源码说明 */}
-      <div className="bg-[var(--bg-secondary)] rounded-lg p-4 border border-[var(--border)]">
-        <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">
-          源码: geminiOAuth.ts
-        </h3>
-        <pre className="text-xs font-mono text-[var(--text-secondary)] bg-black/30 p-3 rounded overflow-x-auto">
-{`async function authWithGeminiDeviceFlow(client, config): Promise<AuthResult> {
-  // 1. 请求设备授权码
-  const deviceAuth = await client.requestDeviceAuthorization();
-  const verificationUrl = \`\${BASE_URL}/login?device_code=\${deviceAuth.deviceCode}\`;
+      <div className="grid grid-cols-12 gap-6">
+        {/* Left: flow summary */}
+        <div className="col-span-12 md:col-span-5">
+          <div className="bg-[var(--bg-panel)] border border-[var(--border-subtle)] rounded-lg p-4 space-y-3">
+            <div className="text-sm font-mono text-[var(--cyber-blue)]">Flow Snapshot</div>
 
-  // 2. 打开浏览器
-  if (!config.isBrowserLaunchSuppressed()) {
-    await open(verificationUrl);
-  }
+            <div className="space-y-2 text-sm">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[var(--text-secondary)]">redirectUri</span>
+                <span className="font-mono text-[var(--text-primary)] truncate">{redirectUri ?? '-'}</span>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[var(--text-secondary)]">state</span>
+                <span className="font-mono text-[var(--text-primary)] truncate">{state ? shortToken(state) : '-'}</span>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[var(--text-secondary)]">authUrl</span>
+                <span className="font-mono text-[var(--text-primary)] truncate">{authUrl ? shortToken(authUrl) : '-'}</span>
+              </div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[var(--text-secondary)]">authCode</span>
+                <span className="font-mono text-[var(--text-primary)] truncate">{authCode ?? '-'}</span>
+              </div>
+            </div>
 
-  // 3. 轮询等待用户授权
-  let pollInterval = 2000;
-  const maxAttempts = 150;
+            {mode === 'web' && (
+              <button
+                onClick={simulateCallback}
+                className="w-full mt-2 px-3 py-2 rounded-lg border border-[var(--cyber-blue)]/30 bg-[var(--cyber-blue)]/10 text-[var(--cyber-blue)] font-mono text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!isPlaying || phase !== 'web_wait_callback'}
+              >
+                模拟回调（/oauth2callback）
+              </button>
+            )}
 
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    const tokenResponse = await client.pollDeviceToken({ deviceCode });
+            {mode === 'manual' && (
+              <button
+                onClick={simulatePasteCode}
+                className="w-full mt-2 px-3 py-2 rounded-lg border border-[var(--amber)]/30 bg-[var(--amber)]/10 text-[var(--amber)] font-mono text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!isPlaying || phase !== 'manual_wait_code'}
+              >
+                模拟粘贴授权码
+              </button>
+            )}
+          </div>
+        </div>
 
-    if (isDeviceTokenSuccess(tokenResponse)) {
-      // 4. 成功获取 token
-      const credentials = {
-        access_token: tokenResponse.accessToken,
-        refresh_token: tokenResponse.refreshToken,
-        expiry_date: Date.now() + tokenResponse.expiresIn * 1000,
-      };
-      client.setCredentials(credentials);
-      await cacheGeminiCredentials(credentials);
-      return { success: true };
-    }
+        {/* Right: tokens + logs */}
+        <div className="col-span-12 md:col-span-7 space-y-6">
+          <div className="bg-[var(--bg-panel)] border border-[var(--border-subtle)] rounded-lg p-4">
+            <div className="text-sm font-mono text-[var(--terminal-green)] mb-3">Tokens</div>
+            {tokens ? (
+              <div className="space-y-2 text-sm font-mono">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[var(--text-secondary)]">access_token</span>
+                  <span className="text-[var(--text-primary)]">{shortToken(tokens.accessToken)}</span>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[var(--text-secondary)]">refresh_token</span>
+                  <span className="text-[var(--text-primary)]">{tokens.refreshToken ? shortToken(tokens.refreshToken) : '-'}</span>
+                </div>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[var(--text-secondary)]">expiry_date</span>
+                  <span className="text-[var(--text-primary)]">{new Date(tokens.expiryDateMs).toLocaleString()}</span>
+                </div>
+              </div>
+            ) : (
+              <div className="text-sm text-[var(--text-muted)] font-mono">尚未获取 tokens</div>
+            )}
+          </div>
 
-    if (isDeviceTokenPending(tokenResponse)) {
-      if (tokenResponse.slowDown) {
-        pollInterval = Math.min(pollInterval * 1.5, 10000);
-      }
-      await sleep(pollInterval);
-    }
-  }
+          <div className="bg-[var(--bg-panel)] border border-[var(--border-subtle)] rounded-lg p-4">
+            <div className="text-sm font-mono text-[var(--cyber-blue)] mb-3">Logs</div>
+            <div className="bg-[var(--bg-void)] border border-[var(--border-subtle)] rounded p-3 max-h-[240px] overflow-y-auto">
+              {logs.length === 0 ? (
+                <div className="text-sm text-[var(--text-muted)] font-mono">点击“开始”运行动画</div>
+              ) : (
+                <pre className="text-xs text-[var(--text-secondary)] font-mono whitespace-pre-wrap m-0">
+                  {logs.join('\n')}
+                </pre>
+              )}
+            </div>
+          </div>
 
-  return { success: false, reason: 'timeout' };
-}`}
-        </pre>
+          <div className="bg-[var(--bg-panel)] border border-[var(--border-subtle)] rounded-lg p-4">
+            <div className="text-sm font-mono text-[var(--text-muted)] mb-2">Source anchors（上游）</div>
+            <ul className="text-xs text-[var(--text-secondary)] font-mono space-y-1 m-0 pl-5 list-disc">
+              <li><code>gemini-cli/packages/core/src/utils/browser.ts</code>：shouldAttemptBrowserLaunch()</li>
+              <li><code>gemini-cli/packages/core/src/code_assist/oauth2.ts</code>：authWithWeb()/authWithUserCode()</li>
+              <li><code>gemini-cli/packages/core/src/code_assist/oauth-credential-storage.ts</code>：HybridTokenStorage + migrate</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );

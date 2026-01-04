@@ -200,7 +200,7 @@ export function SlashCommands() {
 
         <HighlightBox title="环境变量" icon="🔧" variant="orange">
           <p className="text-sm">
-            通过 <code>!</code> 执行的命令会设置 <code>QWEN_CODE=1</code> 环境变量，
+            通过 <code>!</code> 执行的命令会设置 <code>GEMINI_CLI=1</code> 环境变量，
             脚本可以据此检测是否在 CLI 中运行。
           </p>
         </HighlightBox>

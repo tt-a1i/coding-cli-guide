@@ -1,6 +1,6 @@
 # Coding CLI Guide
 
-Qwen CLI 架构交互式学习指南，帮助开发者深入理解 CLI 的内部实现与 AI 工具交互模式。
+Gemini CLI 架构交互式学习指南，帮助开发者深入理解 Gemini CLI 的内部实现与 AI 工具交互模式。
 
 ## 预览
 
@@ -74,4 +74,5 @@ npm run lint
 
 ## 相关项目
 
-- [Qwen CLI](https://github.com/zhimanai/qwen-cli) - 主项目
+- [Gemini CLI](https://github.com/google-gemini/gemini-cli) - 上游实现
+- [Innies CLI / Qwen Code](https://github.com/QwenLM/qwen-code) - 基于 Gemini CLI 的衍生实现（可对照阅读）

@@ -16,7 +16,7 @@ const relatedPages: RelatedPage[] = [
 export function IDEIntegration() {
   const connectionFlowChart = `flowchart TD
     start([启动 CLI<br/>&#40;在 IDE 终端&#41;])
-    detect_env[检测环境变量<br/>QWEN_CODE_IDE_*]
+    detect_env[检测环境变量<br/>GEMINI_CLI_IDE_*]
     has_env{有环境变量?}
     check_ext[检查扩展<br/>是否安装]
     ext_ok{扩展可用?}
@@ -583,11 +583,11 @@ server.registerTool('closeDiff', {
         <CodeBlock
           title="临时文件位置"
           language="text"
-          code={`# 主文件 (按端口)
-/tmp/gemini-code-ide-server-{port}.json
+          code={`# 主文件 (多窗口支持：ppid + port)
+/tmp/gemini/ide/gemini-ide-server-{ppid}-{port}.json
 
-# 按父进程 ID (多窗口支持)
-/tmp/gemini-code-ide-server-{ppid}.json
+# 兼容旧版本（落在 /tmp 根目录）
+/tmp/gemini-ide-server-{pid}.json
 
 # 文件内容
 {
@@ -604,15 +604,15 @@ server.registerTool('closeDiff', {
           title="环境变量"
           language="text"
           code={`# 由 IDE Companion 扩展设置
-QWEN_CODE_IDE_SERVER_PORT=54321
-QWEN_CODE_IDE_WORKSPACE_PATH=/path/to/project
+GEMINI_CLI_IDE_SERVER_PORT=54321
+GEMINI_CLI_IDE_WORKSPACE_PATH=/path/to/project
 
 # 多工作区用 path.delimiter 分隔
-QWEN_CODE_IDE_WORKSPACE_PATH=/path1:/path2
+GEMINI_CLI_IDE_WORKSPACE_PATH=/path1:/path2
 
 # Stdio 模式 (替代 HTTP)
-QWEN_CODE_IDE_SERVER_STDIO_COMMAND=node
-QWEN_CODE_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
+GEMINI_CLI_IDE_SERVER_STDIO_COMMAND=node
+GEMINI_CLI_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
         />
 
         <HighlightBox title="容器支持" icon="🐳" variant="blue" className="mt-4">
@@ -906,7 +906,7 @@ QWEN_CODE_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
 └─────────────────────────────────────────────────────────────────┘
                                   │
           ┌───────────────────────┼───────────────────────┐
-          │ QWEN_CODE_IDE_*       │ /tmp/gemini-code-ide-*  │
+          │ GEMINI_CLI_IDE_*      │ /tmp/gemini/ide/gemini-ide-server-* │
           │ Environment Vars      │ Connection Files      │
           └───────────────────────┼───────────────────────┘
                                   ▼

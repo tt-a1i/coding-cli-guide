@@ -500,7 +500,7 @@ const learningPaths: LearningPath[] = [
           '理解 Provider 抽象',
           '掌握格式转换管道',
           '了解 API 兼容性处理',
-          '认识 OAuth Device Flow 和 PKCE',
+          '认识 OAuth（loopback）登录与 PKCE',
         ],
         estimatedTime: '2.5 小时',
         checkpoint: '能解释如何添加新的 AI 厂商支持吗？',

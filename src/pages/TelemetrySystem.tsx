@@ -879,7 +879,7 @@ export const EVENT_PERFORMANCE_REGRESSION = 'gemini-code.performance.regression'
 
           <HighlightBox title="隐私保护" variant="purple">
             <p className="text-sm">匿名化 + 脱敏 + 可禁用</p>
-            <code className="text-xs text-purple-400">QWEN_TELEMETRY=false</code>
+            <code className="text-xs text-purple-400">GEMINI_TELEMETRY_ENABLED=false</code>
           </HighlightBox>
         </div>
       </section>
@@ -1031,7 +1031,7 @@ export const EVENT_PERFORMANCE_REGRESSION = 'gemini-code.performance.regression'
           <div className="text-sm text-gray-300 space-y-3">
             <div>
               <p className="font-semibold text-yellow-400 mb-1">方法 1: 环境变量</p>
-              <code className="bg-gray-900 px-2 py-1 rounded block">export QWEN_TELEMETRY=false</code>
+              <code className="bg-gray-900 px-2 py-1 rounded block">export GEMINI_TELEMETRY_ENABLED=false</code>
             </div>
             <div>
               <p className="font-semibold text-yellow-400 mb-1">方法 2: 配置文件 (~/.gemini/settings.json)</p>

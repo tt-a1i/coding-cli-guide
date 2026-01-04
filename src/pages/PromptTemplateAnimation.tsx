@@ -54,8 +54,8 @@ const INITIAL_SECTIONS: PromptSection[] = [
 ];
 
 const ENV_VARS: EnvResolution[] = [
-  { envVar: 'QWEN_SYSTEM_MD', value: null, isSwitch: false, isDisabled: false, resolved: false },
-  { envVar: 'QWEN_WRITE_SYSTEM_MD', value: '/tmp/debug-prompt.md', isSwitch: false, isDisabled: false, resolved: false },
+  { envVar: 'GEMINI_SYSTEM_MD', value: null, isSwitch: false, isDisabled: false, resolved: false },
+  { envVar: 'GEMINI_WRITE_SYSTEM_MD', value: '/tmp/debug-prompt.md', isSwitch: false, isDisabled: false, resolved: false },
   { envVar: 'GEMINI_SANDBOX', value: 'true', isSwitch: true, isDisabled: false, resolved: false },
 ];
 
@@ -542,7 +542,7 @@ export default function PromptTemplateAnimation() {
   userMemory?: string,
   model?: string,
 ): string {
-  // 1. Check QWEN_SYSTEM_MD override
+  // 1. Check GEMINI_SYSTEM_MD override
   // 2. Build base prompt sections
   // 3. Inject dynamic sections
   // 4. Select model-specific examples

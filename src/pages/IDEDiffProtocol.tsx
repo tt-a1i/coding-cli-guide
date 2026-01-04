@@ -731,14 +731,29 @@ this.client.setNotificationHandler(
               </thead>
               <tbody className="text-gray-300">
                 <tr className="border-b border-gray-800">
-                  <td className="py-2"><code className="text-purple-300">QWEN_IDE_ENABLED</code></td>
-                  <td className="py-2">全局启用/禁用 IDE 集成</td>
-                  <td className="py-2"><code>false</code></td>
+                  <td className="py-2"><code className="text-purple-300">GEMINI_CLI_IDE_SERVER_PORT</code></td>
+                  <td className="py-2">IDE Companion 端口（由扩展注入/写入）</td>
+                  <td className="py-2"><code>（由扩展设置）</code></td>
                 </tr>
                 <tr className="border-b border-gray-800">
-                  <td className="py-2"><code className="text-purple-300">QWEN_IDE_TIMEOUT</code></td>
-                  <td className="py-2">MCP 请求超时时间（毫秒）</td>
-                  <td className="py-2"><code>30000</code></td>
+                  <td className="py-2"><code className="text-purple-300">GEMINI_CLI_IDE_WORKSPACE_PATH</code></td>
+                  <td className="py-2">IDE Workspace 路径（用于校验 cwd 是否在 workspace 内）</td>
+                  <td className="py-2"><code>（由扩展设置）</code></td>
+                </tr>
+                <tr className="border-b border-gray-800">
+                  <td className="py-2"><code className="text-purple-300">GEMINI_CLI_IDE_AUTH_TOKEN</code></td>
+                  <td className="py-2">IDE Companion 的鉴权 Token</td>
+                  <td className="py-2"><code>（由扩展设置）</code></td>
+                </tr>
+                <tr className="border-b border-gray-800">
+                  <td className="py-2"><code className="text-purple-300">GEMINI_CLI_IDE_SERVER_STDIO_COMMAND</code></td>
+                  <td className="py-2">Stdio 模式：命令（替代 HTTP/SSE）</td>
+                  <td className="py-2"><code>（可选）</code></td>
+                </tr>
+                <tr className="border-b border-gray-800">
+                  <td className="py-2"><code className="text-purple-300">GEMINI_CLI_IDE_SERVER_STDIO_ARGS</code></td>
+                  <td className="py-2">Stdio 模式：参数（JSON 数组字符串）</td>
+                  <td className="py-2"><code>[]</code></td>
                 </tr>
                 <tr>
                   <td className="py-2"><code className="text-purple-300">TMPDIR</code></td>

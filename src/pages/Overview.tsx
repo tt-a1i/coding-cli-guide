@@ -35,7 +35,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
             <h4 className="text-[var(--amber)] font-bold mb-2">🔧 为什么这样设计</h4>
             <div className="text-[var(--text-secondary)] text-sm space-y-2">
               <p><strong>安全性</strong>：工具在本地执行意味着用户完全控制权限，不需要将敏感数据发送到云端</p>
-              <p><strong>灵活性</strong>：CLI 层和 Core 层分离，便于适配不同 AI 提供商（Gemini/OpenAI）</p>
+              <p><strong>灵活性</strong>：CLI 层和 Core 层分离，便于在不同 Gemini 后端（Gemini API / Vertex AI / Code Assist）之间切换</p>
               <p><strong>可扩展性</strong>：通过 MCP 协议支持动态工具注册，无需修改核心代码</p>
             </div>
           </div>
@@ -142,7 +142,7 @@ export function Overview() {
           <Module
             icon="☁️"
             name="AI API"
-            description="Gemini / OpenAI"
+            description="Gemini API / Vertex AI / Code Assist"
           />
         </div>
 
@@ -405,7 +405,7 @@ sequenceDiagram
               <span key="6">
                 当流中出现 <code className="bg-black/30 px-1 rounded">ToolCallRequest</code> 时，
                 CLI 执行工具并将 <code className="bg-black/30 px-1 rounded">functionResponse</code> 作为 continuation 回注给 AI <strong>继续对话</strong>
-                <span className="text-[var(--text-muted)]">（OpenAI 兼容层可能用 finish_reason/tool_calls 表达同样语义）</span>
+                <span className="text-[var(--text-muted)]">（fork-only：OpenAI 兼容层可能用 finish_reason/tool_calls 表达同样语义）</span>
               </span>,
             ],
           ]}

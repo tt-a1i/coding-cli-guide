@@ -390,33 +390,32 @@ const glossaryTerms: Term[] = [
 
   // OAuth & Auth
   {
-    term: 'DeviceFlow',
-    definition: 'OAuth 设备授权流程，用户在浏览器中授权，CLI 轮询获取 token。无需用户输入密码。',
+    term: 'LoopbackOAuth',
+    definition: 'OAuth 浏览器登录（Authorization Code + loopback 回调）：CLI 启动本地回调地址接收 code 并换取 token；无浏览器环境回退为手动授权码（PKCE）。',
     category: 'security',
     relatedPage: 'oauth-device-flow-anim',
   },
   {
     term: 'PKCE',
-    definition: 'Proof Key for Code Exchange，OAuth 2.0 安全扩展。通过 code_verifier 和 code_challenge 防止授权码拦截攻击，CLI 等公开客户端必须使用。',
+    definition: 'Proof Key for Code Exchange，OAuth 2.0 安全扩展。通过 code_verifier 和 code_challenge 防止授权码拦截攻击；上游用于 NO_BROWSER 的手动授权码路径。',
     category: 'security',
     relatedPage: 'google-authentication',
     example: '生成随机 code_verifier → SHA256 哈希得到 code_challenge → 授权时验证',
   },
   {
     term: 'device_code',
-    definition: 'OAuth 设备流中的设备标识码，CLI 用于轮询授权状态。与 user_code（用户在浏览器输入的短码）配对使用。',
+    definition: '（fork-only / RFC8628）OAuth 设备流中的设备标识码，CLI 用于轮询授权状态；上游 gemini-cli 的 Google OAuth 主线不使用该机制。',
     category: 'security',
-    relatedPage: 'oauth-device-flow-anim',
   },
   {
     term: 'authorization_pending',
-    definition: 'OAuth 设备流轮询状态，表示用户尚未完成授权。CLI 应继续按 interval 间隔轮询。',
+    definition: '（fork-only / RFC8628）设备流轮询状态：用户尚未完成授权；上游 gemini-cli 的 Google OAuth 主线不使用轮询。',
     category: 'security',
     example: '轮询返回 authorization_pending → 等待 5s → 继续轮询',
   },
   {
     term: 'slow_down',
-    definition: 'OAuth 设备流轮询错误，表示轮询过快。CLI 应增加轮询间隔（通常 +5s）后重试。',
+    definition: '（fork-only / RFC8628）设备流轮询错误：轮询过快；上游 gemini-cli 的 Google OAuth 主线不使用该机制。',
     category: 'security',
     example: '收到 slow_down → interval = interval + 5 → 继续轮询',
   },
