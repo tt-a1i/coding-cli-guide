@@ -19,38 +19,43 @@ export function ToolSchedulerDetails() {
     schedule_entry[schedule 入口]
     is_running{是否有工具<br/>正在执行?}
     queue_request[加入等待队列]
-    validate[validateParams<br/>参数验证]
-    build_invocation[buildInvocation<br/>构建调用对象]
-    validation_error{参数验证<br/>是否通过?}
-    should_confirm[shouldConfirmExecute<br/>确认决策]
-    policy_check{PolicyEngine<br/>决策检查}
-    is_yolo{YOLO 模式<br/>或白名单?}
-    policy_denied([Policy 拒绝<br/>返回错误])
-    auto_approve([标记为 scheduled<br/>自动批准])
-    await_approval([标记为 awaiting_approval<br/>等待确认])
+    wait_batch[等待当前批次完成]
+    build_invocation[查找工具 + buildInvocation()<br/>schema 校验]
+    build_ok{构建是否成功?}
+    should_confirm[invocation.shouldConfirmExecute()<br/>PolicyEngine via MessageBus]
+    confirm_result{返回值/异常}
+    auto_check{isAutoApproved?<br/>YOLO / tools.allowed}
+    interactive{config.isInteractive()?}
+    denied([DENY/throw<br/>error])
+    scheduled([scheduled<br/>进入执行队列])
+    await_approval([awaiting_approval<br/>等待用户确认])
     execute[execute 执行]
     convert_response[convertToFunctionResponse<br/>结果转换]
     truncate{输出是否<br/>超过阈值?}
     truncate_output[truncateAndSaveToFile<br/>截断并保存]
-    success_response([返回成功响应])
     error_response([返回错误响应])
+    success_response([返回成功响应])
 
     start --> schedule_entry
     schedule_entry --> is_running
     is_running -->|Yes| queue_request
-    is_running -->|No| validate
-    validate --> build_invocation
-    build_invocation --> validation_error
-    validation_error -->|失败| error_response
-    validation_error -->|通过| should_confirm
-    should_confirm --> policy_check
-    policy_check -->|ALLOW| auto_approve
-    policy_check -->|DENY| policy_denied
-    policy_check -->|ASK_USER| is_yolo
-    is_yolo -->|Yes| auto_approve
-    is_yolo -->|No| await_approval
-    await_approval --> |用户批准| auto_approve
-    auto_approve --> execute
+    queue_request --> wait_batch
+    is_running -->|No| build_invocation
+    wait_batch --> build_invocation
+    build_invocation --> build_ok
+    build_ok -->|失败| error_response
+    build_ok -->|成功| should_confirm
+    should_confirm --> confirm_result
+    confirm_result -->|DENY/throw| denied
+    denied --> error_response
+    confirm_result -->|false (ALLOW)| scheduled
+    confirm_result -->|details (ASK_USER)| auto_check
+    auto_check -->|Yes| scheduled
+    auto_check -->|No| interactive
+    interactive -->|No| error_response
+    interactive -->|Yes| await_approval
+    await_approval -->|用户批准| scheduled
+    scheduled --> execute
     execute --> convert_response
     convert_response --> truncate
     truncate -->|Yes| truncate_output
@@ -58,45 +63,39 @@ export function ToolSchedulerDetails() {
     truncate_output --> success_response
 
     style start fill:#22d3ee,color:#000
-    style policy_denied fill:#ef4444,color:#fff
-    style auto_approve fill:#22c55e,color:#000
+    style error_response fill:#ef4444,color:#fff
+    style denied fill:#ef4444,color:#fff
+    style scheduled fill:#22c55e,color:#000
     style await_approval fill:#f59e0b,color:#000
     style success_response fill:#22c55e,color:#000
-    style error_response fill:#ef4444,color:#fff
-    style policy_check fill:#a855f7,color:#fff
-    style is_yolo fill:#a855f7,color:#fff
     style is_running fill:#a855f7,color:#fff
-    style validation_error fill:#a855f7,color:#fff
+    style build_ok fill:#a855f7,color:#fff
+    style confirm_result fill:#a855f7,color:#fff
+    style auto_check fill:#a855f7,color:#fff
+    style interactive fill:#a855f7,color:#fff
     style truncate fill:#a855f7,color:#fff`;
 
   // 确认决策逻辑详细流程 - 基于 MessageBus + PolicyEngine
   const confirmationDecisionChart = `flowchart TD
     start([shouldConfirmExecute])
-    has_bus{有 MessageBus?}
-    get_decision[getMessageBusDecision<br/>向 PolicyEngine 请求决策]
+    get_decision[getMessageBusDecision<br/>publish(TOOL_CONFIRMATION_REQUEST)]
     policy{PolicyEngine<br/>决策结果}
     allow([返回 false<br/>自动执行])
     deny([抛出错误<br/>拒绝执行])
     ask_user[getConfirmationDetails<br/>构建确认 UI]
     need_confirm([返回 ConfirmationDetails<br/>等待用户确认])
-    default_flow[默认确认流程<br/>getConfirmationDetails]
 
-    start --> has_bus
-    has_bus -->|Yes| get_decision
-    has_bus -->|No| default_flow
-    get_decision --> policy
+    start --> get_decision --> policy
     policy -->|ALLOW| allow
     policy -->|DENY| deny
     policy -->|ASK_USER| ask_user
     ask_user --> need_confirm
-    default_flow --> need_confirm
 
     style start fill:#22d3ee,color:#000
     style allow fill:#22c55e,color:#000
     style deny fill:#ef4444,color:#fff
     style need_confirm fill:#f59e0b,color:#000
-    style policy fill:#a855f7,color:#fff
-    style has_bus fill:#a855f7,color:#fff`;
+    style policy fill:#a855f7,color:#fff`;
 
   // 并发控制流程
   const concurrencyControlChart = `sequenceDiagram
@@ -131,7 +130,7 @@ export function ToolSchedulerDetails() {
     Scheduler->>Queue: dequeue next request
     Scheduler->>Tool: validate & execute (tool_call_3)`;
 
-  const scheduleMethodCode = `// packages/core/src/core/coreToolScheduler.ts:625
+  const scheduleMethodCode = `// packages/core/src/core/coreToolScheduler.ts:410
 
 /**
  * 调度工具执行的主入口
@@ -181,31 +180,24 @@ schedule(
 async shouldConfirmExecute(
   abortSignal: AbortSignal,
 ): Promise<ToolCallConfirmationDetails | false> {
-  if (this.messageBus) {
-    // 通过 MessageBus 向 PolicyEngine 请求决策
-    const decision = await this.getMessageBusDecision(abortSignal);
+  // 通过 MessageBus 向 PolicyEngine 请求决策
+  const decision = await this.getMessageBusDecision(abortSignal);
 
-    if (decision === 'ALLOW') {
-      // PolicyEngine 决定自动批准
-      return false;
-    }
+  if (decision === 'ALLOW') return false;
 
-    if (decision === 'DENY') {
-      // PolicyEngine 决定拒绝执行
-      throw new Error(
-        \`Tool execution for "\${
-          this._toolDisplayName || this._toolName
-        }" denied by policy.\`,
-      );
-    }
-
-    if (decision === 'ASK_USER') {
-      // PolicyEngine 决定需要用户确认
-      return this.getConfirmationDetails(abortSignal);
-    }
+  if (decision === 'DENY') {
+    throw new Error(
+      \`Tool execution for "\${
+        this._toolDisplayName || this._toolName
+      }" denied by policy.\`,
+    );
   }
 
-  // 没有 MessageBus 时使用默认确认流程
+  if (decision === 'ASK_USER') {
+    return this.getConfirmationDetails(abortSignal);
+  }
+
+  // Unknown decision (should not happen) → default to confirmation
   return this.getConfirmationDetails(abortSignal);
 }
 
@@ -326,48 +318,47 @@ Truncated part of the output:
   };
 }`;
 
-  const allowedToolsMatchCode = `// packages/core/src/utils/tool-utils.ts
-
-/**
- * 检查工具调用是否匹配白名单配置
- * 支持精确匹配和带参数的模式匹配
- */
-export function doesToolInvocationMatch(
-  tool: AnyDeclarativeTool,
-  invocation: AnyToolInvocation,
-  allowedTools: string[],
-): boolean {
-  const toolName = tool.declaration.name;
-
-  for (const allowedPattern of allowedTools) {
-    // 精确匹配：read_file
-    if (allowedPattern === toolName) {
-      return true;
-    }
-
-    // 模式匹配：run_shell_command(git)
-    if (allowedPattern.includes('(')) {
-      const [patternToolName, patternArgs] = allowedPattern.split('(');
-      if (patternToolName === toolName) {
-        // 提取工具的实际参数并检查是否匹配模式
-        const commandArg = extractCommandArg(invocation);
-        if (commandArg && commandArg.startsWith(patternArgs.replace(')', ''))) {
-          return true;
-        }
-      }
-    }
+  const allowedToolsMatchCode = `// CoreToolScheduler：当 PolicyEngine 返回 ASK_USER 时，仍可能被自动批准
+// packages/core/src/core/coreToolScheduler.ts (节选)
+private isAutoApproved(toolCall: ValidatingToolCall): boolean {
+  if (this.config.getApprovalMode() === ApprovalMode.YOLO) {
+    return true;
   }
 
-  return false;
+  const allowedTools = this.config.getAllowedTools() || [];
+  const { tool, invocation } = toolCall;
+  const toolName = typeof tool === 'string' ? tool : tool.name;
+
+  // Shell 需要更严格：把命令拆分为多段逐一匹配 allowlist
+  if (SHELL_TOOL_NAMES.includes(toolName)) {
+    return isShellInvocationAllowlisted(invocation, allowedTools);
+  }
+
+  // 其他工具：工具名（或构造类名）匹配即可
+  return doesToolInvocationMatch(tool, invocation, allowedTools);
 }
 
-// 示例配置
+// Shell allowlist：每一段 splitCommands() 都必须命中 patterns
+// packages/core/src/utils/shell-permissions.ts (节选)
+export function isShellInvocationAllowlisted(invocation, allowedPatterns): boolean {
+  const parseResult = parseCommandDetails(command);
+  if (!parseResult || parseResult.hasError) return false;
+  const segments = parseResult.details.map(d => d.text.trim()).filter(Boolean);
+  return segments.every(seg =>
+    doesToolInvocationMatch('run_shell_command', { params: { command: seg } }, allowedPatterns)
+  );
+}
+
+// Pattern 语法（supports tool and tool(prefix)）
+// packages/core/src/utils/tool-utils.ts (节选)
+// - "read_file"            → 匹配任意 read_file
+// - "run_shell_command(git)" → 仅匹配 command 以 "git" 开头
 {
   "tools": {
     "allowed": [
-      "read_file",                  // 精确匹配
-      "run_shell_command(git)",     // 只允许 git 开头的命令
-      "run_shell_command(npm test)" // 只允许 npm test 命令
+      "read_file",
+      "run_shell_command(git)",
+      "run_shell_command(npm test)"
     ]
   }
 }`;
@@ -721,7 +712,10 @@ export type ToolCall =
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">确认决策逻辑</h3>
         <p className="text-gray-300 mb-4">
           工具调度的核心是 <code className="text-cyan-300">shouldConfirmExecute()</code> 方法，
-          它根据 ApprovalMode、工具 Kind 和 allowedTools 配置决定是否需要用户确认。
+          它通过 <code className="text-cyan-300">MessageBus</code> 请求 <code className="text-cyan-300">PolicyEngine</code> 的
+          ALLOW/DENY/ASK_USER 决策，并把 ASK_USER 映射为“返回确认 UI 细节”。调度器随后会结合
+          <code className="text-cyan-300">ApprovalMode</code> 与 <code className="text-cyan-300">tools.allowed</code> 决定是否自动批准
+          或进入 <code className="text-cyan-300">awaiting_approval</code>。
         </p>
 
         <MermaidDiagram chart={confirmationDecisionChart} title="确认决策流程" />
@@ -756,21 +750,20 @@ export type ToolCall =
           <div className="bg-gray-800/50 rounded-lg p-4">
             <h4 className="font-semibold text-green-400 mb-2">自动批准条件</h4>
             <ul className="text-sm text-gray-300 space-y-1">
-              <li>• <code className="text-cyan-300">Kind = Read/Search/Fetch</code> - 只读工具</li>
-              <li>• <code className="text-cyan-300">ApprovalMode = YOLO</code> - YOLO 模式</li>
-              <li>• <code className="text-cyan-300">ApprovalMode = AUTO_EDIT + Kind = Edit</code> - 自动编辑模式</li>
-              <li>• <code className="text-cyan-300">工具在 allowedTools 白名单</code> - 白名单匹配</li>
-              <li>• <code className="text-cyan-300">PolicyEngine 规则匹配 ALLOW</code> - 规则自动批准</li>
+              <li>• <code className="text-cyan-300">PolicyEngine = ALLOW</code> - 默认只读策略 / 用户规则 / tools.allowed</li>
+              <li>• <code className="text-cyan-300">ApprovalMode = YOLO</code> - ASK_USER 也会被调度器自动批准</li>
+              <li>• <code className="text-cyan-300">ApprovalMode = AUTO_EDIT</code> - 默认放行 <code>replace</code>/<code>write_file</code>（带 safety checker）</li>
+              <li>• <code className="text-cyan-300">tools.allowed 命中</code> - ASK_USER 场景可自动批准（Shell 会逐段解析匹配）</li>
             </ul>
           </div>
 
           <div className="bg-gray-800/50 rounded-lg p-4">
             <h4 className="font-semibold text-yellow-400 mb-2">需要确认条件</h4>
             <ul className="text-sm text-gray-300 space-y-1">
-              <li>• <code className="text-orange-300">Kind = Edit/Delete/Execute</code> - 修改类工具</li>
-              <li>• <code className="text-orange-300">ApprovalMode = DEFAULT</code> - 默认模式</li>
-              <li>• <code className="text-orange-300">工具不在 allowedTools</code> - 白名单外</li>
-              <li>• <code className="text-orange-300">MCP 外部工具</code> - 外部服务器工具</li>
+              <li>• <code className="text-orange-300">PolicyEngine = ASK_USER</code> - 默认写工具（write.toml）</li>
+              <li>• <code className="text-orange-300">Shell 含重定向</code> - ALLOW 会被降级为 ASK_USER（除非 allowRedirection=true）</li>
+              <li>• <code className="text-orange-300">MCP 未信任/未 allowlist</code> - 首次调用需要确认</li>
+              <li>• <code className="text-orange-300">非交互模式</code> - 需要确认会直接报错（无法弹窗）</li>
             </ul>
           </div>
         </div>
@@ -1211,7 +1204,7 @@ const abortHandler = () => {
               <div className="mt-2 bg-blue-500/10 p-2 rounded text-xs">
                 <strong className="text-blue-300">典型场景：</strong>
                 <span className="text-gray-300 block mt-1">
-                  AI 返回 [read_file, edit, run_shell_command(npm test)]
+                  AI 返回 [read_file, replace, run_shell_command(npm test)]
                 </span>
               </div>
             </div>
@@ -1233,16 +1226,16 @@ const abortHandler = () => {
     participant Scheduler as CoreToolScheduler
     participant User as User UI
 
-    AI->>Scheduler: [read_file, edit, bash]
+    AI->>Scheduler: [read_file, replace, run_shell_command]
     Scheduler->>Scheduler: validate read_file
-    Note right of Scheduler: Kind=Read, auto-approve
-    Scheduler->>Scheduler: validate edit
-    Note right of Scheduler: Kind=Edit, need confirm
-    Scheduler-->>User: await_approval (edit)
+    Note right of Scheduler: default read-only policy → ALLOW
+    Scheduler->>Scheduler: validate replace
+    Note right of Scheduler: write policy → ASK_USER
+    Scheduler-->>User: awaiting_approval (replace)
     User-->>Scheduler: approve
-    Scheduler->>Scheduler: validate bash
-    Note right of Scheduler: Kind=Execute, need confirm
-    Scheduler-->>User: await_approval (bash)
+    Scheduler->>Scheduler: validate run_shell_command
+    Note right of Scheduler: write policy → ASK_USER
+    Scheduler-->>User: awaiting_approval (run_shell_command)
     User-->>Scheduler: approve
     Scheduler->>Scheduler: execute all tools
     Scheduler-->>AI: [results...]`} />
@@ -1261,9 +1254,9 @@ const abortHandler = () => {
               <div className="mt-2 bg-orange-500/10 p-2 rounded text-xs">
                 <strong className="text-orange-300">超时配置：</strong>
                 <ul className="text-gray-300 mt-1 space-y-1">
-                  <li>• Bash 工具默认: 120s (2分钟)</li>
-                  <li>• 网络请求工具: 30s</li>
-                  <li>• 文件操作: 无超时</li>
+                  <li>• Shell 工具（run_shell_command）默认: 300s 无输出即超时（inactivity）</li>
+                  <li>• 配置项: <code className="text-orange-300">tools.shell.inactivityTimeout</code>（秒）</li>
+                  <li>• 其他工具是否超时取决于各自实现（并非统一常量）</li>
                 </ul>
               </div>
             </div>
@@ -1280,31 +1273,47 @@ const abortHandler = () => {
           </div>
           <CodeBlock
             code={`// 工具执行超时处理示例
-// packages/core/src/tools/bash/bash-tool.ts
+// packages/core/src/tools/shell.ts（节选）
 
-async execute(params: BashParams, signal: AbortSignal) {
-  const timeout = params.timeout || 120000; // 默认 2 分钟
-
+async execute(signal: AbortSignal, updateOutput?: (output: string) => void) {
+  // Inactivity timeout：超过阈值时间没有任何输出事件 → abort
+  const timeoutMs = this.config.getShellToolInactivityTimeout(); // default 5 min
   const timeoutController = new AbortController();
-  const timeoutId = setTimeout(() => {
-    timeoutController.abort();
-    // 向子进程发送终止信号
-    if (this.childProcess) {
-      this.childProcess.kill('SIGTERM');
-    }
-  }, timeout);
+  let timeoutTimer: NodeJS.Timeout | undefined;
+
+  const combinedController = new AbortController();
+  const onAbort = () => combinedController.abort();
+
+  const resetTimeout = () => {
+    if (timeoutMs <= 0) return; // <=0 disables timeout
+    if (timeoutTimer) clearTimeout(timeoutTimer);
+    timeoutTimer = setTimeout(() => timeoutController.abort(), timeoutMs);
+  };
 
   try {
-    const result = await this.runCommand(params.command, {
-      signal: AbortSignal.any([signal, timeoutController.signal]),
-    });
-    return result;
+    signal.addEventListener('abort', onAbort, { once: true });
+    timeoutController.signal.addEventListener('abort', onAbort, { once: true });
+
+    resetTimeout();
+
+    const { result: resultPromise } = await ShellExecutionService.execute(
+      commandToExecute,
+      cwd,
+      (event) => {
+        resetTimeout();          // 任意输出事件都刷新超时计时器
+        updateOutput?.(event.chunk);
+      },
+      combinedController.signal,
+      this.config.getEnableInteractiveShell(),
+    );
+
+    return await resultPromise;
   } finally {
-    clearTimeout(timeoutId);
+    if (timeoutTimer) clearTimeout(timeoutTimer);
   }
 }`}
             language="typescript"
-            title="Bash 工具超时实现"
+            title="Shell 工具超时实现（Inactivity Timeout）"
           />
         </div>
 

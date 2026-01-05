@@ -368,8 +368,10 @@ class DiscoveredMCPTool extends BaseDeclarativeTool {
     readonly serverToolName: string,
     description: string,
     readonly parameterSchema: unknown,
+    messageBus: MessageBus,
     readonly trust?: boolean,
     nameOverride?: string,
+    private readonly cliConfig?: Config,
   ) {
     super(
       nameOverride ?? generateValidName(serverToolName), // LLM 可见名称
@@ -377,7 +379,9 @@ class DiscoveredMCPTool extends BaseDeclarativeTool {
       description,
       Kind.Other,
       parameterSchema,
-      true,
+      messageBus,
+      true,  // isOutputMarkdown
+      false, // canUpdateOutput
     );
   }
 
@@ -390,19 +394,28 @@ class DiscoveredMCPTool extends BaseDeclarativeTool {
       this.serverToolName,
       this.description,
       this.parameterSchema,
+      this.messageBus,
       this.trust,
       \`\${this.serverName}__\${this.serverToolName}\`,
+      this.cliConfig,
     );
   }
 
-  protected createInvocation(params: object): ToolInvocation {
+  protected createInvocation(
+    params: ToolParams,
+    messageBus: MessageBus,
+    _toolName?: string,
+    _displayName?: string,
+  ): ToolInvocation {
     return new DiscoveredMCPToolInvocation(
       this.mcpTool,
       this.serverName,
       this.serverToolName,
-      this.displayName,
+      _displayName ?? this.displayName,
+      messageBus,
       this.trust,
-      params,
+      params ?? {},
+      this.cliConfig,
     );
   }
 }
@@ -413,18 +426,23 @@ class DiscoveredMCPToolInvocation extends BaseToolInvocation {
     private readonly serverName: string,
     private readonly serverToolName: string,
     displayName: string,
+    messageBus: MessageBus,
     trust: boolean | undefined,
-    params: Record<string, unknown>,
+    params: Record<string, unknown> = {},
+    private readonly cliConfig?: Config,
   ) {
     // 策略检查使用 composite 名称：<serverName>__<serverToolName>
-    super(params, undefined, \`\${serverName}__\${serverToolName}\`, displayName, serverName);
+    super(params, messageBus, \`\${serverName}__\${serverToolName}\`, displayName, serverName);
   }
 
   async execute(signal: AbortSignal): Promise<ToolResult> {
     // MCP server 调用仍使用原始 tool 名（serverToolName）
     const functionCalls = [{ name: this.serverToolName, args: this.params }];
     const rawParts = await this.mcpTool.callTool(functionCalls);
-    return { llmContent: transformMcpContentToParts(rawParts) };
+    return {
+      llmContent: transformMcpContentToParts(rawParts),
+      returnDisplay: getStringifiedResultForDisplay(rawParts),
+    };
   }
 }`}
         />
@@ -628,7 +646,7 @@ async cleanupOnTimeout() {
                 <h5 className="text-[var(--text-secondary)] text-sm font-semibold mb-2">🎯 触发场景</h5>
                 <ul className="text-xs text-[var(--text-muted)] space-y-1">
                   <li>• 两个 MCP 服务器提供同名工具（如都有 `read_file`）</li>
-                  <li>• MCP 工具名与内置工具名冲突（如 MCP 服务器提供 `Bash` 工具）</li>
+                  <li>• MCP 工具名与内置工具名冲突（如 MCP 服务器提供 `run_shell_command` 工具）</li>
                   <li>• 同一服务器重复注册导致名称冲突</li>
                 </ul>
               </div>

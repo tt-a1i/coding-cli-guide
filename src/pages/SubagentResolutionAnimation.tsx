@@ -20,20 +20,20 @@ interface ResolutionStep {
 
 // Sample subagent configurations at different levels
 const PROJECT_AGENTS: SubagentConfig[] = [
-  { name: 'code-reviewer', level: 'project', description: '项目级代码审查专家', tools: ['Read', 'Grep'], systemPrompt: '你是项目专属的代码审查专家...' },
-  { name: 'test-runner', level: 'project', description: '项目测试运行器', tools: ['Bash'], systemPrompt: '你是测试执行专家...' },
+  { name: 'code-reviewer', level: 'project', description: '项目级代码审查专家', tools: ['read_file', 'search_file_content'], systemPrompt: '你是项目专属的代码审查专家...' },
+  { name: 'test-runner', level: 'project', description: '项目测试运行器', tools: ['run_shell_command'], systemPrompt: '你是测试执行专家...' },
 ];
 
 const USER_AGENTS: SubagentConfig[] = [
-  { name: 'code-reviewer', level: 'user', description: '用户级代码审查', tools: ['Read'], systemPrompt: '你是用户自定义的代码审查助手...' },
-  { name: 'doc-writer', level: 'user', description: '文档编写助手', tools: ['Write', 'Read'], systemPrompt: '你是技术文档专家...' },
-  { name: 'git-helper', level: 'user', description: 'Git 操作助手', tools: ['Bash'], systemPrompt: '你是 Git 工作流专家...' },
+  { name: 'code-reviewer', level: 'user', description: '用户级代码审查', tools: ['read_file'], systemPrompt: '你是用户自定义的代码审查助手...' },
+  { name: 'doc-writer', level: 'user', description: '文档编写助手', tools: ['write_file', 'read_file'], systemPrompt: '你是技术文档专家...' },
+  { name: 'git-helper', level: 'user', description: 'Git 操作助手', tools: ['run_shell_command'], systemPrompt: '你是 Git 工作流专家...' },
 ];
 
 const BUILTIN_AGENTS: SubagentConfig[] = [
-  { name: 'code-reviewer', level: 'builtin', description: '内置代码审查', tools: ['Read', 'Grep', 'Glob'], systemPrompt: '你是 Claude 的代码审查专家...', isBuiltin: true },
-  { name: 'explorer', level: 'builtin', description: '代码库探索器', tools: ['Read', 'Grep', 'Glob', 'Bash'], systemPrompt: '你是代码库探索专家...', isBuiltin: true },
-  { name: 'doc-writer', level: 'builtin', description: '内置文档助手', tools: ['Write', 'Read'], systemPrompt: '你是文档编写专家...', isBuiltin: true },
+  { name: 'code-reviewer', level: 'builtin', description: '内置代码审查', tools: ['read_file', 'search_file_content', 'glob'], systemPrompt: '你是内置代码审查专家...', isBuiltin: true },
+  { name: 'explorer', level: 'builtin', description: '代码库探索器', tools: ['read_file', 'search_file_content', 'glob', 'run_shell_command'], systemPrompt: '你是代码库探索专家...', isBuiltin: true },
+  { name: 'doc-writer', level: 'builtin', description: '内置文档助手', tools: ['write_file', 'read_file'], systemPrompt: '你是文档编写专家...', isBuiltin: true },
 ];
 
 const LEVEL_CONFIG = {

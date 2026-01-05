@@ -28,8 +28,8 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           </div>
 
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
-            <h4 className="text-[var(--amber)] font-bold mb-2">🏗️ 三层配置</h4>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
+            <h4 className="text-[var(--amber)] font-bold mb-2">🏗️ 四层配置</h4>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-2">
               <div className="bg-[var(--bg-card)] p-3 rounded border border-green-500/30">
                 <div className="text-green-400 font-semibold text-sm">项目级</div>
                 <div className="text-xs text-[var(--text-muted)] mt-1">
@@ -47,7 +47,14 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
               <div className="bg-[var(--bg-card)] p-3 rounded border border-purple-500/30">
                 <div className="text-purple-400 font-semibold text-sm">系统级</div>
                 <div className="text-xs text-[var(--text-muted)] mt-1">
-                  内置默认配置<br/>
+                  /etc/gemini-cli/settings.json<br/>
+                  管理员级覆盖
+                </div>
+              </div>
+              <div className="bg-[var(--bg-card)] p-3 rounded border border-orange-500/30">
+                <div className="text-orange-400 font-semibold text-sm">扩展 (Extensions)</div>
+                <div className="text-xs text-[var(--text-muted)] mt-1">
+                  extension 内置 hooks<br/>
                   最低优先级
                 </div>
               </div>
@@ -124,29 +131,22 @@ const hookSequence: HookStep[] = [
     group: 'trigger',
     title: '事件触发',
     description: '工具执行前触发 BeforeTool 事件，携带工具名称和参数',
-    codeSnippet: `// hookSystem.ts:50-70
-async function triggerHook(
-  event: HookEventType,
-  context: HookContext
-): Promise<HookResult> {
-  // BeforeTool 事件示例
-  const hookEvent: HookEvent = {
-    type: 'BeforeTool',
-    toolName: 'Bash',
-    toolInput: {
-      command: 'npm run build',
-      description: 'Build the project'
+    codeSnippet: `// packages/core/src/core/coreToolHookTriggers.ts（简化）
+await messageBus.request(
+  {
+    type: MessageBusType.HOOK_EXECUTION_REQUEST,
+    eventName: 'BeforeTool',
+    input: {
+      tool_name: 'run_shell_command',
+      tool_input: { command: 'npm run build' },
     },
-    timestamp: Date.now(),
-    sessionId: context.sessionId
-  };
-
-  return await this.hookOrchestrator.execute(hookEvent);
-}`,
+  },
+  MessageBusType.HOOK_EXECUTION_RESPONSE,
+);`,
     visualData: {
       event: {
         type: 'BeforeTool',
-        toolName: 'Bash',
+        toolName: 'run_shell_command',
         toolInput: { command: 'npm run build' }
       }
     },
@@ -156,67 +156,42 @@ async function triggerHook(
     phase: 'config_load',
     group: 'config',
     title: '配置加载',
-    description: '从三个层级加载 Hook 配置：项目级 → 用户级 → 系统级',
-    codeSnippet: `// configLoader.ts:80-110
-async function loadHookConfigs(): Promise<HookConfig[]> {
-  const configs: HookConfig[] = [];
+    description: 'HookRegistry 初始化时收集 settings + extensions 的 hooks（并记录来源优先级）',
+    codeSnippet: `// docs/hooks/index.md: Configuration layers (lower numbers run first)
+// 1) Project:    .gemini/settings.json
+// 2) User:       ~/.gemini/settings.json
+// 3) System:     /etc/gemini-cli/settings.json (or OS-specific path)
+// 4) Extensions: installed extensions (lowest priority)
 
-  // 1. 项目级配置 (最高优先级)
-  const projectConfig = await loadFromPath(
-    '.gemini/settings.json'
-  );
-  if (projectConfig?.hooks) {
-    configs.push(...projectConfig.hooks);
-  }
-
-  // 2. 用户级配置
-  const userConfig = await loadFromPath(
-    '~/.gemini/settings.json'
-  );
-  if (userConfig?.hooks) {
-    configs.push(...userConfig.hooks);
-  }
-
-  // 3. 系统默认配置
-  configs.push(...getDefaultHooks());
-
-  return configs;
-}`,
+// packages/core/src/hooks/hookSystem.ts
+await hookSystem.initialize(); // 内部会 hookRegistry.initialize()`,
     visualData: {
       sources: [
         { level: '项目级', path: '.gemini/settings.json', found: true, count: 2 },
         { level: '用户级', path: '~/.gemini/settings.json', found: true, count: 1 },
-        { level: '系统级', path: 'built-in', found: true, count: 0 },
+        { level: '系统级', path: '/etc/gemini-cli/settings.json', found: true, count: 0 },
+        { level: '扩展', path: 'extensions/*/extension.json', found: true, count: 1 },
       ]
     },
-    highlight: '3 层配置合并',
+    highlight: '4 层配置',
   },
   {
     phase: 'config_merge',
     group: 'config',
     title: '配置合并',
-    description: '合并多层配置，项目级覆盖用户级，保留 ID 去重',
-    codeSnippet: `// configMerger.ts:30-60
-function mergeConfigs(configs: HookConfig[][]): HookConfig[] {
-  const merged = new Map<string, HookConfig>();
-
-  // 按优先级逆序处理（低优先级先，高优先级覆盖）
-  for (const levelConfigs of configs.reverse()) {
-    for (const config of levelConfigs) {
-      // 使用 hookId 作为唯一标识
-      merged.set(config.hookId, config);
-    }
-  }
-
-  return Array.from(merged.values());
+    description: 'HookPlanner 会对“同名 + 同 command”的 hooks 去重（高优先级层保留）',
+    codeSnippet: `// packages/core/src/hooks/types.ts
+export function getHookKey(hook: HookConfig): string {
+  const name = hook.name || '';
+  const command = hook.command || '';
+  return \`\${name}:\${command}\`;
 }
 
-// 合并结果
-[
-  { hookId: 'lint-before-commit', ... },  // 项目级
-  { hookId: 'log-all-tools', ... },       // 项目级
-  { hookId: 'security-check', ... },      // 用户级
-]`,
+// packages/core/src/hooks/hookPlanner.ts（关键片段）
+const entries = hookRegistry.getHooksForEvent(eventName); // 已按 source priority 排序
+const matching = entries.filter((e) => matchesContext(e, context));
+const deduped = deduplicateHooks(matching); // seen.add(getHookKey(e.config))
+return { eventName, hookConfigs: deduped.map((e) => e.config) };`,
     visualData: {
       before: [
         { id: 'lint-before-commit', source: 'project' },
@@ -230,33 +205,24 @@ function mergeConfigs(configs: HookConfig[][]): HookConfig[] {
         { id: 'security-check', source: 'user' },
       ]
     },
-    highlight: 'ID 去重合并',
+    highlight: 'name:command 去重',
   },
   {
     phase: 'planner_init',
     group: 'planner',
     title: 'Planner 初始化',
     description: 'HookPlanner 接收事件和配置，准备规划执行计划',
-    codeSnippet: `// hookPlanner.ts:20-50
-class HookPlanner {
-  constructor(
-    private configs: HookConfig[],
-    private context: HookContext
-  ) {}
+    codeSnippet: `// packages/core/src/hooks/hookPlanner.ts（简化）
+createExecutionPlan(eventName, context?) {
+  const hookEntries = hookRegistry.getHooksForEvent(eventName);
+  const matchingEntries = hookEntries.filter((entry) => matchesContext(entry, context));
+  const deduplicatedEntries = deduplicateHooks(matchingEntries); // key = name:command
 
-  async plan(event: HookEvent): Promise<HookPlan> {
-    // 1. 筛选匹配当前事件的 Hook
-    const matchingHooks = this.filterByEvent(event);
-
-    // 2. 检查条件表达式
-    const applicableHooks = await this.evaluateConditions(
-      matchingHooks,
-      event
-    );
-
-    // 3. 生成执行计划
-    return this.createPlan(applicableHooks);
-  }
+  return {
+    eventName,
+    hookConfigs: deduplicatedEntries.map((entry) => entry.config),
+    sequential: deduplicatedEntries.some((entry) => entry.sequential === true),
+  };
 }`,
     visualData: {
       input: {
@@ -271,35 +237,17 @@ class HookPlanner {
     group: 'planner',
     title: '事件匹配过滤',
     description: '根据事件类型和工具名称筛选适用的 Hook',
-    codeSnippet: `// hookPlanner.ts:60-100
-private filterByEvent(event: HookEvent): HookConfig[] {
-  return this.configs.filter(config => {
-    // 检查事件类型匹配
-    if (config.event !== event.type) {
-      return false;
-    }
+    codeSnippet: `// packages/core/src/hooks/hookPlanner.ts（匹配逻辑）
+// matcher 支持：空 / *（匹配全部）、正则（regex.test）、或精确字符串（regex 不合法时 fallback）
+if (matcher === '' || matcher === '*') return true;
+try { return new RegExp(matcher).test(toolName); } catch { return matcher === toolName; }
 
-    // 检查工具名称匹配（支持通配符）
-    if (config.toolPattern) {
-      const pattern = new RegExp(
-        config.toolPattern.replace('*', '.*')
-      );
-      if (!pattern.test(event.toolName)) {
-        return false;
-      }
-    }
-
-    return true;
-  });
-}
-
-// 过滤结果
-// 输入: 3 个 Hook 配置
-// 事件: BeforeTool + Bash
-// 输出: 2 个匹配的 Hook`,
+// 过滤结果（示例）
+// 事件: BeforeTool + run_shell_command
+// 输出: 2 个匹配的 hooks`,
     visualData: {
       input: [
-        { id: 'lint-before-commit', event: 'BeforeTool', tool: 'Bash', match: true },
+        { id: 'lint-before-commit', event: 'BeforeTool', tool: 'run_shell_command', match: true },
         { id: 'log-all-tools', event: 'BeforeTool', tool: '*', match: true },
         { id: 'security-check', event: 'AfterTool', tool: '*', match: false },
       ],
@@ -312,37 +260,25 @@ private filterByEvent(event: HookEvent): HookConfig[] {
     group: 'runner',
     title: 'Runner 准备执行',
     description: 'HookRunner 准备执行环境，设置超时和环境变量',
-    codeSnippet: `// hookRunner.ts:30-70
-class HookRunner {
-  async prepare(hook: HookConfig): Promise<ExecutionContext> {
-    // 1. 解析命令模板
-    const command = this.parseTemplate(
-      hook.command,
-      this.context
-    );
+    codeSnippet: `// packages/core/src/hooks/hookRunner.ts（关键片段）
+const timeout = hookConfig.timeout ?? 60000;
+const command = expandCommand(hookConfig.command, input, shellConfig.shell);
 
-    // 2. 设置环境变量
-    const env = {
-      ...process.env,
-      GEMINI_HOOK_EVENT: this.event.type,
-      GEMINI_TOOL_NAME: this.event.toolName,
-      GEMINI_TOOL_INPUT: JSON.stringify(this.event.toolInput),
-      GEMINI_SESSION_ID: this.context.sessionId,
-    };
+// env: 只注入项目目录（并保留 CLAUDE_PROJECT_DIR 兼容）
+const env = {
+  ...sanitizeEnvironment(process.env),
+  GEMINI_PROJECT_DIR: input.cwd,
+  CLAUDE_PROJECT_DIR: input.cwd,
+};
 
-    // 3. 配置超时
-    const timeout = hook.timeout ?? 30000; // 默认 30s
-
-    return { command, env, timeout };
-  }
-}`,
+// stdin: hook input 以 JSON 发送（tool_name / tool_input / session_id ...）
+child.stdin.write(JSON.stringify(input));`,
     visualData: {
       env: {
-        GEMINI_HOOK_EVENT: 'BeforeTool',
-        GEMINI_TOOL_NAME: 'Bash',
-        GEMINI_TOOL_INPUT: '{"command":"npm run build"}'
+        GEMINI_PROJECT_DIR: '/path/to/project',
+        CLAUDE_PROJECT_DIR: '/path/to/project',
       },
-      timeout: 30000
+      timeout: 60000
     },
     highlight: '环境变量注入',
   },
@@ -350,35 +286,23 @@ class HookRunner {
     phase: 'runner_execute',
     group: 'runner',
     title: '并行执行 Hook',
-    description: '使用 Promise.allSettled 并行执行多个 Hook 脚本',
-    codeSnippet: `// hookRunner.ts:80-120
-async execute(
-  hooks: HookConfig[]
-): Promise<HookExecutionResult[]> {
-  // 并行执行所有 Hook
-  const results = await Promise.allSettled(
-    hooks.map(async (hook) => {
-      const ctx = await this.prepare(hook);
+    description: '并行模式：Promise.all 执行 hooks；顺序模式：逐个执行并可修改下一次输入',
+    codeSnippet: `// packages/core/src/hooks/hookRunner.ts
+async executeHooksParallel(hookConfigs, eventName, input) {
+  return Promise.all(hookConfigs.map((cfg) => executeHook(cfg, eventName, input)));
+}
 
-      return this.runCommand(
-        ctx.command,
-        ctx.env,
-        ctx.timeout
-      );
-    })
-  );
-
-  // 收集执行结果
-  return results.map((result, index) => ({
-    hookId: hooks[index].hookId,
-    status: result.status,
-    output: result.status === 'fulfilled'
-      ? result.value
-      : null,
-    error: result.status === 'rejected'
-      ? result.reason
-      : null
-  }));
+async executeHooksSequential(hookConfigs, eventName, input) {
+  let currentInput = input;
+  const results = [];
+  for (const cfg of hookConfigs) {
+    const result = await executeHook(cfg, eventName, currentInput);
+    results.push(result);
+    if (result.success && result.output) {
+      currentInput = applyHookOutputToInput(currentInput, result.output, eventName);
+    }
+  }
+  return results;
 }`,
     visualData: {
       parallel: [
@@ -386,7 +310,7 @@ async execute(
         { id: 'log-all-tools', status: 'running', time: '0ms' },
       ]
     },
-    highlight: 'Promise.allSettled',
+    highlight: 'Promise.all / sequential',
   },
   {
     phase: 'runner_timeout',
@@ -405,6 +329,8 @@ private async runCommand(
     // 设置超时
     const timer = setTimeout(() => {
       proc.kill('SIGTERM');
+      // 5s 后仍未退出则 SIGKILL（防止僵死）
+      setTimeout(() => proc.kill('SIGKILL'), 5000);
       reject(new HookTimeoutError(
         \`Hook timed out after \${timeout}ms\`
       ));
@@ -433,28 +359,20 @@ private async runCommand(
     group: 'aggregator',
     title: 'Aggregator 收集结果',
     description: 'HookAggregator 收集所有 Hook 的执行结果',
-    codeSnippet: `// hookAggregator.ts:20-50
-class HookAggregator {
-  private results: HookExecutionResult[] = [];
+    codeSnippet: `// packages/core/src/hooks/hookAggregator.ts（关键片段）
+aggregateResults(results, eventName) {
+  const allOutputs = [];
+  const errors = [];
+  let totalDuration = 0;
 
-  collect(results: HookExecutionResult[]): void {
-    for (const result of results) {
-      this.results.push(result);
-
-      // 记录执行日志
-      if (result.status === 'fulfilled') {
-        console.debug(
-          \`[Hook] \${result.hookId} completed\`,
-          result.output
-        );
-      } else {
-        console.warn(
-          \`[Hook] \${result.hookId} failed\`,
-          result.error
-        );
-      }
-    }
+  for (const result of results) {
+    totalDuration += result.duration;
+    if (result.error) errors.push(result.error);
+    if (result.output) allOutputs.push(result.output);
   }
+
+  const mergedOutput = mergeOutputs(allOutputs, eventName);
+  return { success: errors.length === 0, finalOutput: mergedOutput, allOutputs, errors, totalDuration };
 }`,
     visualData: {
       collected: [
@@ -469,35 +387,13 @@ class HookAggregator {
     group: 'aggregator',
     title: '结果合并策略',
     description: '根据策略合并多个 Hook 的输出修改',
-    codeSnippet: `// hookAggregator.ts:60-100
-aggregate(): AggregatedResult {
-  // 检查是否有 Hook 要求阻止操作
-  const blocked = this.results.find(
-    r => r.output?.action === 'block'
-  );
-  if (blocked) {
-    return {
-      action: 'block',
-      reason: blocked.output.reason
-    };
-  }
-
-  // 合并所有修改
-  const modifications = this.results
-    .filter(r => r.output?.modifications)
-    .flatMap(r => r.output.modifications);
-
-  // 检查冲突
-  if (this.hasConflicts(modifications)) {
-    console.warn('Hook modifications conflict');
-    // 使用最后一个修改
-  }
-
-  return {
-    action: 'continue',
-    modifications
-  };
-}`,
+    codeSnippet: `// packages/core/src/hooks/hookAggregator.ts（概览）
+// 不同事件采用不同 merge 策略：
+// - BeforeTool/AfterTool/BeforeAgent/AfterAgent/SessionStart: mergeWithOrDecision（任一 blocking 决策生效；否则默认 allow）
+// - BeforeModel/AfterModel: mergeWithFieldReplacement（后者覆盖前者）
+// - BeforeToolSelection: mergeToolSelectionOutputs（工具选择策略合并）
+//
+// 通用规则：reason/systemMessage/additionalContext 等会拼接；hookSpecificOutput 做对象合并`,
     visualData: {
       strategy: 'merge',
       action: 'continue',
@@ -510,32 +406,30 @@ aggregate(): AggregatedResult {
     group: 'result',
     title: '应用结果',
     description: 'Hook 结果应用到原始操作，继续执行工具调用',
-    codeSnippet: `// hookSystem.ts:100-130
-async applyResult(
-  result: AggregatedResult,
-  originalInput: ToolInput
-): Promise<ToolInput | null> {
-  switch (result.action) {
-    case 'block':
-      // 阻止工具执行
-      throw new HookBlockedError(result.reason);
+    codeSnippet: `// packages/core/src/core/coreToolHookTriggers.ts（BeforeTool 的关键行为）
+const beforeOutput = await fireBeforeToolHook(messageBus, toolName, toolInput);
 
-    case 'modify':
-      // 应用修改
-      return applyModifications(
-        originalInput,
-        result.modifications
-      );
+// 1) stop：立即终止 agent loop
+if (beforeOutput?.shouldStopExecution()) {
+  return { error: { type: 'STOP_EXECUTION', message: beforeOutput.getEffectiveReason() } };
+}
 
-    case 'continue':
-    default:
-      // 继续原始执行
-      return originalInput;
+// 2) block：阻止本次工具执行
+const blockingError = beforeOutput?.getBlockingError();
+if (blockingError?.blocked) {
+  return { error: { type: 'EXECUTION_FAILED', message: blockingError.reason } };
+}
+
+// 3) modify tool_input：就地更新 params，并重新 build invocation（刷新派生状态）
+if (beforeOutput instanceof BeforeToolHookOutput) {
+  const modified = beforeOutput.getModifiedToolInput();
+  if (modified) {
+    Object.assign(invocation.params, modified);
+    invocation = tool.build(invocation.params);
   }
 }
 
-// 工具 Bash 继续执行
-// command: "npm run build"`,
+// 未阻止：工具继续执行（run_shell_command / write_file / replace ...）`,
     visualData: {
       action: 'continue',
       toolExecuted: true
@@ -919,7 +813,7 @@ export function HookEventAnimation() {
               </div>
               {step.visualData.toolExecuted && (
                 <div className="text-sm text-gray-300">
-                  → 工具 Bash 继续执行
+                  → 工具 run_shell_command 继续执行
                 </div>
               )}
             </div>

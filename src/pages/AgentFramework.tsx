@@ -314,7 +314,10 @@ export class LocalAgentExecutor<TOutput> {
     onActivity?: ActivityCallback,
   ): Promise<LocalAgentExecutor<TOutput>> {
     // 创建隔离的工具注册表
-    const agentToolRegistry = new ToolRegistry(runtimeContext);
+    const agentToolRegistry = new ToolRegistry(
+      runtimeContext,
+      runtimeContext.getMessageBus(),
+    );
     // ... 注册 Agent 可用的工具
     return new LocalAgentExecutor(definition, runtimeContext, agentToolRegistry);
   }
@@ -473,7 +476,7 @@ export class DelegateToAgentTool extends BaseDeclarativeTool<DelegateParams, Too
   constructor(
     private readonly registry: AgentRegistry,
     private readonly config: Config,
-    messageBus?: MessageBus,
+    messageBus: MessageBus,
   ) {
     const definitions = registry.getAllDefinitions();
 
@@ -497,6 +500,9 @@ export class DelegateToAgentTool extends BaseDeclarativeTool<DelegateParams, Too
       registry.getToolDescription(),  // 动态描述包含所有可用 Agent
       Kind.Think,
       zodToJsonSchema(schema),
+      messageBus,
+      true,  // isOutputMarkdown
+      true,  // canUpdateOutput（子代理执行过程可流式输出）
     );
   }
 }
@@ -507,7 +513,7 @@ class DelegateInvocation extends BaseToolInvocation<DelegateParams, ToolResult> 
     const definition = this.registry.getDefinition(this.params.agent_name);
 
     // 使用 SubagentToolWrapper 创建实际执行
-    const wrapper = new SubagentToolWrapper(definition, this.config);
+    const wrapper = new SubagentToolWrapper(definition, this.config, this.messageBus);
     const { agent_name, ...agentArgs } = this.params;
     const invocation = wrapper.build(agentArgs);
 

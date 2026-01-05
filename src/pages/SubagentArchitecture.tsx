@@ -654,7 +654,7 @@ if (!roundText || roundText.trim().length === 0) {
                 code={`// delegate-to-agent-tool.ts - 动态 Schema 生成
 
 export class DelegateToAgentTool extends BaseDeclarativeTool {
-  constructor(registry: AgentRegistry, config: Config, messageBus?: MessageBus) {
+  constructor(registry: AgentRegistry, config: Config, messageBus: MessageBus) {
     const definitions = registry.getAllDefinitions();
 
     // 为每个 Agent 生成独立的参数 Schema
@@ -698,6 +698,9 @@ export class DelegateToAgentTool extends BaseDeclarativeTool {
       registry.getToolDescription(),
       Kind.Think,
       zodToJsonSchema(schema),
+      messageBus,
+      true,  // isOutputMarkdown
+      true,  // canUpdateOutput（子代理执行过程可流式输出）
     );
   }
 }`}

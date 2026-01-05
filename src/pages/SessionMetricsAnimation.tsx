@@ -190,7 +190,15 @@ export default function SessionMetricsAnimation() {
     addLog('收到工具调用...');
     await new Promise(r => setTimeout(r, 800));
 
-    const toolNames = ['Read', 'Write', 'Bash', 'Grep', 'Glob', 'Edit'];
+    const toolNames = [
+      'read_file',
+      'write_file',
+      'run_shell_command',
+      'search_file_content',
+      'glob',
+      'replace',
+      'list_directory',
+    ];
     const toolName = toolNames[Math.floor(Math.random() * toolNames.length)];
     const duration = 50 + Math.floor(Math.random() * 500);
     const success = Math.random() > 0.1;
@@ -244,7 +252,7 @@ export default function SessionMetricsAnimation() {
     });
 
     // 模拟文件修改
-    if (toolName === 'Write' || toolName === 'Edit') {
+    if (toolName === 'write_file' || toolName === 'replace') {
       const linesAdded = Math.floor(Math.random() * 50);
       const linesRemoved = Math.floor(Math.random() * 20);
       setMetrics(prev => ({

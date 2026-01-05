@@ -51,7 +51,7 @@ const CONVERSION_STEPS: ConversionStep[] = [
 const SAMPLE_CHUNKS: StreamChunk[] = [
   { id: 'c1', type: 'content', content: 'I will help you ' },
   { id: 'c2', type: 'content', content: 'read the file.' },
-  { id: 'c3', type: 'tool_call', toolName: 'Read', content: '{"file_path": "/src/app.ts"}' },
+  { id: 'c3', type: 'tool_call', toolName: 'read_file', content: '{"file_path": "src/app.ts"}' },
   { id: 'c4', type: 'finish', finishReason: 'tool_calls' },
   { id: 'c5', type: 'usage', usage: { input: 1250, output: 89 } },
 ];

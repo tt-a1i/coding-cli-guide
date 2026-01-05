@@ -441,6 +441,35 @@ gemini extensions info ext-name
 #   MCP Servers:
 #     - python-lsp: Python Language Server`;
 
+  const consentCode = `// 安全披露 / Consent（安装或更新扩展时显示）
+// packages/cli/src/config/extensions/consent.ts（节选）
+
+export const INSTALL_WARNING_MESSAGE = chalk.yellow(
+  'The extension you are about to install may have been created by a third-party developer...'
+);
+
+export const SKILLS_WARNING_MESSAGE = chalk.yellow(
+  "Agent skills inject specialized instructions and domain-specific knowledge into the agent's system prompt..."
+);
+
+async function extensionConsentString(extensionConfig, hasHooks, skills = []) {
+  output.push(\`Installing extension "\${extensionConfig.name}".\`);
+  output.push(INSTALL_WARNING_MESSAGE);
+
+  if (hasHooks) {
+    output.push('⚠️  This extension contains Hooks which can automatically execute commands.');
+  }
+
+  if (skills.length > 0) {
+    output.push('Agent Skills:');
+    output.push(SKILLS_WARNING_MESSAGE);
+    for (const skill of skills) {
+      output.push(\`  * \${skill.name}: \${skill.description}\`);
+      output.push(\`    (Location: \${skill.location})\`);
+    }
+  }
+}`;
+
   return (
     <div className="space-y-8">
       {/* 概述 */}
@@ -472,6 +501,15 @@ gemini extensions info ext-name
             <code className="text-xs text-purple-400">settings.json</code>
           </HighlightBox>
         </div>
+      </section>
+
+      <section>
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">安全披露（Consent）</h3>
+        <p className="text-gray-300 mb-4">
+          Gemini CLI 会在安装/更新扩展时展示“将要启用的能力清单”，并要求用户确认继续：包括 MCP servers、Hooks（可能自动执行命令）、以及 Agent
+          skills（会把指令注入 system prompt）。这一步的目标是让用户在扩展生效前完成安全审阅。
+        </p>
+        <CodeBlock title="Consent 文本生成（节选）" language="typescript" code={consentCode} />
       </section>
 
       {/* 加载流程 */}

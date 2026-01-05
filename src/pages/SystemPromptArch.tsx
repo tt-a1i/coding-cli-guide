@@ -328,7 +328,7 @@ enabling sandboxing.
           <div className="bg-gray-900/50 rounded-lg p-4 border border-cyan-500/30">
             <h4 className="font-semibold text-cyan-400 mb-2">General (OpenAI 兼容)</h4>
             <div className="text-xs font-mono bg-black/40 p-2 rounded text-gray-300">
-              [tool_call: Bash for 'npm run build']
+              [tool_call: run_shell_command for 'npm run build']
             </div>
             <p className="text-xs text-gray-500 mt-2">适用于大多数模型</p>
           </div>
@@ -337,7 +337,7 @@ enabling sandboxing.
             <h4 className="font-semibold text-green-400 mb-2">Gemini 格式</h4>
             <div className="text-xs font-mono bg-black/40 p-2 rounded text-gray-300">
               {'<tool_call>'}<br/>
-              {'<function=Bash>'}<br/>
+              {'<function=run_shell_command>'}<br/>
               {'<parameter=command>'}<br/>
               npm run build<br/>
               {'</parameter>'}<br/>
@@ -351,7 +351,7 @@ enabling sandboxing.
             <h4 className="font-semibold text-purple-400 mb-2">Gemini Vision 格式</h4>
             <div className="text-xs font-mono bg-black/40 p-2 rounded text-gray-300">
               {'<tool_call>'}<br/>
-              {'{"name": "Bash", "arguments": {"command": "npm run build"}}'}<br/>
+              {'{"name": "run_shell_command", "arguments": {"command": "npm run build"}}'}<br/>
               {'</tool_call>'}
             </div>
             <p className="text-xs text-gray-500 mt-2">匹配 /gemini.*-vl/i</p>

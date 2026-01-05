@@ -41,12 +41,12 @@ interface ToolCallBuffer {
 }
 
 const SAMPLE_CHUNKS: StreamChunk[] = [
-  { id: 'c1', index: 0, content: '{"', toolCallId: 'call_123', functionName: 'Read', timestamp: 0 },
+  { id: 'c1', index: 0, content: '{"', toolCallId: 'call_123', functionName: 'read_file', timestamp: 0 },
   { id: 'c2', index: 0, content: 'file_path": "', timestamp: 100 },
-  { id: 'c3', index: 0, content: '/src/app.ts"', timestamp: 200 },
+  { id: 'c3', index: 0, content: 'src/app.ts"', timestamp: 200 },
   { id: 'c4', index: 0, content: ', "encoding": "utf-8"', timestamp: 300 },
   { id: 'c5', index: 0, content: '}', timestamp: 400 },
-  { id: 'c6', index: 1, content: '{"command": "', toolCallId: 'call_456', functionName: 'Bash', timestamp: 500 },
+  { id: 'c6', index: 1, content: '{"command": "', toolCallId: 'call_456', functionName: 'run_shell_command', timestamp: 500 },
   { id: 'c7', index: 1, content: 'npm test', timestamp: 600 },
   { id: 'c8', index: 1, content: '"}', timestamp: 700 },
 ];

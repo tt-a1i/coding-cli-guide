@@ -1099,22 +1099,22 @@ class ToolCallOrchestrator {
 场景：AI 想要读取文件、修改内容、然后运行测试
 
 Tool Calls:
-1. Read("src/config.ts")              // 独立
-2. Read("src/utils.ts")               // 独立
-3. Edit("src/config.ts", changes)     // 依赖 #1
-4. Bash("npm test")                   // 依赖 #3
+1. read_file("src/config.ts")              // 独立
+2. read_file("src/utils.ts")               // 独立
+3. replace("src/config.ts", changes)       // 依赖 #1
+4. run_shell_command("npm test")           // 依赖 #3
 
 执行计划：
 ┌─────────────────────────────────────────────────────────────────┐
 │ Group 1 (并行):                                                  │
-│   - Read("src/config.ts")                                       │
-│   - Read("src/utils.ts")                                        │
+│   - read_file("src/config.ts")                                  │
+│   - read_file("src/utils.ts")                                   │
 ├─────────────────────────────────────────────────────────────────┤
 │ Group 2 (串行):                                                  │
-│   - Edit("src/config.ts", changes)  // 等待 Group 1 完成        │
+│   - replace("src/config.ts", changes) // 等待 Group 1 完成      │
 ├─────────────────────────────────────────────────────────────────┤
 │ Group 3 (串行):                                                  │
-│   - Bash("npm test")                // 等待 Group 2 完成        │
+│   - run_shell_command("npm test")   // 等待 Group 2 完成        │
 └─────────────────────────────────────────────────────────────────┘
 */`}
             language="typescript"
@@ -1543,7 +1543,7 @@ class ToolCallDebugger {
     const errorMsg = failure.error.message;
 
     // 文件操作错误
-    if (failure.toolName === 'Read' || failure.toolName === 'Write') {
+    if (failure.toolName === 'read_file' || failure.toolName === 'write_file') {
       if (errorMsg.includes('ENOENT')) {
         return {
           cause: 'file_not_found',
@@ -1561,7 +1561,7 @@ class ToolCallDebugger {
     }
 
     // 命令执行错误
-    if (failure.toolName === 'Bash') {
+    if (failure.toolName === 'run_shell_command') {
       if (errorMsg.includes('command not found')) {
         const command = (failure.args as any).command?.split(' ')[0];
         return {
@@ -1905,10 +1905,10 @@ DEBUG_CHAT=true DEBUG_STREAM=true gemini
   文本: "好的，我来帮你读取 package.json 文件..."
 
 [Stream 2024-01-15T10:30:00.456Z] 事件: tool_call
-  工具: Read
+  工具: read_file
   参数: {"file_path":"/project/package.json"}
 
-[Tool] Read
+[Tool] read_file
   参数: { "file_path": "/project/package.json" }
   结果: 成功
 
@@ -2056,7 +2056,7 @@ function generateLatencyReport(metrics: LatencyMetrics): LatencyReport {
 ├─────────────────────────────────────────────────────────────────┤
 │ 优化建议：                                                      │
 │ 1. 工具执行是瓶颈，考虑并行执行独立的工具调用                     │
-│ 2. 检查慢速工具（Read 大文件、Bash 长命令）                      │
+│ 2. 检查慢速工具（read_file 大文件、run_shell_command 长命令）     │
 └─────────────────────────────────────────────────────────────────┘
 */`}
             language="typescript"
@@ -2298,17 +2298,17 @@ class GeminiChatCache {
   // 判断工具是否可缓存
   private isToolCacheable(toolName: string): boolean {
     const CACHEABLE_TOOLS = [
-      'Glob',      // 文件搜索结果短期有效
-      'Grep',      // 代码搜索结果短期有效
-      'Read',      // 文件内容可缓存（配合文件监控）
+      'glob',               // 文件搜索结果短期有效
+      'search_file_content',// 代码搜索结果短期有效
+      'read_file',          // 文件内容可缓存（配合文件监控）
       'LSP'        // 符号信息可缓存
     ];
 
     const NON_CACHEABLE_TOOLS = [
-      'Bash',      // 命令结果可能变化
-      'Write',     // 写操作不应缓存
-      'Edit',      // 编辑操作不应缓存
-      'WebFetch'   // 网页内容可能变化
+      'run_shell_command',  // 命令结果可能变化
+      'write_file',         // 写操作不应缓存
+      'replace',            // 编辑操作不应缓存
+      'web_fetch'           // 网页内容可能变化
     ];
 
     return CACHEABLE_TOOLS.includes(toolName);
@@ -2317,9 +2317,9 @@ class GeminiChatCache {
   // 获取 TTL
   private getTTL(toolName: string): number {
     const TTL_MAP: Record<string, number> = {
-      'Glob': 60 * 1000,       // 1 分钟
-      'Grep': 30 * 1000,       // 30 秒
-      'Read': 5 * 60 * 1000,   // 5 分钟（配合文件监控失效）
+      'glob': 60 * 1000,              // 1 分钟
+      'search_file_content': 30 * 1000, // 30 秒
+      'read_file': 5 * 60 * 1000,     // 5 分钟（配合文件监控失效）
       'LSP': 10 * 60 * 1000    // 10 分钟
     };
 
@@ -2672,7 +2672,7 @@ InteractionLoop
     │                              │
     │                              ├── executeBatch() ──→ ToolScheduler
     │                              │                          │
-    │                              │                          ├── Read, Write, Bash...
+    │                              │                          ├── read_file, write_file, run_shell_command...
     │                              │                          └── MCP Tools
     │                              │
     │                              └── checkForLoop() ──→ LoopDetection

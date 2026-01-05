@@ -139,15 +139,15 @@ function ToolArchitectureDiagram() {
 // 工具类型表 - 基于 gemini-cli/packages/core/src/tools/tools.ts Kind 枚举
 function ToolKindTable() {
   const kinds = [
-    { kind: 'read', desc: '读取操作', examples: 'Read, Glob, Grep, LS', approval: '无需审批' },
-    { kind: 'edit', desc: '编辑操作', examples: 'Edit, Write, NotebookEdit', approval: '需要审批' },
+    { kind: 'read', desc: '读取操作', examples: 'read_file, read_many_files', approval: '无需审批' },
+    { kind: 'edit', desc: '编辑操作', examples: 'replace, write_file', approval: '需要审批' },
     { kind: 'delete', desc: '删除操作', examples: '文件删除', approval: '需要审批' },
     { kind: 'move', desc: '移动操作', examples: '文件移动/重命名', approval: '需要审批' },
-    { kind: 'search', desc: '搜索操作', examples: 'WebSearch', approval: '可配置' },
-    { kind: 'execute', desc: '执行操作', examples: 'Bash, Task', approval: '需要审批' },
-    { kind: 'think', desc: '思考操作', examples: '内部推理工具', approval: '无需审批' },
-    { kind: 'fetch', desc: '获取操作', examples: 'WebFetch', approval: '可配置' },
-    { kind: 'other', desc: '其他操作', examples: 'Skill, AskUser', approval: '可配置' },
+    { kind: 'search', desc: '搜索操作', examples: 'list_directory, search_file_content, glob, google_web_search', approval: '可配置' },
+    { kind: 'execute', desc: '执行操作', examples: 'run_shell_command', approval: '需要审批' },
+    { kind: 'think', desc: '思考操作', examples: 'save_memory, delegate_to_agent', approval: '无需审批' },
+    { kind: 'fetch', desc: '获取操作', examples: 'web_fetch', approval: '可配置' },
+    { kind: 'other', desc: '其他操作', examples: 'write_todos, activate_skill', approval: '可配置' },
   ];
 
   return (
@@ -284,7 +284,7 @@ function CoreConceptsSection() {
         title="核心接口定义 - packages/core/src/tools/tools.ts"
         code={`// 工具构建器接口
 interface ToolBuilder<TParams, TResult> {
-  name: string;           // 内部名称 (如 'Edit')
+  name: string;           // 内部名称 (如 'replace')
   displayName: string;    // 显示名称 (如 '编辑文件')
   description: string;    // 工具描述
   kind: Kind;             // 工具类型 (权限相关)
@@ -302,7 +302,11 @@ interface ToolInvocation<TParams, TResult> {
   getDescription(): string;        // 执行前的描述
   toolLocations(): ToolLocation[]; // 影响的文件路径
   shouldConfirmExecute(abortSignal: AbortSignal): Promise<ToolCallConfirmationDetails | false>;
-  execute(signal: AbortSignal, updateOutput?: Function): Promise<TResult>;
+  execute(
+    signal: AbortSignal,
+    updateOutput?: (output: string | AnsiOutput) => void,
+    shellExecutionConfig?: ShellExecutionConfig,
+  ): Promise<TResult>;
 }`}
       />
 
@@ -364,8 +368,11 @@ function ImplementationSection() {
   constructor(
     private readonly config: Config,
     params: WordCountParams,
+    messageBus: MessageBus,
+    _toolName?: string,
+    _toolDisplayName?: string,
   ) {
-    super(params);
+    super(params, messageBus, _toolName, _toolDisplayName);
     this.resolvedPath = path.resolve(this.config.getTargetDir(), this.params.file_path);
   }
 
@@ -408,29 +415,45 @@ function ImplementationSection() {
       <CodeBlock
         title="工具类实现"
         code={`export class WordCountTool extends BaseDeclarativeTool<WordCountParams, ToolResult> {
-  constructor(private readonly config: Config) {
+  static readonly Name = 'word_count';
+
+  constructor(
+    private readonly config: Config,
+    messageBus: MessageBus,
+  ) {
     super(
-      'WordCount',          // name
-      'Word Count',         // displayName
+      WordCountTool.Name,   // name (LLM 可见)
+      'WordCount',          // displayName
       'Count words, characters, and lines in a file',  // description
       Kind.Read,            // kind（作为 PolicyEngine 决策输入之一）
       wordCountSchema,      // parameterSchema
+      messageBus,           // MessageBus（PolicyEngine / UI 确认桥梁）
       false,                // isOutputMarkdown
       false,                // canUpdateOutput
     );
   }
 
-  // 自定义验证逻辑（可选）
-  validateToolParams(params: WordCountParams): string | null {
-    if (!params.file_path || typeof params.file_path !== 'string') {
-      return 'file_path must be a string';
+  // 自定义验证逻辑（可选，SchemaValidator 之后执行）
+  protected override validateToolParamValues(params: WordCountParams): string | null {
+    if (!params.file_path || typeof params.file_path !== 'string' || params.file_path.trim() === '') {
+      return 'file_path must be a non-empty string';
     }
     return null;
   }
 
-  // 构建执行实例
-  build(params: WordCountParams): ToolInvocation<WordCountParams, ToolResult> {
-    return new WordCountInvocation(this.config, params);
+  protected createInvocation(
+    params: WordCountParams,
+    messageBus: MessageBus,
+    _toolName?: string,
+    _toolDisplayName?: string,
+  ): ToolInvocation<WordCountParams, ToolResult> {
+    return new WordCountInvocation(
+      this.config,
+      params,
+      messageBus,
+      _toolName,
+      _toolDisplayName,
+    );
   }
 }`}
       />
@@ -443,12 +466,11 @@ import { WordCountTool } from './wordCount.js';
 
 // 上游是 Config.createToolRegistry() 方法，这里用伪代码表达“把工具注册进 ToolRegistry”
 export async function createToolRegistry(config: Config): Promise<ToolRegistry> {
-  const registry = new ToolRegistry(config);
-  registry.setMessageBus(config.getMessageBus());
+  const registry = new ToolRegistry(config, config.getMessageBus());
 
   // ... 其他工具注册
 
-  registry.registerTool(new WordCountTool(config));
+  registry.registerTool(new WordCountTool(config, config.getMessageBus()));
 
   await registry.discoverAllTools();
   registry.sortTools();

@@ -25,7 +25,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
             <h3 className="text-cyan-400 font-semibold mb-2">🎯 核心概念</h3>
             <p className="text-gray-300">
               <strong>PTY (Pseudo-Terminal)</strong> 是一个虚拟终端设备，让 CLI 能够像真实终端一样执行命令。
-              当你在 Gemini CLI 中使用 Bash 工具执行 <code className="bg-gray-700 px-1 rounded">ls</code>、
+              当你在 Gemini CLI 中使用 <code className="bg-gray-700 px-1 rounded">run_shell_command</code> 工具执行 <code className="bg-gray-700 px-1 rounded">ls</code>、
               <code className="bg-gray-700 px-1 rounded">git status</code> 等命令时，背后就是 PTY 在工作。
             </p>
           </div>
@@ -47,8 +47,8 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
             <div className="bg-gray-900 p-3 rounded font-mono text-xs">
               <div className="text-gray-400"># 用户请求 AI 执行命令</div>
               <div className="text-green-400">User: 帮我查看当前目录的文件</div>
-              <div className="text-gray-400"># AI 调用 Bash 工具</div>
-              <div className="text-blue-400">→ Bash tool: ls -la</div>
+              <div className="text-gray-400"># AI 调用 run_shell_command 工具</div>
+              <div className="text-blue-400">→ run_shell_command: ls -la</div>
               <div className="text-gray-400"># 触发 PTY 生命周期</div>
               <div className="text-yellow-400">→ shellExecutionService.execute()</div>
             </div>
@@ -89,7 +89,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           <div>
             <h3 className="text-cyan-400 font-semibold mb-2">🔗 相关机制</h3>
             <div className="flex flex-wrap gap-2">
-              <span className="px-2 py-1 bg-blue-900/50 text-blue-300 rounded text-xs">Bash 工具</span>
+              <span className="px-2 py-1 bg-blue-900/50 text-blue-300 rounded text-xs">run_shell_command 工具</span>
               <span className="px-2 py-1 bg-purple-900/50 text-purple-300 rounded text-xs">工具调度器</span>
               <span className="px-2 py-1 bg-green-900/50 text-green-300 rounded text-xs">终端序列化</span>
               <span className="px-2 py-1 bg-orange-900/50 text-orange-300 rounded text-xs">沙箱系统</span>

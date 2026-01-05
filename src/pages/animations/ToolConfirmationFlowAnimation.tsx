@@ -42,8 +42,8 @@ export function ToolConfirmationFlowAnimation() {
       phase: 'SCHEDULE',
       description: 'CoreToolScheduler.schedule() 接收工具调用请求',
       toolCalls: [
-        { id: 'call-1', name: 'Bash', status: 'validating', args: { command: 'npm install' } },
-        { id: 'call-2', name: 'Write', status: 'validating', args: { file_path: '/app/file.ts', content: '...' } },
+        { id: 'call-1', name: 'run_shell_command', status: 'validating', args: { command: 'npm install' } },
+        { id: 'call-2', name: 'write_file', status: 'validating', args: { file_path: '/app/file.ts', content: '...' } },
       ],
       currentAction: 'this.toolCalls = this.toolCalls.concat(newToolCalls)',
     },
@@ -52,8 +52,8 @@ export function ToolConfirmationFlowAnimation() {
       phase: 'VALIDATE',
       description: '验证工具是否存在于 ToolRegistry',
       toolCalls: [
-        { id: 'call-1', name: 'Bash', status: 'validating', args: { command: 'npm install' } },
-        { id: 'call-2', name: 'Write', status: 'validating', args: { file_path: '/app/file.ts', content: '...' } },
+        { id: 'call-1', name: 'run_shell_command', status: 'validating', args: { command: 'npm install' } },
+        { id: 'call-2', name: 'write_file', status: 'validating', args: { file_path: '/app/file.ts', content: '...' } },
       ],
       currentAction: 'const toolInstance = this.toolRegistry.getTool(reqInfo.name)',
     },
@@ -62,8 +62,8 @@ export function ToolConfirmationFlowAnimation() {
       phase: 'BUILD_INVOCATION',
       description: '构建工具调用实例 (invocation)',
       toolCalls: [
-        { id: 'call-1', name: 'Bash', status: 'validating', args: { command: 'npm install' } },
-        { id: 'call-2', name: 'Write', status: 'validating', args: { file_path: '/app/file.ts', content: '...' } },
+        { id: 'call-1', name: 'run_shell_command', status: 'validating', args: { command: 'npm install' } },
+        { id: 'call-2', name: 'write_file', status: 'validating', args: { file_path: '/app/file.ts', content: '...' } },
       ],
       currentAction: 'const invocation = tool.build(args)',
     },
@@ -72,38 +72,38 @@ export function ToolConfirmationFlowAnimation() {
       phase: 'CHECK_CONFIRMATION',
       description: '检查是否需要用户确认',
       toolCalls: [
-        { id: 'call-1', name: 'Bash', status: 'validating', args: { command: 'npm install' } },
-        { id: 'call-2', name: 'Write', status: 'validating', args: { file_path: '/app/file.ts', content: '...' } },
+        { id: 'call-1', name: 'run_shell_command', status: 'validating', args: { command: 'npm install' } },
+        { id: 'call-2', name: 'write_file', status: 'validating', args: { file_path: '/app/file.ts', content: '...' } },
       ],
       currentAction: 'const confirmationDetails = await invocation.shouldConfirmExecute(signal)',
     },
     {
       id: 4,
       phase: 'APPROVAL_CHECK',
-      description: 'Bash 命令需要确认，Write 检查 allowedTools',
+      description: 'PolicyEngine 决策：shell=ASK_USER → awaiting_approval；write_file=ALLOW → scheduled',
       toolCalls: [
-        { id: 'call-1', name: 'Bash', status: 'awaiting_approval', args: { command: 'npm install' } },
-        { id: 'call-2', name: 'Write', status: 'validating', args: { file_path: '/app/file.ts', content: '...' } },
+        { id: 'call-1', name: 'run_shell_command', status: 'awaiting_approval', args: { command: 'npm install' } },
+        { id: 'call-2', name: 'write_file', status: 'scheduled', args: { file_path: '/app/file.ts', content: '...' }, outcome: 'ProceedAlways' },
       ],
-      currentAction: 'if (confirmationDetails) setStatus("awaiting_approval")',
+      currentAction: 'confirmationDetails? awaiting_approval : scheduled',
     },
     {
       id: 5,
       phase: 'ALLOWED_TOOLS_CHECK',
-      description: 'Write 匹配 allowedTools 规则，自动批准',
+      description: 'write_file 可来自 tools.allowed / 已保存 policies（无需弹窗）',
       toolCalls: [
-        { id: 'call-1', name: 'Bash', status: 'awaiting_approval', args: { command: 'npm install' } },
-        { id: 'call-2', name: 'Write', status: 'scheduled', args: { file_path: '/app/file.ts', content: '...' }, outcome: 'ProceedAlways' },
+        { id: 'call-1', name: 'run_shell_command', status: 'awaiting_approval', args: { command: 'npm install' } },
+        { id: 'call-2', name: 'write_file', status: 'scheduled', args: { file_path: '/app/file.ts', content: '...' }, outcome: 'ProceedAlways' },
       ],
-      currentAction: 'if (doesToolInvocationMatch(tool, invocation, allowedTools)) → scheduled',
+      currentAction: 'policy=ALLOW → shouldConfirmExecute() 返回 false',
     },
     {
       id: 6,
       phase: 'USER_DECISION',
-      description: '⏳ 等待用户对 Bash 命令的确认...',
+      description: '⏳ 等待用户对 run_shell_command 的确认...',
       toolCalls: [
-        { id: 'call-1', name: 'Bash', status: 'awaiting_approval', args: { command: 'npm install' } },
-        { id: 'call-2', name: 'Write', status: 'scheduled', args: { file_path: '/app/file.ts', content: '...' }, outcome: 'ProceedAlways' },
+        { id: 'call-1', name: 'run_shell_command', status: 'awaiting_approval', args: { command: 'npm install' } },
+        { id: 'call-2', name: 'write_file', status: 'scheduled', args: { file_path: '/app/file.ts', content: '...' }, outcome: 'ProceedAlways' },
       ],
     },
     {
@@ -111,8 +111,8 @@ export function ToolConfirmationFlowAnimation() {
       phase: 'USER_APPROVES',
       description: '✅ 用户选择 "ProceedOnce"',
       toolCalls: [
-        { id: 'call-1', name: 'Bash', status: 'scheduled', args: { command: 'npm install' }, outcome: 'ProceedOnce' },
-        { id: 'call-2', name: 'Write', status: 'scheduled', args: { file_path: '/app/file.ts', content: '...' }, outcome: 'ProceedAlways' },
+        { id: 'call-1', name: 'run_shell_command', status: 'scheduled', args: { command: 'npm install' }, outcome: 'ProceedOnce' },
+        { id: 'call-2', name: 'write_file', status: 'scheduled', args: { file_path: '/app/file.ts', content: '...' }, outcome: 'ProceedAlways' },
       ],
       currentAction: 'handleConfirmationResponse(callId, outcome)',
     },
@@ -121,28 +121,28 @@ export function ToolConfirmationFlowAnimation() {
       phase: 'ALL_SCHEDULED',
       description: '所有调用都已调度，开始执行',
       toolCalls: [
-        { id: 'call-1', name: 'Bash', status: 'executing', args: { command: 'npm install' }, outcome: 'ProceedOnce' },
-        { id: 'call-2', name: 'Write', status: 'executing', args: { file_path: '/app/file.ts', content: '...' }, outcome: 'ProceedAlways' },
+        { id: 'call-1', name: 'run_shell_command', status: 'executing', args: { command: 'npm install' }, outcome: 'ProceedOnce' },
+        { id: 'call-2', name: 'write_file', status: 'executing', args: { file_path: '/app/file.ts', content: '...' }, outcome: 'ProceedAlways' },
       ],
       currentAction: 'attemptExecutionOfScheduledCalls(signal)',
     },
     {
       id: 9,
       phase: 'LIVE_OUTPUT',
-      description: 'Bash 命令实时输出流',
+      description: 'run_shell_command 实时输出流',
       toolCalls: [
-        { id: 'call-1', name: 'Bash', status: 'executing', args: { command: 'npm install' }, outcome: 'ProceedOnce', liveOutput: 'Installing dependencies...\nadded 123 packages' },
-        { id: 'call-2', name: 'Write', status: 'executing', args: { file_path: '/app/file.ts', content: '...' }, outcome: 'ProceedAlways' },
+        { id: 'call-1', name: 'run_shell_command', status: 'executing', args: { command: 'npm install' }, outcome: 'ProceedOnce', liveOutput: 'Installing dependencies...\nadded 123 packages' },
+        { id: 'call-2', name: 'write_file', status: 'executing', args: { file_path: '/app/file.ts', content: '...' }, outcome: 'ProceedAlways' },
       ],
       currentAction: 'liveOutputCallback(outputChunk)',
     },
     {
       id: 10,
       phase: 'FIRST_COMPLETE',
-      description: 'Write 工具执行完成',
+      description: 'write_file 工具执行完成',
       toolCalls: [
-        { id: 'call-1', name: 'Bash', status: 'executing', args: { command: 'npm install' }, outcome: 'ProceedOnce', liveOutput: 'Installing dependencies...\nadded 123 packages' },
-        { id: 'call-2', name: 'Write', status: 'success', args: { file_path: '/app/file.ts', content: '...' }, outcome: 'ProceedAlways', durationMs: 45 },
+        { id: 'call-1', name: 'run_shell_command', status: 'executing', args: { command: 'npm install' }, outcome: 'ProceedOnce', liveOutput: 'Installing dependencies...\nadded 123 packages' },
+        { id: 'call-2', name: 'write_file', status: 'success', args: { file_path: '/app/file.ts', content: '...' }, outcome: 'ProceedAlways', durationMs: 45 },
       ],
       currentAction: 'setStatusInternal(callId, "success", successResponse)',
     },
@@ -151,8 +151,8 @@ export function ToolConfirmationFlowAnimation() {
       phase: 'ALL_COMPLETE',
       description: '✅ 所有工具调用完成',
       toolCalls: [
-        { id: 'call-1', name: 'Bash', status: 'success', args: { command: 'npm install' }, outcome: 'ProceedOnce', durationMs: 2340 },
-        { id: 'call-2', name: 'Write', status: 'success', args: { file_path: '/app/file.ts', content: '...' }, outcome: 'ProceedAlways', durationMs: 45 },
+        { id: 'call-1', name: 'run_shell_command', status: 'success', args: { command: 'npm install' }, outcome: 'ProceedOnce', durationMs: 2340 },
+        { id: 'call-2', name: 'write_file', status: 'success', args: { file_path: '/app/file.ts', content: '...' }, outcome: 'ProceedAlways', durationMs: 45 },
       ],
       currentAction: 'checkAndNotifyCompletion()',
     },
@@ -161,8 +161,8 @@ export function ToolConfirmationFlowAnimation() {
       phase: 'CALLBACK',
       description: '触发 onAllToolCallsComplete 回调',
       toolCalls: [
-        { id: 'call-1', name: 'Bash', status: 'success', args: { command: 'npm install' }, outcome: 'ProceedOnce', durationMs: 2340 },
-        { id: 'call-2', name: 'Write', status: 'success', args: { file_path: '/app/file.ts', content: '...' }, outcome: 'ProceedAlways', durationMs: 45 },
+        { id: 'call-1', name: 'run_shell_command', status: 'success', args: { command: 'npm install' }, outcome: 'ProceedOnce', durationMs: 2340 },
+        { id: 'call-2', name: 'write_file', status: 'success', args: { file_path: '/app/file.ts', content: '...' }, outcome: 'ProceedAlways', durationMs: 45 },
       ],
       currentAction: 'await this.onAllToolCallsComplete(completedCalls)',
     },
@@ -225,7 +225,7 @@ export function ToolConfirmationFlowAnimation() {
 stateDiagram-v2
     [*] --> validating: schedule()
     validating --> error: 工具不存在/参数无效
-    validating --> scheduled: 无需确认 或 匹配allowedTools
+    validating --> scheduled: policy=ALLOW 或 isAutoApproved
     validating --> awaiting_approval: 需要用户确认
 
     awaiting_approval --> scheduled: ProceedOnce/ProceedAlways
@@ -266,7 +266,8 @@ flowchart LR
 flowchart TD
     A["awaiting_approval"] --> B{用户选择}
     B -->|"ProceedOnce"| C["scheduled<br/>仅本次执行"]
-    B -->|"ProceedAlways"| D["scheduled<br/>+ 自动批准同类工具"]
+    B -->|"ProceedAlways"| D["scheduled<br/>+ Session 动态规则"]
+    B -->|"ProceedAlwaysAndSave"| H["scheduled<br/>+ 写入 auto-saved.toml"]
     B -->|"Cancel"| E["cancelled"]
     B -->|"ModifyWithEditor"| F["打开编辑器<br/>修改参数"]
     F --> G["更新 args"]
@@ -488,7 +489,7 @@ export enum ToolConfirmationOutcome {
   ProceedOnce = 'proceed_once',      // 仅本次执行
   ProceedAlways = 'proceed_always',  // 始终允许此类操作
   Cancel = 'cancel',                 // 取消
-  ModifyWithEditor = 'modify',       // 编辑器修改
+  ModifyWithEditor = 'modify_with_editor', // 编辑器修改
 }
 
 // 调度器核心逻辑
@@ -524,8 +525,8 @@ class CoreToolScheduler {
           <div>
             <h4 className="font-bold text-[var(--terminal-green)] mb-2">ProceedAlways 如何工作?</h4>
             <p className="text-sm text-[var(--text-secondary)]">
-              当用户选择 "始终允许" 时，会调用 <code>autoApproveCompatiblePendingTools()</code>
-              自动批准当前批次中所有匹配的等待确认工具。
+              当用户选择 ProceedAlways / ProceedAlwaysAndSave 时，工具会通过 MessageBus 发布 <code>UPDATE_POLICY</code>：
+              先以“session 动态规则”立即生效；若选择 Save，则写入 <code>~/.gemini/policies/auto-saved.toml</code> 供下次启动复用。
             </p>
           </div>
         </div>

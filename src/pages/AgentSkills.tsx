@@ -43,8 +43,8 @@ export function AgentSkills() {
 
       <Layer title="技能发现（Discovery）" icon="🗂️">
         <p className="text-gray-300 mb-4">
-          skills 启用后，<code>SkillManager</code> 会从用户目录和项目目录扫描 <code>*/SKILL.md</code>：
-          项目级 skill 会覆盖同名用户级 skill（同名以 YAML frontmatter 的 <code>name</code> 为准）。
+          skills 启用后，<code>SkillManager</code> 会扫描 <code>*/SKILL.md</code> 并汇总为“可用技能清单”。
+          覆盖优先级为：<strong>Extension（最低） → User → Project（最高）</strong>（同名以 YAML frontmatter 的 <code>name</code> 为准）。
         </p>
 
         <CodeBlock
@@ -61,14 +61,26 @@ getProjectSkillsDir(): string {
 
         <CodeBlock
           title="发现顺序与覆盖（skillManager.ts）"
-          code={`// packages/core/src/services/skillManager.ts
-// 1) User skills first
-const userSkills = await this.discoverSkillsInternal([Storage.getUserSkillsDir()]);
-this.addSkillsWithPrecedence(userSkills);
+          code={`// packages/core/src/skills/skillManager.ts
+// Precedence: Extensions (lowest) -> User -> Project (highest).
+async discoverSkills(storage: Storage, extensions: GeminiCLIExtension[] = []) {
+  this.clearSkills();
 
-// 2) Project skills second (overwrites user skills with same name)
-const projectSkills = await this.discoverSkillsInternal([storage.getProjectSkillsDir()]);
-this.addSkillsWithPrecedence(projectSkills);`}
+  // 1) Extension skills (lowest)
+  for (const extension of extensions) {
+    if (extension.isActive && extension.skills) {
+      this.addSkillsWithPrecedence(extension.skills);
+    }
+  }
+
+  // 2) User skills
+  const userSkills = await loadSkillsFromDir(Storage.getUserSkillsDir());
+  this.addSkillsWithPrecedence(userSkills);
+
+  // 3) Project skills (highest, overrides)
+  const projectSkills = await loadSkillsFromDir(storage.getProjectSkillsDir());
+  this.addSkillsWithPrecedence(projectSkills);
+}`}
         />
 
         <CodeBlock
@@ -114,6 +126,26 @@ return {
         </div>
       </Layer>
 
+      <Layer title="Schema 收敛：把 name 变成 enum" icon="🧷">
+        <p className="text-gray-300 mb-4">
+          技能列表发现完成后，CLI 会<strong>重新注册一次</strong> <code>ActivateSkillTool</code>，让参数 <code>name</code>
+          从 <code>string</code> 收敛为 <code>enum(availableSkillNames)</code>，从而减少模型“瞎猜技能名”的概率。
+        </p>
+        <CodeBlock
+          title="config.ts：发现技能后重注册工具"
+          code={`// packages/core/src/config/config.ts (节选)
+if (this.skillsSupport) {
+  await this.getSkillManager().discoverSkills(this.storage, this.getExtensions());
+  this.getSkillManager().setDisabledSkills(this.disabledSkills);
+
+  // Re-register ActivateSkillTool to update its schema with discovered skill enums
+  if (this.getSkillManager().getSkills().length > 0) {
+    this.getToolRegistry().registerTool(new ActivateSkillTool(this, this.messageBus));
+  }
+}`}
+        />
+      </Layer>
+
       <Layer title="System Prompt 注入" icon="🧱">
         <p className="text-gray-300 mb-4">
           当存在可用 skills 时，System Prompt 会追加一个 <code>Available Agent Skills</code> 段落，列出技能元信息，并要求模型：
@@ -151,8 +183,31 @@ skills.disabled: string[]      # List of disabled skills (restart required)`}
         />
       </Layer>
 
+      <Layer title="扩展技能与安全披露" icon="🛡️">
+        <p className="text-gray-300 mb-4">
+          Extension 可以携带 <code>skills/</code> 目录（例如 <code>skills/my-skill/SKILL.md</code>）。在安装/更新扩展时，CLI 会在 consent
+          文本中明确提示：<strong>Agent skills 会把指令注入 system prompt</strong>，并展示每个 skill 的名称、描述与文件位置，要求用户确认后才继续安装。
+        </p>
+        <CodeBlock
+          title="extensions/consent.ts：skills 风险提示（节选）"
+          code={`// packages/cli/src/config/extensions/consent.ts
+export const SKILLS_WARNING_MESSAGE = chalk.yellow(
+  "Agent skills inject specialized instructions and domain-specific knowledge into the agent's system prompt..."
+);
+
+if (skills.length > 0) {
+  output.push("Agent Skills:");
+  output.push(SKILLS_WARNING_MESSAGE);
+  output.push("This extension will install the following agent skills:");
+  for (const skill of skills) {
+    output.push(\`  * \${skill.name}: \${skill.description}\`);
+    output.push(\`    (Location: \${skill.location})\`);
+  }
+}`}
+        />
+      </Layer>
+
       <RelatedPages pages={relatedPages} />
     </div>
   );
 }
-

@@ -21,7 +21,7 @@ const glossaryTerms: Term[] = [
     definition: '一次完整的交互循环：用户输入 → AI 响应 → 工具执行 → 结果反馈。每个 Turn 可能包含多次工具调用。系统设置最大 100 轮防止无限循环。',
     category: 'core',
     relatedPage: 'interaction-loop',
-    example: '用户问"读取 config.json"，AI 调用 Read 工具，返回内容，算一个 Turn',
+    example: '用户问"读取 config.json"，AI 调用 read_file 工具返回内容，算一个 Turn',
   },
   {
     term: 'Continuation',
@@ -46,7 +46,8 @@ const glossaryTerms: Term[] = [
   // Tool System
   {
     term: 'ToolKind',
-    definition: '工具类型枚举：ReadOnly（只读）、WriteFiles（写文件）、Bash（执行命令）、Subagent（子代理）等，决定审批级别。',
+    definition:
+      '工具 Kind（packages/core/src/tools/tools.ts: Kind 枚举）：read/edit/delete/move/search/execute/think/fetch/other。PolicyEngine 默认把 edit/delete/move/execute 视为 mutator（有副作用），通常更需要确认；其余类型常可自动通过。',
     category: 'tool',
     relatedPage: 'tool-arch',
   },
@@ -233,7 +234,7 @@ const glossaryTerms: Term[] = [
     definition: '文件发现系统，基于 BFS 算法搜索文件，支持 .gitignore、.geminiignore 等 ignore 模式。',
     category: 'tool',
     relatedPage: 'bfs-file-search-anim',
-    example: 'Glob 工具使用 FileDiscovery 查找匹配的文件',
+    example: 'glob 工具使用 FileDiscovery 查找匹配的文件',
   },
   {
     term: 'IgnorePattern',
@@ -252,7 +253,7 @@ const glossaryTerms: Term[] = [
     term: 'FileLock',
     definition: '文件锁机制，防止多进程同时写入同一文件导致数据损坏。CLI 在写文件前获取锁。',
     category: 'tool',
-    example: 'Write 工具先获取锁 → 写入内容 → 释放锁',
+    example: 'write_file 工具先获取锁 → 写入内容 → 释放锁',
   },
 
   // Provider System

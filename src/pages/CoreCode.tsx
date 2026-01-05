@@ -445,8 +445,15 @@ export async function createContentGenerator(
 class ToolRegistry {
     private allKnownTools = new Map<string, AnyDeclarativeTool>();
 
+    constructor(
+        private readonly config: Config,
+        private readonly messageBus: MessageBus,
+    ) {}
+
     // 注册工具
     registerTool(tool: AnyDeclarativeTool) {
+        // 同名冲突：MCP 工具会升级为 fully-qualified（<server>__<tool>）
+        // 其他情况默认覆盖并 warn
         this.allKnownTools.set(tool.name, tool);
     }
 
@@ -456,15 +463,14 @@ class ToolRegistry {
     }
 
     // 获取所有工具定义（发送给模型，@google/genai FunctionDeclaration）
-    getAllToolDefinitions(): FunctionDeclaration[] {
+    getFunctionDeclarations(): FunctionDeclaration[] {
         return Array.from(this.allKnownTools.values()).map(tool => tool.schema);
     }
 }
 
 // 上游入口：Config.createToolRegistry()
 async function createToolRegistry(config: Config) {
-    const registry = new ToolRegistry(config);
-    registry.setMessageBus(config.getMessageBus());
+    const registry = new ToolRegistry(config, config.getMessageBus());
 
     // 文件操作工具
     registry.registerTool(new ReadFileTool(config, config.getMessageBus()));    // read_file
@@ -534,6 +540,9 @@ export abstract class DeclarativeTool<TParams extends object, TResult extends To
     readonly description: string,
     readonly kind: Kind,
     readonly parameterSchema: unknown,
+    readonly messageBus: MessageBus,
+    readonly isOutputMarkdown: boolean = true,
+    readonly canUpdateOutput: boolean = false,
   ) {}
 
   get schema(): FunctionDeclaration {
@@ -553,7 +562,7 @@ export abstract class BaseDeclarativeTool<TParams extends object, TResult extend
 
   protected abstract createInvocation(
     params: TParams,
-    messageBus?: MessageBus,
+    messageBus: MessageBus,
     _toolName?: string,
     _toolDisplayName?: string,
   ): ToolInvocation<TParams, TResult>;

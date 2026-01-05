@@ -1123,7 +1123,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
             </table>
           </div>
           <div className="mt-3 text-xs text-gray-400">
-            相关：<code>packages/core/src/services/skillManager.ts</code>（技能发现）、
+            相关：<code>packages/core/src/skills/skillManager.ts</code>（技能发现/覆盖优先级）、
             <code>packages/core/src/core/prompts.ts</code>（System Prompt 注入可用技能清单）。
           </div>
         </HighlightBox>

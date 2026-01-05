@@ -388,7 +388,7 @@ enum GeminiEventType {
             [
               '第 1 轮',
               <span key="1">
-                调用 <code className="bg-black/30 px-1 rounded">Glob</code>{' '}
+                调用 <code className="bg-black/30 px-1 rounded">glob</code>{' '}
                 工具，pattern: "src/**/*.ts"
               </span>,
               '返回文件列表：[src/a.ts, src/b.ts, ...]',
@@ -396,7 +396,7 @@ enum GeminiEventType {
             [
               '第 2 轮',
               <span key="2">
-                调用 <code className="bg-black/30 px-1 rounded">Bash</code>{' '}
+                调用 <code className="bg-black/30 px-1 rounded">run_shell_command</code>{' '}
                 工具，command: "wc -l src/*.ts"
               </span>,
               '返回行数统计',

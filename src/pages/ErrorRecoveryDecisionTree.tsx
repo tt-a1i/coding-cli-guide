@@ -513,35 +513,35 @@ async function handlePartialSuccess(
               </thead>
               <tbody>
                 <tr className="border-b border-gray-700">
-                  <td className="py-2 px-3 font-mono">Read 文件</td>
+                  <td className="py-2 px-3 font-mono">read_file</td>
                   <td className="py-2 px-3 text-green-400">✓ 幂等</td>
                   <td className="py-2 px-3 text-green-400">无</td>
                   <td className="py-2 px-3 text-green-400">✓ 安全</td>
                   <td className="py-2 px-3">任意次数重试</td>
                 </tr>
                 <tr className="border-b border-gray-700">
-                  <td className="py-2 px-3 font-mono">Write 文件</td>
+                  <td className="py-2 px-3 font-mono">write_file</td>
                   <td className="py-2 px-3 text-green-400">✓ 幂等</td>
                   <td className="py-2 px-3 text-yellow-400">可逆</td>
                   <td className="py-2 px-3 text-green-400">✓ 安全</td>
                   <td className="py-2 px-3">有 checkpoint 可回滚</td>
                 </tr>
                 <tr className="border-b border-gray-700">
-                  <td className="py-2 px-3 font-mono">Edit 文件</td>
+                  <td className="py-2 px-3 font-mono">replace</td>
                   <td className="py-2 px-3 text-yellow-400">△ 条件</td>
                   <td className="py-2 px-3 text-yellow-400">可逆</td>
                   <td className="py-2 px-3 text-yellow-400">△ 需验证</td>
                   <td className="py-2 px-3">需确认 old_string 仍匹配</td>
                 </tr>
                 <tr className="border-b border-gray-700">
-                  <td className="py-2 px-3 font-mono">Bash 只读</td>
+                  <td className="py-2 px-3 font-mono">run_shell_command（只读）</td>
                   <td className="py-2 px-3 text-green-400">✓ 幂等</td>
                   <td className="py-2 px-3 text-green-400">无</td>
                   <td className="py-2 px-3 text-green-400">✓ 安全</td>
                   <td className="py-2 px-3">如 ls, cat, grep</td>
                 </tr>
                 <tr className="border-b border-gray-700">
-                  <td className="py-2 px-3 font-mono">Bash 写入</td>
+                  <td className="py-2 px-3 font-mono">run_shell_command（写入）</td>
                   <td className="py-2 px-3 text-red-400">✗ 非幂等</td>
                   <td className="py-2 px-3 text-red-400">不可逆</td>
                   <td className="py-2 px-3 text-red-400">✗ 危险</td>

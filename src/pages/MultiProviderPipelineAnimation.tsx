@@ -81,14 +81,14 @@ export default function MultiProviderPipelineAnimation() {
     systemInstruction: 'You are a helpful coding assistant.',
     contents: [
       { role: 'user', parts: [{ text: '请帮我读取 app.ts 文件' }] },
-      { role: 'model', parts: [{ functionCall: { name: 'Read', args: { file_path: 'app.ts' } } }] },
+      { role: 'model', parts: [{ functionCall: { name: 'read_file', args: { file_path: 'app.ts' } } }] },
       { role: 'user', parts: [{ functionResponse: { id: 'call_1', response: { output: 'export const app = {}' } } }] },
       { role: 'model', parts: [{ text: '文件内容是一个空对象导出' }] },
       { role: 'user', parts: [{ text: '现在请分析这段代码' }] },
     ],
     tools: [
-      { name: 'Read', description: 'Read file contents' },
-      { name: 'Write', description: 'Write file contents' },
+      { name: 'read_file', description: 'Read file contents' },
+      { name: 'write_file', description: 'Write file contents' },
     ],
   });
 
@@ -126,7 +126,7 @@ export default function MultiProviderPipelineAnimation() {
     }
 
     // 工具调用片段 (模拟流式 JSON)
-    chunks.push({ id: id++, type: 'tool_call', toolIndex: 0, toolId: 'call_abc123', toolName: 'Read', toolArgs: '' });
+    chunks.push({ id: id++, type: 'tool_call', toolIndex: 0, toolId: 'call_abc123', toolName: 'read_file', toolArgs: '' });
     chunks.push({ id: id++, type: 'tool_call', toolIndex: 0, toolArgs: '{"file' });
     chunks.push({ id: id++, type: 'tool_call', toolIndex: 0, toolArgs: '_path":' });
     chunks.push({ id: id++, type: 'tool_call', toolIndex: 0, toolArgs: '"src/util' });

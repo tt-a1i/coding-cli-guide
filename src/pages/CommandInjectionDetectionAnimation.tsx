@@ -72,11 +72,6 @@ export default function CommandInjectionDetectionAnimation() {
 
   // 模拟安全检测
   const analyzeCommand = useCallback((cmd: string): CommandAnalysis => {
-    const segments = cmd
-      .split(/\s*(?:&&|\|\||;|\|)\s*/)
-      .map((s) => s.trim())
-      .filter(Boolean);
-    const rootCommand = segments[0]?.split(/\s+/)[0] || '';
     const checks: SecurityCheck[] = [];
 
     const hasBalancedQuotes = (value: string) => {
@@ -84,6 +79,18 @@ export default function CommandInjectionDetectionAnimation() {
       const singleQuotes = (value.match(/'/g) || []).length;
       return doubleQuotes % 2 === 0 && singleQuotes % 2 === 0;
     };
+
+    // 1) 解析是否可控（上游：parseCommandDetails()/splitCommands()；这里用“引号平衡”做近似演示）
+    // - shell-permissions.checkCommandPermissions(): 解析失败 => Hard DENY（无法安全拆分命令）
+    // - PolicyEngine.checkShellCommand(): 解析失败 => ASK_USER（交互模式给用户最后决定权；non-interactive 会转为 DENY）
+    const parseOk = hasBalancedQuotes(cmd);
+    const segments = parseOk
+      ? cmd
+          .split(/\s*(?:&&|\|\||;|\|)\s*/)
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : [cmd.trim()].filter(Boolean);
+    const rootCommand = segments[0]?.split(/\s+/)[0] || '';
 
     const parsePattern = (pattern: string): { tool: string; arg?: string } | null => {
       const openParen = pattern.indexOf('(');
@@ -110,17 +117,26 @@ export default function CommandInjectionDetectionAnimation() {
       return false;
     };
 
-    // 1) 解析是否可控（上游用 splitCommands()/parseCommandDetails；这里用“引号平衡”做近似演示）
-    const parseOk = hasBalancedQuotes(cmd);
     checks.push({
       name: 'parseCommandDetails()',
       passed: parseOk,
       detail: parseOk
         ? 'Parsed (simulated) OK'
-        : 'Parse failed (simulated): unbalanced quotes → 上游会回退为 ASK_USER（更保守）',
-      // 上游 parse 失败不会直接 DENY，而是回退为 ASK_USER（需要确认）
-      severity: parseOk ? 'safe' : 'warning',
+        : 'Parse failed (simulated): unbalanced quotes → shell-permissions 直接 Hard DENY（无法安全拆分命令）',
+      severity: parseOk ? 'safe' : 'blocked',
     });
+
+    // 解析失败：上游 checkCommandPermissions() 会直接 hard deny，后续规则匹配没有意义
+    if (!parseOk) {
+      return {
+        command: cmd,
+        rootCommand,
+        segments,
+        checks,
+        isAllowed: false,
+        requiresPermission: false,
+      };
+    }
 
     // 2) tools.exclude（blocklist，优先级最高）
     const isWildcardBlocked = EXAMPLE_TOOLS_EXCLUDE.some(

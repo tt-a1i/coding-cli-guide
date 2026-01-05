@@ -1894,19 +1894,19 @@ class LoopDetectionLogger {
   Details: { toolCalls: 1, contentLength: 256 }
 
 🔢 [Turn 5] tool_hash_computed
-  Details: { tool: 'Read', hash: 'abc123', count: 3 }
+  Details: { tool: 'read_file', hash: 'abc123', count: 3 }
 
 🔍 [Turn 6] check_start
   Details: { toolCalls: 1, contentLength: 234 }
 
 🔢 [Turn 6] tool_hash_computed
-  Details: { tool: 'Read', hash: 'abc123', count: 4 }
+  Details: { tool: 'read_file', hash: 'abc123', count: 4 }
 
 🔍 [Turn 7] check_start
   Details: { toolCalls: 1, contentLength: 245 }
 
 🔢 [Turn 7] tool_hash_computed
-  Details: { tool: 'Read', hash: 'abc123', count: 5 }
+  Details: { tool: 'read_file', hash: 'abc123', count: 5 }
 
 🚨 [Turn 7] threshold_exceeded
   Details: { threshold: 5, actual: 5, type: 'tool_call' }
@@ -1914,7 +1914,7 @@ class LoopDetectionLogger {
 ⚠️ [Turn 7] loop_detected
   Details: {
     type: 'tool_call',
-    message: 'Read("config.json") called 5 times',
+    message: 'read_file("config.json") called 5 times',
     strategy: 'PAUSE'
   }
 */`}
@@ -3246,10 +3246,10 @@ const smartRetryHandler: LoopHandler = {
   async generateAlternativeArgs(toolName: string, args: unknown): Promise<unknown | null> {
     // 根据工具类型生成替代参数
     switch (toolName) {
-      case 'Grep':
+      case 'search_file_content':
         // 尝试不同的搜索模式
         return { ...args, pattern: this.broadenPattern(args.pattern) };
-      case 'Read':
+      case 'read_file':
         // 尝试不同的文件区域
         return { ...args, offset: (args.offset || 0) + 100 };
       default:

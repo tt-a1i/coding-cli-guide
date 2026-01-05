@@ -65,16 +65,19 @@ export class LocalAgentExecutor<TOutput> {
     onActivity?: ActivityCallback,
   ): Promise<LocalAgentExecutor<TOutput>> {
     // 创建隔离的工具注册表
-    const agentToolRegistry = new ToolRegistry(runtimeContext);
+    const agentToolRegistry = new ToolRegistry(
+      runtimeContext,
+      runtimeContext.getMessageBus(),
+    );
 
     // 只注册 Agent 定义中声明的工具
     for (const toolName of definition.toolConfig?.tools ?? []) {
       const tool = getToolByName(toolName);
-      if (tool) agentToolRegistry.register(tool);
+      if (tool) agentToolRegistry.registerTool(tool);
     }
 
     // 注入 complete_task 工具（必须）
-    agentToolRegistry.register(
+    agentToolRegistry.registerTool(
       createCompleteTaskTool(definition.outputConfig)
     );
 

@@ -33,10 +33,10 @@ interface ToolCall {
 }
 
 const SAMPLE_TOOL_CALLS: Omit<ToolCall, 'status' | 'startTime' | 'duration'>[] = [
-  { id: 'call_1', name: 'Read', args: { file_path: '/src/app.ts' }, requiresApproval: false },
-  { id: 'call_2', name: 'Bash', args: { command: 'npm test' }, requiresApproval: true },
-  { id: 'call_3', name: 'Grep', args: { pattern: 'TODO', dir_path: '/src' }, requiresApproval: false },
-  { id: 'call_4', name: 'Write', args: { file_path: '/src/new.ts', content: '...' }, requiresApproval: true },
+  { id: 'call_1', name: 'read_file', args: { file_path: 'src/app.ts' }, requiresApproval: false },
+  { id: 'call_2', name: 'run_shell_command', args: { command: 'npm test' }, requiresApproval: true },
+  { id: 'call_3', name: 'search_file_content', args: { pattern: 'TODO', dir_path: 'src' }, requiresApproval: false },
+  { id: 'call_4', name: 'write_file', args: { file_path: 'src/new.ts', content: '...' }, requiresApproval: true },
 ];
 
 export default function ToolSchedulerQueueAnimation() {

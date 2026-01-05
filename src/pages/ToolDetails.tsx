@@ -96,10 +96,14 @@ validateToolParamValues(params) {
   {
     title: '执行工具',
     code: `// 1. 创建调用实例
-const invocation = tool.createInvocation(params);
+const invocation = tool.build(params); // BaseDeclarativeTool: schema 校验 + createInvocation()
 
-// 2. 执行
-const result = await invocation.execute();
+// 2. （调度器）确认是否需要执行前审批
+const confirmation = await invocation.shouldConfirmExecute(signal);
+if (confirmation) await waitForUserDecision(confirmation);
+
+// 3. 执行
+const result = await invocation.execute(signal, updateOutput);
 
 // ReadFileToolInvocation.execute() 内部：
 async execute() {

@@ -344,8 +344,7 @@ export function ToolSystemArchitecture() {
         <CodeBlock
           title="packages/core/src/config/config.ts (节选)"
           code={`async createToolRegistry(): Promise<ToolRegistry> {
-  const registry = new ToolRegistry(this);
-  registry.setMessageBus(this.messageBus);
+  const registry = new ToolRegistry(this, this.messageBus);
 
   const registerCoreTool = (ToolClass: any, ...args: unknown[]) => {
     const toolName = ToolClass.Name || ToolClass.name;
@@ -429,18 +428,21 @@ export abstract class BaseDeclarativeTool<TParams extends object, TResult extend
         <CodeBlock
           title="packages/core/src/tools/tools.ts (节选)"
           code={`async shouldConfirmExecute(abortSignal: AbortSignal): Promise<ToolCallConfirmationDetails | false> {
-  if (this.messageBus) {
-    const decision = await this.getMessageBusDecision(abortSignal); // ALLOW / DENY / ASK_USER
-    if (decision === 'ALLOW') return false;
-    if (decision === 'DENY') throw new Error(\`Tool execution for "\${this._toolName}" denied by policy.\`);
-    if (decision === 'ASK_USER') return this.getConfirmationDetails(abortSignal);
-  }
+  const decision = await this.getMessageBusDecision(abortSignal); // ALLOW / DENY / ASK_USER
+  if (decision === 'ALLOW') return false;
+  if (decision === 'DENY')
+    throw new Error(
+      \`Tool execution for "\${this._toolDisplayName || this._toolName}" denied by policy.\`,
+    );
+  if (decision === 'ASK_USER') return this.getConfirmationDetails(abortSignal);
+
+  // Unknown decision (should not happen) → default to confirmation
   return this.getConfirmationDetails(abortSignal);
 }`}
         />
         <JsonBlock
           code={`# policy rules (示例，TOML)
-# user policies: ~/.gemini/policy/auto-saved.toml
+# user policies: ~/.gemini/policies/auto-saved.toml
 
 [[rule]]
 toolName = "run_shell_command"
@@ -460,11 +462,19 @@ commandPrefix = ["git", "npm"]`}
   private allKnownTools: Map<string, AnyDeclarativeTool> = new Map();
 
   registerTool(tool: AnyDeclarativeTool): void {
+    // 同名冲突：MCP 工具会升级为 fully-qualified（<server>__<tool>）
+    // 其他情况默认覆盖并 warn
+    if (this.allKnownTools.has(tool.name)) {
+      if (tool instanceof DiscoveredMCPTool) {
+        tool = tool.asFullyQualifiedTool();
+      }
+    }
     this.allKnownTools.set(tool.name, tool);
   }
 
   async discoverAllTools(): Promise<void> {
     // remove previous discovered tools, then run toolDiscoveryCommand
+    this.removeDiscoveredTools();
     await this.discoverAndRegisterToolsFromCommand();
   }
 

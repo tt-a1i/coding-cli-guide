@@ -17,16 +17,22 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
             <h4 className="text-[var(--cyber-blue)] font-bold mb-2">🎯 核心概念</h4>
             <p className="text-[var(--text-secondary)] text-sm">
-              MessageBus 是 Gemini CLI 的异步事件协调系统。采用发布/订阅模式，解耦 Policy Engine、Hook System 和 UI 层之间的通信。
+              MessageBus 是 Gemini CLI 的异步事件协调系统：表面是发布/订阅（EventEmitter），但对关键消息会<strong>内置“中间件”逻辑</strong>。
+              例如工具审批会先由 PolicyEngine 判定（ALLOW / DENY / ASK_USER），仅在 ASK_USER 时才“放行”到 UI/调度器。
             </p>
           </div>
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
             <h4 className="text-[var(--terminal-green)] font-bold mb-2">📨 9 种消息类型</h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2 text-xs">
-              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-amber-400">TOOL_CONFIRM_REQ</div>
-              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-green-400">TOOL_CONFIRM_RES</div>
-              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-cyan-400">HOOK_EXEC_REQ</div>
-              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-purple-400">HOOK_EXEC_RES</div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2 text-xs">
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-amber-400">TOOL_CONFIRMATION_REQUEST</div>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-green-400">TOOL_CONFIRMATION_RESPONSE</div>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-red-400">TOOL_POLICY_REJECTION</div>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-emerald-400">TOOL_EXECUTION_SUCCESS</div>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-rose-400">TOOL_EXECUTION_FAILURE</div>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-cyan-400">HOOK_EXECUTION_REQUEST</div>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-purple-400">HOOK_EXECUTION_RESPONSE</div>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-blue-400">UPDATE_POLICY</div>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-slate-200">HOOK_POLICY_DECISION</div>
             </div>
           </div>
         </div>
@@ -53,34 +59,28 @@ const busSequence: BusStep[] = [
     phase: 'publish',
     group: 'sender',
     title: '发布消息',
-    description: 'Policy Engine 发布工具确认请求消息',
-    codeSnippet: `// message-bus.ts:40-70
-class MessageBus {
-  private subscribers = new Map<MessageType, Set<Handler>>();
+    description: 'ToolInvocation 通过 MessageBus 发起“是否允许执行工具”的请求',
+    codeSnippet: `// packages/core/src/tools/tools.ts (BaseToolInvocation.getMessageBusDecision)
+const correlationId = randomUUID();
+const toolCall = {
+  name: 'run_shell_command',
+  args: { command: 'rm -rf node_modules' },
+};
 
-  publish<T extends Message>(message: T): void {
-    const handlers = this.subscribers.get(message.type);
-    if (!handlers) return;
+// 1) 订阅响应（同 correlationId）
+messageBus.subscribe(MessageBusType.TOOL_CONFIRMATION_RESPONSE, onResponse);
 
-    for (const handler of handlers) {
-      handler(message);
-    }
-  }
-}
-
-// Policy Engine 发布确认请求
-messageBus.publish({
-  type: 'TOOL_CONFIRMATION_REQUEST',
-  toolName: 'Bash',
-  toolInput: { command: 'rm -rf node_modules' },
-  requestId: 'req_12345',
-  timestamp: Date.now()
+// 2) 发布请求（MessageBus 内部会先跑 PolicyEngine.check）
+await messageBus.publish({
+  type: MessageBusType.TOOL_CONFIRMATION_REQUEST,
+  toolCall,
+  correlationId,
 });`,
     visualData: {
       message: {
-        type: 'TOOL_CONFIRMATION_REQUEST',
-        toolName: 'Bash',
-        requestId: 'req_12345'
+        type: 'tool-confirmation-request',
+        correlationId: 'req_12345',
+        toolCall: { name: 'run_shell_command', args: { command: 'rm -rf node_modules' } },
       }
     },
     highlight: 'TOOL_CONFIRMATION_REQUEST',
@@ -88,138 +88,127 @@ messageBus.publish({
   {
     phase: 'route',
     group: 'bus',
-    title: '消息路由',
-    description: 'MessageBus 根据消息类型路由到订阅者',
-    codeSnippet: `// message-bus.ts:80-110
-private route(message: Message): Handler[] {
-  const type = message.type;
-  const handlers = this.subscribers.get(type) || new Set();
+    title: 'Policy 判定',
+    description: 'MessageBus 内部调用 PolicyEngine.check() 并决定“直接响应”或“放行到 UI/调度器”',
+    codeSnippet: `// packages/core/src/confirmation-bus/message-bus.ts
+if (message.type === MessageBusType.TOOL_CONFIRMATION_REQUEST) {
+  const { decision } = await policyEngine.check(message.toolCall, message.serverName);
 
-  console.debug(
-    '[MessageBus] Routing', type,
-    'to', handlers.size, 'subscribers'
-  );
-
-  return Array.from(handlers);
-}
-
-// 路由结果
-// TOOL_CONFIRMATION_REQUEST → 2 subscribers
-// - UIConfirmationDialog
-// - TelemetryLogger`,
+  switch (decision) {
+    case PolicyDecision.ALLOW:
+      emit({ type: MessageBusType.TOOL_CONFIRMATION_RESPONSE, correlationId, confirmed: true });
+      break;
+    case PolicyDecision.DENY:
+      emit({ type: MessageBusType.TOOL_POLICY_REJECTION, toolCall: message.toolCall });
+      emit({ type: MessageBusType.TOOL_CONFIRMATION_RESPONSE, correlationId, confirmed: false });
+      break;
+    case PolicyDecision.ASK_USER:
+      // 只有 ASK_USER 才会把 request 传给订阅者
+      emit(message);
+      break;
+  }
+}`,
     visualData: {
       routing: {
-        type: 'TOOL_CONFIRMATION_REQUEST',
-        subscribers: ['UIConfirmationDialog', 'TelemetryLogger']
+        type: 'tool-confirmation-request',
+        subscribers: ['CoreToolScheduler (ASK_USER handler)', 'UI (render confirmation details)']
       }
     },
-    highlight: '2 订阅者',
+    highlight: 'ASK_USER 才会下发',
   },
   {
     phase: 'subscribe',
     group: 'receiver',
-    title: 'UI 接收消息',
-    description: 'UI 层订阅并接收确认请求',
-    codeSnippet: `// ui/ConfirmationDialog.tsx:20-50
-useEffect(() => {
-  const unsubscribe = messageBus.subscribe(
-    'TOOL_CONFIRMATION_REQUEST',
-    (message) => {
-      setConfirmRequest(message);
-      setIsOpen(true);
-    }
-  );
-
-  return () => unsubscribe();
-}, []);
-
-// 显示确认对话框
-// ┌─────────────────────────────┐
-// │ Bash: rm -rf node_modules  │
-// │ [Allow] [Deny]             │
-// └─────────────────────────────┘`,
+    title: 'ASK_USER 触发',
+    description: '当 PolicyDecision=ASK_USER 时，CoreToolScheduler 会“快速回应”让 Tool 返回 confirmationDetails',
+    codeSnippet: `// packages/core/src/core/coreToolScheduler.ts (constructor)
+messageBus.subscribe(
+  MessageBusType.TOOL_CONFIRMATION_REQUEST,
+  (request) => {
+    // 只会收到 policy=ASK_USER 的请求
+    messageBus.publish({
+      type: MessageBusType.TOOL_CONFIRMATION_RESPONSE,
+      correlationId: request.correlationId,
+      confirmed: false,
+      requiresUserConfirmation: true,
+    });
+  },
+);`,
     visualData: {
-      dialog: { isOpen: true, tool: 'Bash' }
+      routing: {
+        type: 'tool-confirmation-request',
+        subscribers: ['CoreToolScheduler → TOOL_CONFIRMATION_RESPONSE(requiresUserConfirmation=true)'],
+      },
     },
-    highlight: '显示对话框',
+    highlight: 'requiresUserConfirmation=true',
   },
   {
     phase: 'handle',
     group: 'receiver',
-    title: '用户交互',
-    description: '用户点击 Allow 按钮确认操作',
-    codeSnippet: `// ui/ConfirmationDialog.tsx:60-90
-const handleAllow = () => {
-  // 用户点击 Allow
-  const response: ToolConfirmationResponse = {
-    type: 'TOOL_CONFIRMATION_RESPONSE',
-    requestId: confirmRequest.requestId,
-    decision: 'allow',
-    timestamp: Date.now()
-  };
+    title: '生成确认详情',
+    description: 'ToolInvocation 收到 requiresUserConfirmation 后返回 ToolCallConfirmationDetails 给调度器',
+    codeSnippet: `// packages/core/src/tools/tools.ts (BaseToolInvocation.shouldConfirmExecute)
+const decision = await this.getMessageBusDecision(signal);
+if (decision === 'ALLOW') return false;
+if (decision === 'DENY') throw new Error('...denied by policy');
 
-  messageBus.publish(response);
-  setIsOpen(false);
-};
-
-// 用户选择: Allow`,
+// ASK_USER → 由工具自己提供确认 UI 的结构化数据（edit/exec/mcp/info）
+return this.getConfirmationDetails(signal);`,
     visualData: {
-      userAction: 'allow'
+      message: {
+        type: 'tool-confirmation-response',
+        correlationId: 'req_12345',
+        confirmed: false,
+        requiresUserConfirmation: true,
+      },
     },
-    highlight: '用户选择 Allow',
+    highlight: 'ToolCallConfirmationDetails',
   },
   {
     phase: 'respond',
     group: 'response',
-    title: '发布响应',
-    description: 'UI 发布确认响应消息',
-    codeSnippet: `// UI 发布响应
-messageBus.publish({
-  type: 'TOOL_CONFIRMATION_RESPONSE',
-  requestId: 'req_12345',
-  decision: 'allow',
-  timestamp: Date.now()
-});
-
-// MessageBus 路由响应
-// TOOL_CONFIRMATION_RESPONSE → 1 subscriber
-// - PolicyEngine`,
+    title: '用户确认并保存',
+    description: '用户在确认框选择“Always allow (+ save)”后，工具会发布 UPDATE_POLICY',
+    codeSnippet: `// packages/core/src/tools/tools.ts (BaseToolInvocation.publishPolicyUpdate)
+onConfirm: async (outcome) => {
+  // proceed_always / proceed_always_and_save 会触发策略更新
+  if (outcome === ToolConfirmationOutcome.ProceedAlwaysAndSave) {
+    await messageBus.publish({
+      type: MessageBusType.UPDATE_POLICY,
+      toolName: 'run_shell_command',
+      persist: true,
+      // shell 可能带 commandPrefix/commandRegex 等附加信息
+    });
+  }
+}`,
     visualData: {
       response: {
-        type: 'TOOL_CONFIRMATION_RESPONSE',
-        decision: 'allow',
-        requestId: 'req_12345'
+        type: 'update-policy',
+        toolName: 'run_shell_command',
+        persist: true,
       }
     },
-    highlight: 'TOOL_CONFIRMATION_RESPONSE',
+    highlight: 'UPDATE_POLICY',
   },
   {
     phase: 'complete',
     group: 'response',
-    title: 'Policy 接收响应',
-    description: 'Policy Engine 接收响应并完成决策',
-    codeSnippet: `// policy-engine.ts:150-180
-messageBus.subscribe(
-  'TOOL_CONFIRMATION_RESPONSE',
-  (response) => {
-    const pending = this.pendingRequests.get(response.requestId);
-    if (!pending) return;
+    title: '落盘 auto-saved',
+    description: 'PolicyUpdater 监听 UPDATE_POLICY，将规则写入 ~/.gemini/policies/auto-saved.toml（原子写入）',
+    codeSnippet: `// packages/core/src/policy/policy-updater.ts (createPolicyUpdater)
+messageBus.subscribe(MessageBusType.UPDATE_POLICY, async (update) => {
+  const rules = policyEngine.createDynamicRule(update);
+  policyEngine.addRules(rules);
 
-    pending.resolve({
-      action: response.decision === 'allow' ? 'ALLOW' : 'DENY',
-      source: 'user_confirmation'
-    });
-
-    this.pendingRequests.delete(response.requestId);
+  if (update.persist) {
+    await writeFile('~/.gemini/policies/auto-saved.toml', tomlString, { atomic: true });
   }
-);
-
-// 工具 Bash 继续执行`,
+});`,
     visualData: {
       completed: true,
-      decision: 'ALLOW'
+      decision: '下次同类调用直接 ALLOW',
     },
-    highlight: '工具执行',
+    highlight: '~/.gemini/policies/auto-saved.toml',
   },
 ];
 

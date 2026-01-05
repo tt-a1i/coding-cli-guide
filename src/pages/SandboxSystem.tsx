@@ -1893,7 +1893,7 @@ const commands = [
           <MermaidDiagram chart={`graph TB
     subgraph "工具层"
         Shell[Shell Tool]
-        Bash[Bash Tool]
+        RunShell[run_shell_command]
     end
 
     subgraph "沙箱系统 (Sandbox)"
@@ -1916,7 +1916,7 @@ const commands = [
 
     %% 工具层调用沙箱
     Shell --> Detector
-    Bash --> Detector
+    RunShell --> Detector
 
     %% 沙箱类型分发
     Detector --> Docker
@@ -1941,7 +1941,7 @@ const commands = [
     classDef security fill:#ef4444,color:#fff,stroke:#dc2626
 
     class Detector,Docker,Seatbelt,Pool sandbox
-    class Shell,Bash tool
+    class Shell,RunShell tool
     class Config,Env,FS infra
     class Permission,Validator security`} />
         </div>

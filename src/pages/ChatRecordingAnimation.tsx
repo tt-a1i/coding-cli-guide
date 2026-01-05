@@ -175,13 +175,13 @@ export default function ChatRecordingAnimation() {
     // AI starts thinking
     recordThought('用户想要读取一个 JSON 配置文件');
     await sleep(300);
-    recordThought('我需要使用 Read 工具来读取文件内容');
+    recordThought('我需要使用 read_file 工具来读取文件内容');
     await sleep(300);
 
     // AI calls tool
     recordToolCalls([{
       id: 'call_' + generateId(),
-      name: 'Read',
+      name: 'read_file',
       status: 'completed',
     }]);
     await sleep(500);
@@ -306,7 +306,7 @@ export default function ChatRecordingAnimation() {
                     💭 添加思考
                   </button>
                   <button
-                    onClick={() => recordToolCalls([{ id: 'call_' + generateId(), name: 'Read', status: 'completed' }])}
+                    onClick={() => recordToolCalls([{ id: 'call_' + generateId(), name: 'read_file', status: 'completed' }])}
                     disabled={isSimulating}
                     className="px-3 py-2 bg-green-500/20 text-green-400 border border-green-500/30 rounded-lg text-sm hover:bg-green-500/30 disabled:opacity-50"
                   >

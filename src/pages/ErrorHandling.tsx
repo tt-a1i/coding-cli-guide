@@ -1083,7 +1083,7 @@ function attemptJSONFix(
               <tr className="border-b border-gray-700/50">
                 <td className="py-3 px-2">
                   <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs">TOOL</span>
-                  <div className="text-xs text-gray-500 mt-1">Bash 失败</div>
+                  <div className="text-xs text-gray-500 mt-1">run_shell_command 失败</div>
                 </td>
                 <td className="py-3 px-2 text-xs">命令执行返回非零</td>
                 <td className="py-3 px-2 text-xs">命令不存在、权限不足、语法错误</td>
@@ -1091,13 +1091,13 @@ function attemptJSONFix(
                   <code className="text-green-400">AI 自动处理</code>：
                   错误返回给模型重新决策
                 </td>
-                <td className="py-3 px-2 text-xs font-mono text-cyan-400">core/src/tools/bash.ts</td>
+                <td className="py-3 px-2 text-xs font-mono text-cyan-400">packages/core/src/tools/shell.ts</td>
               </tr>
 
               <tr className="border-b border-gray-700/50">
                 <td className="py-3 px-2">
                   <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs">TOOL</span>
-                  <div className="text-xs text-gray-500 mt-1">Read 失败</div>
+                  <div className="text-xs text-gray-500 mt-1">read_file 失败</div>
                 </td>
                 <td className="py-3 px-2 text-xs">无法读取文件</td>
                 <td className="py-3 px-2 text-xs">文件不存在、权限不足、路径错误</td>
@@ -1105,13 +1105,13 @@ function attemptJSONFix(
                   <code className="text-green-400">AI 自动处理</code>：
                   提示文件不存在
                 </td>
-                <td className="py-3 px-2 text-xs font-mono text-cyan-400">core/src/tools/read.ts</td>
+                <td className="py-3 px-2 text-xs font-mono text-cyan-400">packages/core/src/tools/read-file.ts</td>
               </tr>
 
               <tr className="border-b border-gray-700/50">
                 <td className="py-3 px-2">
                   <span className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs">TOOL</span>
-                  <div className="text-xs text-gray-500 mt-1">Edit 失败</div>
+                  <div className="text-xs text-gray-500 mt-1">replace 失败</div>
                 </td>
                 <td className="py-3 px-2 text-xs">old_string 未找到</td>
                 <td className="py-3 px-2 text-xs">文件已被修改、匹配字符串错误、编码问题</td>
@@ -1119,7 +1119,7 @@ function attemptJSONFix(
                   <code className="text-green-400">AI 自动处理</code>：
                   重新读取文件后重试
                 </td>
-                <td className="py-3 px-2 text-xs font-mono text-cyan-400">core/src/tools/edit.ts</td>
+                <td className="py-3 px-2 text-xs font-mono text-cyan-400">packages/core/src/tools/smart-edit.ts</td>
               </tr>
 
               {/* 配置错误 */}
