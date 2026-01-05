@@ -49,7 +49,7 @@ const INITIAL_SECTIONS: PromptSection[] = [
   { id: 'tool-policy', name: 'Tool Usage Policy', category: 'core', content: 'When doing file search, prefer Task tool...', tokens: 267, active: false, injected: false },
   { id: 'sandbox', name: 'Sandbox Section', category: 'dynamic', content: '# macOS Seatbelt Sandbox\nYou are running inside a restricted...', tokens: 156, active: false, injected: false },
   { id: 'git-repo', name: 'Git Repository', category: 'dynamic', content: 'gitStatus: Current branch: main\nStatus: clean...', tokens: 98, active: false, injected: false },
-  { id: 'model-examples', name: 'Tool Call Examples', category: 'model', content: '## Gemini Examples\n<tool_call>{"name":"Read"...', tokens: 423, active: false, injected: false },
+  { id: 'model-examples', name: 'Tool Call Examples', category: 'model', content: '## Gemini Examples\n<tool_call>{"name":"read_file"...', tokens: 423, active: false, injected: false },
   { id: 'user-memory', name: 'User Memory', category: 'memory', content: '# User Preferences\n- Preferred language: TypeScript...', tokens: 134, active: false, injected: false },
 ];
 

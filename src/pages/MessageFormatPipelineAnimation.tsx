@@ -61,7 +61,7 @@ const SAMPLE_MESSAGES: Message[] = [
     role: 'model',
     parts: [
       { type: 'text', content: '我来读取文件内容...', converted: false },
-      { type: 'function_call', content: 'Read({file_path: "/src/app.ts"})', converted: false },
+      { type: 'function_call', content: 'read_file({file_path: "/src/app.ts"})', converted: false },
     ],
     format: 'gemini',
   },

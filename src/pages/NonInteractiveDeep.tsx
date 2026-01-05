@@ -51,8 +51,8 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
               <div className="text-xs text-[var(--text-muted)]">多轮工具调用</div>
             </div>
             <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
-              <div className="text-2xl font-bold text-[var(--purple)]">YOLO</div>
-              <div className="text-xs text-[var(--text-muted)]">无确认模式</div>
+              <div className="text-2xl font-bold text-[var(--purple)]">Modes</div>
+              <div className="text-xs text-[var(--text-muted)]">default/auto_edit/yolo</div>
             </div>
           </div>
 
@@ -91,14 +91,14 @@ export function NonInteractiveDeep() {
 
   const executionFlowChart = `flowchart TD
     subgraph Input["输入处理"]
-        STDIN["stdin 或参数"]
+        STDIN["stdin + prompt"]
         SLASH{Slash 命令?}
         AT["@ 命令处理"]
     end
 
     subgraph Loop["执行循环"]
         TURN["turnCount++"]
-        CHECK{超过 maxTurns?}
+        CHECK{超过 maxSessionTurns?}
         SEND["sendMessageStream"]
         STREAM["流式响应"]
     end
@@ -145,56 +145,73 @@ export function NonInteractiveDeep() {
     participant Model as LLM
     participant Tool as Tool Executor
 
-    User->>CLI: gemini -p "create test.txt"
+    User->>CLI: gemini "create test.txt"
     CLI->>Model: sendMessageStream
-    Model-->>CLI: ToolCallRequest (Write)
+    Model-->>CLI: ToolCallRequest (write_file)
     CLI->>Tool: executeToolCall
     Tool-->>CLI: toolResponseParts
     CLI->>Model: sendMessageStream (tool results)
     Model-->>CLI: Content (完成消息)
     CLI->>User: stdout 输出`;
 
-  const mainCodeExample = `// runNonInteractive - 主入口函数
-export async function runNonInteractive(
-  config: Config,
-  settings: LoadedSettings,
-  input: string,
-  prompt_id: string,
-): Promise<void> {
+  const mainCodeExample = `// packages/cli/src/nonInteractiveCli.ts - runNonInteractive（节选）
+interface RunNonInteractiveParams {
+  config: Config;
+  settings: LoadedSettings;
+  input: string;
+  prompt_id: string;
+  hasDeprecatedPromptArg?: boolean;
+  resumedSessionData?: ResumedSessionData;
+}
+
+export async function runNonInteractive({
+  config,
+  settings,
+  input,
+  prompt_id,
+  hasDeprecatedPromptArg,
+  resumedSessionData,
+}: RunNonInteractiveParams): Promise<void> {
   return promptIdContext.run(prompt_id, async () => {
     const consolePatcher = new ConsolePatcher({
       stderr: true,
       debugMode: config.getDebugMode(),
+      onNewMessage: (msg) => coreEvents.emitConsoleLog(msg.type, msg.content),
     });
+    const { stdout: workingStdout } = createWorkingStdio();
+    const textOutput = new TextOutput(workingStdout);
+    const abortController = new AbortController();
 
     try {
       consolePatcher.patch();
 
-      // 处理 EPIPE 错误（管道提前关闭）
-      process.stdout.on('error', (err: NodeJS.ErrnoException) => {
-        if (err.code === 'EPIPE') {
-          process.exit(0);  // 优雅退出
-        }
+      // Handle EPIPE when piping to a command that closes early.
+      process.stdout.on('error', (err) => {
+        if (err.code === 'EPIPE') process.exit(0);
       });
 
       const geminiClient = config.getGeminiClient();
-      const abortController = new AbortController();
 
-      let query: Part[] | undefined;
-
-      // 1. 处理 Slash 命令
-      if (isSlashCommand(input)) {
-        const slashCommandResult = await handleSlashCommand(
-          input, abortController, config, settings
-        );
-        if (slashCommandResult) {
-          query = slashCommandResult as Part[];
-        }
+      // Resume session (optional)
+      if (resumedSessionData) {
+        await geminiClient.resumeChat(...);
       }
 
-      // 2. 处理 @ 命令（文件引用）
+      // 1) Slash 命令（可能返回 prompt）
+      let query: Part[] | undefined;
+      if (isSlashCommand(input)) {
+        const slashResult = await handleSlashCommand(
+          input,
+          abortController,
+          config,
+          settings,
+        );
+        if (slashResult) query = slashResult as Part[];
+      }
+
+      // 2) @path 展开（文件引用）
       if (!query) {
-        const { processedQuery, shouldProceed } = await handleAtCommand({
+        const { processedQuery, error } = await handleAtCommand({
           query: input,
           config,
           addItem: (_item, _timestamp) => 0,
@@ -203,100 +220,153 @@ export async function runNonInteractive(
           signal: abortController.signal,
         });
 
-        if (!shouldProceed || !processedQuery) {
+        if (error || !processedQuery) {
           throw new FatalInputError(
-            'Exiting due to an error processing the @ command.'
+            error || 'Exiting due to an error processing the @ command.',
           );
         }
+
         query = processedQuery as Part[];
       }
 
-      // 3. 执行对话循环
-      let currentMessages: Content[] = [{ role: 'user', parts: query }];
-      let turnCount = 0;
-
-      while (true) {
-        turnCount++;
-        // 检查最大轮次限制
-        if (config.getMaxSessionTurns() >= 0 &&
-            turnCount > config.getMaxSessionTurns()) {
-          handleMaxTurnsExceededError(config);
-        }
-
-        // ... 发送消息和处理响应
-      }
+      // 3) Tool loop：sendMessageStream → executeToolCall → continuation
+      //    见下方“响应处理循环”代码块
+      void hasDeprecatedPromptArg;
     } finally {
       consolePatcher.cleanup();
-      if (isTelemetrySdkInitialized()) {
-        await shutdownTelemetry(config);
-      }
     }
   });
 }`;
 
-  const responseHandlingCode = `// 响应处理循环
-const toolCallRequests: ToolCallRequestInfo[] = [];
+  const responseHandlingCode = `// packages/cli/src/nonInteractiveCli.ts - 响应处理循环（节选）
+const streamFormatter =
+  config.getOutputFormat() === OutputFormat.STREAM_JSON
+    ? new StreamJsonFormatter()
+    : null;
 
-const responseStream = geminiClient.sendMessageStream(
-  currentMessages[0]?.parts || [],
-  abortController.signal,
-  prompt_id,
-);
+let currentMessages: Content[] = [{ role: 'user', parts: query }];
+let turnCount = 0;
 
-let responseText = '';
-for await (const event of responseStream) {
-  if (abortController.signal.aborted) {
-    handleCancellationError(config);
+while (true) {
+  turnCount++;
+  if (
+    config.getMaxSessionTurns() >= 0 &&
+    turnCount > config.getMaxSessionTurns()
+  ) {
+    handleMaxTurnsExceededError(config);
   }
 
-  if (event.type === GeminiEventType.Content) {
-    // 文本内容
-    if (config.getOutputFormat() === OutputFormat.JSON) {
-      responseText += event.value;  // JSON 模式累积
-    } else {
-      process.stdout.write(event.value);  // Text 模式流式输出
+  const toolCallRequests: ToolCallRequestInfo[] = [];
+  const responseStream = geminiClient.sendMessageStream(
+    currentMessages[0]?.parts || [],
+    abortController.signal,
+    prompt_id,
+  );
+
+  let responseText = '';
+  for await (const event of responseStream) {
+    if (abortController.signal.aborted) {
+      handleCancellationError(config);
     }
-  } else if (event.type === GeminiEventType.ToolCallRequest) {
-    // 工具调用请求
-    toolCallRequests.push(event.value);
+
+    if (event.type === GeminiEventType.Content) {
+      if (streamFormatter) {
+        streamFormatter.emitEvent({
+          type: JsonStreamEventType.MESSAGE,
+          timestamp: new Date().toISOString(),
+          role: 'assistant',
+          content: event.value,
+          delta: true,
+        });
+      } else if (config.getOutputFormat() === OutputFormat.JSON) {
+        responseText += event.value;
+      } else {
+        textOutput.write(event.value);
+      }
+    } else if (event.type === GeminiEventType.ToolCallRequest) {
+      if (streamFormatter) {
+        streamFormatter.emitEvent({
+          type: JsonStreamEventType.TOOL_USE,
+          timestamp: new Date().toISOString(),
+          tool_name: event.value.name,
+          tool_id: event.value.callId,
+          parameters: event.value.args,
+        });
+      }
+      toolCallRequests.push(event.value);
+    } else if (event.type === GeminiEventType.Error) {
+      throw event.value.error;
+    }
   }
-}
 
-// 处理工具调用
-if (toolCallRequests.length > 0) {
-  const toolResponseParts: Part[] = [];
+  if (toolCallRequests.length > 0) {
+    textOutput.ensureTrailingNewline();
+    const toolResponseParts: Part[] = [];
 
-  for (const requestInfo of toolCallRequests) {
-    const toolResponse = await executeToolCall(
-      config,
-      requestInfo,
-      abortController.signal,
-    );
+    for (const requestInfo of toolCallRequests) {
+      const completedToolCall = await executeToolCall(
+        config,
+        requestInfo,
+        abortController.signal,
+      );
+      const toolResponse = completedToolCall.response;
 
-    if (toolResponse.error) {
-      handleToolError(requestInfo.name, toolResponse.error, config, ...);
+      if (streamFormatter) {
+        streamFormatter.emitEvent({
+          type: JsonStreamEventType.TOOL_RESULT,
+          timestamp: new Date().toISOString(),
+          tool_id: requestInfo.callId,
+          status: toolResponse.error ? 'error' : 'success',
+          output:
+            typeof toolResponse.resultDisplay === 'string'
+              ? toolResponse.resultDisplay
+              : undefined,
+        });
+      }
+
+      if (toolResponse.error) {
+        handleToolError(
+          requestInfo.name,
+          toolResponse.error,
+          config,
+          toolResponse.errorType,
+          typeof toolResponse.resultDisplay === 'string'
+            ? toolResponse.resultDisplay
+            : undefined,
+        );
+      }
+
+      if (toolResponse.responseParts) {
+        toolResponseParts.push(...toolResponse.responseParts);
+      }
     }
 
-    if (toolResponse.responseParts) {
-      toolResponseParts.push(...toolResponse.responseParts);
-    }
+    // Continuation：把工具结果作为下一轮 user message
+    currentMessages = [{ role: 'user', parts: toolResponseParts }];
+    continue;
   }
 
-  // 继续循环，发送工具结果
-  currentMessages = [{ role: 'user', parts: toolResponseParts }];
-} else {
-  // 无工具调用，输出结果并退出
-  if (config.getOutputFormat() === OutputFormat.JSON) {
+  // 无工具调用：输出最终结果并退出
+  if (streamFormatter) {
+    streamFormatter.emitEvent({
+      type: JsonStreamEventType.RESULT,
+      timestamp: new Date().toISOString(),
+      status: 'success',
+    });
+  } else if (config.getOutputFormat() === OutputFormat.JSON) {
     const formatter = new JsonFormatter();
     const stats = uiTelemetryService.getMetrics();
-    process.stdout.write(formatter.format(responseText, stats));
+    textOutput.write(
+      formatter.format(config.getSessionId(), responseText, stats),
+    );
   } else {
-    process.stdout.write('\\n');
+    textOutput.ensureTrailingNewline();
   }
-  return;  // 退出循环
+
+  return;
 }`;
 
-  const nonInteractiveUICode = `// 非交互 UI 上下文 - 所有方法为 no-op
+  const nonInteractiveUICode = `// packages/cli/src/ui/noninteractive/nonInteractiveUi.ts
 export function createNonInteractiveUI(): CommandContext['ui'] {
   return {
     addItem: (_item, _timestamp) => 0,
@@ -306,36 +376,17 @@ export function createNonInteractiveUI(): CommandContext['ui'] {
     pendingItem: null,
     setPendingItem: (_item) => {},
     toggleCorgiMode: () => {},
+    toggleDebugProfiler: () => {},
     toggleVimEnabled: async () => false,
-    setGeminiMdFileCount: (_count) => {},
     reloadCommands: () => {},
     extensionsUpdateState: new Map(),
     dispatchExtensionStateUpdate: (_action) => {},
     addConfirmUpdateExtensionRequest: (_request) => {},
+    removeComponent: () => {},
   };
-}
+}`;
 
-// 用于 Slash 命令上下文
-const context: CommandContext = {
-  services: {
-    config,
-    settings,
-    git: undefined,
-    logger,
-  },
-  ui: createNonInteractiveUI(),  // 注入 no-op UI
-  session: {
-    stats: sessionStats,
-    sessionShellAllowlist: new Set(),
-  },
-  invocation: {
-    raw: trimmed,
-    name: commandToExecute.name,
-    args,
-  },
-};`;
-
-  const slashCommandCode = `// Slash 命令处理（非交互模式）
+  const slashCommandCode = `// packages/cli/src/nonInteractiveCliCommands.ts
 export const handleSlashCommand = async (
   rawQuery: string,
   abortController: AbortController,
@@ -347,34 +398,55 @@ export const handleSlashCommand = async (
     return;
   }
 
-  // 只支持自定义命令
-  const loaders = [new FileCommandLoader(config)];
   const commandService = await CommandService.create(
-    loaders,
+    [new McpPromptLoader(config), new FileCommandLoader(config)],
     abortController.signal,
   );
   const commands = commandService.getCommands();
 
   const { commandToExecute, args } = parseSlashCommand(rawQuery, commands);
 
-  if (commandToExecute?.action) {
-    const result = await commandToExecute.action(context, args);
+  if (commandToExecute) {
+    if (commandToExecute.action) {
+      const sessionStats: SessionStatsState = {
+        sessionId: config.getSessionId(),
+        sessionStartTime: new Date(),
+        metrics: uiTelemetryService.getMetrics(),
+        lastPromptTokenCount: 0,
+        promptCount: 1,
+      };
 
-    if (result) {
-      switch (result.type) {
-        case 'submit_prompt':
-          return result.content;  // 返回 prompt 继续执行
+      const logger = new Logger(config.getSessionId(), config.storage);
 
-        case 'confirm_shell_commands':
-          // 非交互模式不支持确认
-          throw new FatalInputError(
-            'Exiting due to a confirmation prompt requested by the command.'
-          );
+      const context: CommandContext = {
+        services: { config, settings, git: undefined, logger },
+        ui: createNonInteractiveUI(),
+        session: {
+          stats: sessionStats,
+          sessionShellAllowlist: new Set(),
+        },
+        invocation: {
+          raw: trimmed,
+          name: commandToExecute.name,
+          args,
+        },
+      };
 
-        default:
-          throw new FatalInputError(
-            'Exiting due to command result not supported in non-interactive mode.'
-          );
+      const result = await commandToExecute.action(context, args);
+
+      if (result) {
+        switch (result.type) {
+          case 'submit_prompt':
+            return result.content;
+          case 'confirm_shell_commands':
+            throw new FatalInputError(
+              'Exiting due to a confirmation prompt requested by the command.',
+            );
+          default:
+            throw new FatalInputError(
+              'Exiting due to command result that is not supported in non-interactive mode.',
+            );
+        }
       }
     }
   }
@@ -382,39 +454,39 @@ export const handleSlashCommand = async (
   return;
 };`;
 
-  const usageExamples = `# 基本用法
+  const usageExamples = `# 基本用法（positional prompt；-p/--prompt 已 deprecated）
 echo "explain this code" | gemini
-gemini -p "what is 2+2"
-cat file.txt | gemini -p "summarize this"
+gemini "what is 2+2"
+cat file.txt | gemini "summarize this"
 
 # JSON 输出模式
-gemini -p "list all files" --output-format json
+gemini "list all files" --output-format json
 
-# 文件引用
-gemini -p "review @src/main.ts"
+# 文件引用（@path 会被展开）
+gemini "review @src/main.ts"
 
 # Slash 命令
-gemini -p "/custom-command arg1 arg2"
+gemini "/custom-command arg1 arg2"
 
-# 管道组合
-git diff | gemini -p "generate commit message" | git commit -m -
+# 管道组合（把 commit message 写入 stdin）
+git diff | gemini "generate commit message" | git commit -F -
 
-# 批量处理
-find . -name "*.ts" | xargs -I{} gemini -p "add docs to {}"
+# 批量处理（注意：可能触发大量请求）
+find . -name "*.ts" | xargs -I{} gemini "add docs to {}"
 
 # CI/CD 集成
-gemini -p "check for security issues in @package.json" \\
+gemini "check for security issues in @package.json" \\
   --output-format json | jq '.issues'`;
 
   const featuresData = [
-    { feature: '管道输入', description: 'stdin 读取，支持 echo/cat/pipe', example: 'cat file.txt | gemini' },
-    { feature: '-p 参数', description: '直接指定 prompt', example: 'gemini -p "hello"' },
-    { feature: '@ 命令', description: '文件引用展开', example: 'gemini -p "@src/main.ts"' },
-    { feature: 'Slash 命令', description: '自定义命令执行', example: 'gemini -p "/my-command"' },
-    { feature: 'JSON 输出', description: '结构化输出，含统计', example: '--output-format json' },
+    { feature: '管道输入', description: 'stdin 读取（可单独使用，也可与 prompt 拼接）', example: 'cat file.txt | gemini "summarize"' },
+    { feature: 'positional prompt', description: '推荐用 positional prompt（-p/--prompt deprecated）', example: 'gemini "hello"' },
+    { feature: '@ 命令', description: '文件引用展开', example: 'gemini "review @src/main.ts"' },
+    { feature: 'Slash 命令', description: '自定义命令 / MCP Prompt 执行', example: 'gemini "/my-command"' },
+    { feature: '输出格式', description: 'text / json / stream-json', example: '--output-format stream-json' },
     { feature: 'EPIPE 处理', description: '管道提前关闭时优雅退出', example: 'gemini | head -1' },
     { feature: '工具循环', description: '自动执行工具调用', example: '多轮 tool 调用' },
-    { feature: 'Max Turns', description: '轮次限制防止无限循环', example: '--max-turns 10' },
+    { feature: '轮次限制', description: '防止无限循环（settings.model.maxSessionTurns）', example: 'settings.json: { "model": { "maxSessionTurns": 8 } }' },
   ];
 
   return (
@@ -437,7 +509,7 @@ gemini -p "check for security issues in @package.json" \\
           <div className="bg-[var(--bg-card)] p-4 rounded-lg border border-[var(--cyber-blue)]/30">
             <div className="text-[var(--cyber-blue)] font-bold mb-2">1️⃣ 输入</div>
             <ul className="text-sm text-[var(--text-secondary)] space-y-1">
-              <li>• stdin 或 -p 参数</li>
+              <li>• stdin + prompt（positional；-p deprecated）</li>
               <li>• Slash 命令解析</li>
               <li>• @ 文件引用展开</li>
             </ul>
@@ -461,9 +533,9 @@ gemini -p "check for security issues in @package.json" \\
           <div className="bg-[var(--bg-card)] p-4 rounded-lg border border-[var(--purple)]/30">
             <div className="text-[var(--purple)] font-bold mb-2">4️⃣ 输出</div>
             <ul className="text-sm text-[var(--text-secondary)] space-y-1">
-              <li>• Text: 流式 stdout</li>
-              <li>• JSON: 结构化输出</li>
-              <li>• 遥测数据关闭</li>
+              <li>• text: 默认流式 stdout</li>
+              <li>• json: 最终输出（含 stats）</li>
+              <li>• stream-json: 事件流（INIT/MESSAGE/TOOL/RESULT）</li>
             </ul>
           </div>
         </div>
@@ -475,10 +547,10 @@ gemini -p "check for security issues in @package.json" \\
         <div className="mt-4 bg-[var(--bg-terminal)] p-4 rounded-lg">
           <h4 className="text-[var(--terminal-green)] font-bold mb-2">循环特点</h4>
           <ul className="text-sm text-[var(--text-secondary)] space-y-1">
-            <li>• <strong>自动工具执行</strong>：无需用户确认（YOLO 模式）</li>
+            <li>• <strong>无确认 UI</strong>：非交互模式不会弹确认；默认会额外 exclude 需要确认的危险工具，或通过 <code>--approval-mode</code> 放开</li>
             <li>• <strong>多轮支持</strong>：工具结果返回后继续对话</li>
             <li>• <strong>轮次限制</strong>：防止无限循环（maxSessionTurns）</li>
-            <li>• <strong>错误处理</strong>：工具错误不中断，记录后继续</li>
+            <li>• <strong>错误处理</strong>：非致命工具错误会记录并继续（模型可自修正）；致命错误会直接退出</li>
           </ul>
         </div>
       </Layer>

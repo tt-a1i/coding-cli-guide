@@ -65,10 +65,11 @@ export function ConfigSystem() {
 
         <div className="mt-4 bg-black/30 rounded-lg p-4 font-mono text-xs overflow-x-auto">
           <div className="text-gray-500 mb-2">// 核心常量 - packages/cli/src/config/settings.ts</div>
-          <div><span className="text-purple-400">SETTINGS_VERSION</span> = <span className="text-yellow-400">2</span>  <span className="text-gray-500">// 当前配置版本</span></div>
-          <div><span className="text-purple-400">SETTINGS_VERSION_KEY</span> = <span className="text-green-400">"$version"</span>  <span className="text-gray-500">// 版本标记字段</span></div>
-          <div><span className="text-purple-400">SETTINGS_DIRECTORY_NAME</span> = <span className="text-green-400">".gemini"</span>  <span className="text-gray-500">// 配置目录名</span></div>
+          <div><span className="text-purple-400">USER_SETTINGS_PATH</span> = <span className="text-green-400">"~/.gemini/settings.json"</span>  <span className="text-gray-500">// 用户配置</span></div>
+          <div><span className="text-purple-400">WORKSPACE_SETTINGS_PATH</span> = <span className="text-green-400">".gemini/settings.json"</span>  <span className="text-gray-500">// 项目配置</span></div>
+          <div><span className="text-purple-400">GEMINI_DIR</span> = <span className="text-green-400">".gemini"</span>  <span className="text-gray-500">// 配置目录名</span></div>
           <div><span className="text-purple-400">DEFAULT_EXCLUDED_ENV_VARS</span> = [<span className="text-green-400">"DEBUG"</span>, <span className="text-green-400">"DEBUG_MODE"</span>]</div>
+          <div><span className="text-purple-400">MIGRATE_V2_OVERWRITE</span> = <span className="text-yellow-400">true</span>  <span className="text-gray-500">// 迁移写回 settings.json，并备份 .orig</span></div>
           <div className="mt-2 text-gray-500">// 合并策略枚举 - packages/cli/src/config/settingsSchema.ts:51-60</div>
           <div><span className="text-cyan-400">MergeStrategy.REPLACE</span> = <span className="text-green-400">"replace"</span>  <span className="text-gray-500">// 直接覆盖（默认）</span></div>
           <div><span className="text-cyan-400">MergeStrategy.CONCAT</span> = <span className="text-green-400">"concat"</span>  <span className="text-gray-500">// 数组拼接</span></div>
@@ -228,15 +229,13 @@ export function getSystemDefaultsPath(): string {
         <HighlightBox title="v1 → v2 迁移" icon="⚠️" variant="orange">
           <p className="text-sm">
             v0.3.0 起采用嵌套结构。旧版 v1 扁平结构会自动迁移，原文件备份为 <code>settings.json.orig</code>。
-            版本标记：<code>"$version": 2</code>
+            迁移判定不依赖版本字段，而是用 <code>needsMigration()</code> 扫描是否存在需要搬迁的 v1 顶层 key。
           </p>
         </HighlightBox>
 
         <JsonBlock
           code={`// Settings v2 完整结构示例
 {
-  "$version": 2,
-
   // ═══════════════════════════════════════════
   // 顶层：MCP 服务器配置（特殊，保持顶层）
   // ═══════════════════════════════════════════
@@ -521,18 +520,9 @@ const MIGRATION_MAP: Record<string, string> = {
         </div>
 
         <CodeBlock
-          title="packages/cli/src/config/settings.ts:222-251 - 迁移检测逻辑"
+          title="packages/cli/src/config/settings.ts - needsMigration()（节选）"
           code={`// 检查配置是否需要迁移
 export function needsMigration(settings: Record<string, unknown>): boolean {
-  // 1. 检查版本字段 - 如果存在且 >= 当前版本，无需迁移
-  if (SETTINGS_VERSION_KEY in settings) {
-    const version = settings[SETTINGS_VERSION_KEY];
-    if (typeof version === 'number' && version >= SETTINGS_VERSION) {
-      return false;
-    }
-  }
-
-  // 2. 回退检测：检查是否存在 v1 的顶层 key
   const hasV1Keys = Object.entries(MIGRATION_MAP).some(([v1Key, v2Path]) => {
     // 跳过路径相同的（如 mcpServers）
     if (v1Key === v2Path || !(v1Key in settings)) {
@@ -1526,7 +1516,7 @@ if (
 
     CreateConfig --> ToolRegistry[createToolRegistry<br/>工具集组装]
 
-    ToolRegistry --> CoreTools[注册核心工具<br/>Read/Edit/Shell/...]
+    ToolRegistry --> CoreTools[注册核心工具<br/>read_file/replace/run_shell_command/...]
     ToolRegistry --> DiscoveryTools[discoveryCommand<br/>发现外部工具]
     ToolRegistry --> McpTools[MCP 工具<br/>从 MCP 服务器]
 

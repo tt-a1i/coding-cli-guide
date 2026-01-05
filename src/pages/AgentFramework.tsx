@@ -277,7 +277,8 @@ export class AgentRegistry {
   const tomlConfigCode = `# ~/.gemini/agents/code-reviewer.toml
 name = "code-reviewer"
 description = "专业代码审查，检查最佳实践和潜在问题"
-tools = ["Read", "Grep", "Glob", "LSP"]
+tools = ["read_file", "search_file_content", "glob", "list_directory"]
+# 说明：内置工具使用 tool name（如 read_file）；MCP 工具用 server__tool 格式
 
 [prompts]
 system_prompt = """
@@ -760,7 +761,7 @@ this.emitActivity('ERROR', { error: errorMessage, context: 'tool_call' });`;
             <p className="text-sm mb-2">代码库探索和分析 Agent</p>
             <ul className="text-sm space-y-1 text-[var(--text-muted)]">
               <li>• <strong>结构化输出</strong>: Zod schema 验证</li>
-              <li>• <strong>只读工具</strong>: ls, Read, Glob, Grep</li>
+              <li>• <strong>只读/搜索工具</strong>: list_directory, read_file, glob, search_file_content</li>
               <li>• <strong>Scratchpad</strong>: 系统化探索方法</li>
               <li>• 最多 15 轮，5 分钟超时</li>
             </ul>

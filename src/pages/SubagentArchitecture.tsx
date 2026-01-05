@@ -327,7 +327,8 @@ interface AgentInputDefinition {
                 code={`# .gemini/agents/code-reviewer.toml
 name = "code-reviewer"
 description = "代码审查专家，专注于代码质量和最佳实践"
-tools = ["Read", "Grep", "Glob"]
+tools = ["read_file", "search_file_content", "glob", "list_directory"]
+# 内置工具使用 tool name（如 read_file）；MCP 工具用 server__tool 格式
 
 [prompts]
 system_prompt = """

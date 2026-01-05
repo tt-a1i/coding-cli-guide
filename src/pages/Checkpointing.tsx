@@ -371,7 +371,7 @@ useEffect(() => {
               <p className="font-semibold text-green-300 mb-2">必须满足的条件：</p>
               <ul className="space-y-1">
                 <li>• Checkpointing 功能已启用</li>
-                <li>• 工具调用是编辑类工具（Write, Edit 等）</li>
+                <li>• 工具调用是编辑类工具（write_file、replace 等）</li>
                 <li>• 工具调用状态为 'awaiting_approval'</li>
                 <li>• 工具调用参数中包含 file_path</li>
               </ul>
@@ -932,7 +932,7 @@ async function restoreAction(
               <p><strong>决策</strong>：只有 <code className="bg-black/30 px-1 rounded">write_file</code>、<code className="bg-black/30 px-1 rounded">replace</code> 等修改工具触发检查点。</p>
               <p><strong>原因</strong>：</p>
               <ul className="list-disc pl-5 space-y-1">
-                <li><strong>效率</strong>：只读工具（Read、Grep）不改变状态，无需快照</li>
+                <li><strong>效率</strong>：只读/搜索工具（read_file、search_file_content）不改变状态，无需快照</li>
                 <li><strong>空间节省</strong>：减少不必要的快照，节省存储</li>
                 <li><strong>精准恢复</strong>：每个检查点对应一个具体的修改操作</li>
               </ul>

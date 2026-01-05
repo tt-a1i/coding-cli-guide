@@ -89,7 +89,7 @@ function Introduction({
 }
 
 const relatedPages: RelatedPage[] = [
-  { id: 'tool-ref', label: '工具参考', description: 'Glob、Grep 等工具的详细文档' },
+  { id: 'tool-ref', label: '工具参考', description: 'glob、search_file_content 等工具的详细文档' },
   { id: 'tool-arch', label: '工具系统架构', description: '工具如何与文件发现系统协作' },
   { id: 'bfs-file-search-anim', label: 'BFS 文件搜索动画', description: '广度优先搜索算法可视化' },
   { id: 'sandbox', label: '沙箱系统', description: '文件访问权限与安全机制' },
@@ -101,7 +101,7 @@ export function FileDiscovery() {
   const [isIntroExpanded, setIsIntroExpanded] = useState(true);
 
   const discoveryFlowChart = `flowchart TD
-    tool["工具调用<br/>Glob/Grep/ReadMany"]
+    tool["工具调用<br/>glob/search_file_content/read_many_files"]
     get_config["获取 FileExclusions<br/>& FileDiscoveryService"]
     apply_defaults["应用默认排除模式<br/>node_modules, .git..."]
     scan["扫描文件"]
@@ -200,7 +200,7 @@ export class FileExclusions {
     return COMMON_IGNORE_PATTERNS;
   }
 
-  // 获取 Glob 工具的完整排除列表
+  // 获取 glob 工具的完整排除列表
   getGlobExcludes(additionalExcludes?: string[]): string[] {
     return [
       ...COMMON_IGNORE_PATTERNS,
@@ -526,7 +526,7 @@ logs/
           文件发现与 Ignore 模式
         </h2>
         <p className="text-[var(--text-secondary)] mb-4">
-          文件发现系统是 Glob、Grep、ReadManyFiles 等工具的基础。它需要在毫秒级响应内
+          文件发现系统是 glob、search_file_content、read_many_files 等工具的基础。它需要在毫秒级响应内
           搜索可能包含数万文件的代码库，同时尊重用户的 ignore 配置。
         </p>
 
@@ -554,7 +554,7 @@ logs/
                 <span className="text-[var(--text-muted)]"> - 广度优先，批量并行</span>
               </li>
               <li>
-                <strong>Glob 匹配</strong>
+                <strong>glob 匹配</strong>
                 <span className="text-[var(--text-muted)]"> - 模式匹配，后过滤</span>
               </li>
               <li>
@@ -572,7 +572,7 @@ logs/
           核心决策树：这个文件应该被包含吗？
         </h3>
         <p className="text-[var(--text-secondary)] mb-4 text-sm">
-          当 CLI 执行 Glob/Grep/Read 等操作时，每个文件都会经过以下决策流程：
+          当 CLI 执行 glob/search_file_content/read_file 等操作时，每个文件都会经过以下决策流程：
         </p>
         <MermaidDiagram
           chart={`flowchart TD
@@ -944,21 +944,21 @@ logs/
             <tbody className="text-[var(--text-secondary)]">
               <tr className="border-b border-[var(--border-subtle)]">
                 <td className="py-3">
-                  <code className="text-[var(--terminal-green)]">Glob</code>
+                  <code className="text-[var(--terminal-green)]">glob</code>
                 </td>
                 <td>glob 库 + 后过滤</td>
                 <td>FileDiscoveryService.filterFilesWithReport()</td>
               </tr>
               <tr className="border-b border-[var(--border-subtle)]">
                 <td className="py-3">
-                  <code className="text-[var(--cyber-blue)]">Grep</code>
+                  <code className="text-[var(--cyber-blue)]">search_file_content</code>
                 </td>
                 <td>git grep → grep → JS 回退</td>
                 <td>--exclude-dir 参数 + 后过滤</td>
               </tr>
               <tr className="border-b border-[var(--border-subtle)]">
                 <td className="py-3">
-                  <code className="text-[var(--amber)]">ReadManyFiles</code>
+                  <code className="text-[var(--amber)]">read_many_files</code>
                 </td>
                 <td>globStream / 直接读取</td>
                 <td>getReadManyFilesExcludes()</td>

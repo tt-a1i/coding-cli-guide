@@ -41,6 +41,64 @@ interface AnimationState {
   message: string;
 }
 
+type DemoApprovalMode = 'default' | 'yolo';
+
+const normalizeShellCommand = (cmd: string) => cmd.trim().replace(/\s+/g, ' ');
+
+// 近似模拟 packages/core/src/utils/shell-permissions.ts 的“硬拒绝/软拒绝”决策形态（用于动画演示）
+const checkCommandPermissionsDemo = (
+  command: string,
+  opts: { sessionAllowlist: Set<string> },
+): {
+  allAllowed: boolean;
+  disallowedCommands: string[];
+  blockReason?: string;
+  isHardDenial?: boolean;
+} => {
+  const normalized = normalizeShellCommand(command);
+
+  // 简化的“解析失败”判定：以连接符结尾（&&/||/|/;），视作无法安全解析 → 硬拒绝
+  if (/(&&|\|\||\||;)\s*$/.test(normalized)) {
+    return {
+      allAllowed: false,
+      disallowedCommands: [normalized],
+      blockReason: 'Command rejected because it could not be parsed safely',
+      isHardDenial: true,
+    };
+  }
+
+  // 简化拆分：把复合命令拆成若干子命令（真实实现使用更严格的 shell parser）
+  const parts = normalized
+    .split(/\s*(?:&&|\|\||\||;)\s*/)
+    .map(normalizeShellCommand)
+    .filter(Boolean);
+
+  // 演示用 allowlist：可理解为 settings.json 的 coreTools/run_shell_command(...) 允许项
+  const isGloballyAllowlisted = (cmd: string) => /^(git|find)\b/.test(cmd);
+
+  // custom commands 的 shell 注入属于 “default deny”：必须命中 allowlist 才能自动通过
+  const disallowed: string[] = [];
+  for (const part of parts) {
+    const normalizedPart = normalizeShellCommand(part);
+    if (opts.sessionAllowlist.has(normalizedPart)) continue;
+    if (isGloballyAllowlisted(normalizedPart)) continue;
+    disallowed.push(normalizedPart);
+  }
+
+  if (disallowed.length > 0) {
+    return {
+      allAllowed: false,
+      disallowedCommands: disallowed,
+      blockReason: `Command(s) not on the global or session allowlist. Disallowed commands: ${disallowed
+        .map((c) => JSON.stringify(c))
+        .join(', ')}`,
+      isHardDenial: false,
+    };
+  }
+
+  return { allAllowed: true, disallowedCommands: [] };
+};
+
 const EXAMPLES = [
   {
     name: '基础命令注入',
@@ -62,10 +120,16 @@ const EXAMPLES = [
     prompt: '删除文件:\n!{rm -rf {{args}}}',
     args: 'temp/',
   },
+  {
+    name: '解析失败 (硬拒绝)',
+    prompt: '无法安全解析:\n!{git status &&}',
+    args: '',
+  },
 ];
 
 export default function ShellInjectionProcessorAnimation() {
   const [selectedExample, setSelectedExample] = useState(0);
+  const [selectedApprovalMode, setSelectedApprovalMode] = useState<DemoApprovalMode>('default');
   const [isRunning, setIsRunning] = useState(false);
   const [state, setState] = useState<AnimationState>({
     rawPrompt: EXAMPLES[0].prompt,
@@ -231,27 +295,63 @@ export default function ShellInjectionProcessorAnimation() {
     }));
     await sleep(800);
 
-    // 检查是否有危险命令
-    const hasDangerousCommand = resolvedInjections.some(inj =>
-      inj.resolvedCommand.includes('rm ') ||
-      inj.resolvedCommand.includes('sudo ') ||
-      inj.resolvedCommand.includes('chmod ')
+    // 演示：假设本会话已经 allowlist 了一些常用命令（否则默认模式下也会要求确认）
+    const sessionAllowlist = new Set<string>(
+      [
+        'git status',
+        'git branch -a',
+        'git log --oneline -5',
+        'find . -name "*.ts"',
+      ].map(normalizeShellCommand),
     );
 
-    if (hasDangerousCommand) {
+    const commandsToConfirm = new Set<string>();
+
+    for (const inj of resolvedInjections) {
+      const command = inj.resolvedCommand?.trim();
+      if (!command) continue;
+
+      const { allAllowed, disallowedCommands, blockReason, isHardDenial } =
+        checkCommandPermissionsDemo(command, { sessionAllowlist });
+
+      if (!allAllowed) {
+        if (isHardDenial) {
+          setState(s => ({
+            ...s,
+            permissionStatus: 'denied',
+            steps: s.steps.map((step, i) => {
+              if (i === 3) return { ...step, status: 'error', detail: '硬拒绝（DENY）' };
+              if (i > 3) return { ...step, status: 'pending' };
+              return step;
+            }),
+            message: `❌ 硬拒绝：${blockReason ?? 'Blocked by configuration'}`,
+            finalPrompt: `❌ 命令被拒绝\n\n${blockReason ?? ''}\n\nCommand: ${command}`.trim(),
+            currentStep: 5,
+          }));
+          setIsRunning(false);
+          return;
+        }
+
+        // YOLO 模式会自动批准软拒绝；默认模式下会抛 ConfirmationRequiredError
+        if (selectedApprovalMode !== 'yolo') {
+          disallowedCommands.forEach((c) => commandsToConfirm.add(c));
+        }
+      }
+    }
+
+    if (commandsToConfirm.size > 0) {
+      const list = Array.from(commandsToConfirm).join('\n');
       setState(s => ({
         ...s,
         permissionStatus: 'confirm_required',
-        steps: s.steps.map((step, i) => i === 3 ? { ...step, status: 'error', detail: '需要用户确认' } : step),
-        message: '⚠️ 检测到危险命令，抛出 ConfirmationRequiredError',
-      }));
-      await sleep(1000);
-
-      setState(s => ({
-        ...s,
-        finalPrompt: '❌ 命令执行被阻止\n\n需要用户确认: ' + resolvedInjections.map(i => i.resolvedCommand).join('\n'),
+        steps: s.steps.map((step, i) => {
+          if (i === 3) return { ...step, status: 'error', detail: '需要用户确认' };
+          if (i > 3) return { ...step, status: 'pending' };
+          return step;
+        }),
+        message: '⚠️ checkCommandPermissions: 命令不在 allowlist，需要用户确认（ConfirmationRequiredError）',
+        finalPrompt: `❌ 命令执行被暂停（待确认）\n\n需要确认的子命令:\n${list}`,
         currentStep: 5,
-        steps: s.steps.map((step, i) => i > 3 ? { ...step, status: 'pending' } : step),
       }));
       setIsRunning(false);
       return;
@@ -260,8 +360,22 @@ export default function ShellInjectionProcessorAnimation() {
     setState(s => ({
       ...s,
       permissionStatus: 'allowed',
-      steps: s.steps.map((step, i) => i === 3 ? { ...step, status: 'done', detail: '权限检查通过' } : step),
-      message: '✅ 权限检查通过',
+      steps: s.steps.map((step, i) =>
+        i === 3
+          ? {
+              ...step,
+              status: 'done',
+              detail:
+                selectedApprovalMode === 'yolo'
+                  ? 'YOLO：软拒绝自动放行'
+                  : '权限检查通过',
+            }
+          : step,
+      ),
+      message:
+        selectedApprovalMode === 'yolo'
+          ? '✅ YOLO 模式：软拒绝自动放行，继续执行'
+          : '✅ 权限检查通过',
     }));
     await sleep(600);
 
@@ -335,7 +449,7 @@ export default function ShellInjectionProcessorAnimation() {
     }));
 
     setIsRunning(false);
-  }, [selectedExample]);
+  }, [selectedApprovalMode, selectedExample]);
 
   const handleExampleChange = (index: number) => {
     setSelectedExample(index);
@@ -381,6 +495,18 @@ export default function ShellInjectionProcessorAnimation() {
             {EXAMPLES.map((ex, i) => (
               <option key={i} value={i}>{ex.name}</option>
             ))}
+          </select>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-gray-400 text-sm">审批:</span>
+          <select
+            value={selectedApprovalMode}
+            onChange={(e) => setSelectedApprovalMode(e.target.value as DemoApprovalMode)}
+            disabled={isRunning}
+            className="bg-gray-800 border border-gray-700 rounded px-3 py-1 text-sm text-white"
+          >
+            <option value="default">default</option>
+            <option value="yolo">yolo</option>
           </select>
         </div>
         <button

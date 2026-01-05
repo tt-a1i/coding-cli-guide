@@ -185,9 +185,8 @@ const MIGRATION_MAP: Record<string, string> = {
   // ... 50+ 更多字段
 };
 
-// 迁移版本号
-export const SETTINGS_VERSION = 2;
-export const SETTINGS_VERSION_KEY = '$version';`;
+// 说明：Gemini CLI 不依赖 "$version" 字段判断版本，
+// 而是通过 needsMigration(...) 扫描是否存在需要搬迁的 v1 顶层 key。`;
 
   const loadedSettingsCode = `// LoadedSettings 类管理运行时配置
 export class LoadedSettings {
@@ -197,15 +196,26 @@ export class LoadedSettings {
     user: SettingsFile,
     workspace: SettingsFile,
     isTrusted: boolean,
-    migratedInMemorScopes: Set<SettingScope>,
+    migratedInMemoryScopes: Set<SettingScope>,
+    errors: SettingsError[] = [],
   ) {
     this.system = system;
     this.systemDefaults = systemDefaults;
     this.user = user;
     this.workspace = workspace;
     this.isTrusted = isTrusted;
+    this.migratedInMemoryScopes = migratedInMemoryScopes;
+    this.errors = errors;
     this._merged = this.computeMergedSettings();
   }
+
+  readonly system: SettingsFile;
+  readonly systemDefaults: SettingsFile;
+  readonly user: SettingsFile;
+  readonly workspace: SettingsFile;
+  readonly isTrusted: boolean;
+  readonly migratedInMemoryScopes: Set<SettingScope>;
+  readonly errors: SettingsError[];
 
   // 合并后的最终配置
   get merged(): Settings {
@@ -213,19 +223,21 @@ export class LoadedSettings {
   }
 
   // 按作用域获取配置
-  forScope(scope: SettingScope): SettingsFile {
+  forScope(scope: LoadableSettingScope): SettingsFile {
     switch (scope) {
       case SettingScope.User: return this.user;
       case SettingScope.Workspace: return this.workspace;
       case SettingScope.System: return this.system;
       case SettingScope.SystemDefaults: return this.systemDefaults;
+      default: throw new Error(\`Invalid scope: \${scope}\`);
     }
   }
 
   // 设置值并保存
-  setValue(scope: SettingScope, key: string, value: unknown): void {
+  setValue(scope: LoadableSettingScope, key: string, value: unknown): void {
     const settingsFile = this.forScope(scope);
     setNestedProperty(settingsFile.settings, key, value);
+    setNestedProperty(settingsFile.originalSettings, key, value);
     this._merged = this.computeMergedSettings();
     saveSettings(settingsFile);
   }
@@ -380,7 +392,7 @@ function getMergeStrategyForPath(path: string[]): MergeStrategy | undefined {
               code={`{
   "theme": "dark",
   "vimMode": true,
-  "autoAccept": ["Read", "Glob"],
+  "autoAccept": true,
   "sandbox": true
 }`}
               language="json"
@@ -389,11 +401,10 @@ function getMergeStrategyForPath(path: string[]): MergeStrategy | undefined {
           <HighlightBox title="迁移后 (V2)" color="green">
             <CodeBlock
               code={`{
-  "$version": 2,
   "ui": { "theme": "dark" },
   "general": { "vimMode": true },
   "tools": {
-    "autoAccept": ["Read", "Glob"],
+    "autoAccept": true,
     "sandbox": true
   }
 }`}
@@ -408,7 +419,7 @@ function getMergeStrategyForPath(path: string[]): MergeStrategy | undefined {
             <ul className="mt-2 text-[var(--text-secondary)] space-y-1">
               <li>• 自动备份原文件为 <code>.orig</code></li>
               <li>• 写入迁移后的 V2 格式</li>
-              <li>• 添加 <code>$version: 2</code> 版本标记</li>
+              <li>• 注：迁移写回会丢失 JSON 注释（读取时 strip-json-comments）</li>
             </ul>
           </div>
         </div>

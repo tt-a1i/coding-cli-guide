@@ -754,7 +754,7 @@ private prepareToolsList(): FunctionDeclaration[] {
                 <div className="text-xs space-y-1">
                   <div className="flex justify-between">
                     <span className="text-[var(--text-muted)]">工具</span>
-                    <span className="text-[var(--cyber-blue)] font-mono">ls, Read, Glob, Grep</span>
+                    <span className="text-[var(--cyber-blue)] font-mono">list_directory, read_file, glob, search_file_content</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[var(--text-muted)]">超时</span>

@@ -1485,15 +1485,15 @@ function attemptJSONFix(
                 <ol className="mt-2 ml-4 space-y-1 text-gray-300 list-decimal list-inside text-xs">
                   <li>检查 MCP 服务器命令是否存在：<code>which npx</code> 或 <code>which node</code></li>
                   <li>手动运行 MCP 命令确认能否启动</li>
-                  <li>检查 <code>.gemini/mcp.json</code> 配置是否正确</li>
+                  <li>检查 <code>settings.json</code> 的 <code>mcpServers</code> 配置是否正确（user/workspace/system）</li>
                   <li>查看 <code>mcp.excluded</code> 是否包含该服务器</li>
                 </ol>
               </div>
               <div>
                 <span className="text-green-400 font-medium">解决方案：</span>
                 <ul className="mt-2 ml-4 space-y-1 text-gray-300 list-disc list-inside text-xs">
-                  <li>安装缺失的依赖：<code>npm install -g @anthropic/mcp-server-xxx</code></li>
-                  <li>修正 <code>mcp.json</code> 中的命令路径</li>
+                  <li>安装缺失的依赖：<code>npm install -g @modelcontextprotocol/server-xxx</code></li>
+                  <li>修正 <code>settings.json</code> 中的命令/参数（或扩展 <code>gemini-extension.json</code> 的 mcpServers）</li>
                   <li>临时禁用：添加到 <code>mcp.excluded</code> 继续工作</li>
                 </ul>
               </div>

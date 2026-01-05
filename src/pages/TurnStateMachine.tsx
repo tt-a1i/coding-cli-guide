@@ -122,7 +122,7 @@ function EventTypesSection() {
       color: 'blue',
       description: 'AI 请求调用某个工具',
       when: 'AI 决定需要执行工具时',
-      example: '{ type: "tool_call_request", value: { name: "Read", args: {...} } }',
+      example: '{ type: "tool_call_request", value: { name: "read_file", args: {...} } }',
     },
     {
       type: 'ToolCallResponse',
@@ -444,9 +444,9 @@ function DesignRationaleSection() {
             code={`// AI 可能同时请求读取多个文件
 {
   "functionCalls": [
-    { "name": "Read", "args": { "file_path": "src/main.ts" } },
-    { "name": "Read", "args": { "file_path": "package.json" } },
-    { "name": "Glob", "args": { "pattern": "**/*.test.ts" } }
+    { "name": "read_file", "args": { "file_path": "src/main.ts" } },
+    { "name": "read_file", "args": { "file_path": "package.json" } },
+    { "name": "glob", "args": { "pattern": "**/*.test.ts" } }
   ]
 }`}
             language="json"

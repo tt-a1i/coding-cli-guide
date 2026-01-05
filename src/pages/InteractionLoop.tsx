@@ -197,11 +197,11 @@ export function InteractionLoop() {
     User->>Submit: "读取 package.json"
     Submit->>API: 发送消息流
     API-->>Submit: Content chunks
-    API-->>Submit: ToolCallRequest (Read)
+    API-->>Submit: ToolCallRequest (read_file)
     API-->>Submit: Finished
 
     Submit->>Sched: 调度工具
-    Sched->>Tools: 执行 Read
+    Sched->>Tools: 执行 read_file
     Tools-->>Sched: 文件内容
 
     Note over User,Sched: Turn 2: Continuation
@@ -851,7 +851,7 @@ T+50ms    │  收到首个 Content chunk ("我来读取...")
           │
 T+100ms   │  收到更多 Content chunks
           │
-T+200ms   │  收到 ToolCallRequest (Read: package.json)
+T+200ms   │  收到 ToolCallRequest (read_file: package.json)
           │  └─ 加入工具请求队列
           │
 T+250ms   │  收到 Finished 事件
@@ -861,14 +861,14 @@ T+255ms   开始工具调度
           ├─ CoreToolScheduler.schedule()
           └─ 1 个工具待执行
 
-T+260ms   Read 工具验证通过
+T+260ms   read_file 工具验证通过
           ├─ validateParams()
-          └─ shouldConfirmExecute() → null (只读工具)
+          └─ shouldConfirmExecute() → false (PolicyEngine = ALLOW)
 
-T+265ms   自动批准 (Read 是只读工具)
+T+265ms   无需确认 (MessageBus 决策 = ALLOW, Kind.Read)
           └─ status = 'scheduled'
 
-T+270ms   执行 Read 工具
+T+270ms   执行 read_file 工具
           ├─ fs.readFile('/path/to/package.json')
           └─ 文件大小: 1.2KB
 
@@ -902,7 +902,7 @@ T+610ms   等待下一次用户输入
 ────────────────────────────────────────────────────────────────────
 总耗时: ~610ms (包含 2 次 API 调用 + 1 次文件读取)
 API 轮次: 2 (初始请求 + Continuation)
-工具调用: 1 (Read)
+工具调用: 1 (read_file)
 Token 消耗: ~4,000 (估算)
 `}</pre>
         </div>

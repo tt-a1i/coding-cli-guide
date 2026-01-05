@@ -181,6 +181,8 @@ export class PolicyEngine {
   private hookCheckers: HookCheckerRule[];
   private readonly defaultDecision: PolicyDecision;
   private readonly nonInteractive: boolean;
+  private readonly checkerRunner?: CheckerRunner;
+  private readonly allowHooks: boolean;
   private approvalMode: ApprovalMode;
 
   constructor(config: PolicyEngineConfig = {}, checkerRunner?: CheckerRunner) {
@@ -191,46 +193,84 @@ export class PolicyEngine {
     this.checkers = (config.checkers ?? []).sort(
       (a, b) => (b.priority ?? 0) - (a.priority ?? 0)
     );
+    this.hookCheckers = (config.hookCheckers ?? []).sort(
+      (a, b) => (b.priority ?? 0) - (a.priority ?? 0)
+    );
     this.defaultDecision = config.defaultDecision ?? PolicyDecision.ASK_USER;
     this.nonInteractive = config.nonInteractive ?? false;
+    this.checkerRunner = checkerRunner;
+    this.allowHooks = config.allowHooks ?? true;
+    this.approvalMode = config.approvalMode ?? ApprovalMode.DEFAULT;
   }
 
   // 检查工具调用
-  async check(toolCall: FunctionCall, serverName?: string): Promise<{
+  async check(toolCall: FunctionCall, serverName: string | undefined): Promise<{
     decision: PolicyDecision;
     rule?: PolicyRule;
   }> {
-    // 1. 序列化参数用于模式匹配
-    const stringifiedArgs = stableStringify(toolCall.args);
+    let stringifiedArgs: string | undefined;
 
-    // 2. 查找匹配的规则
+    // 1. 序列化参数用于模式匹配（仅在必要时计算）
+    if (
+      toolCall.args &&
+      (this.rules.some((rule) => rule.argsPattern) ||
+        this.checkers.some((checker) => checker.argsPattern))
+    ) {
+      stringifiedArgs = stableStringify(toolCall.args);
+    }
+
+    // 2. 查找匹配的规则（已按 priority 排序）
+    let matchedRule: PolicyRule | undefined;
+    let decision: PolicyDecision | undefined;
+
     for (const rule of this.rules) {
       if (ruleMatches(rule, toolCall, stringifiedArgs, serverName, this.approvalMode)) {
-        // Shell 命令特殊处理：检查子命令
-        if (SHELL_TOOL_NAMES.includes(toolCall.name) && rule.decision === PolicyDecision.ALLOW) {
-          const subDecision = await this.checkShellSubCommands(toolCall, serverName);
-          if (subDecision !== PolicyDecision.ALLOW) {
-            return { decision: subDecision, rule };
-          }
+        if (toolCall.name && SHELL_TOOL_NAMES.includes(toolCall.name)) {
+          const args = toolCall.args as { command?: string; dir_path?: string };
+          decision = await this.checkShellCommand(
+            toolCall.name,
+            args?.command,
+            rule.decision,
+            serverName,
+            args?.dir_path,
+            rule.allowRedirection,
+          );
+        } else {
+          decision = this.applyNonInteractiveMode(rule.decision);
         }
-        return { decision: this.applyNonInteractiveMode(rule.decision), rule };
+        matchedRule = rule;
+        break;
       }
     }
 
-    // 3. 运行 Safety Checkers
-    if (this.checkerRunner) {
+    if (!decision) {
+      // 未命中规则：使用默认决策
+      decision = this.applyNonInteractiveMode(this.defaultDecision);
+    }
+
+    // 3. 运行 Safety Checkers（DENY 直接短路）
+    if (decision !== PolicyDecision.DENY && this.checkerRunner) {
       for (const checkerRule of this.checkers) {
-        if (ruleMatches(checkerRule, toolCall, ...)) {
+        if (
+          ruleMatches(
+            checkerRule,
+            toolCall,
+            stringifiedArgs,
+            serverName,
+            this.approvalMode
+          )
+        ) {
           const result = await this.checkerRunner.runChecker(toolCall, checkerRule.checker);
           if (result.decision === SafetyCheckDecision.DENY) {
-            return { decision: PolicyDecision.DENY };
+            return { decision: PolicyDecision.DENY, rule: matchedRule };
+          } else if (result.decision === SafetyCheckDecision.ASK_USER) {
+            decision = PolicyDecision.ASK_USER;
           }
         }
       }
     }
 
-    // 4. 默认决策
-    return { decision: this.applyNonInteractiveMode(this.defaultDecision) };
+    return { decision: this.applyNonInteractiveMode(decision), rule: matchedRule };
   }
 }`;
 

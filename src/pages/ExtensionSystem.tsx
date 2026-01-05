@@ -6,440 +6,215 @@ import { RelatedPages } from '../components/RelatedPages';
 export function ExtensionSystem() {
   const extensionFlow = `flowchart TD
     start["CLI 启动"]
-    scan_local["扫描本地扩展<br/>.gemini/extensions/"]
-    scan_global["扫描全局扩展<br/>~/.gemini/extensions/"]
-    load_manifest["加载 manifest<br/>package.json"]
-    validate{"验证扩展"}
-    init_ext["初始化扩展<br/>执行 activate()"]
-    register["注册扩展能力<br/>工具/命令/MCP"]
-    ready["扩展就绪"]
-    skip["跳过无效扩展"]
+    scan["扫描 <home>/.gemini/extensions/*"]
+    meta["读取 .gemini-extension-install.json（可选）"]
+    resolve["link 安装 → effectiveExtensionPath"]
+    load["读取 gemini-extension.json"]
+    hydrate["变量替换<br/>\${extensionPath} / \${workspacePath} / \${/}"]
+    env["读取扩展 .env + settings（可选）"]
+    assemble["构建 GeminiCLIExtension"]
+    enabled{"workspace 作用域是否启用？<br/>extension-enablement.json / -e overrides"}
+    inactive["isActive=false<br/>仅记录元信息"]
+    active["isActive=true<br/>maybeStartExtension()"]
+    done["扩展列表就绪"]
 
-    start --> scan_local
-    scan_local --> scan_global
-    scan_global --> load_manifest
-    load_manifest --> validate
-    validate -->|有效| init_ext
-    validate -->|无效| skip
-    init_ext --> register
-    register --> ready
+    start --> scan --> meta --> resolve --> load --> hydrate --> env --> assemble --> enabled
+    enabled -->|No| inactive --> done
+    enabled -->|Yes| active --> done
 
     style start fill:#22d3ee,color:#000
-    style ready fill:#22c55e,color:#000
-    style skip fill:#22c55e,color:#000
-    style validate fill:#f59e0b,color:#000`;
+    style active fill:#22c55e,color:#000
+    style inactive fill:#64748b,color:#fff
+    style enabled fill:#f59e0b,color:#000`;
 
   const extensionLifecycleFlow = `stateDiagram-v2
-    [*] --> Discovered: 扫描目录
+    [*] --> Installed: install / link
+    Installed --> Loaded: CLI startup (loadExtensions)
 
-    state "Discovered" as Discovered
-    state "Validated" as Validated
-    state "Pending" as Pending
-    state "Active" as Active
-    state "Failed" as Failed
-    state "Deactivated" as Deactivated
+    Loaded --> Active: enabled for workspace
+    Loaded --> Inactive: disabled for workspace
 
-    Discovered --> Validated: manifest 有效
-    Discovered --> Failed: manifest 无效
+    Active --> Inactive: extensions disable
+    Inactive --> Active: extensions enable
 
-    Validated --> Pending: 等待激活事件
-    Validated --> Active: onStartup
+    Active --> Updated: extensions update
+    Updated --> Loaded: restart / reload
 
-    Pending --> Active: 事件触发
-    note right of Pending: onCommand / workspaceContains / onTool
-
-    Active --> Deactivated: deactivate()
-    Active --> Failed: activate() 异常
-
-    Deactivated --> Active: 重新激活
-    Deactivated --> [*]: CLI 退出
-
-    Failed --> [*]: 跳过该扩展`;
+    Loaded --> [*]: CLI exit`;
 
   const extensionManifestCode = `// 扩展清单文件
-// package.json
+// gemini-extension.json
 
 {
-  "name": "my-extension",
+  "name": "my-first-extension",
   "version": "1.0.0",
-  "description": "My custom CLI extension",
-  "main": "dist/index.js",
 
-  // 扩展元数据
-  "gemini": {
-    // 扩展类型
-    "type": "extension",
-
-    // 激活事件
-    "activationEvents": [
-      "onCommand:myCommand",      // 当命令被调用时
-      "onStartup",                // CLI 启动时
-      "workspaceContains:**/*.py" // 工作区包含特定文件
-    ],
-
-    // 提供的能力
-    "contributes": {
-      // 斜杠命令
-      "commands": [
-        {
-          "command": "myCommand",
-          "title": "My Custom Command",
-          "description": "执行自定义操作"
-        }
-      ],
-
-      // 自定义工具
-      "tools": [
-        {
-          "name": "myTool",
-          "description": "自定义工具",
-          "schema": "./schemas/myTool.json"
-        }
-      ],
-
-      // MCP 服务器
-      "mcpServers": [
-        {
-          "name": "myServer",
-          "command": "node",
-          "args": ["./mcp-server.js"]
-        }
-      ],
-
-      // 配置项
-      "configuration": {
-        "type": "object",
-        "properties": {
-          "myExtension.enabled": {
-            "type": "boolean",
-            "default": true
-          }
-        }
-      }
-    },
-
-    // 依赖的其他扩展
-    "extensionDependencies": [
-      "base-extension"
-    ]
-  }
-}`;
-
-  const extensionApiCode = `// 扩展 API
-// packages/core/src/extensions/api.ts
-
-// 扩展上下文
-interface ExtensionContext {
-  // 扩展存储 (持久化)
-  globalState: Memento;
-  workspaceState: Memento;
-
-  // 路径信息
-  extensionPath: string;
-  extensionUri: URI;
-
-  // 注册的资源 (自动清理)
-  subscriptions: Disposable[];
-
-  // 环境信息
-  environmentVariableCollection: EnvironmentVariableCollection;
-
-  // 日志
-  logger: Logger;
-}
-
-// 扩展入口
-interface Extension {
-  // 扩展激活
-  activate(context: ExtensionContext): Promise<void> | void;
-
-  // 扩展停用
-  deactivate?(): Promise<void> | void;
-
-  // 导出的 API (供其他扩展使用)
-  exports?: any;
-}
-
-// 示例扩展实现
-export function activate(context: ExtensionContext): void {
-  // 注册命令
-  const command = registerCommand('myCommand', async () => {
-    console.log('Command executed!');
-  });
-  context.subscriptions.push(command);
-
-  // 注册工具
-  const tool = registerTool({
-    name: 'myTool',
-    description: 'My custom tool',
-    parameters: {
-      type: 'object',
-      properties: {
-        input: { type: 'string' }
-      }
-    },
-    execute: async (params) => {
-      return { result: \`Processed: \${params.input}\` };
-    }
-  });
-  context.subscriptions.push(tool);
-
-  // 存储状态
-  context.globalState.update('lastRun', Date.now());
-
-  console.log('Extension activated!');
-}
-
-export function deactivate(): void {
-  console.log('Extension deactivated!');
-}`;
-
-  const mcpExtensionCode = `// MCP 服务器扩展
-// packages/cli/src/commands/extensions.ts
-
-// 从 GitHub 安装扩展
-export async function installExtension(
-  source: string,
-  options: InstallOptions = {}
-): Promise<void> {
-  // 解析来源
-  const parsed = parseExtensionSource(source);
-
-  if (parsed.type === 'github') {
-    // GitHub 仓库安装
-    await installFromGitHub(parsed.repo, options);
-  } else if (parsed.type === 'npm') {
-    // npm 包安装
-    await installFromNpm(parsed.package, options);
-  } else if (parsed.type === 'local') {
-    // 本地路径安装
-    await installFromLocal(parsed.path, options);
-  }
-}
-
-// GitHub 安装流程
-async function installFromGitHub(
-  repo: string,
-  options: InstallOptions
-): Promise<void> {
-  const { owner, name, ref } = parseGitHubRepo(repo);
-
-  // 1. 下载仓库
-  const tarball = await downloadGitHubTarball(owner, name, ref);
-
-  // 2. 解压到扩展目录
-  const extensionDir = path.join(
-    options.global ? getGlobalExtensionsDir() : getLocalExtensionsDir(),
-    name
-  );
-  await extractTarball(tarball, extensionDir);
-
-  // 3. 安装依赖
-  await execInDir(extensionDir, 'npm install --production');
-
-  // 4. 构建 (如果需要)
-  if (await hasScript(extensionDir, 'build')) {
-    await execInDir(extensionDir, 'npm run build');
-  }
-
-  // 5. 验证扩展
-  await validateExtension(extensionDir);
-
-  console.log(\`Extension \${name} installed successfully!\`);
-}
-
-// 扩展命令
-// gemini extensions install owner/repo
-// gemini extensions uninstall extension-name
-// gemini extensions list
-// gemini extensions update [extension-name]`;
-
-  const mcpServerConfigCode = `// MCP 服务器配置
-// .gemini/mcp.json
-
-{
+  // 1) MCP Servers：通过 MCP 暴露新工具（进程在 CLI 外部运行）
   "mcpServers": {
-    // 内置 MCP 服务器
-    "filesystem": {
+    "nodeServer": {
       "command": "node",
-      "args": ["~/.gemini/mcp-servers/filesystem/index.js"],
-      "env": {
-        "ALLOWED_PATHS": "/home/user/projects"
-      }
-    },
-
-    // 自定义 MCP 服务器
-    "database": {
-      "command": "python",
-      "args": ["-m", "my_mcp_server"],
-      "env": {
-        "DB_CONNECTION": "postgresql://localhost/mydb"
-      },
-      "cwd": "/path/to/server"
-    },
-
-    // 从扩展加载的 MCP 服务器
-    "extension:my-extension": {
-      "fromExtension": "my-extension",
-      "serverName": "myServer"
+      "args": ["\${extensionPath}\${/}dist\${/}example.js"],
+      "cwd": "\${extensionPath}"
     }
   },
 
-  // MCP 服务器选项
-  "options": {
-    // 启动超时
-    "startupTimeout": 30000,
+  // 2) Context：扩展可携带一个或多个 context 文件（默认会尝试 GEMINI.md）
+  "contextFileName": ["GEMINI.md"],
 
-    // 重试配置
-    "retryOnFailure": true,
-    "maxRetries": 3,
+  // 3) Exclude Tools：限制模型可用的核心工具（支持 run_shell_command(...) 形式的细粒度限制）
+  "excludeTools": ["run_shell_command", "run_shell_command(rm -rf)"],
 
-    // 日志级别
-    "logLevel": "info"
-  }
+  // 4) Settings：声明需要的环境变量；CLI 会提示用户填写并写入扩展目录的 .env
+  "settings": [
+    {
+      "name": "my-first-extension.apiKey",
+      "description": "API key for this extension",
+      "envVar": "MY_FIRST_EXTENSION_API_KEY",
+      "sensitive": true
+    }
+  ]
 }`;
 
-  const extensionRegistryCode = `// 扩展注册表
-// packages/core/src/extensions/registry.ts
-
-interface ExtensionInfo {
-  id: string;
+  const extensionTypesCode = `// packages/cli/src/config/extension.ts
+export interface ExtensionConfig {
   name: string;
   version: string;
-  description: string;
-  publisher?: string;
-  path: string;
-  isActive: boolean;
-  activationTime?: number;
-  contributes: {
-    commands: CommandContribution[];
-    tools: ToolContribution[];
-    mcpServers: MCPServerContribution[];
-  };
+  mcpServers?: Record<string, MCPServerConfig>;
+  contextFileName?: string | string[];
+  excludeTools?: string[];
+  settings?: ExtensionSetting[];
 }
 
-class ExtensionRegistry {
-  private extensions: Map<string, ExtensionInfo> = new Map();
-  private activeExtensions: Set<string> = new Set();
+// packages/core/src/config/config.ts
+export interface GeminiCLIExtension {
+  name: string;
+  version: string;
+  isActive: boolean;
+  path: string;
+  id: string;
 
-  // 注册扩展
-  register(info: ExtensionInfo): void {
-    this.extensions.set(info.id, info);
+  mcpServers?: Record<string, MCPServerConfig>;
+  contextFiles: string[];
+  excludeTools?: string[];
+
+  hooks?: { [K in HookEventName]?: HookDefinition[] };
+  skills?: SkillDefinition[];
+
+  settings?: ExtensionSetting[];
+  resolvedSettings?: ResolvedExtensionSetting[];
+}`;
+
+  const extensionLoadingCode = `// packages/cli/src/config/extension-manager.ts（节选）
+
+// 1) 读取并 hydrate gemini-extension.json（支持 \${extensionPath}/\${workspacePath} 等变量）
+const configFilePath = path.join(extensionDir, 'gemini-extension.json');
+const rawConfig = JSON.parse(await fs.promises.readFile(configFilePath, 'utf-8'));
+const config = recursivelyHydrateStrings(rawConfig, {
+  extensionPath: extensionDir,
+  workspacePath: this.workspaceDir,
+  '/': path.sep,
+  pathSeparator: path.sep,
+});
+
+// 2) 加载可选能力：context / hooks / skills
+const contextFiles = getContextFileNames(config)
+  .map((name) => path.join(effectiveExtensionPath, name))
+  .filter((p) => fs.existsSync(p));
+
+const hooks = this.settings.tools?.enableHooks
+  ? await this.loadExtensionHooks(effectiveExtensionPath, { extensionPath: effectiveExtensionPath, workspacePath: this.workspaceDir })
+  : undefined;
+
+const skills = await loadSkillsFromDir(path.join(effectiveExtensionPath, 'skills'));
+
+// 3) 构建 GeminiCLIExtension 并按 enablement 决定 isActive
+const extension: GeminiCLIExtension = {
+  name: config.name,
+  version: config.version,
+  path: effectiveExtensionPath,
+  contextFiles,
+  mcpServers: config.mcpServers,
+  excludeTools: config.excludeTools,
+  hooks,
+  skills,
+  isActive: this.extensionEnablementManager.isEnabled(config.name, this.workspaceDir),
+  id: getExtensionId(config, installMetadata),
+};
+
+await this.maybeStartExtension(extension);`;
+
+  const extensionEnablementCode = `// ~/.gemini/extensions/extension-enablement.json（示例）
+{
+  "my-first-extension": {
+    "overrides": [
+      "!/Users/me/work/secret-project/*",
+      "/Users/me/work/*"
+    ]
   }
+}
 
-  // 激活扩展
-  async activate(id: string): Promise<void> {
-    const info = this.extensions.get(id);
-    if (!info || this.activeExtensions.has(id)) {
-      return;
+// packages/cli/src/config/extensions/extensionEnablement.ts（节选）
+// 最后一个匹配规则生效；默认 enabled=true
+isEnabled(extensionName: string, currentPath: string): boolean {
+  const config = this.readConfig();
+  const overrides = config[extensionName]?.overrides ?? [];
+  let enabled = true;
+  for (const rule of overrides) {
+    const override = Override.fromFileRule(rule);
+    if (override.matchesPath(ensureLeadingAndTrailingSlash(currentPath))) {
+      enabled = !override.isDisable;
     }
-
-    // 加载扩展模块
-    const extensionModule = await import(info.path);
-
-    // 创建上下文
-    const context = this.createContext(info);
-
-    // 调用 activate
-    const startTime = Date.now();
-    await extensionModule.activate(context);
-
-    info.isActive = true;
-    info.activationTime = Date.now() - startTime;
-    this.activeExtensions.add(id);
   }
+  return enabled;
+}`;
 
-  // 停用扩展
-  async deactivate(id: string): Promise<void> {
-    const info = this.extensions.get(id);
-    if (!info || !this.activeExtensions.has(id)) {
-      return;
+  const mcpServerConfigCode = `// MCP 服务器配置来自 settings.json 的 mcpServers（以及扩展的 gemini-extension.json）
+
+// ~/.gemini/settings.json（节选）
+{
+  "mcp": {
+    "allowed": ["my-trusted-server"],
+    "excluded": ["experimental-server"]
+  },
+  "mcpServers": {
+    "my-trusted-server": {
+      "command": "node",
+      "args": ["./mcp-server.js"],
+      "cwd": "/path/to/server"
+    },
+    "remote-sse": {
+      "url": "https://example.com/sse",
+      "type": "sse"
     }
-
-    // 加载扩展模块
-    const extensionModule = await import(info.path);
-
-    // 调用 deactivate
-    if (extensionModule.deactivate) {
-      await extensionModule.deactivate();
-    }
-
-    info.isActive = false;
-    this.activeExtensions.delete(id);
-  }
-
-  // 获取所有已注册的命令
-  getCommands(): CommandContribution[] {
-    const commands: CommandContribution[] = [];
-    for (const info of this.extensions.values()) {
-      commands.push(...info.contributes.commands);
-    }
-    return commands;
-  }
-
-  // 获取所有已注册的工具
-  getTools(): ToolContribution[] {
-    const tools: ToolContribution[] = [];
-    for (const info of this.extensions.values()) {
-      if (info.isActive) {
-        tools.push(...info.contributes.tools);
-      }
-    }
-    return tools;
   }
 }`;
 
-  const cliCommandsCode = `# 扩展管理命令
+  const cliCommandsCode = `# 扩展管理（非交互命令行）
 
-# 列出所有扩展
+# 列表 / 详情（需要重启 CLI 会话生效）
 gemini extensions list
-# 输出:
-# ┌─────────────────┬─────────┬────────┬──────────┐
-# │ Name            │ Version │ Active │ Type     │
-# ├─────────────────┼─────────┼────────┼──────────┤
-# │ python-tools    │ 1.2.0   │ Yes    │ local    │
-# │ git-helpers     │ 0.5.0   │ Yes    │ global   │
-# │ database-mcp    │ 2.0.0   │ No     │ global   │
-# └─────────────────┴─────────┴────────┴──────────┘
+gemini extensions info <name>
 
-# 安装扩展 (GitHub)
-gemini extensions install username/repo
-gemini extensions install username/repo@v1.0.0
-gemini extensions install github:username/repo
+# 安装（GitHub URL 或本地目录）
+gemini extensions install <source> [--ref <ref>] [--auto-update] [--pre-release] [--consent]
+gemini extensions uninstall <name...>
 
-# 安装扩展 (npm)
-gemini extensions install npm:package-name
+# 更新
+gemini extensions update <name>
+gemini extensions update --all
 
-# 安装扩展 (本地)
-gemini extensions install ./path/to/extension
+# 启用/禁用（scope=user|workspace）
+gemini extensions disable <name> [--scope <scope>]
+gemini extensions enable <name> [--scope <scope>]
 
-# 卸载扩展
-gemini extensions uninstall extension-name
+# 创建模板工程（context / custom-commands / exclude-tools / mcp-server）
+gemini extensions new <path> [template]
 
-# 更新扩展
-gemini extensions update           # 更新所有
-gemini extensions update ext-name  # 更新特定扩展
+# 本地开发：link（省去频繁 update）
+gemini extensions link <path>
 
-# 启用/禁用扩展
-gemini extensions enable ext-name
-gemini extensions disable ext-name
-
-# 查看扩展详情
-gemini extensions info ext-name
-# 输出:
-# Name: python-tools
-# Version: 1.2.0
-# Description: Python development tools for gemini
-# Path: ~/.gemini/extensions/python-tools
-#
-# Contributes:
-#   Commands:
-#     - /pytest: Run pytest tests
-#     - /pylint: Run pylint analysis
-#   Tools:
-#     - python_run: Execute Python code
-#   MCP Servers:
-#     - python-lsp: Python Language Server`;
+# 交互模式内仅支持查看：
+/extensions list`;
 
   const consentCode = `// 安全披露 / Consent（安装或更新扩展时显示）
 // packages/cli/src/config/extensions/consent.ts（节选）
@@ -476,29 +251,30 @@ async function extensionConsentString(extensionConfig, hasHooks, skills = []) {
       <section>
         <h2 className="text-2xl font-bold text-cyan-400 mb-4">扩展系统</h2>
         <p className="text-gray-300 mb-4">
-          扩展系统允许用户和开发者通过插件扩展 CLI 的功能。支持自定义命令、工具、MCP 服务器等，
-          可以从 GitHub、npm 或本地安装扩展。
+          Gemini CLI 的扩展本质是<strong>一组可安装的“配置 + 资源”</strong>：通过
+          <code className="text-cyan-300"> gemini-extension.json</code> 声明 MCP servers、context、excludeTools、settings，
+          并可携带 commands / hooks / skills 等目录，让 CLI 在启动时发现并加载这些能力。
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <HighlightBox title="自定义命令" color="blue">
-            <p className="text-sm">添加新的斜杠命令</p>
-            <code className="text-xs text-blue-400">/myCommand</code>
+          <HighlightBox title="Custom Commands" color="blue">
+            <p className="text-sm">扩展内的 commands/*.toml</p>
+            <code className="text-xs text-blue-400">/group:cmd</code>
           </HighlightBox>
 
-          <HighlightBox title="自定义工具" color="green">
-            <p className="text-sm">注册新的 AI 工具</p>
-            <code className="text-xs text-green-400">MyTool</code>
+          <HighlightBox title="MCP Tools" color="green">
+            <p className="text-sm">通过 MCP server 暴露工具</p>
+            <code className="text-xs text-green-400">mcpServers</code>
           </HighlightBox>
 
-          <HighlightBox title="MCP 服务器" color="yellow">
-            <p className="text-sm">集成 MCP 协议服务</p>
-            <code className="text-xs text-yellow-400">mcp-server</code>
+          <HighlightBox title="Context Files" color="yellow">
+            <p className="text-sm">注入扩展上下文</p>
+            <code className="text-xs text-yellow-400">GEMINI.md</code>
           </HighlightBox>
 
-          <HighlightBox title="配置项" color="purple">
-            <p className="text-sm">添加配置选项</p>
-            <code className="text-xs text-purple-400">settings.json</code>
+          <HighlightBox title="Governance" color="purple">
+            <p className="text-sm">excludeTools / hooks / skills</p>
+            <code className="text-xs text-purple-400">consent</code>
           </HighlightBox>
         </div>
       </section>
@@ -520,42 +296,40 @@ async function extensionConsentString(extensionConfig, hasHooks, skills = []) {
 
       {/* 扩展清单 */}
       <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">扩展清单 (package.json)</h3>
-        <CodeBlock code={extensionManifestCode} language="json" title="扩展配置" />
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">扩展清单 (gemini-extension.json)</h3>
+        <CodeBlock code={extensionManifestCode} language="json" title="扩展配置文件" />
       </section>
 
-      {/* 扩展 API */}
+      {/* 扩展模型 */}
       <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">扩展 API</h3>
-        <CodeBlock code={extensionApiCode} language="typescript" title="扩展实现" />
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">扩展模型：ExtensionConfig → GeminiCLIExtension</h3>
+        <CodeBlock code={extensionTypesCode} language="typescript" title="核心类型（节选）" />
 
-        <HighlightBox title="ExtensionContext 功能" color="blue" className="mt-4">
+        <HighlightBox title="关键点" color="blue" className="mt-4">
           <ul className="text-sm space-y-1">
-            <li>• <strong>globalState</strong>: 全局持久化存储</li>
-            <li>• <strong>workspaceState</strong>: 工作区级别存储</li>
-            <li>• <strong>subscriptions</strong>: 资源订阅列表 (自动清理)</li>
-            <li>• <strong>logger</strong>: 扩展专用日志记录器</li>
-            <li>• <strong>extensionPath</strong>: 扩展安装路径</li>
+            <li>• 扩展不是“在 CLI 进程里运行的插件代码”，而是<strong>声明式配置</strong> + 外部进程（MCP server）</li>
+            <li>• 安装目录固定在 <code>~/.gemini/extensions/&lt;name&gt;</code>，启动时扫描加载</li>
+            <li>• 作用域启用/禁用由 <code>extension-enablement.json</code> 按路径规则控制</li>
           </ul>
         </HighlightBox>
       </section>
 
-      {/* 扩展安装 */}
+      {/* 加载实现 */}
       <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">扩展安装</h3>
-        <CodeBlock code={mcpExtensionCode} language="typescript" title="安装流程" />
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">加载实现（ExtensionManager）</h3>
+        <CodeBlock code={extensionLoadingCode} language="typescript" title="loadExtension / loadExtensionConfig（节选）" />
       </section>
 
       {/* MCP 服务器配置 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">MCP 服务器配置</h3>
-        <CodeBlock code={mcpServerConfigCode} language="json" title="mcp.json" />
+        <CodeBlock code={mcpServerConfigCode} language="json" title="settings.json（节选）" />
       </section>
 
-      {/* 扩展注册表 */}
+      {/* Enablement */}
       <section>
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">扩展注册表</h3>
-        <CodeBlock code={extensionRegistryCode} language="typescript" title="ExtensionRegistry" />
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">启用/禁用（按路径的 Enablement）</h3>
+        <CodeBlock code={extensionEnablementCode} language="typescript" title="extension-enablement.json + isEnabled（节选）" />
       </section>
 
       {/* CLI 命令 */}
@@ -570,28 +344,25 @@ async function extensionConsentString(extensionConfig, hasHooks, skills = []) {
         <div className="bg-gray-800/50 rounded-lg p-4">
           <pre className="text-sm text-gray-300">
 {`~/.gemini/
-├── extensions/                 # 全局扩展目录
-│   ├── python-tools/
-│   │   ├── package.json       # 扩展清单
-│   │   ├── dist/
-│   │   │   └── index.js       # 入口文件
-│   │   └── schemas/
-│   │       └── tools.json     # 工具 schema
-│   └── git-helpers/
-│       └── ...
-│
-├── mcp-servers/               # MCP 服务器
-│   ├── filesystem/
-│   └── database/
-│
-└── mcp.json                   # MCP 配置文件
-
-project/
-├── .gemini/
-│   ├── extensions/            # 项目级扩展
-│   │   └── local-extension/
-│   └── mcp.json               # 项目 MCP 配置
-└── ...`}
+├── settings.json
+├── extensions/
+│   ├── extension-enablement.json           # 启用/禁用规则（按路径）
+│   └── my-first-extension/
+│       ├── gemini-extension.json           # 扩展清单
+│       ├── .gemini-extension-install.json  # 安装来源/类型（git/local/link/github-release，可选）
+│       ├── .env                            # 扩展 settings 对应的 env（可选）
+│       ├── GEMINI.md                       # 扩展 context（可选；未配置时也会尝试默认文件名）
+│       ├── commands/                       # 扩展 custom commands（可选）
+│       │   └── fs/
+│       │       └── grep-code.toml
+│       ├── hooks/                          # 扩展 hooks（可选，需 enableHooks）
+│       │   └── hooks.json
+│       ├── skills/                         # 扩展 skills（可选，需 experimental.skills）
+│       │   └── my-skill/
+│       │       └── SKILL.md
+│       └── dist/                           # MCP server 构建产物（如果扩展包含 server 代码）
+└── policies/
+    └── ...`}
           </pre>
         </div>
       </section>
@@ -602,43 +373,27 @@ project/
         <div className="bg-gray-800/50 rounded-lg p-6">
           <pre className="text-sm text-gray-300 overflow-x-auto">
 {`┌──────────────────────────────────────────────────────────────────┐
-│                         Gemini CLI                               │
-│  ┌────────────────────────────────────────────────────────────┐  │
-│  │                   Extension Manager                        │  │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │  │
-│  │  │   Scanner    │  │   Loader     │  │  Validator   │     │  │
-│  │  │              │  │              │  │              │     │  │
-│  │  │ Local/Global │  │ package.json │  │ Schema Check │     │  │
-│  │  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘     │  │
-│  │         └─────────────────┼─────────────────┘              │  │
-│  │                           │                                │  │
-│  └───────────────────────────┼────────────────────────────────┘  │
-│                              │                                   │
-│  ┌───────────────────────────▼────────────────────────────────┐  │
-│  │                  Extension Registry                        │  │
-│  │  ┌──────────────────────────────────────────────────────┐  │  │
-│  │  │ Extensions                                           │  │  │
-│  │  │ ┌────────────┐ ┌────────────┐ ┌────────────┐        │  │  │
-│  │  │ │ python-    │ │ git-       │ │ database-  │        │  │  │
-│  │  │ │ tools      │ │ helpers    │ │ mcp        │        │  │  │
-│  │  │ │ [active]   │ │ [active]   │ │ [inactive] │        │  │  │
-│  │  │ └────────────┘ └────────────┘ └────────────┘        │  │  │
-│  │  └──────────────────────────────────────────────────────┘  │  │
-│  │                                                            │  │
-│  │  Contributions:                                            │  │
-│  │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐          │  │
-│  │  │  Commands   │ │   Tools     │ │ MCP Servers │          │  │
-│  │  │ /pytest     │ │ python_run  │ │ python-lsp  │          │  │
-│  │  │ /pylint     │ │ git_commit  │ │ database    │          │  │
-│  │  └─────────────┘ └─────────────┘ └─────────────┘          │  │
-│  └────────────────────────────────────────────────────────────┘  │
+│                         Gemini CLI (process)                      │
 │                                                                  │
-│  Integration Points:                                             │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │
-│  │ CommandSvc  │  │ ToolService │  │ MCPManager  │              │
-│  │ ↑ commands  │  │ ↑ tools     │  │ ↑ servers   │              │
-│  └─────────────┘  └─────────────┘  └─────────────┘              │
+│  ┌──────────────────────── ExtensionManager ───────────────────┐  │
+│  │  scan ~/.gemini/extensions/*                                │  │
+│  │  load gemini-extension.json (+ hooks/skills/.env)           │  │
+│  │  apply enablement rules → GeminiCLIExtension{isActive,...}  │  │
+│  └─────────────────────────────────────────────────────────────┘  │
+│                                  │                                 │
+│                                  ▼                                 │
+│  ┌───────────────────────────── Config ──────────────────────────┐ │
+│  │ extensions[] (active/inactive)                                 │ │
+│  └───────────────────────────────────────────────────────────────┘ │
+│     │                 │                    │                 │      │
+│     │                 │                    │                 │      │
+│     ▼                 ▼                    ▼                 ▼      │
+│  FileCommandLoader  Prompt Builder       HookSystem        McpClientManager
+│  - user commands    - ext.contextFiles   - ext.hooks       - startExtension(ext)
+│  - project cmds     - merged w/ user     - policy mediated - connect/discover tools
+│  - ext.path/commands                     (MessageBus)      - register tools/resources
 │                                                                  │
+│  SkillManager (experimental.skills): ext.skills → system prompt  │
 └──────────────────────────────────────────────────────────────────┘`}
           </pre>
         </div>
@@ -651,21 +406,23 @@ project/
           <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
             <h4 className="text-blue-400 font-semibold mb-2">开发步骤</h4>
             <ol className="text-sm text-gray-300 space-y-1 list-decimal list-inside">
-              <li>创建 package.json 并添加 gemini 配置</li>
-              <li>实现 activate() 和可选的 deactivate()</li>
-              <li>注册命令、工具或 MCP 服务器</li>
-              <li>测试: <code>gemini ext install ./</code></li>
-              <li>发布到 GitHub 或 npm</li>
+              <li>生成模板：<code>gemini extensions new my-ext mcp-server</code></li>
+              <li>构建 MCP server（如果需要）：<code>npm install</code> → <code>npm run build</code></li>
+              <li>本地开发：<code>gemini extensions link .</code></li>
+              <li>按需添加：<code>commands/</code>、<code>GEMINI.md</code>、<code>hooks/</code>、<code>skills/</code></li>
+              <li>发布与安装：推送到 GitHub → <code>gemini extensions install &lt;repo-url&gt;</code></li>
             </ol>
           </div>
           <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
             <h4 className="text-green-400 font-semibold mb-2">最佳实践</h4>
             <ul className="text-sm text-gray-300 space-y-1">
-              <li>✓ 使用 TypeScript 获得类型安全</li>
-              <li>✓ 在 deactivate 中清理资源</li>
-              <li>✓ 使用 context.subscriptions 自动清理</li>
-              <li>✓ 提供完整的 schema 定义</li>
-              <li>✓ 编写单元测试</li>
+              <li>✓ 扩展名与目录名保持一致（小写+短横线）</li>
+              <li>
+                ✓ manifest 使用 <code>{'${extensionPath}'}</code> 等变量，保证可移植
+              </li>
+              <li>✓ settings 使用 envVar，敏感信息标记 <code>sensitive: true</code></li>
+              <li>✓ hooks 与 skills 都属于高影响能力：保持最小化并充分审阅</li>
+              <li>✓ 给扩展提供清晰的 README 与使用示例</li>
             </ul>
           </div>
         </div>
@@ -679,106 +436,82 @@ project/
 
         <div className="mt-6 space-y-4">
           <div className="bg-black/30 rounded-lg p-4">
-            <h4 className="text-lg font-medium text-gray-200 mb-2">1. 发现阶段 (Discovery)</h4>
+            <h4 className="text-lg font-medium text-gray-200 mb-2">1. 发现与路径解析</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <div className="text-gray-400 mb-1">扫描位置</div>
                 <ul className="text-gray-300 space-y-1">
-                  <li>• <code className="text-cyan-400">.gemini/extensions/</code> 项目级</li>
-                  <li>• <code className="text-cyan-400">~/.gemini/extensions/</code> 全局级</li>
+                  <li>
+                    • <code className="text-cyan-400">~/.gemini/extensions/*</code>
+                  </li>
                 </ul>
               </div>
               <div>
-                <div className="text-gray-400 mb-1">扫描内容</div>
-                <ul className="text-gray-300 space-y-1">
-                  <li>• 查找 <code>package.json</code></li>
-                  <li>• 验证 <code>gemini</code> 字段存在</li>
-                  <li>• 检查 <code>main</code> 入口文件</li>
-                </ul>
+                <div className="text-gray-400 mb-1">link 安装</div>
+                <p className="text-gray-300">
+                  如果安装元数据里 <code>type=link</code>，CLI 会把 <code>source</code> 当作
+                  <strong>effectiveExtensionPath</strong>，从开发目录读取 <code>gemini-extension.json</code>。
+                </p>
               </div>
             </div>
           </div>
 
           <div className="bg-black/30 rounded-lg p-4">
-            <h4 className="text-lg font-medium text-gray-200 mb-2">2. 验证阶段 (Validation)</h4>
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-700 text-gray-400">
-                  <th className="text-left py-2">检查项</th>
-                  <th className="text-left py-2">失败处理</th>
-                </tr>
-              </thead>
-              <tbody className="text-gray-300">
-                <tr className="border-b border-gray-800">
-                  <td className="py-2">package.json 格式</td>
-                  <td className="py-2 text-red-400">跳过扩展，记录警告</td>
-                </tr>
-                <tr className="border-b border-gray-800">
-                  <td className="py-2">入口文件存在</td>
-                  <td className="py-2 text-red-400">跳过扩展，记录错误</td>
-                </tr>
-                <tr className="border-b border-gray-800">
-                  <td className="py-2">依赖扩展已安装</td>
-                  <td className="py-2 text-amber-400">延迟激活，等待依赖</td>
-                </tr>
-                <tr>
-                  <td className="py-2">版本兼容性</td>
-                  <td className="py-2 text-amber-400">警告并继续</td>
-                </tr>
-              </tbody>
-            </table>
+            <h4 className="text-lg font-medium text-gray-200 mb-2">2. Manifest 加载与变量替换</h4>
+            <ul className="text-sm text-gray-300 space-y-1 list-disc list-inside">
+              <li>
+                读取 <code>gemini-extension.json</code>，校验 <code>name</code>/<code>version</code> 与命名规则（字母/数字/-）
+              </li>
+              <li>
+                递归 hydrate 字符串变量：<code>{'${extensionPath}'}</code>、<code>{'${workspacePath}'}</code>、<code>{'${/}'}</code>
+              </li>
+              <li>
+                MCP 配置会过滤掉 <code>trust</code>（扩展不能静默把 server 标记为 trusted）
+              </li>
+            </ul>
           </div>
 
           <div className="bg-black/30 rounded-lg p-4">
-            <h4 className="text-lg font-medium text-gray-200 mb-2">3. 激活阶段 (Activation)</h4>
-            <CodeBlock code={`// 激活时机由 activationEvents 控制
-"activationEvents": [
-  "onStartup",                    // CLI 启动时立即激活
-  "onCommand:myCommand",          // 用户调用 /myCommand 时激活
-  "workspaceContains:**/*.py",    // 工作区包含 Python 文件时激活
-  "onTool:myTool",                // AI 调用 myTool 时激活
-]
-
-// 激活流程
-async function activateExtension(info: ExtensionInfo): Promise<void> {
-  // 1. 创建扩展上下文
-  const context = createExtensionContext(info);
-
-  // 2. 加载扩展模块（动态 import）
-  const module = await import(info.entryPoint);
-
-  // 3. 调用 activate 函数
-  const startTime = Date.now();
-  await module.activate(context);
-
-  // 4. 记录激活时间（用于性能监控）
-  info.activationTime = Date.now() - startTime;
-  info.isActive = true;
-}`} language="typescript" />
+            <h4 className="text-lg font-medium text-gray-200 mb-2">3. Enablement：按路径启用/禁用</h4>
+            <ul className="text-sm text-gray-300 space-y-1 list-disc list-inside">
+              <li>
+                扩展默认启用；用户可通过 <code>gemini extensions disable</code> 在 user/workspace scope 禁用
+              </li>
+              <li>
+                底层是 <code>extension-enablement.json</code> 的 overrides（最后匹配规则生效）
+              </li>
+              <li>
+                <code>-e</code> 参数可在当前会话强制启用/禁用（session override）
+              </li>
+            </ul>
           </div>
 
           <div className="bg-black/30 rounded-lg p-4">
-            <h4 className="text-lg font-medium text-gray-200 mb-2">4. 停用阶段 (Deactivation)</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <div className="text-gray-400 mb-1">触发条件</div>
-                <ul className="text-gray-300 space-y-1">
-                  <li>• CLI 正常退出</li>
-                  <li>• 用户禁用扩展</li>
-                  <li>• 扩展卸载</li>
-                  <li>• 扩展更新（先停用再激活）</li>
-                </ul>
-              </div>
-              <div>
-                <div className="text-gray-400 mb-1">清理责任</div>
-                <ul className="text-gray-300 space-y-1">
-                  <li>• <code>context.subscriptions</code> 自动清理</li>
-                  <li>• <code>deactivate()</code> 中的自定义清理</li>
-                  <li>• 文件句柄、网络连接关闭</li>
-                  <li>• 定时器取消</li>
-                </ul>
-              </div>
-            </div>
+            <h4 className="text-lg font-medium text-gray-200 mb-2">4. Active Extension 的生效点</h4>
+            <ul className="text-sm text-gray-300 space-y-1 list-disc list-inside">
+              <li>
+                <strong>commands</strong>：<code>FileCommandLoader</code> 加载 <code>{'ext.path/commands'}</code>，用于 <code>/group:cmd</code>
+              </li>
+              <li>
+                <strong>contextFiles</strong>：读取扩展目录内的 <code>GEMINI.md</code>（或 contextFileName 指定的文件）并注入 prompt
+              </li>
+              <li>
+                <strong>hooks</strong>：读取 <code>hooks/hooks.json</code>，执行会被 PolicyEngine/MessageBus 约束
+              </li>
+              <li>
+                <strong>skills</strong>：扫描 <code>skills/**/SKILL.md</code>，在 experimental.skills 启用时加入 system prompt
+              </li>
+              <li>
+                <strong>mcpServers</strong>：启动/连接 MCP server，发现 tools/resources 并注册到 ToolRegistry
+              </li>
+            </ul>
+          </div>
+
+          <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4">
+            <div className="text-amber-400 font-semibold mb-2">重启提示</div>
+            <p className="text-sm text-gray-300">
+              官方文档建议：扩展的 install/update/enable/disable 一般需要<strong>重启当前 CLI 会话</strong>才会完整生效。
+            </p>
           </div>
         </div>
       </section>
@@ -787,81 +520,52 @@ async function activateExtension(info: ExtensionInfo): Promise<void> {
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">🔒 扩展安全边界</h3>
 
-        <HighlightBox title="扩展的权限模型" color="red">
-          <p className="text-sm mb-3">
-            扩展运行在与 CLI 相同的 Node.js 进程中，因此<strong className="text-red-400">默认拥有完全权限</strong>。
-            以下是当前的安全边界设计：
-          </p>
+        <HighlightBox title="风险面不是“扩展 API”，而是“扩展带来的能力”" color="red">
+          <ul className="text-sm space-y-1 text-gray-300 list-disc list-inside">
+            <li>
+              <strong>供应链</strong>：从 git/GitHub 安装第三方扩展，本质是把对方的目录复制进 <code>~/.gemini/extensions</code>
+            </li>
+            <li>
+              <strong>MCP Servers</strong>：扩展可声明要启动的本地进程或连接远端服务，等同于运行/信任第三方代码
+            </li>
+            <li>
+              <strong>Hooks</strong>：可自动执行命令（高风险），需要 enableHooks 且会在 consent 中单独提示
+            </li>
+            <li>
+              <strong>Agent Skills / Context</strong>：注入 system prompt，改变模型行为（易被滥用为“隐形规则”）
+            </li>
+          </ul>
         </HighlightBox>
 
-        <div className="mt-4 space-y-4">
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-gray-800/50 rounded-lg p-4">
-            <h4 className="text-lg font-medium text-gray-200 mb-3">权限层级</h4>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <span className="text-red-400 font-mono text-sm bg-red-900/30 px-2 py-1 rounded">HIGH</span>
-                <div className="flex-1">
-                  <div className="text-gray-200 font-medium">文件系统完全访问</div>
-                  <p className="text-gray-400 text-xs">扩展可以读写任意文件，不受沙箱限制</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="text-red-400 font-mono text-sm bg-red-900/30 px-2 py-1 rounded">HIGH</span>
-                <div className="flex-1">
-                  <div className="text-gray-200 font-medium">进程执行权限</div>
-                  <p className="text-gray-400 text-xs">扩展可以 spawn 任意子进程</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="text-amber-400 font-mono text-sm bg-amber-900/30 px-2 py-1 rounded">MED</span>
-                <div className="flex-1">
-                  <div className="text-gray-200 font-medium">网络访问</div>
-                  <p className="text-gray-400 text-xs">扩展可以发起任意网络请求</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="text-green-400 font-mono text-sm bg-green-900/30 px-2 py-1 rounded">LOW</span>
-                <div className="flex-1">
-                  <div className="text-gray-200 font-medium">CLI API 访问</div>
-                  <p className="text-gray-400 text-xs">通过 ExtensionContext 提供的受限 API</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-amber-900/20 border border-amber-500/30 rounded-lg p-4">
-            <h4 className="text-amber-400 font-semibold mb-2">⚠️ 安全建议</h4>
-            <ul className="text-sm text-gray-300 space-y-1">
-              <li>• <strong>仅安装可信来源的扩展</strong>：GitHub 官方仓库、知名作者</li>
-              <li>• <strong>审查扩展代码</strong>：安装前检查 package.json 和入口文件</li>
-              <li>• <strong>限制全局扩展</strong>：优先使用项目级扩展，便于隔离</li>
-              <li>• <strong>定期更新</strong>：及时获取安全补丁</li>
+            <h4 className="text-lg font-medium text-gray-200 mb-2">内置防护</h4>
+            <ul className="text-sm text-gray-300 space-y-1 list-disc list-inside">
+              <li>
+                <strong>Consent</strong>：安装/更新时展示 MCP servers / hooks / skills 等清单并要求确认
+              </li>
+              <li>
+                <strong>blockGitExtensions</strong>：可禁用从远端 git 安装扩展
+              </li>
+              <li>
+                <strong>Enablement</strong>：按 user/workspace scope 禁用扩展，避免“全局污染”
+              </li>
+              <li>
+                <strong>MCP allow/exclude</strong>：<code>mcp.allowed</code>/<code>mcp.excluded</code> 控制可连接的 server 名称
+              </li>
+              <li>
+                <strong>Trust 字段过滤</strong>：扩展的 mcpServers 不允许设置 <code>trust</code>（会被过滤）
+              </li>
             </ul>
           </div>
-
-          <div className="bg-gray-800/50 rounded-lg p-4">
-            <h4 className="text-lg font-medium text-gray-200 mb-2">MCP 服务器的特殊安全性</h4>
-            <p className="text-sm text-gray-400 mb-3">
-              通过扩展注册的 MCP 服务器有额外的安全机制：
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <div className="text-cyan-400 mb-1">隔离运行</div>
-                <p className="text-gray-300">MCP 服务器在独立进程中运行，与 CLI 主进程隔离</p>
-              </div>
-              <div>
-                <div className="text-cyan-400 mb-1">trust 标记</div>
-                <p className="text-gray-300"><code>trust: false</code> 的服务器需要用户确认才能使用</p>
-              </div>
-              <div>
-                <div className="text-cyan-400 mb-1">白名单机制</div>
-                <p className="text-gray-300"><code>mcp.allowed</code> 控制允许启用的服务器</p>
-              </div>
-              <div>
-                <div className="text-cyan-400 mb-1">黑名单机制</div>
-                <p className="text-gray-300"><code>mcp.excluded</code> 强制禁用危险服务器</p>
-              </div>
-            </div>
+          <div className="bg-amber-900/20 border border-amber-500/30 rounded-lg p-4">
+            <h4 className="text-amber-400 font-semibold mb-2">实践建议</h4>
+            <ul className="text-sm text-gray-300 space-y-1 list-disc list-inside">
+              <li>只安装可审阅来源（固定 tag/release，避免跟随 main 漂移）</li>
+              <li>优先使用 <code>extensions link</code> 做本地开发，发布前再走 install/update 流程</li>
+              <li>把 hooks 与 skills 视为“需要安全评审”的能力，默认保持最小化</li>
+              <li>必要时用 <code>excludeTools</code> 为扩展/工作区设置“安全阈值”</li>
+            </ul>
           </div>
         </div>
       </section>
@@ -872,74 +576,45 @@ async function activateExtension(info: ExtensionInfo): Promise<void> {
 
         <div className="space-y-6">
           <div>
-            <h4 className="text-lg font-medium text-gray-200 mb-2">1. 为什么借鉴 VS Code 扩展模型？</h4>
-            <div className="bg-black/30 rounded-lg p-4 text-sm">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <div className="text-green-400 font-medium mb-1">借鉴的设计</div>
-                  <ul className="text-gray-300 space-y-1">
-                    <li>• <code>package.json</code> 作为 manifest</li>
-                    <li>• <code>activate()/deactivate()</code> 生命周期</li>
-                    <li>• <code>contributes</code> 声明式能力注册</li>
-                    <li>• <code>ExtensionContext</code> 上下文对象</li>
-                  </ul>
-                </div>
-                <div>
-                  <div className="text-cyan-400 font-medium mb-1">带来的好处</div>
-                  <ul className="text-gray-300 space-y-1">
-                    <li>• 开发者熟悉度高</li>
-                    <li>• 成熟的设计模式</li>
-                    <li>• 大量可参考的实现</li>
-                    <li>• 降低学习成本</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <h4 className="text-lg font-medium text-gray-200 mb-2">2. 为什么使用 activationEvents 而非立即加载？</h4>
-            <div className="bg-black/30 rounded-lg p-4 text-sm text-gray-300">
-              <p className="mb-2">
-                <strong className="text-white">问题</strong>：如果所有扩展在 CLI 启动时都加载，会显著增加启动时间。
+            <h4 className="text-lg font-medium text-gray-200 mb-2">1. 为什么是 gemini-extension.json（而不是可执行插件）？</h4>
+            <div className="bg-black/30 rounded-lg p-4 text-sm text-gray-300 space-y-2">
+              <p>
+                <strong className="text-white">决策</strong>：扩展是声明式配置（manifest + 目录约定），复杂逻辑放到 MCP server（外部进程）。
               </p>
-              <p className="mb-2">
-                <strong className="text-white">解决</strong>：通过 activationEvents 实现按需激活：
-              </p>
-              <ul className="text-gray-400 text-xs space-y-1">
-                <li>• <code>onStartup</code>：核心扩展，必须立即加载</li>
-                <li>• <code>onCommand:xxx</code>：用户调用命令时才加载</li>
-                <li>• <code>workspaceContains:**/*.py</code>：Python 项目才加载 Python 相关扩展</li>
+              <ul className="list-disc list-inside space-y-1 text-gray-300">
+                <li>更容易做 consent 披露与安全审阅（“这次会启动哪些进程/注入哪些内容”）</li>
+                <li>减少主进程插件 API 的兼容性与升级成本</li>
+                <li>跨平台更稳定：CLI 只负责加载配置与管理生命周期</li>
               </ul>
-              <p className="mt-2 text-cyan-400">
-                效果：启动时间从 ~2s 降低到 ~200ms（无扩展场景）
+              <p className="text-gray-400">
+                <strong>权衡</strong>：扩展本身不提供任意代码执行接口；需要自定义逻辑时，用 MCP server 来承载。
               </p>
             </div>
           </div>
 
           <div>
-            <h4 className="text-lg font-medium text-gray-200 mb-2">3. 为什么 subscriptions 使用数组而非 Map？</h4>
-            <div className="bg-black/30 rounded-lg p-4 text-sm text-gray-300">
-              <p className="mb-2">
-                <code className="text-cyan-400">context.subscriptions</code> 是一个 <code>Disposable[]</code> 数组，
-                扩展停用时自动调用每个元素的 <code>dispose()</code>。
+            <h4 className="text-lg font-medium text-gray-200 mb-2">2. 为什么 install 会“复制”扩展目录？</h4>
+            <div className="bg-black/30 rounded-lg p-4 text-sm text-gray-300 space-y-2">
+              <p>
+                <strong className="text-white">决策</strong>：安装时把扩展复制到 <code>~/.gemini/extensions/&lt;name&gt;</code>，从而提供稳定的加载位置。
               </p>
-              <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                <div>
-                  <div className="text-gray-400 mb-1">数组的优势</div>
-                  <ul className="text-gray-300 space-y-1">
-                    <li>• 保持注册顺序</li>
-                    <li>• 简单的 push 操作</li>
-                    <li>• 反向遍历 dispose</li>
-                  </ul>
-                </div>
-                <div>
-                  <div className="text-gray-400 mb-1">使用模式</div>
-                  <CodeBlock code={`const cmd = registerCommand('myCmd', handler);
-context.subscriptions.push(cmd);
-// 停用时自动 cmd.dispose()`} language="typescript" />
-                </div>
-              </div>
+              <ul className="list-disc list-inside space-y-1">
+                <li>本地路径扩展改动不会“偷偷生效”，需要显式 <code>extensions update</code></li>
+                <li>需要热更新体验时，用 <code>extensions link</code> 把安装目录指向开发目录</li>
+              </ul>
+            </div>
+          </div>
+
+          <div>
+            <h4 className="text-lg font-medium text-gray-200 mb-2">3. 为什么 extension commands 最后加载？</h4>
+            <div className="bg-black/30 rounded-lg p-4 text-sm text-gray-300 space-y-2">
+              <p>
+                <strong className="text-white">决策</strong>：commands 的加载顺序是 <strong>User → Project → Extension</strong>。
+              </p>
+              <ul className="list-disc list-inside space-y-1">
+                <li>project commands 可以覆盖 user commands（更贴近当前仓库）</li>
+                <li>extension commands 最后加载，便于检测与用户/项目命令的冲突并做命名处理</li>
+              </ul>
             </div>
           </div>
         </div>
@@ -961,34 +636,34 @@ context.subscriptions.push(cmd);
             </thead>
             <tbody className="text-gray-300">
               <tr className="border-b border-gray-800">
-                <td className="py-2 px-2 text-red-400">ManifestError</td>
-                <td className="py-2 px-2 text-xs">package.json 解析失败</td>
-                <td className="py-2 px-2 text-xs">跳过该扩展</td>
-                <td className="py-2 px-2 text-xs">启动日志警告</td>
+                <td className="py-2 px-2 text-red-400">MissingConfig</td>
+                <td className="py-2 px-2 text-xs">缺少 gemini-extension.json</td>
+                <td className="py-2 px-2 text-xs">跳过该扩展目录</td>
+                <td className="py-2 px-2 text-xs">Warning: Skipping extension…</td>
               </tr>
               <tr className="border-b border-gray-800">
-                <td className="py-2 px-2 text-red-400">EntryNotFound</td>
-                <td className="py-2 px-2 text-xs">入口文件不存在</td>
-                <td className="py-2 px-2 text-xs">跳过该扩展</td>
-                <td className="py-2 px-2 text-xs">启动日志错误</td>
+                <td className="py-2 px-2 text-red-400">InvalidConfig</td>
+                <td className="py-2 px-2 text-xs">JSON 解析失败 / 缺少 name/version</td>
+                <td className="py-2 px-2 text-xs">跳过该扩展目录</td>
+                <td className="py-2 px-2 text-xs">Warning: Skipping extension…</td>
               </tr>
               <tr className="border-b border-gray-800">
-                <td className="py-2 px-2 text-amber-400">ActivationError</td>
-                <td className="py-2 px-2 text-xs">activate() 抛出异常</td>
-                <td className="py-2 px-2 text-xs">标记为失败，不注册能力</td>
-                <td className="py-2 px-2 text-xs">显示错误通知</td>
+                <td className="py-2 px-2 text-amber-400">InvalidName</td>
+                <td className="py-2 px-2 text-xs">扩展名不合法（非字母/数字/-）</td>
+                <td className="py-2 px-2 text-xs">跳过该扩展目录</td>
+                <td className="py-2 px-2 text-xs">Warning: Skipping extension…</td>
               </tr>
               <tr className="border-b border-gray-800">
-                <td className="py-2 px-2 text-amber-400">DependencyMissing</td>
-                <td className="py-2 px-2 text-xs">依赖的扩展未安装</td>
-                <td className="py-2 px-2 text-xs">延迟激活</td>
-                <td className="py-2 px-2 text-xs">提示安装依赖</td>
+                <td className="py-2 px-2 text-amber-400">HooksConfigInvalid</td>
+                <td className="py-2 px-2 text-xs">hooks/hooks.json 非法或 hydrate 失败</td>
+                <td className="py-2 px-2 text-xs">忽略 hooks，继续加载</td>
+                <td className="py-2 px-2 text-xs">warn（不影响其他能力）</td>
               </tr>
               <tr>
-                <td className="py-2 px-2 text-cyan-400">Timeout</td>
-                <td className="py-2 px-2 text-xs">activate() 超过 10s</td>
-                <td className="py-2 px-2 text-xs">强制停止，标记失败</td>
-                <td className="py-2 px-2 text-xs">显示超时警告</td>
+                <td className="py-2 px-2 text-cyan-400">MCPDiscoveryError</td>
+                <td className="py-2 px-2 text-xs">某个 MCP server 启动/握手/发现失败</td>
+                <td className="py-2 px-2 text-xs">记录错误，其他 server 继续</td>
+                <td className="py-2 px-2 text-xs">UI/日志提示该 server 不可用</td>
               </tr>
             </tbody>
           </table>
@@ -1008,7 +683,7 @@ context.subscriptions.push(cmd);
         title="📚 相关阅读"
         pages={[
           { id: 'mcp', label: 'MCP 协议详解', description: '扩展如何注册 MCP 服务器' },
-          { id: 'tool-arch', label: '工具系统架构', description: '扩展如何注册自定义工具' },
+          { id: 'tool-arch', label: '工具系统架构', description: '扩展如何通过 MCP 提供工具' },
           { id: 'slash-cmd', label: '斜杠命令系统', description: '扩展如何添加新命令' },
           { id: 'config', label: '配置系统', description: '扩展配置项的注册和使用' },
           { id: 'sandbox', label: '沙箱系统', description: '工具执行的安全边界' },

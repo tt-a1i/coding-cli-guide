@@ -41,7 +41,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
                 <div className="text-[var(--cyber-blue)]">1. 加载配置</div>
-                <div className="text-[var(--text-muted)]">读取内置/用户/项目级配置</div>
+                <div className="text-[var(--text-muted)]">读取 settings.json + active extensions</div>
               </div>
               <div className="bg-[var(--bg-void)] p-2 rounded border border-[var(--border-subtle)]">
                 <div className="text-[var(--cyber-blue)]">2. 并行连接</div>
@@ -88,7 +88,7 @@ type ServerStatus = 'pending' | 'connecting' | 'negotiating' | 'ready' | 'error'
 interface MCPServer {
   id: string;
   name: string;
-  type: 'builtin' | 'user' | 'project';
+  type: 'settings' | 'extension';
   command: string;
   status: ServerStatus;
   tools: string[];
@@ -100,31 +100,31 @@ const initialServers: MCPServer[] = [
   {
     id: 'filesystem',
     name: 'filesystem',
-    type: 'builtin',
+    type: 'settings',
     command: 'npx @modelcontextprotocol/server-filesystem',
     status: 'pending',
     tools: ['read_file', 'write_file', 'list_directory'],
   },
   {
-    id: 'memory',
-    name: 'memory',
-    type: 'builtin',
-    command: 'npx @modelcontextprotocol/server-memory',
-    status: 'pending',
-    tools: ['store', 'retrieve', 'search'],
-  },
-  {
     id: 'github',
     name: 'github',
-    type: 'user',
+    type: 'settings',
     command: 'npx @modelcontextprotocol/server-github',
     status: 'pending',
     tools: ['create_issue', 'list_prs', 'merge_pr'],
   },
   {
+    id: 'ext-posts',
+    name: 'fetch_posts',
+    type: 'extension',
+    command: 'node ${extensionPath}/dist/example.js',
+    status: 'pending',
+    tools: ['fetch_posts'],
+  },
+  {
     id: 'custom-db',
-    name: 'project-db',
-    type: 'project',
+    name: 'experimental-db',
+    type: 'settings',
     command: './scripts/db-server.js',
     status: 'pending',
     tools: ['query', 'insert', 'update'],
@@ -143,9 +143,8 @@ function ServerCard({ server, isActive }: { server: MCPServer; isActive: boolean
   };
 
   const typeColors = {
-    builtin: 'var(--terminal-green)',
-    user: 'var(--cyber-blue)',
-    project: 'var(--amber)',
+    settings: 'var(--cyber-blue)',
+    extension: 'var(--purple)',
   };
 
   const statusIcons: Record<ServerStatus, string> = {
@@ -268,57 +267,45 @@ const discoveryPhases = [
 ];
 
 const phaseDescriptions = [
-  '从 .gemini/mcp.json 和用户配置加载服务器定义',
-  '使用 Promise.all() 并行启动所有服务器进程',
+  '从 settings.json 合并后的 mcpServers 加载服务器定义（扩展的 mcpServers 会在 extension active 时追加）',
+  '使用 Promise.all() 并行连接：本地 stdio / 远端 SSE/HTTP',
   '与每个服务器进行 MCP 协议握手，交换能力信息',
   '将发现的工具注册到工具注册表，供 AI 调用',
   'MCP 服务发现完成，工具已就绪',
 ];
 
 const phaseCode = [
-  `// mcp-client-manager.ts - 加载配置
-async loadServerConfigs(): Promise<MCPServerConfig[]> {
-  const configs: MCPServerConfig[] = [];
+  `// packages/core/src/tools/mcp-client-manager.ts（节选）
+// settings.json 的 mcpServers 由 Config 合并后提供；扩展的 mcpServers 通过 startExtension() 追加
 
-  // 1. 内置服务器
-  configs.push(...BUILTIN_SERVERS);
-
-  // 2. 用户全局配置 ~/.gemini/mcp.json
-  const userConfig = await this.loadUserConfig();
-  configs.push(...userConfig.mcpServers);
-
-  // 3. 项目配置 .gemini/mcp.json
-  const projectConfig = await this.loadProjectConfig();
-  configs.push(...projectConfig.mcpServers);
-
-  return this.deduplicateConfigs(configs);
-}`,
-  `// mcp-client-manager.ts - 并行连接
-async connectAll(): Promise<void> {
-  const configs = await this.loadServerConfigs();
-
-  // 并行启动所有服务器
-  const results = await Promise.all(
-    configs.map(async (config) => {
-      try {
-        const client = new MCPClient(config);
-        await client.connect();
-        return { config, client, success: true };
-      } catch (error) {
-        return { config, error, success: false };
-      }
-    })
+async startConfiguredMcpServers(): Promise<void> {
+  const servers = populateMcpServerCommand(
+    this.cliConfig.getMcpServers() || {},
+    this.cliConfig.getMcpServerCommand(),
   );
 
-  // 处理结果
-  for (const result of results) {
-    if (result.success) {
-      this.clients.set(result.config.name, result.client);
-    } else {
-      this.logError(result.config.name, result.error);
-    }
-  }
+  await Promise.all(
+    Object.entries(servers).map(([name, config]) =>
+      this.maybeDiscoverMcpServer(name, config),
+    ),
+  );
+}
+
+async startExtension(extension: GeminiCLIExtension) {
+  await Promise.all(
+    Object.entries(extension.mcpServers ?? {}).map(([name, config]) =>
+      this.maybeDiscoverMcpServer(name, { ...config, extension }),
+    ),
+  );
 }`,
+  `// mcp-client-manager.ts - 并行连接 + 发现（简化）
+await Promise.all(
+  Object.entries(servers).map(async ([name, config]) => {
+    const client = new McpClient(name, config, toolRegistry, ...);
+    await client.connect();         // stdio / sse / http
+    await client.discover(cliConfig); // tools/resources/prompts
+  })
+);`,
   `// mcp-client.ts - 能力协商
 async negotiate(): Promise<ServerCapabilities> {
   // 发送初始化请求
@@ -395,7 +382,7 @@ export function MCPDiscoveryAnimation() {
         setServers((prev) =>
           prev.map((s) => ({
             ...s,
-            status: s.type === 'project' ? 'error' : 'connecting',
+            status: s.error ? 'error' : 'connecting',
           }))
         );
         break;
@@ -421,19 +408,20 @@ export function MCPDiscoveryAnimation() {
 
   useEffect(() => {
     if (!isPlaying) return;
-    if (currentPhase >= discoveryPhases.length - 1) {
-      setIsPlaying(false);
-      return;
-    }
+    if (currentPhase >= discoveryPhases.length - 1) return;
 
     const timer = setTimeout(() => {
       const nextPhase = currentPhase + 1;
       setCurrentPhase(nextPhase);
       updateServersForPhase(nextPhase);
 
+      if (nextPhase >= discoveryPhases.length - 1) {
+        setIsPlaying(false);
+      }
+
       // 模拟处理每个服务器
       if (nextPhase === 1 || nextPhase === 2) {
-        const serverIds = servers.filter((s) => s.type !== 'project').map((s) => s.id);
+        const serverIds = servers.filter((s) => s.status !== 'error').map((s) => s.id);
         serverIds.forEach((id, i) => {
           setTimeout(() => setActiveServerId(id), i * 400);
         });
@@ -584,37 +572,37 @@ export function MCPDiscoveryAnimation() {
       <div className="mt-6 p-4 bg-[var(--bg-void)] rounded-lg border border-[var(--border-subtle)]">
         <div className="flex items-center gap-2 mb-4">
           <span className="text-[var(--purple)]">🏗️</span>
-          <span className="text-sm font-mono font-bold text-[var(--text-primary)]">三层配置层级</span>
+          <span className="text-sm font-mono font-bold text-[var(--text-primary)]">配置来源与优先级</span>
         </div>
         <div className="flex flex-wrap gap-4 justify-center">
           <div className="flex items-center gap-4">
-            <div className="p-3 rounded-lg bg-[var(--terminal-green)]/10 border border-[var(--terminal-green-dim)]">
-              <div className="text-center">
-                <div className="text-2xl mb-1">📦</div>
-                <div className="text-xs font-mono text-[var(--terminal-green)]">builtin</div>
-                <div className="text-xs font-mono text-[var(--text-muted)]">内置服务</div>
-              </div>
-            </div>
-            <span className="text-[var(--text-muted)]">→</span>
             <div className="p-3 rounded-lg bg-[var(--cyber-blue)]/10 border border-[var(--cyber-blue-dim)]">
               <div className="text-center">
-                <div className="text-2xl mb-1">👤</div>
-                <div className="text-xs font-mono text-[var(--cyber-blue)]">user</div>
-                <div className="text-xs font-mono text-[var(--text-muted)]">~/.gemini/</div>
+                <div className="text-2xl mb-1">⚙️</div>
+                <div className="text-xs font-mono text-[var(--cyber-blue)]">settings</div>
+                <div className="text-xs font-mono text-[var(--text-muted)]">settings.json（多层合并）</div>
               </div>
             </div>
             <span className="text-[var(--text-muted)]">→</span>
-            <div className="p-3 rounded-lg bg-[var(--amber)]/10 border border-[var(--amber-dim)]">
+            <div className="p-3 rounded-lg bg-[var(--purple)]/10 border border-[var(--purple)]/30">
               <div className="text-center">
-                <div className="text-2xl mb-1">📁</div>
-                <div className="text-xs font-mono text-[var(--amber)]">project</div>
-                <div className="text-xs font-mono text-[var(--text-muted)]">.gemini/</div>
+                <div className="text-2xl mb-1">🧩</div>
+                <div className="text-xs font-mono text-[var(--purple)]">extensions</div>
+                <div className="text-xs font-mono text-[var(--text-muted)]">gemini-extension.json（active）</div>
+              </div>
+            </div>
+            <span className="text-[var(--text-muted)]">→</span>
+            <div className="p-3 rounded-lg bg-[var(--terminal-green)]/10 border border-[var(--terminal-green-dim)]">
+              <div className="text-center">
+                <div className="text-2xl mb-1">🔀</div>
+                <div className="text-xs font-mono text-[var(--terminal-green)]">merged</div>
+                <div className="text-xs font-mono text-[var(--text-muted)]">最终连接列表</div>
               </div>
             </div>
           </div>
         </div>
         <div className="text-center mt-3 text-xs font-mono text-[var(--text-muted)]">
-          后加载的配置可以覆盖先前配置 (project &gt; user &gt; builtin)
+          同名 server 优先级：settings.json &gt; extension（扩展不能设置 trust）
         </div>
       </div>
     </div>

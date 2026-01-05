@@ -128,9 +128,13 @@ async execute() {
     title: '结果返回',
     code: `// 工具返回的结果
 {
-    llmContent: "{ \\"name\\": \\"@google/gemini-cli\\", ... }",
-    returnDisplay: "Read 50 lines from package.json"
+  llmContent: "{ \\"name\\": \\"@google/gemini-cli\\", ... }",
+  // 常见：成功且未截断时，为了减少噪音会留空
+  returnDisplay: ""
 }
+
+// 若发生截断/分页（offset/limit）才会返回更详细的提示：
+// returnDisplay: "Read lines 1-50 of 200 from package.json"
 
 // llmContent 会被包装为 functionResponse，再加入历史发给模型
 const responseParts = convertToFunctionResponse(
@@ -224,28 +228,28 @@ export function ToolDetails() {
           <ToolCard
             icon="📖"
             name="读取类"
-            tools={['ReadFile - 读取文件', 'Glob - 文件模式匹配', 'SearchFileContent - 内容搜索']}
+            tools={['read_file - 读取文件', 'glob - 文件模式匹配', 'search_file_content - 内容搜索']}
             status="✅ 安全，不修改文件"
             statusColor="text-green-500"
           />
           <ToolCard
             icon="✏️"
             name="写入类"
-            tools={['WriteFile - 写入文件', 'Replace - 编辑文件']}
+            tools={['write_file - 写入文件', 'replace - 编辑文件']}
             status="⚠️ 需要用户确认"
             statusColor="text-orange-500"
           />
           <ToolCard
             icon="💻"
             name="执行类"
-            tools={['Shell - 执行命令']}
+            tools={['run_shell_command - 执行命令']}
             status="🔒 危险，可能需要沙箱"
             statusColor="text-red-500"
           />
           <ToolCard
             icon="🌐"
             name="网络类"
-            tools={['WebFetch - 获取网页', 'WebSearch - 搜索']}
+            tools={['web_fetch - 获取网页', 'google_web_search - 搜索']}
             status="🌍 访问互联网"
             statusColor="text-blue-500"
           />
@@ -389,11 +393,11 @@ flowchart LR
         </p>
 
         <div className="space-y-6">
-          {/* ReadFile 边界情况 */}
+          {/* read_file 边界情况 */}
           <div className="bg-gray-800/50 rounded-lg p-5 border border-blue-500/30">
             <div className="flex items-center gap-3 mb-3">
               <span className="text-2xl">📖</span>
-              <h4 className="text-lg font-semibold text-blue-400">ReadFile 边界情况</h4>
+              <h4 className="text-lg font-semibold text-blue-400">read_file 边界情况</h4>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -440,11 +444,11 @@ flowchart LR
             </div>
           </div>
 
-          {/* WriteFile 边界情况 */}
+          {/* write_file 边界情况 */}
           <div className="bg-gray-800/50 rounded-lg p-5 border border-green-500/30">
             <div className="flex items-center gap-3 mb-3">
               <span className="text-2xl">✏️</span>
-              <h4 className="text-lg font-semibold text-green-400">WriteFile 边界情况</h4>
+              <h4 className="text-lg font-semibold text-green-400">write_file 边界情况</h4>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -486,11 +490,11 @@ flowchart LR
             </div>
           </div>
 
-          {/* Shell 边界情况 */}
+          {/* run_shell_command 边界情况 */}
           <div className="bg-gray-800/50 rounded-lg p-5 border border-red-500/30">
             <div className="flex items-center gap-3 mb-3">
               <span className="text-2xl">💻</span>
-              <h4 className="text-lg font-semibold text-red-400">Shell 边界情况</h4>
+              <h4 className="text-lg font-semibold text-red-400">run_shell_command 边界情况</h4>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -574,9 +578,9 @@ graph TB
     High --> S3
 
     subgraph "工具分类"
-        T1["ReadFile, Glob, Grep"]
-        T2["WriteFile, Edit"]
-        T3["Shell, WebFetch"]
+        T1["read_file, glob, search_file_content"]
+        T2["write_file, replace"]
+        T3["run_shell_command, web_fetch"]
     end
 
     T1 --> Safe
@@ -596,9 +600,9 @@ graph TB
               <thead className="bg-gray-800">
                 <tr>
                   <th className="px-4 py-2 text-left text-gray-300">审批模式</th>
-                  <th className="px-4 py-2 text-left text-gray-300">ReadFile</th>
-                  <th className="px-4 py-2 text-left text-gray-300">WriteFile</th>
-                  <th className="px-4 py-2 text-left text-gray-300">Shell</th>
+                  <th className="px-4 py-2 text-left text-gray-300">read_file</th>
+                  <th className="px-4 py-2 text-left text-gray-300">write_file/replace</th>
+                  <th className="px-4 py-2 text-left text-gray-300">run_shell_command</th>
                   <th className="px-4 py-2 text-left text-gray-300">适用场景</th>
                 </tr>
               </thead>
@@ -681,7 +685,7 @@ export GEMINI_SANDBOX=true  # 或 docker, podman
               <li>省略不必要的细节</li>
             </ul>
             <CodeBlock code={`// returnDisplay 示例
-"📖 Read 150 lines from src/index.ts"
+"📖 Read lines 1-150 of 300 from src/index.ts"
 
 // 或者
 "✏️ Updated 3 files (45 insertions, 12 deletions)"`} />

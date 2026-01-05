@@ -166,7 +166,7 @@ export function ToolReference() {
                 <p className="text-gray-300 font-semibold">来源: packages/core/src/config/config.ts#createToolRegistry()</p>
                 <p className="text-gray-400 text-xs mb-2">
                   这是“默认会注册到 ToolRegistry 的工具实现”。实际启用还会受 <code className="text-cyan-300">coreTools</code>、
-                  <code className="text-cyan-300">allowedTools</code>、平台能力（ripgrep）、agents 开关等影响。
+                  <code className="text-cyan-300">tools.allowed</code>/<code className="text-cyan-300">--allowed-tools</code>、平台能力（ripgrep）、agents 开关等影响。
                 </p>
                 <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
                   <div className="text-gray-400">• <code className="text-cyan-300">LSTool</code> - list_directory</div>
@@ -185,7 +185,7 @@ export function ToolReference() {
                   <div className="text-gray-400">• <code className="text-cyan-300">DelegateToAgentTool</code> - delegate_to_agent‡</div>
                 </div>
                 <p className="text-yellow-300 text-xs mt-2">
-                  * RipGrep/Grep 在运行时二选一（对模型同名）。† 仅在 useWriteTodos 开启时注册。‡ 仅在 agents 启用且 allowedTools 允许时注册。
+                  * RipGrepTool/GrepTool 在运行时二选一（tool name 同为 <code>search_file_content</code>）。† 仅在 useWriteTodos 开启时注册。‡ 仅在 agents 启用且 <code>tools.allowed</code>/<code>--allowed-tools</code> 允许时注册。
                 </p>
                 <p className="text-gray-400 text-xs mt-2">
                   备注：仓库中存在 <code className="text-cyan-300">ReadManyFilesTool</code> 实现与 <code className="text-cyan-300">read_many_files</code> 名称常量，
@@ -451,7 +451,7 @@ export function ToolReference() {
                   <tr className="border-b border-gray-800 bg-red-900/10">
                     <td className="py-1 px-2 text-red-400 line-through">'grep'</td>
                     <td className="py-1 px-2 text-green-400">'search_file_content'</td>
-                    <td className="py-1 px-2 font-sans text-gray-400">Grep 工具正确名称</td>
+                    <td className="py-1 px-2 font-sans text-gray-400">内容搜索工具的 <code>name</code>（旧称 Grep/RipGrep）</td>
                   </tr>
                   <tr className="border-b border-gray-800 bg-red-900/10">
                     <td className="py-1 px-2 text-red-400 line-through">'memory'</td>
@@ -461,7 +461,7 @@ export function ToolReference() {
                   <tr className="bg-red-900/10">
                     <td className="py-1 px-2 text-red-400 line-through">'read'</td>
                     <td className="py-1 px-2 text-green-400">'read_file'</td>
-                    <td className="py-1 px-2 font-sans text-gray-400">Read 工具正确名称</td>
+                    <td className="py-1 px-2 font-sans text-gray-400">读取文件工具的 <code>name</code></td>
                   </tr>
                 </tbody>
               </table>
@@ -478,19 +478,19 @@ export function ToolReference() {
                 <div className="bg-gray-800/50 rounded p-2">
                   <h5 className="font-semibold text-green-300 mb-1">常见默认更“容易放行”</h5>
                   <ul className="space-y-1 text-gray-400 text-xs">
-                    <li>• <code className="text-blue-300">Read</code> - 只读操作</li>
-                    <li>• <code className="text-green-300">Search</code> - 搜索操作</li>
-                    <li>• <code className="text-teal-300">Fetch</code> - 抓取类工具</li>
-                    <li>• <code className="text-cyan-300">Think</code> - 代理/记忆等</li>
+                    <li>• <code className="text-blue-300">Kind.Read</code> - 只读操作</li>
+                    <li>• <code className="text-green-300">Kind.Search</code> - 搜索操作</li>
+                    <li>• <code className="text-teal-300">Kind.Fetch</code> - 抓取类工具</li>
+                    <li>• <code className="text-cyan-300">Kind.Think</code> - 代理/记忆等</li>
                   </ul>
                 </div>
                 <div className="bg-gray-800/50 rounded p-2">
                   <h5 className="font-semibold text-yellow-300 mb-1">常见默认更“需要确认”</h5>
                   <ul className="space-y-1 text-gray-400 text-xs">
-                    <li>• <code className="text-yellow-300">Edit</code> - 修改文件</li>
-                    <li>• <code className="text-orange-300">Execute</code> - 执行命令</li>
-                    <li>• <code className="text-red-300">Delete/Move</code> - 破坏性操作</li>
-                    <li>• <code className="text-gray-300">Other</code> - 注入/扩展类操作</li>
+                    <li>• <code className="text-yellow-300">Kind.Edit</code> - 修改文件</li>
+                    <li>• <code className="text-orange-300">Kind.Execute</code> - 执行命令</li>
+                    <li>• <code className="text-red-300">Kind.Delete/Kind.Move</code> - 破坏性操作</li>
+                    <li>• <code className="text-gray-300">Kind.Other</code> - 注入/扩展类操作</li>
                   </ul>
                 </div>
               </div>
@@ -588,7 +588,7 @@ export function ToolReference() {
                 code={`// ApprovalMode 决策
 {
   approvalMode: 'default',  // 或 'autoEdit'
-  toolKind: 'Edit',
+  toolKind: Kind.Edit,
   decision: PolicyDecision.ASK_USER  // 需要用户确认
 }`}
               />
