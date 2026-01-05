@@ -433,7 +433,7 @@ async setupShadowGitRepository() {
 
   // 创建专用 Git 配置，避免继承用户全局配置
   const gitConfigContent =
-    '[user]\\n  name = Gemini CLI\\n  email = gemini-code@google.com\\n[commit]\\n  gpgsign = false\\n';
+    '[user]\\n  name = Gemini CLI\\n  email = gemini-cli@google.com\\n[commit]\\n  gpgsign = false\\n';
   await fs.writeFile(gitConfigPath, gitConfigContent);
 
   // 初始化 Git 仓库

@@ -515,7 +515,7 @@ class DiffContentProvider implements TextDocumentContentProvider {
           language="typescript"
           code={`// MCP Server 注册工具
 const mcpServer = new McpServer({
-  name: 'gemini-code-companion-mcp-server',
+  name: 'gemini-cli-companion-mcp-server',
   version: '1.0.0',
 });
 

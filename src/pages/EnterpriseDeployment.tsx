@@ -65,7 +65,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
 const relatedPages: RelatedPage[] = [
   { id: 'auth', label: '认证流程', description: 'OAuth 与 Token 管理机制' },
-  { id: 'google-authentication', label: 'Google OAuth 认证', description: 'Google OAuth 设备流程详解' },
+  { id: 'google-authentication', label: 'Google OAuth 认证', description: 'Loopback 回调与 NO_BROWSER/PKCE' },
   { id: 'config', label: '配置系统', description: '环境变量与配置文件管理' },
   { id: 'sandbox', label: '沙箱系统', description: '容器化部署与安全隔离' },
   { id: 'non-interactive', label: '非交互模式', description: 'CI/CD 场景下的 CLI 使用' },
@@ -388,10 +388,10 @@ export async function checkForUpdates(): Promise<UpdateObject | null> {
           <HighlightBox title="手动更新方法" variant="blue">
             <CodeBlock
               code={`# npm 全局安装
-npm update -g @gemini-code/gemini-code
+npm update -g @google/gemini-cli
 
 # 或安装指定版本
-npm install -g @gemini-code/gemini-code@1.2.3
+npm install -g @google/gemini-cli@1.2.3
 
 # Portable 版：替换 app/ 目录即可
 cp -r new-version/app/* portable-win-x64/app/`}

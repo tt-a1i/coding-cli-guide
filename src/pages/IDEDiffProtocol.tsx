@@ -8,7 +8,11 @@ export function IDEDiffProtocol() {
   const connectionFlowChart = `flowchart TD
     start([CLI 启动<br/>/ide enable])
     detect[检测 IDE<br/>进程树]
-    read_port[读取端口文件<br/>/tmp/gemini-code-ide-server-ppid.json]
+    try_compat[兼容读取<br/>/tmp/gemini-ide-server-{idePid}.json]
+    compat_ok{读取成功?}
+    scan_dir[扫描目录<br/>/tmp/gemini/ide/]
+    pick_file[筛选文件<br/>gemini-ide-server-{idePid}-*.json]
+    read_port[读取端口配置<br/>{ port, workspacePath, authToken }]
     validate{验证 Workspace<br/>路径匹配?}
     mcp_connect[MCP Client<br/>建立 HTTP SSE]
     discover[发现可用工具<br/>openDiff/closeDiff]
@@ -16,7 +20,12 @@ export function IDEDiffProtocol() {
     failed([连接失败<br/>提示安装插件])
 
     start --> detect
-    detect --> read_port
+    detect --> try_compat
+    try_compat --> compat_ok
+    compat_ok -->|Yes| read_port
+    compat_ok -->|No| scan_dir
+    scan_dir --> pick_file
+    pick_file --> read_port
     read_port --> validate
     validate -->|No| failed
     validate -->|Yes| mcp_connect
@@ -26,7 +35,8 @@ export function IDEDiffProtocol() {
     style start fill:#22d3ee,color:#000
     style connected fill:#22c55e,color:#000
     style failed fill:#ef4444,color:#fff
-    style validate fill:#f59e0b,color:#000`;
+    style validate fill:#f59e0b,color:#000
+    style compat_ok fill:#f59e0b,color:#000`;
 
   // Diff View 完整交互流程
   const diffFlowChart = `flowchart TD
@@ -197,7 +207,7 @@ async showDiff(filePath: string, newContent: string) {
 
 const createMcpServer = (diffManager: DiffManager) => {
   const server = new McpServer({
-    name: 'gemini-code-companion-mcp-server',
+    name: 'gemini-cli-companion-mcp-server',
     version: '1.0.0',
   }, { capabilities: { logging: {} } });
 
@@ -292,43 +302,38 @@ this.client.setNotificationHandler(
   },
 );`;
 
-  const portFileCode = `// 端口发现机制
-// 来源: packages/vscode-ide-companion/src/ide-server.ts:51-95
+  const portFileCode = `// 端口发现机制（上游 gemini-cli）
+// Extension 侧：gemini-cli/packages/vscode-ide-companion/src/ide-server.ts
+//
+// 写入目录：/tmp/gemini/ide/
+// 文件名： gemini-ide-server-{idePid}-{port}.json
+// 其中 idePid = process.ppid（VS Code 进程 ID），port 为随机监听端口
 
-// 1. Extension 启动时写入端口文件
-async function writePortAndWorkspace({
-  port, portFile, ppidPortFile, authToken, ...
-}) {
-  const content = JSON.stringify({
-    port,           // 随机分配的端口号
-    workspacePath,  // VS Code 打开的工作区路径
-    ppid: process.ppid,  // 父进程 ID (用于匹配 CLI)
-    authToken,      // Bearer Token
-  });
+const portDir = path.join(os.tmpdir(), 'gemini', 'ide');
+await fs.mkdir(portDir, { recursive: true });
 
-  // 写入两个文件:
-  // - /tmp/gemini-code-ide-server-{port}.json
-  // - /tmp/gemini-code-ide-server-{ppid}.json
-  await Promise.all([
-    fs.writeFile(portFile, content).then(() => fs.chmod(portFile, 0o600)),
-    fs.writeFile(ppidPortFile, content).then(() => fs.chmod(ppidPortFile, 0o600)),
-  ]);
-}
+const portFile = path.join(
+  portDir,
+  \`gemini-ide-server-\${process.ppid}-\${port}.json\`,
+);
 
-// 2. CLI 侧读取端口文件
-// 来源: packages/core/src/ide/ide-client.ts:571-667
+await fs.writeFile(
+  portFile,
+  JSON.stringify({
+    port,
+    workspacePath,
+    ppid: process.ppid,
+    authToken,
+  }),
+  { mode: 0o600 },
+);
 
-private async getConnectionConfigFromFile() {
-  // 通过进程树找到 IDE 的 PID
-  const portFile = path.join(
-    os.tmpdir(),
-    \`gemini-code-ide-server-\${this.ideProcessInfo.pid}.json\`
-  );
-
-  const portFileContents = await fs.promises.readFile(portFile, 'utf8');
-  return JSON.parse(portFileContents);
-  // { port: 54321, workspacePath: '/path/to/project', authToken: 'xxx' }
-}`;
+// CLI 侧：gemini-cli/packages/core/src/ide/ide-client.ts
+//
+// 1) 兼容旧版本：先尝试读取 /tmp/gemini-ide-server-{idePid}.json
+// 2) 新版本：扫描 /tmp/gemini/ide/ 下所有 gemini-ide-server-{idePid}-*.json
+// 3) workspacePath 必须匹配当前 cwd（防止连错窗口）
+// 4) 多窗口时，可用 GEMINI_CLI_IDE_SERVER_PORT 指定端口进行选择`;
 
   const contextSyncCode = `// IDE 上下文同步
 // 来源: packages/vscode-ide-companion/src/ide-server.ts:97-118
@@ -808,7 +813,8 @@ this.client.setNotificationHandler(
         <HighlightBox title="端口文件格式" icon="📄" variant="blue">
           <div className="text-sm">
             <p className="mb-2">
-              端口文件位于 <code>/tmp/gemini-code-ide-server-&lt;ppid&gt;.json</code>：
+              端口文件位于 <code>/tmp/gemini/ide/gemini-ide-server-&lt;idePid&gt;-&lt;port&gt;.json</code>（兼容旧版：
+              <code className="ml-1">/tmp/gemini-ide-server-&lt;idePid&gt;.json</code>）：
             </p>
             <CodeBlock
               code={`{

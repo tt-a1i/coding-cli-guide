@@ -83,7 +83,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
             <div className="flex items-center gap-2 flex-wrap text-xs">
               <span className="px-2 py-1 bg-red-500/20 text-red-400 rounded border border-red-500/30">CLI 参数</span>
               <span className="text-[var(--text-muted)]">&gt;</span>
-              <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded border border-yellow-500/30">/etc/gemini-code/</span>
+              <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded border border-yellow-500/30">/etc/gemini-cli/</span>
               <span className="text-[var(--text-muted)]">&gt;</span>
               <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded border border-green-500/30">.gemini/</span>
               <span className="text-[var(--text-muted)]">&gt;</span>
@@ -200,7 +200,7 @@ export function StartupChain() {
     participant App as initializeApp
 
     Main->>LS: 加载配置文件
-    Note right of LS: 1. systemDefaults.json<br/>2. ~/.gemini/settings.json<br/>3. .gemini/settings.json<br/>4. /etc/gemini-code/settings.json
+    Note right of LS: 合并优先级（后者覆盖前者）：<br/>1. system-defaults.json<br/>2. ~/.gemini/settings.json<br/>3. .gemini/settings.json<br/>4. /etc/gemini-cli/settings.json (macOS/Windows 路径不同)
     LS-->>Main: LoadedSettings
 
     Main->>LA: 解析命令行参数
@@ -248,7 +248,7 @@ export function StartupChain() {
           <ul className="list-disc list-inside space-y-2 ml-4">
             <li>加载和合并多层级配置（系统默认、用户、项目、系统覆盖）</li>
             <li>检测和启动沙箱环境（macOS Seatbelt、Docker、Podman）</li>
-            <li>初始化认证系统（Google OAuth、OpenAI API、Google Login）</li>
+            <li>初始化认证系统（Google OAuth、Gemini API Key、Vertex AI/ADC）</li>
             <li>加载扩展和 MCP 服务器配置</li>
             <li>根据运行环境选择正确的模式（交互式、非交互式、Zed 集成）</li>
           </ul>
@@ -270,7 +270,7 @@ export function StartupChain() {
             <ul className="text-sm space-y-1">
               <li>• Node.js &gt;= 20 运行时</li>
               <li>• 配置文件（可选）：~/.gemini/settings.json</li>
-              <li>• 环境变量（可选）：OPENAI_API_KEY, GEMINI_SANDBOX 等</li>
+              <li>• 环境变量（可选）：GEMINI_API_KEY / GEMINI_MODEL / GEMINI_SANDBOX / NO_BROWSER 等</li>
               <li>• Git 可用（如启用 checkpointing）</li>
             </ul>
           </HighlightBox>
@@ -424,7 +424,7 @@ return customDeepMerge(
   systemDefaults,      // 1. 基础默认值
   user,                // 2. 用户设置覆盖 (~/.gemini/settings.json)
   safeWorkspace,       // 3. 工作区覆盖 (.gemini/settings.json, 需信任)
-  system,              // 4. 系统覆盖 (/etc/gemini-code/settings.json, 最高优先)
+  system,              // 4. 系统覆盖 (/etc/gemini-cli/settings.json 等, 最高优先)
 ) as Settings;`}
         />
       </Layer>
@@ -458,7 +458,7 @@ return customDeepMerge(
               <div className="text-sm space-y-2">
                 <p className="text-gray-300">容器化隔离</p>
                 <p className="text-xs text-gray-500">
-                  镜像: ghcr.io/google/generative-ai-cli:VERSION
+                  镜像: us-docker.pkg.dev/gemini-code-dev/gemini-cli/sandbox:VERSION
                 </p>
                 <p className="text-xs text-gray-500">
                   检测: docker/podman 命令可用
@@ -633,18 +633,18 @@ main().catch((error) => {
                   <td className="border border-gray-700 p-3 text-gray-500">auto-detect</td>
                 </tr>
                 <tr className="bg-gray-800/30">
-                  <td className="border border-gray-700 p-3 font-mono text-cyan-400">OPENAI_API_KEY</td>
-                  <td className="border border-gray-700 p-3">OpenAI 兼容 API 密钥</td>
+                  <td className="border border-gray-700 p-3 font-mono text-cyan-400">GEMINI_API_KEY</td>
+                  <td className="border border-gray-700 p-3">Gemini API Key（AuthType=gemini-api-key）</td>
                   <td className="border border-gray-700 p-3 text-gray-500">-</td>
                 </tr>
                 <tr>
-                  <td className="border border-gray-700 p-3 font-mono text-cyan-400">OPENAI_BASE_URL</td>
-                  <td className="border border-gray-700 p-3">OpenAI 兼容 API 基础 URL</td>
+                  <td className="border border-gray-700 p-3 font-mono text-cyan-400">GEMINI_MODEL</td>
+                  <td className="border border-gray-700 p-3">Gemini 模型名称</td>
                   <td className="border border-gray-700 p-3 text-gray-500">-</td>
                 </tr>
                 <tr className="bg-gray-800/30">
-                  <td className="border border-gray-700 p-3 font-mono text-cyan-400">GEMINI_MODEL</td>
-                  <td className="border border-gray-700 p-3">Gemini 模型名称</td>
+                  <td className="border border-gray-700 p-3 font-mono text-cyan-400">GOOGLE_CLOUD_PROJECT</td>
+                  <td className="border border-gray-700 p-3">Vertex AI 项目（AuthType=vertex-ai）</td>
                   <td className="border border-gray-700 p-3 text-gray-500">-</td>
                 </tr>
                 <tr>
@@ -661,18 +661,23 @@ main().catch((error) => {
             </table>
           </div>
 
+          <div className="mt-3 bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 text-sm text-gray-300">
+            <strong className="text-amber-400">Fork-only：</strong>
+            某些衍生实现会加入 <code>OPENAI_API_KEY</code> / <code>OPENAI_BASE_URL</code> 等 OpenAI 兼容环境变量；上游 <code>gemini-cli</code> 不包含该认证分支。
+          </div>
+
           <h4 className="text-lg font-semibold text-cyan-400 mt-6">配置文件路径</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-gray-900 rounded-lg p-4 border border-gray-700">
               <h5 className="font-semibold text-green-400 mb-2">系统级配置</h5>
               <ul className="text-sm space-y-1 text-gray-300">
                 <li>
-                  <code className="text-yellow-300">/etc/gemini-code/settings.json</code>
+                  <code className="text-yellow-300">/etc/gemini-cli/settings.json</code>
                   <span className="text-gray-500 ml-2">(最高优先级)</span>
                 </li>
                 <li>
-                  <code className="text-yellow-300">systemDefaults.json</code>
-                  <span className="text-gray-500 ml-2">(内置默认)</span>
+                  <code className="text-yellow-300">system-defaults.json</code>
+                  <span className="text-gray-500 ml-2">(同目录, 最低优先级)</span>
                 </li>
               </ul>
             </div>
@@ -704,7 +709,7 @@ main().catch((error) => {
   },
   "security": {
     "auth": {
-      "selectedType": "google-oauth"  // 认证类型: google-oauth | openai-api
+      "selectedType": "oauth-personal"  // 认证类型: oauth-personal | gemini-api-key | vertex-ai | compute-default-credentials | cloud-shell
     }
   },
   "tools": {
@@ -715,8 +720,7 @@ main().catch((error) => {
     ]
   },
   "ide": {
-    "enabled": false,               // IDE 集成模式
-    "ideServerUri": "http://localhost:3000"
+    "enabled": false                // IDE 集成模式
   },
   "mcpServers": {                   // MCP 服务器配置
     "sequential-thinking": {

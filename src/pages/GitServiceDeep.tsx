@@ -167,8 +167,8 @@ export class GitService {
 
     // 专用 gitconfig，避免继承用户配置
     const gitConfigContent = \`[user]
-  name = Gemini Cli
-  email = gemini-code@google.com
+  name = Gemini CLI
+  email = gemini-cli@google.com
 [commit]
   gpgsign = false
 \`;
