@@ -25,7 +25,7 @@ export function SubagentArchitecture() {
           🏗️ Agent 架构深度解析
         </h1>
         <p className="text-[var(--text-secondary)]">
-          深入理解 Agent 类型系统、TOML 配置验证、执行循环和终止模式
+          深入理解 Agent 类型系统、Markdown frontmatter 配置验证、执行循环和终止模式
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <span className="px-2 py-1 bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] text-xs rounded">
@@ -79,7 +79,7 @@ export function SubagentArchitecture() {
               <div className="flex items-start gap-2">
                 <span className="text-[var(--terminal-green)]">✓</span>
                 <span className="text-[var(--text-secondary)]">
-                  <strong>TOML 配置</strong>：结构化配置 + 系统提示词
+                  <strong>Markdown frontmatter</strong>：结构化配置 + 系统提示词
                 </span>
               </div>
               <div className="flex items-start gap-2">
@@ -97,7 +97,7 @@ export function SubagentArchitecture() {
               <div className="flex items-start gap-2">
                 <span className="text-[var(--terminal-green)]">✓</span>
                 <span className="text-[var(--text-secondary)]">
-                  <strong>禁止嵌套委托</strong>：toml-loader 验证阻止循环
+                  <strong>禁止嵌套委托</strong>：agentLoader 验证阻止循环
                 </span>
               </div>
             </div>
@@ -120,8 +120,8 @@ export function SubagentArchitecture() {
               <span className="text-[var(--cyber-blue)]">agents/local-executor.ts</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[var(--text-muted)]">TOML 加载器</span>
-              <span className="text-[var(--cyber-blue)]">agents/toml-loader.ts</span>
+              <span className="text-[var(--text-muted)]">Agent Loader</span>
+              <span className="text-[var(--cyber-blue)]">agents/agentLoader.ts</span>
             </div>
             <div className="flex justify-between">
               <span className="text-[var(--text-muted)]">委托工具</span>
@@ -304,50 +304,48 @@ interface AgentInputDefinition {
         )}
       </section>
 
-      {/* TOML 配置与验证 */}
+      {/* Markdown 配置与验证 */}
       <section className="bg-[var(--bg-card)] rounded-xl p-6 border border-[var(--border-subtle)]">
         <button
-          onClick={() => toggleSection('toml')}
+          onClick={() => toggleSection('markdown')}
           className="w-full flex items-center justify-between mb-4"
         >
           <h2 className="text-xl font-bold text-[var(--text-primary)] flex items-center gap-2">
-            📄 TOML 配置与验证
+            📄 Markdown 配置与验证
           </h2>
-          <span className={`transform transition-transform ${expandedSections.has('toml') ? 'rotate-180' : ''}`}>
+          <span className={`transform transition-transform ${expandedSections.has('markdown') ? 'rotate-180' : ''}`}>
             ▼
           </span>
         </button>
 
-        {expandedSections.has('toml') && (
+        {expandedSections.has('markdown') && (
           <div className="space-y-6">
             <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
-              <h4 className="text-[var(--terminal-green)] font-bold mb-3">本地 Agent TOML 格式</h4>
+              <h4 className="text-[var(--terminal-green)] font-bold mb-3">本地 Agent Markdown 格式</h4>
               <CodeBlock
-                language="toml"
-                code={`# .gemini/agents/code-reviewer.toml
-name = "code-reviewer"
-description = "代码审查专家，专注于代码质量和最佳实践"
-tools = ["read_file", "search_file_content", "glob", "list_directory"]
+                language="markdown"
+                code={`---
+kind: local
+name: code-reviewer
+description: 代码审查专家，专注于代码质量和最佳实践
+tools:
+  - read_file
+  - search_file_content
+  - glob
+  - list_directory
 # 内置工具使用 tool name（如 read_file）；MCP 工具用 server__tool 格式
-
-[prompts]
-system_prompt = """
+model: gemini-2.5-flash
+temperature: 0.3
+max_turns: 50
+timeout_mins: 10
+---
 You are a code review expert. When reviewing code, focus on:
 1. Code correctness and potential bugs
 2. Performance implications
 3. Security vulnerabilities
 4. Code style and readability
 
-Always provide specific line numbers and actionable suggestions.
-"""
-
-[model]
-model = "gemini-2.0-flash"
-temperature = 0.3
-
-[run]
-max_turns = 50
-timeout_mins = 10`}
+Always provide specific line numbers and actionable suggestions.`}
               />
             </div>
 
@@ -359,16 +357,17 @@ timeout_mins = 10`}
                   <ul className="space-y-1 text-[var(--text-secondary)]">
                     <li>• <code>name</code> - 唯一标识符 (slug 格式)</li>
                     <li>• <code>description</code> - Agent 用途说明</li>
-                    <li>• <code>[prompts].system_prompt</code> - 系统提示词</li>
+                    <li>• <code>Markdown Body</code> - 系统提示词</li>
                   </ul>
                 </div>
                 <div>
                   <h5 className="text-[var(--amber)] font-bold mb-2">可选字段</h5>
                   <ul className="space-y-1 text-[var(--text-secondary)]">
                     <li>• <code>tools</code> - 可用工具列表</li>
-                    <li>• <code>[model]</code> - 模型配置</li>
-                    <li>• <code>[run]</code> - 运行时配置</li>
+                    <li>• <code>model</code> / <code>temperature</code> - 模型配置</li>
+                    <li>• <code>max_turns</code> / <code>timeout_mins</code> - 运行时配置</li>
                     <li>• <code>display_name</code> - 显示名称</li>
+                    <li>• <code>kind</code> / <code>agent_card_url</code> - 远程 Agent</li>
                   </ul>
                 </div>
               </div>
@@ -378,7 +377,7 @@ timeout_mins = 10`}
               <h4 className="text-[var(--purple)] font-bold mb-3">Zod Schema 验证</h4>
               <CodeBlock
                 language="typescript"
-                code={`// toml-loader.ts - Zod 验证 Schema
+                code={`// agentLoader.ts - Zod 验证 Schema
 
 // 名称必须是有效的 slug
 const nameSchema = z
@@ -398,20 +397,10 @@ const localAgentSchema = z.object({
     }),
   ).optional(),
 
-  prompts: z.object({
-    system_prompt: z.string().min(1),
-    query: z.string().optional(),
-  }),
-
-  model: z.object({
-    model: z.string().optional(),
-    temperature: z.number().optional(),
-  }).optional(),
-
-  run: z.object({
-    max_turns: z.number().int().positive().optional(),
-    timeout_mins: z.number().int().positive().optional(),
-  }).optional(),
+  model: z.string().optional(),
+  temperature: z.number().optional(),
+  max_turns: z.number().int().positive().optional(),
+  timeout_mins: z.number().int().positive().optional(),
 }).strict();  // strict() 禁止未知字段
 
 const remoteAgentSchema = z.object({
@@ -428,10 +417,13 @@ const remoteAgentSchema = z.object({
               <h4 className="text-[var(--amber)] font-bold mb-3">💡 禁止嵌套委托</h4>
               <CodeBlock
                 language="typescript"
-                code={`// toml-loader.ts:219-225 - 防止循环委托
+                code={`// agentLoader.ts - 防止循环委托
 
 // 子代理不能包含 delegate_to_agent 工具
-if ('tools' in toml && toml.tools?.includes(DELEGATE_TO_AGENT_TOOL_NAME)) {
+if (
+  frontmatter.tools &&
+  frontmatter.tools.includes(DELEGATE_TO_AGENT_TOOL_NAME)
+) {
   throw new AgentLoadError(
     filePath,
     \`Validation failed: tools list cannot include '\${DELEGATE_TO_AGENT_TOOL_NAME}'. \` +
@@ -898,12 +890,12 @@ await executor.run(signal, updateOutput);`}
         <div className="space-y-4">
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
             <h4 className="text-[var(--terminal-green)] font-bold mb-2">
-              为什么用 TOML 配置格式？
+              为什么用 Markdown frontmatter？
             </h4>
             <ul className="text-sm text-[var(--text-secondary)] space-y-1">
-              <li>• <strong>结构化配置</strong>：TOML 清晰表达嵌套结构（[prompts], [model], [run]）</li>
-              <li>• <strong>类型友好</strong>：原生支持字符串、数字、数组等类型</li>
-              <li>• <strong>多行字符串</strong>：三引号语法支持系统提示词</li>
+              <li>• <strong>统一格式</strong>：与 Skill 的 frontmatter 结构一致</li>
+              <li>• <strong>配置 + 提示词分离</strong>：YAML 承载元信息，正文直接作为 system prompt</li>
+              <li>• <strong>兼容远程 Agent</strong>：frontmatter 可用数组声明多个 remote agent</li>
               <li>• <strong>Zod 验证</strong>：运行时进行严格类型校验</li>
             </ul>
           </div>

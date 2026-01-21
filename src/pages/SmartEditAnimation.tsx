@@ -33,14 +33,16 @@ const editStepSequence: EditStep[] = [
     id: 'init',
     phase: 'init',
     title: '1. 初始化编辑请求',
-    description: '接收编辑参数：file_path, old_string, new_string, instruction',
-    codeSnippet: `// smart-edit.ts - 编辑请求初始化
+    description: '接收编辑参数：file_path, old_string, new_string, expected_replacements, instruction',
+    codeSnippet: `// edit.ts - 编辑请求初始化
 interface EditToolParams {
   file_path: string;      // 目标文件路径
   old_string: string;     // 要替换的文本
   new_string: string;     // 替换后的文本
-  instruction: string;    // 编辑说明
+  expected_replacements?: number; // 预期替换次数
+  instruction?: string;   // 编辑说明
   modified_by_user?: boolean;
+  ai_proposed_content?: string;
 }
 
 // 创建替换上下文
@@ -64,7 +66,7 @@ const context: ReplacementContext = {
     phase: 'read_file',
     title: '2. 读取文件内容',
     description: '读取目标文件，检测行尾格式，规范化换行符',
-    codeSnippet: `// smart-edit.ts:446 - 读取并规范化文件
+    codeSnippet: `// edit.ts - 读取并规范化文件
 let currentContent = await this.config
   .getFileSystemService()
   .readTextFile(params.file_path);
@@ -91,7 +93,7 @@ function detectLineEnding(content: string): '\\r\\n' | '\\n' {
     title: '3. 策略一：精确匹配',
     description: '尝试精确字符串匹配，最快但最严格',
     strategy: 'exact',
-    codeSnippet: `// smart-edit.ts:72 - 精确匹配策略
+    codeSnippet: `// edit.ts - 精确匹配策略
 async function calculateExactReplacement(
   context: ReplacementContext
 ): Promise<ReplacementResult | null> {
@@ -131,7 +133,7 @@ async function calculateExactReplacement(
     title: '4. 策略二：灵活空白匹配',
     description: '逐行比较，忽略前导/尾随空白，保留缩进',
     strategy: 'flexible',
-    codeSnippet: `// smart-edit.ts:101 - 灵活匹配策略
+    codeSnippet: `// edit.ts - 灵活匹配策略
 async function calculateFlexibleReplacement(
   context: ReplacementContext
 ): Promise<ReplacementResult | null> {
@@ -176,7 +178,7 @@ async function calculateFlexibleReplacement(
     title: '5. 策略三：正则表达式匹配',
     description: '将搜索字符串转换为灵活的正则模式',
     strategy: 'regex',
-    codeSnippet: `// smart-edit.ts:159 - 正则匹配策略
+    codeSnippet: `// edit.ts - 正则匹配策略
 async function calculateRegexReplacement(
   context: ReplacementContext
 ): Promise<ReplacementResult | null> {
@@ -220,7 +222,7 @@ async function calculateRegexReplacement(
     title: '6. 策略四：LLM 智能修复',
     description: '使用 LLM 分析错误并生成正确的搜索/替换对',
     strategy: 'llm_fix',
-    codeSnippet: `// smart-edit.ts:360 - LLM 修复策略
+    codeSnippet: `// edit.ts - LLM 修复策略
 private async attemptSelfCorrection(
   params: EditToolParams,
   currentContent: string,
@@ -269,7 +271,7 @@ private async attemptSelfCorrection(
     phase: 'apply_edit',
     title: '7. 应用编辑',
     description: '写入修改后的内容，恢复原始行尾格式',
-    codeSnippet: `// smart-edit.ts:683 - 应用编辑
+    codeSnippet: `// edit.ts - 应用编辑
 try {
   // 确保父目录存在
   this.ensureParentDirectoriesExist(this.params.file_path);
@@ -535,13 +537,13 @@ export function SmartEditAnimation() {
       {/* 标题 */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--terminal-green)' }}>
-          Smart Edit 替换引擎
+          Edit (replace) 替换引擎
         </h1>
         <p className="text-gray-400">
           多策略替换引擎：精确匹配 → 灵活匹配 → 正则匹配 → LLM 修复
         </p>
         <div className="mt-2 text-sm text-gray-500">
-          源码: packages/core/src/tools/smart-edit.ts
+          源码: packages/core/src/tools/edit.ts
         </div>
       </div>
 

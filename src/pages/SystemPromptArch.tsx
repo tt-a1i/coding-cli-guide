@@ -468,7 +468,8 @@ Use \`delegate_to_agent\` for complex tasks
 requiring specialized analysis.
 
 - **codebase_investigator**: Explore codebase
-- **introspection_agent**: Self-analysis
+- **cli_help**: CLI documentation Q&A
+- **generalist**: General-purpose agent (experimental)
 - **custom_agent**: Your custom agent`}
             />
           </div>

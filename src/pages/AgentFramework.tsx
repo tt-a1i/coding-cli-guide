@@ -34,7 +34,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
             <p className="text-[var(--text-primary)] font-medium">
               <span className="text-[var(--cyber-blue)] font-bold">一句话：</span>
-              可配置的子代理执行框架，通过 TOML 定义 Agent，支持本地执行和远程 A2A 调用
+              可配置的子代理执行框架，通过 Markdown + YAML frontmatter 定义 Agent，支持本地执行和远程 A2A 调用
             </p>
           </div>
 
@@ -53,7 +53,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
               <div className="text-xs text-[var(--text-muted)]">配置层级</div>
             </div>
             <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
-              <div className="text-2xl font-bold text-[var(--purple)]">2</div>
+              <div className="text-2xl font-bold text-[var(--purple)]">3</div>
               <div className="text-xs text-[var(--text-muted)]">内置 Agent</div>
             </div>
           </div>
@@ -63,7 +63,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
             <h4 className="text-sm font-semibold text-[var(--text-muted)] mb-2">Agent 执行流程</h4>
             <div className="flex items-center gap-2 flex-wrap text-sm">
               <span className="px-3 py-1.5 bg-[var(--cyber-blue)]/20 text-[var(--cyber-blue)] rounded-lg border border-[var(--cyber-blue)]/30">
-                TOML 加载
+                Markdown frontmatter 加载
               </span>
               <span className="text-[var(--text-muted)]">→</span>
               <span className="px-3 py-1.5 bg-[var(--purple)]/20 text-[var(--purple)] rounded-lg border border-[var(--purple)]/30">
@@ -98,7 +98,7 @@ export function AgentFramework() {
 
   const architectureChart = `flowchart TD
     subgraph Config["📁 配置层"]
-      TOML[TOML 配置文件]
+      TOML[Markdown 配置文件]
       BUILTIN[内置 Agent]
     end
 
@@ -106,7 +106,7 @@ export function AgentFramework() {
       REG[注册与管理]
       REG --> |用户级| USER["~/.gemini/agents/"]
       REG --> |项目级| PROJ[".gemini/agents/"]
-      REG --> |内置| BUILT[CodebaseInvestigator\nIntrospectionAgent]
+      REG --> |内置| BUILT[codebase_investigator\ncli_help\ngeneralist]
     end
 
     subgraph Execution["⚡ 执行层"]
@@ -252,15 +252,28 @@ export class AgentRegistry {
   }
 
   private loadBuiltInAgents(): void {
+    const investigatorSettings = this.config.getCodebaseInvestigatorSettings();
+    const cliHelpSettings = this.config.getCliHelpAgentSettings();
+    const agentsOverrides = this.config.getAgentsSettings().overrides ?? {};
+
     // CodebaseInvestigator - 代码库探索
-    if (this.config.getCodebaseInvestigatorSettings()?.enabled) {
+    if (
+      investigatorSettings?.enabled &&
+      agentsOverrides[CodebaseInvestigatorAgent.name]?.enabled !== false
+    ) {
       this.registerLocalAgent(CodebaseInvestigatorAgent);
     }
 
-    // IntrospectionAgent - 自省分析
-    if (this.config.getIntrospectionAgentSettings().enabled) {
-      this.registerLocalAgent(IntrospectionAgent);
+    // CLI Help - 文档问答
+    if (
+      cliHelpSettings.enabled &&
+      agentsOverrides[CliHelpAgent.name]?.enabled !== false
+    ) {
+      this.registerLocalAgent(CliHelpAgent(this.config));
     }
+
+    // Generalist - 通用代理（实验特性）
+    this.registerLocalAgent(GeneralistAgent(this.config));
   }
 
   // 获取 Agent 目录上下文（注入到系统提示词）
@@ -274,14 +287,22 @@ export class AgentRegistry {
   }
 }`;
 
-  const tomlConfigCode = `# ~/.gemini/agents/code-reviewer.toml
-name = "code-reviewer"
-description = "专业代码审查，检查最佳实践和潜在问题"
-tools = ["read_file", "search_file_content", "glob", "list_directory"]
+  const markdownConfigCode = `---
+kind: local
+name: code-reviewer
+description: 专业代码审查，检查最佳实践和潜在问题
+display_name: Code Reviewer
+tools:
+  - read_file
+  - search_file_content
+  - glob
+  - list_directory
 # 说明：内置工具使用 tool name（如 read_file）；MCP 工具用 server__tool 格式
-
-[prompts]
-system_prompt = """
+model: gemini-2.5-flash
+temperature: 0.3
+max_turns: 10
+timeout_mins: 5
+---
 You are a senior code reviewer. Analyze the code for:
 - Best practices and patterns
 - Potential bugs and issues
@@ -291,16 +312,7 @@ You are a senior code reviewer. Analyze the code for:
 Current model: \${activeModel}
 Today: \${today}
 
-When asked to review code, focus on actionable feedback.
-"""
-
-[model]
-model = "gemini-2.0-flash"
-temperature = 0.3
-
-[run]
-max_turns = 10
-timeout_mins = 5`;
+When asked to review code, focus on actionable feedback.`;
 
   const remoteAgentNote = `注意：远程 Agent 通过 A2A (Agent-to-Agent) 协议调用，
 配置需要提供 agent_card_url 指向远程 Agent 的描述文件。
@@ -559,7 +571,7 @@ this.emitActivity('ERROR', { error: errorMessage, context: 'tool_call' });`;
           Agent Framework 代理框架
         </h1>
         <p className="text-xl text-[var(--text-muted)]">
-          可配置的子代理执行框架 - TOML 驱动的 Agent 定义与执行
+          可配置的子代理执行框架 - Markdown frontmatter 驱动的 Agent 定义与执行
         </p>
       </div>
 
@@ -571,7 +583,7 @@ this.emitActivity('ERROR', { error: errorMessage, context: 'tool_call' });`;
       {/* 核心架构 */}
       <Layer title="核心架构">
         <p className="text-[var(--text-secondary)] mb-6">
-          Agent Framework 提供了一套完整的子代理系统，支持通过 TOML 配置文件定义 Agent，
+          Agent Framework 提供了一套完整的子代理系统，支持通过 Markdown + YAML frontmatter 定义 Agent，
           并在隔离的执行环境中运行。支持本地执行和远程 A2A (Agent-to-Agent) 调用。
         </p>
         <MermaidDiagram chart={architectureChart} />
@@ -652,14 +664,14 @@ this.emitActivity('ERROR', { error: errorMessage, context: 'tool_call' });`;
         </div>
       </Layer>
 
-      {/* TOML 配置示例 */}
-      <Layer title="TOML 配置示例">
+      {/* Markdown 配置示例 */}
+      <Layer title="Markdown 配置示例">
         <p className="text-[var(--text-secondary)] mb-4">
-          Agent 通过 TOML 文件定义，放置在 <code>~/.gemini/agents/</code> (用户级) 或
-          <code>.gemini/agents/</code> (项目级) 目录下。
+          Agent 通过 Markdown 文件 + YAML frontmatter 定义（文件必须以 <code>---</code> 开头），放置在
+          <code>~/.gemini/agents/</code> (用户级) 或 <code>.gemini/agents/</code> (项目级) 目录下（仅加载 <code>.md</code>）。
         </p>
 
-        <CodeBlock code={tomlConfigCode} language="toml" title="本地 Agent 配置示例" />
+        <CodeBlock code={markdownConfigCode} language="markdown" title="本地 Agent 配置示例" />
 
         <div className="mt-6 bg-[var(--amber)]/10 rounded-lg p-4 border border-[var(--amber)]/30">
           <h4 className="text-[var(--amber)] font-bold mb-2">关于远程 Agent</h4>
@@ -688,11 +700,11 @@ this.emitActivity('ERROR', { error: errorMessage, context: 'tool_call' });`;
         <CodeBlock code={registryCode} language="typescript" title="registry.ts" />
 
         <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <HighlightBox title="内置 Agent (2个)" variant="blue">
+          <HighlightBox title="内置 Agent (3个)" variant="blue">
             <ul className="text-sm space-y-1">
-              <li>• <strong>CodebaseInvestigator</strong> - 代码库探索</li>
-              <li>• <strong>IntrospectionAgent</strong> - 自省分析</li>
-              <li>• 通过设置启用/禁用</li>
+              <li>• <strong>codebase_investigator</strong> - 代码库探索</li>
+              <li>• <strong>cli_help</strong> - CLI 文档问答</li>
+              <li>• <strong>generalist</strong> - 通用代理（实验）</li>
             </ul>
           </HighlightBox>
 
@@ -934,8 +946,8 @@ this.emitActivity('ERROR', { error: errorMessage, context: 'tool_call' });`;
                 <td className="py-2 px-3 text-[var(--text-secondary)]">LocalAgentExecutor - 本地 Agent 执行循环</td>
               </tr>
               <tr className="border-b border-[var(--border-subtle)]/50">
-                <td className="py-2 px-3 font-mono text-[var(--cyber-blue)] text-xs">agents/toml-loader.ts</td>
-                <td className="py-2 px-3 text-[var(--text-secondary)]">TOML 配置解析与验证</td>
+                <td className="py-2 px-3 font-mono text-[var(--cyber-blue)] text-xs">agents/agentLoader.ts</td>
+                <td className="py-2 px-3 text-[var(--text-secondary)]">Markdown frontmatter 解析与验证</td>
               </tr>
               <tr className="border-b border-[var(--border-subtle)]/50">
                 <td className="py-2 px-3 font-mono text-[var(--cyber-blue)] text-xs">agents/delegate-to-agent-tool.ts</td>
@@ -948,6 +960,14 @@ this.emitActivity('ERROR', { error: errorMessage, context: 'tool_call' });`;
               <tr className="border-b border-[var(--border-subtle)]/50">
                 <td className="py-2 px-3 font-mono text-[var(--cyber-blue)] text-xs">agents/codebase-investigator.ts</td>
                 <td className="py-2 px-3 text-[var(--text-secondary)]">CodebaseInvestigatorAgent 内置定义</td>
+              </tr>
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--cyber-blue)] text-xs">agents/cli-help-agent.ts</td>
+                <td className="py-2 px-3 text-[var(--text-secondary)]">CliHelpAgent 内置定义</td>
+              </tr>
+              <tr className="border-b border-[var(--border-subtle)]/50">
+                <td className="py-2 px-3 font-mono text-[var(--cyber-blue)] text-xs">agents/generalist-agent.ts</td>
+                <td className="py-2 px-3 text-[var(--text-secondary)]">GeneralistAgent 内置定义（experimental）</td>
               </tr>
               <tr className="border-b border-[var(--border-subtle)]/50">
                 <td className="py-2 px-3 font-mono text-[var(--cyber-blue)] text-xs">agents/a2a-client-manager.ts</td>
@@ -971,7 +991,7 @@ this.emitActivity('ERROR', { error: errorMessage, context: 'tool_call' });`;
 
           <HighlightBox title="为什么 Agent 不能调用 delegate_to_agent?" variant="purple">
             <p className="text-sm">
-              <strong>防止递归和复杂性</strong>：toml-loader 会验证 tools 配置，
+              <strong>防止递归和复杂性</strong>：agentLoader 会验证 tools 配置，
               拒绝包含 delegate_to_agent 的 Agent 定义。这防止了 Agent 之间的递归调用，
               简化了执行模型和调试。
             </p>

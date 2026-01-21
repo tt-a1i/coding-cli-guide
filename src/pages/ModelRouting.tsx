@@ -414,7 +414,7 @@ export class OverrideStrategy implements RoutingStrategy {
   async route(_context, config, _baseLlmClient): Promise<RoutingDecision | null> {
     const overrideModel = config.getModel();
 
-    // 如果是 'auto' 模式，传递给下一策略
+    // 如果是 'auto' 模式（auto-gemini-2.5 / auto-gemini-3），传递给下一策略
     if (overrideModel === DEFAULT_GEMINI_MODEL_AUTO ||
         overrideModel === PREVIEW_GEMINI_MODEL_AUTO) {
       return null;
@@ -438,7 +438,7 @@ export class DefaultStrategy implements TerminalStrategy {
 
   async route(_context, _config, _baseLlmClient): Promise<RoutingDecision> {
     return {
-      model: DEFAULT_GEMINI_MODEL,  // 如 'gemini-2.0-flash'
+      model: DEFAULT_GEMINI_MODEL,  // 如 'gemini-2.5-pro'
       metadata: {
         source: this.name,
         latencyMs: 0,

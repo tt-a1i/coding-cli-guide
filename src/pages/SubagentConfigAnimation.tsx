@@ -10,7 +10,7 @@ type ParsePhase =
   | 'scan_project'
   | 'scan_user'
   | 'scan_builtin'
-  | 'parse_toml'
+  | 'parse_markdown'
   | 'validate_schema'
   | 'resolve_tools'
   | 'build_cache'
@@ -54,7 +54,7 @@ const sampleAgents: Record<SubagentLevel, SubagentConfig[]> = {
       description: '审查 API 设计规范',
       tools: ['read_file', 'search_file_content'],
       level: 'project',
-      filePath: '.gemini/agents/api-reviewer.toml',
+      filePath: '.gemini/agents/api-reviewer.md',
     },
   ],
   user: [
@@ -63,14 +63,14 @@ const sampleAgents: Record<SubagentLevel, SubagentConfig[]> = {
       description: '解释代码逻辑',
       tools: ['read_file', 'google_web_search'],
       level: 'user',
-      filePath: '~/.gemini/agents/code-explainer.toml',
+      filePath: '~/.gemini/agents/code-explainer.md',
     },
     {
       name: 'api-reviewer',
       description: '用户级 API 审查器',
       tools: ['read_file'],
       level: 'user',
-      filePath: '~/.gemini/agents/api-reviewer.toml',
+      filePath: '~/.gemini/agents/api-reviewer.md',
     },
   ],
   builtin: [
@@ -82,11 +82,18 @@ const sampleAgents: Record<SubagentLevel, SubagentConfig[]> = {
       filePath: 'builtin://codebase_investigator',
     },
     {
-      name: 'introspection_agent',
+      name: 'cli_help',
       description: '回答关于 Gemini CLI 本身的问题（基于内部文档）',
       tools: ['get_internal_docs'],
       level: 'builtin',
-      filePath: 'builtin://introspection_agent',
+      filePath: 'builtin://cli_help',
+    },
+    {
+      name: 'generalist',
+      description: '通用代理，继承主系统提示词并开放全部工具',
+      tools: ['*'],
+      level: 'builtin',
+      filePath: 'builtin://generalist',
     },
   ],
 };
@@ -125,27 +132,27 @@ class AgentRegistry {
   {
     phase: 'scan_project',
     title: '扫描项目级配置',
-    description: '读取 .gemini/agents/*.toml 文件',
+    description: '读取 .gemini/agents/*.md 文件',
     stateChange: {
       currentLevel: 'project',
       projectAgents: sampleAgents.project,
     },
-    codeSnippet: `// toml-loader.ts - loadAgentsFromDirectory
+    codeSnippet: `// agentLoader.ts - loadAgentsFromDirectory
 async function loadAgentsFromDirectory(dir: string): Promise<AgentLoadResult> {
   const result: AgentLoadResult = { agents: [], errors: [] };
 
   const dirEntries = await fs.readdir(dir, { withFileTypes: true });
-  const tomlFiles = dirEntries.filter(
+  const mdFiles = dirEntries.filter(
     entry => entry.isFile() &&
-    entry.name.endsWith('.toml') &&
+    entry.name.endsWith('.md') &&
     !entry.name.startsWith('_')
   );
 
-  for (const file of tomlFiles) {
+  for (const file of mdFiles) {
     const filePath = path.join(dir, file.name);
-    const tomls = await parseAgentToml(filePath);
-    for (const toml of tomls) {
-      result.agents.push(tomlToAgentDefinition(toml));
+    const definitions = await parseAgentMarkdown(filePath);
+    for (const def of definitions) {
+      result.agents.push(markdownToAgentDefinition(def));
     }
   }
 
@@ -155,7 +162,7 @@ async function loadAgentsFromDirectory(dir: string): Promise<AgentLoadResult> {
   {
     phase: 'scan_user',
     title: '扫描用户级配置',
-    description: '读取 ~/.gemini/agents/*.toml 文件',
+    description: '读取 ~/.gemini/agents/*.md 文件',
     stateChange: {
       currentLevel: 'user',
       userAgents: sampleAgents.user,
@@ -192,9 +199,14 @@ private loadBuiltInAgents(): void {
     CodebaseInvestigatorAgent.getDefinition(this.config)
   );
 
-  // IntrospectionAgent - 用于内省和反思
+  // CliHelpAgent - CLI 文档问答
   this.registerAgent(
-    IntrospectionAgent.getDefinition(this.config)
+    CliHelpAgent(this.config)
+  );
+
+  // GeneralistAgent - 通用代理（实验）
+  this.registerAgent(
+    GeneralistAgent(this.config)
   );
 }
 
@@ -210,47 +222,51 @@ export class CodebaseInvestigatorAgent {
 };`,
   },
   {
-    phase: 'parse_toml',
-    title: '解析 TOML 配置',
-    description: '使用 @iarna/toml 解析配置，Zod 验证 Schema',
+    phase: 'parse_markdown',
+    title: '解析 Markdown frontmatter',
+    description: '解析 YAML frontmatter 并将正文作为 system_prompt',
     stateChange: {
       activeAgent: sampleAgents.project[0],
     },
-    codeSnippet: `// toml-loader.ts - parseAgentToml
-async function parseAgentToml(filePath: string): Promise<TomlAgentDefinition[]> {
+    codeSnippet: `// agentLoader.ts - parseAgentMarkdown
+async function parseAgentMarkdown(filePath: string): Promise<FrontmatterAgentDefinition[]> {
   const content = await fs.readFile(filePath, 'utf-8');
-  const raw = TOML.parse(content);
+  const match = content.match(FRONTMATTER_REGEX);
+  if (!match) {
+    throw new AgentLoadError(filePath, 'Missing YAML frontmatter');
+  }
 
-  // 使用 Zod 验证配置
-  const result = localAgentSchema.safeParse(raw);
+  const rawFrontmatter = yaml.load(match[1]);
+  const body = match[2] || '';
 
+  const result = localAgentSchema.safeParse(rawFrontmatter);
   if (!result.success) {
     throw new AgentLoadError(filePath, formatZodError(result.error));
   }
 
-  return [result.data];
+  return [{ ...result.data, kind: 'local', system_prompt: body.trim() }];
 }
 
 // 转换为内部 AgentDefinition
-function tomlToAgentDefinition(toml: TomlLocalAgentDefinition): AgentDefinition {
+function markdownToAgentDefinition(markdown: FrontmatterLocalAgentDefinition): AgentDefinition {
   return {
     kind: 'local',
-    name: toml.name,
-    description: toml.description,
-    displayName: toml.display_name,
+    name: markdown.name,
+    description: markdown.description,
+    displayName: markdown.display_name,
     promptConfig: {
-      systemPrompt: toml.prompts.system_prompt,
-      query: toml.prompts.query,
+      systemPrompt: markdown.system_prompt,
+      query: '\${query}',
     },
     modelConfig: {
-      model: toml.model?.model || 'inherit',
-      temp: toml.model?.temperature ?? 1,
+      model: markdown.model || 'inherit',
+      temp: markdown.temperature ?? 1,
     },
     runConfig: {
-      max_turns: toml.run?.max_turns,
-      max_time_minutes: toml.run?.timeout_mins || 5,
+      max_turns: markdown.max_turns,
+      max_time_minutes: markdown.timeout_mins || 5,
     },
-    toolConfig: toml.tools ? { tools: toml.tools } : undefined,
+    toolConfig: markdown.tools ? { tools: markdown.tools } : undefined,
   };
 }`,
   },
@@ -259,28 +275,21 @@ function tomlToAgentDefinition(toml: TomlLocalAgentDefinition): AgentDefinition 
     title: '验证配置 Schema',
     description: '检查必填字段和类型',
     stateChange: {},
-    codeSnippet: `// toml-loader.ts - Zod Schema 验证
+    codeSnippet: `// agentLoader.ts - Zod Schema 验证
 const localAgentSchema = z.object({
-  name: z.string().min(1),
-  description: z.string(),
+  kind: z.literal('local').optional().default('local'),
+  name: z.string().regex(/^[a-z0-9-_]+$/),
+  description: z.string().min(1),
   display_name: z.string().optional(),
   tools: z.array(z.string()).optional(),
-  prompts: z.object({
-    system_prompt: z.string(),
-    query: z.string().optional(),
-  }),
-  model: z.object({
-    model: z.string().optional(),
-    temperature: z.number().optional(),
-  }).optional(),
-  run: z.object({
-    max_turns: z.number().optional(),
-    timeout_mins: z.number().optional(),
-  }).optional(),
-});
+  model: z.string().optional(),
+  temperature: z.number().optional(),
+  max_turns: z.number().optional(),
+  timeout_mins: z.number().optional(),
+}).strict();
 
 // 验证并解析
-const result = localAgentSchema.safeParse(raw);
+const result = localAgentSchema.safeParse(rawFrontmatter);
 if (!result.success) {
   throw new AgentLoadError(filePath, formatZodError(result.error));
 }`,
@@ -501,8 +510,8 @@ function LevelHierarchy({
   );
 }
 
-// TOML 配置解析可视化
-function TomlConfigParser({ agent }: { agent: SubagentConfig | null }) {
+// Markdown 配置解析可视化
+function MarkdownConfigParser({ agent }: { agent: SubagentConfig | null }) {
   if (!agent) {
     return (
       <div className="bg-[var(--bg-terminal)] rounded-lg p-4 border border-[var(--border-subtle)] text-center text-[var(--text-muted)]">
@@ -511,20 +520,20 @@ function TomlConfigParser({ agent }: { agent: SubagentConfig | null }) {
     );
   }
 
-  const tomlConfig = `name = "${agent.name}"
-description = "${agent.description}"
-tools = [${agent.tools.map((t) => `"${t}"`).join(', ')}]
-
-[prompts]
-system_prompt = """
-You are a specialized agent...
-"""`;
+  const markdownConfig = `---
+kind: local
+name: ${agent.name}
+description: ${agent.description}
+tools:
+${agent.tools.map((tool) => `  - ${tool}`).join('\n')}
+---
+You are a specialized agent...`;
 
   return (
     <div className="bg-[var(--bg-terminal)] rounded-lg p-4 border border-[var(--border-subtle)]">
       <div className="flex items-center gap-2 mb-3">
         <span className="text-[var(--purple)]">📄</span>
-        <span className="text-sm font-mono font-bold text-[var(--text-primary)]">TOML Configuration</span>
+        <span className="text-sm font-mono font-bold text-[var(--text-primary)]">Markdown Configuration</span>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -532,7 +541,7 @@ You are a specialized agent...
         <div>
           <div className="text-xs text-[var(--text-muted)] mb-1">原始文件:</div>
           <pre className="p-2 rounded bg-black/30 text-xs font-mono text-[var(--text-secondary)] overflow-auto">
-            {tomlConfig}
+            {markdownConfig}
           </pre>
         </div>
 
@@ -637,10 +646,10 @@ export function SubagentConfigAnimation() {
           Subagent 配置解析动画
         </h1>
         <p className="text-[var(--text-secondary)]">
-          展示 Subagent 配置的三层解析流程：Project → User → Builtin，以及 TOML 配置解析
+          展示 Subagent 配置的三层解析流程：Project → User → Builtin，以及 Markdown frontmatter 配置解析
         </p>
         <p className="text-xs text-[var(--text-muted)] mt-2 font-mono">
-          核心代码: packages/core/src/agents/toml-loader.ts
+          核心代码: packages/core/src/agents/agentLoader.ts
         </p>
       </div>
 
@@ -717,7 +726,7 @@ export function SubagentConfigAnimation() {
           userAgents={parseState.userAgents}
           builtinAgents={parseState.builtinAgents}
         />
-        <TomlConfigParser agent={parseState.activeAgent} />
+        <MarkdownConfigParser agent={parseState.activeAgent} />
       </div>
 
       {/* 代码 */}

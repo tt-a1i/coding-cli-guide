@@ -90,7 +90,7 @@ flowchart LR
                       c: 'case (1M group)',
                       limit: '1,048,576',
                       models:
-                        'gemini-1.5-flash / gemini-2.5-pro* / gemini-2.5-flash* / gemini-2.0-flash',
+                        'gemini-1.5-flash / gemini-2.5-pro-preview-* / gemini-2.5-pro / gemini-2.5-flash-preview-* / gemini-2.5-flash / gemini-2.5-flash-lite / gemini-2.0-flash',
                     },
                     {
                       c: "case 'gemini-2.0-flash-preview-image-generation'",
@@ -118,8 +118,12 @@ export function tokenLimit(model: string): number {
     case 'gemini-1.5-pro':
       return 2_097_152;
     case 'gemini-1.5-flash':
+    case 'gemini-2.5-pro-preview-05-06':
+    case 'gemini-2.5-pro-preview-06-05':
     case 'gemini-2.5-pro':
+    case 'gemini-2.5-flash-preview-05-20':
     case 'gemini-2.5-flash':
+    case 'gemini-2.5-flash-lite':
     case 'gemini-2.0-flash':
       return 1_048_576;
     case 'gemini-2.0-flash-preview-image-generation':

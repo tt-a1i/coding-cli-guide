@@ -126,7 +126,7 @@ const glossaryTerms: Term[] = [
   {
     term: 'Skill',
     definition:
-      'Agent Skills（技能系统）：启用 experimental.skills 后，CLI 会从 ~/.gemini/skills 与 .gemini/skills 扫描 */SKILL.md；模型可通过 activate_skill 激活技能并获得 <ACTIVATED_SKILL> 指令注入；用户可用 /skills 列表/启用/禁用。',
+      'Agent Skills（技能系统）：启用 experimental.skills 后，CLI 会从 Built-in/Extension/用户/工作区的 skills 目录扫描 */SKILL.md；模型可通过 activate_skill 激活技能并获得 <ACTIVATED_SKILL> 指令注入；用户可用 /skills list/enable/disable/reload 管理。',
     category: 'extension',
     relatedPage: 'agent-skills',
   },
@@ -423,14 +423,14 @@ const glossaryTerms: Term[] = [
 
   // Editing
   {
-    term: 'SmartEdit',
-    definition: '智能编辑引擎，支持模糊匹配和自动修复。当 old_string 不完全匹配时尝试智能定位。',
+    term: 'Edit Tool (replace)',
+    definition: '编辑/替换引擎，支持精确、灵活空白、正则和 LLM 修复多策略匹配。',
     category: 'tool',
     relatedPage: 'smart-edit-anim',
   },
   {
-    term: 'LLMEditFixer',
-    definition: 'AI 辅助的编辑修复器，当 Edit 工具失败时调用 AI 分析并修复匹配问题。',
+    term: 'FixLLMEditWithInstruction',
+    definition: 'LLM 辅助的编辑修复器，当 replace 工具失败时生成新的 search/replace 以修复匹配问题。',
     category: 'tool',
     relatedPage: 'smart-edit-anim',
     example: '处理缩进差异、空白字符不匹配等常见问题',

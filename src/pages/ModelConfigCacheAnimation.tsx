@@ -22,8 +22,8 @@ interface LogEntry {
 
 const CACHE_TTL = 10000; // 10 seconds for demo (real: 5 minutes)
 const MODELS: ModelConfig[] = [
-  { id: 'gemini-1.5-pro', baseURL: 'https://generativelanguage.googleapis.com/v1', apiKey: 'sk-***1' },
-  { id: 'gemini-1.5-flash', baseURL: 'https://generativelanguage.googleapis.com/v1', apiKey: 'sk-***2' },
+  { id: 'gemini-2.5-pro', baseURL: 'https://generativelanguage.googleapis.com/v1', apiKey: 'sk-***1' },
+  { id: 'gemini-2.5-flash', baseURL: 'https://generativelanguage.googleapis.com/v1', apiKey: 'sk-***2' },
   { id: 'gpt-4o', baseURL: 'https://api.openai.com/v1', apiKey: 'sk-***3' },
 ];
 
@@ -38,7 +38,7 @@ export default function ModelConfigCacheAnimation() {
   });
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [queryModel, setQueryModel] = useState('gemini-1.5-pro');
+  const [queryModel, setQueryModel] = useState('gemini-2.5-pro');
   const [queryResult, setQueryResult] = useState<ModelConfig | null>(null);
   const [highlightedModel, setHighlightedModel] = useState<string | null>(null);
 
@@ -243,8 +243,8 @@ export default function ModelConfigCacheAnimation() {
                   onChange={(e) => setQueryModel(e.target.value)}
                   className="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white"
                 >
-                  <option value="gemini-1.5-pro">gemini-1.5-pro</option>
-                  <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+                  <option value="gemini-2.5-pro">gemini-2.5-pro</option>
+                  <option value="gemini-2.5-flash">gemini-2.5-flash</option>
                   <option value="gpt-4o">gpt-4o</option>
                   <option value="unknown-model">unknown-model (未知)</option>
                 </select>

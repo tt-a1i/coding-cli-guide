@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 /**
  * React 工具调度器动画
  *
- * 可视化 useReactToolScheduler 工具调用生命周期
+ * 可视化 useReactToolScheduler 工具调用生命周期（legacy）
  * 源码: packages/cli/src/ui/hooks/useReactToolScheduler.ts
  *
  * 工具状态流转:
@@ -12,7 +12,8 @@ import { useState, useEffect, useCallback } from 'react';
  *
  * 核心概念:
  * - TrackedToolCall: 带 UI 跟踪状态的工具调用
- * - CoreToolScheduler: 核心调度逻辑
+ * - CoreToolScheduler: legacy 调度逻辑
+ * - Scheduler: event-driven 核心调度（useToolExecutionScheduler）
  * - responseSubmittedToGemini: 标记响应是否已提交
  */
 
@@ -329,7 +330,7 @@ export default function ReactToolSchedulerAnimation() {
         <div className="col-span-4">
           <div className="bg-[var(--bg-secondary)] rounded-lg p-4 border border-[var(--border)] h-full">
             <h3 className="text-sm font-semibold text-[var(--amber)] mb-4 font-mono">
-              CoreToolScheduler
+              CoreToolScheduler (legacy)
             </h3>
 
             <div className="space-y-4">

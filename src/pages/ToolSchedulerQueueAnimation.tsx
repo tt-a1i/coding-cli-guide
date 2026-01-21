@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 /**
  * 工具调用队列动画
  *
- * 可视化 CoreToolScheduler 的调度流程
+ * 可视化 Scheduler 的调度流程
  * 源码: packages/core/src/core/coreToolScheduler.ts
  *
  * 状态流转:
@@ -71,7 +71,7 @@ export default function ToolSchedulerQueueAnimation() {
 
     switch (phase) {
       case 'idle':
-        addLog('📋 CoreToolScheduler.schedule() 开始');
+        addLog('📋 Scheduler.schedule() 开始');
         setPhase('scheduling');
         break;
 
@@ -201,7 +201,7 @@ export default function ToolSchedulerQueueAnimation() {
             工具调用队列
           </h1>
           <p className="text-[var(--muted)] text-sm mt-1">
-            CoreToolScheduler - 并行调度与状态管理
+            Scheduler - 并行调度与状态管理
           </p>
         </div>
         <button
@@ -411,7 +411,7 @@ export default function ToolSchedulerQueueAnimation() {
           源码: coreToolScheduler.ts
         </h3>
         <pre className="text-xs font-mono text-[var(--text-secondary)] bg-black/30 p-3 rounded overflow-x-auto">
-{`class CoreToolScheduler {
+{`class Scheduler {
   private toolCalls: ToolCall[] = [];
   private requestQueue: Array<{request, signal, resolve, reject}> = [];
 

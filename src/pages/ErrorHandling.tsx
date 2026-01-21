@@ -1119,7 +1119,7 @@ function attemptJSONFix(
                   <code className="text-green-400">AI 自动处理</code>：
                   重新读取文件后重试
                 </td>
-                <td className="py-3 px-2 text-xs font-mono text-cyan-400">packages/core/src/tools/smart-edit.ts</td>
+                <td className="py-3 px-2 text-xs font-mono text-cyan-400">packages/core/src/tools/edit.ts</td>
               </tr>
 
               {/* 配置错误 */}

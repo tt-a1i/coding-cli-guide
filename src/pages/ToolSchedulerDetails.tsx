@@ -16,23 +16,24 @@ export function ToolSchedulerDetails() {
   // 工具调度完整流程 - Mermaid flowchart
   const toolSchedulerFlowChart = `flowchart TD
     start([AI 请求执行工具])
-    schedule_entry[schedule 入口]
+    schedule_entry[Scheduler.schedule()]
     is_running{是否有工具<br/>正在执行?}
     queue_request[加入等待队列]
     wait_batch[等待当前批次完成]
-    build_invocation[查找工具 + buildInvocation()<br/>schema 校验]
+    build_invocation[查找工具 + build()<br/>schema 校验]
     build_ok{构建是否成功?}
-    should_confirm[invocation.shouldConfirmExecute()<br/>PolicyEngine via MessageBus]
-    confirm_result{返回值/异常}
-    auto_check{isAutoApproved?<br/>YOLO / tools.allowed}
-    interactive{config.isInteractive()?}
-    denied([DENY/throw<br/>error])
+    check_policy[checkPolicy()]
+    policy_result{PolicyDecision}
+    denied([DENY -> error])
+    ask_user[resolveConfirmation()]
+    confirm_result{outcome}
+    cancelled([Cancel])
+    update_policy[updatePolicy()]
     scheduled([scheduled<br/>进入执行队列])
-    await_approval([awaiting_approval<br/>等待用户确认])
-    execute[execute 执行]
-    convert_response[convertToFunctionResponse<br/>结果转换]
+    execute[ToolExecutor.execute]
+    convert_response[functionResponse]
     truncate{输出是否<br/>超过阈值?}
-    truncate_output[truncateAndSaveToFile<br/>截断并保存]
+    truncate_output[saveTruncatedToolOutput<br/>截断并保存]
     error_response([返回错误响应])
     success_response([返回成功响应])
 
@@ -44,17 +45,17 @@ export function ToolSchedulerDetails() {
     wait_batch --> build_invocation
     build_invocation --> build_ok
     build_ok -->|失败| error_response
-    build_ok -->|成功| should_confirm
-    should_confirm --> confirm_result
-    confirm_result -->|DENY/throw| denied
+    build_ok -->|成功| check_policy
+    check_policy --> policy_result
+    policy_result -->|DENY| denied
     denied --> error_response
-    confirm_result -->|false (ALLOW)| scheduled
-    confirm_result -->|details (ASK_USER)| auto_check
-    auto_check -->|Yes| scheduled
-    auto_check -->|No| interactive
-    interactive -->|No| error_response
-    interactive -->|Yes| await_approval
-    await_approval -->|用户批准| scheduled
+    policy_result -->|ALLOW| update_policy
+    policy_result -->|ASK_USER| ask_user
+    ask_user --> confirm_result
+    confirm_result -->|Cancel| cancelled
+    cancelled --> error_response
+    confirm_result -->|Proceed| update_policy
+    update_policy --> scheduled
     scheduled --> execute
     execute --> convert_response
     convert_response --> truncate
@@ -65,42 +66,49 @@ export function ToolSchedulerDetails() {
     style start fill:#22d3ee,color:#000
     style error_response fill:#ef4444,color:#fff
     style denied fill:#ef4444,color:#fff
+    style cancelled fill:#ef4444,color:#fff
     style scheduled fill:#22c55e,color:#000
-    style await_approval fill:#f59e0b,color:#000
     style success_response fill:#22c55e,color:#000
     style is_running fill:#a855f7,color:#fff
     style build_ok fill:#a855f7,color:#fff
+    style policy_result fill:#a855f7,color:#fff
     style confirm_result fill:#a855f7,color:#fff
-    style auto_check fill:#a855f7,color:#fff
-    style interactive fill:#a855f7,color:#fff
     style truncate fill:#a855f7,color:#fff`;
 
   // 确认决策逻辑详细流程 - 基于 MessageBus + PolicyEngine
   const confirmationDecisionChart = `flowchart TD
-    start([shouldConfirmExecute])
-    get_decision[getMessageBusDecision<br/>publish(TOOL_CONFIRMATION_REQUEST)]
-    policy{PolicyEngine<br/>决策结果}
-    allow([返回 false<br/>自动执行])
-    deny([抛出错误<br/>拒绝执行])
-    ask_user[getConfirmationDetails<br/>构建确认 UI]
-    need_confirm([返回 ConfirmationDetails<br/>等待用户确认])
+    start([checkPolicy])
+    policy{PolicyDecision}
+    allow([ALLOW])
+    deny([DENY])
+    ask_user[resolveConfirmation]
+    wait_confirm[awaitConfirmation<br/>MessageBus]
+    outcome{outcome}
+    proceed([Proceed])
+    cancel([Cancel])
+    update_policy[updatePolicy]
 
-    start --> get_decision --> policy
+    start --> policy
     policy -->|ALLOW| allow
+    allow --> update_policy
     policy -->|DENY| deny
     policy -->|ASK_USER| ask_user
-    ask_user --> need_confirm
+    ask_user --> wait_confirm
+    wait_confirm --> outcome
+    outcome -->|Proceed| update_policy
+    outcome -->|Cancel| cancel
 
     style start fill:#22d3ee,color:#000
     style allow fill:#22c55e,color:#000
     style deny fill:#ef4444,color:#fff
-    style need_confirm fill:#f59e0b,color:#000
+    style cancel fill:#ef4444,color:#fff
+    style update_policy fill:#22c55e,color:#000
     style policy fill:#a855f7,color:#fff`;
 
   // 并发控制流程
   const concurrencyControlChart = `sequenceDiagram
     participant AI as AI Model
-    participant Scheduler as CoreToolScheduler
+    participant Scheduler as Scheduler
     participant Queue as Request Queue
     participant Tool as Tool Invocation
 
@@ -130,107 +138,77 @@ export function ToolSchedulerDetails() {
     Scheduler->>Queue: dequeue next request
     Scheduler->>Tool: validate & execute (tool_call_3)`;
 
-  const scheduleMethodCode = `// packages/core/src/core/coreToolScheduler.ts:410
+  const scheduleMethodCode = `// packages/core/src/scheduler/scheduler.ts
 
 /**
  * 调度工具执行的主入口
- * @param request 单个或多个工具调用请求
- * @param signal AbortSignal 用于取消执行
  */
-schedule(
+async schedule(
   request: ToolCallRequestInfo | ToolCallRequestInfo[],
   signal: AbortSignal,
-): Promise<void> {
-  // 如果有工具正在执行或正在调度，将请求加入队列
-  if (this.isRunning() || this.isScheduling) {
-    return new Promise((resolve, reject) => {
-      const abortHandler = () => {
-        // 从队列中移除请求
-        const index = this.requestQueue.findIndex(
-          (item) => item.request === request,
-        );
-        if (index > -1) {
-          this.requestQueue.splice(index, 1);
-          reject(new Error('Tool call cancelled while in queue.'));
-        }
-      };
+): Promise<CompletedToolCall[]> {
+  const requests = Array.isArray(request) ? request : [request];
 
-      signal.addEventListener('abort', abortHandler, { once: true });
-
-      this.requestQueue.push({
-        request,
-        signal,
-        resolve: () => {
-          signal.removeEventListener('abort', abortHandler);
-          resolve();
-        },
-        reject: (reason?: Error) => {
-          signal.removeEventListener('abort', abortHandler);
-          reject(reason);
-        },
-      });
-    });
+  if (this.isProcessing || this.state.isActive) {
+    return this._enqueueRequest(requests, signal);
   }
-  return this._schedule(request, signal);
+
+  return this._startBatch(requests, signal);
 }`;
 
-  const shouldConfirmCode = `// packages/core/src/tools/tools.ts:98-117
+  const shouldConfirmCode = `// scheduler.ts - Policy + Confirmation
+const decision = await checkPolicy(toolCall, this.config);
 
-// BaseToolInvocation.shouldConfirmExecute - 确认决策的核心逻辑
-async shouldConfirmExecute(
-  abortSignal: AbortSignal,
-): Promise<ToolCallConfirmationDetails | false> {
-  // 通过 MessageBus 向 PolicyEngine 请求决策
-  const decision = await this.getMessageBusDecision(abortSignal);
-
-  if (decision === 'ALLOW') return false;
-
-  if (decision === 'DENY') {
-    throw new Error(
-      \`Tool execution for "\${
-        this._toolDisplayName || this._toolName
-      }" denied by policy.\`,
-    );
-  }
-
-  if (decision === 'ASK_USER') {
-    return this.getConfirmationDetails(abortSignal);
-  }
-
-  // Unknown decision (should not happen) → default to confirmation
-  return this.getConfirmationDetails(abortSignal);
+if (decision === PolicyDecision.DENY) {
+  this.state.updateStatus(callId, 'error', policyError);
+  return;
 }
 
-// packages/core/src/core/coreToolScheduler.ts:602
-// 调度器中的调用
-const confirmationDetails = await invocation.shouldConfirmExecute(signal);
+let outcome = ToolConfirmationOutcome.ProceedOnce;
+let lastDetails;
 
-if (!confirmationDetails) {
-  // 返回 false 表示不需要确认，自动批准
-  this.setStatusInternal(reqInfo.callId, 'scheduled');
-  continue;
+if (decision === PolicyDecision.ASK_USER) {
+  const result = await resolveConfirmation(toolCall, signal, {
+    config: this.config,
+    messageBus: this.messageBus,
+    state: this.state,
+    modifier: this.modifier,
+    getPreferredEditor: this.getPreferredEditor,
+  });
+  outcome = result.outcome;
+  lastDetails = result.lastDetails;
+} else {
+  this.state.setOutcome(callId, ToolConfirmationOutcome.ProceedOnce);
 }
 
-// 需要用户确认
-this.setStatusInternal(
-  reqInfo.callId,
-  'awaiting_approval',
-  wrappedConfirmationDetails,
-);`;
+await updatePolicy(toolCall.tool, outcome, lastDetails, {
+  config: this.config,
+  messageBus: this.messageBus,
+});
 
-  const convertResponseCode = `// packages/core/src/core/coreToolScheduler.ts:162
+if (outcome === ToolConfirmationOutcome.Cancel) {
+  this.state.updateStatus(callId, 'cancelled', 'User denied execution.');
+  this.state.cancelAllQueued('User cancelled operation');
+  return;
+}
+
+await this._execute(callId, signal);`;
+
+  const convertResponseCode = `// packages/core/src/utils/generateContentResponseUtilities.ts
 
 /**
  * 将工具执行结果转换为 Gemini FunctionResponse 格式
  * @param toolName 工具名称
  * @param callId 调用 ID
  * @param llmContent 工具返回的内容（字符串、Part、Part[] 等）
+ * @param model 当前模型（用于多模态处理）
  * @returns Part[] 格式的 FunctionResponse
  */
 export function convertToFunctionResponse(
   toolName: string,
   callId: string,
   llmContent: PartListUnion,
+  model: string,
 ): Part[] {
   const contentToProcess =
     Array.isArray(llmContent) && llmContent.length === 1
@@ -256,70 +234,38 @@ export function convertToFunctionResponse(
   // ...
 }`;
 
-  const truncateOutputCode = `// packages/core/src/core/coreToolScheduler.ts:256
+  const truncateOutputCode = `// packages/core/src/utils/fileUtils.ts (节选)
 
-/**
- * 截断大型输出并保存到文件
- * @param content 原始输出内容
- * @param callId 调用 ID
- * @param projectTempDir 项目临时目录
- * @param threshold 截断阈值（字符数）
- * @param truncateLines 保留的行数
- */
-export async function truncateAndSaveToFile(
+// 格式化截断内容（展示最后 N 行或尾部片段）
+export function formatTruncatedToolOutput(
+  contentStr: string,
+  outputFile: string,
+  truncateLines: number = 30,
+): string {
+  const lines = contentStr.split('\\n');
+  if (lines.length > 1) {
+    const lastLines = lines.slice(-truncateLines);
+    return \`Output too large. For full output see: \${outputFile}\\n...\\n\${lastLines.join('\\n')}\`;
+  }
+  const snippet = contentStr.slice(-4000);
+  return \`Output too large. For full output see: \${outputFile}\\n...\${snippet}\`;
+}
+
+// 保存完整输出到临时文件
+export async function saveTruncatedToolOutput(
   content: string,
-  callId: string,
+  toolName: string,
+  id: string | number,
   projectTempDir: string,
-  threshold: number,
-  truncateLines: number,
-): Promise<{ content: string; outputFile?: string }> {
-  // 如果内容未超过阈值，直接返回
-  if (content.length <= threshold) {
-    return { content };
-  }
-
-  let lines = content.split('\\n');
-
-  // 如果内容很长但行数很少，先进行换行处理
-  if (lines.length <= truncateLines) {
-    const wrapWidth = 120;
-    const wrappedLines: string[] = [];
-    for (const line of lines) {
-      if (line.length > wrapWidth) {
-        for (let i = 0; i < line.length; i += wrapWidth) {
-          wrappedLines.push(line.substring(i, i + wrapWidth));
-        }
-      } else {
-        wrappedLines.push(line);
-      }
-    }
-    lines = wrappedLines;
-  }
-
-  // 保留开头 20% 和结尾 80% 的行
-  const head = Math.floor(truncateLines / 5);
-  const beginning = lines.slice(0, head);
-  const end = lines.slice(-(truncateLines - head));
-  const truncatedContent =
-    beginning.join('\\n') + '\\n... [CONTENT TRUNCATED] ...\\n' + end.join('\\n');
-
-  // 保存完整输出到文件
-  const safeFileName = \`\${path.basename(callId)}.output\`;
-  const outputFile = path.join(projectTempDir, safeFileName);
-  await fs.writeFile(outputFile, fileContent);
-
-  return {
-    content: \`Tool output was too large and has been truncated.
-The full output has been saved to: \${outputFile}
-To read the complete output, use the read_file tool...
-Truncated part of the output:
-\${truncatedContent}\`,
-    outputFile,
-  };
+): Promise<{ outputFile: string; totalLines: number }> {
+  const fileName = \`\${toolName}_\${id}.txt\`;
+  const outputFile = path.join(projectTempDir, fileName);
+  await fsPromises.writeFile(outputFile, content);
+  return { outputFile, totalLines: content.split('\\n').length };
 }`;
 
-  const allowedToolsMatchCode = `// CoreToolScheduler：当 PolicyEngine 返回 ASK_USER 时，仍可能被自动批准
-// packages/core/src/core/coreToolScheduler.ts (节选)
+  const allowedToolsMatchCode = `// PolicyEngine allowlist：当 decision=ASK_USER 时，仍可能被自动批准
+// packages/core/src/core/coreToolScheduler.ts (legacy, 节选)
 private isAutoApproved(toolCall: ValidatingToolCall): boolean {
   if (this.config.getApprovalMode() === ApprovalMode.YOLO) {
     return true;
@@ -363,48 +309,59 @@ export function isShellInvocationAllowlisted(invocation, allowedPatterns): boole
   }
 }`;
 
-  const queueManagementCode = `// packages/core/src/core/coreToolScheduler.ts:340
+  const queueManagementCode = `// packages/core/src/scheduler/scheduler.ts
 
 // 请求队列定义
-private requestQueue: Array<{
-  request: ToolCallRequestInfo | ToolCallRequestInfo[];
+private readonly requestQueue: Array<{
+  requests: ToolCallRequestInfo[];
   signal: AbortSignal;
-  resolve: () => void;
+  resolve: (results: CompletedToolCall[]) => void;
   reject: (reason?: Error) => void;
 }> = [];
 
-// 队列处理逻辑
-private async checkAndNotifyCompletion(): Promise<void> {
-  const allCallsAreTerminal = this.toolCalls.every(
-    (call) =>
-      call.status === 'success' ||
-      call.status === 'error' ||
-      call.status === 'cancelled',
-  );
+// 入队逻辑
+private _enqueueRequest(
+  requests: ToolCallRequestInfo[],
+  signal: AbortSignal,
+): Promise<CompletedToolCall[]> {
+  return new Promise((resolve, reject) => {
+    const abortHandler = () => {
+      const index = this.requestQueue.findIndex(
+        (item) => item.requests === requests,
+      );
+      if (index > -1) {
+        this.requestQueue.splice(index, 1);
+        reject(new Error('Tool call cancelled while in queue.'));
+      }
+    };
 
-  if (this.toolCalls.length > 0 && allCallsAreTerminal) {
-    const completedCalls = [...this.toolCalls] as CompletedToolCall[];
-    this.toolCalls = [];
-
-    // 记录工具调用日志
-    for (const call of completedCalls) {
-      logToolCall(this.config, new ToolCallEvent(call));
+    if (signal.aborted) {
+      reject(new Error('Operation cancelled'));
+      return;
     }
 
-    // 通知所有工具调用完成
-    if (this.onAllToolCallsComplete) {
-      this.isFinalizingToolCalls = true;
-      await this.onAllToolCallsComplete(completedCalls);
-      this.isFinalizingToolCalls = false;
-    }
+    signal.addEventListener('abort', abortHandler, { once: true });
+    this.requestQueue.push({
+      requests,
+      signal,
+      resolve: (results) => {
+        signal.removeEventListener('abort', abortHandler);
+        resolve(results);
+      },
+      reject: (err) => {
+        signal.removeEventListener('abort', abortHandler);
+        reject(err);
+      },
+    });
+  });
+}
 
-    // 处理队列中的下一个请求
-    if (this.requestQueue.length > 0) {
-      const next = this.requestQueue.shift()!;
-      this._schedule(next.request, next.signal)
-        .then(next.resolve)
-        .catch(next.reject);
-    }
+private _processNextInRequestQueue() {
+  if (this.requestQueue.length > 0) {
+    const next = this.requestQueue.shift()!;
+    this.schedule(next.requests, next.signal)
+      .then(next.resolve)
+      .catch(next.reject);
   }
 }`;
 
@@ -492,10 +449,10 @@ export type ToolCall =
     <div className="space-y-8">
       {/* 概述 */}
       <section>
-        <h2 className="text-2xl font-bold text-cyan-400 mb-4">CoreToolScheduler 执行模型</h2>
+        <h2 className="text-2xl font-bold text-cyan-400 mb-4">Scheduler 执行模型</h2>
         <p className="text-gray-300 mb-4">
-          CoreToolScheduler 是工具执行的核心调度器，负责工具验证、审批、执行和结果处理。
-          它控制工具的整个生命周期，从 AI 请求到结果返回，确保安全性和可控性。
+          Scheduler 是工具执行的事件驱动调度器，负责工具验证、确认、执行和结果处理。
+          CLI 交互路径以 Scheduler 为主；CoreToolScheduler 作为 legacy adapter 仍用于部分非交互路径。
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -703,7 +660,7 @@ export type ToolCall =
       {/* 调度流程 */}
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">完整调度流程</h3>
-        <MermaidDiagram chart={toolSchedulerFlowChart} title="CoreToolScheduler 调度流程" />
+        <MermaidDiagram chart={toolSchedulerFlowChart} title="Scheduler 调度流程" />
         <CodeBlock code={scheduleMethodCode} language="typescript" title="schedule() 主入口" />
       </section>
 
@@ -842,7 +799,7 @@ async check(
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">输出截断机制</h3>
         <p className="text-gray-300 mb-4">
-          为了避免超大输出消耗过多 Token 和内存，CoreToolScheduler 实现了智能截断机制。
+          为了避免超大输出消耗过多 Token 和内存，Scheduler 实现了智能截断机制。
           当工具输出超过阈值时，自动截断并保存到文件，同时在响应中引导 AI 使用 read_file 工具读取完整输出。
         </p>
 
@@ -939,7 +896,7 @@ async check(
       <section>
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">并发控制和队列管理</h3>
         <p className="text-gray-300 mb-4">
-          CoreToolScheduler 通过队列机制确保工具调用的有序执行，避免并发冲突和资源竞争。
+          Scheduler 通过队列机制确保工具调用的有序执行，避免并发冲突和资源竞争。
         </p>
 
         <MermaidDiagram chart={concurrencyControlChart} title="并发控制流程" />
@@ -1094,32 +1051,24 @@ async check(
         <h3 className="text-xl font-semibold text-cyan-400 mb-4">源码位置</h3>
         <div className="text-sm space-y-2">
           <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/core/coreToolScheduler.ts:410</code>
-            <span className="text-gray-400">schedule() 主入口</span>
+            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/scheduler/scheduler.ts</code>
+            <span className="text-gray-400">schedule / 队列调度</span>
           </div>
           <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/core/coreToolScheduler.ts:483</code>
-            <span className="text-gray-400">_schedule() 内部实现</span>
+            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/scheduler/policy.ts</code>
+            <span className="text-gray-400">checkPolicy / updatePolicy</span>
           </div>
           <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/core/coreToolScheduler.ts:602</code>
-            <span className="text-gray-400">shouldConfirmExecute 确认逻辑</span>
+            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/scheduler/confirmation.ts</code>
+            <span className="text-gray-400">resolveConfirmation / awaitConfirmation</span>
           </div>
           <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/core/coreToolScheduler.ts:947</code>
-            <span className="text-gray-400">saveTruncatedContent 输出截断</span>
+            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/scheduler/tool-executor.ts</code>
+            <span className="text-gray-400">ToolExecutor.execute 执行</span>
           </div>
           <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/core/coreToolScheduler.ts:974</code>
-            <span className="text-gray-400">convertToFunctionResponse 结果转换</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/policy/policy-engine.ts:147</code>
-            <span className="text-gray-400">PolicyEngine.check 决策逻辑</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/core/coreToolScheduler.ts:1140</code>
-            <span className="text-gray-400">checkAndNotifyCompletion 队列管理</span>
+            <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/scheduler/state-manager.ts</code>
+            <span className="text-gray-400">状态更新 / 队列管理</span>
           </div>
           <div className="flex items-center gap-2">
             <code className="bg-black/30 px-2 py-1 rounded">packages/core/src/utils/tool-utils.ts</code>
@@ -1174,18 +1123,23 @@ async check(
             </div>
           </div>
           <CodeBlock
-            code={`// packages/core/src/core/coreToolScheduler.ts:653-662
-signal.addEventListener('abort', abortHandler, { once: true });
-
+            code={`// packages/core/src/scheduler/scheduler.ts
 const abortHandler = () => {
   const index = this.requestQueue.findIndex(
-    (item) => item.request === request,
+    (item) => item.requests === requests,
   );
   if (index > -1) {
     this.requestQueue.splice(index, 1);
     reject(new Error('Tool call cancelled while in queue.'));
   }
-};`}
+};
+
+if (signal.aborted) {
+  reject(new Error('Operation cancelled'));
+  return;
+}
+
+signal.addEventListener('abort', abortHandler, { once: true });`}
             language="typescript"
             title="AbortSignal 处理逻辑"
           />
@@ -1223,7 +1177,7 @@ const abortHandler = () => {
             <h5 className="text-sm font-semibold text-cyan-300 mb-2">批量调度时序图</h5>
             <MermaidDiagram chart={`sequenceDiagram
     participant AI as AI Model
-    participant Scheduler as CoreToolScheduler
+    participant Scheduler as Scheduler
     participant User as User UI
 
     AI->>Scheduler: [read_file, replace, run_shell_command]
@@ -1423,7 +1377,7 @@ async execute(signal: AbortSignal, updateOutput?: (output: string) => void) {
   }
 }
 
-// CoreToolScheduler 对 MCP 工具的 Kind 推断
+// Scheduler/ToolExecutor 对 MCP 工具的 Kind 推断
 function getMcpToolKind(tool: McpTool): Kind {
   if (tool.annotations?.readOnly) return Kind.Read;
   if (tool.annotations?.dangerous) return Kind.Delete;
@@ -1999,7 +1953,7 @@ DEBUG=gemini:policy gemini
 
     subgraph Core["Core Layer"]
         GeminiChat[GeminiChat]
-        Scheduler[CoreToolScheduler]
+        Scheduler[Scheduler]
         ToolRegistry[Tool Registry]
         Config[CoreConfig]
     end
@@ -2042,7 +1996,7 @@ DEBUG=gemini:policy gemini
     style Scheduler fill:#22d3ee,color:#000
     style Config fill:#a855f7,color:#fff
     style GeminiChat fill:#22c55e,color:#000
-    style McpServer fill:#f59e0b,color:#000`} title="CoreToolScheduler 依赖关系图" />
+    style McpServer fill:#f59e0b,color:#000`} title="Scheduler 依赖关系图" />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
           {/* 上游依赖 */}
@@ -2115,7 +2069,7 @@ DEBUG=gemini:policy gemini
           <MermaidDiagram chart={`sequenceDiagram
     participant AI as AI Model
     participant Chat as GeminiChat
-    participant Scheduler as CoreToolScheduler
+    participant Scheduler as Scheduler
     participant Config as CoreConfig
     participant Tool as Tool Instance
     participant UI as ToolApproval UI
@@ -2166,30 +2120,19 @@ DEBUG=gemini:policy gemini
         <div className="mt-6 bg-gray-800/50 rounded-lg p-4">
           <h4 className="text-purple-300 font-bold mb-3">关键接口定义</h4>
           <CodeBlock
-            code={`// CoreToolScheduler 的核心公开接口
-interface CoreToolScheduler {
+            code={`// Scheduler 的核心公开接口
+interface Scheduler {
   // 调度工具执行（主入口）
   schedule(
     request: ToolCallRequestInfo | ToolCallRequestInfo[],
     signal: AbortSignal,
-  ): Promise<void>;
+  ): Promise<CompletedToolCall[]>;
 
-  // 获取当前所有工具调用状态
-  getToolCalls(): ToolCall[];
+  // 取消当前批次及队列中的请求
+  cancelAll(): void;
 
-  // 设置用户确认决策
-  setToolCallOutcome(
-    callId: string,
-    outcome: ToolConfirmationOutcome,
-  ): void;
-
-  // 检查是否有工具正在执行
-  isRunning(): boolean;
-
-  // 注册工具调用完成回调
-  onAllToolCallsComplete?: (
-    calls: CompletedToolCall[],
-  ) => Promise<void>;
+  // 获取已完成的调用结果
+  completedCalls: CompletedToolCall[];
 }
 
 // 工具确认决策枚举
@@ -2207,7 +2150,7 @@ interface ToolCallRequestInfo {
   args: Record<string, unknown>;  // 工具参数
 }`}
             language="typescript"
-            title="CoreToolScheduler 公开接口"
+            title="Scheduler 公开接口"
           />
         </div>
       </section>

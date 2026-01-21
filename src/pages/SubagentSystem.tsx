@@ -25,7 +25,7 @@ export function SubagentSystem() {
           🤖 Agent 子代理系统
         </h1>
         <p className="text-[var(--text-secondary)]">
-          基于 TOML 配置的可扩展子代理框架，支持本地执行和远程 A2A 协议
+          基于 Markdown + YAML frontmatter 配置的可扩展子代理框架，支持本地执行和远程 A2A 协议
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           <span className="px-2 py-1 bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] text-xs rounded">
@@ -35,7 +35,7 @@ export function SubagentSystem() {
             packages/core/src/agents/
           </span>
           <span className="px-2 py-1 bg-[var(--amber)]/20 text-[var(--amber)] text-xs rounded">
-            TOML 配置驱动
+            Markdown frontmatter 驱动
           </span>
         </div>
       </div>
@@ -112,8 +112,8 @@ export function SubagentSystem() {
               <span className="text-[var(--cyber-blue)]">local-executor.ts</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-[var(--text-muted)]">TOML 加载</span>
-              <span className="text-[var(--cyber-blue)]">toml-loader.ts</span>
+              <span className="text-[var(--text-muted)]">配置加载</span>
+              <span className="text-[var(--cyber-blue)]">agentLoader.ts</span>
             </div>
             <div className="flex justify-between">
               <span className="text-[var(--text-muted)]">委托工具</span>
@@ -122,6 +122,14 @@ export function SubagentSystem() {
             <div className="flex justify-between">
               <span className="text-[var(--text-muted)]">远程调用</span>
               <span className="text-[var(--cyber-blue)]">a2a-client-manager.ts</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[var(--text-muted)]">CLI Help</span>
+              <span className="text-[var(--cyber-blue)]">cli-help-agent.ts</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-[var(--text-muted)]">Generalist</span>
+              <span className="text-[var(--cyber-blue)]">generalist-agent.ts</span>
             </div>
           </div>
         </div>
@@ -142,7 +150,7 @@ export function SubagentSystem() {
     end
 
     subgraph Config["配置层"]
-        TomlLoader["TomlLoader<br/>TOML 配置"]
+        AgentLoader["AgentLoader<br/>Markdown frontmatter"]
         Builtin["Built-in Agents<br/>内置代理"]
     end
 
@@ -158,7 +166,7 @@ export function SubagentSystem() {
         Activity["ActivityCallback<br/>事件通知"]
     end
 
-    TomlLoader --> Registry
+    AgentLoader --> Registry
     Builtin --> Registry
     Registry --> LocalExec
     Registry --> RemoteInvoke
@@ -293,26 +301,26 @@ interface OutputConfig<T extends z.ZodTypeAny> {
         )}
       </section>
 
-      {/* TOML 配置格式 */}
+      {/* Markdown 配置格式 */}
       <section className="bg-[var(--bg-card)] rounded-xl p-6 border border-[var(--border-subtle)]">
         <button
-          onClick={() => toggleSection('toml')}
+          onClick={() => toggleSection('markdown')}
           className="w-full flex items-center justify-between mb-4"
         >
           <h2 className="text-xl font-bold text-[var(--text-primary)] flex items-center gap-2">
-            📄 TOML 配置格式
+            📄 Markdown 配置格式
           </h2>
-          <span className={`transform transition-transform ${expandedSections.has('toml') ? 'rotate-180' : ''}`}>
+          <span className={`transform transition-transform ${expandedSections.has('markdown') ? 'rotate-180' : ''}`}>
             ▼
           </span>
         </button>
 
-        {expandedSections.has('toml') && (
+        {expandedSections.has('markdown') && (
           <div className="space-y-6">
             <div className="bg-[var(--cyber-blue)]/10 rounded-lg p-4 border border-[var(--cyber-blue)]/30 mb-4">
               <p className="text-sm text-[var(--text-secondary)]">
-                Agent 配置使用 <strong>TOML 格式</strong>。
-                文件扩展名为 <code className="text-[var(--cyber-blue)]">.toml</code>，存放在
+                Agent 配置使用 <strong>Markdown + YAML frontmatter</strong>。
+                文件扩展名为 <code className="text-[var(--cyber-blue)]">.md</code>，存放在
                 <code className="text-[var(--terminal-green)]"> ~/.gemini/agents/</code> (用户级) 或
                 <code className="text-[var(--terminal-green)]"> .gemini/agents/</code> (项目级) 目录下。
               </p>
@@ -322,36 +330,34 @@ interface OutputConfig<T extends z.ZodTypeAny> {
               <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4">
                 <h4 className="text-[var(--terminal-green)] font-bold mb-3">本地 Agent 配置</h4>
                 <CodeBlock
-                  language="toml"
-                  code={`# ~/.gemini/agents/code-reviewer.toml
-name = "code-reviewer"
-description = "代码审查专家，专注于代码质量和最佳实践"
-display_name = "Code Reviewer"
+                  language="markdown"
+                  code={`---
+kind: local
+name: code-reviewer
+description: 代码审查专家，专注于代码质量和最佳实践
+display_name: Code Reviewer
 
 # 可用工具列表
-tools = ["read_file", "glob", "search_file_content"]
+tools:
+  - read_file
+  - glob
+  - search_file_content
 
-# 系统提示词配置
-[prompts]
-system_prompt = """
+# 模型配置 (可选)
+model: gemini-2.5-flash
+temperature: 0.3
+
+# 运行配置 (可选)
+max_turns: 20
+timeout_mins: 5
+---
 You are a code review expert.
 Focus on correctness, security, and performance.
 
 When reviewing code:
 1. Check for potential bugs
 2. Evaluate security concerns
-3. Suggest performance improvements
-"""
-
-# 模型配置 (可选)
-[model]
-model = "gemini-2.0-flash"
-temperature = 0.3
-
-# 运行配置 (可选)
-[run]
-max_turns = 20
-timeout_mins = 5`}
+3. Suggest performance improvements`}
                 />
               </div>
 
@@ -367,6 +373,10 @@ timeout_mins = 5`}
                     <span>Agent 用途说明 (必需)</span>
                   </div>
                   <div className="flex gap-2">
+                    <code className="text-[var(--cyber-blue)]">kind</code>
+                    <span>local 或 remote (可选，默认 local)</span>
+                  </div>
+                  <div className="flex gap-2">
                     <code className="text-[var(--cyber-blue)]">display_name</code>
                     <span>显示名称 (可选)</span>
                   </div>
@@ -375,15 +385,15 @@ timeout_mins = 5`}
                     <span>可用工具名称列表 (可选)</span>
                   </div>
                   <div className="flex gap-2">
-                    <code className="text-[var(--cyber-blue)]">[prompts]</code>
-                    <span>提示词配置 (必需)</span>
+                    <code className="text-[var(--cyber-blue)]">Markdown Body</code>
+                    <span>系统提示词 (必需)</span>
                   </div>
                   <div className="flex gap-2">
-                    <code className="text-[var(--cyber-blue)]">[model]</code>
+                    <code className="text-[var(--cyber-blue)]">model</code>
                     <span>模型参数 (可选，默认继承)</span>
                   </div>
                   <div className="flex gap-2">
-                    <code className="text-[var(--cyber-blue)]">[run]</code>
+                    <code className="text-[var(--cyber-blue)]">max_turns / timeout_mins</code>
                     <span>运行时限制 (可选)</span>
                   </div>
                 </div>
@@ -394,7 +404,7 @@ timeout_mins = 5`}
               <h4 className="text-[var(--cyber-blue)] font-bold mb-3">配置加载流程</h4>
               <CodeBlock
                 language="typescript"
-                code={`// toml-loader.ts - 配置文件解析
+                code={`// agentLoader.ts - 配置文件解析
 
 // 使用 Zod 进行严格验证
 const localAgentSchema = z.object({
@@ -403,43 +413,40 @@ const localAgentSchema = z.object({
   description: z.string().min(1),
   display_name: z.string().optional(),
   tools: z.array(z.string()).optional(),
-  prompts: z.object({
-    system_prompt: z.string().min(1),
-    query: z.string().optional(),
-  }),
-  model: z.object({
-    model: z.string().optional(),
-    temperature: z.number().optional(),
-  }).optional(),
-  run: z.object({
-    max_turns: z.number().int().positive().optional(),
-    timeout_mins: z.number().int().positive().optional(),
-  }).optional(),
+  model: z.string().optional(),
+  temperature: z.number().optional(),
+  max_turns: z.number().int().positive().optional(),
+  timeout_mins: z.number().int().positive().optional(),
 }).strict();
 
-// 解析 TOML 文件
-async function parseAgentToml(filePath: string): Promise<AgentDefinition[]> {
+// 解析 Markdown + frontmatter
+async function parseAgentMarkdown(filePath: string): Promise<AgentDefinition[]> {
   const content = await fs.readFile(filePath, 'utf-8');
-  const raw = TOML.parse(content);
+  const match = content.match(FRONTMATTER_REGEX);
+  if (!match) {
+    throw new AgentLoadError(filePath, 'Missing YAML frontmatter');
+  }
+  const raw = yaml.load(match[1]);
+  const body = match[2] || '';
 
   // 使用 Zod 验证
-  const result = singleAgentSchema.safeParse(raw);
+  const result = localAgentSchema.safeParse(raw);
   if (!result.success) {
     throw new AgentLoadError(filePath, formatZodError(result.error));
   }
 
-  return [tomlToAgentDefinition(result.data)];
+  return [{ ...result.data, system_prompt: body.trim() }];
 }
 
 // 从目录加载所有 Agent
 async function loadAgentsFromDirectory(dir: string): Promise<AgentLoadResult> {
   const files = await fs.readdir(dir, { withFileTypes: true });
-  const tomlFiles = files.filter(f =>
-    f.isFile() && f.name.endsWith('.toml') && !f.name.startsWith('_')
+  const mdFiles = files.filter(f =>
+    f.isFile() && f.name.endsWith('.md') && !f.name.startsWith('_')
   );
 
-  for (const file of tomlFiles) {
-    const agents = await parseAgentToml(path.join(dir, file.name));
+  for (const file of mdFiles) {
+    const agents = await parseAgentMarkdown(path.join(dir, file.name));
     result.agents.push(...agents);
   }
   return result;
@@ -526,18 +533,30 @@ export class AgentRegistry {
   }
 
   private loadBuiltInAgents(): void {
+    const cliHelpSettings = this.config.getCliHelpAgentSettings();
+    const agentsOverrides = this.config.getAgentsSettings().overrides ?? {};
+
     // CodebaseInvestigator - 代码库分析专家
-    if (investigatorSettings?.enabled) {
+    if (
+      investigatorSettings?.enabled &&
+      agentsOverrides[CodebaseInvestigatorAgent.name]?.enabled !== false
+    ) {
       this.registerLocalAgent({
         ...CodebaseInvestigatorAgent,
         modelConfig: { ...CodebaseInvestigatorAgent.modelConfig, model },
       });
     }
 
-    // IntrospectionAgent - 自省代理
-    if (introspectionSettings.enabled) {
-      this.registerLocalAgent(IntrospectionAgent);
+    // CLI Help Agent - 文档问答
+    if (
+      cliHelpSettings.enabled &&
+      agentsOverrides[CliHelpAgent.name]?.enabled !== false
+    ) {
+      this.registerLocalAgent(CliHelpAgent(this.config));
     }
+
+    // Generalist Agent - 通用代理
+    this.registerLocalAgent(GeneralistAgent(this.config));
   }
 }`}
             />
@@ -745,7 +764,7 @@ private prepareToolsList(): FunctionDeclaration[] {
 
         {expandedSections.has('builtin') && (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
                 <h4 className="text-[var(--terminal-green)] font-bold mb-2">codebase_investigator</h4>
                 <p className="text-sm text-[var(--text-secondary)] mb-3">
@@ -768,14 +787,31 @@ private prepareToolsList(): FunctionDeclaration[] {
               </div>
 
               <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
-                <h4 className="text-[var(--cyber-blue)] font-bold mb-2">introspection_agent</h4>
+                <h4 className="text-[var(--cyber-blue)] font-bold mb-2">cli_help</h4>
                 <p className="text-sm text-[var(--text-secondary)] mb-3">
-                  自省代理，用于分析和优化代理执行过程
+                  CLI 帮助代理，基于内部文档与运行时状态回答使用问题
+                </p>
+                <div className="text-xs space-y-1">
+                  <div className="flex justify-between">
+                    <span className="text-[var(--text-muted)]">工具</span>
+                    <span className="text-[var(--cyber-blue)] font-mono">get_internal_docs</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[var(--text-muted)]">模型</span>
+                    <span className="text-[var(--amber)]">flash</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
+                <h4 className="text-[var(--purple)] font-bold mb-2">generalist</h4>
+                <p className="text-sm text-[var(--text-secondary)] mb-3">
+                  通用代理，继承主系统提示词并开放全部工具
                 </p>
                 <div className="text-xs space-y-1">
                   <div className="flex justify-between">
                     <span className="text-[var(--text-muted)]">状态</span>
-                    <span className="text-[var(--amber)]">需手动启用</span>
+                    <span className="text-[var(--amber)]">experimental 默认禁用</span>
                   </div>
                 </div>
               </div>

@@ -362,7 +362,6 @@ export function ToolReference() {
           <div className="bg-gray-900 rounded-lg p-4">
             <h4 className="text-cyan-400 font-bold mb-2">工具实现文件</h4>
             <div className="text-xs font-mono space-y-1 text-gray-400">
-              <div>packages/core/src/tools/smart-edit.ts</div>
               <div>packages/core/src/tools/edit.ts</div>
               <div>packages/core/src/tools/write-file.ts</div>
               <div>packages/core/src/tools/read-file.ts</div>
@@ -792,7 +791,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
         {/* replace */}
         <HighlightBox title="replace - 文件编辑" icon="✏️" variant="yellow">
           <p className="text-sm text-gray-400 mb-2">
-            来源: <code>packages/core/src/tools/smart-edit.ts</code> | Kind: <span className="text-yellow-400">Edit</span>
+            来源: <code>packages/core/src/tools/edit.ts</code> | Kind: <span className="text-yellow-400">Edit</span>
           </p>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
@@ -828,6 +827,24 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
                   <td className="py-1 px-2">number</td>
                   <td className="py-1 px-2 text-gray-400">No</td>
                   <td className="py-1 px-2 font-sans">预期替换次数 (默认1)</td>
+                </tr>
+                <tr className="border-t border-gray-800">
+                  <td className="py-1 px-2 text-cyan-400">instruction</td>
+                  <td className="py-1 px-2">string</td>
+                  <td className="py-1 px-2 text-gray-400">No</td>
+                  <td className="py-1 px-2 font-sans">编辑说明，用于 LLM 修复与自纠错</td>
+                </tr>
+                <tr className="border-t border-gray-800">
+                  <td className="py-1 px-2 text-cyan-400">modified_by_user</td>
+                  <td className="py-1 px-2">boolean</td>
+                  <td className="py-1 px-2 text-gray-400">No</td>
+                  <td className="py-1 px-2 font-sans">标记是否由用户手动修改</td>
+                </tr>
+                <tr className="border-t border-gray-800">
+                  <td className="py-1 px-2 text-cyan-400">ai_proposed_content</td>
+                  <td className="py-1 px-2">string</td>
+                  <td className="py-1 px-2 text-gray-400">No</td>
+                  <td className="py-1 px-2 font-sans">初始提议内容，用于修复/重试</td>
                 </tr>
               </tbody>
             </table>

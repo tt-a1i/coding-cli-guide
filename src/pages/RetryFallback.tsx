@@ -253,7 +253,7 @@ interface FallbackConfig {
 // 默认回退配置
 const DEFAULT_FALLBACK_CONFIG: FallbackConfig = {
   enabled: true,
-  fallbackModel: 'gemini-1.5-flash',  // 回退到更快更稳定的模型
+  fallbackModel: 'gemini-2.5-flash',  // 回退到更快更稳定的模型
   triggerConditions: [
     'MODEL_OVERLOADED',
     'CONTEXT_LENGTH_EXCEEDED',
@@ -265,20 +265,20 @@ const DEFAULT_FALLBACK_CONFIG: FallbackConfig = {
 
 // 模型能力映射
 const MODEL_CAPABILITIES = {
-  'gemini-2.0-flash-exp': {
-    contextWindow: 1000000,
-    speed: 'fast',
-    cost: 'low',
-    reliability: 'experimental',
+  'gemini-3-pro-preview': {
+    contextWindow: 1048576,
+    speed: 'medium',
+    cost: 'medium',
+    reliability: 'preview',
   },
-  'gemini-1.5-flash': {
-    contextWindow: 1000000,
+  'gemini-2.5-flash': {
+    contextWindow: 1048576,
     speed: 'very-fast',
-    cost: 'very-low',
+    cost: 'low',
     reliability: 'stable',
   },
-  'gemini-1.5-pro': {
-    contextWindow: 2000000,
+  'gemini-2.5-pro': {
+    contextWindow: 1048576,
     speed: 'medium',
     cost: 'medium',
     reliability: 'stable',
@@ -473,7 +473,7 @@ class CircuitBreaker {
           <HighlightBox title="回退模型" color="purple">
             <div className="text-center">
               <div className="text-lg font-bold text-purple-400">Flash</div>
-              <div className="text-sm text-gray-400">gemini-1.5-flash</div>
+              <div className="text-sm text-gray-400">gemini-2.5-flash</div>
             </div>
           </HighlightBox>
         </div>
@@ -681,7 +681,7 @@ class CircuitBreaker {
 │                                                                  │
 │  ┌─────────────────┐      ┌─────────────────┐                    │
 │  │   Primary Model │      │  Fallback Model │                    │
-│  │  gemini-2.0-exp │      │ gemini-1.5-flash│                    │
+│  │ gemini-2.5-pro  │      │ gemini-2.5-flash│                    │
 │  │                 │ ───► │                 │                    │
 │  │  Fast, Latest   │      │ Stable, Reliable│                    │
 │  └─────────────────┘      └─────────────────┘                    │

@@ -88,7 +88,7 @@ export function Overview() {
           <div>
             <span className="text-[var(--text-secondary)] text-sm">本文档基于 </span>
             <code className="px-2 py-0.5 bg-[var(--cyber-blue)]/20 text-[var(--cyber-blue)] rounded text-sm font-mono">
-              gemini-cli v0.24.0-nightly
+              gemini-cli v0.27.0-nightly.20260121.97aac696f
             </code>
           </div>
         </div>

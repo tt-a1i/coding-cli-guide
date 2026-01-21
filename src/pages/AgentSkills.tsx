@@ -44,7 +44,7 @@ export function AgentSkills() {
       <Layer title="技能发现（Discovery）" icon="🗂️">
         <p className="text-gray-300 mb-4">
           skills 启用后，<code>SkillManager</code> 会扫描 <code>*/SKILL.md</code> 并汇总为“可用技能清单”。
-          覆盖优先级为：<strong>Extension（最低） → User → Project（最高）</strong>（同名以 YAML frontmatter 的 <code>name</code> 为准）。
+          覆盖优先级为：<strong>Built-in（最低） → Extension → User → Workspace（最高）</strong>（同名以 YAML frontmatter 的 <code>name</code> 为准）。
         </p>
 
         <CodeBlock
@@ -62,22 +62,25 @@ getProjectSkillsDir(): string {
         <CodeBlock
           title="发现顺序与覆盖（skillManager.ts）"
           code={`// packages/core/src/skills/skillManager.ts
-// Precedence: Extensions (lowest) -> User -> Project (highest).
+// Precedence: Built-in (lowest) -> Extensions -> User -> Workspace (highest).
 async discoverSkills(storage: Storage, extensions: GeminiCLIExtension[] = []) {
   this.clearSkills();
 
-  // 1) Extension skills (lowest)
+  // 1) Built-in skills (lowest)
+  await this.discoverBuiltinSkills();
+
+  // 2) Extension skills
   for (const extension of extensions) {
     if (extension.isActive && extension.skills) {
       this.addSkillsWithPrecedence(extension.skills);
     }
   }
 
-  // 2) User skills
+  // 3) User skills
   const userSkills = await loadSkillsFromDir(Storage.getUserSkillsDir());
   this.addSkillsWithPrecedence(userSkills);
 
-  // 3) Project skills (highest, overrides)
+  // 4) Workspace skills (highest, overrides)
   const projectSkills = await loadSkillsFromDir(storage.getProjectSkillsDir());
   this.addSkillsWithPrecedence(projectSkills);
 }`}
@@ -168,18 +171,43 @@ You have access to the following specialized skills...
       <Layer title="用户侧管理（/skills + settings）" icon="🧰">
         <p className="text-gray-300 mb-4">
           Skills 目前属于实验特性：通过 <code>experimental.skills</code> 开启；通过 <code>skills.disabled</code> 禁用特定技能。
-          CLI 也提供 <code>/skills</code> 命令用于列出与启用/禁用（修改配置后需要重启生效）。
+          CLI 也提供 <code>/skills</code> 命令用于列出与启用/禁用/刷新（禁用/启用后建议 <code>/skills reload</code> 让本会话生效）。
         </p>
         <CodeBlock
-          title="配置项（docs/get-started/configuration.md）"
+          title="配置项（docs/cli/settings.md）"
           code={`experimental.skills: boolean  # Enable Agent Skills (experimental)
 skills.disabled: string[]      # List of disabled skills (restart required)`}
         />
         <CodeBlock
           title="/skills 命令（skillsCommand.ts）"
           code={`/skills list [nodesc]
+/skills list [nodesc] [all]
 /skills disable <name>
-/skills enable <name>`}
+/skills enable <name>
+/skills reload`}
+        />
+        <p className="text-xs text-gray-400 mt-2">
+          说明：<code>/skills list --all</code> 会展示内建 skills（例如 <code>skill-creator</code>），否则默认隐藏。
+        </p>
+      </Layer>
+
+      <Layer title="终端命令（gemini skills）" icon="🧪">
+        <p className="text-gray-300 mb-4">
+          除了 Slash Commands，CLI 还提供 <code>gemini skills</code> 子命令用于安装/卸载技能包（默认 user scope）。
+        </p>
+        <CodeBlock
+          title="gemini skills 管理"
+          code={`# 列出所有技能
+gemini skills list
+
+# 安装（Git / 本地 / .skill）
+gemini skills install https://github.com/my-org/my-skills.git
+gemini skills install /path/to/skill --scope workspace
+
+# 卸载/启用/禁用
+gemini skills uninstall my-skill
+gemini skills enable my-skill
+gemini skills disable my-skill --scope workspace`}
         />
       </Layer>
 

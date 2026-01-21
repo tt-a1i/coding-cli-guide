@@ -98,6 +98,10 @@ export function SlashCommands() {
           <CommandCard name="/tools nodesc" desc="隐藏工具描述" />
           <CommandCard name="/policies list" desc="列出当前生效的 Policy 规则" />
           <CommandCard name="/permissions trust [path]" desc="管理文件夹信任（未提供 path 时使用当前目录）" />
+          <CommandCard name="/skills list [nodesc] [all]" desc="列出可用技能（可显示内建技能）" />
+          <CommandCard name="/skills enable <name>" desc="启用指定技能" />
+          <CommandCard name="/skills disable <name>" desc="禁用指定技能" />
+          <CommandCard name="/skills reload" desc="刷新技能列表" />
         </div>
 
         {/* MCP 与扩展 */}
@@ -107,8 +111,10 @@ export function SlashCommands() {
           <CommandCard name="/mcp desc" desc="显示 MCP 工具描述" />
           <CommandCard name="/mcp schema" desc="显示 MCP 工具的 JSON Schema" />
           <CommandCard name="/extensions" desc="列出当前会话的活跃扩展" />
-          <CommandCard name="/agents create" desc="交互式创建子代理" />
-          <CommandCard name="/agents manage" desc="管理现有子代理" />
+          <CommandCard name="/agents list" desc="列出可用的本地/远程 Agent" />
+          <CommandCard name="/agents enable <name>" desc="启用被禁用的 Agent" />
+          <CommandCard name="/agents disable <name>" desc="禁用指定 Agent" />
+          <CommandCard name="/agents refresh" desc="重新加载 Agent Registry" />
         </div>
 
         {/* 配置与偏好 */}
@@ -118,6 +124,7 @@ export function SlashCommands() {
           <CommandCard name="/theme" desc="切换视觉主题" />
           <CommandCard name="/model" desc="切换当前会话的模型" />
           <CommandCard name="/auth" desc="更改认证方式" />
+          <CommandCard name="/auth logout" desc="清除凭据并退出登录" />
           <CommandCard name="/editor" desc="选择首选编辑器" />
           <CommandCard name="/vim" desc="切换 Vim 模式" />
         </div>

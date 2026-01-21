@@ -19,8 +19,9 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           <div>
             <h3 className="text-[var(--terminal-green)] font-semibold mb-2">🎯 核心概念</h3>
             <p className="text-[var(--text-secondary)]">
-              <strong>CoreToolScheduler</strong> 是工具执行的调度中心。当 AI 请求调用工具（如读文件、执行命令）时，
-              调度器负责验证参数、请求用户审批、执行工具、处理结果或错误。每个工具调用都经历一个完整的状态机流转。
+              <strong>Scheduler</strong> 是工具执行的事件驱动调度中心。当 AI 请求调用工具（如读文件、执行命令）时，
+              调度器负责验证参数、请求用户审批、执行工具、处理结果或错误。CoreToolScheduler 作为 legacy adapter
+              仍存在于非交互路径。
             </p>
           </div>
 
@@ -62,7 +63,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           <div>
             <h3 className="text-[var(--terminal-green)] font-semibold mb-2">📁 源码位置</h3>
             <code className="text-xs bg-[var(--bg-void)] p-2 rounded block border border-[var(--border-subtle)]">
-              packages/core/src/core/coreToolScheduler.ts
+              packages/core/src/scheduler/scheduler.ts
             </code>
           </div>
 
@@ -239,7 +240,7 @@ const response = await generateContentStream(contents);
 if (response.functionCalls?.length > 0) {
   // 进入工具调度流程
   for (const call of response.functionCalls) {
-    await coreToolScheduler.schedule(call);
+    await scheduler.schedule(call);
   }
 }`,
   },
@@ -247,7 +248,7 @@ if (response.functionCalls?.length > 0) {
     state: 'validating' as ToolCallState,
     title: '验证阶段',
     description: '检查工具名称、参数格式、权限',
-    code: `// coreToolScheduler.ts - scheduleToolCall()
+    code: `// scheduler.ts - scheduleToolCall()
 private async scheduleToolCall(call: FunctionCall): Promise<void> {
   // 1. 查找工具定义
   const toolDef = this.toolRegistry.get(call.name);
@@ -270,7 +271,7 @@ private async scheduleToolCall(call: FunctionCall): Promise<void> {
     state: 'awaiting_approval' as ToolCallState,
     title: '等待审批',
     description: '敏感操作需要用户确认',
-    code: `// coreToolScheduler.ts - shouldConfirmExecute()
+    code: `// scheduler.ts - shouldConfirmExecute()
 private shouldConfirmExecute(toolCall: ToolCall): boolean {
   const tool = this.toolRegistry.get(toolCall.name);
 
@@ -293,7 +294,7 @@ this.state = { type: 'awaiting_approval', toolCall, reason };`,
     state: 'scheduled' as ToolCallState,
     title: '已调度',
     description: '验证通过，进入执行队列',
-    code: `// coreToolScheduler.ts - 调度成功
+    code: `// scheduler.ts - 调度成功
 private transitionToScheduled(call: ValidatingToolCall): ScheduledToolCall {
   return {
     type: 'scheduled',
@@ -314,7 +315,7 @@ this.processQueue(); // 开始处理队列`,
     state: 'executing' as ToolCallState,
     title: '执行中',
     description: '调用具体工具实现',
-    code: `// coreToolScheduler.ts - executeToolCall()
+    code: `// scheduler.ts - executeToolCall()
 private async executeToolCall(call: ScheduledToolCall): Promise<void> {
   this.transitionToExecuting(call);
 
@@ -339,7 +340,7 @@ private async executeToolCall(call: ScheduledToolCall): Promise<void> {
     state: 'success' as ToolCallState,
     title: '执行成功',
     description: '结果返回给 AI 继续对话',
-    code: `// coreToolScheduler.ts - 成功处理
+    code: `// scheduler.ts - 成功处理
 private transitionToSuccess(call: ExecutingToolCall, result: ToolResult): void {
   const successCall: SuccessfulToolCall = {
     type: 'success',
@@ -364,7 +365,7 @@ const errorStep = {
   state: 'error' as ToolCallState,
   title: '执行失败',
   description: '工具执行出错，可能重试',
-  code: `// coreToolScheduler.ts - 错误处理
+  code: `// scheduler.ts - 错误处理
 private transitionToError(call: ToolCall, error: Error): void {
   const errorCall: ErroredToolCall = {
     type: 'error',
@@ -390,7 +391,7 @@ const cancelStep = {
   state: 'cancelled' as ToolCallState,
   title: '用户取消',
   description: '用户拒绝执行敏感操作',
-  code: `// coreToolScheduler.ts - 取消处理
+  code: `// scheduler.ts - 取消处理
 public cancelToolCall(callId: string, reason: string): void {
   const call = this.pendingCalls.get(callId);
   if (!call) return;
@@ -501,7 +502,7 @@ export function ToolSchedulerAnimation() {
       <div className="flex items-center gap-3 mb-6">
         <span className="text-[var(--amber)]">⚙️</span>
         <h2 className="text-2xl font-mono font-bold text-[var(--text-primary)]">
-          CoreToolScheduler 状态机
+          Scheduler 状态机
         </h2>
       </div>
 
@@ -513,7 +514,7 @@ export function ToolSchedulerAnimation() {
       <Introduction isExpanded={isIntroExpanded} onToggle={() => setIsIntroExpanded(!isIntroExpanded)} />
 
       <p className="text-sm text-[var(--text-muted)] font-mono mb-6">
-        // 源码位置: packages/core/src/core/coreToolScheduler.ts
+        // 源码位置: packages/core/src/scheduler/scheduler.ts
       </p>
 
       {/* Controls */}

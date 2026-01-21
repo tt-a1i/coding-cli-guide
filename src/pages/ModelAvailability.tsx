@@ -243,6 +243,13 @@ export function classifyFailureKind(error: unknown): FailureKind {
 
   const policyChainCode = `// packages/core/src/availability/policyCatalog.ts
 
+import {
+  DEFAULT_GEMINI_MODEL,
+  DEFAULT_GEMINI_FLASH_MODEL,
+  PREVIEW_GEMINI_MODEL,
+  PREVIEW_GEMINI_FLASH_MODEL,
+} from '../config/models.js';
+
 // 降级动作
 export type FallbackAction = 'silent' | 'prompt';
 
@@ -256,14 +263,14 @@ export interface ModelPolicy {
 
 // 默认策略链: Pro → Flash
 const DEFAULT_CHAIN: ModelPolicyChain = [
-  definePolicy({ model: 'gemini-2.5-pro' }),
-  definePolicy({ model: 'gemini-2.0-flash', isLastResort: true }),
+  definePolicy({ model: DEFAULT_GEMINI_MODEL }),
+  definePolicy({ model: DEFAULT_GEMINI_FLASH_MODEL, isLastResort: true }),
 ];
 
 // Preview 策略链
 const PREVIEW_CHAIN: ModelPolicyChain = [
-  definePolicy({ model: 'gemini-2.5-pro-preview' }),
-  definePolicy({ model: 'gemini-2.0-flash-preview', isLastResort: true }),
+  definePolicy({ model: PREVIEW_GEMINI_MODEL }),
+  definePolicy({ model: PREVIEW_GEMINI_FLASH_MODEL, isLastResort: true }),
 ];
 
 // 验证策略链
@@ -486,6 +493,9 @@ export function validateModelPolicyChain(chain: ModelPolicyChain): void {
           策略链定义了模型的优先级和故障转移规则。默认链：Pro → Flash，确保至少有一个 lastResort 模型。
         </p>
         <CodeBlock code={policyChainCode} language="typescript" title="policyCatalog.ts" />
+        <p className="text-[var(--text-muted)] text-sm mt-3">
+          Preview 模式启用时，策略链会切换到 Gemini 3 的 preview 模型（Pro/Flash）。
+        </p>
 
         <HighlightBox title="策略链验证规则" variant="blue" className="mt-4">
           <ul className="text-sm space-y-1">
