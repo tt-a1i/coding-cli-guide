@@ -174,12 +174,15 @@ export function ShellModes() {
       {/* 目标 */}
       <Layer title="目标" icon="🎯">
         <p className="text-gray-300 mb-4">
-          Shell 模式系统为用户和 AI 提供安全、灵活的命令执行能力，通过两条独立的执行路径满足不同的使用场景：
+          Shell 模式系统为用户和 AI
+          提供安全、灵活的命令执行能力，通过两条独立的执行路径满足不同的使用场景：
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <HighlightBox title="交互式 Shell (路径 A)" variant="blue">
             <div className="text-sm space-y-2">
-              <p><strong>目标：</strong>为用户提供直接的终端访问</p>
+              <p>
+                <strong>目标：</strong>为用户提供直接的终端访问
+              </p>
               <ul className="list-disc pl-5 space-y-1 text-gray-300">
                 <li>即时执行用户输入的命令</li>
                 <li>支持交互式工具（vim, less, 颜色输出）</li>
@@ -191,7 +194,9 @@ export function ShellModes() {
 
           <HighlightBox title="自定义命令注入 (路径 B)" variant="purple">
             <div className="text-sm space-y-2">
-              <p><strong>目标：</strong>安全地执行 TOML 定义的命令</p>
+              <p>
+                <strong>目标：</strong>安全地执行 TOML 定义的命令
+              </p>
               <ul className="list-disc pl-5 space-y-1 text-gray-300">
                 <li>在 prompt 中注入命令输出</li>
                 <li>自动参数转义和替换</li>
@@ -210,15 +215,25 @@ export function ShellModes() {
             <thead>
               <tr className="border-b border-gray-700">
                 <th className="text-left py-2 text-gray-400 w-1/6">特性</th>
-                <th className="text-left py-2 text-cyan-400 w-5/12">交互式 Shell (!command)</th>
-                <th className="text-left py-2 text-purple-400 w-5/12">自定义命令注入 (!{'{command}'})</th>
+                <th className="text-left py-2 text-cyan-400 w-5/12">
+                  交互式 Shell (!command)
+                </th>
+                <th className="text-left py-2 text-purple-400 w-5/12">
+                  自定义命令注入 (!{'{command}'})
+                </th>
               </tr>
             </thead>
             <tbody className="text-gray-300">
               <tr className="border-b border-gray-800">
                 <td className="py-2 font-semibold text-gray-400">触发方式</td>
-                <td><code className="text-cyan-400">!command</code> 或进入 Shell 模式后直接输入</td>
-                <td>TOML 文件的 <code>prompt</code> 字段中使用 <code>!{'{command}'}</code></td>
+                <td>
+                  <code className="text-cyan-400">!command</code> 或进入 Shell
+                  模式后直接输入
+                </td>
+                <td>
+                  TOML 文件的 <code>prompt</code> 字段中使用{' '}
+                  <code>!{'{command}'}</code>
+                </td>
               </tr>
               <tr className="border-b border-gray-800">
                 <td className="py-2 font-semibold text-gray-400">使用场景</td>
@@ -228,19 +243,29 @@ export function ShellModes() {
               <tr className="border-b border-gray-800">
                 <td className="py-2 font-semibold text-gray-400">参数传递</td>
                 <td>手动输入命令参数</td>
-                <td><code>{'{{args}}'}</code> 自动替换为转义后的用户参数</td>
+                <td>
+                  <code>{'{{args}}'}</code> 自动替换为转义后的用户参数
+                </td>
               </tr>
               <tr className="border-b border-gray-800">
                 <td className="py-2 font-semibold text-gray-400">权限模型</td>
                 <td>用户权限（等同直接在 terminal 执行）</td>
                 <td>
-                  默认 <code>deny</code>（需确认/会话白名单）；同时受 <code>tools.exclude</code>（硬拒绝）与 <code>tools.core</code>（全局允许）影响
+                  默认 <code>deny</code>（需确认/会话白名单）；同时受{' '}
+                  <code>tools.exclude</code>（硬拒绝）与 <code>tools.core</code>
+                  （全局允许）影响
                 </td>
               </tr>
               <tr>
                 <td className="py-2 font-semibold text-gray-400">示例</td>
-                <td><code className="text-cyan-300">!git status</code></td>
-                <td><code className="text-purple-300">!{'{git log --oneline -n 10}'}</code></td>
+                <td>
+                  <code className="text-cyan-300">!git status</code>
+                </td>
+                <td>
+                  <code className="text-purple-300">
+                    !{'{git log --oneline -n 10}'}
+                  </code>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -251,16 +276,25 @@ export function ShellModes() {
             <div>
               <strong className="text-yellow-300">交互式 Shell:</strong>
               <ul className="list-disc pl-5 mt-1 text-gray-300">
-                <li>用户在 CLI 输入以 <code>!</code> 开头的命令</li>
-                <li>用户切换到 Shell 模式 (输入 <code>!</code> 后直接输入命令)</li>
+                <li>
+                  用户在 CLI 输入以 <code>!</code> 开头的命令
+                </li>
+                <li>
+                  用户切换到 Shell 模式 (输入 <code>!</code> 后直接输入命令)
+                </li>
                 <li>工作目录状态通过临时文件跟踪</li>
               </ul>
             </div>
             <div>
               <strong className="text-yellow-300">自定义命令注入:</strong>
               <ul className="list-disc pl-5 mt-1 text-gray-300">
-                <li>用户调用包含 <code>!{'{...}'}</code> 的自定义命令</li>
-                <li>在 <code>FileCommandLoader</code> 加载时进行 <code>ShellProcessor</code> 处理</li>
+                <li>
+                  用户调用包含 <code>!{'{...}'}</code> 的自定义命令
+                </li>
+                <li>
+                  在 <code>FileCommandLoader</code> 加载时进行{' '}
+                  <code>ShellProcessor</code> 处理
+                </li>
                 <li>支持嵌套大括号和参数替换</li>
               </ul>
             </div>
@@ -272,7 +306,9 @@ export function ShellModes() {
       <Layer title="输出" icon="📤">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-4">
-            <h4 className="text-cyan-400 font-semibold mb-3">交互式 Shell 输出</h4>
+            <h4 className="text-cyan-400 font-semibold mb-3">
+              交互式 Shell 输出
+            </h4>
             <div className="text-sm space-y-2 text-gray-300">
               <div>
                 <strong>输出目的地:</strong>
@@ -281,7 +317,10 @@ export function ShellModes() {
               <div>
                 <strong>输出格式:</strong>
                 <ul className="list-disc pl-5 space-y-1">
-                  <li>PTY 模式: <code className="text-cyan-300">AnsiOutput</code> 对象（保留颜色和格式）</li>
+                  <li>
+                    PTY 模式: <code className="text-cyan-300">AnsiOutput</code>{' '}
+                    对象（保留颜色和格式）
+                  </li>
                   <li>子进程模式: 纯文本字符串</li>
                 </ul>
               </div>
@@ -299,7 +338,9 @@ export function ShellModes() {
               <div>
                 <strong>特殊行为:</strong>
                 <ul className="list-disc pl-5 space-y-1">
-                  <li>执行 <code>cd</code> 命令后会显示"工作目录变更不持久"警告</li>
+                  <li>
+                    执行 <code>cd</code> 命令后会显示"工作目录变更不持久"警告
+                  </li>
                   <li>提醒用户交互式 Shell 的目录变更不会影响后续命令</li>
                 </ul>
               </div>
@@ -307,7 +348,9 @@ export function ShellModes() {
           </div>
 
           <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-4">
-            <h4 className="text-purple-400 font-semibold mb-3">自定义命令注入输出</h4>
+            <h4 className="text-purple-400 font-semibold mb-3">
+              自定义命令注入输出
+            </h4>
             <div className="text-sm space-y-2 text-gray-300">
               <div>
                 <strong>输出目的地:</strong>
@@ -322,11 +365,15 @@ export function ShellModes() {
               </div>
               <div>
                 <strong>错误处理:</strong>
-                <p>添加 <code>[Shell command exited with code X]</code> 标记</p>
+                <p>
+                  添加 <code>[Shell command exited with code X]</code> 标记
+                </p>
               </div>
               <div>
                 <strong>状态变化:</strong>
-                <p>确认后命令添加到 <code>sessionShellAllowlist</code></p>
+                <p>
+                  确认后命令添加到 <code>sessionShellAllowlist</code>
+                </p>
               </div>
             </div>
           </div>
@@ -336,9 +383,19 @@ export function ShellModes() {
           <div className="text-sm">
             <p className="mb-2">两种模式都会设置以下环境变量：</p>
             <ul className="list-disc pl-5 space-y-1 text-gray-300">
-              <li><code className="text-green-300">GEMINI_CLI=1</code> - 标记命令在 Gemini CLI 中运行</li>
-              <li><code className="text-green-300">TERM=xterm-256color</code> - 提供基础终端能力</li>
-              <li><code className="text-green-300">PAGER</code> / <code className="text-green-300">GIT_PAGER</code> - 默认 <code>cat</code> 或使用 <code>tools.shell.pager</code></li>
+              <li>
+                <code className="text-green-300">GEMINI_CLI=1</code> -
+                标记命令在 Gemini CLI 中运行
+              </li>
+              <li>
+                <code className="text-green-300">TERM=xterm-256color</code> -
+                提供基础终端能力
+              </li>
+              <li>
+                <code className="text-green-300">PAGER</code> /{' '}
+                <code className="text-green-300">GIT_PAGER</code> - 默认{' '}
+                <code>cat</code> 或使用 <code>tools.shell.pager</code>
+              </li>
               <li>其他继承自父进程的环境变量</li>
             </ul>
           </div>
@@ -349,7 +406,9 @@ export function ShellModes() {
       <Layer title="关键文件与入口" icon="📁">
         <div className="space-y-4">
           <div className="bg-gray-800/50 rounded-lg p-4">
-            <h4 className="text-cyan-400 font-semibold mb-3">交互式 Shell 路径</h4>
+            <h4 className="text-cyan-400 font-semibold mb-3">
+              交互式 Shell 路径
+            </h4>
             <div className="text-sm space-y-2">
               <SourceLink
                 path="gemini-cli/packages/cli/src/ui/hooks/shellCommandProcessor.ts:66"
@@ -379,7 +438,9 @@ export function ShellModes() {
           </div>
 
           <div className="bg-gray-800/50 rounded-lg p-4">
-            <h4 className="text-purple-400 font-semibold mb-3">自定义命令注入路径</h4>
+            <h4 className="text-purple-400 font-semibold mb-3">
+              自定义命令注入路径
+            </h4>
             <div className="text-sm space-y-2">
               <SourceLink
                 path="gemini-cli/packages/cli/src/services/prompt-processors/shellProcessor.ts:54"
@@ -405,7 +466,9 @@ export function ShellModes() {
           </div>
 
           <div className="bg-gray-800/50 rounded-lg p-4">
-            <h4 className="text-orange-400 font-semibold mb-3">run_shell_command (AI 使用)</h4>
+            <h4 className="text-orange-400 font-semibold mb-3">
+              run_shell_command (AI 使用)
+            </h4>
             <div className="text-sm space-y-2">
               <SourceLink
                 path="gemini-cli/packages/core/src/tools/shell.ts:58"
@@ -420,7 +483,7 @@ export function ShellModes() {
                 desc="execute() - Shell 工具执行入口"
               />
               <SourceLink
-                path="gemini-cli/packages/core/src/utils/shell-permissions.ts:40"
+                path="gemini-cli/packages/core/src/policy/toml-loader.ts"
                 desc="checkCommandPermissions() - Shell 命令限制检查"
               />
             </div>
@@ -430,19 +493,25 @@ export function ShellModes() {
 
       {/* 流程图 */}
       <Layer title="流程图" icon="📊">
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4">完整执行路径对比</h3>
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4">
+          完整执行路径对比
+        </h3>
         <MermaidDiagram
           chart={shellModesFlowChart}
           title="Shell 模式两条执行路径"
         />
 
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4 mt-8">执行方法选择</h3>
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4 mt-8">
+          执行方法选择
+        </h3>
         <MermaidDiagram
           chart={executionMethodChart}
           title="PTY vs 子进程执行模式"
         />
 
-        <h3 className="text-xl font-semibold text-cyan-400 mb-4 mt-8">权限检查流程</h3>
+        <h3 className="text-xl font-semibold text-cyan-400 mb-4 mt-8">
+          权限检查流程
+        </h3>
         <MermaidDiagram
           chart={permissionCheckChart}
           title="命令权限检查决策树"
@@ -453,7 +522,9 @@ export function ShellModes() {
       <Layer title="关键分支与边界条件" icon="⚡">
         <div className="space-y-4">
           <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
-            <h4 className="text-blue-400 font-semibold mb-2">PTY vs 子进程选择</h4>
+            <h4 className="text-blue-400 font-semibold mb-2">
+              PTY vs 子进程选择
+            </h4>
             <CodeBlock
               code={`// gemini-cli/packages/core/src/services/shellExecutionService.ts:174
 static async execute(
@@ -483,8 +554,13 @@ static async execute(
             <div className="mt-3 text-sm text-gray-300">
               <strong>关键条件:</strong>
               <ul className="list-disc pl-5 mt-1 space-y-1">
-                <li><code>shouldUseNodePty</code> 由配置 <code>tools.shell.enableInteractiveShell</code> 决定</li>
-                <li><code>node-pty</code> 必须成功加载（可选依赖）</li>
+                <li>
+                  <code>shouldUseNodePty</code> 由配置{' '}
+                  <code>tools.shell.enableInteractiveShell</code> 决定
+                </li>
+                <li>
+                  <code>node-pty</code> 必须成功加载（可选依赖）
+                </li>
                 <li>PTY 创建失败时自动降级到子进程模式</li>
               </ul>
             </div>
@@ -529,16 +605,31 @@ if (commandsToConfirm.size > 0) {
             <div className="mt-3 text-sm text-gray-300">
               <strong>决策分支:</strong>
               <ul className="list-disc pl-5 mt-1 space-y-1">
-                <li><strong>硬拒绝:</strong> 命令无法安全解析，或命中 <code>tools.exclude</code> → 直接抛错</li>
-                <li><strong>自动批准:</strong> 命令在 <code>sessionShellAllowlist</code> 或 <code>tools.core</code> → 执行</li>
-                <li><strong>YOLO 模式:</strong> 对软拒绝不再弹确认 → 直接执行（仍无法绕过硬拒绝）</li>
-                <li><strong>需要确认:</strong> 软拒绝且非 YOLO → 抛出 <code>ConfirmationRequiredError</code></li>
+                <li>
+                  <strong>硬拒绝:</strong> 命令无法安全解析，或命中{' '}
+                  <code>tools.exclude</code> → 直接抛错
+                </li>
+                <li>
+                  <strong>自动批准:</strong> 命令在{' '}
+                  <code>sessionShellAllowlist</code> 或 <code>tools.core</code>{' '}
+                  → 执行
+                </li>
+                <li>
+                  <strong>YOLO 模式:</strong> 对软拒绝不再弹确认 →
+                  直接执行（仍无法绕过硬拒绝）
+                </li>
+                <li>
+                  <strong>需要确认:</strong> 软拒绝且非 YOLO → 抛出{' '}
+                  <code>ConfirmationRequiredError</code>
+                </li>
               </ul>
             </div>
           </div>
 
           <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
-            <h4 className="text-green-400 font-semibold mb-2">二进制输出检测</h4>
+            <h4 className="text-green-400 font-semibold mb-2">
+              二进制输出检测
+            </h4>
             <CodeBlock
               code={`// gemini-cli/packages/core/src/tools/shell.ts:220
 (event: ShellOutputEvent) => {
@@ -572,7 +663,10 @@ if (commandsToConfirm.size > 0) {
               <ul className="list-disc pl-5 mt-1 space-y-1">
                 <li>检测到二进制输出时停止流式更新</li>
                 <li>显示接收的字节数而非实际内容</li>
-                <li>限制更新频率为 1 秒/次（<code>OUTPUT_UPDATE_INTERVAL_MS</code>）</li>
+                <li>
+                  限制更新频率为 1 秒/次（<code>OUTPUT_UPDATE_INTERVAL_MS</code>
+                  ）
+                </li>
               </ul>
             </div>
           </div>
@@ -613,14 +707,18 @@ for (const injection of injections) {
               <div>
                 <strong>失败场景:</strong>
                 <ul className="list-disc pl-5 mt-1">
-                  <li><code>node-pty</code> 未安装或加载失败</li>
+                  <li>
+                    <code>node-pty</code> 未安装或加载失败
+                  </li>
                   <li>PTY 创建异常（权限、系统限制）</li>
                   <li>平台不支持伪终端</li>
                 </ul>
               </div>
               <div>
                 <strong>恢复策略:</strong>
-                <p>自动降级到 <code>child_process.spawn()</code> 模式</p>
+                <p>
+                  自动降级到 <code>child_process.spawn()</code> 模式
+                </p>
               </div>
               <div>
                 <strong>影响:</strong>
@@ -640,16 +738,25 @@ for (const injection of injections) {
                 <strong>失败场景:</strong>
                 <ul className="list-disc pl-5 mt-1">
                   <li>命令无法安全解析（硬拒绝）</li>
-                  <li>命令命中 <code>tools.exclude</code>（硬拒绝）</li>
+                  <li>
+                    命令命中 <code>tools.exclude</code>（硬拒绝）
+                  </li>
                   <li>用户在 ShellConfirmationDialog 选择 No / Esc（取消）</li>
                 </ul>
               </div>
               <div>
                 <strong>恢复策略:</strong>
                 <ul className="list-disc pl-5 mt-1">
-                  <li><strong>硬拒绝:</strong> 直接返回错误，不执行</li>
-                  <li><strong>用户拒绝:</strong> 取消执行，不影响后续命令</li>
-                  <li><strong>YOLO 模式:</strong> 跳过软拒绝确认，但仍无法绕过硬拒绝</li>
+                  <li>
+                    <strong>硬拒绝:</strong> 直接返回错误，不执行
+                  </li>
+                  <li>
+                    <strong>用户拒绝:</strong> 取消执行，不影响后续命令
+                  </li>
+                  <li>
+                    <strong>YOLO 模式:</strong>{' '}
+                    跳过软拒绝确认，但仍无法绕过硬拒绝
+                  </li>
                 </ul>
               </div>
             </div>
@@ -696,19 +803,25 @@ signal.addEventListener('abort', () => {
           </div>
 
           <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
-            <h4 className="text-yellow-400 font-semibold mb-3">工作目录跟踪失败</h4>
+            <h4 className="text-yellow-400 font-semibold mb-3">
+              工作目录跟踪失败
+            </h4>
             <div className="text-sm space-y-2 text-gray-300">
               <div>
                 <strong>失败场景:</strong>
                 <ul className="list-disc pl-5 mt-1">
                   <li>临时文件写入失败</li>
-                  <li><code>pwd</code> 命令不可用</li>
+                  <li>
+                    <code>pwd</code> 命令不可用
+                  </li>
                   <li>Windows 平台（不支持 pwd 跟踪）</li>
                 </ul>
               </div>
               <div>
                 <strong>降级行为:</strong>
-                <p>继续使用当前配置的工作目录，不更新 <code>targetDir</code></p>
+                <p>
+                  继续使用当前配置的工作目录，不更新 <code>targetDir</code>
+                </p>
               </div>
               <div>
                 <strong>影响:</strong>
@@ -722,9 +835,17 @@ signal.addEventListener('abort', () => {
           <div className="text-sm space-y-2">
             <p>所有关键错误都会记录到以下位置：</p>
             <ul className="list-disc pl-5 text-gray-300">
-              <li><strong>执行错误:</strong> 通过 <code>ShellExecutionResult.error</code> 返回</li>
-              <li><strong>权限错误:</strong> 通过 <code>ConfirmationRequiredError</code> 异常抛出</li>
-              <li><strong>系统错误:</strong> 记录到 console.error 和 debug 日志</li>
+              <li>
+                <strong>执行错误:</strong> 通过{' '}
+                <code>ShellExecutionResult.error</code> 返回
+              </li>
+              <li>
+                <strong>权限错误:</strong> 通过{' '}
+                <code>ConfirmationRequiredError</code> 异常抛出
+              </li>
+              <li>
+                <strong>系统错误:</strong> 记录到 console.error 和 debug 日志
+              </li>
             </ul>
           </div>
         </HighlightBox>
@@ -747,31 +868,51 @@ signal.addEventListener('abort', () => {
                 </thead>
                 <tbody className="text-gray-300">
                   <tr className="border-b border-gray-700/50">
-                    <td className="p-2"><code className="text-cyan-300">tools.shell.enableInteractiveShell</code></td>
+                    <td className="p-2">
+                      <code className="text-cyan-300">
+                        tools.shell.enableInteractiveShell
+                      </code>
+                    </td>
                     <td className="p-2">boolean</td>
-                    <td className="p-2"><code>true</code></td>
+                    <td className="p-2">
+                      <code>true</code>
+                    </td>
                     <td className="p-2">启用 PTY 交互式 shell</td>
                   </tr>
                   <tr className="border-b border-gray-700/50">
-                    <td className="p-2"><code className="text-cyan-300">tools.shell.pager</code></td>
+                    <td className="p-2">
+                      <code className="text-cyan-300">tools.shell.pager</code>
+                    </td>
                     <td className="p-2">string</td>
-                    <td className="p-2"><code>"cat"</code></td>
+                    <td className="p-2">
+                      <code>"cat"</code>
+                    </td>
                     <td className="p-2">PAGER 环境变量值</td>
                   </tr>
                   <tr className="border-b border-gray-700/50">
-                    <td className="p-2"><code className="text-cyan-300">tools.shell.showColor</code></td>
+                    <td className="p-2">
+                      <code className="text-cyan-300">
+                        tools.shell.showColor
+                      </code>
+                    </td>
                     <td className="p-2">boolean</td>
-                    <td className="p-2"><code>true</code></td>
+                    <td className="p-2">
+                      <code>true</code>
+                    </td>
                     <td className="p-2">启用 ANSI 颜色输出</td>
                   </tr>
                   <tr className="border-b border-gray-700/50">
-                    <td className="p-2"><code className="text-cyan-300">terminalWidth</code></td>
+                    <td className="p-2">
+                      <code className="text-cyan-300">terminalWidth</code>
+                    </td>
                     <td className="p-2">number</td>
                     <td className="p-2">自动检测</td>
                     <td className="p-2">终端宽度（列数）</td>
                   </tr>
                   <tr>
-                    <td className="p-2"><code className="text-cyan-300">terminalHeight</code></td>
+                    <td className="p-2">
+                      <code className="text-cyan-300">terminalHeight</code>
+                    </td>
                     <td className="p-2">number</td>
                     <td className="p-2">自动检测</td>
                     <td className="p-2">终端高度（行数）</td>
@@ -795,28 +936,56 @@ signal.addEventListener('abort', () => {
                 </thead>
                 <tbody className="text-gray-300">
                   <tr className="border-b border-gray-700/50">
-                    <td className="p-2"><code className="text-purple-300">tools.allowed</code></td>
+                    <td className="p-2">
+                      <code className="text-purple-300">tools.allowed</code>
+                    </td>
                     <td className="p-2">string[]</td>
-                    <td className="p-2"><code>[]</code></td>
-                    <td className="p-2">工具调用自动批准（跳过确认对话框）；支持 <code>run_shell_command(git)</code> 这类前缀匹配</td>
+                    <td className="p-2">
+                      <code>[]</code>
+                    </td>
+                    <td className="p-2">
+                      工具调用自动批准（跳过确认对话框）；支持{' '}
+                      <code>run_shell_command(git)</code> 这类前缀匹配
+                    </td>
                   </tr>
                   <tr className="border-b border-gray-700/50">
-                    <td className="p-2"><code className="text-purple-300">tools.exclude</code></td>
+                    <td className="p-2">
+                      <code className="text-purple-300">tools.exclude</code>
+                    </td>
                     <td className="p-2">string[]</td>
-                    <td className="p-2"><code>[]</code></td>
-                    <td className="p-2">工具/命令硬拒绝（最高优先级）；例如 <code>run_shell_command(rm -rf)</code></td>
+                    <td className="p-2">
+                      <code>[]</code>
+                    </td>
+                    <td className="p-2">
+                      工具/命令硬拒绝（最高优先级）；例如{' '}
+                      <code>run_shell_command(rm -rf)</code>
+                    </td>
                   </tr>
                   <tr className="border-b border-gray-700/50">
-                    <td className="p-2"><code className="text-purple-300">--approval-mode</code></td>
+                    <td className="p-2">
+                      <code className="text-purple-300">--approval-mode</code>
+                    </td>
                     <td className="p-2">enum</td>
-                    <td className="p-2"><code>default</code></td>
-                    <td className="p-2">确认模式（default / auto_edit / yolo；未信任目录会强制 default）</td>
+                    <td className="p-2">
+                      <code>default</code>
+                    </td>
+                    <td className="p-2">
+                      确认模式（default / auto_edit / yolo；未信任目录会强制
+                      default）
+                    </td>
                   </tr>
                   <tr>
-                    <td className="p-2"><code className="text-purple-300">sessionShellAllowlist</code></td>
+                    <td className="p-2">
+                      <code className="text-purple-300">
+                        sessionShellAllowlist
+                      </code>
+                    </td>
                     <td className="p-2">Set&lt;string&gt;</td>
                     <td className="p-2">运行时</td>
-                    <td className="p-2">自定义命令注入的会话白名单（Allow for this session 会写入）</td>
+                    <td className="p-2">
+                      自定义命令注入的会话白名单（Allow for this session
+                      会写入）
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -836,27 +1005,46 @@ signal.addEventListener('abort', () => {
                 </thead>
                 <tbody className="text-gray-300">
                   <tr className="border-b border-gray-700/50">
-                    <td className="p-2"><code className="text-green-300">GEMINI_CLI</code></td>
+                    <td className="p-2">
+                      <code className="text-green-300">GEMINI_CLI</code>
+                    </td>
                     <td className="p-2">ShellExecutionService</td>
-                    <td className="p-2">标记命令在 Gemini CLI 环境中运行，值为 "1"</td>
+                    <td className="p-2">
+                      标记命令在 Gemini CLI 环境中运行，值为 "1"
+                    </td>
                   </tr>
                   <tr className="border-b border-gray-700/50">
-                    <td className="p-2"><code className="text-green-300">TERM</code></td>
+                    <td className="p-2">
+                      <code className="text-green-300">TERM</code>
+                    </td>
                     <td className="p-2">ShellExecutionService</td>
-                    <td className="p-2">强制设置为 <code>xterm-256color</code></td>
+                    <td className="p-2">
+                      强制设置为 <code>xterm-256color</code>
+                    </td>
                   </tr>
                   <tr className="border-b border-gray-700/50">
-                    <td className="p-2"><code className="text-green-300">PAGER</code></td>
+                    <td className="p-2">
+                      <code className="text-green-300">PAGER</code>
+                    </td>
                     <td className="p-2">ShellExecutionService</td>
-                    <td className="p-2">默认 <code>cat</code>，或使用 <code>tools.shell.pager</code></td>
+                    <td className="p-2">
+                      默认 <code>cat</code>，或使用{' '}
+                      <code>tools.shell.pager</code>
+                    </td>
                   </tr>
                   <tr className="border-b border-gray-700/50">
-                    <td className="p-2"><code className="text-green-300">GIT_PAGER</code></td>
+                    <td className="p-2">
+                      <code className="text-green-300">GIT_PAGER</code>
+                    </td>
                     <td className="p-2">ShellExecutionService</td>
-                    <td className="p-2">与 <code>PAGER</code> 同步，避免 git 进入交互分页</td>
+                    <td className="p-2">
+                      与 <code>PAGER</code> 同步，避免 git 进入交互分页
+                    </td>
                   </tr>
                   <tr>
-                    <td className="p-2"><code className="text-green-300">PATH</code></td>
+                    <td className="p-2">
+                      <code className="text-green-300">PATH</code>
+                    </td>
                     <td className="p-2">继承（可能被净化）</td>
                     <td className="p-2">命令搜索路径</td>
                   </tr>
@@ -909,60 +1097,101 @@ prompt = """
       <Layer title="常见误解澄清" icon="❓">
         <div className="space-y-4">
           <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-            <h4 className="text-cyan-400 font-bold mb-2">❌ 误解：两者都需要用户确认</h4>
+            <h4 className="text-cyan-400 font-bold mb-2">
+              ❌ 误解：两者都需要用户确认
+            </h4>
             <p className="text-sm text-gray-300 mb-2">
               <strong>✅ 正确：</strong>
             </p>
             <ul className="text-sm text-gray-300 list-disc pl-5 space-y-1">
-              <li><code>!command</code> (交互式) 不需要确认，直接执行</li>
-              <li><code>!{'{command}'}</code> (注入式) 在非 YOLO 模式且命令不在白名单时需要确认</li>
+              <li>
+                <code>!command</code> (交互式) 不需要确认，直接执行
+              </li>
+              <li>
+                <code>!{'{command}'}</code> (注入式) 在非 YOLO
+                模式且命令不在白名单时需要确认
+              </li>
             </ul>
           </div>
 
           <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-            <h4 className="text-cyan-400 font-bold mb-2">❌ 误解：两者输出都显示在终端</h4>
+            <h4 className="text-cyan-400 font-bold mb-2">
+              ❌ 误解：两者输出都显示在终端
+            </h4>
             <p className="text-sm text-gray-300 mb-2">
               <strong>✅ 正确：</strong>
             </p>
             <ul className="text-sm text-gray-300 list-disc pl-5 space-y-1">
-              <li><code>!command</code> 输出直接显示在终端 UI</li>
-              <li><code>!{'{command}'}</code> 输出注入到 prompt，发送给 AI Model</li>
+              <li>
+                <code>!command</code> 输出直接显示在终端 UI
+              </li>
+              <li>
+                <code>!{'{command}'}</code> 输出注入到 prompt，发送给 AI Model
+              </li>
             </ul>
           </div>
 
           <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-            <h4 className="text-cyan-400 font-bold mb-2">❌ 误解：两者安全模型相同</h4>
+            <h4 className="text-cyan-400 font-bold mb-2">
+              ❌ 误解：两者安全模型相同
+            </h4>
             <p className="text-sm text-gray-300 mb-2">
               <strong>✅ 正确：</strong>
             </p>
             <ul className="text-sm text-gray-300 list-disc pl-5 space-y-1">
-              <li><code>!command</code> 无安全检查，用户直接操作</li>
-              <li><code>!{'{command}'}</code> 默认 deny + ShellConfirmationDialog；命中 <code>tools.exclude</code> 或无法安全解析会被硬拒绝</li>
+              <li>
+                <code>!command</code> 无安全检查，用户直接操作
+              </li>
+              <li>
+                <code>!{'{command}'}</code> 默认 deny +
+                ShellConfirmationDialog；命中 <code>tools.exclude</code>{' '}
+                或无法安全解析会被硬拒绝
+              </li>
             </ul>
           </div>
 
           <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-            <h4 className="text-cyan-400 font-bold mb-2">❌ 误解：PTY 模式总是可用</h4>
+            <h4 className="text-cyan-400 font-bold mb-2">
+              ❌ 误解：PTY 模式总是可用
+            </h4>
             <p className="text-sm text-gray-300 mb-2">
               <strong>✅ 正确：</strong>
             </p>
             <ul className="text-sm text-gray-300 list-disc pl-5 space-y-1">
-              <li>需要 <code>node-pty</code> 可选依赖成功加载</li>
-              <li>需要配置 <code>enableInteractiveShell: true</code></li>
+              <li>
+                需要 <code>node-pty</code> 可选依赖成功加载
+              </li>
+              <li>
+                需要配置 <code>enableInteractiveShell: true</code>
+              </li>
               <li>失败时自动降级到子进程模式</li>
             </ul>
           </div>
 
           <div className="bg-white/5 rounded-lg p-4 border border-white/10">
-            <h4 className="text-cyan-400 font-bold mb-2">❌ 误解：run_shell_command 和交互式 Shell 是同一个</h4>
+            <h4 className="text-cyan-400 font-bold mb-2">
+              ❌ 误解：run_shell_command 和交互式 Shell 是同一个
+            </h4>
             <p className="text-sm text-gray-300 mb-2">
               <strong>✅ 正确：</strong>
             </p>
             <ul className="text-sm text-gray-300 list-disc pl-5 space-y-1">
-              <li><strong>交互式 Shell:</strong> 用户直接输入 <code>!command</code></li>
-              <li><strong>run_shell_command:</strong> AI Model 通过工具调用系统执行命令</li>
-              <li><strong>自定义命令注入:</strong> TOML 定义的 <code>!{'{command}'}</code></li>
-              <li>三者都使用 <code>ShellExecutionService</code> 但调用路径和权限模型不同</li>
+              <li>
+                <strong>交互式 Shell:</strong> 用户直接输入{' '}
+                <code>!command</code>
+              </li>
+              <li>
+                <strong>run_shell_command:</strong> AI Model
+                通过工具调用系统执行命令
+              </li>
+              <li>
+                <strong>自定义命令注入:</strong> TOML 定义的{' '}
+                <code>!{'{command}'}</code>
+              </li>
+              <li>
+                三者都使用 <code>ShellExecutionService</code>{' '}
+                但调用路径和权限模型不同
+              </li>
             </ul>
           </div>
         </div>
@@ -974,7 +1203,9 @@ prompt = """
 function SourceLink({ path, desc }: { path: string; desc: string }) {
   return (
     <div className="flex items-start gap-2">
-      <code className="bg-black/30 px-2 py-1 rounded text-xs flex-shrink-0">{path}</code>
+      <code className="bg-black/30 px-2 py-1 rounded text-xs flex-shrink-0">
+        {path}
+      </code>
       <span className="text-gray-400">{desc}</span>
     </div>
   );

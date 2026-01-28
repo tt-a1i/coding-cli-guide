@@ -13,7 +13,13 @@ const relatedPages: RelatedPage[] = [
   { id: 'trusted-folders', label: '信任机制', description: '文件夹信任级别' },
 ];
 
-function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
+function QuickSummary({
+  isExpanded,
+  onToggle,
+}: {
+  isExpanded: boolean;
+  onToggle: () => void;
+}) {
   return (
     <div className="mb-8 bg-gradient-to-r from-[var(--amber)]/10 to-red-500/10 rounded-xl border border-[var(--border-subtle)] overflow-hidden">
       <button
@@ -22,9 +28,13 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
       >
         <div className="flex items-center gap-3">
           <span className="text-2xl">🛡️</span>
-          <span className="text-xl font-bold text-[var(--text-primary)]">30秒快速理解</span>
+          <span className="text-xl font-bold text-[var(--text-primary)]">
+            30秒快速理解
+          </span>
         </div>
-        <span className={`transform transition-transform text-[var(--text-muted)] ${isExpanded ? 'rotate-180' : ''}`}>
+        <span
+          className={`transform transition-transform text-[var(--text-muted)] ${isExpanded ? 'rotate-180' : ''}`}
+        >
           ▼
         </span>
       </button>
@@ -35,23 +45,30 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
             <p className="text-[var(--text-primary)] font-medium">
               <span className="text-[var(--amber)] font-bold">一句话：</span>
-              多层次安全决策系统，通过规则匹配和 Safety Checker 对工具调用和 Hook 执行进行 ALLOW/DENY/ASK_USER 决策
+              多层次安全决策系统，通过规则匹配和 Safety Checker 对工具调用和
+              Hook 执行进行 ALLOW/DENY/ASK_USER 决策
             </p>
           </div>
 
           {/* 关键数字 */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
-              <div className="text-2xl font-bold text-[var(--terminal-green)]">3</div>
+              <div className="text-2xl font-bold text-[var(--terminal-green)]">
+                3
+              </div>
               <div className="text-xs text-[var(--text-muted)]">决策类型</div>
             </div>
             <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
-              <div className="text-2xl font-bold text-[var(--cyber-blue)]">3</div>
+              <div className="text-2xl font-bold text-[var(--cyber-blue)]">
+                3
+              </div>
               <div className="text-xs text-[var(--text-muted)]">审批模式</div>
             </div>
             <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
               <div className="text-2xl font-bold text-[var(--amber)]">2</div>
-              <div className="text-xs text-[var(--text-muted)]">Checker 类型</div>
+              <div className="text-xs text-[var(--text-muted)]">
+                Checker 类型
+              </div>
             </div>
             <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
               <div className="text-2xl font-bold text-[var(--purple)]">∞</div>
@@ -61,7 +78,9 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
           {/* 核心决策 */}
           <div>
-            <h4 className="text-sm font-semibold text-[var(--text-muted)] mb-2">Policy 决策类型</h4>
+            <h4 className="text-sm font-semibold text-[var(--text-muted)] mb-2">
+              Policy 决策类型
+            </h4>
             <div className="flex items-center gap-3 flex-wrap text-sm">
               <span className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg border border-green-500/30 font-semibold">
                 ALLOW ✓
@@ -79,7 +98,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           <div className="flex items-center gap-2 text-sm">
             <span className="text-[var(--text-muted)]">📍 源码入口:</span>
             <code className="px-2 py-1 bg-[var(--bg-terminal)] rounded text-[var(--terminal-green)] text-xs">
-              packages/core/src/policy/policy-engine.ts
+              gemini-cli/packages/core/src/policy/policy-engine.ts
             </code>
           </div>
         </div>
@@ -117,7 +136,7 @@ export function PolicyEngine() {
     style rules fill:#a855f7,color:#fff
     style checkers fill:#6366f1,color:#fff`;
 
-  const policyTypesCode = `// packages/core/src/policy/types.ts
+  const policyTypesCode = `// gemini-cli/packages/core/src/policy/types.ts
 
 // 决策类型
 export enum PolicyDecision {
@@ -173,7 +192,7 @@ export interface HookCheckerRule {
   priority?: number;       // 优先级（越高越先匹配）
 }`;
 
-  const policyEngineCode = `// packages/core/src/policy/policy-engine.ts
+  const policyEngineCode = `// gemini-cli/packages/core/src/policy/policy-engine.ts
 
 export class PolicyEngine {
   private rules: PolicyRule[];
@@ -336,7 +355,7 @@ decision = "deny"
 priority = 200
 
 # 注意：modes 当前只允许在内置（Tier 1）策略中使用；
-# 用户/管理员策略里会被忽略并产生告警（见 packages/core/src/policy/toml-loader.ts）。
+# 用户/管理员策略里会被忽略并产生告警（见 gemini-cli/packages/core/src/policy/toml-loader.ts）。
 
 # Safety Checker：限制 write_file 可写路径（allowed-path）
 [[safety_checker]]
@@ -396,17 +415,24 @@ async checkHook(
 
       {/* 页面标题 */}
       <section>
-        <h2 className="text-2xl font-bold text-cyan-400 mb-4">Policy 策略引擎</h2>
+        <h2 className="text-2xl font-bold text-cyan-400 mb-4">
+          Policy 策略引擎
+        </h2>
         <p className="text-gray-300 mb-4">
-          Policy Engine 是 Gemini CLI 的核心安全决策系统，负责对工具调用和 Hook 执行进行权限判定。
-          通过规则匹配、Safety Checker 和审批模式的组合，实现细粒度的安全控制。
+          Policy Engine 是 Gemini CLI 的核心安全决策系统，负责对工具调用和 Hook
+          执行进行权限判定。 通过规则匹配、Safety Checker
+          和审批模式的组合，实现细粒度的安全控制。
         </p>
       </section>
 
       {/* 1. 核心概念 */}
       <Layer title="核心概念" icon="🎯">
         <div className="space-y-4">
-          <CodeBlock code={policyTypesCode} language="typescript" title="Policy 类型定义" />
+          <CodeBlock
+            code={policyTypesCode}
+            language="typescript"
+            title="Policy 类型定义"
+          />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <HighlightBox title="ALLOW" variant="green">
@@ -448,38 +474,67 @@ async checkHook(
       {/* 2. 决策流程 */}
       <Layer title="决策流程" icon="📊">
         <div className="space-y-4">
-          <MermaidDiagram chart={policyDecisionFlowChart} title="Policy 决策流程" />
-          <CodeBlock code={policyEngineCode} language="typescript" title="PolicyEngine 核心逻辑" />
+          <MermaidDiagram
+            chart={policyDecisionFlowChart}
+            title="Policy 决策流程"
+          />
+          <CodeBlock
+            code={policyEngineCode}
+            language="typescript"
+            title="PolicyEngine 核心逻辑"
+          />
         </div>
       </Layer>
 
       {/* 3. 规则定义 */}
       <Layer title="规则定义" icon="📜">
         <div className="space-y-4">
-          <CodeBlock code={policyRuleCode} language="typescript" title="PolicyRule 结构" />
+          <CodeBlock
+            code={policyRuleCode}
+            language="typescript"
+            title="PolicyRule 结构"
+          />
 
           <HighlightBox title="规则字段说明" variant="blue">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <h5 className="font-semibold text-cyan-300 mb-2">匹配条件</h5>
                 <ul className="text-gray-400 space-y-1">
-                  <li>• <code className="text-cyan-300">toolName</code>: 工具名或通配符模式</li>
-                  <li>• <code className="text-cyan-300">argsPattern</code>: 参数正则匹配</li>
-                  <li>• <code className="text-cyan-300">modes</code>: 适用的审批模式</li>
+                  <li>
+                    • <code className="text-cyan-300">toolName</code>:
+                    工具名或通配符模式
+                  </li>
+                  <li>
+                    • <code className="text-cyan-300">argsPattern</code>:
+                    参数正则匹配
+                  </li>
+                  <li>
+                    • <code className="text-cyan-300">modes</code>:
+                    适用的审批模式
+                  </li>
                 </ul>
               </div>
               <div>
                 <h5 className="font-semibold text-cyan-300 mb-2">决策控制</h5>
                 <ul className="text-gray-400 space-y-1">
-                  <li>• <code className="text-cyan-300">priority</code>: 数字越大优先级越高</li>
-                  <li>• <code className="text-cyan-300">decision</code>: 决策结果</li>
+                  <li>
+                    • <code className="text-cyan-300">priority</code>:
+                    数字越大优先级越高
+                  </li>
+                  <li>
+                    • <code className="text-cyan-300">decision</code>: 决策结果
+                  </li>
                   <li>• 首个匹配的规则生效</li>
                 </ul>
               </div>
             </div>
           </HighlightBox>
 
-          <CodeBlock code={ruleMatchingCode} language="typescript" title="规则匹配逻辑" />
+          <CodeBlock
+            code={ruleMatchingCode}
+            language="typescript"
+            title="规则匹配逻辑"
+          />
         </div>
       </Layer>
 
@@ -489,15 +544,24 @@ async checkHook(
           <HighlightBox title="MCP 服务器工具匹配" variant="purple">
             <div className="text-sm space-y-3">
               <p className="text-gray-300">
-                MCP 工具名格式：<code className="bg-black/30 px-1 rounded">serverName__toolName</code>
+                MCP 工具名格式：
+                <code className="bg-black/30 px-1 rounded">
+                  serverName__toolName
+                </code>
               </p>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <code className="bg-black/30 px-2 py-1 rounded text-cyan-300">trusted-server__*</code>
-                  <span className="text-gray-400">→ 匹配 trusted-server 的所有工具</span>
+                  <code className="bg-black/30 px-2 py-1 rounded text-cyan-300">
+                    trusted-server__*
+                  </code>
+                  <span className="text-gray-400">
+                    → 匹配 trusted-server 的所有工具
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <code className="bg-black/30 px-2 py-1 rounded text-cyan-300">github__create_issue</code>
+                  <code className="bg-black/30 px-2 py-1 rounded text-cyan-300">
+                    github__create_issue
+                  </code>
                   <span className="text-gray-400">→ 精确匹配单个工具</span>
                 </div>
               </div>
@@ -537,7 +601,9 @@ async checkHook(
               <div className="text-sm space-y-2">
                 <p className="text-gray-300">内置检查器</p>
                 <ul className="text-gray-400 space-y-1">
-                  <li>• <code>allowed-path</code>: 路径白名单</li>
+                  <li>
+                    • <code>allowed-path</code>: 路径白名单
+                  </li>
                   <li>• 高效，无进程开销</li>
                   <li>• 可配置参数</li>
                 </ul>
@@ -562,22 +628,37 @@ async checkHook(
       {/* 6. TOML 配置 */}
       <Layer title="TOML 配置" icon="⚙️">
         <div className="space-y-4">
-          <CodeBlock code={tomlConfigCode} language="toml" title="~/.gemini/policies/my-rules.toml" />
+          <CodeBlock
+            code={tomlConfigCode}
+            language="toml"
+            title="~/.gemini/policies/my-rules.toml"
+          />
 
           <div className="bg-gray-800/50 rounded-lg p-4">
             <h4 className="text-cyan-400 font-semibold mb-2">配置文件位置</h4>
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2">
-                <code className="bg-black/30 px-2 py-1 rounded text-gray-300">packages/core/src/policy/policies/*.toml</code>
-                <span className="text-gray-400">内置默认策略（Default tier）</span>
+                <code className="bg-black/30 px-2 py-1 rounded text-gray-300">
+                  gemini-cli/packages/core/src/policy/policies/*.toml
+                </code>
+                <span className="text-gray-400">
+                  内置默认策略（Default tier）
+                </span>
               </div>
               <div className="flex items-center gap-2">
-                <code className="bg-black/30 px-2 py-1 rounded text-gray-300">~/.gemini/policies/*.toml</code>
+                <code className="bg-black/30 px-2 py-1 rounded text-gray-300">
+                  ~/.gemini/policies/*.toml
+                </code>
                 <span className="text-gray-400">用户策略（User tier）</span>
               </div>
               <div className="flex items-center gap-2">
-                <code className="bg-black/30 px-2 py-1 rounded text-gray-300">/etc/gemini-cli/policies/*.toml</code>
-                <span className="text-gray-400">管理员策略（Admin tier，macOS 在 /Library/Application Support/GeminiCli/policies）</span>
+                <code className="bg-black/30 px-2 py-1 rounded text-gray-300">
+                  /etc/gemini-cli/policies/*.toml
+                </code>
+                <span className="text-gray-400">
+                  管理员策略（Admin tier，macOS 在 /Library/Application
+                  Support/GeminiCli/policies）
+                </span>
               </div>
             </div>
           </div>
@@ -587,13 +668,21 @@ async checkHook(
       {/* 7. Hook 策略检查 */}
       <Layer title="Hook 策略检查" icon="🪝">
         <div className="space-y-4">
-          <CodeBlock code={hookPolicyCode} language="typescript" title="checkHook 方法" />
+          <CodeBlock
+            code={hookPolicyCode}
+            language="typescript"
+            title="checkHook 方法"
+          />
 
           <HighlightBox title="不可信文件夹限制" variant="red">
             <div className="text-sm space-y-2 text-gray-300">
               <p>
-                当 <code className="bg-black/30 px-1 rounded">trustedFolder === false</code> 时，
-                来自项目配置（<code>hookSource === 'project'</code>）的 Hook 会被自动拒绝。
+                当{' '}
+                <code className="bg-black/30 px-1 rounded">
+                  trustedFolder === false
+                </code>{' '}
+                时， 来自项目配置（<code>hookSource === 'project'</code>）的
+                Hook 会被自动拒绝。
               </p>
               <p className="text-amber-400">
                 这防止恶意项目通过 Hook 在用户机器上执行任意命令。
@@ -606,7 +695,8 @@ async checkHook(
       {/* 8. Shell 命令特殊处理 */}
       <Layer title="Shell 命令特殊处理" icon="💻">
         <div className="space-y-4">
-          <MermaidDiagram chart={`flowchart TD
+          <MermaidDiagram
+            chart={`flowchart TD
     shell[run_shell_command<br/>规则匹配 ALLOW]
     parse[解析命令<br/>splitCommands]
     single{单条命令?}
@@ -631,13 +721,16 @@ async checkHook(
     style shell fill:#22d3ee,color:#000
     style allow fill:#22c55e,color:#000
     style deny fill:#ef4444,color:#fff
-    style ask fill:#f59e0b,color:#000`} title="复合 Shell 命令处理" />
+    style ask fill:#f59e0b,color:#000`}
+            title="复合 Shell 命令处理"
+          />
 
           <HighlightBox title="复合命令检查" variant="yellow">
             <div className="text-sm space-y-2 text-gray-300">
               <p>
-                当 Shell 命令包含多个子命令（如 <code className="bg-black/30 px-1 rounded">cmd1 && cmd2</code>）时，
-                Policy Engine 会递归检查每个子命令。
+                当 Shell 命令包含多个子命令（如{' '}
+                <code className="bg-black/30 px-1 rounded">cmd1 && cmd2</code>
+                ）时， Policy Engine 会递归检查每个子命令。
               </p>
               <ul className="list-disc pl-5 space-y-1 text-gray-400">
                 <li>任一子命令 DENY → 整体 DENY</li>
@@ -650,12 +743,24 @@ async checkHook(
           <HighlightBox title="重定向降级（allowRedirection）" variant="orange">
             <div className="text-sm space-y-2 text-gray-300">
               <p>
-                上游新增了 <code className="bg-black/30 px-1 rounded">PolicyRule.allowRedirection</code>：
-                当命令（或子命令）包含重定向符号（如 <code className="bg-black/30 px-1 rounded">&gt;</code> / <code className="bg-black/30 px-1 rounded">&lt;</code>）时，
-                即使命中 <code className="bg-black/30 px-1 rounded">ALLOW</code> 规则，默认也会被降级为 <code className="bg-black/30 px-1 rounded">ASK_USER</code>。
+                上游新增了{' '}
+                <code className="bg-black/30 px-1 rounded">
+                  PolicyRule.allowRedirection
+                </code>
+                ： 当命令（或子命令）包含重定向符号（如{' '}
+                <code className="bg-black/30 px-1 rounded">&gt;</code> /{' '}
+                <code className="bg-black/30 px-1 rounded">&lt;</code>）时，
+                即使命中 <code className="bg-black/30 px-1 rounded">ALLOW</code>{' '}
+                规则，默认也会被降级为{' '}
+                <code className="bg-black/30 px-1 rounded">ASK_USER</code>。
               </p>
               <p className="text-gray-400">
-                目的：避免“看似 allowlisted 的 shell 命令”通过重定向隐式写文件或覆盖内容；如果你确实希望放行重定向，需要在规则中显式设置 <code className="bg-black/30 px-1 rounded">allowRedirection=true</code>。
+                目的：避免“看似 allowlisted 的 shell
+                命令”通过重定向隐式写文件或覆盖内容；如果你确实希望放行重定向，需要在规则中显式设置{' '}
+                <code className="bg-black/30 px-1 rounded">
+                  allowRedirection=true
+                </code>
+                。
               </p>
             </div>
           </HighlightBox>
@@ -668,8 +773,13 @@ async checkHook(
           <HighlightBox title="nonInteractive 模式" variant="purple">
             <div className="text-sm space-y-2 text-gray-300">
               <p>
-                在非交互模式（如 CI/CD 环境）下，<code className="bg-black/30 px-1 rounded">ASK_USER</code>
-                决策会自动转换为 <code className="bg-black/30 px-1 rounded text-red-400">DENY</code>。
+                在非交互模式（如 CI/CD 环境）下，
+                <code className="bg-black/30 px-1 rounded">ASK_USER</code>
+                决策会自动转换为{' '}
+                <code className="bg-black/30 px-1 rounded text-red-400">
+                  DENY
+                </code>
+                。
               </p>
               <CodeBlock
                 code={`private applyNonInteractiveMode(decision: PolicyDecision): PolicyDecision {
@@ -691,31 +801,33 @@ async checkHook(
         <div className="grid grid-cols-1 gap-2 text-sm">
           <div className="flex items-start gap-2">
             <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
-              packages/core/src/policy/types.ts
+              gemini-cli/packages/core/src/policy/types.ts
             </code>
-            <span className="text-gray-400">PolicyDecision、PolicyRule 等类型定义</span>
+            <span className="text-gray-400">
+              PolicyDecision、PolicyRule 等类型定义
+            </span>
           </div>
           <div className="flex items-start gap-2">
             <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
-              packages/core/src/policy/policy-engine.ts
+              gemini-cli/packages/core/src/policy/policy-engine.ts
             </code>
             <span className="text-gray-400">PolicyEngine 核心实现</span>
           </div>
           <div className="flex items-start gap-2">
             <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
-              packages/core/src/policy/toml-loader.ts
+              gemini-cli/packages/core/src/policy/toml-loader.ts
             </code>
             <span className="text-gray-400">TOML 配置加载器</span>
           </div>
           <div className="flex items-start gap-2">
             <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
-              packages/core/src/policy/config.ts
+              gemini-cli/packages/core/src/policy/config.ts
             </code>
             <span className="text-gray-400">配置解析与验证</span>
           </div>
           <div className="flex items-start gap-2">
             <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
-              packages/core/src/safety/checker-runner.ts
+              gemini-cli/packages/core/src/safety/checker-runner.ts
             </code>
             <span className="text-gray-400">Safety Checker 执行器</span>
           </div>
@@ -726,28 +838,58 @@ async checkHook(
       <Layer title="设计决策" icon="💡">
         <div className="space-y-4">
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--amber)]">
-            <h4 className="text-[var(--amber)] font-bold mb-2">为什么默认是 ASK_USER 而非 DENY？</h4>
+            <h4 className="text-[var(--amber)] font-bold mb-2">
+              为什么默认是 ASK_USER 而非 DENY？
+            </h4>
             <div className="text-sm text-gray-300 space-y-2">
-              <p><strong>决策：</strong>无匹配规则时默认 ASK_USER，而非更严格的 DENY。</p>
-              <p><strong>原因：</strong></p>
+              <p>
+                <strong>决策：</strong>无匹配规则时默认 ASK_USER，而非更严格的
+                DENY。
+              </p>
+              <p>
+                <strong>原因：</strong>
+              </p>
               <ul className="list-disc pl-5 space-y-1">
-                <li><strong>用户体验</strong>：DENY 会阻塞工作流，用户可能不清楚原因</li>
-                <li><strong>渐进式安全</strong>：让用户有机会了解工具行为后做决定</li>
-                <li><strong>学习曲线</strong>：新用户可以通过确认对话框学习规则配置</li>
+                <li>
+                  <strong>用户体验</strong>：DENY
+                  会阻塞工作流，用户可能不清楚原因
+                </li>
+                <li>
+                  <strong>渐进式安全</strong>：让用户有机会了解工具行为后做决定
+                </li>
+                <li>
+                  <strong>学习曲线</strong>
+                  ：新用户可以通过确认对话框学习规则配置
+                </li>
               </ul>
-              <p><strong>权衡：</strong>在非交互模式下自动降级为 DENY。</p>
+              <p>
+                <strong>权衡：</strong>在非交互模式下自动降级为 DENY。
+              </p>
             </div>
           </div>
 
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
-            <h4 className="text-[var(--purple)] font-bold mb-2">为什么使用 stableStringify？</h4>
+            <h4 className="text-[var(--purple)] font-bold mb-2">
+              为什么使用 stableStringify？
+            </h4>
             <div className="text-sm text-gray-300 space-y-2">
-              <p><strong>决策：</strong>参数序列化使用 stable JSON stringify（键排序）。</p>
-              <p><strong>原因：</strong></p>
+              <p>
+                <strong>决策：</strong>参数序列化使用 stable JSON
+                stringify（键排序）。
+              </p>
+              <p>
+                <strong>原因：</strong>
+              </p>
               <ul className="list-disc pl-5 space-y-1">
-                <li><strong>确定性匹配</strong>：相同参数始终生成相同字符串</li>
-                <li><strong>正则可靠性</strong>：argsPattern 匹配结果可预测</li>
-                <li><strong>缓存友好</strong>：相同参数的决策可以缓存</li>
+                <li>
+                  <strong>确定性匹配</strong>：相同参数始终生成相同字符串
+                </li>
+                <li>
+                  <strong>正则可靠性</strong>：argsPattern 匹配结果可预测
+                </li>
+                <li>
+                  <strong>缓存友好</strong>：相同参数的决策可以缓存
+                </li>
               </ul>
             </div>
           </div>

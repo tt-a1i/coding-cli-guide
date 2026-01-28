@@ -6,14 +6,24 @@ import { Layer } from '../components/Layer';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 const relatedPages: RelatedPage[] = [
-  { id: 'policy-engine', label: 'Policy 策略引擎', description: '安全决策系统' },
+  {
+    id: 'policy-engine',
+    label: 'Policy 策略引擎',
+    description: '安全决策系统',
+  },
   { id: 'message-bus', label: '消息总线', description: '异步事件协调' },
   { id: 'approval-mode', label: '审批模式', description: '工具执行权限控制' },
   { id: 'tool-arch', label: '工具架构', description: '工具系统基础' },
   { id: 'subagent', label: '子代理系统', description: 'Agent 事件触发' },
 ];
 
-function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
+function QuickSummary({
+  isExpanded,
+  onToggle,
+}: {
+  isExpanded: boolean;
+  onToggle: () => void;
+}) {
   return (
     <div className="mb-8 bg-gradient-to-r from-[var(--cyber-blue)]/10 to-[var(--purple)]/10 rounded-xl border border-[var(--border-subtle)] overflow-hidden">
       <button
@@ -22,9 +32,13 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
       >
         <div className="flex items-center gap-3">
           <span className="text-2xl">🪝</span>
-          <span className="text-xl font-bold text-[var(--text-primary)]">30秒快速理解</span>
+          <span className="text-xl font-bold text-[var(--text-primary)]">
+            30秒快速理解
+          </span>
         </div>
-        <span className={`transform transition-transform text-[var(--text-muted)] ${isExpanded ? 'rotate-180' : ''}`}>
+        <span
+          className={`transform transition-transform text-[var(--text-muted)] ${isExpanded ? 'rotate-180' : ''}`}
+        >
           ▼
         </span>
       </button>
@@ -34,19 +48,26 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           {/* 一句话总结 */}
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
             <p className="text-[var(--text-primary)] font-medium">
-              <span className="text-[var(--cyber-blue)] font-bold">一句话：</span>
-              事件驱动的拦截机制，通过 Shell 命令在关键节点（工具执行、模型调用、会话生命周期）注入自定义逻辑
+              <span className="text-[var(--cyber-blue)] font-bold">
+                一句话：
+              </span>
+              事件驱动的拦截机制，通过 Shell
+              命令在关键节点（工具执行、模型调用、会话生命周期）注入自定义逻辑
             </p>
           </div>
 
           {/* 关键数字 */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
-              <div className="text-2xl font-bold text-[var(--cyber-blue)]">11</div>
+              <div className="text-2xl font-bold text-[var(--cyber-blue)]">
+                11
+              </div>
               <div className="text-xs text-[var(--text-muted)]">事件类型</div>
             </div>
             <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
-              <div className="text-2xl font-bold text-[var(--terminal-green)]">4</div>
+              <div className="text-2xl font-bold text-[var(--terminal-green)]">
+                4
+              </div>
               <div className="text-xs text-[var(--text-muted)]">配置层级</div>
             </div>
             <div className="bg-[var(--bg-card)] rounded-lg p-3 text-center border border-[var(--border-subtle)]">
@@ -61,7 +82,9 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
           {/* 核心流程 */}
           <div>
-            <h4 className="text-sm font-semibold text-[var(--text-muted)] mb-2">Hook 执行流程</h4>
+            <h4 className="text-sm font-semibold text-[var(--text-muted)] mb-2">
+              Hook 执行流程
+            </h4>
             <div className="flex items-center gap-2 flex-wrap text-sm">
               <span className="px-3 py-1.5 bg-[var(--cyber-blue)]/20 text-[var(--cyber-blue)] rounded-lg border border-[var(--cyber-blue)]/30">
                 Event 触发
@@ -85,7 +108,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           <div className="flex items-center gap-2 text-sm">
             <span className="text-[var(--text-muted)]">📍 源码入口:</span>
             <code className="px-2 py-1 bg-[var(--bg-terminal)] rounded text-[var(--terminal-green)] text-xs">
-              packages/core/src/hooks/hookSystem.ts
+              gemini-cli/packages/core/src/hooks/hookSystem.ts
             </code>
           </div>
         </div>
@@ -123,7 +146,7 @@ export function HookSystem() {
     style aggregator fill:#ec4899,color:#fff
     style output fill:#8b5cf6,color:#fff`;
 
-  const hookEventTypesCode = `// packages/core/src/hooks/types.ts
+  const hookEventTypesCode = `// gemini-cli/packages/core/src/hooks/types.ts
 
 export enum HookEventName {
   BeforeTool = 'BeforeTool',           // 工具执行前
@@ -191,7 +214,7 @@ hooks:
           name: "token-budget"
           command: "node scripts/check-tokens.js"`;
 
-  const hookSystemCode = `// packages/core/src/hooks/hookSystem.ts
+  const hookSystemCode = `// gemini-cli/packages/core/src/hooks/hookSystem.ts
 
 export class HookSystem {
   private readonly hookRegistry: HookRegistry;
@@ -273,7 +296,7 @@ export class BeforeModelHookOutput extends DefaultHookOutput {
 }`;
 
   // 完整的 HookOutput 类层次结构
-  const hookOutputHierarchyCode = `// packages/core/src/hooks/types.ts
+  const hookOutputHierarchyCode = `// gemini-cli/packages/core/src/hooks/types.ts
 
 // 基类：DefaultHookOutput（注意：shouldStopExecution 只看 continue===false）
 export class DefaultHookOutput implements HookOutput {
@@ -367,8 +390,10 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
       <section>
         <h2 className="text-2xl font-bold text-cyan-400 mb-4">Hook 事件系统</h2>
         <p className="text-gray-300 mb-4">
-          Hook 系统是 Gemini CLI 的事件驱动拦截机制，允许用户在关键执行节点注入自定义 Shell 命令。
-          通过 11 种事件类型，用户可以实现安全审计、输入校验、日志记录、自动化工作流等功能。
+          Hook 系统是 Gemini CLI
+          的事件驱动拦截机制，允许用户在关键执行节点注入自定义 Shell 命令。 通过
+          11
+          种事件类型，用户可以实现安全审计、输入校验、日志记录、自动化工作流等功能。
         </p>
       </section>
 
@@ -378,7 +403,9 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <HighlightBox title="HookRegistry" variant="blue">
               <div className="text-sm space-y-2">
-                <p className="text-gray-300">Hook 配置注册表，管理所有 Hook 定义</p>
+                <p className="text-gray-300">
+                  Hook 配置注册表，管理所有 Hook 定义
+                </p>
                 <ul className="text-gray-400 space-y-1">
                   <li>• 从多层级配置加载 Hook</li>
                   <li>• 按优先级合并配置</li>
@@ -450,72 +477,126 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
       {/* 2. 事件类型 */}
       <Layer title="Hook 事件类型" icon="📡">
         <div className="space-y-4">
-          <CodeBlock code={hookEventTypesCode} language="typescript" title="HookEventName 枚举" />
+          <CodeBlock
+            code={hookEventTypesCode}
+            language="typescript"
+            title="HookEventName 枚举"
+          />
 
           <div className="overflow-x-auto">
             <table className="w-full text-sm border-collapse">
               <thead>
                 <tr className="bg-gray-800/50">
-                  <th className="border border-gray-700 p-3 text-left text-gray-400">事件</th>
-                  <th className="border border-gray-700 p-3 text-left text-gray-400">触发时机</th>
-                  <th className="border border-gray-700 p-3 text-left text-gray-400">典型用例</th>
+                  <th className="border border-gray-700 p-3 text-left text-gray-400">
+                    事件
+                  </th>
+                  <th className="border border-gray-700 p-3 text-left text-gray-400">
+                    触发时机
+                  </th>
+                  <th className="border border-gray-700 p-3 text-left text-gray-400">
+                    典型用例
+                  </th>
                 </tr>
               </thead>
               <tbody className="text-gray-300">
                 <tr>
-                  <td className="border border-gray-700 p-3"><code className="text-cyan-300">BeforeTool</code></td>
+                  <td className="border border-gray-700 p-3">
+                    <code className="text-cyan-300">BeforeTool</code>
+                  </td>
                   <td className="border border-gray-700 p-3">工具执行前</td>
-                  <td className="border border-gray-700 p-3">参数校验、安全审计、输入转换</td>
+                  <td className="border border-gray-700 p-3">
+                    参数校验、安全审计、输入转换
+                  </td>
                 </tr>
                 <tr className="bg-gray-800/30">
-                  <td className="border border-gray-700 p-3"><code className="text-cyan-300">AfterTool</code></td>
+                  <td className="border border-gray-700 p-3">
+                    <code className="text-cyan-300">AfterTool</code>
+                  </td>
                   <td className="border border-gray-700 p-3">工具执行后</td>
-                  <td className="border border-gray-700 p-3">结果处理、日志记录、缓存更新</td>
+                  <td className="border border-gray-700 p-3">
+                    结果处理、日志记录、缓存更新
+                  </td>
                 </tr>
                 <tr>
-                  <td className="border border-gray-700 p-3"><code className="text-purple-300">BeforeModel</code></td>
+                  <td className="border border-gray-700 p-3">
+                    <code className="text-purple-300">BeforeModel</code>
+                  </td>
                   <td className="border border-gray-700 p-3">LLM 调用前</td>
-                  <td className="border border-gray-700 p-3">Token 预算检查、请求修改、缓存命中</td>
+                  <td className="border border-gray-700 p-3">
+                    Token 预算检查、请求修改、缓存命中
+                  </td>
                 </tr>
                 <tr className="bg-gray-800/30">
-                  <td className="border border-gray-700 p-3"><code className="text-purple-300">AfterModel</code></td>
+                  <td className="border border-gray-700 p-3">
+                    <code className="text-purple-300">AfterModel</code>
+                  </td>
                   <td className="border border-gray-700 p-3">LLM 调用后</td>
-                  <td className="border border-gray-700 p-3">响应过滤、内容审核、格式转换</td>
+                  <td className="border border-gray-700 p-3">
+                    响应过滤、内容审核、格式转换
+                  </td>
                 </tr>
                 <tr>
-                  <td className="border border-gray-700 p-3"><code className="text-green-300">BeforeAgent</code></td>
+                  <td className="border border-gray-700 p-3">
+                    <code className="text-green-300">BeforeAgent</code>
+                  </td>
                   <td className="border border-gray-700 p-3">Agent 执行前</td>
-                  <td className="border border-gray-700 p-3">环境准备、上下文注入</td>
+                  <td className="border border-gray-700 p-3">
+                    环境准备、上下文注入
+                  </td>
                 </tr>
                 <tr className="bg-gray-800/30">
-                  <td className="border border-gray-700 p-3"><code className="text-green-300">AfterAgent</code></td>
+                  <td className="border border-gray-700 p-3">
+                    <code className="text-green-300">AfterAgent</code>
+                  </td>
                   <td className="border border-gray-700 p-3">Agent 执行后</td>
-                  <td className="border border-gray-700 p-3">结果验证、清理工作</td>
+                  <td className="border border-gray-700 p-3">
+                    结果验证、清理工作
+                  </td>
                 </tr>
                 <tr>
-                  <td className="border border-gray-700 p-3"><code className="text-amber-300">SessionStart</code></td>
+                  <td className="border border-gray-700 p-3">
+                    <code className="text-amber-300">SessionStart</code>
+                  </td>
                   <td className="border border-gray-700 p-3">会话开始</td>
-                  <td className="border border-gray-700 p-3">环境初始化、配置加载</td>
+                  <td className="border border-gray-700 p-3">
+                    环境初始化、配置加载
+                  </td>
                 </tr>
                 <tr className="bg-gray-800/30">
-                  <td className="border border-gray-700 p-3"><code className="text-amber-300">SessionEnd</code></td>
+                  <td className="border border-gray-700 p-3">
+                    <code className="text-amber-300">SessionEnd</code>
+                  </td>
                   <td className="border border-gray-700 p-3">会话结束</td>
-                  <td className="border border-gray-700 p-3">资源清理、日志归档</td>
+                  <td className="border border-gray-700 p-3">
+                    资源清理、日志归档
+                  </td>
                 </tr>
                 <tr>
-                  <td className="border border-gray-700 p-3"><code className="text-pink-300">PreCompress</code></td>
+                  <td className="border border-gray-700 p-3">
+                    <code className="text-pink-300">PreCompress</code>
+                  </td>
                   <td className="border border-gray-700 p-3">上下文压缩前</td>
-                  <td className="border border-gray-700 p-3">重要内容保护、压缩策略调整</td>
+                  <td className="border border-gray-700 p-3">
+                    重要内容保护、压缩策略调整
+                  </td>
                 </tr>
                 <tr className="bg-gray-800/30">
-                  <td className="border border-gray-700 p-3"><code className="text-pink-300">BeforeToolSelection</code></td>
+                  <td className="border border-gray-700 p-3">
+                    <code className="text-pink-300">BeforeToolSelection</code>
+                  </td>
                   <td className="border border-gray-700 p-3">工具选择前</td>
-                  <td className="border border-gray-700 p-3">工具过滤、动态工具配置</td>
+                  <td className="border border-gray-700 p-3">
+                    工具过滤、动态工具配置
+                  </td>
                 </tr>
                 <tr>
-                  <td className="border border-gray-700 p-3"><code className="text-blue-300">Notification</code></td>
+                  <td className="border border-gray-700 p-3">
+                    <code className="text-blue-300">Notification</code>
+                  </td>
                   <td className="border border-gray-700 p-3">通知事件</td>
-                  <td className="border border-gray-700 p-3">权限变更通知、状态更新</td>
+                  <td className="border border-gray-700 p-3">
+                    权限变更通知、状态更新
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -527,7 +608,11 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
       <Layer title="执行流程" icon="🔄">
         <div className="space-y-4">
           <MermaidDiagram chart={hookEventFlowChart} title="Hook 执行流程" />
-          <CodeBlock code={hookSystemCode} language="typescript" title="HookSystem 协调器" />
+          <CodeBlock
+            code={hookSystemCode}
+            language="typescript"
+            title="HookSystem 协调器"
+          />
         </div>
       </Layer>
 
@@ -535,7 +620,9 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
       <Layer title="配置与加载" icon="⚙️">
         <div className="space-y-4">
           <div>
-            <h4 className="text-cyan-400 font-semibold mb-2">配置层级（优先级从高到低）</h4>
+            <h4 className="text-cyan-400 font-semibold mb-2">
+              配置层级（优先级从高到低）
+            </h4>
             <div className="flex items-center gap-2 flex-wrap text-sm">
               <span className="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-lg border border-red-500/30">
                 Project 项目级
@@ -555,25 +642,47 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
             </div>
           </div>
 
-          <CodeBlock code={hookConfigCode} language="yaml" title="Hook 配置示例" />
+          <CodeBlock
+            code={hookConfigCode}
+            language="yaml"
+            title="Hook 配置示例"
+          />
 
           <HighlightBox title="配置字段说明" variant="blue">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
-                <h5 className="font-semibold text-cyan-300 mb-1">HookDefinition</h5>
+                <h5 className="font-semibold text-cyan-300 mb-1">
+                  HookDefinition
+                </h5>
                 <ul className="text-gray-400 space-y-1">
-                  <li>• <code>matcher</code>: 工具名匹配模式</li>
-                  <li>• <code>sequential</code>: 是否顺序执行</li>
-                  <li>• <code>hooks</code>: Hook 配置数组</li>
+                  <li>
+                    • <code>matcher</code>: 工具名匹配模式
+                  </li>
+                  <li>
+                    • <code>sequential</code>: 是否顺序执行
+                  </li>
+                  <li>
+                    • <code>hooks</code>: Hook 配置数组
+                  </li>
                 </ul>
               </div>
               <div>
-                <h5 className="font-semibold text-cyan-300 mb-1">CommandHookConfig</h5>
+                <h5 className="font-semibold text-cyan-300 mb-1">
+                  CommandHookConfig
+                </h5>
                 <ul className="text-gray-400 space-y-1">
-                  <li>• <code>type</code>: 固定为 "command"</li>
-                  <li>• <code>command</code>: Shell 命令</li>
-                  <li>• <code>timeout</code>: 超时时间 (ms)</li>
-                  <li>• <code>name</code>: Hook 名称</li>
+                  <li>
+                    • <code>type</code>: 固定为 "command"
+                  </li>
+                  <li>
+                    • <code>command</code>: Shell 命令
+                  </li>
+                  <li>
+                    • <code>timeout</code>: 超时时间 (ms)
+                  </li>
+                  <li>
+                    • <code>name</code>: Hook 名称
+                  </li>
                 </ul>
               </div>
             </div>
@@ -584,7 +693,11 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
       {/* 5. Hook 决策 */}
       <Layer title="Hook 决策机制" icon="⚖️">
         <div className="space-y-4">
-          <CodeBlock code={hookDecisionCode} language="typescript" title="HookDecision 类型" />
+          <CodeBlock
+            code={hookDecisionCode}
+            language="typescript"
+            title="HookDecision 类型"
+          />
 
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             <div className="bg-green-500/20 rounded-lg p-3 text-center border border-green-500/30">
@@ -615,21 +728,40 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
       <Layer title="特定事件 Hook 详解" icon="🎯">
         <div className="space-y-4">
           <div>
-            <h4 className="text-cyan-400 font-semibold mb-3">BeforeTool Hook</h4>
-            <CodeBlock code={beforeToolHookCode} language="typescript" title="BeforeTool 输入输出" />
+            <h4 className="text-cyan-400 font-semibold mb-3">
+              BeforeTool Hook
+            </h4>
+            <CodeBlock
+              code={beforeToolHookCode}
+              language="typescript"
+              title="BeforeTool 输入输出"
+            />
 
-            <HighlightBox title="STOP_EXECUTION：Hook 可立刻终止整个 Agent" icon="🛑" variant="orange">
+            <HighlightBox
+              title="STOP_EXECUTION：Hook 可立刻终止整个 Agent"
+              icon="🛑"
+              variant="orange"
+            >
               <div className="text-sm space-y-2 text-gray-300">
                 <p>
-                  上游实现中，若 Hook 输出 <code className="bg-black/30 px-1 rounded">{"{ continue: false }"}</code>，会被视为
+                  上游实现中，若 Hook 输出{' '}
+                  <code className="bg-black/30 px-1 rounded">
+                    {'{ continue: false }'}
+                  </code>
+                  ，会被视为
                   <strong>“停止执行”</strong>：
                 </p>
                 <ul className="pl-5 list-disc space-y-1">
                   <li>
-                    <strong>BeforeTool/AfterTool</strong>：<code>coreToolHookTriggers</code> 返回带 <code>ToolErrorType.STOP_EXECUTION</code> 的 ToolResult，CLI 立即停止后续循环。
+                    <strong>BeforeTool/AfterTool</strong>：
+                    <code>coreToolHookTriggers</code> 返回带{' '}
+                    <code>ToolErrorType.STOP_EXECUTION</code> 的 ToolResult，CLI
+                    立即停止后续循环。
                   </li>
                   <li>
-                    <strong>AfterModel</strong>：<code>AfterModelHookOutput</code> 会合成一个 <code>finishReason=STOP</code> 的响应，提前结束本轮生成。
+                    <strong>AfterModel</strong>：
+                    <code>AfterModelHookOutput</code> 会合成一个{' '}
+                    <code>finishReason=STOP</code> 的响应，提前结束本轮生成。
                   </li>
                 </ul>
               </div>
@@ -637,8 +769,14 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
           </div>
 
           <div>
-            <h4 className="text-cyan-400 font-semibold mb-3">BeforeModel Hook</h4>
-            <CodeBlock code={beforeModelHookCode} language="typescript" title="BeforeModel 拦截能力" />
+            <h4 className="text-cyan-400 font-semibold mb-3">
+              BeforeModel Hook
+            </h4>
+            <CodeBlock
+              code={beforeModelHookCode}
+              language="typescript"
+              title="BeforeModel 拦截能力"
+            />
           </div>
         </div>
       </Layer>
@@ -648,42 +786,66 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
         <div className="space-y-4">
           <HighlightBox title="专用 HookOutput 类" variant="purple">
             <div className="text-sm space-y-2 text-gray-300">
-              <p>不同事件类型有对应的专用 HookOutput 类，提供特定的修改能力：</p>
+              <p>
+                不同事件类型有对应的专用 HookOutput 类，提供特定的修改能力：
+              </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-3">
                 <div className="bg-black/30 p-2 rounded">
                   <code className="text-cyan-300">BeforeToolHookOutput</code>
-                  <p className="text-xs text-gray-400 mt-1">getModifiedToolInput() - 修改工具输入</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    getModifiedToolInput() - 修改工具输入
+                  </p>
                 </div>
                 <div className="bg-black/30 p-2 rounded">
                   <code className="text-purple-300">BeforeModelHookOutput</code>
-                  <p className="text-xs text-gray-400 mt-1">getSyntheticResponse() - 绕过 LLM 调用</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    getSyntheticResponse() - 绕过 LLM 调用
+                  </p>
                 </div>
                 <div className="bg-black/30 p-2 rounded">
                   <code className="text-green-300">AfterModelHookOutput</code>
-                  <p className="text-xs text-gray-400 mt-1">getModifiedResponse() - 修改模型响应</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    getModifiedResponse() - 修改模型响应
+                  </p>
                 </div>
                 <div className="bg-black/30 p-2 rounded">
-                  <code className="text-amber-300">BeforeToolSelectionHookOutput</code>
-                  <p className="text-xs text-gray-400 mt-1">applyToolConfigModifications() - 修改工具配置</p>
+                  <code className="text-amber-300">
+                    BeforeToolSelectionHookOutput
+                  </code>
+                  <p className="text-xs text-gray-400 mt-1">
+                    applyToolConfigModifications() - 修改工具配置
+                  </p>
                 </div>
               </div>
             </div>
           </HighlightBox>
 
-          <CodeBlock code={hookOutputHierarchyCode} language="typescript" title="HookOutput 类层次结构与工厂函数" />
+          <CodeBlock
+            code={hookOutputHierarchyCode}
+            language="typescript"
+            title="HookOutput 类层次结构与工厂函数"
+          />
 
           <HighlightBox title="DefaultHookOutput 基类方法" variant="blue">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
               <div className="bg-black/30 p-3 rounded">
-                <code className="text-cyan-300 font-semibold">isBlockingDecision()</code>
-                <p className="text-gray-400 mt-1">判断是否为阻止性决策（block/deny）</p>
+                <code className="text-cyan-300 font-semibold">
+                  isBlockingDecision()
+                </code>
+                <p className="text-gray-400 mt-1">
+                  判断是否为阻止性决策（block/deny）
+                </p>
               </div>
               <div className="bg-black/30 p-3 rounded">
-                <code className="text-cyan-300 font-semibold">shouldStopExecution()</code>
+                <code className="text-cyan-300 font-semibold">
+                  shouldStopExecution()
+                </code>
                 <p className="text-gray-400 mt-1">判断是否应停止执行</p>
               </div>
               <div className="bg-black/30 p-3 rounded">
-                <code className="text-cyan-300 font-semibold">getEffectiveReason()</code>
+                <code className="text-cyan-300 font-semibold">
+                  getEffectiveReason()
+                </code>
                 <p className="text-gray-400 mt-1">获取有效的停止原因</p>
               </div>
             </div>
@@ -694,7 +856,8 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
       {/* 7. 与 Policy 集成 */}
       <Layer title="与 Policy Engine 集成" icon="🔗">
         <div className="space-y-4">
-          <MermaidDiagram chart={`sequenceDiagram
+          <MermaidDiagram
+            chart={`sequenceDiagram
     participant E as Event Trigger
     participant H as HookEventHandler
     participant MB as MessageBus
@@ -713,13 +876,23 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
     else DENY
         PE-->>MB: PolicyDecision.DENY
         MB-->>H: emit(HOOK_EXECUTION_RESPONSE, error)
-    end`} title="Hook 权限检查流程" />
+    end`}
+            title="Hook 权限检查流程"
+          />
 
           <HighlightBox title="安全边界" variant="red">
             <div className="text-sm space-y-2 text-gray-300">
-              <p><strong>不可信文件夹限制：</strong>在 <code className="bg-black/30 px-1 rounded">trustedFolder === false</code> 时，
-              项目级 Hook（<code>hookSource === 'project'</code>）会被自动拒绝执行。</p>
-              <p><strong>原因：</strong>防止恶意项目通过 Hook 执行危险命令。</p>
+              <p>
+                <strong>不可信文件夹限制：</strong>在{' '}
+                <code className="bg-black/30 px-1 rounded">
+                  trustedFolder === false
+                </code>{' '}
+                时， 项目级 Hook（<code>hookSource === 'project'</code>
+                ）会被自动拒绝执行。
+              </p>
+              <p>
+                <strong>原因：</strong>防止恶意项目通过 Hook 执行危险命令。
+              </p>
             </div>
           </HighlightBox>
         </div>
@@ -730,43 +903,45 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
         <div className="grid grid-cols-1 gap-2 text-sm">
           <div className="flex items-start gap-2">
             <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
-              packages/core/src/hooks/types.ts
+              gemini-cli/packages/core/src/hooks/types.ts
             </code>
-            <span className="text-gray-400">HookEventName、HookOutput 等类型定义</span>
+            <span className="text-gray-400">
+              HookEventName、HookOutput 等类型定义
+            </span>
           </div>
           <div className="flex items-start gap-2">
             <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
-              packages/core/src/hooks/hookSystem.ts
+              gemini-cli/packages/core/src/hooks/hookSystem.ts
             </code>
             <span className="text-gray-400">HookSystem 协调器</span>
           </div>
           <div className="flex items-start gap-2">
             <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
-              packages/core/src/hooks/hookRegistry.ts
+              gemini-cli/packages/core/src/hooks/hookRegistry.ts
             </code>
             <span className="text-gray-400">Hook 配置注册与管理</span>
           </div>
           <div className="flex items-start gap-2">
             <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
-              packages/core/src/hooks/hookPlanner.ts
+              gemini-cli/packages/core/src/hooks/hookPlanner.ts
             </code>
             <span className="text-gray-400">执行计划生成</span>
           </div>
           <div className="flex items-start gap-2">
             <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
-              packages/core/src/hooks/hookRunner.ts
+              gemini-cli/packages/core/src/hooks/hookRunner.ts
             </code>
             <span className="text-gray-400">Shell 命令执行</span>
           </div>
           <div className="flex items-start gap-2">
             <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
-              packages/core/src/hooks/hookAggregator.ts
+              gemini-cli/packages/core/src/hooks/hookAggregator.ts
             </code>
             <span className="text-gray-400">结果聚合</span>
           </div>
           <div className="flex items-start gap-2">
             <code className="bg-black/30 px-2 py-1 rounded text-xs whitespace-nowrap">
-              packages/core/src/hooks/hookEventHandler.ts
+              gemini-cli/packages/core/src/hooks/hookEventHandler.ts
             </code>
             <span className="text-gray-400">事件处理与协调</span>
           </div>
@@ -777,28 +952,57 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
       <Layer title="设计决策" icon="💡">
         <div className="space-y-4">
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--cyber-blue)]">
-            <h4 className="text-[var(--cyber-blue)] font-bold mb-2">为什么使用 Shell 命令而非内置函数？</h4>
+            <h4 className="text-[var(--cyber-blue)] font-bold mb-2">
+              为什么使用 Shell 命令而非内置函数？
+            </h4>
             <div className="text-sm text-gray-300 space-y-2">
-              <p><strong>决策：</strong>Hook 通过执行外部 Shell 命令实现，而非注册内置函数。</p>
-              <p><strong>原因：</strong></p>
+              <p>
+                <strong>决策：</strong>Hook 通过执行外部 Shell
+                命令实现，而非注册内置函数。
+              </p>
+              <p>
+                <strong>原因：</strong>
+              </p>
               <ul className="list-disc pl-5 space-y-1">
-                <li><strong>语言无关</strong>：用户可以用任意语言（Python/Node/Bash）编写 Hook</li>
-                <li><strong>隔离性</strong>：外部进程崩溃不影响主进程</li>
-                <li><strong>可调试</strong>：可以独立测试 Hook 脚本</li>
+                <li>
+                  <strong>语言无关</strong>
+                  ：用户可以用任意语言（Python/Node/Bash）编写 Hook
+                </li>
+                <li>
+                  <strong>隔离性</strong>：外部进程崩溃不影响主进程
+                </li>
+                <li>
+                  <strong>可调试</strong>：可以独立测试 Hook 脚本
+                </li>
               </ul>
-              <p><strong>权衡：</strong>启动进程有开销，但对于 Hook 场景可接受。</p>
+              <p>
+                <strong>权衡：</strong>启动进程有开销，但对于 Hook 场景可接受。
+              </p>
             </div>
           </div>
 
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
-            <h4 className="text-[var(--purple)] font-bold mb-2">为什么需要 HookAggregator？</h4>
+            <h4 className="text-[var(--purple)] font-bold mb-2">
+              为什么需要 HookAggregator？
+            </h4>
             <div className="text-sm text-gray-300 space-y-2">
-              <p><strong>决策：</strong>多个 Hook 的输出由 Aggregator 合并为单一结果。</p>
-              <p><strong>原因：</strong></p>
+              <p>
+                <strong>决策：</strong>多个 Hook 的输出由 Aggregator
+                合并为单一结果。
+              </p>
+              <p>
+                <strong>原因：</strong>
+              </p>
               <ul className="list-disc pl-5 space-y-1">
-                <li><strong>冲突处理</strong>：多个 Hook 可能返回不同决策</li>
-                <li><strong>优先级</strong>：deny/block 优先于 allow/approve</li>
-                <li><strong>消息合并</strong>：systemMessage 可以累加</li>
+                <li>
+                  <strong>冲突处理</strong>：多个 Hook 可能返回不同决策
+                </li>
+                <li>
+                  <strong>优先级</strong>：deny/block 优先于 allow/approve
+                </li>
+                <li>
+                  <strong>消息合并</strong>：systemMessage 可以累加
+                </li>
               </ul>
             </div>
           </div>
