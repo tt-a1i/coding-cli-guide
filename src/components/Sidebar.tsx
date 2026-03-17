@@ -18,7 +18,6 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
       if (group.defaultOpen) {
         initial.add(group.id);
       }
-      // Also open the group containing the active tab
       if (group.items.some((item) => item.id === activeTab)) {
         initial.add(group.id);
       }
@@ -84,7 +83,7 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
     return (
       <>
         {before}
-        <span className="text-[var(--terminal-green)] bg-[var(--terminal-green)]/10 px-0.5 rounded">
+        <span className="text-[var(--terminal-green)] bg-[var(--terminal-green)]/8 px-0.5 rounded">
           {match}
         </span>
         {after}
@@ -93,24 +92,32 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   }, [searchQuery]);
 
   return (
-    <aside className="w-64 bg-[var(--bg-terminal)] border-r border-[var(--border-subtle)] h-screen overflow-y-auto sticky top-0 relative">
-      {/* Decorative top gradient line */}
-      <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[var(--terminal-green)] via-[var(--amber)] to-[var(--cyber-blue)]" />
+    <aside className="w-64 bg-[var(--bg-terminal)] border-r border-[var(--border-subtle)] h-screen overflow-y-auto sticky top-0 relative flex flex-col">
+      {/* Accent line */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-[var(--terminal-green)] opacity-40" />
 
-      {/* Logo/Title */}
-      <div className="p-4 border-b border-[var(--border-subtle)]">
-        <div className="flex items-center gap-2">
-          <span className="text-[var(--terminal-green)] text-lg">▶</span>
-          <h1 className="text-lg font-bold text-[var(--terminal-green)] font-mono tracking-tight">
-            Gemini CLI
-          </h1>
+      {/* Header */}
+      <div className="p-4 pb-3 border-b border-[var(--border-subtle)]">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-md bg-[var(--terminal-green)]/10 border border-[var(--terminal-green)]/20 flex items-center justify-center">
+            <span className="text-[var(--terminal-green)] text-sm font-bold font-mono">G</span>
+          </div>
+          <div>
+            <h1 className="text-sm font-semibold text-[var(--text-primary)] tracking-tight leading-none">
+              Gemini CLI
+            </h1>
+            <p className="text-[10px] text-[var(--text-muted)] mt-0.5">
+              架构学习指南
+            </p>
+          </div>
         </div>
-        <p className="text-xs text-[var(--text-muted)] mt-1 pl-6 font-mono">
-          // 架构学习指南
-        </p>
-        <div className="mt-4">
-          <div className={`relative transition-all duration-200 ${searchFocused ? 'transform scale-[1.02]' : ''}`}>
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] text-sm">$</span>
+
+        {/* Search */}
+        <div className="mt-3">
+          <div className={`relative transition-all duration-200 ${searchFocused ? 'transform scale-[1.01]' : ''}`}>
+            <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[var(--text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
             <input
               ref={searchInputRef}
               value={searchQuery}
@@ -144,76 +151,75 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
                 }
               }}
               placeholder="搜索… ⌘K"
-              className={`w-full pl-7 pr-3 py-2 text-sm rounded-md bg-[var(--bg-void)] border font-mono text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none transition-all duration-200 ${
+              className={`w-full pl-8 pr-3 py-1.5 text-xs rounded-md bg-[var(--bg-void)] border text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none transition-all duration-200 ${
                 searchFocused
-                  ? 'border-[var(--terminal-green)] shadow-[0_0_10px_var(--terminal-green-glow)]'
+                  ? 'border-[var(--terminal-green-dim)] shadow-[0_0_0_1px_var(--terminal-green-glow)]'
                   : 'border-[var(--border-subtle)] hover:border-[var(--border-default)]'
               }`}
             />
-          {searchQuery.trim() && (
-            <div className="absolute left-0 right-0 top-full mt-2 bg-[var(--bg-void)] border border-[var(--terminal-green-dim)] rounded-md overflow-hidden shadow-[0_4px_20px_rgba(0,255,65,0.15)] z-50">
-              {searchResults.length > 0 ? (
-                searchResults.map((item, index) => {
-                  const isSelected = index === selectedIndex;
-                  return (
-                    <button
-                      key={`${item.groupId}:${item.id}`}
-                      onMouseEnter={() => setSelectedIndex(index)}
-                      onClick={() => {
-                        setSearchQuery('');
-                        setSelectedIndex(0);
-                        onTabChange(item.id);
-                      }}
-                      className={`w-full px-3 py-2 text-left text-sm font-mono transition-all duration-150 ${
-                        isSelected
-                          ? 'bg-[var(--terminal-green)]/10 border-l-2 border-l-[var(--terminal-green)]'
-                          : 'hover:bg-[var(--bg-elevated)] border-l-2 border-l-transparent'
-                      } ${activeTab === item.id ? 'text-[var(--terminal-green)]' : 'text-[var(--text-primary)]'}`}
-                    >
-                      <div className="flex items-center gap-2">
-                        {item.highlight && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-[var(--terminal-green)] shadow-[0_0_4px_var(--terminal-green-glow)]" />
-                        )}
-                        <span className="flex-1 truncate">{highlightMatch(item.label)}</span>
-                      </div>
-                      <div className="text-xs text-[var(--text-muted)] mt-0.5 truncate pl-3.5">
-                        {item.groupIcon} {highlightMatch(item.groupTitle)}
-                      </div>
-                    </button>
-                  );
-                })
-              ) : (
-                <div className="px-3 py-3 text-sm text-[var(--text-muted)] font-mono">
-                  <span className="text-[var(--amber)]">!</span> 无匹配结果
-                </div>
-              )}
-            </div>
-          )}
+            {searchQuery.trim() && (
+              <div className="absolute left-0 right-0 top-full mt-1.5 bg-[var(--bg-void)] border border-[var(--border-default)] rounded-lg overflow-hidden shadow-xl shadow-black/40 z-50">
+                {searchResults.length > 0 ? (
+                  searchResults.map((item, index) => {
+                    const isSelected = index === selectedIndex;
+                    return (
+                      <button
+                        key={`${item.groupId}:${item.id}`}
+                        onMouseEnter={() => setSelectedIndex(index)}
+                        onClick={() => {
+                          setSearchQuery('');
+                          setSelectedIndex(0);
+                          onTabChange(item.id);
+                        }}
+                        className={`w-full px-3 py-2 text-left text-xs transition-colors duration-100 ${
+                          isSelected
+                            ? 'bg-[var(--terminal-green)]/8 text-[var(--text-primary)]'
+                            : 'hover:bg-[var(--bg-elevated)] text-[var(--text-secondary)]'
+                        } ${activeTab === item.id ? 'text-[var(--terminal-green)]' : ''}`}
+                      >
+                        <div className="flex items-center gap-2">
+                          {item.highlight && (
+                            <span className="w-1 h-1 rounded-full bg-[var(--terminal-green)]" />
+                          )}
+                          <span className="flex-1 truncate">{highlightMatch(item.label)}</span>
+                        </div>
+                        <div className="text-[10px] text-[var(--text-muted)] mt-0.5 truncate pl-3">
+                          {item.groupIcon} {highlightMatch(item.groupTitle)}
+                        </div>
+                      </button>
+                    );
+                  })
+                ) : (
+                  <div className="px-3 py-3 text-xs text-[var(--text-muted)]">
+                    无匹配结果
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="p-3">
+      <nav className="flex-1 overflow-y-auto p-2">
         {navGroups.map((group, groupIndex) => {
           const containsActive = group.items.some((item) => item.id === activeTab);
           const isOpen = openGroups.has(group.id) || containsActive;
 
           return (
-            <div key={group.id} className="mb-2 stagger-item" style={{ animationDelay: `${groupIndex * 30}ms` }}>
-              {/* Group Header */}
+            <div key={group.id} className="mb-1 stagger-item" style={{ animationDelay: `${groupIndex * 25}ms` }}>
               <button
                 onClick={() => toggleGroup(group.id)}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm font-mono rounded-md transition-all duration-200 group ${
+                className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-xs rounded-md transition-colors duration-150 group ${
                   isOpen
                     ? 'bg-[var(--bg-panel)] text-[var(--text-primary)]'
                     : 'text-[var(--text-secondary)] hover:bg-[var(--bg-panel)]/50 hover:text-[var(--text-primary)]'
                 }`}
               >
-                <span className="text-base opacity-80 group-hover:opacity-100 transition-opacity">{group.icon}</span>
-                <span className="flex-1 text-left tracking-wide">{group.title}</span>
+                <span className="text-sm opacity-80 group-hover:opacity-100 transition-opacity">{group.icon}</span>
+                <span className="flex-1 text-left font-medium">{group.title}</span>
                 <span
-                  className={`text-[var(--terminal-green)] text-xs transition-transform duration-200 ${
+                  className={`text-[var(--text-muted)] text-[10px] transition-transform duration-200 ${
                     isOpen ? 'rotate-90' : ''
                   }`}
                 >
@@ -221,28 +227,26 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
                 </span>
               </button>
 
-              {/* Group Items */}
               {isOpen && (
-                <div className="ml-3 mt-1 space-y-0.5 border-l border-[var(--border-subtle)] pl-3">
-                  {group.items.map((item, itemIndex) => (
+                <div className="ml-4 mt-0.5 space-y-px border-l border-[var(--border-subtle)] pl-2.5">
+                  {group.items.map((item) => (
                     <button
                       key={item.id}
                       onClick={() => onTabChange(item.id)}
-                      className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm font-mono rounded transition-all duration-150 ${
+                      className={`w-full flex items-center gap-1.5 px-2 py-1 text-xs rounded transition-colors duration-100 ${
                         activeTab === item.id
-                          ? 'bg-[var(--terminal-green)]/10 text-[var(--terminal-green)] border-l-2 border-l-[var(--terminal-green)] -ml-[13px] pl-[23px] shadow-[inset_0_0_20px_rgba(0,255,65,0.05)]'
-                          : 'text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]/50 hover:text-[var(--text-primary)] hover:translate-x-1'
+                          ? 'bg-[var(--terminal-green)]/8 text-[var(--terminal-green)] border-l-2 border-l-[var(--terminal-green)] -ml-[11px] pl-[19px]'
+                          : 'text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)]/50 hover:text-[var(--text-primary)]'
                       }`}
-                      style={{ animationDelay: `${(groupIndex * 50) + (itemIndex * 20)}ms` }}
                     >
                       {item.highlight && (
-                        <span className={`w-1.5 h-1.5 rounded-full ${
+                        <span className={`w-1 h-1 rounded-full flex-shrink-0 ${
                           activeTab === item.id
-                            ? 'bg-[var(--terminal-green)] shadow-[0_0_6px_var(--terminal-green-glow)]'
-                            : 'bg-[var(--amber)]'
+                            ? 'bg-[var(--terminal-green)]'
+                            : 'bg-[var(--amber)] opacity-60'
                         }`} />
                       )}
-                      <span className={item.highlight ? '' : 'ml-3.5'}>
+                      <span className={`truncate ${item.highlight ? '' : 'ml-2.5'}`}>
                         {item.label}
                       </span>
                     </button>
@@ -255,24 +259,19 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-[var(--border-subtle)] mt-4">
-        <div className="font-mono text-xs space-y-3">
-          {/* GitHub Links */}
-          <div className="space-y-2">
-            <a
-              href="https://github.com/google-gemini/gemini-cli"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 px-2.5 py-2 rounded-md bg-[var(--bg-void)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--terminal-green-dim)] hover:text-[var(--terminal-green)] transition-all duration-200 group"
-            >
-              <svg className="w-4 h-4 opacity-70 group-hover:opacity-100" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
-              </svg>
-              <span className="flex-1">gemini-cli</span>
-              <span className="text-[var(--text-muted)] group-hover:text-[var(--terminal-green)] transition-colors">↗</span>
-            </a>
-          </div>
-        </div>
+      <div className="p-3 border-t border-[var(--border-subtle)]">
+        <a
+          href="https://github.com/google-gemini/gemini-cli"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 px-2.5 py-2 rounded-md bg-[var(--bg-void)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--terminal-green-dim)] hover:text-[var(--terminal-green)] transition-colors duration-200 text-xs"
+        >
+          <svg className="w-3.5 h-3.5 opacity-60" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
+          <span className="flex-1">gemini-cli</span>
+          <span className="text-[var(--text-muted)] text-[10px]">↗</span>
+        </a>
       </div>
     </aside>
   );
