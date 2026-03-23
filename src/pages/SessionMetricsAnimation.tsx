@@ -378,29 +378,29 @@ export default function SessionMetricsAnimation() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 mb-2">
+          <h1 className="text-4xl font-bold text-heading mb-2">
             会话指标聚合器
           </h1>
-          <p className="text-indigo-300/70">SessionContext + computeStats - 实时统计与派生计算</p>
-          <p className="text-sm text-slate-400 mt-2">
+          <p className="text-body">SessionContext + computeStats - 实时统计与派生计算</p>
+          <p className="text-sm text-dim mt-2">
             源码: packages/cli/src/ui/contexts/SessionContext.tsx, packages/cli/src/ui/utils/computeStats.ts
           </p>
         </div>
 
         {/* Phase Indicator */}
-        <div className="bg-slate-800/50 rounded-xl p-4 mb-6 border border-indigo-500/20">
+        <div className="bg-surface rounded-xl p-4 mb-6 border border-edge">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className={`w-3 h-3 rounded-full ${
-                phase === 'idle' ? 'bg-slate-500' :
-                phase === 'receive_api_response' || phase === 'receive_tool_call' ? 'bg-yellow-500 animate-pulse' :
-                phase === 'update_model_metrics' || phase === 'update_tool_stats' ? 'bg-blue-500 animate-pulse' :
-                phase === 'compute_derived' ? 'bg-purple-500 animate-pulse' :
-                'bg-green-500 animate-pulse'
+                phase === 'idle' ? 'bg-dim' :
+                phase === 'receive_api_response' || phase === 'receive_tool_call' ? 'bg-[var(--color-warning)] animate-pulse' :
+                phase === 'update_model_metrics' || phase === 'update_tool_stats' ? 'bg-[var(--color-info)] animate-pulse' :
+                phase === 'compute_derived' ? 'bg-accent animate-pulse' :
+                'bg-[var(--color-success)] animate-pulse'
               }`} />
-              <span className="font-mono text-slate-200">{phase}</span>
+              <span className="font-mono text-heading">{phase}</span>
             </div>
-            <div className="text-sm text-slate-400">
+            <div className="text-sm text-dim">
               Prompt #{promptCount} | Last: {lastPromptTokenCount.toLocaleString()} tokens
             </div>
           </div>
@@ -409,47 +409,47 @@ export default function SessionMetricsAnimation() {
         {/* Main Grid */}
         <div className="grid grid-cols-3 gap-6">
           {/* Left: Model Metrics */}
-          <div className={`bg-slate-800/50 rounded-xl p-6 border transition-all ${
-            highlightedSection === 'api' ? 'border-yellow-500 ring-2 ring-yellow-500/30' : 'border-indigo-500/20'
+          <div className={`bg-surface rounded-xl p-6 border transition-all ${
+            highlightedSection === 'api' ? 'border-[var(--color-warning)] ring-2 ring-[color:var(--color-warning-soft)]' : 'border-edge'
           }`}>
-            <h2 className="text-lg font-semibold text-indigo-300 mb-4 flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-heading mb-4 flex items-center gap-2">
               <span className="text-xl">🤖</span> ModelMetrics
             </h2>
 
             {Object.keys(metrics.models).length === 0 ? (
-              <div className="text-slate-500 text-sm">暂无模型数据...</div>
+              <div className="text-dim text-sm">暂无模型数据...</div>
             ) : (
               <div className="space-y-4">
                 {Object.values(metrics.models).map((model) => (
-                  <div key={model.modelId} className="bg-slate-900/50 rounded-lg p-4">
-                    <div className="font-mono text-sm text-cyan-400 mb-3">{model.modelId}</div>
+                  <div key={model.modelId} className="bg-base rounded-lg p-4 border border-edge/70">
+                    <div className="font-mono text-sm text-accent mb-3">{model.modelId}</div>
 
                     <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="bg-slate-800/50 rounded p-2">
-                        <div className="text-xs text-slate-500">Requests</div>
-                        <div className="text-lg font-bold text-slate-200">{model.api.totalRequests}</div>
+                      <div className="bg-elevated/60 rounded p-2">
+                        <div className="text-xs text-dim">Requests</div>
+                        <div className="text-lg font-bold text-heading">{model.api.totalRequests}</div>
                       </div>
-                      <div className="bg-slate-800/50 rounded p-2">
-                        <div className="text-xs text-slate-500">Errors</div>
-                        <div className={`text-lg font-bold ${model.api.totalErrors > 0 ? 'text-red-400' : 'text-green-400'}`}>
+                      <div className="bg-elevated/60 rounded p-2">
+                        <div className="text-xs text-dim">Errors</div>
+                        <div className={`text-lg font-bold ${model.api.totalErrors > 0 ? 'text-[var(--color-danger)]' : 'text-[var(--color-success)]'}`}>
                           {model.api.totalErrors}
                         </div>
                       </div>
-                      <div className="bg-slate-800/50 rounded p-2">
-                        <div className="text-xs text-slate-500">Avg Latency</div>
-                        <div className="text-lg font-bold text-yellow-400">
+                      <div className="bg-elevated/60 rounded p-2">
+                        <div className="text-xs text-dim">Avg Latency</div>
+                        <div className="text-lg font-bold text-[var(--color-warning)]">
                           {model.api.totalRequests > 0 ? Math.floor(model.api.totalLatencyMs / model.api.totalRequests) : 0}ms
                         </div>
                       </div>
-                      <div className="bg-slate-800/50 rounded p-2">
-                        <div className="text-xs text-slate-500">Cache Hit</div>
-                        <div className="text-lg font-bold text-green-400">
+                      <div className="bg-elevated/60 rounded p-2">
+                        <div className="text-xs text-dim">Cache Hit</div>
+                        <div className="text-lg font-bold text-[var(--color-success)]">
                           {model.tokens.prompt > 0 ? ((model.tokens.cached / model.tokens.prompt) * 100).toFixed(1) : 0}%
                         </div>
                       </div>
                     </div>
 
-                    <div className="mt-3 flex justify-between text-xs text-slate-400">
+                    <div className="mt-3 flex justify-between text-xs text-dim">
                       <span>Prompt: {model.tokens.prompt.toLocaleString()}</span>
                       <span>Candidates: {model.tokens.candidates.toLocaleString()}</span>
                       <span>Cached: {model.tokens.cached.toLocaleString()}</span>
@@ -461,143 +461,143 @@ export default function SessionMetricsAnimation() {
           </div>
 
           {/* Middle: Tool Stats */}
-          <div className={`bg-slate-800/50 rounded-xl p-6 border transition-all ${
-            highlightedSection === 'tools' ? 'border-yellow-500 ring-2 ring-yellow-500/30' : 'border-indigo-500/20'
+          <div className={`bg-surface rounded-xl p-6 border transition-all ${
+            highlightedSection === 'tools' ? 'border-[var(--color-warning)] ring-2 ring-[color:var(--color-warning-soft)]' : 'border-edge'
           }`}>
-            <h2 className="text-lg font-semibold text-indigo-300 mb-4 flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-heading mb-4 flex items-center gap-2">
               <span className="text-xl">🔧</span> ToolCallStats
             </h2>
 
             {/* Summary */}
             <div className="grid grid-cols-3 gap-2 mb-4">
-              <div className="bg-slate-900/50 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold text-slate-200">{metrics.tools.totalCalls}</div>
-                <div className="text-xs text-slate-500">Total Calls</div>
+              <div className="bg-base rounded-lg p-3 text-center border border-edge/70">
+                <div className="text-2xl font-bold text-heading">{metrics.tools.totalCalls}</div>
+                <div className="text-xs text-dim">Total Calls</div>
               </div>
-              <div className="bg-slate-900/50 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold text-green-400">{metrics.tools.totalSuccess}</div>
-                <div className="text-xs text-slate-500">Success</div>
+              <div className="bg-base rounded-lg p-3 text-center border border-edge/70">
+                <div className="text-2xl font-bold text-[var(--color-success)]">{metrics.tools.totalSuccess}</div>
+                <div className="text-xs text-dim">Success</div>
               </div>
-              <div className="bg-slate-900/50 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold text-red-400">{metrics.tools.totalFail}</div>
-                <div className="text-xs text-slate-500">Failed</div>
+              <div className="bg-base rounded-lg p-3 text-center border border-edge/70">
+                <div className="text-2xl font-bold text-[var(--color-danger)]">{metrics.tools.totalFail}</div>
+                <div className="text-xs text-dim">Failed</div>
               </div>
             </div>
 
             {/* Per-tool breakdown */}
             <div className="space-y-2 max-h-[300px] overflow-y-auto">
               {Object.values(metrics.tools.byName).map((tool) => (
-                <div key={tool.name} className="bg-slate-900/50 rounded p-3 flex items-center justify-between">
+                <div key={tool.name} className="bg-base rounded p-3 flex items-center justify-between border border-edge/70">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-sm text-cyan-400">{tool.name}</span>
-                    <span className="text-xs text-slate-500">×{tool.count}</span>
+                    <span className="font-mono text-sm text-accent">{tool.name}</span>
+                    <span className="text-xs text-dim">×{tool.count}</span>
                   </div>
                   <div className="flex items-center gap-3 text-xs">
-                    <span className="text-green-400">{tool.success}✓</span>
-                    <span className="text-red-400">{tool.fail}✗</span>
-                    <span className="text-yellow-400">{tool.durationMs}ms</span>
+                    <span className="text-[var(--color-success)]">{tool.success}✓</span>
+                    <span className="text-[var(--color-danger)]">{tool.fail}✗</span>
+                    <span className="text-[var(--color-warning)]">{tool.durationMs}ms</span>
                   </div>
                 </div>
               ))}
             </div>
 
             {/* Decisions */}
-            <div className="mt-4 bg-slate-900/50 rounded-lg p-3">
-              <div className="text-xs text-slate-500 mb-2">Decisions</div>
-              <div className="flex gap-2">
-                <span className="px-2 py-1 bg-green-500/20 text-green-400 rounded text-xs">
+            <div className="mt-4 bg-base rounded-lg p-3 border border-edge/70">
+              <div className="text-xs text-dim mb-2">Decisions</div>
+              <div className="flex gap-2 flex-wrap">
+                <span className="px-2 py-1 bg-[var(--color-success-soft)] text-[var(--color-success)] rounded text-xs">
                   Accept: {metrics.tools.totalDecisions.accept}
                 </span>
-                <span className="px-2 py-1 bg-red-500/20 text-red-400 rounded text-xs">
+                <span className="px-2 py-1 bg-[var(--color-danger-soft)] text-[var(--color-danger)] rounded text-xs">
                   Reject: {metrics.tools.totalDecisions.reject}
                 </span>
-                <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded text-xs">
+                <span className="px-2 py-1 bg-[var(--color-warning-soft)] text-[var(--color-warning)] rounded text-xs">
                   Modify: {metrics.tools.totalDecisions.modify}
                 </span>
               </div>
             </div>
 
             {/* File Metrics */}
-            <div className="mt-4 bg-slate-900/50 rounded-lg p-3">
-              <div className="text-xs text-slate-500 mb-2">File Changes</div>
+            <div className="mt-4 bg-base rounded-lg p-3 border border-edge/70">
+              <div className="text-xs text-dim mb-2">File Changes</div>
               <div className="flex gap-4">
-                <span className="text-green-400">+{metrics.files.totalLinesAdded}</span>
-                <span className="text-red-400">-{metrics.files.totalLinesRemoved}</span>
+                <span className="text-[var(--color-success)]">+{metrics.files.totalLinesAdded}</span>
+                <span className="text-[var(--color-danger)]">-{metrics.files.totalLinesRemoved}</span>
               </div>
             </div>
           </div>
 
           {/* Right: Computed Stats */}
-          <div className={`bg-slate-800/50 rounded-xl p-6 border transition-all ${
-            highlightedSection === 'computed' ? 'border-purple-500 ring-2 ring-purple-500/30' : 'border-indigo-500/20'
+          <div className={`bg-surface rounded-xl p-6 border transition-all ${
+            highlightedSection === 'computed' ? 'border-accent ring-2 ring-accent-light' : 'border-edge'
           }`}>
-            <h2 className="text-lg font-semibold text-indigo-300 mb-4 flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-heading mb-4 flex items-center gap-2">
               <span className="text-xl">📊</span> ComputedSessionStats
             </h2>
 
             <div className="space-y-4">
               {/* Time Distribution */}
-              <div className="bg-slate-900/50 rounded-lg p-4">
-                <div className="text-xs text-slate-500 mb-2">Time Distribution</div>
-                <div className="relative h-6 bg-slate-700 rounded-full overflow-hidden">
+              <div className="bg-base rounded-lg p-4 border border-edge/70">
+                <div className="text-xs text-dim mb-2">Time Distribution</div>
+                <div className="relative h-6 bg-elevated rounded-full overflow-hidden">
                   <div
-                    className="absolute left-0 top-0 bottom-0 bg-blue-500"
+                    className="absolute left-0 top-0 bottom-0 bg-[var(--color-info)]"
                     style={{ width: `${computedStats.apiTimePercent}%` }}
                   />
                   <div
-                    className="absolute top-0 bottom-0 bg-green-500"
+                    className="absolute top-0 bottom-0 bg-[var(--color-success)]"
                     style={{ left: `${computedStats.apiTimePercent}%`, width: `${computedStats.toolTimePercent}%` }}
                   />
                 </div>
                 <div className="flex justify-between mt-2 text-xs">
-                  <span className="text-blue-400">API: {computedStats.apiTimePercent.toFixed(1)}%</span>
-                  <span className="text-green-400">Tool: {computedStats.toolTimePercent.toFixed(1)}%</span>
+                  <span className="text-[var(--color-info)]">API: {computedStats.apiTimePercent.toFixed(1)}%</span>
+                  <span className="text-[var(--color-success)]">Tool: {computedStats.toolTimePercent.toFixed(1)}%</span>
                 </div>
               </div>
 
               {/* Key Metrics */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-slate-900/50 rounded-lg p-3">
-                  <div className="text-xs text-slate-500">Cache Efficiency</div>
-                  <div className="text-2xl font-bold text-green-400">
+                <div className="bg-base rounded-lg p-3 border border-edge/70">
+                  <div className="text-xs text-dim">Cache Efficiency</div>
+                  <div className="text-2xl font-bold text-[var(--color-success)]">
                     {computedStats.cacheEfficiency.toFixed(1)}%
                   </div>
                 </div>
-                <div className="bg-slate-900/50 rounded-lg p-3">
-                  <div className="text-xs text-slate-500">Success Rate</div>
-                  <div className="text-2xl font-bold text-cyan-400">
+                <div className="bg-base rounded-lg p-3 border border-edge/70">
+                  <div className="text-xs text-dim">Success Rate</div>
+                  <div className="text-2xl font-bold text-[var(--color-info)]">
                     {computedStats.successRate.toFixed(1)}%
                   </div>
                 </div>
-                <div className="bg-slate-900/50 rounded-lg p-3">
-                  <div className="text-xs text-slate-500">Agreement Rate</div>
-                  <div className="text-2xl font-bold text-purple-400">
+                <div className="bg-base rounded-lg p-3 border border-edge/70">
+                  <div className="text-xs text-dim">Agreement Rate</div>
+                  <div className="text-2xl font-bold text-accent">
                     {computedStats.agreementRate.toFixed(1)}%
                   </div>
                 </div>
-                <div className="bg-slate-900/50 rounded-lg p-3">
-                  <div className="text-xs text-slate-500">Active Time</div>
-                  <div className="text-2xl font-bold text-yellow-400">
+                <div className="bg-base rounded-lg p-3 border border-edge/70">
+                  <div className="text-xs text-dim">Active Time</div>
+                  <div className="text-2xl font-bold text-[var(--color-warning)]">
                     {(computedStats.agentActiveTime / 1000).toFixed(1)}s
                   </div>
                 </div>
               </div>
 
               {/* Token Summary */}
-              <div className="bg-slate-900/50 rounded-lg p-4">
-                <div className="text-xs text-slate-500 mb-2">Token Summary</div>
+              <div className="bg-base rounded-lg p-4 border border-edge/70">
+                <div className="text-xs text-dim mb-2">Token Summary</div>
                 <div className="flex justify-between">
                   <div>
-                    <div className="text-lg font-bold text-slate-200">
+                    <div className="text-lg font-bold text-heading">
                       {computedStats.totalPromptTokens.toLocaleString()}
                     </div>
-                    <div className="text-xs text-slate-500">Prompt Tokens</div>
+                    <div className="text-xs text-dim">Prompt Tokens</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-lg font-bold text-green-400">
+                    <div className="text-lg font-bold text-[var(--color-success)]">
                       {computedStats.totalCachedTokens.toLocaleString()}
                     </div>
-                    <div className="text-xs text-slate-500">Cached</div>
+                    <div className="text-xs text-dim">Cached</div>
                   </div>
                 </div>
               </div>
@@ -606,23 +606,23 @@ export default function SessionMetricsAnimation() {
         </div>
 
         {/* Event Log */}
-        <div className="mt-6 bg-slate-900/80 rounded-xl p-4 border border-slate-600/30">
-          <div className="text-sm text-slate-400 mb-2">事件日志</div>
+        <div className="mt-6 bg-base rounded-xl p-4 border border-edge">
+          <div className="text-sm text-dim mb-2">事件日志</div>
           <div className="h-32 overflow-y-auto font-mono text-xs space-y-1">
             {eventLog.length === 0 ? (
-              <div className="text-slate-600">等待模拟开始...</div>
+              <div className="text-dim">等待模拟开始...</div>
             ) : (
               eventLog.map((log, idx) => (
-                <div key={idx} className="text-slate-300">{log}</div>
+                <div key={idx} className="text-body">{log}</div>
               ))
             )}
           </div>
         </div>
 
         {/* computeSessionStats Code */}
-        <div className="mt-6 bg-slate-900/80 rounded-xl p-4 border border-slate-600/30">
-          <div className="text-sm text-slate-400 mb-2">computeSessionStats() 实现</div>
-          <pre className="text-xs text-green-400/80 overflow-x-auto">
+        <div className="mt-6 bg-base rounded-xl p-4 border border-edge">
+          <div className="text-sm text-dim mb-2">computeSessionStats() 实现</div>
+          <pre className="text-xs text-[var(--color-success)] overflow-x-auto">
 {`const computeSessionStats = (metrics: SessionMetrics): ComputedSessionStats => {
   const totalApiTime = Object.values(models).reduce((acc, m) => acc + m.api.totalLatencyMs, 0);
   const totalToolTime = tools.totalDurationMs;
@@ -648,8 +648,8 @@ export default function SessionMetricsAnimation() {
             disabled={isRunning}
             className={`px-6 py-3 rounded-lg font-semibold transition-all ${
               isRunning
-                ? 'bg-slate-600 text-slate-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-indigo-500 to-cyan-500 text-white hover:from-indigo-600 hover:to-cyan-600'
+                ? 'bg-elevated text-dim cursor-not-allowed'
+                : 'bg-accent text-white hover:bg-accent-hover'
             }`}
           >
             {isRunning ? '模拟中...' : '运行模拟'}
@@ -657,29 +657,29 @@ export default function SessionMetricsAnimation() {
           <button
             onClick={() => { simulateApiResponse().then(computeDerivedStats).then(emitUpdate); }}
             disabled={isRunning}
-            className="px-6 py-3 bg-blue-700 text-white rounded-lg font-semibold hover:bg-blue-600 transition-all disabled:opacity-50"
+            className="px-6 py-3 bg-[var(--color-info)] text-white rounded-lg font-semibold hover:opacity-90 transition-all disabled:opacity-50"
           >
             模拟 API 响应
           </button>
           <button
             onClick={() => { simulateToolCall().then(computeDerivedStats).then(emitUpdate); }}
             disabled={isRunning}
-            className="px-6 py-3 bg-green-700 text-white rounded-lg font-semibold hover:bg-green-600 transition-all disabled:opacity-50"
+            className="px-6 py-3 bg-[var(--color-success)] text-white rounded-lg font-semibold hover:opacity-90 transition-all disabled:opacity-50"
           >
             模拟工具调用
           </button>
           <button
             onClick={reset}
             disabled={isRunning}
-            className="px-6 py-3 bg-slate-700 text-slate-200 rounded-lg font-semibold hover:bg-slate-600 transition-all disabled:opacity-50"
+            className="px-6 py-3 bg-elevated text-heading rounded-lg font-semibold hover:bg-surface transition-all disabled:opacity-50"
           >
             重置
           </button>
         </div>
 
         {/* Data Flow Diagram */}
-        <div className="mt-8 bg-slate-800/50 rounded-xl p-6 border border-indigo-500/20">
-          <h3 className="text-lg font-semibold text-indigo-300 mb-4">数据流</h3>
+        <div className="mt-8 bg-surface rounded-xl p-6 border border-edge">
+          <h3 className="text-lg font-semibold text-heading mb-4">数据流</h3>
           <div className="flex items-center justify-center gap-4 flex-wrap">
             {[
               { label: 'API Response', icon: '📥' },

@@ -469,15 +469,51 @@ export default function ShellInjectionProcessorAnimation() {
     }));
   };
 
+  const panelClassName = 'rounded-lg border border-edge bg-base p-4';
+  const insetClassName = 'rounded-lg border border-edge bg-elevated p-3';
+  const inputClassName =
+    'rounded border border-edge bg-base px-3 py-1 text-sm text-body transition-colors focus:border-accent focus:outline-none';
+  const statusCardClassName = (status: ProcessStep['status']) => {
+    switch (status) {
+      case 'active':
+        return 'border-[var(--color-info)] bg-[var(--color-info-soft)] scale-105';
+      case 'done':
+        return 'border-[var(--color-success)] bg-[var(--color-success-soft)]';
+      case 'error':
+        return 'border-[var(--color-danger)] bg-[var(--color-danger-soft)]';
+      default:
+        return 'border-edge bg-elevated/70';
+    }
+  };
+  const statusBadgeClassName = (status: ProcessStep['status']) => {
+    switch (status) {
+      case 'active':
+        return 'bg-[var(--color-info)] text-black';
+      case 'done':
+        return 'bg-[var(--color-success)] text-black';
+      case 'error':
+        return 'bg-[var(--color-danger)] text-white';
+      default:
+        return 'bg-muted text-dim';
+    }
+  };
+  const permissionStateClassName = {
+    allowed: 'border-[var(--color-success)] bg-[var(--color-success-soft)] text-[var(--color-success)]',
+    denied: 'border-[var(--color-danger)] bg-[var(--color-danger-soft)] text-[var(--color-danger)]',
+    confirm_required:
+      'border-[var(--color-warning)] bg-[var(--color-warning-soft)] text-[var(--color-warning)]',
+    pending: 'border-edge bg-elevated/70 text-dim',
+  } as const;
+
   return (
     <div className="space-y-6">
       {/* 标题 */}
-      <div className="border-b border-gray-800 pb-4">
-        <h1 className="text-2xl font-bold text-white mb-2">Shell 命令注入处理器动画</h1>
-        <p className="text-gray-400 text-sm">
+      <div className="border-b border-edge pb-4">
+        <h1 className="mb-2 text-2xl font-bold text-heading">Shell 命令注入处理器动画</h1>
+        <p className="text-sm text-body">
           可视化 ShellProcessor: !&#123;...&#125; 语法解析、参数转义、权限检查、命令执行
         </p>
-        <p className="text-gray-500 text-xs mt-1">
+        <p className="mt-1 text-xs text-dim">
           源码: packages/cli/src/services/prompt-processors/shellProcessor.ts
         </p>
       </div>
@@ -485,12 +521,12 @@ export default function ShellInjectionProcessorAnimation() {
       {/* 控制面板 */}
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2">
-          <span className="text-gray-400 text-sm">示例:</span>
+          <span className="text-sm text-body">示例:</span>
           <select
             value={selectedExample}
             onChange={(e) => handleExampleChange(Number(e.target.value))}
             disabled={isRunning}
-            className="bg-gray-800 border border-gray-700 rounded px-3 py-1 text-sm text-white"
+            className={inputClassName}
           >
             {EXAMPLES.map((ex, i) => (
               <option key={i} value={i}>{ex.name}</option>
@@ -498,12 +534,12 @@ export default function ShellInjectionProcessorAnimation() {
           </select>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-gray-400 text-sm">审批:</span>
+          <span className="text-sm text-body">审批:</span>
           <select
             value={selectedApprovalMode}
             onChange={(e) => setSelectedApprovalMode(e.target.value as DemoApprovalMode)}
             disabled={isRunning}
-            className="bg-gray-800 border border-gray-700 rounded px-3 py-1 text-sm text-white"
+            className={inputClassName}
           >
             <option value="default">default</option>
             <option value="yolo">yolo</option>
@@ -514,8 +550,8 @@ export default function ShellInjectionProcessorAnimation() {
           disabled={isRunning}
           className={`px-4 py-2 rounded font-medium transition-colors ${
             isRunning
-              ? 'bg-gray-600 cursor-not-allowed text-gray-400'
-              : 'bg-cyan-600 hover:bg-cyan-700 text-white'
+              ? 'cursor-not-allowed bg-muted text-dim'
+              : 'bg-accent text-black hover:opacity-90'
           }`}
         >
           {isRunning ? '处理中...' : '开始演示'}
@@ -523,82 +559,84 @@ export default function ShellInjectionProcessorAnimation() {
       </div>
 
       {/* 处理步骤 */}
-      <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-800">
-        <h3 className="text-white font-semibold mb-4">处理流程</h3>
+      <div className={panelClassName}>
+        <h3 className="mb-4 font-semibold text-heading">处理流程</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {state.steps.map((step, i) => (
             <div
               key={step.id}
-              className={`p-3 rounded-lg border transition-all duration-300 ${
-                step.status === 'active'
-                  ? 'border-cyan-500 bg-cyan-900/30 scale-105'
-                  : step.status === 'done'
-                  ? 'border-green-600 bg-green-900/20'
-                  : step.status === 'error'
-                  ? 'border-red-600 bg-red-900/20'
-                  : 'border-gray-700 bg-gray-800/50'
-              }`}
+              className={`rounded-lg border p-3 transition-all duration-300 ${statusCardClassName(step.status)}`}
             >
               <div className="flex items-center gap-2 mb-1">
-                <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                  step.status === 'active'
-                    ? 'bg-cyan-500 text-black'
-                    : step.status === 'done'
-                    ? 'bg-green-500 text-black'
-                    : step.status === 'error'
-                    ? 'bg-red-500 text-white'
-                    : 'bg-gray-700 text-gray-400'
-                }`}>
+                <span
+                  className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${statusBadgeClassName(step.status)}`}
+                >
                   {i + 1}
                 </span>
-                <span className="text-sm text-white truncate">{step.label}</span>
+                <span className="truncate text-sm text-heading">{step.label}</span>
               </div>
               {step.detail && (
-                <div className="text-xs text-gray-400 mt-1 truncate">{step.detail}</div>
+                <div className="mt-1 truncate text-xs text-dim">{step.detail}</div>
               )}
             </div>
           ))}
         </div>
-        <div className="mt-4 text-cyan-300 text-sm font-mono">{state.message}</div>
+        <div className="mt-4 text-sm font-mono text-[var(--color-info)]">{state.message}</div>
       </div>
 
       {/* 输入输出对比 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* 左侧: 原始 Prompt */}
         <div className="space-y-4">
-          <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-800">
-            <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-yellow-400"></span>
+          <div className={panelClassName}>
+            <h3 className="mb-3 flex items-center gap-2 font-semibold text-heading">
+              <span className="h-2 w-2 rounded-full bg-[var(--color-warning)]"></span>
               原始 Prompt
             </h3>
-            <pre className="text-sm bg-gray-800 p-3 rounded overflow-x-auto whitespace-pre-wrap">
+            <pre className={`${insetClassName} overflow-x-auto whitespace-pre-wrap text-sm`}>
               {state.rawPrompt.split(/(!{[^}]*}|\{\{args\}\})/g).map((part, i) => {
                 if (part.startsWith('!{')) {
-                  return <span key={i} className="text-purple-400 bg-purple-900/30 px-1 rounded">{part}</span>;
+                  return (
+                    <span
+                      key={i}
+                      className="rounded px-1 text-accent"
+                      style={{ backgroundColor: 'var(--color-accent-soft)' }}
+                    >
+                      {part}
+                    </span>
+                  );
                 }
                 if (part === '{{args}}') {
-                  return <span key={i} className="text-cyan-400 bg-cyan-900/30 px-1 rounded">{part}</span>;
+                  return (
+                    <span
+                      key={i}
+                      className="rounded px-1 text-[var(--color-info)]"
+                      style={{ backgroundColor: 'var(--color-info-soft)' }}
+                    >
+                      {part}
+                    </span>
+                  );
                 }
-                return <span key={i} className="text-gray-300">{part}</span>;
+                return <span key={i} className="text-body">{part}</span>;
               })}
             </pre>
           </div>
 
           {/* 用户参数 */}
-          <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-800">
-            <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-cyan-400"></span>
+          <div className={panelClassName}>
+            <h3 className="mb-3 flex items-center gap-2 font-semibold text-heading">
+              <span className="h-2 w-2 rounded-full bg-[var(--color-info)]"></span>
               用户参数
             </h3>
             <div className="space-y-2 font-mono text-sm">
-              <div className="flex justify-between items-center p-2 bg-gray-800 rounded">
-                <span className="text-gray-400">原始:</span>
-                <span className="text-cyan-400">"{state.userArgs}"</span>
+              <div className={`${insetClassName} flex items-center justify-between p-2`}>
+                <span className="text-dim">原始:</span>
+                <span className="text-[var(--color-info)]">"{state.userArgs}"</span>
               </div>
               {state.escapedArgs && (
-                <div className="flex justify-between items-center p-2 bg-gray-800 rounded">
-                  <span className="text-gray-400">转义后:</span>
-                  <span className="text-green-400">{state.escapedArgs}</span>
+                <div className={`${insetClassName} flex items-center justify-between p-2`}>
+                  <span className="text-dim">转义后:</span>
+                  <span className="text-[var(--color-success)]">{state.escapedArgs}</span>
                 </div>
               )}
             </div>
@@ -606,18 +644,18 @@ export default function ShellInjectionProcessorAnimation() {
 
           {/* 解析的注入点 */}
           {state.injections.length > 0 && (
-            <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-800">
-              <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-purple-400"></span>
+            <div className={panelClassName}>
+              <h3 className="mb-3 flex items-center gap-2 font-semibold text-heading">
+                <span className="h-2 w-2 rounded-full bg-accent"></span>
                 解析的注入点 ({state.injections.length})
               </h3>
               <div className="space-y-2">
                 {state.injections.map((inj, i) => (
-                  <div key={i} className="p-2 bg-gray-800 rounded text-sm font-mono">
-                    <div className="text-gray-400 text-xs mb-1">位置: [{inj.startIndex}, {inj.endIndex}]</div>
-                    <div className="text-purple-400">原始: {inj.content}</div>
+                  <div key={i} className={`${insetClassName} text-sm font-mono`}>
+                    <div className="mb-1 text-xs text-dim">位置: [{inj.startIndex}, {inj.endIndex}]</div>
+                    <div className="text-accent">原始: {inj.content}</div>
                     {inj.content !== inj.resolvedCommand && (
-                      <div className="text-green-400 mt-1">解析: {inj.resolvedCommand}</div>
+                      <div className="mt-1 text-[var(--color-success)]">解析: {inj.resolvedCommand}</div>
                     )}
                   </div>
                 ))}
@@ -629,37 +667,31 @@ export default function ShellInjectionProcessorAnimation() {
         {/* 右侧: 处理结果 */}
         <div className="space-y-4">
           {/* 权限状态 */}
-          <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-800">
-            <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-orange-400"></span>
+          <div className={panelClassName}>
+            <h3 className="mb-3 flex items-center gap-2 font-semibold text-heading">
+              <span className="h-2 w-2 rounded-full bg-[var(--color-warning)]"></span>
               权限检查
             </h3>
-            <div className={`p-3 rounded border ${
-              state.permissionStatus === 'allowed'
-                ? 'border-green-600 bg-green-900/20'
-                : state.permissionStatus === 'denied'
-                ? 'border-red-600 bg-red-900/20'
-                : state.permissionStatus === 'confirm_required'
-                ? 'border-yellow-600 bg-yellow-900/20'
-                : 'border-gray-700 bg-gray-800/50'
-            }`}>
+            <div className={`rounded border p-3 ${permissionStateClassName[state.permissionStatus]}`}>
               <div className="flex items-center gap-2">
-                {state.permissionStatus === 'allowed' && <span className="text-green-400">✅ 允许执行</span>}
-                {state.permissionStatus === 'denied' && <span className="text-red-400">❌ 拒绝执行</span>}
-                {state.permissionStatus === 'confirm_required' && <span className="text-yellow-400">⚠️ 需要确认</span>}
-                {state.permissionStatus === 'pending' && <span className="text-gray-400">⏳ 待检查</span>}
+                {state.permissionStatus === 'allowed' && <span>✅ 允许执行</span>}
+                {state.permissionStatus === 'denied' && <span>❌ 拒绝执行</span>}
+                {state.permissionStatus === 'confirm_required' && <span>⚠️ 需要确认</span>}
+                {state.permissionStatus === 'pending' && <span>⏳ 待检查</span>}
               </div>
             </div>
           </div>
 
           {/* 命令输出 */}
           {state.executionOutput && (
-            <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-800">
-              <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-green-400"></span>
+            <div className={panelClassName}>
+              <h3 className="mb-3 flex items-center gap-2 font-semibold text-heading">
+                <span className="h-2 w-2 rounded-full bg-[var(--color-success)]"></span>
                 命令输出
               </h3>
-              <pre className="text-sm bg-gray-800 p-3 rounded overflow-x-auto text-green-300 whitespace-pre-wrap">
+              <pre
+                className={`${insetClassName} overflow-x-auto whitespace-pre-wrap text-sm text-[var(--color-success)]`}
+              >
                 {state.executionOutput}
               </pre>
             </div>
@@ -667,12 +699,12 @@ export default function ShellInjectionProcessorAnimation() {
 
           {/* 最终 Prompt */}
           {state.finalPrompt && (
-            <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-800">
-              <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <div className={panelClassName}>
+              <h3 className="mb-3 flex items-center gap-2 font-semibold text-heading">
+                <span className="h-2 w-2 rounded-full bg-accent"></span>
                 最终 Prompt
               </h3>
-              <pre className="text-sm bg-gray-800 p-3 rounded overflow-x-auto text-gray-300 whitespace-pre-wrap">
+              <pre className={`${insetClassName} overflow-x-auto whitespace-pre-wrap text-sm text-body`}>
                 {state.finalPrompt}
               </pre>
             </div>
@@ -681,18 +713,18 @@ export default function ShellInjectionProcessorAnimation() {
       </div>
 
       {/* 语法说明 */}
-      <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-800">
-        <h3 className="text-white font-semibold mb-3">Shell 注入语法</h3>
+      <div className={panelClassName}>
+        <h3 className="mb-3 font-semibold text-heading">Shell 注入语法</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-          <div className="p-3 bg-gray-800 rounded">
-            <div className="text-purple-400 font-mono mb-2">!&#123;command&#125;</div>
-            <div className="text-gray-400">
+          <div className={insetClassName}>
+            <div className="mb-2 font-mono text-accent">!&#123;command&#125;</div>
+            <div className="text-body">
               Shell 注入触发器。花括号内的内容会作为 Shell 命令执行，输出替换到 Prompt 中。
             </div>
           </div>
-          <div className="p-3 bg-gray-800 rounded">
-            <div className="text-cyan-400 font-mono mb-2">&#123;&#123;args&#125;&#125;</div>
-            <div className="text-gray-400">
+          <div className={insetClassName}>
+            <div className="mb-2 font-mono text-[var(--color-info)]">&#123;&#123;args&#125;&#125;</div>
+            <div className="text-body">
               参数占位符。在 !&#123;&#125; 内部会被转义后的参数替换，外部则使用原始参数。
             </div>
           </div>
@@ -700,35 +732,35 @@ export default function ShellInjectionProcessorAnimation() {
       </div>
 
       {/* 安全说明 */}
-      <div className="bg-gray-900/50 rounded-lg p-4 border border-gray-800">
-        <h3 className="text-white font-semibold mb-3">安全机制</h3>
+      <div className={panelClassName}>
+        <h3 className="mb-3 font-semibold text-heading">安全机制</h3>
         <div className="space-y-3 text-sm">
           <div className="flex items-start gap-3">
-            <span className="text-green-400">✓</span>
+            <span className="text-[var(--color-success)]">✓</span>
             <div>
-              <span className="text-white">参数转义</span>
-              <span className="text-gray-400 ml-2">用户参数在 Shell 命令中会被 escapeShellArg() 转义，防止命令注入</span>
+              <span className="text-heading">参数转义</span>
+              <span className="ml-2 text-body">用户参数在 Shell 命令中会被 escapeShellArg() 转义，防止命令注入</span>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <span className="text-green-400">✓</span>
+            <span className="text-[var(--color-success)]">✓</span>
             <div>
-              <span className="text-white">权限检查</span>
-              <span className="text-gray-400 ml-2">checkCommandPermissions() 检查命令是否在白名单中</span>
+              <span className="text-heading">权限检查</span>
+              <span className="ml-2 text-body">checkCommandPermissions() 检查命令是否在白名单中</span>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <span className="text-green-400">✓</span>
+            <span className="text-[var(--color-success)]">✓</span>
             <div>
-              <span className="text-white">确认机制</span>
-              <span className="text-gray-400 ml-2">危险命令需要用户确认，抛出 ConfirmationRequiredError</span>
+              <span className="text-heading">确认机制</span>
+              <span className="ml-2 text-body">危险命令需要用户确认，抛出 ConfirmationRequiredError</span>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <span className="text-green-400">✓</span>
+            <span className="text-[var(--color-success)]">✓</span>
             <div>
-              <span className="text-white">YOLO 模式</span>
-              <span className="text-gray-400 ml-2">ApprovalMode.YOLO 时跳过确认，但硬拒绝命令仍然被阻止</span>
+              <span className="text-heading">YOLO 模式</span>
+              <span className="ml-2 text-body">ApprovalMode.YOLO 时跳过确认，但硬拒绝命令仍然被阻止</span>
             </div>
           </div>
         </div>
