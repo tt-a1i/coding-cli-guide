@@ -163,51 +163,51 @@ export function ToolReference() {
  Gemini CLI 的工具系统由三种来源组成,提供了从核心功能到动态扩展的完整能力：
  </p>
 
- <div className=”space-y-6”>
+ <div className="space-y-6">
  {/* Core 工具 */}
  <div>
- <h4 className=”text-heading font-semibold mb-2”>Core 注册工具</h4>
- <p className=”text-body text-sm mb-3”>
+ <h4 className="text-heading font-semibold mb-2">Core 注册工具</h4>
+ <p className="text-body text-sm mb-3">
  来源: <code>config.ts#createToolRegistry()</code>。默认注册到 ToolRegistry，实际启用受 <code>coreTools</code>、<code>tools.allowed</code> 等配置影响。
  </p>
- <div className=”grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-1 text-sm text-body mb-3”>
- <div><code className=”text-heading text-xs”>LSTool</code> list_directory</div>
- <div><code className=”text-heading text-xs”>ReadFileTool</code> read_file</div>
- <div><code className=”text-heading text-xs”>GrepTool</code> search_file_content</div>
- <div><code className=”text-heading text-xs”>RipGrepTool</code> search_file_content*</div>
- <div><code className=”text-heading text-xs”>GlobTool</code> glob</div>
- <div><code className=”text-heading text-xs”>SmartEditTool</code> replace</div>
- <div><code className=”text-heading text-xs”>WriteFileTool</code> write_file</div>
- <div><code className=”text-heading text-xs”>ShellTool</code> run_shell_command</div>
- <div><code className=”text-heading text-xs”>WebFetchTool</code> web_fetch</div>
- <div><code className=”text-heading text-xs”>WebSearchTool</code> google_web_search</div>
- <div><code className=”text-heading text-xs”>MemoryTool</code> save_memory</div>
- <div><code className=”text-heading text-xs”>ActivateSkillTool</code> activate_skill</div>
- <div><code className=”text-heading text-xs”>WriteTodosTool</code> write_todos</div>
- <div><code className=”text-heading text-xs”>DelegateToAgentTool</code> delegate_to_agent</div>
+ <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-1 text-sm text-body mb-3">
+ <div><code className="text-heading text-xs">LSTool</code> list_directory</div>
+ <div><code className="text-heading text-xs">ReadFileTool</code> read_file</div>
+ <div><code className="text-heading text-xs">GrepTool</code> search_file_content</div>
+ <div><code className="text-heading text-xs">RipGrepTool</code> search_file_content*</div>
+ <div><code className="text-heading text-xs">GlobTool</code> glob</div>
+ <div><code className="text-heading text-xs">SmartEditTool</code> replace</div>
+ <div><code className="text-heading text-xs">WriteFileTool</code> write_file</div>
+ <div><code className="text-heading text-xs">ShellTool</code> run_shell_command</div>
+ <div><code className="text-heading text-xs">WebFetchTool</code> web_fetch</div>
+ <div><code className="text-heading text-xs">WebSearchTool</code> google_web_search</div>
+ <div><code className="text-heading text-xs">MemoryTool</code> save_memory</div>
+ <div><code className="text-heading text-xs">ActivateSkillTool</code> activate_skill</div>
+ <div><code className="text-heading text-xs">WriteTodosTool</code> write_todos</div>
+ <div><code className="text-heading text-xs">DelegateToAgentTool</code> delegate_to_agent</div>
  </div>
- <p className=”text-dim text-xs”>
+ <p className="text-dim text-xs">
  * RipGrepTool/GrepTool 运行时二选一。WriteTodosTool 仅在开启时注册。DelegateToAgentTool 仅在 agents 启用时注册。
  </p>
  </div>
 
  {/* tool-names.ts */}
  <div>
- <h4 className=”text-heading font-semibold mb-2”>tool-names.ts 常量</h4>
- <p className=”text-body text-sm mb-3”>
+ <h4 className="text-heading font-semibold mb-2">tool-names.ts 常量</h4>
+ <p className="text-body text-sm mb-3">
  来源: <code>packages/core/src/tools/tool-names.ts</code>，共 14 个核心工具名称常量。
  </p>
- <div className=”flex flex-wrap gap-1.5”>
+ <div className="flex flex-wrap gap-1.5">
  {['glob', 'write_file', 'web_fetch', 'run_shell_command', 'read_many_files', 'list_directory', 'activate_skill', 'write_todos', 'google_web_search', 'replace', 'search_file_content', 'read_file', 'save_memory', 'delegate_to_agent'].map(name => (
- <code key={name} className=”text-xs px-1.5 py-0.5 bg-surface border border-edge rounded”>{name}</code>
+ <code key={name} className="text-xs px-1.5 py-0.5 bg-surface border border-edge rounded">{name}</code>
  ))}
  </div>
  </div>
 
  {/* 动态工具 */}
  <div>
- <h4 className=”text-heading font-semibold mb-2”>动态工具（MCP + Extensions）</h4>
- <p className=”text-body text-sm”>
+ <h4 className="text-heading font-semibold mb-2">动态工具（MCP + Extensions）</h4>
+ <p className="text-body text-sm">
  通过 MCP 协议和扩展系统在运行时动态注册。包括 <strong>MCP 工具</strong>（Model Context Protocol）和 <strong>Discovered 工具</strong>（运行时发现的扩展），根据配置和环境动态加载。
  </p>
  </div>
@@ -444,12 +444,12 @@ export function ToolReference() {
  <HighlightBox title="Kind 分类决定审批行为" variant="purple">
  <div className="text-sm space-y-2">
  <p className="text-body">
- <code>Kind</code> 是 PolicyEngine 决策的重要维度之一，但不是“硬编码的自动批准/必须确认”。最终取决于：policy rules、approvalMode、
+ <code>Kind</code> 是 PolicyEngine 决策的重要维度之一，但不是"硬编码的自动批准/必须确认"。最终取决于：policy rules、approvalMode、
  以及 shell 子命令/重定向等解析结果。
  </p>
  <div className="grid grid-cols-2 gap-3">
  <div className="bg-surface rounded p-2">
- <h5 className="font-semibold text-heading mb-1">常见默认更“容易放行”</h5>
+ <h5 className="font-semibold text-heading mb-1">常见默认更"容易放行"</h5>
  <ul className="space-y-1 text-body text-xs">
  <li><code className="text-heading">Kind.Read</code> - 只读操作</li>
  <li><code className="text-heading">Kind.Search</code> - 搜索操作</li>
@@ -458,7 +458,7 @@ export function ToolReference() {
  </ul>
  </div>
  <div className="bg-surface rounded p-2">
- <h5 className="font-semibold text-heading mb-1">常见默认更“需要确认”</h5>
+ <h5 className="font-semibold text-heading mb-1">常见默认更"需要确认"</h5>
  <ul className="space-y-1 text-body text-xs">
  <li><code className="text-heading">Kind.Edit</code> - 修改文件</li>
  <li><code className="text-heading">Kind.Execute</code> - 执行命令</li>
@@ -1159,7 +1159,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  <div className="bg-surface rounded-lg p-5 border border-edge/30">
  <h4 className="text-heading font-bold font-mono mb-3">Kind 分类驱动权限</h4>
  <p className="text-body text-sm leading-relaxed">
- 工具按 Kind（read/edit/delete/move/search/execute/think/fetch/other）分类，提供一个“粗粒度安全语义”。
+ 工具按 Kind（read/edit/delete/move/search/execute/think/fetch/other）分类，提供一个"粗粒度安全语义"。
  PolicyEngine 会结合 Kind、toolName、argsPattern（尤其是 shell）、serverName（MCP）与 approvalMode 等信息，输出
  ALLOW / ASK_USER / DENY。
  </p>
