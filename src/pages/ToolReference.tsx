@@ -163,83 +163,54 @@ export function ToolReference() {
  Gemini CLI 的工具系统由三种来源组成,提供了从核心功能到动态扩展的完整能力：
  </p>
 
- <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
- <HighlightBox title="Core 注册工具（默认 + 条件）" variant="blue">
- <div className="text-sm space-y-2">
- <p className="text-body font-semibold">来源: packages/core/src/config/config.ts#createToolRegistry()</p>
- <p className="text-body text-xs mb-2">
- 这是“默认会注册到 ToolRegistry 的工具实现”。实际启用还会受 <code className="text-heading">coreTools</code>、
- <code className="text-heading">tools.allowed</code>/<code className="text-heading">--allowed-tools</code>、平台能力（ripgrep）、agents 开关等影响。
+ <div className=”space-y-6”>
+ {/* Core 工具 */}
+ <div>
+ <h4 className=”text-heading font-semibold mb-2”>Core 注册工具</h4>
+ <p className=”text-body text-sm mb-3”>
+ 来源: <code>config.ts#createToolRegistry()</code>。默认注册到 ToolRegistry，实际启用受 <code>coreTools</code>、<code>tools.allowed</code> 等配置影响。
  </p>
- <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
- <div className="text-body">• <code className="text-heading">LSTool</code> - list_directory</div>
- <div className="text-body">• <code className="text-heading">ReadFileTool</code> - read_file</div>
- <div className="text-body">• <code className="text-heading">GrepTool</code> - search_file_content</div>
- <div className="text-body">• <code className="text-heading">RipGrepTool</code> - search_file_content*</div>
- <div className="text-body">• <code className="text-heading">GlobTool</code> - glob</div>
- <div className="text-body">• <code className="text-heading">SmartEditTool</code> - replace</div>
- <div className="text-body">• <code className="text-heading">WriteFileTool</code> - write_file</div>
- <div className="text-body">• <code className="text-heading">ShellTool</code> - run_shell_command</div>
- <div className="text-body">• <code className="text-heading">WebFetchTool</code> - web_fetch</div>
- <div className="text-body">• <code className="text-heading">WebSearchTool</code> - google_web_search</div>
- <div className="text-body">• <code className="text-heading">MemoryTool</code> - save_memory</div>
- <div className="text-body">• <code className="text-heading">ActivateSkillTool</code> - activate_skill</div>
- <div className="text-body">• <code className="text-heading">WriteTodosTool</code> - write_todos†</div>
- <div className="text-body">• <code className="text-heading">DelegateToAgentTool</code> - delegate_to_agent‡</div>
+ <div className=”grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-1 text-sm text-body mb-3”>
+ <div><code className=”text-heading text-xs”>LSTool</code> list_directory</div>
+ <div><code className=”text-heading text-xs”>ReadFileTool</code> read_file</div>
+ <div><code className=”text-heading text-xs”>GrepTool</code> search_file_content</div>
+ <div><code className=”text-heading text-xs”>RipGrepTool</code> search_file_content*</div>
+ <div><code className=”text-heading text-xs”>GlobTool</code> glob</div>
+ <div><code className=”text-heading text-xs”>SmartEditTool</code> replace</div>
+ <div><code className=”text-heading text-xs”>WriteFileTool</code> write_file</div>
+ <div><code className=”text-heading text-xs”>ShellTool</code> run_shell_command</div>
+ <div><code className=”text-heading text-xs”>WebFetchTool</code> web_fetch</div>
+ <div><code className=”text-heading text-xs”>WebSearchTool</code> google_web_search</div>
+ <div><code className=”text-heading text-xs”>MemoryTool</code> save_memory</div>
+ <div><code className=”text-heading text-xs”>ActivateSkillTool</code> activate_skill</div>
+ <div><code className=”text-heading text-xs”>WriteTodosTool</code> write_todos</div>
+ <div><code className=”text-heading text-xs”>DelegateToAgentTool</code> delegate_to_agent</div>
  </div>
- <p className="text-heading text-xs mt-2">
- * RipGrepTool/GrepTool 在运行时二选一（tool name 同为 <code>search_file_content</code>）。† 仅在 useWriteTodos 开启时注册。‡ 仅在 agents 启用且 <code>tools.allowed</code>/<code>--allowed-tools</code> 允许时注册。
- </p>
- <p className="text-body text-xs mt-2">
- 备注：仓库中存在 <code className="text-heading">ReadManyFilesTool</code> 实现与 <code className="text-heading">read_many_files</code> 名称常量，
- 但默认 createToolRegistry() 当前未注册它（不同版本可能调整）。
+ <p className=”text-dim text-xs”>
+ * RipGrepTool/GrepTool 运行时二选一。WriteTodosTool 仅在开启时注册。DelegateToAgentTool 仅在 agents 启用时注册。
  </p>
  </div>
- </HighlightBox>
 
- <HighlightBox title="tool-names.ts 常量" variant="green">
- <div className="text-sm space-y-2">
- <p className="text-body font-semibold">来源: tool-names.ts</p>
- <p className="text-body text-xs mb-2">
- 核心工具名称常量（非完整工具列表）
+ {/* tool-names.ts */}
+ <div>
+ <h4 className=”text-heading font-semibold mb-2”>tool-names.ts 常量</h4>
+ <p className=”text-body text-sm mb-3”>
+ 来源: <code>packages/core/src/tools/tool-names.ts</code>，共 14 个核心工具名称常量。
  </p>
- <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-xs">
- <div className="text-body">• <code className="text-heading">glob</code></div>
- <div className="text-body">• <code className="text-heading">write_todos</code></div>
- <div className="text-body">• <code className="text-heading">write_file</code></div>
- <div className="text-body">• <code className="text-heading">google_web_search</code></div>
- <div className="text-body">• <code className="text-heading">web_fetch</code></div>
- <div className="text-body">• <code className="text-heading">replace</code></div>
- <div className="text-body">• <code className="text-heading">run_shell_command</code></div>
- <div className="text-body">• <code className="text-heading">search_file_content</code></div>
- <div className="text-body">• <code className="text-heading">read_many_files</code></div>
- <div className="text-body">• <code className="text-heading">read_file</code></div>
- <div className="text-body">• <code className="text-heading">list_directory</code></div>
- <div className="text-body">• <code className="text-heading">save_memory</code></div>
- <div className="text-body">• <code className="text-heading">activate_skill</code></div>
- <div className="text-body">• <code className="text-heading">delegate_to_agent</code></div>
+ <div className=”flex flex-wrap gap-1.5”>
+ {['glob', 'write_file', 'web_fetch', 'run_shell_command', 'read_many_files', 'list_directory', 'activate_skill', 'write_todos', 'google_web_search', 'replace', 'search_file_content', 'read_file', 'save_memory', 'delegate_to_agent'].map(name => (
+ <code key={name} className=”text-xs px-1.5 py-0.5 bg-surface border border-edge rounded”>{name}</code>
+ ))}
  </div>
- <p className="text-heading text-xs mt-2">
- 共 14 个内置工具 (packages/core/src/tools/tool-names.ts)
- </p>
  </div>
- </HighlightBox>
 
- <HighlightBox title="动态工具" variant="purple">
- <div className="text-sm space-y-2">
- <p className="text-body font-semibold">MCP + Extensions</p>
- <p className="text-body">
- 通过 MCP 协议和扩展系统动态注册的工具
- </p>
- <ul className="space-y-1 text-body text-xs">
- <li><strong>MCP 工具</strong> - 通过 Model Context Protocol 动态注册</li>
- <li><strong>Discovered 工具</strong> - 运行时发现的扩展工具</li>
- </ul>
- <p className="text-heading text-xs mt-2">
- 这些工具在运行时根据配置和环境动态加载
+ {/* 动态工具 */}
+ <div>
+ <h4 className=”text-heading font-semibold mb-2”>动态工具（MCP + Extensions）</h4>
+ <p className=”text-body text-sm”>
+ 通过 MCP 协议和扩展系统在运行时动态注册。包括 <strong>MCP 工具</strong>（Model Context Protocol）和 <strong>Discovered 工具</strong>（运行时发现的扩展），根据配置和环境动态加载。
  </p>
  </div>
- </HighlightBox>
  </div>
 
  <div className="bg-elevated/20 border border-edge rounded-lg p-4">
