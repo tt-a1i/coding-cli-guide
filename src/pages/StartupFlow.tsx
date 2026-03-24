@@ -16,17 +16,19 @@ interface FlowStepProps {
 
 function FlowStep({ step, title, description, code, file }: FlowStepProps) {
  return (
- <div className="relative pl-8 pb-8 last:border-l-0">
- <div className="absolute -left-3 top-0 w-6 h-6 bg-accent rounded-full flex items-center justify-center text-heading font-bold text-sm">
+ <div className="pb-8">
+ <div className="flex items-start gap-3">
+ <div className="shrink-0 w-6 h-6 bg-accent rounded-full flex items-center justify-center text-[11px] font-bold mt-0.5" style={{ color: 'white' }}>
  {step}
  </div>
- <div className="bg-elevated/5 rounded-lg p-4 ml-4">
- <h4 className="text-heading font-bold mb-2">{title}</h4>
+ <div className="flex-1 min-w-0">
+ <h4 className="text-heading font-bold mb-1">{title}</h4>
  {file && (
  <div className="text-xs text-dim font-mono mb-2">{file}</div>
  )}
  <p className="text-body text-sm mb-3">{description}</p>
  {code && <CodeBlock code={code} />}
+ </div>
  </div>
  </div>
  );

@@ -78,24 +78,21 @@ function Introduction({
  <h3 className="font-semibold text-heading">
  📂 核心文件
  </h3>
- <ul className="text-sm text-body space-y-2">
- <li className="flex items-start gap-2">
- <code className="text-xs bg-base px-1 rounded">
- packages/core/src/core/client.ts
- </code>
- <span>sendMessageStream 主循环</span>
+ <ul className="text-sm text-body space-y-3">
+ <li>
+ <code className="text-xs bg-base px-1.5 py-0.5 rounded font-mono">client.ts</code>
+ <span className="text-dim text-xs ml-1.5">sendMessageStream 主循环</span>
+ <div className="text-xs text-dim font-mono mt-0.5">packages/core/src/core/client.ts</div>
  </li>
- <li className="flex items-start gap-2">
- <code className="text-xs bg-base px-1 rounded">
- packages/core/src/core/turn.ts
- </code>
- <span>Turn 状态管理</span>
+ <li>
+ <code className="text-xs bg-base px-1.5 py-0.5 rounded font-mono">turn.ts</code>
+ <span className="text-dim text-xs ml-1.5">Turn 状态管理</span>
+ <div className="text-xs text-dim font-mono mt-0.5">packages/core/src/core/turn.ts</div>
  </li>
- <li className="flex items-start gap-2">
- <code className="text-xs bg-base px-1 rounded">
- packages/core/src/services/loopDetectionService.ts
- </code>
- <span>循环检测服务</span>
+ <li>
+ <code className="text-xs bg-base px-1.5 py-0.5 rounded font-mono">loopDetectionService.ts</code>
+ <span className="text-dim text-xs ml-1.5">循环检测服务</span>
+ <div className="text-xs text-dim font-mono mt-0.5">packages/core/src/services/loopDetectionService.ts</div>
  </li>
  </ul>
  </div>

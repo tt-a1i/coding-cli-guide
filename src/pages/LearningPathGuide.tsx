@@ -124,31 +124,14 @@ function PathCard({
  : ' bg-surface border-edge hover:border-edge-hover'
  }`}
  >
- <div className="flex items-center gap-3 mb-2">
- <span className="text-2xl">{path.icon}</span>
- <div>
  <h3
- className="font-bold"
+ className="font-semibold mb-1"
  style={{
  color: isSelected ? 'var(--color-primary)' : 'var(--color-text)',
  }}
  >
  {path.title}
  </h3>
- <div className="flex items-center gap-2 text-xs text-dim">
- <span
- className="px-1.5 py-0.5 rounded"
- style={{
- backgroundColor: `${difficultyColors[path.difficulty]}20`,
- color: difficultyColors[path.difficulty],
- }}
- >
- {difficultyLabels[path.difficulty]}
- </span>
- <span>⏱ {path.duration}</span>
- </div>
- </div>
- </div>
  <p className="text-sm text-body">{path.description}</p>
  </button>
  );
@@ -167,89 +150,44 @@ function StepDetail({
  const [isExpanded, setIsExpanded] = useState(isActive);
 
  return (
- <div
- className={`rounded-lg border overflow-hidden transition-all ${
- isActive
- ? ' border-edge bg-base/50'
- : ' border-edge bg-surface'
- }`}
- >
+ <div className="border-b border-edge last:border-b-0">
  <button
  onClick={() => setIsExpanded(!isExpanded)}
- className="w-full p-4 flex items-center justify-between text-left hover:bg-elevated"
+ className="w-full py-3 flex items-center gap-3 text-left group"
  >
- <div className="flex items-center gap-3">
- <div
- className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
- isActive
- ? ' bg-elevated text-heading'
- : ' bg-elevated text-dim'
- }`}
- >
+ <span className={`text-xs font-mono w-5 text-center shrink-0 ${isActive ? 'text-accent' : 'text-dim'}`}>
  {index + 1}
- </div>
- <div>
- <h4
- className="font-semibold"
- style={{
- color: isActive ? 'var(--color-primary)' : 'var(--color-text)',
- }}
- >
+ </span>
+ <span className={`flex-1 font-medium text-sm ${isActive ? 'text-accent' : 'text-heading'}`}>
  {step.title}
- </h4>
- <span className="text-xs text-dim">
- ⏱ {step.estimatedTime}
  </span>
- </div>
- </div>
- <span
- className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}
+ <svg
+ className={`w-3 h-3 text-dim transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}
+ fill="none" stroke="currentColor" viewBox="0 0 24 24"
  >
- ▼
- </span>
+ <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+ </svg>
  </button>
 
  {isExpanded && (
- <div className="px-4 pb-4 space-y-4">
- {/* 阅读页面 */}
- <div>
- <h5 className="text-xs text-dim mb-2">📚 阅读内容</h5>
- <div className="flex flex-wrap gap-2">
+ <div className="pl-8 pb-4 space-y-3">
+ <div className="flex flex-wrap gap-1.5">
  {step.pages.map((page) => (
- <span
- key={page}
- className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs"
- >
+ <span key={page} className="px-2 py-0.5 bg-surface text-body rounded text-xs border border-edge">
  {page}
  </span>
  ))}
  </div>
- </div>
 
- {/* 核心概念 */}
- <div>
- <h5 className="text-xs text-dim mb-2">
- 🎯 需要掌握的概念
- </h5>
  <ul className="text-sm text-body space-y-1">
  {step.keyConceptsCn.map((concept) => (
- <li key={concept} className="flex items-center gap-2">
- <span className="text-heading">•</span>
- {concept}
- </li>
+ <li key={concept}>{concept}</li>
  ))}
  </ul>
- </div>
 
- {/* 检查点 */}
  {step.checkpoint && (
- <div className="p-3 bg-elevated rounded-lg border-l-2 border-l-edge-hover/30">
- <h5 className="text-xs text-heading font-bold mb-1">
- ✓ 检查点
- </h5>
- <p className="text-sm text-body">
+ <div className="text-sm text-dim border-l-2 border-edge pl-3">
  {step.checkpoint}
- </p>
  </div>
  )}
  </div>
@@ -649,9 +587,7 @@ export function LearningPathGuide() {
 
  {/* 路径选择 */}
  <div className="mb-8">
- <h2 className="text-xl font-bold text-heading mb-4 flex items-center gap-2">
- <span>🛤️</span> 选择你的学习路径
- </h2>
+ <h2 className="text-xl font-bold text-heading mb-4">选择你的学习路径</h2>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  {learningPaths.map((path) => (
  <PathCard
@@ -670,11 +606,11 @@ export function LearningPathGuide() {
  {/* 选中路径详情 */}
  <div className="mb-8">
  <div className="flex items-center justify-between mb-4">
- <h2 className="text-xl font-bold text-heading flex items-center gap-2">
- <span>{activePath.icon}</span> {activePath.title} 详细步骤
+ <h2 className="text-xl font-bold text-heading">
+ {activePath.title} — 详细步骤
  </h2>
  <div className="text-sm text-dim">
- 共 {activePath.steps.length} 个阶段 | 预计 {activePath.duration}
+ 共 {activePath.steps.length} 个阶段
  </div>
  </div>
 
@@ -719,39 +655,28 @@ export function LearningPathGuide() {
  </HighlightBox>
 
  {/* 进阶资源 */}
- <div className="mt-8 p-6 bg-surface rounded-xl border border-edge">
- <h3 className="text-lg font-bold text-heading mb-4 flex items-center gap-2">
- <span>📚</span> 进阶资源
- </h3>
- <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
- <div className="p-4 bg-surface rounded-lg border border-edge">
- <div className="text-heading font-bold mb-2">
- 源码阅读
- </div>
+ <div className="mt-12">
+ <h3 className="text-lg font-semibold text-heading mb-4">进阶资源</h3>
+ <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+ <div>
+ <div className="text-heading font-medium mb-1">源码阅读</div>
  <p className="text-sm text-dim">
- packages/core/src/core/geminiChat.ts 是最重要的入口点
+ <code>geminiChat.ts</code> 是最重要的入口点
  </p>
  </div>
- <div className="p-4 bg-surface rounded-lg border border-edge">
- <div className="text-heading font-bold mb-2">
- 实践项目
+ <div>
+ <div className="text-heading font-medium mb-1">实践项目</div>
+ <p className="text-sm text-dim">尝试开发一个自定义工具或 MCP 服务器</p>
  </div>
- <p className="text-sm text-dim">
- 尝试开发一个自定义工具或 MCP 服务器
- </p>
- </div>
- <div className="p-4 bg-surface rounded-lg border border-edge">
- <div className="text-heading font-bold mb-2">
- 动画演示
- </div>
- <p className="text-sm text-dim">
- 「动画演示」和「内部机制动画」是最直观的学习方式
- </p>
+ <div>
+ <div className="text-heading font-medium mb-1">动画演示</div>
+ <p className="text-sm text-dim">动画演示页面是最直观的学习方式</p>
  </div>
  </div>
  </div>
 
  {/* 为什么这样设计 */}
+ <div className="mt-12" />
  <Layer title="为什么这样设计" icon="💡">
  <div className="space-y-4">
  <div className="bg-surface rounded-lg p-5 border border-edge/30">
