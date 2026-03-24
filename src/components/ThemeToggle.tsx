@@ -1,31 +1,36 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useSyncExternalStore } from 'react';
+
+function getIsDark() {
+  return document.documentElement.classList.contains('dark');
+}
+
+function subscribe(callback: () => void) {
+  const observer = new MutationObserver(callback);
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+  return () => observer.disconnect();
+}
+
+function applyTheme(dark: boolean) {
+  if (dark) {
+    document.documentElement.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
+  localStorage.setItem('theme', dark ? 'dark' : 'light');
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', dark ? '#111110' : '#fafaf9');
+}
 
 export function ThemeToggle() {
-  const [isDark, setIsDark] = useState(false);
+  const isDark = useSyncExternalStore(subscribe, getIsDark);
 
-  useEffect(() => {
-    const stored = localStorage.getItem('theme');
-    if (stored) {
-      setIsDark(stored === 'dark');
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setIsDark(true);
-    }
+  const toggle = useCallback(() => {
+    applyTheme(!getIsDark());
   }, []);
-
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', isDark ? '#111110' : '#fafaf9');
-  }, [isDark]);
 
   return (
     <button
-      onClick={() => setIsDark(!isDark)}
+      onClick={toggle}
       className="flex items-center justify-center w-7 h-7 rounded-lg border border-edge bg-base text-dim transition-all duration-150 hover:border-edge-hover hover:text-body hover:bg-surface"
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
     >
