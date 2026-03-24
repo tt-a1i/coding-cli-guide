@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { CodeBlock } from '../components/CodeBlock';
 
 interface Checkpoint {
  hash: string;
@@ -123,9 +124,9 @@ export default function ShadowGitCheckpointAnimation() {
 
  const getStatusColor = (status: FileState['status']) => {
  switch (status) {
- case 'modified': return 'text-[var(--color-warning)] bg-[var(--color-warning-soft)] border-[var(--color-warning)]';
- case 'added': return 'text-[var(--color-success)] bg-[var(--color-success-soft)] border-[var(--color-success)]';
- case 'deleted': return 'text-[var(--color-danger)] bg-[var(--color-danger-soft)] border-[var(--color-danger)] opacity-50';
+ case 'modified': return 'text-heading bg-elevated border-edge';
+ case 'added': return 'text-heading bg-elevated border-edge';
+ case 'deleted': return 'text-heading bg-elevated border-edge opacity-50';
  default: return 'text-body bg-surface border-edge';
  }
  };
@@ -176,14 +177,14 @@ export default function ShadowGitCheckpointAnimation() {
  <button
  onClick={() => modifyFile(file.path)}
  disabled={isOperating}
- className="text-xs px-2 py-1 bg-[var(--color-warning-soft)] text-[var(--color-warning)] rounded hover:bg-yellow-500/30 disabled:opacity-50"
+ className="text-xs px-2 py-1 bg-elevated text-heading rounded hover:bg-elevated disabled:opacity-50"
  >
  修改
  </button>
  <button
  onClick={() => deleteFile(file.path)}
  disabled={isOperating}
- className="text-xs px-2 py-1 bg-[var(--color-danger-soft)] text-[var(--color-danger)] rounded hover:bg-red-500/30 disabled:opacity-50"
+ className="text-xs px-2 py-1 bg-elevated text-heading rounded hover:bg-elevated disabled:opacity-50"
  >
  删除
  </button>
@@ -198,7 +199,7 @@ export default function ShadowGitCheckpointAnimation() {
  <button
  onClick={addFile}
  disabled={isOperating}
- className="mt-3 w-full px-4 py-2 bg-[var(--color-success-soft)] text-[var(--color-success)] border border-[var(--color-success)] rounded-lg hover:bg-green-500/30 disabled:opacity-50"
+ className="mt-3 w-full px-4 py-2 bg-elevated text-heading border-l-2 border-l-edge-hover rounded-lg hover:bg-elevated disabled:opacity-50"
  >
  ➕ 添加新文件
  </button>
@@ -229,7 +230,7 @@ export default function ShadowGitCheckpointAnimation() {
  cp.hash === currentHash
  ? ' border-edge bg-elevated'
  : restoreTarget === cp.hash
- ? 'border-yellow-400 bg-[var(--color-warning-soft)] animate-pulse'
+ ? 'border-edge bg-elevated animate-pulse'
  : ' border-edge bg-surface'
  }`}
  >
@@ -242,7 +243,7 @@ export default function ShadowGitCheckpointAnimation() {
  <button
  onClick={() => restoreFromCheckpoint(cp.hash)}
  disabled={isOperating}
- className="text-xs px-2 py-1 bg-orange-500/20 text-heading rounded hover:bg-orange-500/30 disabled:opacity-50"
+ className="text-xs px-2 py-1 bg-elevated text-heading rounded hover:bg-elevated disabled:opacity-50"
  >
  恢复
  </button>
@@ -281,11 +282,11 @@ export default function ShadowGitCheckpointAnimation() {
  <div
  key={index}
  className={`p-2 rounded ${
- log.includes('✅') ? 'bg-[var(--color-success-soft)] text-[var(--color-success)]' :
+ log.includes('✅') ? 'bg-elevated text-heading' :
  log.includes('🔄') ? ' bg-elevated/10 text-heading' :
- log.includes('📝') ? 'bg-[var(--color-warning-soft)] text-[var(--color-warning)]' :
- log.includes('➕') ? 'bg-[var(--color-success-soft)] text-[var(--color-success)]' :
- log.includes('🗑️') ? 'bg-[var(--color-danger-soft)] text-[var(--color-danger)]' :
+ log.includes('📝') ? 'bg-elevated text-heading' :
+ log.includes('➕') ? 'bg-elevated text-heading' :
+ log.includes('🗑️') ? 'bg-elevated text-heading' :
  ' bg-surface text-body'
  }`}
  >
@@ -298,8 +299,8 @@ export default function ShadowGitCheckpointAnimation() {
  </div>
 
  {/* Architecture Diagram */}
- <div className="mt-6 bg-base/40 border border-emerald-500/30 rounded-lg p-4">
- <h3 className="text-emerald-400 font-bold mb-3">🏗️ 影子仓库架构</h3>
+ <div className="mt-6 bg-base/40 border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h3 className="text-heading font-bold mb-3">🏗️ 影子仓库架构</h3>
  <div className="flex flex-wrap justify-center items-center gap-4 text-sm">
  <div className="p-3 bg-elevated/20 border border-edge rounded-lg text-center">
  <div className="text-heading font-bold">项目目录</div>
@@ -312,12 +313,12 @@ export default function ShadowGitCheckpointAnimation() {
  <div className="text-xs text-body">GIT_DIR=.gemini/.git</div>
  </div>
  <div className="text-dim">→</div>
- <div className="p-3 bg-[var(--color-success-soft)] border border-[var(--color-success)] rounded-lg text-center">
- <div className="text-[var(--color-success)] font-bold">检查点</div>
+ <div className="p-3 bg-elevated border-l-2 border-l-edge-hover rounded-lg text-center">
+ <div className="text-heading font-bold">检查点</div>
  <div className="text-xs text-body">git add . && git commit</div>
  </div>
  <div className="text-dim">→</div>
- <div className="p-3 bg-orange-500/20 border border-orange-500/30 rounded-lg text-center">
+ <div className="p-3 bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg text-center">
  <div className="text-heading font-bold">恢复</div>
  <div className="text-xs text-body">git restore --source</div>
  <div className="text-xs text-body">git clean -fd</div>
@@ -326,35 +327,30 @@ export default function ShadowGitCheckpointAnimation() {
  </div>
 
  {/* Code Reference */}
- <div className="mt-6 bg-base/40 border border-edge rounded-lg p-4">
- <h3 className="text-heading font-bold mb-3">📄 源码参考</h3>
- <pre className="text-xs text-body overflow-x-auto">
-{`// packages/core/src/services/gitService.ts
+      <CodeBlock title="gitService.ts — 源码参考" language="typescript" code={`// packages/core/src/services/gitService.ts
 
 private get shadowGitRepository(): SimpleGit {
- const repoDir = this.getHistoryDir();
- return simpleGit(this.projectRoot).env({
- GIT_DIR: path.join(repoDir, '.git'), // 隐藏的 .git 目录
- GIT_WORK_TREE: this.projectRoot, // 工作目录指向项目根目录
- HOME: repoDir, // 隔离 gitconfig
- XDG_CONFIG_HOME: repoDir,
- });
+  const repoDir = this.getHistoryDir();
+  return simpleGit(this.projectRoot).env({
+    GIT_DIR: path.join(repoDir, '.git'),  // 隐藏的 .git 目录
+    GIT_WORK_TREE: this.projectRoot,      // 工作目录指向项目根目录
+    HOME: repoDir,                        // 隔离 gitconfig
+    XDG_CONFIG_HOME: repoDir,
+  });
 }
 
 async createFileSnapshot(message: string): Promise<string> {
- const repo = this.shadowGitRepository;
- await repo.add('.'); // 暂存所有文件
- const commitResult = await repo.commit(message);
- return commitResult.commit;
+  const repo = this.shadowGitRepository;
+  await repo.add('.');  // 暂存所有文件
+  const commitResult = await repo.commit(message);
+  return commitResult.commit;
 }
 
 async restoreProjectFromSnapshot(commitHash: string): Promise<void> {
- const repo = this.shadowGitRepository;
- await repo.raw(['restore', '--source', commitHash, '.']);
- await repo.clean('f', ['-d']); // 清理未跟踪文件
-}`}
- </pre>
- </div>
+  const repo = this.shadowGitRepository;
+  await repo.raw(['restore', '--source', commitHash, '.']);
+  await repo.clean('f', ['-d']);  // 清理未跟踪文件
+}`} />
  </div>
  </div>
  );

@@ -3,6 +3,7 @@ import { HighlightBox } from '../components/HighlightBox';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { RelatedPages } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
 
 function Introduction({
  isExpanded,
@@ -43,7 +44,7 @@ function Introduction({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-[var(--color-warning)] font-bold mb-2">
+ <h4 className="text-heading font-bold mb-2">
  🔧 错误类型层次
  </h4>
  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
@@ -56,7 +57,7 @@ function Introduction({
  <div className="text-[10px] text-dim">网络错误</div>
  </div>
  <div className="bg-surface p-2 rounded text-center">
- <div className="text-xs text-[var(--color-warning)]">ToolError</div>
+ <div className="text-xs text-heading">ToolError</div>
  <div className="text-[10px] text-dim">工具失败</div>
  </div>
  <div className="bg-surface p-2 rounded text-center">
@@ -71,9 +72,9 @@ function Introduction({
  🔄 可恢复错误
  </h4>
  <ul className="text-body text-sm space-y-1">
- <li>• <strong>429 Rate Limit</strong> - 等待后重试</li>
- <li>• <strong>500/502/503/504</strong> - 服务端临时错误，可重试</li>
- <li>• <strong>工具执行失败</strong> - 通常可重试或回退</li>
+ <li><strong>429 Rate Limit</strong> - 等待后重试</li>
+ <li><strong>500/502/503/504</strong> - 服务端临时错误，可重试</li>
+ <li><strong>工具执行失败</strong> - 通常可重试或回退</li>
  </ul>
  </div>
 
@@ -89,7 +90,7 @@ function Introduction({
  <div className="text-xs text-dim">最大重试</div>
  </div>
  <div className="text-center">
- <div className="text-xl font-bold text-[var(--color-warning)]">指数</div>
+ <div className="text-xl font-bold text-heading">指数</div>
  <div className="text-xs text-dim">退避策略</div>
  </div>
  <div className="text-center">
@@ -129,11 +130,11 @@ export function ErrorHandling() {
  report --> log
  log --> endNode
 
- style start fill:#22d3ee,color:#000
- style continue fill:#22c55e,color:#000
- style endNode fill:#22c55e,color:#000
- style is_recoverable fill:#f59e0b,color:#000
- style recovered fill:#f59e0b,color:#000`;
+ style start fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style continue fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style endNode fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style is_recoverable fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style recovered fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  const errorRecoveryDecisionTree = `flowchart TD
  E["❌ 错误发生"]
@@ -194,214 +195,214 @@ export function ErrorHandling() {
  BACKOFF -.->|"等待后"| RETRY
  FALLBACK -.->|"切换模型"| RETRY
 
- style E fill:#ef4444,color:#fff
- style REAUTH fill:#f59e0b,color:#000
- style BACKOFF fill:#22c55e,color:#000
- style FALLBACK fill:#3b82f6,color:#fff
- style RETRY fill:#22c55e,color:#000
- style AI_DECIDE fill:#8b5cf6,color:#fff
- style EXIT fill:#6b7280,color:#fff`;
+ style E fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style REAUTH fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style BACKOFF fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style FALLBACK fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style RETRY fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style AI_DECIDE fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style EXIT fill:${getThemeColor("--mermaid-muted-fill", "#f4f4f2")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  const errorTypesCode = `// packages/core/src/errors/types.ts
 
 // 基础错误类
 export class CLIError extends Error {
- constructor(
- message: string,
- public readonly code: string,
- public readonly recoverable: boolean = false,
- public readonly metadata?: Record<string, unknown>
- ) {
- super(message);
- this.name = 'CLIError';
- }
+  constructor(
+  message: string,
+  public readonly code: string,
+  public readonly recoverable: boolean = false,
+  public readonly metadata?: Record<string, unknown>
+  ) {
+  super(message);
+  this.name = 'CLIError';
+  }
 
- toJSON() {
- return {
- name: this.name,
- code: this.code,
- message: this.message,
- recoverable: this.recoverable,
- metadata: this.metadata,
- stack: this.stack,
- };
- }
+  toJSON() {
+  return {
+  name: this.name,
+  code: this.code,
+  message: this.message,
+  recoverable: this.recoverable,
+  metadata: this.metadata,
+  stack: this.stack,
+  };
+  }
 }
 
 // API 相关错误
 export class APIError extends CLIError {
- constructor(
- message: string,
- public readonly statusCode: number,
- public readonly response?: unknown
- ) {
- super(
- message,
- \`API_ERROR_\${statusCode}\`,
- [429, 500, 502, 503, 504].includes(statusCode)
- );
- this.name = 'APIError';
- }
+  constructor(
+  message: string,
+  public readonly statusCode: number,
+  public readonly response?: unknown
+  ) {
+  super(
+  message,
+  \`API_ERROR_\${statusCode}\`,
+  [429, 500, 502, 503, 504].includes(statusCode)
+  );
+  this.name = 'APIError';
+  }
 }
 
 // 认证错误
 export class AuthenticationError extends CLIError {
- constructor(message: string = '认证失败') {
- super(message, 'AUTH_ERROR', false);
- this.name = 'AuthenticationError';
- }
+  constructor(message: string = '认证失败') {
+  super(message, 'AUTH_ERROR', false);
+  this.name = 'AuthenticationError';
+  }
 }
 
 // 工具执行错误
 export class ToolExecutionError extends CLIError {
- constructor(
- public readonly toolName: string,
- message: string,
- public readonly exitCode?: number
- ) {
- super(message, 'TOOL_ERROR', true, { toolName, exitCode });
- this.name = 'ToolExecutionError';
- }
+  constructor(
+  public readonly toolName: string,
+  message: string,
+  public readonly exitCode?: number
+  ) {
+  super(message, 'TOOL_ERROR', true, { toolName, exitCode });
+  this.name = 'ToolExecutionError';
+  }
 }
 
 // 配置错误
 export class ConfigurationError extends CLIError {
- constructor(message: string, public readonly configKey?: string) {
- super(message, 'CONFIG_ERROR', false, { configKey });
- this.name = 'ConfigurationError';
- }
+  constructor(message: string, public readonly configKey?: string) {
+  super(message, 'CONFIG_ERROR', false, { configKey });
+  this.name = 'ConfigurationError';
+  }
 }
 
 // 网络错误
 export class NetworkError extends CLIError {
- constructor(message: string, public readonly originalError?: Error) {
- super(message, 'NETWORK_ERROR', true);
- this.name = 'NetworkError';
- }
+  constructor(message: string, public readonly originalError?: Error) {
+  super(message, 'NETWORK_ERROR', true);
+  this.name = 'NetworkError';
+  }
 }
 
 // 超时错误
 export class TimeoutError extends CLIError {
- constructor(
- public readonly operation: string,
- public readonly timeoutMs: number
- ) {
- super(
- \`操作 "\${operation}" 超时 (\${timeoutMs}ms)\`,
- 'TIMEOUT_ERROR',
- true
- );
- this.name = 'TimeoutError';
- }
+  constructor(
+  public readonly operation: string,
+  public readonly timeoutMs: number
+  ) {
+  super(
+  \`操作 "\${operation}" 超时 (\${timeoutMs}ms)\`,
+  'TIMEOUT_ERROR',
+  true
+  );
+  this.name = 'TimeoutError';
+  }
 }`;
 
  const errorClassifierCode = `// 错误分类器
 // packages/core/src/errors/classifier.ts
 
 interface ErrorClassification {
- category: ErrorCategory;
- severity: ErrorSeverity;
- recoverable: boolean;
- suggestedAction: SuggestedAction;
- userMessage: string;
+  category: ErrorCategory;
+  severity: ErrorSeverity;
+  recoverable: boolean;
+  suggestedAction: SuggestedAction;
+  userMessage: string;
 }
 
 enum ErrorCategory {
- AUTHENTICATION = 'authentication',
- AUTHORIZATION = 'authorization',
- RATE_LIMIT = 'rate_limit',
- NETWORK = 'network',
- API = 'api',
- TOOL = 'tool',
- CONFIGURATION = 'configuration',
- USER_INPUT = 'user_input',
- INTERNAL = 'internal',
- UNKNOWN = 'unknown',
+  AUTHENTICATION = 'authentication',
+  AUTHORIZATION = 'authorization',
+  RATE_LIMIT = 'rate_limit',
+  NETWORK = 'network',
+  API = 'api',
+  TOOL = 'tool',
+  CONFIGURATION = 'configuration',
+  USER_INPUT = 'user_input',
+  INTERNAL = 'internal',
+  UNKNOWN = 'unknown',
 }
 
 enum ErrorSeverity {
- LOW = 'low', // 可忽略，自动恢复
- MEDIUM = 'medium', // 需要重试或用户确认
- HIGH = 'high', // 需要用户干预
- CRITICAL = 'critical', // 需要立即停止
+  LOW = 'low', // 可忽略，自动恢复
+  MEDIUM = 'medium', // 需要重试或用户确认
+  HIGH = 'high', // 需要用户干预
+  CRITICAL = 'critical', // 需要立即停止
 }
 
 enum SuggestedAction {
- RETRY = 'retry',
- REAUTHENTICATE = 'reauthenticate',
- CHECK_CONFIG = 'check_config',
- CONTACT_SUPPORT = 'contact_support',
- WAIT_AND_RETRY = 'wait_and_retry',
- USER_CONFIRM = 'user_confirm',
- ABORT = 'abort',
+  RETRY = 'retry',
+  REAUTHENTICATE = 'reauthenticate',
+  CHECK_CONFIG = 'check_config',
+  CONTACT_SUPPORT = 'contact_support',
+  WAIT_AND_RETRY = 'wait_and_retry',
+  USER_CONFIRM = 'user_confirm',
+  ABORT = 'abort',
 }
 
 export function classifyError(error: Error): ErrorClassification {
- // API 错误分类
- if (error instanceof APIError) {
- switch (error.statusCode) {
- case 401:
- return {
- category: ErrorCategory.AUTHENTICATION,
- severity: ErrorSeverity.HIGH,
- recoverable: false,
- suggestedAction: SuggestedAction.REAUTHENTICATE,
- userMessage: '认证失败，请重新登录',
- };
+  // API 错误分类
+  if (error instanceof APIError) {
+  switch (error.statusCode) {
+  case 401:
+  return {
+  category: ErrorCategory.AUTHENTICATION,
+  severity: ErrorSeverity.HIGH,
+  recoverable: false,
+  suggestedAction: SuggestedAction.REAUTHENTICATE,
+  userMessage: '认证失败，请重新登录',
+  };
 
- case 403:
- return {
- category: ErrorCategory.AUTHORIZATION,
- severity: ErrorSeverity.HIGH,
- recoverable: false,
- suggestedAction: SuggestedAction.CHECK_CONFIG,
- userMessage: '没有访问权限',
- };
+  case 403:
+  return {
+  category: ErrorCategory.AUTHORIZATION,
+  severity: ErrorSeverity.HIGH,
+  recoverable: false,
+  suggestedAction: SuggestedAction.CHECK_CONFIG,
+  userMessage: '没有访问权限',
+  };
 
- case 429:
- return {
- category: ErrorCategory.RATE_LIMIT,
- severity: ErrorSeverity.MEDIUM,
- recoverable: true,
- suggestedAction: SuggestedAction.WAIT_AND_RETRY,
- userMessage: '请求过于频繁，稍后自动重试',
- };
+  case 429:
+  return {
+  category: ErrorCategory.RATE_LIMIT,
+  severity: ErrorSeverity.MEDIUM,
+  recoverable: true,
+  suggestedAction: SuggestedAction.WAIT_AND_RETRY,
+  userMessage: '请求过于频繁，稍后自动重试',
+  };
 
- case 500:
- case 502:
- case 503:
- case 504:
- return {
- category: ErrorCategory.API,
- severity: ErrorSeverity.MEDIUM,
- recoverable: true,
- suggestedAction: SuggestedAction.RETRY,
- userMessage: '服务暂时不可用，正在重试',
- };
- }
- }
+  case 500:
+  case 502:
+  case 503:
+  case 504:
+  return {
+  category: ErrorCategory.API,
+  severity: ErrorSeverity.MEDIUM,
+  recoverable: true,
+  suggestedAction: SuggestedAction.RETRY,
+  userMessage: '服务暂时不可用，正在重试',
+  };
+  }
+  }
 
- // 网络错误
- if (error instanceof NetworkError ||
- error.message.includes('ECONNREFUSED') ||
- error.message.includes('ETIMEDOUT')) {
- return {
- category: ErrorCategory.NETWORK,
- severity: ErrorSeverity.MEDIUM,
- recoverable: true,
- suggestedAction: SuggestedAction.RETRY,
- userMessage: '网络连接失败，正在重试',
- };
- }
+  // 网络错误
+  if (error instanceof NetworkError ||
+  error.message.includes('ECONNREFUSED') ||
+  error.message.includes('ETIMEDOUT')) {
+  return {
+  category: ErrorCategory.NETWORK,
+  severity: ErrorSeverity.MEDIUM,
+  recoverable: true,
+  suggestedAction: SuggestedAction.RETRY,
+  userMessage: '网络连接失败，正在重试',
+  };
+  }
 
- // 默认分类
- return {
- category: ErrorCategory.UNKNOWN,
- severity: ErrorSeverity.HIGH,
- recoverable: false,
- suggestedAction: SuggestedAction.CONTACT_SUPPORT,
- userMessage: \`发生未知错误: \${error.message}\`,
- };
+  // 默认分类
+  return {
+  category: ErrorCategory.UNKNOWN,
+  severity: ErrorSeverity.HIGH,
+  recoverable: false,
+  suggestedAction: SuggestedAction.CONTACT_SUPPORT,
+  userMessage: \`发生未知错误: \${error.message}\`,
+  };
 }`;
 
  const errorBoundaryCode = `// 错误边界 (Error Boundary)
@@ -410,316 +411,319 @@ export function classifyError(error: Error): ErrorClassification {
 import { Component, ReactNode } from 'react';
 import { Box, Text } from 'ink';
 
+
+
+
 interface Props {
- children: ReactNode;
- onError?: (error: Error) => void;
- fallback?: ReactNode;
+  children: ReactNode;
+  onError?: (error: Error) => void;
+  fallback?: ReactNode;
 }
 
 interface State {
- hasError: boolean;
- error: Error | null;
+  hasError: boolean;
+  error: Error | null;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
- state: State = { hasError: false, error: null };
+  state: State = { hasError: false, error: null };
 
- static getDerivedStateFromError(error: Error): State {
- return { hasError: true, error };
- }
+  static getDerivedStateFromError(error: Error): State {
+  return { hasError: true, error };
+  }
 
- componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
- // 记录错误
- console.error('UI Error Boundary caught:', error);
- console.error('Component stack:', errorInfo.componentStack);
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+  // 记录错误
+  console.error('UI Error Boundary caught:', error);
+  console.error('Component stack:', errorInfo.componentStack);
 
- // 通知父组件
- this.props.onError?.(error);
+  // 通知父组件
+  this.props.onError?.(error);
 
- // 上报遥测
- telemetry.recordError({
- type: 'ui_error',
- error: error.message,
- stack: error.stack,
- componentStack: errorInfo.componentStack,
- });
- }
+  // 上报遥测
+  telemetry.recordError({
+  type: 'ui_error',
+  error: error.message,
+  stack: error.stack,
+  componentStack: errorInfo.componentStack,
+  });
+  }
 
- render() {
- if (this.state.hasError) {
- // 渲染回退 UI
- if (this.props.fallback) {
- return this.props.fallback;
- }
+  render() {
+  if (this.state.hasError) {
+  // 渲染回退 UI
+  if (this.props.fallback) {
+  return this.props.fallback;
+  }
 
- return (
- <Box flexDirection="column" padding={1}>
- <Text color="red" bold>发生错误</Text>
- <Text color="gray">{this.state.error?.message}</Text>
- <Text color="yellow">
- 请尝试重新启动或报告此问题
- </Text>
- </Box>
- );
- }
+  return (
+  <Box flexDirection="column" padding={1}>
+  <Text color="red" bold>发生错误</Text>
+  <Text color="gray">{this.state.error?.message}</Text>
+  <Text color="yellow">
+  请尝试重新启动或报告此问题
+  </Text>
+  </Box>
+  );
+  }
 
- return this.props.children;
- }
+  return this.props.children;
+  }
 }`;
 
  const globalHandlerCode = `// 全局错误处理
 // packages/cli/src/errors/globalHandler.ts
 
 export function setupGlobalErrorHandlers(): void {
- // 未捕获的 Promise 拒绝
- process.on('unhandledRejection', (reason, promise) => {
- console.error('Unhandled Rejection at:', promise);
- console.error('Reason:', reason);
+  // 未捕获的 Promise 拒绝
+  process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise);
+  console.error('Reason:', reason);
 
- // 记录到遥测
- telemetry.recordError({
- type: 'unhandled_rejection',
- reason: String(reason),
- });
+  // 记录到遥测
+  telemetry.recordError({
+  type: 'unhandled_rejection',
+  reason: String(reason),
+  });
 
- // 尝试优雅退出
- gracefulShutdown(1);
- });
+  // 尝试优雅退出
+  gracefulShutdown(1);
+  });
 
- // 未捕获的异常
- process.on('uncaughtException', (error) => {
- console.error('Uncaught Exception:', error);
+  // 未捕获的异常
+  process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
 
- // 记录到遥测
- telemetry.recordError({
- type: 'uncaught_exception',
- error: error.message,
- stack: error.stack,
- });
+  // 记录到遥测
+  telemetry.recordError({
+  type: 'uncaught_exception',
+  error: error.message,
+  stack: error.stack,
+  });
 
- // 立即退出 (uncaughtException 后继续运行不安全)
- process.exit(1);
- });
+  // 立即退出 (uncaughtException 后继续运行不安全)
+  process.exit(1);
+  });
 
- // SIGINT (Ctrl+C)
- process.on('SIGINT', () => {
- console.log('\\n收到中断信号，正在退出...');
- gracefulShutdown(0);
- });
+  // SIGINT (Ctrl+C)
+  process.on('SIGINT', () => {
+  console.log('\\n收到中断信号，正在退出...');
+  gracefulShutdown(0);
+  });
 
- // SIGTERM
- process.on('SIGTERM', () => {
- console.log('收到终止信号，正在退出...');
- gracefulShutdown(0);
- });
+  // SIGTERM
+  process.on('SIGTERM', () => {
+  console.log('收到终止信号，正在退出...');
+  gracefulShutdown(0);
+  });
 }
 
 async function gracefulShutdown(exitCode: number): Promise<void> {
- try {
- // 保存当前状态
- await saveSessionState();
+  try {
+  // 保存当前状态
+  await saveSessionState();
 
- // 清理资源
- await cleanupResources();
+  // 清理资源
+  await cleanupResources();
 
- // 发送待处理的遥测数据
- await telemetry.flush();
+  // 发送待处理的遥测数据
+  await telemetry.flush();
 
- } catch (error) {
- console.error('Shutdown error:', error);
- } finally {
- process.exit(exitCode);
- }
+  } catch (error) {
+  console.error('Shutdown error:', error);
+  } finally {
+  process.exit(exitCode);
+  }
 }`;
 
  const errorReportingCode = `// 错误报告与用户反馈
 // packages/cli/src/errors/reporter.ts
 
 interface ErrorReport {
- timestamp: string;
- error: {
- name: string;
- code: string;
- message: string;
- stack?: string;
- };
- context: {
- command: string;
- arguments: string[];
- workingDirectory: string;
- nodeVersion: string;
- cliVersion: string;
- platform: string;
- };
- sessionInfo: {
- sessionId: string;
- turnCount: number;
- duration: number;
- };
+  timestamp: string;
+  error: {
+  name: string;
+  code: string;
+  message: string;
+  stack?: string;
+  };
+  context: {
+  command: string;
+  arguments: string[];
+  workingDirectory: string;
+  nodeVersion: string;
+  cliVersion: string;
+  platform: string;
+  };
+  sessionInfo: {
+  sessionId: string;
+  turnCount: number;
+  duration: number;
+  };
 }
 
 export class ErrorReporter {
- // 生成错误报告
- generateReport(error: CLIError): ErrorReport {
- return {
- timestamp: new Date().toISOString(),
- error: {
- name: error.name,
- code: error.code,
- message: error.message,
- stack: error.stack,
- },
- context: {
- command: process.argv[1],
- arguments: process.argv.slice(2),
- workingDirectory: process.cwd(),
- nodeVersion: process.version,
- cliVersion: getVersion(),
- platform: process.platform,
- },
- sessionInfo: {
- sessionId: getCurrentSessionId(),
- turnCount: getCurrentTurnCount(),
- duration: getSessionDuration(),
- },
- };
- }
+  // 生成错误报告
+  generateReport(error: CLIError): ErrorReport {
+  return {
+  timestamp: new Date().toISOString(),
+  error: {
+  name: error.name,
+  code: error.code,
+  message: error.message,
+  stack: error.stack,
+  },
+  context: {
+  command: process.argv[1],
+  arguments: process.argv.slice(2),
+  workingDirectory: process.cwd(),
+  nodeVersion: process.version,
+  cliVersion: getVersion(),
+  platform: process.platform,
+  },
+  sessionInfo: {
+  sessionId: getCurrentSessionId(),
+  turnCount: getCurrentTurnCount(),
+  duration: getSessionDuration(),
+  },
+  };
+  }
 
- // 保存错误报告到文件
- async saveToFile(report: ErrorReport): Promise<string> {
- const filename = \`error-\${Date.now()}.json\`;
- const filepath = path.join(
- os.homedir(),
- .gemini,
- 'crash-reports',
- filename
- );
+  // 保存错误报告到文件
+  async saveToFile(report: ErrorReport): Promise<string> {
+  const filename = \`error-\${Date.now()}.json\`;
+  const filepath = path.join(
+  os.homedir(),
+  .gemini,
+  'crash-reports',
+  filename
+  );
 
- await fs.mkdir(path.dirname(filepath), { recursive: true });
- await fs.writeFile(filepath, JSON.stringify(report, null, 2));
+  await fs.mkdir(path.dirname(filepath), { recursive: true });
+  await fs.writeFile(filepath, JSON.stringify(report, null, 2));
 
- return filepath;
- }
+  return filepath;
+  }
 
- // 显示用户友好的错误信息
- displayToUser(error: CLIError, classification: ErrorClassification): void {
- const ui = getUIRenderer();
+  // 显示用户友好的错误信息
+  displayToUser(error: CLIError, classification: ErrorClassification): void {
+  const ui = getUIRenderer();
 
- ui.render(
- <Box flexDirection="column" padding={1}>
- <Text color="red" bold>
- {classification.severity === 'critical' ? '严重错误' : '错误'}
- </Text>
+  ui.render(
+  <Box flexDirection="column" padding={1}>
+  <Text color="red" bold>
+  {classification.severity === 'critical' ? '严重错误' : '错误'}
+  </Text>
 
- <Text>{classification.userMessage}</Text>
+  <Text>{classification.userMessage}</Text>
 
- {classification.recoverable && (
- <Text color="yellow">
- 系统将尝试自动恢复...
- </Text>
- )}
+  {classification.recoverable && (
+  <Text color="yellow">
+  系统将尝试自动恢复...
+  </Text>
+  )}
 
- {!classification.recoverable && (
- <Text color="gray">
- 错误代码: {error.code}
- </Text>
- )}
+  {!classification.recoverable && (
+  <Text color="gray">
+  错误代码: {error.code}
+  </Text>
+  )}
 
- {classification.suggestedAction === 'contact_support' && (
- <Text color="cyan">
- 如需帮助，请提交 issue:
- https://github.com/google/generative-ai-cli/issues
- </Text>
- )}
- </Box>
- );
- }
+  {classification.suggestedAction === 'contact_support' && (
+  <Text color="cyan">
+  如需帮助，请提交 issue:
+  https://github.com/google/generative-ai-cli/issues
+  </Text>
+  )}
+  </Box>
+  );
+  }
 }`;
 
  const jsonErrorParsingCode = `// JSON 错误解析
 // packages/core/src/utils/jsonParser.ts
 
 interface ParseResult<T> {
- success: boolean;
- data?: T;
- error?: string;
- partial?: Partial<T>;
+  success: boolean;
+  data?: T;
+  error?: string;
+  partial?: Partial<T>;
 }
 
 export function safeParseJSON<T>(
- input: string,
- schema?: JSONSchema
+  input: string,
+  schema?: JSONSchema
 ): ParseResult<T> {
- // 预处理：移除可能的 markdown 代码块标记
- const cleaned = input
- .replace(/^\`\`\`json?\\n?/i, '')
- .replace(/\\n?\`\`\`$/i, '')
- .trim();
+  // 预处理：移除可能的 markdown 代码块标记
+  const cleaned = input
+  .replace(/^\`\`\`json?\\n?/i, '')
+  .replace(/\\n?\`\`\`$/i, '')
+  .trim();
 
- try {
- const parsed = JSON.parse(cleaned);
+  try {
+  const parsed = JSON.parse(cleaned);
 
- // 可选的 schema 验证
- if (schema) {
- const validation = validateSchema(parsed, schema);
- if (!validation.valid) {
- return {
- success: false,
- error: \`Schema validation failed: \${validation.errors.join(', ')}\`,
- partial: parsed,
- };
- }
- }
+  // 可选的 schema 验证
+  if (schema) {
+  const validation = validateSchema(parsed, schema);
+  if (!validation.valid) {
+  return {
+  success: false,
+  error: \`Schema validation failed: \${validation.errors.join(', ')}\`,
+  partial: parsed,
+  };
+  }
+  }
 
- return { success: true, data: parsed as T };
+  return { success: true, data: parsed as T };
 
- } catch (e) {
- const error = e as SyntaxError;
+  } catch (e) {
+  const error = e as SyntaxError;
 
- // 尝试修复常见的 JSON 错误
- const fixed = attemptJSONFix(cleaned, error);
- if (fixed.success) {
- return safeParseJSON<T>(fixed.result, schema);
- }
+  // 尝试修复常见的 JSON 错误
+  const fixed = attemptJSONFix(cleaned, error);
+  if (fixed.success) {
+  return safeParseJSON<T>(fixed.result, schema);
+  }
 
- return {
- success: false,
- error: \`JSON parse error: \${error.message}\`,
- partial: extractPartialJSON(cleaned),
- };
- }
+  return {
+  success: false,
+  error: \`JSON parse error: \${error.message}\`,
+  partial: extractPartialJSON(cleaned),
+  };
+  }
 }
 
 // 尝试修复常见的 JSON 格式问题
 function attemptJSONFix(
- input: string,
- error: SyntaxError
+  input: string,
+  error: SyntaxError
 ): { success: boolean; result: string } {
- let result = input;
+  let result = input;
 
- // 修复尾部逗号
- result = result.replace(/,\\s*([}\\]])/g, '$1');
+  // 修复尾部逗号
+  result = result.replace(/,\\s*([}\\]])/g, '$1');
 
- // 修复单引号
- result = result.replace(/'/g, '"');
+  // 修复单引号
+  result = result.replace(/'/g, '"');
 
- // 修复未引用的键
- result = result.replace(
- /([{,]\\s*)(\\w+)(\\s*:)/g,
- '$1"$2"$3'
- );
+  // 修复未引用的键
+  result = result.replace(
+  /([{,]\\s*)(\\w+)(\\s*:)/g,
+  '$1"$2"$3'
+  );
 
- // 如果修复后与原始不同，尝试解析
- if (result !== input) {
- try {
- JSON.parse(result);
- return { success: true, result };
- } catch {
- // 修复无效
- }
- }
+  // 如果修复后与原始不同，尝试解析
+  if (result !== input) {
+  try {
+  JSON.parse(result);
+  return { success: true, result };
+  } catch {
+  // 修复无效
+  }
+  }
 
- return { success: false, result: input };
+  return { success: false, result: input };
 }`;
 
  return (
@@ -740,33 +744,33 @@ function attemptJSONFix(
  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
  <HighlightBox title="错误捕获" color="blue">
  <ul className="text-sm space-y-1">
- <li>• try-catch 块</li>
- <li>• Error Boundary</li>
- <li>• 全局处理器</li>
+ <li>try-catch 块</li>
+ <li>Error Boundary</li>
+ <li>全局处理器</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="错误分类" color="green">
  <ul className="text-sm space-y-1">
- <li>• 类型识别</li>
- <li>• 严重度评估</li>
- <li>• 恢复可能性</li>
+ <li>类型识别</li>
+ <li>严重度评估</li>
+ <li>恢复可能性</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="错误恢复" color="yellow">
  <ul className="text-sm space-y-1">
- <li>• 自动重试</li>
- <li>• 模型回退</li>
- <li>• 状态恢复</li>
+ <li>自动重试</li>
+ <li>模型回退</li>
+ <li>状态恢复</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="错误报告" color="purple">
  <ul className="text-sm space-y-1">
- <li>• 用户通知</li>
- <li>• 日志记录</li>
- <li>• 遥测上报</li>
+ <li>用户通知</li>
+ <li>日志记录</li>
+ <li>遥测上报</li>
  </ul>
  </HighlightBox>
  </div>
@@ -808,7 +812,7 @@ function attemptJSONFix(
  <table className="w-full text-sm">
  <tbody className="text-body">
  <tr className="border- border-edge">
- <td className="py-1"><code className="text-[var(--color-danger)]">AUTHENTICATION</code></td>
+ <td className="py-1"><code className="text-heading">AUTHENTICATION</code></td>
  <td className="py-1">认证相关</td>
  </tr>
  <tr className="border- border-edge">
@@ -816,7 +820,7 @@ function attemptJSONFix(
  <td className="py-1">速率限制</td>
  </tr>
  <tr className="border- border-edge">
- <td className="py-1"><code className="text-[var(--color-warning)]">NETWORK</code></td>
+ <td className="py-1"><code className="text-heading">NETWORK</code></td>
  <td className="py-1">网络问题</td>
  </tr>
  <tr className="border- border-edge">
@@ -824,7 +828,7 @@ function attemptJSONFix(
  <td className="py-1">API 错误</td>
  </tr>
  <tr className="border- border-edge">
- <td className="py-1"><code className="text-[var(--color-success)]">TOOL</code></td>
+ <td className="py-1"><code className="text-heading">TOOL</code></td>
  <td className="py-1">工具执行</td>
  </tr>
  <tr>
@@ -841,28 +845,28 @@ function attemptJSONFix(
  <tbody className="text-body">
  <tr className="border- border-edge">
  <td className="py-1">
- <span className="inline-block w-3 h-3 rounded-full bg-green-500 mr-2"></span>
+ <span className="inline-block w-3 h-3 rounded-full bg-[var(--color-success)] mr-2"></span>
  <code>LOW</code>
  </td>
  <td className="py-1">可忽略，自动恢复</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-1">
- <span className="inline-block w-3 h-3 rounded-full bg-yellow-500 mr-2"></span>
+ <span className="inline-block w-3 h-3 rounded-full bg-[var(--color-warning)] mr-2"></span>
  <code>MEDIUM</code>
  </td>
  <td className="py-1">需要重试或确认</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-1">
- <span className="inline-block w-3 h-3 rounded-full bg-orange-500 mr-2"></span>
+ <span className="inline-block w-3 h-3 rounded-full bg-[var(--color-warning)] mr-2"></span>
  <code>HIGH</code>
  </td>
  <td className="py-1">需要用户干预</td>
  </tr>
  <tr>
  <td className="py-1">
- <span className="inline-block w-3 h-3 rounded-full bg-red-500 mr-2"></span>
+ <span className="inline-block w-3 h-3 rounded-full bg-[var(--color-danger)] mr-2"></span>
  <code>CRITICAL</code>
  </td>
  <td className="py-1">需要立即停止</td>
@@ -887,19 +891,19 @@ function attemptJSONFix(
  <HighlightBox title="处理的全局事件" color="yellow" className="mt-4">
  <div className="grid grid-cols-2 gap-4 text-sm">
  <div>
- <code className="text-[var(--color-warning)]">unhandledRejection</code>
+ <code className="text-heading">unhandledRejection</code>
  <p className="text-body">未处理的 Promise 拒绝</p>
  </div>
  <div>
- <code className="text-[var(--color-warning)]">uncaughtException</code>
+ <code className="text-heading">uncaughtException</code>
  <p className="text-body">未捕获的同步异常</p>
  </div>
  <div>
- <code className="text-[var(--color-warning)]">SIGINT</code>
+ <code className="text-heading">SIGINT</code>
  <p className="text-body">Ctrl+C 中断信号</p>
  </div>
  <div>
- <code className="text-[var(--color-warning)]">SIGTERM</code>
+ <code className="text-heading">SIGTERM</code>
  <p className="text-body">终止信号</p>
  </div>
  </div>
@@ -919,10 +923,10 @@ function attemptJSONFix(
 
  <HighlightBox title="自动修复的 JSON 问题" color="green" className="mt-4">
  <ul className="text-sm space-y-1">
- <li>• <strong>尾部逗号</strong>: <code>{`{"a": 1,}`}</code> → <code>{`{"a": 1}`}</code></li>
- <li>• <strong>单引号</strong>: <code>{`{'key': 'value'}`}</code> → <code>{`{"key": "value"}`}</code></li>
- <li>• <strong>未引用的键</strong>: <code>{`{key: "value"}`}</code> → <code>{`{"key": "value"}`}</code></li>
- <li>• <strong>Markdown 包装</strong>: 自动移除 <code>```json</code> 标记</li>
+ <li><strong>尾部逗号</strong>: <code>{`{"a": 1,}`}</code> → <code>{`{"a": 1}`}</code></li>
+ <li><strong>单引号</strong>: <code>{`{'key': 'value'}`}</code> → <code>{`{"key": "value"}`}</code></li>
+ <li><strong>未引用的键</strong>: <code>{`{key: "value"}`}</code> → <code>{`{"key": "value"}`}</code></li>
+ <li><strong>Markdown 包装</strong>: 自动移除 <code>```json</code> 标记</li>
  </ul>
  </HighlightBox>
  </section>
@@ -1010,13 +1014,13 @@ function attemptJSONFix(
  {/* API 错误 */}
  <tr className="border- border-edge/50">
  <td className="py-3 px-2">
- <span className="px-2 py-1 bg-red-900/30 text-[var(--color-danger)] rounded text-xs">401</span>
+ <span className="px-2 py-1 bg-elevated text-heading rounded text-xs">401</span>
  <div className="text-xs text-dim mt-1">认证失败</div>
  </td>
  <td className="py-3 px-2 text-xs">Token 无效或过期</td>
  <td className="py-3 px-2 text-xs">API Key 错误、OAuth Token 过期、环境变量未设置</td>
  <td className="py-3 px-2 text-xs">
- <code className="text-amber-400">重新登录</code>：
+ <code className="text-heading">重新登录</code>：
  <code className="block mt-1 text-body">gemini logout && gemini</code>
  </td>
  <td className="py-3 px-2 text-xs font-mono text-heading">core/src/errors</td>
@@ -1024,13 +1028,13 @@ function attemptJSONFix(
 
  <tr className="border- border-edge/50">
  <td className="py-3 px-2">
- <span className="px-2 py-1 bg-orange-900/30 text-heading rounded text-xs">429</span>
+ <span className="px-2 py-1 bg-elevated text-heading rounded text-xs">429</span>
  <div className="text-xs text-dim mt-1">限流</div>
  </td>
  <td className="py-3 px-2 text-xs">请求过于频繁</td>
  <td className="py-3 px-2 text-xs">超出 API 配额、短时间内请求过多</td>
  <td className="py-3 px-2 text-xs">
- <code className="text-[var(--color-success)]">自动重试</code>：
+ <code className="text-heading">自动重试</code>：
  指数退避等待 (1s, 2s, 4s...)
  </td>
  <td className="py-3 px-2 text-xs font-mono text-heading">core/src/core/retry.ts</td>
@@ -1044,7 +1048,7 @@ function attemptJSONFix(
  <td className="py-3 px-2 text-xs">服务暂时不可用</td>
  <td className="py-3 px-2 text-xs">后端部署、负载过高、临时故障</td>
  <td className="py-3 px-2 text-xs">
- <code className="text-[var(--color-success)]">自动重试</code>：
+ <code className="text-heading">自动重试</code>：
  最多 3 次，可回退模型
  </td>
  <td className="py-3 px-2 text-xs font-mono text-heading">core/src/core/fallback.ts</td>
@@ -1053,13 +1057,13 @@ function attemptJSONFix(
  {/* 网络错误 */}
  <tr className="border- border-edge/50">
  <td className="py-3 px-2">
- <span className="px-2 py-1 bg-yellow-900/30 text-[var(--color-warning)] rounded text-xs">ETIMEDOUT</span>
+ <span className="px-2 py-1 bg-elevated text-heading rounded text-xs">ETIMEDOUT</span>
  <div className="text-xs text-dim mt-1">连接超时</div>
  </td>
  <td className="py-3 px-2 text-xs">请求无响应</td>
  <td className="py-3 px-2 text-xs">网络不稳定、代理配置错误、DNS 解析失败</td>
  <td className="py-3 px-2 text-xs">
- <code className="text-[var(--color-success)]">自动重试</code>：
+ <code className="text-heading">自动重试</code>：
  检查网络设置
  </td>
  <td className="py-3 px-2 text-xs font-mono text-heading">core/src/errors/network.ts</td>
@@ -1067,13 +1071,13 @@ function attemptJSONFix(
 
  <tr className="border- border-edge/50">
  <td className="py-3 px-2">
- <span className="px-2 py-1 bg-yellow-900/30 text-[var(--color-warning)] rounded text-xs">ECONNREFUSED</span>
+ <span className="px-2 py-1 bg-elevated text-heading rounded text-xs">ECONNREFUSED</span>
  <div className="text-xs text-dim mt-1">连接拒绝</div>
  </td>
  <td className="py-3 px-2 text-xs">无法连接服务</td>
  <td className="py-3 px-2 text-xs">服务未启动、端口错误、防火墙阻止</td>
  <td className="py-3 px-2 text-xs">
- <code className="text-amber-400">检查配置</code>：
+ <code className="text-heading">检查配置</code>：
  验证 BASE_URL 设置
  </td>
  <td className="py-3 px-2 text-xs font-mono text-heading">core/src/errors/network.ts</td>
@@ -1088,7 +1092,7 @@ function attemptJSONFix(
  <td className="py-3 px-2 text-xs">命令执行返回非零</td>
  <td className="py-3 px-2 text-xs">命令不存在、权限不足、语法错误</td>
  <td className="py-3 px-2 text-xs">
- <code className="text-[var(--color-success)]">AI 自动处理</code>：
+ <code className="text-heading">AI 自动处理</code>：
  错误返回给模型重新决策
  </td>
  <td className="py-3 px-2 text-xs font-mono text-heading">packages/core/src/tools/shell.ts</td>
@@ -1102,7 +1106,7 @@ function attemptJSONFix(
  <td className="py-3 px-2 text-xs">无法读取文件</td>
  <td className="py-3 px-2 text-xs">文件不存在、权限不足、路径错误</td>
  <td className="py-3 px-2 text-xs">
- <code className="text-[var(--color-success)]">AI 自动处理</code>：
+ <code className="text-heading">AI 自动处理</code>：
  提示文件不存在
  </td>
  <td className="py-3 px-2 text-xs font-mono text-heading">packages/core/src/tools/read-file.ts</td>
@@ -1116,7 +1120,7 @@ function attemptJSONFix(
  <td className="py-3 px-2 text-xs">old_string 未找到</td>
  <td className="py-3 px-2 text-xs">文件已被修改、匹配字符串错误、编码问题</td>
  <td className="py-3 px-2 text-xs">
- <code className="text-[var(--color-success)]">AI 自动处理</code>：
+ <code className="text-heading">AI 自动处理</code>：
  重新读取文件后重试
  </td>
  <td className="py-3 px-2 text-xs font-mono text-heading">packages/core/src/tools/edit.ts</td>
@@ -1131,7 +1135,7 @@ function attemptJSONFix(
  <td className="py-3 px-2 text-xs">启动时报错</td>
  <td className="py-3 px-2 text-xs">settings.json 语法错误、无效的配置值</td>
  <td className="py-3 px-2 text-xs">
- <code className="text-amber-400">手动修复</code>：
+ <code className="text-heading">手动修复</code>：
  检查 ~/.gemini/settings.json
  </td>
  <td className="py-3 px-2 text-xs font-mono text-heading">cli/src/config</td>
@@ -1140,13 +1144,13 @@ function attemptJSONFix(
  {/* 上下文错误 */}
  <tr className="border- border-edge/50">
  <td className="py-3 px-2">
- <span className="px-2 py-1 bg-pink-900/30 text-heading rounded text-xs">CONTEXT</span>
+ <span className="px-2 py-1 bg-[var(--purple-glow)] text-heading rounded text-xs">CONTEXT</span>
  <div className="text-xs text-dim mt-1">上下文溢出</div>
  </td>
  <td className="py-3 px-2 text-xs">消息被截断</td>
  <td className="py-3 px-2 text-xs">对话过长、文件内容过大</td>
  <td className="py-3 px-2 text-xs">
- <code className="text-[var(--color-success)]">自动压缩</code>：
+ <code className="text-heading">自动压缩</code>：
  触发历史压缩，保留最近对话
  </td>
  <td className="py-3 px-2 text-xs font-mono text-heading">core/src/core/compression.ts</td>
@@ -1161,7 +1165,7 @@ function attemptJSONFix(
  <td className="py-3 px-2 text-xs">MCP 工具不可用</td>
  <td className="py-3 px-2 text-xs">命令不存在、依赖缺失、配置错误</td>
  <td className="py-3 px-2 text-xs">
- <code className="text-amber-400">降级运行</code>：
+ <code className="text-heading">降级运行</code>：
  禁用该 MCP 服务器继续
  </td>
  <td className="py-3 px-2 text-xs font-mono text-heading">core/src/mcp</td>
@@ -1170,13 +1174,13 @@ function attemptJSONFix(
  {/* IDE 错误 */}
  <tr className="border- border-edge/50">
  <td className="py-3 px-2">
- <span className="px-2 py-1 bg-teal-900/30 text-teal-400 rounded text-xs">IDE</span>
+ <span className="px-2 py-1 bg-accent/10 text-accent rounded text-xs">IDE</span>
  <div className="text-xs text-dim mt-1">连接失败</div>
  </td>
  <td className="py-3 px-2 text-xs">无法使用 Native Diff</td>
  <td className="py-3 px-2 text-xs">扩展未安装、端口冲突、目录不匹配</td>
  <td className="py-3 px-2 text-xs">
- <code className="text-amber-400">降级运行</code>：
+ <code className="text-heading">降级运行</code>：
  使用 CLI 内置 Diff
  </td>
  <td className="py-3 px-2 text-xs font-mono text-heading">cli/src/ide</td>
@@ -1185,13 +1189,13 @@ function attemptJSONFix(
  {/* 沙箱错误 */}
  <tr>
  <td className="py-3 px-2">
- <span className="px-2 py-1 bg-green-900/30 text-[var(--color-success)] rounded text-xs">SANDBOX</span>
+ <span className="px-2 py-1 bg-elevated text-heading rounded text-xs">SANDBOX</span>
  <div className="text-xs text-dim mt-1">沙箱启动失败</div>
  </td>
  <td className="py-3 px-2 text-xs">容器无法创建</td>
  <td className="py-3 px-2 text-xs">Docker 未安装、权限不足、镜像拉取失败</td>
  <td className="py-3 px-2 text-xs">
- <code className="text-amber-400">提示用户</code>：
+ <code className="text-heading">提示用户</code>：
  检查 Docker 环境
  </td>
  <td className="py-3 px-2 text-xs font-mono text-heading">core/src/sandbox</td>
@@ -1201,20 +1205,20 @@ function attemptJSONFix(
  </div>
 
  <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
- <div className="bg-[var(--color-success-soft)] border border-[var(--color-success)] rounded-lg p-4">
- <h4 className="text-[var(--color-success)] font-semibold mb-2">自动恢复</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">自动恢复</h4>
  <p className="text-xs text-body">
  429、500、网络超时等可恢复错误，系统自动指数退避重试，最多 3 次。
  </p>
  </div>
- <div className="bg-[var(--color-warning-soft)] border border-[var(--color-warning)] rounded-lg p-4">
- <h4 className="text-amber-400 font-semibold mb-2">优雅降级</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">优雅降级</h4>
  <p className="text-xs text-body">
  MCP、IDE 等可选功能失败时，禁用该功能继续运行核心流程。
  </p>
  </div>
- <div className="bg-[var(--color-danger-soft)] border border-[var(--color-danger)] rounded-lg p-4">
- <h4 className="text-[var(--color-danger)] font-semibold mb-2">用户干预</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">用户干预</h4>
  <p className="text-xs text-body">
  401 认证、配置错误等需要用户修复后重试。
  </p>
@@ -1226,8 +1230,8 @@ function attemptJSONFix(
  <section>
  <h3 className="text-xl font-semibold text-heading mb-4">最佳实践</h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <div className="bg-[var(--color-success-soft)] border border-[var(--color-success)] rounded-lg p-4">
- <h4 className="text-[var(--color-success)] font-semibold mb-2">推荐做法</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">推荐做法</h4>
  <ul className="text-sm text-body space-y-1">
  <li>✓ 使用自定义错误类携带上下文</li>
  <li>✓ 始终分类错误并评估严重性</li>
@@ -1236,8 +1240,8 @@ function attemptJSONFix(
  <li>✓ 实现优雅的降级和恢复策略</li>
  </ul>
  </div>
- <div className="bg-[var(--color-danger-soft)] border border-[var(--color-danger)] rounded-lg p-4">
- <h4 className="text-[var(--color-danger)] font-semibold mb-2">避免做法</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">避免做法</h4>
  <ul className="text-sm text-body space-y-1">
  <li>✗ 忽略或吞掉错误</li>
  <li>✗ 向用户暴露技术细节</li>
@@ -1258,26 +1262,26 @@ function attemptJSONFix(
  <h4 className="text-lg font-medium text-heading mb-2">1. 为什么使用自定义错误类而非原生 Error？</h4>
  <div className="bg-base/30 rounded-lg p-4 text-sm">
  <p className="text-body mb-3">
- 原生 <code className="text-[var(--color-danger)]">Error</code> 只有 <code>message</code> 和 <code>stack</code>，
+ 原生 <code className="text-heading">Error</code> 只有 <code>message</code> 和 <code>stack</code>，
  无法携带结构化的错误上下文。自定义错误类解决了以下问题：
  </p>
  <div className="grid grid-cols-2 gap-4">
  <div>
- <div className="text-[var(--color-danger)] font-semibold mb-1">原生 Error 的不足</div>
+ <div className="text-heading font-semibold mb-1">原生 Error 的不足</div>
  <ul className="text-body text-xs space-y-1">
- <li>• 无法区分错误类型（网络？认证？工具？）</li>
- <li>• 无法判断是否可恢复</li>
- <li>• 无法携带 HTTP 状态码等元数据</li>
- <li>• 无法序列化为 JSON 用于遥测</li>
+ <li>无法区分错误类型（网络？认证？工具？）</li>
+ <li>无法判断是否可恢复</li>
+ <li>无法携带 HTTP 状态码等元数据</li>
+ <li>无法序列化为 JSON 用于遥测</li>
  </ul>
  </div>
  <div>
- <div className="text-[var(--color-success)] font-semibold mb-1">CLIError 解决方案</div>
+ <div className="text-heading font-semibold mb-1">CLIError 解决方案</div>
  <ul className="text-body text-xs space-y-1">
- <li>• <code>code</code> 字段标识错误类型</li>
- <li>• <code>recoverable</code> 布尔值判断恢复可能</li>
- <li>• <code>metadata</code> 携带任意上下文</li>
- <li>• <code>toJSON()</code> 支持遥测序列化</li>
+ <li><code>code</code> 字段标识错误类型</li>
+ <li><code>recoverable</code> 布尔值判断恢复可能</li>
+ <li><code>metadata</code> 携带任意上下文</li>
+ <li><code>toJSON()</code> 支持遥测序列化</li>
  </ul>
  </div>
  </div>
@@ -1311,10 +1315,10 @@ function attemptJSONFix(
  <div className="bg-base/30 rounded-lg p-4 text-sm text-body">
  <p className="mb-2">React/Ink 的渲染错误会导致整个应用崩溃。ErrorBoundary 提供了：</p>
  <ul className="space-y-1 text-body">
- <li>• <strong className="text-heading">隔离性</strong>：UI 错误不会影响核心逻辑</li>
- <li>• <strong className="text-heading">优雅降级</strong>：显示回退 UI 而非白屏</li>
- <li>• <strong className="text-heading">错误上报</strong>：通过 componentDidCatch 记录遥测</li>
- <li>• <strong className="text-heading">可恢复性</strong>：用户可以继续使用其他功能</li>
+ <li><strong className="text-heading">隔离性</strong>：UI 错误不会影响核心逻辑</li>
+ <li><strong className="text-heading">优雅降级</strong>：显示回退 UI 而非白屏</li>
+ <li><strong className="text-heading">错误上报</strong>：通过 componentDidCatch 记录遥测</li>
+ <li><strong className="text-heading">可恢复性</strong>：用户可以继续使用其他功能</li>
  </ul>
  </div>
  </div>
@@ -1369,39 +1373,39 @@ function attemptJSONFix(
  <MermaidDiagram chart={errorRecoveryDecisionTree} title="错误恢复决策流程" />
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
- <div className="bg-[var(--color-success-soft)] border border-[var(--color-success)] rounded-lg p-4">
- <h4 className="text-[var(--color-success)] font-semibold mb-2 flex items-center gap-2">
- <span className="w-6 h-6 rounded-full bg-green-600 text-heading text-xs flex items-center justify-center">1</span>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2 flex items-center gap-2">
+ <span className="w-6 h-6 rounded-full bg-[var(--color-success)] text-heading text-xs flex items-center justify-center">1</span>
  自动重试路径
  </h4>
  <ul className="text-xs text-body space-y-1">
- <li>• 429/5xx 错误 → 指数退避重试</li>
- <li>• 网络超时 → 最多 3 次重试</li>
- <li>• 工具执行失败 → 返回给 AI 重新决策</li>
+ <li>429/5xx 错误 → 指数退避重试</li>
+ <li>网络超时 → 最多 3 次重试</li>
+ <li>工具执行失败 → 返回给 AI 重新决策</li>
  </ul>
  </div>
 
- <div className="bg-[var(--color-warning-soft)] border border-[var(--color-warning)] rounded-lg p-4">
- <h4 className="text-amber-400 font-semibold mb-2 flex items-center gap-2">
- <span className="w-6 h-6 rounded-full bg-amber-600 text-heading text-xs flex items-center justify-center">2</span>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2 flex items-center gap-2">
+ <span className="w-6 h-6 rounded-full bg-[var(--color-warning)] text-heading text-xs flex items-center justify-center">2</span>
  优雅降级路径
  </h4>
  <ul className="text-xs text-body space-y-1">
- <li>• MCP 服务器失败 → 禁用该服务器</li>
- <li>• IDE 连接失败 → 使用内置 Diff</li>
- <li>• 模型不可用 → 回退到备选模型</li>
+ <li>MCP 服务器失败 → 禁用该服务器</li>
+ <li>IDE 连接失败 → 使用内置 Diff</li>
+ <li>模型不可用 → 回退到备选模型</li>
  </ul>
  </div>
 
- <div className="bg-[var(--color-danger-soft)] border border-[var(--color-danger)] rounded-lg p-4">
- <h4 className="text-[var(--color-danger)] font-semibold mb-2 flex items-center gap-2">
- <span className="w-6 h-6 rounded-full bg-red-600 text-heading text-xs flex items-center justify-center">3</span>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2 flex items-center gap-2">
+ <span className="w-6 h-6 rounded-full bg-[var(--color-danger)] text-heading text-xs flex items-center justify-center">3</span>
  用户干预路径
  </h4>
  <ul className="text-xs text-body space-y-1">
- <li>• 401 认证失败 → 提示重新登录</li>
- <li>• 配置错误 → 显示修复指南</li>
- <li>• 严重错误 → 保存状态后退出</li>
+ <li>401 认证失败 → 提示重新登录</li>
+ <li>配置错误 → 显示修复指南</li>
+ <li>严重错误 → 保存状态后退出</li>
  </ul>
  </div>
  </div>
@@ -1417,14 +1421,14 @@ function attemptJSONFix(
  <div className="space-y-6">
  {/* 场景1：API 调用持续失败 */}
  <div className="bg-base/30 rounded-lg p-5 ">
- <h4 className="text-lg font-medium text-[var(--color-danger)] mb-3">场景 1：API 调用持续返回 500</h4>
+ <h4 className="text-lg font-medium text-heading mb-3">场景 1：API 调用持续返回 500</h4>
  <div className="space-y-3 text-sm">
  <div>
  <span className="text-body">症状：</span>
  <span className="text-body ml-2">每次请求都返回 500，自动重试也失败</span>
  </div>
  <div>
- <span className="text-[var(--color-warning)] font-medium">排查步骤：</span>
+ <span className="text-heading font-medium">排查步骤：</span>
  <ol className="mt-2 ml-4 space-y-1 text-body list-decimal list-inside text-xs">
  <li>检查 <code>DEBUG=1 gemini</code> 输出，查看完整请求/响应</li>
  <li>确认 API 端点是否可达：<code>curl -I $OPENAI_BASE_URL/models</code></li>
@@ -1434,7 +1438,7 @@ function attemptJSONFix(
  </ol>
  </div>
  <div>
- <span className="text-[var(--color-success)] font-medium">解决方案：</span>
+ <span className="text-heading font-medium">解决方案：</span>
  <ul className="mt-2 ml-4 space-y-1 text-body list-disc list-inside text-xs">
  <li>如果是模型过载，等待后重试或切换模型</li>
  <li>如果是请求过大，启用上下文压缩或清理历史</li>
@@ -1446,14 +1450,14 @@ function attemptJSONFix(
 
  {/* 场景2：工具执行无限循环 */}
  <div className="bg-base/30 rounded-lg p-5 ">
- <h4 className="text-lg font-medium text-amber-400 mb-3">场景 2：工具执行陷入无限循环</h4>
+ <h4 className="text-lg font-medium text-heading mb-3">场景 2：工具执行陷入无限循环</h4>
  <div className="space-y-3 text-sm">
  <div>
  <span className="text-body">症状：</span>
  <span className="text-body ml-2">AI 反复调用同一工具，输出重复内容</span>
  </div>
  <div>
- <span className="text-[var(--color-warning)] font-medium">排查步骤：</span>
+ <span className="text-heading font-medium">排查步骤：</span>
  <ol className="mt-2 ml-4 space-y-1 text-body list-decimal list-inside text-xs">
  <li>观察循环检测是否触发（查看是否有 "Loop detected" 警告）</li>
  <li>检查工具返回结果是否正常（是否返回了错误导致 AI 重试）</li>
@@ -1462,7 +1466,7 @@ function attemptJSONFix(
  </ol>
  </div>
  <div>
- <span className="text-[var(--color-success)] font-medium">解决方案：</span>
+ <span className="text-heading font-medium">解决方案：</span>
  <ul className="mt-2 ml-4 space-y-1 text-body list-disc list-inside text-xs">
  <li>按 <code>Ctrl+C</code> 中断，然后调整 prompt 或清理上下文</li>
  <li>确保 <code>model.skipLoopDetection: false</code></li>
@@ -1481,7 +1485,7 @@ function attemptJSONFix(
  <span className="text-body ml-2">CLI 启动时报错 "Failed to start MCP server: xxx"</span>
  </div>
  <div>
- <span className="text-[var(--color-warning)] font-medium">排查步骤：</span>
+ <span className="text-heading font-medium">排查步骤：</span>
  <ol className="mt-2 ml-4 space-y-1 text-body list-decimal list-inside text-xs">
  <li>检查 MCP 服务器命令是否存在：<code>which npx</code> 或 <code>which node</code></li>
  <li>手动运行 MCP 命令确认能否启动</li>
@@ -1490,7 +1494,7 @@ function attemptJSONFix(
  </ol>
  </div>
  <div>
- <span className="text-[var(--color-success)] font-medium">解决方案：</span>
+ <span className="text-heading font-medium">解决方案：</span>
  <ul className="mt-2 ml-4 space-y-1 text-body list-disc list-inside text-xs">
  <li>安装缺失的依赖：<code>npm install -g @modelcontextprotocol/server-xxx</code></li>
  <li>修正 <code>settings.json</code> 中的命令/参数（或扩展 <code>gemini-extension.json</code> 的 mcpServers）</li>
@@ -1509,7 +1513,7 @@ function attemptJSONFix(
  <span className="text-body ml-2">"Welcome Back" 列表为空或选择后报错</span>
  </div>
  <div>
- <span className="text-[var(--color-warning)] font-medium">排查步骤：</span>
+ <span className="text-heading font-medium">排查步骤：</span>
  <ol className="mt-2 ml-4 space-y-1 text-body list-decimal list-inside text-xs">
  <li>检查会话文件是否存在：<code>ls ~/.gemini/tmp/*/chats/</code></li>
  <li>验证会话 JSON 格式：<code>cat session-xxx.json | jq .</code></li>
@@ -1518,7 +1522,7 @@ function attemptJSONFix(
  </ol>
  </div>
  <div>
- <span className="text-[var(--color-success)] font-medium">解决方案：</span>
+ <span className="text-heading font-medium">解决方案：</span>
  <ul className="mt-2 ml-4 space-y-1 text-body list-disc list-inside text-xs">
  <li>如果 JSON 损坏，删除该文件并创建新会话</li>
  <li>如果哈希不匹配，在正确的项目目录下启动</li>
@@ -1545,51 +1549,51 @@ function attemptJSONFix(
  </thead>
  <tbody className="text-body">
  <tr className="border- border-edge">
- <td className="py-2 px-2"><code className="text-[var(--color-danger)]">API_ERROR_401</code></td>
+ <td className="py-2 px-2"><code className="text-heading">API_ERROR_401</code></td>
  <td className="py-2 px-2">APIError</td>
- <td className="py-2 px-2"><span className="text-[var(--color-danger)]">否</span></td>
+ <td className="py-2 px-2"><span className="text-heading">否</span></td>
  <td className="py-2 px-2">提示用户重新认证</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-2"><code className="text-heading">API_ERROR_429</code></td>
  <td className="py-2 px-2">APIError</td>
- <td className="py-2 px-2"><span className="text-[var(--color-success)]">是</span></td>
+ <td className="py-2 px-2"><span className="text-heading">是</span></td>
  <td className="py-2 px-2">指数退避重试</td>
  </tr>
  <tr className="border- border-edge">
- <td className="py-2 px-2"><code className="text-[var(--color-warning)]">API_ERROR_500</code></td>
+ <td className="py-2 px-2"><code className="text-heading">API_ERROR_500</code></td>
  <td className="py-2 px-2">APIError</td>
- <td className="py-2 px-2"><span className="text-[var(--color-success)]">是</span></td>
+ <td className="py-2 px-2"><span className="text-heading">是</span></td>
  <td className="py-2 px-2">重试 + 模型回退</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-2"><code className="text-heading">NETWORK_ERROR</code></td>
  <td className="py-2 px-2">NetworkError</td>
- <td className="py-2 px-2"><span className="text-[var(--color-success)]">是</span></td>
+ <td className="py-2 px-2"><span className="text-heading">是</span></td>
  <td className="py-2 px-2">检查网络后重试</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-2"><code className="text-heading">TIMEOUT_ERROR</code></td>
  <td className="py-2 px-2">TimeoutError</td>
- <td className="py-2 px-2"><span className="text-[var(--color-success)]">是</span></td>
+ <td className="py-2 px-2"><span className="text-heading">是</span></td>
  <td className="py-2 px-2">增加超时或重试</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-2"><code className="text-heading">TOOL_ERROR</code></td>
  <td className="py-2 px-2">ToolExecutionError</td>
- <td className="py-2 px-2"><span className="text-[var(--color-success)]">是</span></td>
+ <td className="py-2 px-2"><span className="text-heading">是</span></td>
  <td className="py-2 px-2">返回给 AI 重新决策</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-2"><code className="text-body">CONFIG_ERROR</code></td>
  <td className="py-2 px-2">ConfigurationError</td>
- <td className="py-2 px-2"><span className="text-[var(--color-danger)]">否</span></td>
+ <td className="py-2 px-2"><span className="text-heading">否</span></td>
  <td className="py-2 px-2">提示用户修复配置</td>
  </tr>
  <tr>
  <td className="py-2 px-2"><code className="text-heading">AUTH_ERROR</code></td>
  <td className="py-2 px-2">AuthenticationError</td>
- <td className="py-2 px-2"><span className="text-[var(--color-danger)]">否</span></td>
+ <td className="py-2 px-2"><span className="text-heading">否</span></td>
  <td className="py-2 px-2">执行 logout + 重新登录</td>
  </tr>
  </tbody>

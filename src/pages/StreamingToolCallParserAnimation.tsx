@@ -355,7 +355,7 @@ function BufferVisualizer({
  isActive: boolean;
 }) {
  const getDepthColor = (depth: number) => {
- const colors = ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444'];
+ const colors = ['var(--color-success)', 'var(--color-primary)', 'var(--purple)', 'var(--color-warning)', 'var(--color-danger)'];
  return colors[Math.min(depth, colors.length - 1)];
  };
 
@@ -369,7 +369,7 @@ function BufferVisualizer({
  }
  `}
  style={{
- background: 'linear-gradient(135deg, rgba(0,0,0,0.8), rgba(20,20,30,0.9))',
+ background: 'linear-gradient(135deg, var(--color-bg-elevated), var(--color-bg-surface))',
  }}
  >
  {/* Buffer 头部 */}
@@ -380,7 +380,7 @@ function BufferVisualizer({
  className="px-2 py-0.5 rounded text-xs font-bold"
  style={{
  backgroundColor: getDepthColor(buffer.index),
- color: 'white'
+ color: 'var(--color-bg)'
  }}
  >
  #{buffer.index}
@@ -393,8 +393,8 @@ function BufferVisualizer({
  <div
  className="font-mono text-sm p-2 rounded mb-3 overflow-x-auto"
  style={{
- backgroundColor: 'rgba(0,0,0,0.5)',
- color: buffer.content.startsWith('✓') ? '#10b981' : '#e5e7eb'
+ backgroundColor: 'var(--color-bg-elevated)',
+ color: buffer.content.startsWith('✓') ? 'var(--color-success)' : 'var(--color-text)'
  }}
  >
  {buffer.content || <span className="text-dim">(empty)</span>}
@@ -402,7 +402,7 @@ function BufferVisualizer({
 
  {/* 状态指示器 */}
  <div className="grid grid-cols-4 gap-2 text-xs">
- <div className="flex flex-col items-center p-2 rounded" style={{ backgroundColor: 'rgba(0,0,0,0.3)' }}>
+ <div className="flex flex-col items-center p-2 rounded" style={{ backgroundColor: 'var(--color-bg-elevated)' }}>
  <span className="text-dim">depth</span>
  <span
  className="font-bold text-lg"
@@ -411,19 +411,19 @@ function BufferVisualizer({
  {buffer.depth}
  </span>
  </div>
- <div className="flex flex-col items-center p-2 rounded" style={{ backgroundColor: 'rgba(0,0,0,0.3)' }}>
+ <div className="flex flex-col items-center p-2 rounded" style={{ backgroundColor: 'var(--color-bg-elevated)' }}>
  <span className="text-dim">inString</span>
- <span className={`font-bold text-lg ${buffer.inString ? 'text-amber-400' : 'text-dim'}`}>
+ <span className={`font-bold text-lg ${buffer.inString ? 'text-heading' : 'text-dim'}`}>
  {buffer.inString ? '✓' : '✗'}
  </span>
  </div>
- <div className="flex flex-col items-center p-2 rounded" style={{ backgroundColor: 'rgba(0,0,0,0.3)' }}>
+ <div className="flex flex-col items-center p-2 rounded" style={{ backgroundColor: 'var(--color-bg-elevated)' }}>
  <span className="text-dim">escapes</span>
  <span className="font-bold text-lg text-body">{buffer.escapes}</span>
  </div>
- <div className="flex flex-col items-center p-2 rounded" style={{ backgroundColor: 'rgba(0,0,0,0.3)' }}>
+ <div className="flex flex-col items-center p-2 rounded" style={{ backgroundColor: 'var(--color-bg-elevated)' }}>
  <span className="text-dim">ready</span>
- <span className={`font-bold text-lg ${buffer.depth === 0 && buffer.content.length > 0 ? 'text-green-400' : 'text-dim'}`}>
+ <span className={`font-bold text-lg ${buffer.depth === 0 && buffer.content.length > 0 ? 'text-heading' : 'text-dim'}`}>
  {buffer.depth === 0 && buffer.content.length > 0 ? '✓' : '✗'}
  </span>
  </div>
@@ -455,7 +455,7 @@ function StreamVisualizer({ currentPhase }: { currentPhase: ParserPhase }) {
  const activeIndex = getChunkIndex();
 
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
  <div className="text-xs text-dim mb-2 font-mono">OpenAI Streaming Chunks →</div>
  <div className="flex flex-wrap gap-1">
  {chunks.map((chunk, i) => (
@@ -484,21 +484,21 @@ function CollisionVisualizer({ show }: { show: boolean }) {
 
  return (
  <div
- className="mb-6 p-4 rounded-lg border-2 border-amber-500/50 animate-pulse"
- style={{ backgroundColor: 'rgba(245, 158, 11, 0.1)' }}
+ className="mb-6 p-4 rounded-lg border-2 border-edge/40 animate-pulse"
+ style={{ backgroundColor: 'var(--color-bg-elevated)' }}
  >
- <div className="flex items-center gap-2 text-amber-400 mb-2">
+ <div className="flex items-center gap-2 text-heading mb-2">
  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
  </svg>
  <span className="font-bold">索引碰撞检测</span>
  </div>
  <div className="text-sm text-body">
- <code className="text-amber-300">index: 0</code> 被两个不同的工具调用使用：
+ <code className="text-heading">index: 0</code> 被两个不同的工具调用使用：
  <div className="mt-2 grid grid-cols-2 gap-2">
  <div className="p-2 rounded bg-base/30">
  <div className="text-xs text-dim">原始</div>
- <div className="font-mono text-green-400">call_abc123</div>
+ <div className="font-mono text-heading">call_abc123</div>
  </div>
  <div className="p-2 rounded bg-base/30">
  <div className="text-xs text-dim">碰撞</div>
@@ -558,7 +558,7 @@ export function StreamingToolCallParserAnimation() {
  <div className="text-xs text-dim mt-1 font-mono">
  核心文件: packages/core/src/core/openaiContentGenerator/streamingToolCallParser.ts
  </div>
- <div className="mt-4 bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 text-sm text-amber-200">
+ <div className="mt-4 bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-3 text-sm text-heading">
  注意：本页描述的是 Innies/Qwen CLI 的 OpenAI 兼容层实现；上游 Gemini CLI 使用{' '}
  <code className="bg-base/30 px-1 rounded">@google/genai</code> 的{' '}
  <code className="bg-base/30 px-1 rounded">functionCall / functionResponse</code> parts，
@@ -599,12 +599,12 @@ export function StreamingToolCallParserAnimation() {
  {/* 当前步骤信息 */}
  <div
  className="rounded-lg p-6 border border-edge/30"
- style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.1), rgba(0,0,0,0.8))' }}
+ style={{ background: 'linear-gradient(135deg, var(--color-success-soft), var(--color-bg-surface))' }}
  >
  <div className="flex items-center gap-3 mb-4">
  <div
  className="w-10 h-10 rounded-lg flex items-center justify-center text-lg font-bold"
- style={{ backgroundColor: 'var(--color-primary)', color: 'black' }}
+ style={{ backgroundColor: 'var(--color-primary)', color: 'var(--color-bg)' }}
  >
  {currentStep + 1}
  </div>
@@ -618,7 +618,7 @@ export function StreamingToolCallParserAnimation() {
  <div
  className="inline-block px-3 py-1 rounded-full text-sm font-medium"
  style={{
- backgroundColor: 'rgba(56, 189, 248, 0.2)',
+ backgroundColor: 'var(--color-bg-elevated)',
  color: 'var(--color-text)'
  }}
  >
@@ -649,7 +649,7 @@ export function StreamingToolCallParserAnimation() {
  ) : (
  <div
  className="p-8 rounded-lg border border-dashed border-edge text-center text-dim"
- style={{ backgroundColor: 'rgba(0,0,0,0.3)' }}
+ style={{ backgroundColor: 'var(--color-bg-elevated)' }}
  >
  暂无 Buffer
  </div>
@@ -670,20 +670,7 @@ export function StreamingToolCallParserAnimation() {
  </div>
 
  {showCode && (
- <div
- className="rounded-lg overflow-hidden border border-edge"
- style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
- >
- <div className="p-1 border- border-edge flex items-center gap-2">
- <div className="w-3 h-3 rounded-full bg-red-500/80" />
- <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
- <div className="w-3 h-3 rounded-full bg-green-500/80" />
- <span className="text-xs text-dim ml-2 font-mono">
- streamingToolCallParser.ts
- </span>
- </div>
- <JsonBlock code={step.codeSnippet} />
- </div>
+ <JsonBlock code={step.codeSnippet} title="streamingToolCallParser.ts" />
  )}
  </div>
  </div>
@@ -708,7 +695,7 @@ export function StreamingToolCallParserAnimation() {
  className={`
  px-6 py-2 rounded-lg font-medium transition-colors
  ${isPlaying
- ? 'bg-amber-600 text-heading hover:bg-amber-500'
+ ? 'bg-[var(--color-warning)] text-heading hover:bg-[var(--color-warning)]'
  : ' bg-elevated text-heading hover:opacity-90'
  }
  `}
@@ -728,22 +715,22 @@ export function StreamingToolCallParserAnimation() {
  <div className="max-w-6xl mx-auto mt-8">
  <div
  className="rounded-lg p-6 border border-edge"
- style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
+ style={{ backgroundColor: 'var(--color-bg-surface)' }}
  >
  <h3 className="text-lg font-bold text-heading mb-4">多层解析策略</h3>
  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
  {[
- { name: '标准解析', desc: 'JSON.parse() 直接解析', color: '#10b981' },
- { name: '字符串修复', desc: '自动闭合未闭合的引号', color: '#3b82f6' },
- { name: '括号补全', desc: '根据 depth 补全 { }', color: '#8b5cf6' },
- { name: '安全降级', desc: '移除尾部 + 宽松解析', color: '#f59e0b' },
+ { name: '标准解析', desc: 'JSON.parse() 直接解析', color: 'var(--color-success)', bg: 'var(--color-bg-elevated)' },
+ { name: '字符串修复', desc: '自动闭合未闭合的引号', color: 'var(--color-primary)', bg: 'var(--color-bg-elevated)' },
+ { name: '括号补全', desc: '根据 depth 补全 { }', color: 'var(--purple)', bg: 'var(--purple-glow)' },
+ { name: '安全降级', desc: '移除尾部 + 宽松解析', color: 'var(--color-warning)', bg: 'var(--color-bg-elevated)' },
  ].map((strategy, i) => (
  <div
  key={i}
  className="p-4 rounded-lg border"
  style={{
- borderColor: strategy.color + '40',
- backgroundColor: strategy.color + '10'
+ borderColor: strategy.color,
+ backgroundColor: strategy.bg
  }}
  >
  <div className="flex items-center gap-2 mb-2">

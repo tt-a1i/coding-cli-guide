@@ -47,7 +47,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">认证方式</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-amber-500">7</div>
+ <div className="text-2xl font-bold text-heading">7</div>
  <div className="text-xs text-dim">不合格原因</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
@@ -71,7 +71,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  OnboardUser
  </span>
  <span className="text-dim">→</span>
- <span className="px-3 py-1.5 bg-amber-500/20 text-amber-500 rounded-lg border border-amber-500/30">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover/30">
  配置项目
  </span>
  </div>
@@ -93,176 +93,176 @@ export function CodeAssist() {
  const [isSummaryExpanded, setIsSummaryExpanded] = useState(true);
 
  const codeAssistFlowChart = `flowchart TD
- subgraph Auth["认证层"]
- OAUTH[OAuth2 认证]
- TOKEN[Access Token]
- end
+  subgraph Auth["认证层"]
+  OAUTH[OAuth2 认证]
+  TOKEN[Access Token]
+  end
 
- subgraph Load["加载层"]
- LOAD[LoadCodeAssist API]
- TIERS[可用 Tier 列表]
- INELIG[不合格 Tier]
- end
+  subgraph Load["加载层"]
+  LOAD[LoadCodeAssist API]
+  TIERS[可用 Tier 列表]
+  INELIG[不合格 Tier]
+  end
 
- subgraph Onboard["注册层"]
- SELECT[选择 Tier]
- ONBOARD[OnboardUser API]
- LRO[Long Running Operation]
- PROJECT[cloudaicompanionProject]
- end
+  subgraph Onboard["注册层"]
+  SELECT[选择 Tier]
+  ONBOARD[OnboardUser API]
+  LRO[Long Running Operation]
+  PROJECT[cloudaicompanionProject]
+  end
 
- subgraph Config["配置层"]
- SETTINGS[全局设置]
- PRIVACY[隐私声明]
- end
+  subgraph Config["配置层"]
+  SETTINGS[全局设置]
+  PRIVACY[隐私声明]
+  end
 
- OAUTH --> TOKEN
- TOKEN --> LOAD
- LOAD --> TIERS
- LOAD --> INELIG
- TIERS --> SELECT
- SELECT --> ONBOARD
- ONBOARD --> LRO
- LRO --> PROJECT
- PROJECT --> SETTINGS
- PROJECT --> PRIVACY
+  OAUTH --> TOKEN
+  TOKEN --> LOAD
+  LOAD --> TIERS
+  LOAD --> INELIG
+  TIERS --> SELECT
+  SELECT --> ONBOARD
+  ONBOARD --> LRO
+  LRO --> PROJECT
+  PROJECT --> SETTINGS
+  PROJECT --> PRIVACY
 
- style OAUTH stroke:#00d4ff
- style LRO stroke:#a855f7
- style PROJECT stroke:#00ff88`;
+  style OAUTH stroke:#00d4ff
+  style LRO stroke:#a855f7
+  style PROJECT stroke:#00ff88`;
 
  const userTierCode = `// 用户 Tier 类型定义
 export enum UserTierId {
- FREE = 'free-tier', // 免费层级
- LEGACY = 'legacy-tier', // 旧版层级
- STANDARD = 'standard-tier', // 标准层级
+  FREE = 'free-tier', // 免费层级
+  LEGACY = 'legacy-tier', // 旧版层级
+  STANDARD = 'standard-tier', // 标准层级
 }
 
 // Tier 详细信息
 export interface GeminiUserTier {
- id: UserTierId;
- name?: string; // 显示名称
- description?: string; // 描述
+  id: UserTierId;
+  name?: string; // 显示名称
+  description?: string; // 描述
 
- // 是否需要用户配置项目
- userDefinedCloudaicompanionProject?: boolean | null;
+  // 是否需要用户配置项目
+  userDefinedCloudaicompanionProject?: boolean | null;
 
- isDefault?: boolean; // 是否默认
- privacyNotice?: PrivacyNotice; // 隐私声明
- hasAcceptedTos?: boolean; // 是否已接受 ToS
- hasOnboardedPreviously?: boolean; // 是否曾经注册
+  isDefault?: boolean; // 是否默认
+  privacyNotice?: PrivacyNotice; // 隐私声明
+  hasAcceptedTos?: boolean; // 是否已接受 ToS
+  hasOnboardedPreviously?: boolean; // 是否曾经注册
 }
 
 // 隐私声明
 export interface PrivacyNotice {
- showNotice: boolean;
- noticeText?: string;
+  showNotice: boolean;
+  noticeText?: string;
 }`;
 
  const ineligibleTierCode = `// 不合格 Tier 原因码
 export enum IneligibleTierReasonCode {
- DASHER_USER = 'DASHER_USER', // Dasher 用户
- INELIGIBLE_ACCOUNT = 'INELIGIBLE_ACCOUNT', // 不合格账户
- NON_USER_ACCOUNT = 'NON_USER_ACCOUNT', // 非用户账户
- RESTRICTED_AGE = 'RESTRICTED_AGE', // 年龄限制
- RESTRICTED_NETWORK = 'RESTRICTED_NETWORK', // 网络限制
- UNKNOWN = 'UNKNOWN', // 未知原因
- UNKNOWN_LOCATION = 'UNKNOWN_LOCATION', // 未知位置
- UNSUPPORTED_LOCATION = 'UNSUPPORTED_LOCATION', // 不支持的地区
+  DASHER_USER = 'DASHER_USER', // Dasher 用户
+  INELIGIBLE_ACCOUNT = 'INELIGIBLE_ACCOUNT', // 不合格账户
+  NON_USER_ACCOUNT = 'NON_USER_ACCOUNT', // 非用户账户
+  RESTRICTED_AGE = 'RESTRICTED_AGE', // 年龄限制
+  RESTRICTED_NETWORK = 'RESTRICTED_NETWORK', // 网络限制
+  UNKNOWN = 'UNKNOWN', // 未知原因
+  UNKNOWN_LOCATION = 'UNKNOWN_LOCATION', // 未知位置
+  UNSUPPORTED_LOCATION = 'UNSUPPORTED_LOCATION', // 不支持的地区
 }
 
 // 不合格 Tier 信息
 export interface IneligibleTier {
- reasonCode: IneligibleTierReasonCode;
- reasonMessage: string; // 显示给用户的消息
- tierId: UserTierId;
- tierName: string;
+  reasonCode: IneligibleTierReasonCode;
+  reasonMessage: string; // 显示给用户的消息
+  tierId: UserTierId;
+  tierName: string;
 }`;
 
  const loadCodeAssistCode = `// LoadCodeAssist 请求/响应
 export interface ClientMetadata {
- ideType?: ClientMetadataIdeType; // IDE 类型
- ideVersion?: string; // IDE 版本
- pluginVersion?: string; // 插件版本
- platform?: ClientMetadataPlatform; // 平台
- updateChannel?: string;
- duetProject?: string;
- pluginType?: ClientMetadataPluginType;
- ideName?: string;
+  ideType?: ClientMetadataIdeType; // IDE 类型
+  ideVersion?: string; // IDE 版本
+  pluginVersion?: string; // 插件版本
+  platform?: ClientMetadataPlatform; // 平台
+  updateChannel?: string;
+  duetProject?: string;
+  pluginType?: ClientMetadataPluginType;
+  ideName?: string;
 }
 
 export interface LoadCodeAssistRequest {
- cloudaicompanionProject?: string;
- metadata: ClientMetadata;
+  cloudaicompanionProject?: string;
+  metadata: ClientMetadata;
 }
 
 export interface LoadCodeAssistResponse {
- currentTier?: GeminiUserTier | null; // 当前 Tier
- allowedTiers?: GeminiUserTier[] | null; // 可用 Tier 列表
- ineligibleTiers?: IneligibleTier[] | null; // 不合格 Tier
- cloudaicompanionProject?: string | null; // 项目 ID
+  currentTier?: GeminiUserTier | null; // 当前 Tier
+  allowedTiers?: GeminiUserTier[] | null; // 可用 Tier 列表
+  ineligibleTiers?: IneligibleTier[] | null; // 不合格 Tier
+  cloudaicompanionProject?: string | null; // 项目 ID
 }`;
 
  const onboardUserCode = `// OnboardUser 注册流程
 export interface OnboardUserRequest {
- tierId: string | undefined;
- cloudaicompanionProject: string | undefined;
- metadata: ClientMetadata | undefined;
+  tierId: string | undefined;
+  cloudaicompanionProject: string | undefined;
+  metadata: ClientMetadata | undefined;
 }
 
 // Long Running Operation 响应
 export interface LongRunningOperationResponse {
- name: string; // 操作名称
- done?: boolean; // 是否完成
- response?: OnboardUserResponse; // 完成后的响应
+  name: string; // 操作名称
+  done?: boolean; // 是否完成
+  response?: OnboardUserResponse; // 完成后的响应
 }
 
 export interface OnboardUserResponse {
- cloudaicompanionProject?: {
- id: string;
- name: string;
- };
+  cloudaicompanionProject?: {
+  id: string;
+  name: string;
+  };
 }
 
 // 注册状态码
 export enum OnboardUserStatusCode {
- Default = 'DEFAULT',
- Notice = 'NOTICE', // 提示信息
- Warning = 'WARNING', // 警告
- Error = 'ERROR', // 错误
+  Default = 'DEFAULT',
+  Notice = 'NOTICE', // 提示信息
+  Warning = 'WARNING', // 警告
+  Error = 'ERROR', // 错误
 }
 
 export interface OnboardUserStatus {
- statusCode: OnboardUserStatusCode;
- displayMessage: string;
- helpLink: HelpLinkUrl | undefined;
+  statusCode: OnboardUserStatusCode;
+  displayMessage: string;
+  helpLink: HelpLinkUrl | undefined;
 }`;
 
  const platformTypesCode = `// IDE 类型
 export type ClientMetadataIdeType =
- | 'IDE_UNSPECIFIED'
- | 'VSCODE'
- | 'INTELLIJ'
- | 'VSCODE_CLOUD_WORKSTATION'
- | 'INTELLIJ_CLOUD_WORKSTATION'
- | 'CLOUD_SHELL';
+  | 'IDE_UNSPECIFIED'
+  | 'VSCODE'
+  | 'INTELLIJ'
+  | 'VSCODE_CLOUD_WORKSTATION'
+  | 'INTELLIJ_CLOUD_WORKSTATION'
+  | 'CLOUD_SHELL';
 
 // 平台类型
 export type ClientMetadataPlatform =
- | 'PLATFORM_UNSPECIFIED'
- | 'DARWIN_AMD64'
- | 'DARWIN_ARM64'
- | 'LINUX_AMD64'
- | 'LINUX_ARM64'
- | 'WINDOWS_AMD64';
+  | 'PLATFORM_UNSPECIFIED'
+  | 'DARWIN_AMD64'
+  | 'DARWIN_ARM64'
+  | 'LINUX_AMD64'
+  | 'LINUX_ARM64'
+  | 'WINDOWS_AMD64';
 
 // 插件类型
 export type ClientMetadataPluginType =
- | 'PLUGIN_UNSPECIFIED'
- | 'CLOUD_CODE'
- | 'GEMINI'
- | 'AIPLUGIN_INTELLIJ'
- | 'AIPLUGIN_STUDIO';`;
+  | 'PLUGIN_UNSPECIFIED'
+  | 'CLOUD_CODE'
+  | 'GEMINI'
+  | 'AIPLUGIN_INTELLIJ'
+  | 'AIPLUGIN_STUDIO';`;
 
  return (
  <div className="space-y-8">
@@ -284,17 +284,17 @@ export type ClientMetadataPluginType =
  <div className="bg-surface p-4 rounded-lg border border-edge">
  <div className="text-heading font-bold mb-2">☁️ Cloud Code Assist</div>
  <ul className="text-sm text-body space-y-1">
- <li>• Google Cloud 服务</li>
- <li>• 管理 Gemini 访问权限</li>
- <li>• 处理订阅和配额</li>
+ <li>Google Cloud 服务</li>
+ <li>管理 Gemini 访问权限</li>
+ <li>处理订阅和配额</li>
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge">
  <div className="text-heading font-bold mb-2">🔗 集成方式</div>
  <ul className="text-sm text-body space-y-1">
- <li>• OAuth2 认证获取 Token</li>
- <li>• REST API 调用</li>
- <li>• 长时操作 (LRO) 支持</li>
+ <li>OAuth2 认证获取 Token</li>
+ <li>REST API 调用</li>
+ <li>长时操作 (LRO) 支持</li>
  </ul>
  </div>
  </div>
@@ -319,7 +319,7 @@ export type ClientMetadataPluginType =
  <td>基础功能，有使用限制</td>
  </tr>
  <tr className="border- border-edge/30">
- <td className="py-2 text-amber-500">legacy-tier</td>
+ <td className="py-2 text-heading">legacy-tier</td>
  <td>旧版</td>
  <td>历史用户迁移</td>
  </tr>
@@ -339,19 +339,19 @@ export type ClientMetadataPluginType =
  <HighlightBox title="常见不合格原因" color="orange" className="mt-4">
  <div className="grid grid-cols-2 gap-4 text-sm">
  <div>
- <span className="text-red-400">RESTRICTED_AGE</span>
+ <span className="text-heading">RESTRICTED_AGE</span>
  <p className="text-dim">年龄限制，需满足最低年龄要求</p>
  </div>
  <div>
- <span className="text-red-400">UNSUPPORTED_LOCATION</span>
+ <span className="text-heading">UNSUPPORTED_LOCATION</span>
  <p className="text-dim">地区不支持该服务</p>
  </div>
  <div>
- <span className="text-red-400">INELIGIBLE_ACCOUNT</span>
+ <span className="text-heading">INELIGIBLE_ACCOUNT</span>
  <p className="text-dim">账户类型不符合要求</p>
  </div>
  <div>
- <span className="text-red-400">RESTRICTED_NETWORK</span>
+ <span className="text-heading">RESTRICTED_NETWORK</span>
  <p className="text-dim">网络环境受限</p>
  </div>
  </div>

@@ -54,7 +54,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">双向通信</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-amber-500">Resize</div>
+ <div className="text-2xl font-bold text-heading">Resize</div>
  <div className="text-xs text-dim">动态调整</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
@@ -72,7 +72,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <span className="px-3 py-1.5 bg-elevated/20 text-heading rounded-lg border border-edge/30">
  终端控制码
  </span>
- <span className="px-3 py-1.5 bg-amber-500/20 text-amber-500 rounded-lg border border-amber-500/30">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover/30">
  输入写入
  </span>
  <span className="px-3 py-1.5 bg-elevated/20 text-heading rounded-lg border border-edge/30">
@@ -207,492 +207,492 @@ export function InteractiveShell() {
  const ptyManagerCode = `// packages/cli/src/tools/pty/PtyManager.ts
 
 interface PtySessionOptions {
- command: string;
- args?: string[];
- cwd?: string;
- env?: Record<string, string>;
- cols?: number;
- rows?: number;
- timeout?: number;
+  command: string;
+  args?: string[];
+  cwd?: string;
+  env?: Record<string, string>;
+  cols?: number;
+  rows?: number;
+  timeout?: number;
 }
 
 interface PtySession {
- id: string;
- pty: IPty;
- output: string[];
- isAlive: boolean;
- exitCode: number | null;
+  id: string;
+  pty: IPty;
+  output: string[];
+  isAlive: boolean;
+  exitCode: number | null;
 }
 
 export class PtyManager {
- private sessions: Map<string, PtySession> = new Map();
- private maxSessions: number;
+  private sessions: Map<string, PtySession> = new Map();
+  private maxSessions: number;
 
- constructor(options: { maxSessions?: number } = {}) {
- this.maxSessions = options.maxSessions ?? 5;
- }
+  constructor(options: { maxSessions?: number } = {}) {
+  this.maxSessions = options.maxSessions ?? 5;
+  }
 
- /**
- * 创建新的 PTY 会话
- * - 检查会话数量限制
- * - 生成唯一 sessionId
- * - 使用 node-pty 创建伪终端
- */
- async createSession(options: PtySessionOptions): Promise<PtySession> {
- if (this.sessions.size >= this.maxSessions) {
- throw new Error(
- \`Maximum PTY sessions (\${this.maxSessions}) reached. \\
+  /**
+  * 创建新的 PTY 会话
+  * - 检查会话数量限制
+  * - 生成唯一 sessionId
+  * - 使用 node-pty 创建伪终端
+  */
+  async createSession(options: PtySessionOptions): Promise<PtySession> {
+  if (this.sessions.size >= this.maxSessions) {
+  throw new Error(
+  \`Maximum PTY sessions (\${this.maxSessions}) reached. \\
 Close an existing session first.\`
- );
- }
+  );
+  }
 
- const sessionId = generateSessionId();
- const shell = options.command || getDefaultShell();
+  const sessionId = generateSessionId();
+  const shell = options.command || getDefaultShell();
 
- const ptyProcess = pty.spawn(shell, options.args || [], {
- name: 'xterm-256color',
- cols: options.cols ?? 80,
- rows: options.rows ?? 24,
- cwd: options.cwd || process.cwd(),
- env: { ...process.env, ...options.env },
- });
+  const ptyProcess = pty.spawn(shell, options.args || [], {
+  name: 'xterm-256color',
+  cols: options.cols ?? 80,
+  rows: options.rows ?? 24,
+  cwd: options.cwd || process.cwd(),
+  env: { ...process.env, ...options.env },
+  });
 
- const session: PtySession = {
- id: sessionId,
- pty: ptyProcess,
- output: [],
- isAlive: true,
- exitCode: null,
- };
+  const session: PtySession = {
+  id: sessionId,
+  pty: ptyProcess,
+  output: [],
+  isAlive: true,
+  exitCode: null,
+  };
 
- // 监听输出
- ptyProcess.onData((data: string) => {
- session.output.push(data);
- // 限制输出缓冲大小，防止内存泄漏
- if (session.output.length > MAX_OUTPUT_LINES) {
- session.output = session.output.slice(-MAX_OUTPUT_LINES);
- }
- });
+  // 监听输出
+  ptyProcess.onData((data: string) => {
+  session.output.push(data);
+  // 限制输出缓冲大小，防止内存泄漏
+  if (session.output.length > MAX_OUTPUT_LINES) {
+  session.output = session.output.slice(-MAX_OUTPUT_LINES);
+  }
+  });
 
- // 监听退出
- ptyProcess.onExit(({ exitCode, signal }) => {
- session.isAlive = false;
- session.exitCode = exitCode;
- this.handleSessionExit(sessionId, exitCode, signal);
- });
+  // 监听退出
+  ptyProcess.onExit(({ exitCode, signal }) => {
+  session.isAlive = false;
+  session.exitCode = exitCode;
+  this.handleSessionExit(sessionId, exitCode, signal);
+  });
 
- this.sessions.set(sessionId, session);
- return session;
- }
+  this.sessions.set(sessionId, session);
+  return session;
+  }
 
- /**
- * 向会话写入数据
- */
- write(sessionId: string, data: string): void {
- const session = this.getActiveSession(sessionId);
- session.pty.write(data);
- }
+  /**
+  * 向会话写入数据
+  */
+  write(sessionId: string, data: string): void {
+  const session = this.getActiveSession(sessionId);
+  session.pty.write(data);
+  }
 
- /**
- * 调整终端大小
- */
- resize(sessionId: string, cols: number, rows: number): void {
- const session = this.getActiveSession(sessionId);
- session.pty.resize(cols, rows);
- }
+  /**
+  * 调整终端大小
+  */
+  resize(sessionId: string, cols: number, rows: number): void {
+  const session = this.getActiveSession(sessionId);
+  session.pty.resize(cols, rows);
+  }
 
- /**
- * 关闭会话 - 优雅关闭流程
- */
- async closeSession(sessionId: string): Promise<{ exitCode: number | null }> {
- const session = this.sessions.get(sessionId);
- if (!session) throw new Error(\`Session \${sessionId} not found\`);
+  /**
+  * 关闭会话 - 优雅关闭流程
+  */
+  async closeSession(sessionId: string): Promise<{ exitCode: number | null }> {
+  const session = this.sessions.get(sessionId);
+  if (!session) throw new Error(\`Session \${sessionId} not found\`);
 
- if (session.isAlive) {
- // 第一阶段：发送 SIGTERM
- session.pty.kill();
+  if (session.isAlive) {
+  // 第一阶段：发送 SIGTERM
+  session.pty.kill();
 
- // 等待进程退出
- await withTimeout(
- new Promise<void>(resolve => {
- const check = setInterval(() => {
- if (!session.isAlive) {
- clearInterval(check);
- resolve();
- }
- }, 100);
- }),
- GRACEFUL_SHUTDOWN_TIMEOUT
- ).catch(() => {
- // 第二阶段：强制 SIGKILL
- try { process.kill(session.pty.pid, 'SIGKILL'); } catch {}
- });
- }
+  // 等待进程退出
+  await withTimeout(
+  new Promise<void>(resolve => {
+  const check = setInterval(() => {
+  if (!session.isAlive) {
+  clearInterval(check);
+  resolve();
+  }
+  }, 100);
+  }),
+  GRACEFUL_SHUTDOWN_TIMEOUT
+  ).catch(() => {
+  // 第二阶段：强制 SIGKILL
+  try { process.kill(session.pty.pid, 'SIGKILL'); } catch {}
+  });
+  }
 
- this.sessions.delete(sessionId);
- return { exitCode: session.exitCode };
- }
+  this.sessions.delete(sessionId);
+  return { exitCode: session.exitCode };
+  }
 
- /**
- * 关闭所有会话（CLI 退出时调用）
- */
- async closeAll(): Promise<void> {
- const closePromises = Array.from(this.sessions.keys())
- .map(id => this.closeSession(id));
- await Promise.allSettled(closePromises);
- }
+  /**
+  * 关闭所有会话（CLI 退出时调用）
+  */
+  async closeAll(): Promise<void> {
+  const closePromises = Array.from(this.sessions.keys())
+  .map(id => this.closeSession(id));
+  await Promise.allSettled(closePromises);
+  }
 
- private getActiveSession(sessionId: string): PtySession {
- const session = this.sessions.get(sessionId);
- if (!session) throw new Error(\`Session \${sessionId} not found\`);
- if (!session.isAlive) throw new Error(\`Session \${sessionId} has exited\`);
- return session;
- }
+  private getActiveSession(sessionId: string): PtySession {
+  const session = this.sessions.get(sessionId);
+  if (!session) throw new Error(\`Session \${sessionId} not found\`);
+  if (!session.isAlive) throw new Error(\`Session \${sessionId} has exited\`);
+  return session;
+  }
 }`;
 
  const terminalSessionCode = `// packages/cli/src/tools/pty/TerminalSession.ts
 
 interface TerminalSessionConfig {
- /** 输出缓冲区最大行数 */
- maxOutputLines: number;
- /** 输出读取等待超时 (ms) */
- readTimeout: number;
- /** 是否启用 ANSI 控制码解析 */
- parseAnsi: boolean;
+  /** 输出缓冲区最大行数 */
+  maxOutputLines: number;
+  /** 输出读取等待超时 (ms) */
+  readTimeout: number;
+  /** 是否启用 ANSI 控制码解析 */
+  parseAnsi: boolean;
 }
 
 export class TerminalSession {
- private outputBuffer: OutputBuffer;
- private inputHandler: InputHandler;
- private resizeHandler: ResizeHandler;
- private ansiParser: AnsiParser | null;
+  private outputBuffer: OutputBuffer;
+  private inputHandler: InputHandler;
+  private resizeHandler: ResizeHandler;
+  private ansiParser: AnsiParser | null;
 
- constructor(
- private pty: IPty,
- private config: TerminalSessionConfig,
- ) {
- this.outputBuffer = new OutputBuffer(config.maxOutputLines);
- this.inputHandler = new InputHandler(pty);
- this.resizeHandler = new ResizeHandler(pty);
+  constructor(
+  private pty: IPty,
+  private config: TerminalSessionConfig,
+  ) {
+  this.outputBuffer = new OutputBuffer(config.maxOutputLines);
+  this.inputHandler = new InputHandler(pty);
+  this.resizeHandler = new ResizeHandler(pty);
 
- this.ansiParser = config.parseAnsi
- ? new AnsiParser()
- : null;
+  this.ansiParser = config.parseAnsi
+  ? new AnsiParser()
+  : null;
 
- // 注册输出监听器
- this.pty.onData((data: string) => {
- const processed = this.ansiParser
- ? this.ansiParser.process(data)
- : data;
- this.outputBuffer.append(processed);
- });
- }
+  // 注册输出监听器
+  this.pty.onData((data: string) => {
+  const processed = this.ansiParser
+  ? this.ansiParser.process(data)
+  : data;
+  this.outputBuffer.append(processed);
+  });
+  }
 
- /**
- * 读取最近的终端输出
- * - 等待指定时间收集输出
- * - 返回累积的输出内容
- */
- async readOutput(waitMs?: number): Promise<string> {
- if (waitMs) {
- await new Promise(r => setTimeout(r, waitMs));
- }
- return this.outputBuffer.flush();
- }
+  /**
+  * 读取最近的终端输出
+  * - 等待指定时间收集输出
+  * - 返回累积的输出内容
+  */
+  async readOutput(waitMs?: number): Promise<string> {
+  if (waitMs) {
+  await new Promise(r => setTimeout(r, waitMs));
+  }
+  return this.outputBuffer.flush();
+  }
 
- /**
- * 写入输入到终端
- * 支持特殊按键序列（如 Ctrl+C, Escape 等）
- */
- writeInput(input: string): void {
- this.inputHandler.write(input);
- }
+  /**
+  * 写入输入到终端
+  * 支持特殊按键序列（如 Ctrl+C, Escape 等）
+  */
+  writeInput(input: string): void {
+  this.inputHandler.write(input);
+  }
 
- /**
- * 发送特殊控制序列
- */
- sendControlSequence(sequence: ControlSequence): void {
- this.inputHandler.sendControl(sequence);
- }
+  /**
+  * 发送特殊控制序列
+  */
+  sendControlSequence(sequence: ControlSequence): void {
+  this.inputHandler.sendControl(sequence);
+  }
 
- /**
- * 调整终端窗口大小
- */
- resize(cols: number, rows: number): void {
- this.resizeHandler.resize(cols, rows);
- }
+  /**
+  * 调整终端窗口大小
+  */
+  resize(cols: number, rows: number): void {
+  this.resizeHandler.resize(cols, rows);
+  }
 
- /**
- * 获取当前终端尺寸
- */
- getSize(): { cols: number; rows: number } {
- return this.resizeHandler.getSize();
- }
+  /**
+  * 获取当前终端尺寸
+  */
+  getSize(): { cols: number; rows: number } {
+  return this.resizeHandler.getSize();
+  }
 }`;
 
  const toolDefinitionCode = `// packages/cli/src/tools/pty/ptyTools.ts
 
 /**
- * run_in_terminal - 在伪终端中运行命令
- * 支持需要丰富终端功能的交互式程序
- */
+  * run_in_terminal - 在伪终端中运行命令
+  * 支持需要丰富终端功能的交互式程序
+  */
 export const runInTerminalTool: ToolDefinition = {
- name: 'run_in_terminal',
- description: \`Run a command in a pseudo-terminal (PTY) with full terminal
+  name: 'run_in_terminal',
+  description: \`Run a command in a pseudo-terminal (PTY) with full terminal
 emulation. Use this for commands that need interactive features
 like text editors (vim, nano), system monitors (top, htop),
 or any program that uses terminal control codes.\`,
- parameters: {
- type: 'object',
- properties: {
- command: {
- type: 'string',
- description: 'The command to execute in the PTY',
- },
- cwd: {
- type: 'string',
- description: 'Working directory for the command',
- },
- cols: {
- type: 'number',
- description: 'Terminal width in columns (default: 80)',
- },
- rows: {
- type: 'number',
- description: 'Terminal height in rows (default: 24)',
- },
- timeout: {
- type: 'number',
- description: 'Execution timeout in milliseconds',
- },
- },
- required: ['command'],
- },
- execute: async (args, context) => {
- const session = await context.ptyManager.createSession({
- command: args.command,
- cwd: args.cwd,
- cols: args.cols,
- rows: args.rows,
- timeout: args.timeout,
- });
+  parameters: {
+  type: 'object',
+  properties: {
+  command: {
+  type: 'string',
+  description: 'The command to execute in the PTY',
+  },
+  cwd: {
+  type: 'string',
+  description: 'Working directory for the command',
+  },
+  cols: {
+  type: 'number',
+  description: 'Terminal width in columns (default: 80)',
+  },
+  rows: {
+  type: 'number',
+  description: 'Terminal height in rows (default: 24)',
+  },
+  timeout: {
+  type: 'number',
+  description: 'Execution timeout in milliseconds',
+  },
+  },
+  required: ['command'],
+  },
+  execute: async (args, context) => {
+  const session = await context.ptyManager.createSession({
+  command: args.command,
+  cwd: args.cwd,
+  cols: args.cols,
+  rows: args.rows,
+  timeout: args.timeout,
+  });
 
- // 等待初始输出
- const initialOutput = await session.readOutput(500);
+  // 等待初始输出
+  const initialOutput = await session.readOutput(500);
 
- return {
- sessionId: session.id,
- output: initialOutput,
- isAlive: session.isAlive,
- };
- },
+  return {
+  sessionId: session.id,
+  output: initialOutput,
+  isAlive: session.isAlive,
+  };
+  },
 };
 
 /**
- * write_to_terminal - 向活跃的 PTY 会话写入输入
- */
+  * write_to_terminal - 向活跃的 PTY 会话写入输入
+  */
 export const writeToTerminalTool: ToolDefinition = {
- name: 'write_to_terminal',
- description: 'Write input to an active PTY session.',
- parameters: {
- type: 'object',
- properties: {
- sessionId: {
- type: 'string',
- description: 'The ID of the PTY session',
- },
- input: {
- type: 'string',
- description: \`Input text to write. Supports special sequences:
- \\\\n for Enter, \\\\t for Tab, \\\\x03 for Ctrl+C,
- \\\\x1b for Escape.\`,
- },
- waitForOutput: {
- type: 'number',
- description: 'Milliseconds to wait for output after writing (default: 300)',
- },
- },
- required: ['sessionId', 'input'],
- },
- execute: async (args, context) => {
- const session = context.ptyManager.getSession(args.sessionId);
- session.writeInput(args.input);
+  name: 'write_to_terminal',
+  description: 'Write input to an active PTY session.',
+  parameters: {
+  type: 'object',
+  properties: {
+  sessionId: {
+  type: 'string',
+  description: 'The ID of the PTY session',
+  },
+  input: {
+  type: 'string',
+  description: \`Input text to write. Supports special sequences:
+  \\\\n for Enter, \\\\t for Tab, \\\\x03 for Ctrl+C,
+  \\\\x1b for Escape.\`,
+  },
+  waitForOutput: {
+  type: 'number',
+  description: 'Milliseconds to wait for output after writing (default: 300)',
+  },
+  },
+  required: ['sessionId', 'input'],
+  },
+  execute: async (args, context) => {
+  const session = context.ptyManager.getSession(args.sessionId);
+  session.writeInput(args.input);
 
- const output = await session.readOutput(args.waitForOutput ?? 300);
+  const output = await session.readOutput(args.waitForOutput ?? 300);
 
- return {
- output,
- isAlive: session.isAlive,
- };
- },
+  return {
+  output,
+  isAlive: session.isAlive,
+  };
+  },
 };
 
 /**
- * resize_terminal - 调整 PTY 终端大小
- */
+  * resize_terminal - 调整 PTY 终端大小
+  */
 export const resizeTerminalTool: ToolDefinition = {
- name: 'resize_terminal',
- description: 'Resize an active PTY session terminal.',
- parameters: {
- type: 'object',
- properties: {
- sessionId: { type: 'string' },
- cols: { type: 'number', description: 'New width in columns' },
- rows: { type: 'number', description: 'New height in rows' },
- },
- required: ['sessionId', 'cols', 'rows'],
- },
- execute: async (args, context) => {
- context.ptyManager.resize(args.sessionId, args.cols, args.rows);
- return { resized: true, cols: args.cols, rows: args.rows };
- },
+  name: 'resize_terminal',
+  description: 'Resize an active PTY session terminal.',
+  parameters: {
+  type: 'object',
+  properties: {
+  sessionId: { type: 'string' },
+  cols: { type: 'number', description: 'New width in columns' },
+  rows: { type: 'number', description: 'New height in rows' },
+  },
+  required: ['sessionId', 'cols', 'rows'],
+  },
+  execute: async (args, context) => {
+  context.ptyManager.resize(args.sessionId, args.cols, args.rows);
+  return { resized: true, cols: args.cols, rows: args.rows };
+  },
 };
 
 /**
- * close_terminal - 关闭 PTY 会话
- */
+  * close_terminal - 关闭 PTY 会话
+  */
 export const closeTerminalTool: ToolDefinition = {
- name: 'close_terminal',
- description: 'Close an active PTY session and release resources.',
- parameters: {
- type: 'object',
- properties: {
- sessionId: { type: 'string' },
- },
- required: ['sessionId'],
- },
- execute: async (args, context) => {
- const result = await context.ptyManager.closeSession(args.sessionId);
- return { closed: true, exitCode: result.exitCode };
- },
+  name: 'close_terminal',
+  description: 'Close an active PTY session and release resources.',
+  parameters: {
+  type: 'object',
+  properties: {
+  sessionId: { type: 'string' },
+  },
+  required: ['sessionId'],
+  },
+  execute: async (args, context) => {
+  const result = await context.ptyManager.closeSession(args.sessionId);
+  return { closed: true, exitCode: result.exitCode };
+  },
 };`;
 
  const inputHandlerCode = `// packages/cli/src/tools/pty/InputHandler.ts
 
 /** 特殊控制序列映射 */
 const CONTROL_SEQUENCES: Record<string, string> = {
- 'ctrl+c': '\\x03', // ETX - 中断
- 'ctrl+d': '\\x04', // EOT - 文件结束
- 'ctrl+z': '\\x1a', // SUB - 挂起
- 'ctrl+l': '\\x0c', // FF - 清屏
- 'ctrl+a': '\\x01', // SOH - 行首
- 'ctrl+e': '\\x05', // ENQ - 行尾
- 'ctrl+w': '\\x17', // ETB - 删除前一个单词
- 'escape': '\\x1b', // ESC
- 'tab': '\\x09', // HT - 补全
- 'enter': '\\x0d', // CR - 回车
- 'backspace':'\\x7f', // DEL
- 'up': '\\x1b[A', // 向上箭头
- 'down': '\\x1b[B', // 向下箭头
- 'right': '\\x1b[C', // 向右箭头
- 'left': '\\x1b[D', // 向左箭头
+  'ctrl+c': '\\x03', // ETX - 中断
+  'ctrl+d': '\\x04', // EOT - 文件结束
+  'ctrl+z': '\\x1a', // SUB - 挂起
+  'ctrl+l': '\\x0c', // FF - 清屏
+  'ctrl+a': '\\x01', // SOH - 行首
+  'ctrl+e': '\\x05', // ENQ - 行尾
+  'ctrl+w': '\\x17', // ETB - 删除前一个单词
+  'escape': '\\x1b', // ESC
+  'tab': '\\x09', // HT - 补全
+  'enter': '\\x0d', // CR - 回车
+  'backspace':'\\x7f', // DEL
+  'up': '\\x1b[A', // 向上箭头
+  'down': '\\x1b[B', // 向下箭头
+  'right': '\\x1b[C', // 向右箭头
+  'left': '\\x1b[D', // 向左箭头
 };
 
 export class InputHandler {
- constructor(private pty: IPty) {}
+  constructor(private pty: IPty) {}
 
- /**
- * 写入原始文本数据
- */
- write(data: string): void {
- // 处理转义序列
- const processed = data
- .replace(/\\\\n/g, '\\n')
- .replace(/\\\\t/g, '\\t')
- .replace(/\\\\x([0-9a-fA-F]{2})/g, (_, hex) =>
- String.fromCharCode(parseInt(hex, 16))
- );
- this.pty.write(processed);
- }
+  /**
+  * 写入原始文本数据
+  */
+  write(data: string): void {
+  // 处理转义序列
+  const processed = data
+  .replace(/\\\\n/g, '\\n')
+  .replace(/\\\\t/g, '\\t')
+  .replace(/\\\\x([0-9a-fA-F]{2})/g, (_, hex) =>
+  String.fromCharCode(parseInt(hex, 16))
+  );
+  this.pty.write(processed);
+  }
 
- /**
- * 发送命名控制序列
- */
- sendControl(name: string): void {
- const sequence = CONTROL_SEQUENCES[name.toLowerCase()];
- if (!sequence) {
- throw new Error(\`Unknown control sequence: \${name}\`);
- }
- this.pty.write(sequence);
- }
+  /**
+  * 发送命名控制序列
+  */
+  sendControl(name: string): void {
+  const sequence = CONTROL_SEQUENCES[name.toLowerCase()];
+  if (!sequence) {
+  throw new Error(\`Unknown control sequence: \${name}\`);
+  }
+  this.pty.write(sequence);
+  }
 
- /**
- * 发送 Tab 补全请求
- * 写入部分命令后发送 Tab 触发 Shell 自动补全
- */
- sendTabCompletion(partialCommand: string): void {
- this.pty.write(partialCommand);
- this.pty.write('\\t');
- }
+  /**
+  * 发送 Tab 补全请求
+  * 写入部分命令后发送 Tab 触发 Shell 自动补全
+  */
+  sendTabCompletion(partialCommand: string): void {
+  this.pty.write(partialCommand);
+  this.pty.write('\\t');
+  }
 }`;
 
  const sandboxIntegrationCode = `// packages/cli/src/tools/pty/ptySandbox.ts
 
 interface PtySandboxConfig {
- /** 允许在 PTY 中执行的命令白名单 */
- allowedCommands: string[];
- /** 阻止的危险命令模式 */
- blockedPatterns: RegExp[];
- /** 是否在沙箱中运行 (macOS sandbox-exec) */
- useSandbox: boolean;
- /** 沙箱配置文件路径 */
- sandboxProfile?: string;
- /** PTY 会话的资源限制 */
- resourceLimits: {
- maxOutputBytes: number; // 最大输出大小
- maxSessionDuration: number; // 最大会话时长 (ms)
- maxConcurrentSessions: number; // 最大并发会话数
- };
+  /** 允许在 PTY 中执行的命令白名单 */
+  allowedCommands: string[];
+  /** 阻止的危险命令模式 */
+  blockedPatterns: RegExp[];
+  /** 是否在沙箱中运行 (macOS sandbox-exec) */
+  useSandbox: boolean;
+  /** 沙箱配置文件路径 */
+  sandboxProfile?: string;
+  /** PTY 会话的资源限制 */
+  resourceLimits: {
+  maxOutputBytes: number; // 最大输出大小
+  maxSessionDuration: number; // 最大会话时长 (ms)
+  maxConcurrentSessions: number; // 最大并发会话数
+  };
 }
 
 /**
- * 命令安全校验 - 在创建 PTY 会话前执行
- */
+  * 命令安全校验 - 在创建 PTY 会话前执行
+  */
 export function validatePtyCommand(
- command: string,
- config: PtySandboxConfig,
+  command: string,
+  config: PtySandboxConfig,
 ): { allowed: boolean; reason?: string } {
- // 1. 检查命令是否匹配阻止模式
- for (const pattern of config.blockedPatterns) {
- if (pattern.test(command)) {
- return {
- allowed: false,
- reason: \`Command matches blocked pattern: \${pattern.source}\`,
- };
- }
- }
+  // 1. 检查命令是否匹配阻止模式
+  for (const pattern of config.blockedPatterns) {
+  if (pattern.test(command)) {
+  return {
+  allowed: false,
+  reason: \`Command matches blocked pattern: \${pattern.source}\`,
+  };
+  }
+  }
 
- // 2. 检查白名单（如果启用）
- if (config.allowedCommands.length > 0) {
- const baseCommand = command.split(/\\s+/)[0];
- if (!config.allowedCommands.includes(baseCommand)) {
- return {
- allowed: false,
- reason: \`Command "\${baseCommand}" not in allowed list\`,
- };
- }
- }
+  // 2. 检查白名单（如果启用）
+  if (config.allowedCommands.length > 0) {
+  const baseCommand = command.split(/\\s+/)[0];
+  if (!config.allowedCommands.includes(baseCommand)) {
+  return {
+  allowed: false,
+  reason: \`Command "\${baseCommand}" not in allowed list\`,
+  };
+  }
+  }
 
- return { allowed: true };
+  return { allowed: true };
 }
 
 /**
- * 构建沙箱化的 PTY 环境
- */
+  * 构建沙箱化的 PTY 环境
+  */
 export function buildSandboxedEnv(
- baseEnv: Record<string, string>,
- config: PtySandboxConfig,
+  baseEnv: Record<string, string>,
+  config: PtySandboxConfig,
 ): Record<string, string> {
- return {
- ...baseEnv,
- // 限制 PATH，仅包含必要的可执行文件路径
- PATH: filterPathEntries(baseEnv.PATH || ''),
- // 禁用危险的环境变量
- LD_PRELOAD: '',
- DYLD_INSERT_LIBRARIES: '',
- // 标记为沙箱环境
- GEMINI_PTY_SANDBOX: '1',
- };
+  return {
+  ...baseEnv,
+  // 限制 PATH，仅包含必要的可执行文件路径
+  PATH: filterPathEntries(baseEnv.PATH || ''),
+  // 禁用危险的环境变量
+  LD_PRELOAD: '',
+  DYLD_INSERT_LIBRARIES: '',
+  // 标记为沙箱环境
+  GEMINI_PTY_SANDBOX: '1',
+  };
 }`;
 
  const autocompleteDiagram = `sequenceDiagram
@@ -745,28 +745,28 @@ export function buildSandboxedEnv(
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <div className="text-heading font-bold mb-2">普通 Shell 执行</div>
  <ul className="text-sm text-body space-y-1">
- <li>- 单向通信（命令 + 结果）</li>
- <li>- 无终端仿真</li>
- <li>- 不支持交互式输入</li>
- <li>- 适用于简单命令</li>
+ <li>单向通信（命令 + 结果）</li>
+ <li>无终端仿真</li>
+ <li>不支持交互式输入</li>
+ <li>适用于简单命令</li>
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <div className="text-heading font-bold mb-2">PTY 交互式 Shell</div>
  <ul className="text-sm text-body space-y-1">
- <li>- 双向实时通信</li>
- <li>- 完整终端仿真 (xterm-256color)</li>
- <li>- 支持按键序列和控制码</li>
- <li>- 适用于交互式程序</li>
+ <li>双向实时通信</li>
+ <li>完整终端仿真 (xterm-256color)</li>
+ <li>支持按键序列和控制码</li>
+ <li>适用于交互式程序</li>
  </ul>
  </div>
- <div className="bg-surface p-4 rounded-lg border border-amber-500/30">
- <div className="text-amber-500 font-bold mb-2">关键差异</div>
+ <div className="bg-surface p-4 rounded-lg border-l-2 border-l-edge-hover/30">
+ <div className="text-heading font-bold mb-2">关键差异</div>
  <ul className="text-sm text-body space-y-1">
- <li>- PTY 有 Master/Slave fd 对</li>
- <li>- PTY 支持 SIGWINCH 信号</li>
- <li>- PTY 分配 controlling terminal</li>
- <li>- PTY 支持 job control</li>
+ <li>PTY 有 Master/Slave fd 对</li>
+ <li>PTY 支持 SIGWINCH 信号</li>
+ <li>PTY 分配 controlling terminal</li>
+ <li>PTY 支持 job control</li>
  </ul>
  </div>
  </div>
@@ -795,7 +795,7 @@ export function buildSandboxedEnv(
  </p>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge">
- <h4 className="text-amber-500 font-bold mb-2">InputHandler</h4>
+ <h4 className="text-heading font-bold mb-2">InputHandler</h4>
  <p className="text-sm text-body">
  处理向 PTY 写入数据的逻辑，支持原始文本和命名控制序列 (Ctrl+C, Tab, Escape 等)。
  负责转义序列的解析，确保特殊字符正确传递到终端。
@@ -830,8 +830,8 @@ export function buildSandboxedEnv(
  Master/Slave fd 对建立，Shell 进程 fork + setsid + exec
  </p>
  </div>
- <div className="bg-surface p-3 rounded-lg border border-amber-500/30 text-center">
- <div className="text-amber-500 font-bold text-sm mb-1">3. 通信</div>
+ <div className="bg-surface p-3 rounded-lg border-l-2 border-l-edge-hover/30 text-center">
+ <div className="text-heading font-bold text-sm mb-1">3. 通信</div>
  <p className="text-xs text-dim">
  双向读写，支持输入写入、输出读取和窗口大小调整
  </p>
@@ -842,8 +842,8 @@ export function buildSandboxedEnv(
  动态 resize 发送 SIGWINCH，子进程重新渲染
  </p>
  </div>
- <div className="bg-surface p-3 rounded-lg border border-red-500/30 text-center">
- <div className="text-red-400 font-bold text-sm mb-1">5. 关闭</div>
+ <div className="bg-surface p-3 rounded-lg border-l-2 border-l-edge-hover/30 text-center">
+ <div className="text-heading font-bold text-sm mb-1">5. 关闭</div>
  <p className="text-xs text-dim">
  优雅关闭: SIGTERM 后等待，超时则 SIGKILL 强制终止
  </p>
@@ -907,7 +907,7 @@ export function buildSandboxedEnv(
  <ul className="text-sm text-body space-y-2">
  <li><strong className="text-heading">工具调用驱动：</strong>所有 PTY 操作通过 Tool Scheduler 调度，Model 通过工具调用与 PTY 交互，无直接连接</li>
  <li><strong className="text-heading">异步输出收集：</strong>写入后等待指定时间 (waitForOutput) 收集输出，避免过早读取导致结果不完整</li>
- <li><strong className="text-amber-500">会话 ID 绑定：</strong>每个 PTY 会话有唯一 sessionId，后续操作 (write/resize/close) 通过 ID 定位目标会话</li>
+ <li><strong className="text-heading">会话 ID 绑定：</strong>每个 PTY 会话有唯一 sessionId，后续操作 (write/resize/close) 通过 ID 定位目标会话</li>
  <li><strong className="text-heading">状态透传：</strong>每次工具结果都包含 isAlive 标志，Model 可感知会话是否仍然活跃</li>
  </ul>
  </div>
@@ -931,11 +931,11 @@ export function buildSandboxedEnv(
  <div className="bg-surface p-4 rounded-lg border border-edge">
  <h4 className="text-heading font-bold mb-2">适用场景</h4>
  <ul className="text-sm text-body space-y-1">
- <li>- 探索未知环境中的可用命令</li>
- <li>- 自动补全文件路径和目录名</li>
- <li>- 发现 Git 分支名、远程仓库</li>
- <li>- 查找包管理器可用的包名</li>
- <li>- 自动完成长命令参数</li>
+ <li>探索未知环境中的可用命令</li>
+ <li>自动补全文件路径和目录名</li>
+ <li>发现 Git 分支名、远程仓库</li>
+ <li>查找包管理器可用的包名</li>
+ <li>自动完成长命令参数</li>
  </ul>
  </div>
  </div>
@@ -990,31 +990,31 @@ export function buildSandboxedEnv(
  <CodeBlock code={sandboxIntegrationCode} language="typescript" title="PTY 安全沙箱集成" />
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
- <div className="bg-surface p-4 rounded-lg border border-red-500/30">
- <h4 className="text-red-400 font-bold mb-2">高风险操作</h4>
+ <div className="bg-surface p-4 rounded-lg border-l-2 border-l-edge-hover/30">
+ <h4 className="text-heading font-bold mb-2">高风险操作</h4>
  <ul className="text-sm text-body space-y-1">
- <li>- 通过 PTY 执行 <code>rm -rf</code></li>
- <li>- PTY 中运行 <code>sudo</code> 命令</li>
- <li>- 写入 <code>/etc</code> 系统配置</li>
- <li>- 修改 Shell 配置文件</li>
+ <li>通过 PTY 执行 <code>rm -rf</code></li>
+ <li>PTY 中运行 <code>sudo</code> 命令</li>
+ <li>写入 <code>/etc</code> 系统配置</li>
+ <li>修改 Shell 配置文件</li>
  </ul>
  </div>
- <div className="bg-surface p-4 rounded-lg border border-amber-500/30">
- <h4 className="text-amber-500 font-bold mb-2">防御策略</h4>
+ <div className="bg-surface p-4 rounded-lg border-l-2 border-l-edge-hover/30">
+ <h4 className="text-heading font-bold mb-2">防御策略</h4>
  <ul className="text-sm text-body space-y-1">
- <li>- 命令白名单过滤</li>
- <li>- 危险模式正则匹配</li>
- <li>- 资源使用量限制</li>
- <li>- 超时强制终止</li>
+ <li>命令白名单过滤</li>
+ <li>危险模式正则匹配</li>
+ <li>资源使用量限制</li>
+ <li>超时强制终止</li>
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <h4 className="text-heading font-bold mb-2">审计与监控</h4>
  <ul className="text-sm text-body space-y-1">
- <li>- 会话创建/关闭日志</li>
- <li>- 输入/输出记录</li>
- <li>- 异常退出告警</li>
- <li>- 资源使用统计</li>
+ <li>会话创建/关闭日志</li>
+ <li>输入/输出记录</li>
+ <li>异常退出告警</li>
+ <li>资源使用统计</li>
  </ul>
  </div>
  </div>
@@ -1058,8 +1058,8 @@ toolRegistry.register([
 "vim config.ts", "top", "python3"`} />
  </div>
 
- <div className="bg-surface p-4 rounded-lg border border-amber-500/30">
- <h4 className="text-amber-500 font-bold mb-2">审批模式 (Approval Mode)</h4>
+ <div className="bg-surface p-4 rounded-lg border-l-2 border-l-edge-hover/30">
+ <h4 className="text-heading font-bold mb-2">审批模式 (Approval Mode)</h4>
  <p className="text-sm text-body">
  PTY 命令在非 yolo 模式下需要用户审批。审批系统会显示待执行的命令内容，
  用户可以选择允许、拒绝或加入会话白名单。PTY 工具复用现有的 PolicyEngine 进行权限检查，

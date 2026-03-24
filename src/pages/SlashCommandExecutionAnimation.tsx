@@ -72,7 +72,7 @@ function Introduction({
  </div>
 
  <div className="space-y-4">
- <h3 className="font-semibold text-amber-500">
+ <h3 className="font-semibold text-heading">
  📂 核心文件
  </h3>
  <ul className="text-sm text-body space-y-2">
@@ -539,7 +539,7 @@ function ResultTypesAnimation() {
  {
  type: 'tool',
  icon: '🔧',
- color: '#f59e0b',
+ color: 'var(--color-warning)',
  description: '调度工具执行',
  example: '{ type: "tool", toolCall: { name: "read", args: {...} } }',
  flow: '命令执行 → 返回工具调用 → 调度器执行',
@@ -547,7 +547,7 @@ function ResultTypesAnimation() {
  {
  type: 'confirm_shell_commands',
  icon: '⚠️',
- color: '#ef4444',
+ color: 'var(--color-danger)',
  description: '请求 Shell 命令确认',
  example: '{ type: "confirm_shell_commands", cmds: ["npm install"] }',
  flow: '命令执行 → 用户确认 → 重新调用命令',
@@ -555,7 +555,7 @@ function ResultTypesAnimation() {
  {
  type: 'confirm_action',
  icon: '❓',
- color: '#f59e0b',
+ color: 'var(--color-warning)',
  description: '请求操作确认',
  example: '{ type: "confirm_action", action: deleteFiles }',
  flow: '命令执行 → 用户确认 → 执行 action',
@@ -732,16 +732,16 @@ function TomlSecurityFlow() {
  </div>
  </div>
 
- <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
- <h5 className="text-sm font-semibold text-red-400 mb-2">
+ <div className="p-4 bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg">
+ <h5 className="text-sm font-semibold text-heading mb-2">
  ⚠️ 安全设计要点
  </h5>
  <ul className="text-sm text-body space-y-1">
- <li>• @File 必须在 !Shell 之前处理，防止路径注入</li>
+ <li>@File 必须在 !Shell 之前处理，防止路径注入</li>
  <li>
  • {'{{args}}'} 在 Shell 中会被转义，防止命令注入
  </li>
- <li>• 包含 !{'{}'} 的命令需要用户确认才能执行</li>
+ <li>包含 !{'{}'} 的命令需要用户确认才能执行</li>
  </ul>
  </div>
  </div>

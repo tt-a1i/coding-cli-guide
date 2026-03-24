@@ -4,6 +4,9 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 type TabType = 'overview' | 'retry' | 'fallback' | 'token' | 'timeout';
 
@@ -99,8 +102,8 @@ flowchart TD
 
  R4 --> FAIL((优雅失败))
 
- style OK fill:#22c55e,stroke:#16a34a,color:#fff
- style FAIL fill:#ef4444,stroke:#dc2626,color:#fff
+ style OK fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},stroke:${getThemeColor("--color-success", "#15803d")},color:${getThemeColor("--color-text", "#1c1917")}
+ style FAIL fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},stroke:${getThemeColor("--color-danger", "#b91c1c")},color:${getThemeColor("--color-text", "#1c1917")}
 `} />
  </Layer>
 
@@ -109,7 +112,7 @@ flowchart TD
  <div className="overflow-x-auto">
  <table className="w-full text-sm border-collapse">
  <thead>
- <tr className="border-b border-white/20">
+ <tr className="border-b border-edge/60">
  <th className="p-3 text-left text-heading">模式</th>
  <th className="p-3 text-left text-heading">触发条件</th>
  <th className="p-3 text-left text-heading">核心机制</th>
@@ -117,26 +120,26 @@ flowchart TD
  </tr>
  </thead>
  <tbody>
- <tr className="border-b border-white/10">
+ <tr className="border-b border-edge/40">
  <td className="p-3 text-heading font-semibold">指数退避</td>
  <td className="p-3 text-body">429/5xx 错误</td>
  <td className="p-3 text-body">延迟 × 2 + 抖动</td>
  <td className="p-3 text-heading font-mono text-xs">retry.ts</td>
  </tr>
- <tr className="border-b border-white/10">
- <td className="p-3 text-amber-500 font-semibold">模型降级</td>
+ <tr className="border-b border-edge/40">
+ <td className="p-3 text-heading font-semibold">模型降级</td>
  <td className="p-3 text-body">Pro 配额耗尽</td>
  <td className="p-3 text-body">Pro → Flash</td>
  <td className="p-3 text-heading font-mono text-xs">fallback/handler.ts</td>
  </tr>
- <tr className="border-b border-white/10">
+ <tr className="border-b border-edge/40">
  <td className="p-3 text-heading font-semibold">Token 刷新</td>
  <td className="p-3 text-body">401/403 认证失败</td>
  <td className="p-3 text-body">透明刷新重试</td>
  <td className="p-3 text-heading font-mono text-xs">sharedTokenManager.ts</td>
  </tr>
- <tr className="border-b border-white/10">
- <td className="p-3 text-red-500 font-semibold">配额检测</td>
+ <tr className="border-b border-edge/40">
+ <td className="p-3 text-heading font-semibold">配额检测</td>
  <td className="p-3 text-body">Gemini 配额用尽</td>
  <td className="p-3 text-body">立即失败</td>
  <td className="p-3 text-heading font-mono text-xs">quotaErrorDetection.ts</td>
@@ -251,11 +254,11 @@ xychart-beta
  <div className="text-dim text-xs">初始延迟</div>
  </div>
  <div className="p-3 bg-elevated rounded-lg text-center">
- <div className="text-amber-500 text-lg font-bold">×2</div>
+ <div className="text-heading text-lg font-bold">×2</div>
  <div className="text-dim text-xs">指数增长</div>
  </div>
  <div className="p-3 bg-elevated rounded-lg text-center">
- <div className="text-red-500 text-lg font-bold">32s</div>
+ <div className="text-heading text-lg font-bold">32s</div>
  <div className="text-dim text-xs">最大延迟</div>
  </div>
  </div>
@@ -338,9 +341,9 @@ flowchart TD
  UI -->|stop| STOP[停止当前]
  UI -->|auth| REAUTH[重新认证]
 
- style F1 fill:#f59e0b,stroke:#d97706,color:#fff
- style F2 fill:#ef4444,stroke:#dc2626,color:#fff
- style CONTINUE fill:#22c55e,stroke:#16a34a,color:#fff
+ style F1 fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},stroke:${getThemeColor("--color-warning", "#b45309")},color:${getThemeColor("--color-text", "#1c1917")}
+ style F2 fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},stroke:${getThemeColor("--color-danger", "#b91c1c")},color:${getThemeColor("--color-text", "#1c1917")}
+ style CONTINUE fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},stroke:${getThemeColor("--color-success", "#15803d")},color:${getThemeColor("--color-text", "#1c1917")}
 `} />
  </Layer>
 
@@ -445,11 +448,11 @@ export async function handleFallback(
  <div className="text-body text-xs">切换模型并继续</div>
  </div>
  <div className="p-3 bg-elevated rounded-lg text-center">
- <div className="text-amber-500 font-semibold mb-1">stop</div>
+ <div className="text-heading font-semibold mb-1">stop</div>
  <div className="text-body text-xs">切换模型但停止</div>
  </div>
  <div className="p-3 bg-elevated rounded-lg text-center">
- <div className="text-red-500 font-semibold mb-1">auth</div>
+ <div className="text-heading font-semibold mb-1">auth</div>
  <div className="text-body text-xs">需要重新认证</div>
  </div>
  </div>
@@ -467,9 +470,9 @@ flowchart LR
  D -->|stop| E[停止]
  D -->|auth| F[重新登录]
 
- style A fill:#3b82f6,stroke:#2563eb,color:#fff
- style B fill:#f59e0b,stroke:#d97706,color:#fff
- style C fill:#ef4444,stroke:#dc2626,color:#fff
+ style A fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},stroke:${getThemeColor("--color-primary", "#2457a6")},color:${getThemeColor("--color-text", "#1c1917")}
+ style B fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},stroke:${getThemeColor("--color-warning", "#b45309")},color:${getThemeColor("--color-text", "#1c1917")}
+ style C fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},stroke:${getThemeColor("--color-danger", "#b91c1c")},color:${getThemeColor("--color-text", "#1c1917")}
 `} />
 
  <HighlightBox title="Google OAuth 特殊处理" variant="blue">
@@ -656,7 +659,7 @@ private isTimeoutError(error: unknown): boolean {
 
  <div className="grid grid-cols-2 gap-3 mt-4">
  <div className="p-3 bg-elevated rounded-lg">
- <div className="text-amber-500 font-semibold mb-1">消息模式</div>
+ <div className="text-heading font-semibold mb-1">消息模式</div>
  <ul className="text-body text-xs space-y-1 list-disc list-inside">
  <li>timeout</li>
  <li>timed out</li>
@@ -697,8 +700,8 @@ private isTimeoutError(error: unknown): boolean {
  ].join('\\n');
 }`} />
 
- <div className="mt-4 p-4 bg-elevated rounded-lg border border-white/10">
- <div className="text-amber-500 font-semibold mb-2">⏱️ 请求超时</div>
+ <div className="mt-4 p-4 bg-elevated rounded-lg border border-edge/40">
+ <div className="text-heading font-semibold mb-2">⏱️ 请求超时</div>
  <div className="text-body text-sm">
  可能的解决方案：
  <ul className="mt-2 list-disc list-inside space-y-1">

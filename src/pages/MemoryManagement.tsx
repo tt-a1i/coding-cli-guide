@@ -5,6 +5,9 @@ import { CodeBlock } from '../components/CodeBlock';
 import { JsonBlock } from '../components/JsonBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 function CollapsibleSection({
  title,
@@ -107,27 +110,27 @@ export function MemoryManagement() {
  G -->|有效| J[替换历史: 摘要 + 保留部分]
  J --> K[成功: COMPRESSED]
 
- style C fill:#4a5568
- style H fill:#9b2c2c
- style I fill:#9b2c2c
- style K fill:#276749`}
+ style C fill:${getThemeColor("--mermaid-muted-fill", "#f4f4f2")}
+ style H fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")}
+ style I fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")}
+ style K fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")}`}
  />
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
  <div className="bg-elevated/10 border border-edge rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">压缩阈值</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• <code>COMPRESSION_TOKEN_THRESHOLD = 0.7</code></li>
- <li>• 当 Token 使用 &gt; 模型限制 × 70% 时触发</li>
- <li>• 可通过配置 <code>contextPercentageThreshold</code> 覆盖</li>
+ <li><code>COMPRESSION_TOKEN_THRESHOLD = 0.7</code></li>
+ <li>当 Token 使用 &gt; 模型限制 × 70% 时触发</li>
+ <li>可通过配置 <code>contextPercentageThreshold</code> 覆盖</li>
  </ul>
  </div>
  <div className="bg-elevated border border-edge rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">保留比例</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• <code>COMPRESSION_PRESERVE_THRESHOLD = 0.3</code></li>
- <li>• 保留最近 30% 的历史（按字符数）</li>
- <li>• 压缩前 70% 为摘要</li>
+ <li><code>COMPRESSION_PRESERVE_THRESHOLD = 0.3</code></li>
+ <li>保留最近 30% 的历史（按字符数）</li>
+ <li>压缩前 70% 为摘要</li>
  </ul>
  </div>
  </div>
@@ -174,10 +177,10 @@ export function MemoryManagement() {
  M7 --> C4
  C4 --> T2
 
- style C3 fill:#9b2c2c
- style C1 fill:#276749
- style C2 fill:#276749
- style C4 fill:#276749`}
+ style C3 fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")}
+ style C1 fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")}
+ style C2 fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")}
+ style C4 fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")}`}
  />
 
  <CodeBlock
@@ -237,12 +240,12 @@ export function findCompressSplitPoint(
  <tbody className="text-body">
  <tr className="border- border-edge">
  <td className="py-2 px-3">历史为空</td>
- <td className="py-2 px-3 text-yellow-400">NOOP</td>
+ <td className="py-2 px-3 text-heading">NOOP</td>
  <td className="py-2 px-3">无内容可压缩</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">全是工具调用</td>
- <td className="py-2 px-3 text-yellow-400">返回 0</td>
+ <td className="py-2 px-3 text-heading">返回 0</td>
  <td className="py-2 px-3">无有效分割点</td>
  </tr>
  <tr className="border- border-edge">
@@ -252,7 +255,7 @@ export function findCompressSplitPoint(
  </tr>
  <tr>
  <td className="py-2 px-3">最后是 model 回复</td>
- <td className="py-2 px-3 text-green-400">可压缩全部</td>
+ <td className="py-2 px-3 text-heading">可压缩全部</td>
  <td className="py-2 px-3">对话完整，可安全压缩</td>
  </tr>
  </tbody>
@@ -358,7 +361,7 @@ export function tokenLimit(model: string): number {
  <td className="py-2 px-3"><code>case (1M group)</code></td>
  </tr>
  <tr className="border- border-edge">
- <td className="py-2 px-3 text-amber-400">gemini-2.0-flash-preview-image-generation</td>
+ <td className="py-2 px-3 text-heading">gemini-2.0-flash-preview-image-generation</td>
  <td className="py-2 px-3">32,000</td>
  <td className="py-2 px-3">（上游未定义）</td>
  <td className="py-2 px-3"><code>case 'gemini-2.0-flash-preview-image-generation'</code></td>
@@ -738,8 +741,8 @@ uiTelemetryService.updateTokenStats(tokens);`}
  </div>
 
  {/* 设计决策 3 */}
- <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
- <h4 className="text-green-400 font-bold mb-2">为什么分离短期和长期记忆?</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-bold mb-2">为什么分离短期和长期记忆?</h4>
  <p className="text-sm text-body">
  短期记忆（会话历史）处理当前对话流程，需要高精度但可以牺牲持久性。
  长期记忆（GEMINI.md）存储跨会话的知识，如项目架构、用户偏好。
@@ -748,7 +751,7 @@ uiTelemetryService.updateTokenStats(tokens);`}
  </div>
 
  {/* 设计决策 4 */}
- <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4">
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">为什么使用 LRU 缓存?</h4>
  <p className="text-sm text-body">
  用户对话模式具有时间局部性：最近讨论的文件、概念更可能被再次引用。

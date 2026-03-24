@@ -24,10 +24,10 @@ export function GoogleAuthentication() {
 
  <HighlightBox title="📌 30秒速览" icon="🎯" variant="blue">
  <ul className="m-0 leading-relaxed text-sm">
- <li>• 默认走 <strong>浏览器登录</strong>：本地 loopback 回调 <code>http://localhost:{'{'}port{'}'}/oauth2callback</code></li>
- <li>• 无浏览器/远程环境：走 <strong>手动授权码</strong>（带 PKCE），粘贴 code 完成登录</li>
- <li>• token 刷新由 <code>google-auth-library</code> 处理，CLI 监听 <code>client.on('tokens')</code> 持久化</li>
- <li>• 支持更安全的 HybridTokenStorage，并兼容迁移 <code>~/.gemini/oauth_creds.json</code></li>
+ <li>默认走 <strong>浏览器登录</strong>：本地 loopback 回调 <code>http://localhost:{'{'}port{'}'}/oauth2callback</code></li>
+ <li>无浏览器/远程环境：走 <strong>手动授权码</strong>（带 PKCE），粘贴 code 完成登录</li>
+ <li>token 刷新由 <code>google-auth-library</code> 处理，CLI 监听 <code>client.on('tokens')</code> 持久化</li>
+ <li>支持更安全的 HybridTokenStorage，并兼容迁移 <code>~/.gemini/oauth_creds.json</code></li>
  </ul>
  </HighlightBox>
 
@@ -44,7 +44,7 @@ export function GoogleAuthentication() {
  className={`px-4 py-2 rounded-lg cursor-pointer transition-all font-medium ${
  activeTab === tab.key
  ? 'border-2 border-edge bg-[rgba(0,255,136,0.1)] text-heading'
- : 'border border-white/10 bg-transparent text-body hover:text-heading'
+ : 'border border-edge/40 bg-transparent text-body hover:text-heading'
  }`}
  >
  {tab.label}

@@ -4,7 +4,7 @@ import { loadPrism, normalizeLanguage } from '../utils/prism';
 interface CodeBlockProps {
   code: string;
   title?: string;
-  language?: string; // Optional language hint for styling
+  language?: string;
   collapsible?: boolean;
   defaultCollapsed?: boolean;
   collapsedHeightPx?: number;
@@ -15,19 +15,22 @@ export function CodeBlock({
   title,
   language,
   collapsible = true,
-  defaultCollapsed = true,
+  defaultCollapsed,
   collapsedHeightPx = 160,
 }: CodeBlockProps) {
-  const [collapsed, setCollapsed] = useState(defaultCollapsed);
-  const [highlightedHtml, setHighlightedHtml] = useState<string | null>(null);
   const lineCount = useMemo(() => code.split('\n').length, [code]);
+  // Auto-expand short code blocks (< 30 lines), collapse long ones
+  const autoCollapsed = defaultCollapsed ?? lineCount > 30;
+  const [collapsed, setCollapsed] = useState(autoCollapsed);
+  const [highlightedHtml, setHighlightedHtml] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   const normalizedLang = useMemo(
     () => normalizeLanguage(language, title, code),
     [language, title, code]
   );
-  const prismLangKey = normalizedLang === 'text' ? 'typescript' : normalizedLang;
+  const prismLangKey = normalizedLang === 'text' ? 'plaintext' : normalizedLang;
 
-  const showToggle = collapsible;
+  const showToggle = collapsible && lineCount > 8;
   void collapsedHeightPx;
 
   useEffect(() => {
@@ -52,33 +55,69 @@ export function CodeBlock({
     };
   }, [collapsed, code, prismLangKey]);
 
+  useEffect(() => {
+    if (!copied) return;
+
+    const timer = window.setTimeout(() => setCopied(false), 1600);
+    return () => window.clearTimeout(timer);
+  }, [copied]);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+    } catch {
+      setCopied(false);
+    }
+  };
+
   return (
     <div className="my-4">
       {(title || showToggle) && (
         <div className="flex items-center justify-between gap-3 mb-2">
-          <div className="text-sm text-gray-400 font-mono truncate">
+          <div className="text-sm text-body font-mono truncate">
             {title ?? '代码示例'}
           </div>
-          {showToggle && (
-            <button
-              type="button"
-              aria-expanded={!collapsed}
-              onClick={() => setCollapsed((v) => !v)}
-              className="shrink-0 px-3 py-1.5 text-xs rounded-lg bg-gray-900/30 border border-gray-700 text-gray-300 hover:bg-gray-800/40 hover:border-gray-600 hover:text-cyan-300 transition-colors"
-            >
-              {collapsed ? `展开代码（${lineCount} 行）` : '收起代码'}
-            </button>
-          )}
+          <div className="flex items-center gap-1.5">
+            {!collapsed && (
+              <button
+                type="button"
+                onClick={handleCopy}
+                className="shrink-0 px-2.5 py-1 text-xs rounded-md bg-base border border-edge text-body hover:bg-surface hover:border-edge-hover hover:text-heading transition-all duration-150"
+              >
+                {copied ? '已复制' : '复制代码'}
+              </button>
+            )}
+            {showToggle && (
+              <button
+                type="button"
+                aria-expanded={!collapsed}
+                onClick={() => setCollapsed((v) => !v)}
+                className="shrink-0 px-2.5 py-1 text-xs rounded-md bg-base border border-edge text-heading hover:bg-surface hover:border-edge-hover transition-all duration-150"
+              >
+                {collapsed ? `展开代码（${lineCount} 行）` : '收起代码'}
+              </button>
+            )}
+          </div>
         </div>
       )}
 
       {collapsed ? (
-        <div className="rounded-lg border border-gray-700 bg-gray-950/40 px-4 py-3 text-sm text-gray-500">
-          已折叠（{lineCount} 行）。点击右侧“展开代码”查看。
-        </div>
+        <button
+          type="button"
+          onClick={() => setCollapsed(false)}
+          className="w-full text-left rounded-xl border border-edge bg-surface/50 px-4 py-3 text-sm text-dim hover:border-edge-hover hover:text-body transition-colors duration-150 cursor-pointer"
+        >
+          {normalizedLang} · {lineCount} 行 — 点击展开
+        </button>
       ) : (
-        <div className="rounded-lg">
-          <pre className={`code-block language-${prismLangKey}`}>
+        <div className="rounded-xl border border-[var(--color-code-border)] overflow-hidden">
+          <div className="flex justify-end px-3 py-1.5 bg-[var(--color-code-bg)] border-b border-[var(--color-code-border)]">
+            <span className="inline-flex items-center rounded-md border border-[var(--color-code-border)] bg-[rgba(255,255,255,0.05)] px-2 py-0.5 text-[10px] uppercase tracking-[0.1em] text-[var(--color-code-text)] font-mono opacity-60">
+              {normalizedLang}
+            </span>
+          </div>
+          <pre className={`code-block language-${prismLangKey}`} style={{ margin: 0, borderRadius: 0, border: 'none' }}>
             <code
               className={`language-${prismLangKey}`}
               dangerouslySetInnerHTML={{

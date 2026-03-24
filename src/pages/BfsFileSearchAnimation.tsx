@@ -290,8 +290,8 @@ export default function BfsFileSearchAnimation() {
  const getStatusColor = (status: DirectoryNode['status']) => {
  switch (status) {
  case 'queued': return 'bg-elevated/50 border-edge';
- case 'visiting': return 'bg-yellow-900/50 border-yellow-500 animate-pulse';
- case 'visited': return 'bg-green-900/50 border-green-600';
+ case 'visiting': return 'bg-elevated border-edge animate-pulse';
+ case 'visited': return 'bg-elevated border-edge/60';
  case 'ignored': return ' bg-surface border-edge opacity-50';
  default: return ' bg-surface border-edge';
  }
@@ -305,14 +305,14 @@ export default function BfsFileSearchAnimation() {
 
  return (
  <div key={path} style={{ marginLeft: depth * 16 }}>
- <div className={`flex items-center gap-2 px-2 py-1 my-0.5 rounded text-xs border ${getStatusColor(node.status)} ${isInBatch ? 'ring-2 ring-yellow-400' : ''}`}>
+ <div className={`flex items-center gap-2 px-2 py-1 my-0.5 rounded text-xs border ${getStatusColor(node.status)} ${isInBatch ? 'ring-2 ring-[var(--color-warning)]' : ''}`}>
  <span className="text-dim">📁</span>
  <span className={node.status === 'ignored' ? 'text-dim line-through' : 'text-body'}>
  {path.split('/').pop()}
  </span>
- {node.status === 'visiting' && <span className="text-yellow-400 text-xs">处理中...</span>}
+ {node.status === 'visiting' && <span className="text-heading text-xs">处理中...</span>}
  {node.files.filter(f => matchPattern(f, searchPattern)).length > 0 && node.status === 'visited' && (
- <span className="text-green-400 text-xs">
+ <span className="text-heading text-xs">
  {node.files.filter(f => matchPattern(f, searchPattern)).length} 匹配
  </span>
  )}
@@ -338,11 +338,11 @@ export default function BfsFileSearchAnimation() {
  <div className="text-dim mt-1">queueHead 替代 splice()</div>
  </div>
  <div className="p-2 bg-surface rounded">
- <span className="text-yellow-400">并行批处理</span>
+ <span className="text-heading">并行批处理</span>
  <div className="text-dim mt-1">{PARALLEL_BATCH_SIZE} 个目录/批次</div>
  </div>
  <div className="p-2 bg-surface rounded">
- <span className="text-green-400">Set 查找</span>
+ <span className="text-heading">Set 查找</span>
  <div className="text-dim mt-1">O(1) 忽略检查</div>
  </div>
  <div className="p-2 bg-surface rounded">
@@ -400,13 +400,13 @@ export default function BfsFileSearchAnimation() {
  </div>
  <div className="p-3 bg-base rounded-lg border border-edge">
  <div className="text-xs text-dim">待处理</div>
- <div className="text-xl font-bold text-yellow-400">
+ <div className="text-xl font-bold text-heading">
  {Math.max(0, state.queue.length - state.queueHead)}
  </div>
  </div>
  <div className="p-3 bg-base rounded-lg border border-edge">
  <div className="text-xs text-dim">已扫描</div>
- <div className="text-xl font-bold text-green-400">{state.scannedDirs}/{state.maxDirs}</div>
+ <div className="text-xl font-bold text-heading">{state.scannedDirs}/{state.maxDirs}</div>
  </div>
  <div className="p-3 bg-base rounded-lg border border-edge">
  <div className="text-xs text-dim">找到文件</div>
@@ -426,7 +426,7 @@ export default function BfsFileSearchAnimation() {
  <div
  key={idx}
  className={`px-2 py-1 rounded border ${
- isInBatch ? 'bg-yellow-900/50 border-yellow-500 text-yellow-300' :
+ isInBatch ? 'bg-elevated border-edge text-heading' :
  isProcessed ? ' bg-surface border-edge text-dim' :
  isHead ? ' bg-elevated/50 border-edge text-heading' :
  ' bg-surface border-edge text-body'
@@ -466,11 +466,11 @@ export default function BfsFileSearchAnimation() {
  <span className="text-body">待处理</span>
  </div>
  <div className="flex items-center gap-1">
- <span className="w-3 h-3 rounded bg-yellow-900/50 border border-yellow-500" />
+ <span className="w-3 h-3 rounded bg-elevated border-l-2 border-l-edge-hover" />
  <span className="text-body">处理中</span>
  </div>
  <div className="flex items-center gap-1">
- <span className="w-3 h-3 rounded bg-green-900/50 border border-green-600" />
+ <span className="w-3 h-3 rounded bg-elevated border-l-2 border-l-edge-hover/60" />
  <span className="text-body">已完成</span>
  </div>
  <div className="flex items-center gap-1">
@@ -483,7 +483,7 @@ export default function BfsFileSearchAnimation() {
  {/* Logs */}
  <div className="p-4 bg-base rounded-lg border border-edge">
  <h3 className="text-sm font-semibold text-body mb-3 flex items-center gap-2">
- <span className="w-2 h-2 rounded-full bg-green-500" />
+ <span className="w-2 h-2 rounded-full bg-[var(--color-success)]" />
  执行日志
  </h3>
  <div className="h-80 overflow-y-auto font-mono text-xs space-y-1">
@@ -499,13 +499,13 @@ export default function BfsFileSearchAnimation() {
 
  {/* Found Files */}
  {state.foundFiles.length > 0 && (
- <div className="mt-6 p-4 bg-green-900/20 border border-green-700/50 rounded-lg">
- <h3 className="text-sm font-semibold text-green-400 mb-3">
+ <div className="mt-6 p-4 bg-elevated border-l-2 border-l-edge-hover/40 rounded-lg">
+ <h3 className="text-sm font-semibold text-heading mb-3">
  找到的文件 ({state.foundFiles.length})
  </h3>
  <div className="flex flex-wrap gap-2">
  {state.foundFiles.map((file, idx) => (
- <div key={idx} className="px-2 py-1 bg-green-900/30 rounded text-xs text-green-300 font-mono">
+ <div key={idx} className="px-2 py-1 bg-elevated rounded text-xs text-heading font-mono">
  {file}
  </div>
  ))}

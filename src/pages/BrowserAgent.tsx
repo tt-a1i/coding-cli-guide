@@ -4,6 +4,9 @@ import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 const relatedPages: RelatedPage[] = [
  { id: 'tool-arch', label: '工具系统架构', description: 'Browser Agent 如何注册为工具' },
@@ -38,12 +41,12 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">🔧 典型使用场景</h4>
+ <h4 className="text-heading font-bold mb-2">🔧 典型使用场景</h4>
  <ul className="text-body text-sm space-y-1">
- <li>• <strong>网页信息提取</strong>：访问文档站点、抓取 API 文档内容</li>
- <li>• <strong>表单自动化</strong>：填写表单、提交数据、验证页面状态</li>
- <li>• <strong>UI 测试辅助</strong>：截图对比、元素存在性检查、交互流程验证</li>
- <li>• <strong>调试辅助</strong>：访问本地开发服务器、检查页面渲染结果</li>
+ <li><strong>网页信息提取</strong>：访问文档站点、抓取 API 文档内容</li>
+ <li><strong>表单自动化</strong>：填写表单、提交数据、验证页面状态</li>
+ <li><strong>UI 测试辅助</strong>：截图对比、元素存在性检查、交互流程验证</li>
+ <li><strong>调试辅助</strong>：访问本地开发服务器、检查页面渲染结果</li>
  </ul>
  </div>
 
@@ -62,8 +65,8 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-heading font-semibold text-sm">3. 操作</div>
  <div className="text-xs text-dim mt-1">元素交互/截图</div>
  </div>
- <div className="bg-surface p-3 rounded border border-amber-500/30 text-center">
- <div className="text-amber-500 font-semibold text-sm">4. 返回</div>
+ <div className="bg-surface p-3 rounded border-l-2 border-l-edge-hover/30 text-center">
+ <div className="text-heading font-semibold text-sm">4. 返回</div>
  <div className="text-xs text-dim mt-1">结果回传模型</div>
  </div>
  </div>
@@ -79,7 +82,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">默认模式</div>
  </div>
  <div className="bg-surface p-3 rounded border border-edge">
- <div className="text-xl font-bold text-amber-500">Screenshot</div>
+ <div className="text-xl font-bold text-heading">Screenshot</div>
  <div className="text-xs text-dim">视觉反馈</div>
  </div>
  <div className="bg-surface p-3 rounded border border-edge">
@@ -127,14 +130,14 @@ export function BrowserAgent() {
  Overlay --> Puppeteer
  Puppeteer --> Browser
 
- style User fill:#22d3ee,color:#000
- style BrowserTool fill:#a855f7,color:#fff
- style BC fill:#f59e0b,color:#000
- style PN fill:#22c55e,color:#000
- style ES fill:#22c55e,color:#000
- style PR fill:var(--color-text-muted),color:#fff
- style Puppeteer fill:#3b82f6,color:#fff
- style Browser fill:#ef4444,color:#fff`;
+ style User fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style BrowserTool fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style BC fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style PN fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style ES fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style PR fill:${getThemeColor("--mermaid-muted-fill", "#f4f4f2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Puppeteer fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Browser fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  const workflowDiagram = `sequenceDiagram
  participant U as 用户
@@ -173,384 +176,384 @@ export function BrowserAgent() {
  const browserControllerCode = `// packages/core/src/tools/browser-agent/browserController.ts
 
 interface BrowserControllerOptions {
- headless?: boolean; // 默认 true（无头模式）
- defaultViewport?: Viewport; // 默认 1280x720
- timeout?: number; // 默认 30000ms
- executablePath?: string; // Chrome 可执行路径（可选）
+  headless?: boolean; // 默认 true（无头模式）
+  defaultViewport?: Viewport; // 默认 1280x720
+  timeout?: number; // 默认 30000ms
+  executablePath?: string; // Chrome 可执行路径（可选）
 }
 
 class BrowserController {
- private browser: Browser | null = null;
- private page: Page | null = null;
- private navigator: PageNavigator;
- private selector: ElementSelector;
- private progressReporter: ProgressReporter;
+  private browser: Browser | null = null;
+  private page: Page | null = null;
+  private navigator: PageNavigator;
+  private selector: ElementSelector;
+  private progressReporter: ProgressReporter;
 
- // 确保浏览器实例存在（懒启动）
- async ensureBrowser(): Promise<Page> {
- if (!this.browser) {
- this.browser = await puppeteer.launch({
- headless: this.options.headless,
- defaultViewport: this.options.defaultViewport,
- args: [
- '--no-sandbox',
- '--disable-setuid-sandbox',
- '--disable-dev-shm-usage',
- '--disable-gpu',
- ],
- });
- this.page = await this.browser.newPage();
- await this.injectAutomationOverlay(this.page);
- }
- return this.page!;
- }
+  // 确保浏览器实例存在（懒启动）
+  async ensureBrowser(): Promise<Page> {
+  if (!this.browser) {
+  this.browser = await puppeteer.launch({
+  headless: this.options.headless,
+  defaultViewport: this.options.defaultViewport,
+  args: [
+  '--no-sandbox',
+  '--disable-setuid-sandbox',
+  '--disable-dev-shm-usage',
+  '--disable-gpu',
+  ],
+  });
+  this.page = await this.browser.newPage();
+  await this.injectAutomationOverlay(this.page);
+  }
+  return this.page!;
+  }
 
- // 关闭浏览器并清理资源
- async closeBrowser(): Promise<void> {
- if (this.browser) {
- await this.browser.close();
- this.browser = null;
- this.page = null;
- }
- }
+  // 关闭浏览器并清理资源
+  async closeBrowser(): Promise<void> {
+  if (this.browser) {
+  await this.browser.close();
+  this.browser = null;
+  this.page = null;
+  }
+  }
 
- // 截图并返回 Base64 编码数据
- async screenshot(options?: ScreenshotOptions): Promise<string> {
- const page = await this.ensureBrowser();
- const buffer = await page.screenshot({
- type: 'png',
- fullPage: options?.fullPage ?? false,
- encoding: 'base64',
- });
- return buffer as string;
- }
+  // 截图并返回 Base64 编码数据
+  async screenshot(options?: ScreenshotOptions): Promise<string> {
+  const page = await this.ensureBrowser();
+  const buffer = await page.screenshot({
+  type: 'png',
+  fullPage: options?.fullPage ?? false,
+  encoding: 'base64',
+  });
+  return buffer as string;
+  }
 }`;
 
  const pageNavigatorCode = `// packages/core/src/tools/browser-agent/pageNavigator.ts
 
 class PageNavigator {
- // 导航到指定 URL
- async navigate(page: Page, url: string): Promise<NavigationResult> {
- try {
- const response = await page.goto(url, {
- waitUntil: 'networkidle2', // 等待网络空闲
- timeout: this.timeout,
- });
+  // 导航到指定 URL
+  async navigate(page: Page, url: string): Promise<NavigationResult> {
+  try {
+  const response = await page.goto(url, {
+  waitUntil: 'networkidle2', // 等待网络空闲
+  timeout: this.timeout,
+  });
 
- return {
- success: true,
- url: page.url(),
- status: response?.status() ?? 0,
- title: await page.title(),
- };
- } catch (error) {
- return {
- success: false,
- url,
- error: \`Navigation failed: \${error.message}\`,
- };
- }
- }
+  return {
+  success: true,
+  url: page.url(),
+  status: response?.status() ?? 0,
+  title: await page.title(),
+  };
+  } catch (error) {
+  return {
+  success: false,
+  url,
+  error: \`Navigation failed: \${error.message}\`,
+  };
+  }
+  }
 
- // 等待页面特定条件
- async waitForCondition(
- page: Page,
- condition: WaitCondition
- ): Promise<void> {
- switch (condition.type) {
- case 'selector':
- await page.waitForSelector(condition.value, {
- timeout: condition.timeout,
- });
- break;
- case 'navigation':
- await page.waitForNavigation({
- waitUntil: 'networkidle2',
- });
- break;
- case 'timeout':
- await new Promise(r => setTimeout(r, condition.value));
- break;
- }
- }
+  // 等待页面特定条件
+  async waitForCondition(
+  page: Page,
+  condition: WaitCondition
+  ): Promise<void> {
+  switch (condition.type) {
+  case 'selector':
+  await page.waitForSelector(condition.value, {
+  timeout: condition.timeout,
+  });
+  break;
+  case 'navigation':
+  await page.waitForNavigation({
+  waitUntil: 'networkidle2',
+  });
+  break;
+  case 'timeout':
+  await new Promise(r => setTimeout(r, condition.value));
+  break;
+  }
+  }
 }`;
 
  const elementSelectorCode = `// packages/core/src/tools/browser-agent/elementSelector.ts
 
 class ElementSelector {
- // 查找元素（支持 CSS 选择器和 XPath）
- async findElement(
- page: Page,
- selector: string,
- options?: FindOptions
- ): Promise<ElementHandle | null> {
- if (selector.startsWith('//') || selector.startsWith('(//')) {
- // XPath 选择器
- const [element] = await page.$x(selector);
- return element ?? null;
- }
- return page.$(selector);
- }
+  // 查找元素（支持 CSS 选择器和 XPath）
+  async findElement(
+  page: Page,
+  selector: string,
+  options?: FindOptions
+  ): Promise<ElementHandle | null> {
+  if (selector.startsWith('//') || selector.startsWith('(//')) {
+  // XPath 选择器
+  const [element] = await page.$x(selector);
+  return element ?? null;
+  }
+  return page.$(selector);
+  }
 
- // 点击元素
- async clickElement(
- page: Page,
- selector: string
- ): Promise<ActionResult> {
- const element = await this.findElement(page, selector);
- if (!element) {
- return { success: false, error: \`Element not found: \${selector}\` };
- }
+  // 点击元素
+  async clickElement(
+  page: Page,
+  selector: string
+  ): Promise<ActionResult> {
+  const element = await this.findElement(page, selector);
+  if (!element) {
+  return { success: false, error: \`Element not found: \${selector}\` };
+  }
 
- await element.click();
- return { success: true, action: 'click', selector };
- }
+  await element.click();
+  return { success: true, action: 'click', selector };
+  }
 
- // 向元素输入文本
- async typeIntoElement(
- page: Page,
- selector: string,
- text: string
- ): Promise<ActionResult> {
- const element = await this.findElement(page, selector);
- if (!element) {
- return { success: false, error: \`Element not found: \${selector}\` };
- }
+  // 向元素输入文本
+  async typeIntoElement(
+  page: Page,
+  selector: string,
+  text: string
+  ): Promise<ActionResult> {
+  const element = await this.findElement(page, selector);
+  if (!element) {
+  return { success: false, error: \`Element not found: \${selector}\` };
+  }
 
- await element.type(text, { delay: 50 }); // 模拟打字延迟
- return { success: true, action: 'type', selector, text };
- }
+  await element.type(text, { delay: 50 }); // 模拟打字延迟
+  return { success: true, action: 'type', selector, text };
+  }
 
- // 获取元素文本内容
- async getElementText(
- page: Page,
- selector: string
- ): Promise<string | null> {
- const element = await this.findElement(page, selector);
- if (!element) return null;
- return page.evaluate(el => el.textContent, element);
- }
+  // 获取元素文本内容
+  async getElementText(
+  page: Page,
+  selector: string
+  ): Promise<string | null> {
+  const element = await this.findElement(page, selector);
+  if (!element) return null;
+  return page.evaluate(el => el.textContent, element);
+  }
 
- // 获取页面所有可交互元素的摘要
- async getInteractableElements(page: Page): Promise<ElementSummary[]> {
- return page.evaluate(() => {
- const elements: ElementSummary[] = [];
- const interactable = document.querySelectorAll(
- 'a, button, input, select, textarea, [role="button"], [onclick]'
- );
- interactable.forEach((el, index) => {
- elements.push({
- index,
- tag: el.tagName.toLowerCase(),
- text: el.textContent?.trim().slice(0, 100) ?? '',
- selector: generateUniqueSelector(el),
- type: (el as HTMLInputElement).type ?? undefined,
- });
- });
- return elements;
- });
- }
+  // 获取页面所有可交互元素的摘要
+  async getInteractableElements(page: Page): Promise<ElementSummary[]> {
+  return page.evaluate(() => {
+  const elements: ElementSummary[] = [];
+  const interactable = document.querySelectorAll(
+  'a, button, input, select, textarea, [role="button"], [onclick]'
+  );
+  interactable.forEach((el, index) => {
+  elements.push({
+  index,
+  tag: el.tagName.toLowerCase(),
+  text: el.textContent?.trim().slice(0, 100) ?? '',
+  selector: generateUniqueSelector(el),
+  type: (el as HTMLInputElement).type ?? undefined,
+  });
+  });
+  return elements;
+  });
+  }
 }`;
 
  const toolInterfaceCode = `// packages/core/src/tools/browser-agent/browserTool.ts
 
 // Browser Agent 注册为 web_browser 工具
 class BrowserTool implements Tool {
- name = 'web_browser';
- description = 'Interact with web pages: navigate, click, type, screenshot, and extract content.';
+  name = 'web_browser';
+  description = 'Interact with web pages: navigate, click, type, screenshot, and extract content.';
 
- schema = {
- type: 'object',
- properties: {
- action: {
- type: 'string',
- enum: [
- 'navigate', // 导航到 URL
- 'click', // 点击元素
- 'type', // 输入文本
- 'screenshot', // 截取页面截图
- 'get_text', // 获取元素/页面文本
- 'get_elements', // 列出可交互元素
- 'evaluate', // 执行 JavaScript
- 'wait', // 等待条件
- 'close', // 关闭浏览器
- ],
- description: 'The browser action to perform',
- },
- url: {
- type: 'string',
- description: 'URL to navigate to (for navigate action)',
- },
- selector: {
- type: 'string',
- description: 'CSS selector or XPath (for click/type/get_text)',
- },
- text: {
- type: 'string',
- description: 'Text to type (for type action)',
- },
- javascript: {
- type: 'string',
- description: 'JavaScript to evaluate (for evaluate action)',
- },
- fullPage: {
- type: 'boolean',
- description: 'Capture full page screenshot (default: false)',
- },
- },
- required: ['action'],
- };
+  schema = {
+  type: 'object',
+  properties: {
+  action: {
+  type: 'string',
+  enum: [
+  'navigate', // 导航到 URL
+  'click', // 点击元素
+  'type', // 输入文本
+  'screenshot', // 截取页面截图
+  'get_text', // 获取元素/页面文本
+  'get_elements', // 列出可交互元素
+  'evaluate', // 执行 JavaScript
+  'wait', // 等待条件
+  'close', // 关闭浏览器
+  ],
+  description: 'The browser action to perform',
+  },
+  url: {
+  type: 'string',
+  description: 'URL to navigate to (for navigate action)',
+  },
+  selector: {
+  type: 'string',
+  description: 'CSS selector or XPath (for click/type/get_text)',
+  },
+  text: {
+  type: 'string',
+  description: 'Text to type (for type action)',
+  },
+  javascript: {
+  type: 'string',
+  description: 'JavaScript to evaluate (for evaluate action)',
+  },
+  fullPage: {
+  type: 'boolean',
+  description: 'Capture full page screenshot (default: false)',
+  },
+  },
+  required: ['action'],
+  };
 
- async execute(params: BrowserToolParams): Promise<ToolResult> {
- switch (params.action) {
- case 'navigate':
- return this.handleNavigate(params.url!);
- case 'click':
- return this.handleClick(params.selector!);
- case 'type':
- return this.handleType(params.selector!, params.text!);
- case 'screenshot':
- return this.handleScreenshot(params.fullPage);
- case 'get_text':
- return this.handleGetText(params.selector);
- case 'get_elements':
- return this.handleGetElements();
- case 'evaluate':
- return this.handleEvaluate(params.javascript!);
- case 'wait':
- return this.handleWait(params);
- case 'close':
- return this.handleClose();
- default:
- return { error: \`Unknown action: \${params.action}\` };
- }
- }
+  async execute(params: BrowserToolParams): Promise<ToolResult> {
+  switch (params.action) {
+  case 'navigate':
+  return this.handleNavigate(params.url!);
+  case 'click':
+  return this.handleClick(params.selector!);
+  case 'type':
+  return this.handleType(params.selector!, params.text!);
+  case 'screenshot':
+  return this.handleScreenshot(params.fullPage);
+  case 'get_text':
+  return this.handleGetText(params.selector);
+  case 'get_elements':
+  return this.handleGetElements();
+  case 'evaluate':
+  return this.handleEvaluate(params.javascript!);
+  case 'wait':
+  return this.handleWait(params);
+  case 'close':
+  return this.handleClose();
+  default:
+  return { error: \`Unknown action: \${params.action}\` };
+  }
+  }
 }`;
 
  const registrationCode = `// packages/core/src/config/config.ts（节选）
 
 // Browser Agent 作为实验性工具注册
 if (this.settings.experimental?.browserAgent) {
- const browserController = new BrowserController({
- headless: this.settings.experimental.browserAgentHeadless ?? true,
- timeout: this.settings.experimental.browserAgentTimeout ?? 30000,
- });
+  const browserController = new BrowserController({
+  headless: this.settings.experimental.browserAgentHeadless ?? true,
+  timeout: this.settings.experimental.browserAgentTimeout ?? 30000,
+  });
 
- this.getToolRegistry().registerTool(
- new BrowserTool(browserController, this.messageBus)
- );
+  this.getToolRegistry().registerTool(
+  new BrowserTool(browserController, this.messageBus)
+  );
 
- // 会话结束时自动清理浏览器资源
- this.onDispose(() => browserController.closeBrowser());
+  // 会话结束时自动清理浏览器资源
+  this.onDispose(() => browserController.closeBrowser());
 }`;
 
  const settingsCode = `// settings.json 配置项
 {
- "experimental": {
- "browserAgent": true, // 启用 Browser Agent（默认 false）
- "browserAgentHeadless": true, // 使用无头模式（默认 true）
- "browserAgentTimeout": 30000 // 操作超时时间（ms，默认 30000）
- }
+  "experimental": {
+  "browserAgent": true, // 启用 Browser Agent（默认 false）
+  "browserAgentHeadless": true, // 使用无头模式（默认 true）
+  "browserAgentTimeout": 30000 // 操作超时时间（ms，默认 30000）
+  }
 }`;
 
  const overlayCode = `// packages/core/src/tools/browser-agent/automationOverlay.ts
 
 // 注入自动化覆盖层，用于可视化当前操作
 async function injectAutomationOverlay(page: Page): Promise<void> {
- await page.evaluateOnNewDocument(() => {
- // 创建覆盖层容器
- const overlay = document.createElement('div');
- overlay.id = '__gemini_automation_overlay';
- overlay.style.cssText = \`
- position: fixed; top: 0; left: 0; right: 0;
- z-index: 999999; padding: 4px 12px;
- background: rgba(168, 85, 247, 0.9);
- color: white; font-size: 12px;
- font-family: monospace;
- display: flex; align-items: center; gap: 8px;
- \`;
+  await page.evaluateOnNewDocument(() => {
+  // 创建覆盖层容器
+  const overlay = document.createElement('div');
+  overlay.id = '__gemini_automation_overlay';
+  overlay.style.cssText = \`
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 999999; padding: 4px 12px;
+  background: rgba(168, 85, 247, 0.9);
+  color: white; font-size: 12px;
+  font-family: monospace;
+  display: flex; align-items: center; gap: 8px;
+  \`;
 
- // 状态指示器
- const indicator = document.createElement('span');
- indicator.textContent = '● Gemini CLI Browser Agent';
- overlay.appendChild(indicator);
+  // 状态指示器
+  const indicator = document.createElement('span');
+  indicator.textContent = '● Gemini CLI Browser Agent';
+  overlay.appendChild(indicator);
 
- // 操作描述
- const action = document.createElement('span');
- action.id = '__gemini_action';
- action.style.opacity = '0.8';
- overlay.appendChild(action);
+  // 操作描述
+  const action = document.createElement('span');
+  action.id = '__gemini_action';
+  action.style.opacity = '0.8';
+  overlay.appendChild(action);
 
- document.addEventListener('DOMContentLoaded', () => {
- document.body.prepend(overlay);
- });
- });
+  document.addEventListener('DOMContentLoaded', () => {
+  document.body.prepend(overlay);
+  });
+  });
 }
 
 // 高亮当前操作的元素
 async function highlightElement(
- page: Page,
- selector: string
+  page: Page,
+  selector: string
 ): Promise<void> {
- await page.evaluate((sel) => {
- const el = document.querySelector(sel);
- if (!el) return;
+  await page.evaluate((sel) => {
+  const el = document.querySelector(sel);
+  if (!el) return;
 
- const rect = el.getBoundingClientRect();
- const highlight = document.createElement('div');
- highlight.style.cssText = \`
- position: fixed;
- top: \${rect.top}px; left: \${rect.left}px;
- width: \${rect.width}px; height: \${rect.height}px;
- border: 2px solid #a855f7;
- background: rgba(168, 85, 247, 0.1);
- z-index: 999998;
- pointer-events: none;
- transition: all 0.3s ease;
- \`;
- document.body.appendChild(highlight);
+  const rect = el.getBoundingClientRect();
+  const highlight = document.createElement('div');
+  highlight.style.cssText = \`
+  position: fixed;
+  top: \${rect.top}px; left: \${rect.left}px;
+  width: \${rect.width}px; height: \${rect.height}px;
+  border: 2px solid ${getThemeColor("--purple", "#7c3aed")};
+  background: rgba(168, 85, 247, 0.1);
+  z-index: 999998;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  \`;
+  document.body.appendChild(highlight);
 
- // 2 秒后自动移除高亮
- setTimeout(() => highlight.remove(), 2000);
- }, selector);
+  // 2 秒后自动移除高亮
+  setTimeout(() => highlight.remove(), 2000);
+  }, selector);
 }`;
 
  const progressReporterCode = `// packages/core/src/tools/browser-agent/progressReporter.ts
 
 class ProgressReporter {
- private messageBus: MessageBus;
+  private messageBus: MessageBus;
 
- constructor(messageBus: MessageBus) {
- this.messageBus = messageBus;
- }
+  constructor(messageBus: MessageBus) {
+  this.messageBus = messageBus;
+  }
 
- // 报告浏览器操作进度
- reportProgress(action: string, details: string): void {
- this.messageBus.publish('browser:progress', {
- type: 'browser_action',
- action,
- details,
- timestamp: Date.now(),
- });
- }
+  // 报告浏览器操作进度
+  reportProgress(action: string, details: string): void {
+  this.messageBus.publish('browser:progress', {
+  type: 'browser_action',
+  action,
+  details,
+  timestamp: Date.now(),
+  });
+  }
 
- // 报告导航事件
- reportNavigation(url: string, status: number): void {
- this.reportProgress('navigate', \`\${url} (HTTP \${status})\`);
- }
+  // 报告导航事件
+  reportNavigation(url: string, status: number): void {
+  this.reportProgress('navigate', \`\${url} (HTTP \${status})\`);
+  }
 
- // 报告元素操作
- reportElementAction(action: string, selector: string): void {
- this.reportProgress(action, \`Target: \${selector}\`);
- }
+  // 报告元素操作
+  reportElementAction(action: string, selector: string): void {
+  this.reportProgress(action, \`Target: \${selector}\`);
+  }
 
- // 报告截图完成
- reportScreenshot(fullPage: boolean): void {
- this.reportProgress(
- 'screenshot',
- fullPage ? 'Full page capture' : 'Viewport capture'
- );
- }
+  // 报告截图完成
+  reportScreenshot(fullPage: boolean): void {
+  this.reportProgress(
+  'screenshot',
+  fullPage ? 'Full page capture' : 'Viewport capture'
+  );
+  }
 }`;
 
  return (
@@ -603,21 +606,21 @@ class ProgressReporter {
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-base/50 rounded-lg p-4">
- <h4 className="text-amber-500 font-semibold mb-2">BrowserController</h4>
+ <h4 className="text-heading font-semibold mb-2">BrowserController</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• 管理 Puppeteer Browser 实例的创建和销毁</li>
- <li>• 懒启动：首次需要时才创建浏览器</li>
- <li>• 会话结束时自动清理资源</li>
- <li>• 注入 AutomationOverlay 到每个页面</li>
+ <li>管理 Puppeteer Browser 实例的创建和销毁</li>
+ <li>懒启动：首次需要时才创建浏览器</li>
+ <li>会话结束时自动清理资源</li>
+ <li>注入 AutomationOverlay 到每个页面</li>
  </ul>
  </div>
  <div className="bg-base/50 rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">PageNavigator / ElementSelector</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• PageNavigator：URL 导航、waitUntil 策略、超时处理</li>
- <li>• ElementSelector：CSS/XPath 双模式定位</li>
- <li>• 元素交互：click / type / getText</li>
- <li>• 可交互元素发现：自动扫描页面交互点</li>
+ <li>PageNavigator：URL 导航、waitUntil 策略、超时处理</li>
+ <li>ElementSelector：CSS/XPath 双模式定位</li>
+ <li>元素交互：click / type / getText</li>
+ <li>可交互元素发现：自动扫描页面交互点</li>
  </ul>
  </div>
  </div>
@@ -639,14 +642,14 @@ class ProgressReporter {
  <h4 className="text-heading font-semibold mb-2">关键流程说明</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-body">
  <div>
- <div className="text-amber-500 mb-1">懒启动策略</div>
+ <div className="text-heading mb-1">懒启动策略</div>
  <p>
  浏览器不在 CLI 启动时创建，而是在第一次 <code>web_browser</code> 工具调用时才启动。
  这避免了不需要浏览器的场景中的资源浪费。
  </p>
  </div>
  <div>
- <div className="text-amber-500 mb-1">实例复用</div>
+ <div className="text-heading mb-1">实例复用</div>
  <p>
  同一会话中多次浏览器操作复用同一个 Browser 实例和 Page 对象，
  减少启动开销，同时保持页面状态（如 cookies、登录态）。
@@ -720,10 +723,10 @@ class ProgressReporter {
  <div className="mt-4 bg-elevated border border-edge rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">AutomationOverlay 特性</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>顶部状态栏</strong>：固定显示 "Gemini CLI Browser Agent" 标识和当前操作</li>
- <li>• <strong>元素高亮</strong>：操作目标元素时显示紫色边框和半透明背景</li>
- <li>• <strong>自动清理</strong>：高亮效果 2 秒后自动移除，不干扰后续操作</li>
- <li>• <strong>非侵入式</strong>：使用极高 z-index 确保可见，但不拦截页面交互</li>
+ <li><strong>顶部状态栏</strong>：固定显示 "Gemini CLI Browser Agent" 标识和当前操作</li>
+ <li><strong>元素高亮</strong>：操作目标元素时显示紫色边框和半透明背景</li>
+ <li><strong>自动清理</strong>：高亮效果 2 秒后自动移除，不干扰后续操作</li>
+ <li><strong>非侵入式</strong>：使用极高 z-index 确保可见，但不拦截页面交互</li>
  </ul>
  </div>
  </Layer>
@@ -852,7 +855,7 @@ class ProgressReporter {
  </p>
  </div>
  <div className="bg-base/50 rounded-lg p-4">
- <h4 className="text-amber-500 font-semibold mb-2">MessageBus 集成</h4>
+ <h4 className="text-heading font-semibold mb-2">MessageBus 集成</h4>
  <p className="text-sm text-body">
  操作进度通过 MessageBus 发布，UI 层可订阅 <code>browser:progress</code> 事件展示状态。
  </p>
@@ -869,28 +872,28 @@ class ProgressReporter {
  Browser Agent 是实验性功能，API 和行为可能在未来版本中发生变化。生产环境使用需谨慎评估。
  </p>
  <ul className="text-sm text-body space-y-1">
- <li>• 需要系统安装 Chrome/Chromium，或通过 Puppeteer 自动下载</li>
- <li>• 默认使用 Headless 模式，部分依赖 GPU 渲染的页面可能表现不同</li>
- <li>• 不支持多标签页操作，当前版本仅操作单一 Page 实例</li>
+ <li>需要系统安装 Chrome/Chromium，或通过 Puppeteer 自动下载</li>
+ <li>默认使用 Headless 模式，部分依赖 GPU 渲染的页面可能表现不同</li>
+ <li>不支持多标签页操作，当前版本仅操作单一 Page 实例</li>
  </ul>
  </HighlightBox>
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="安全边界" variant="yellow">
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>evaluate 操作</strong>：在页面上下文中执行任意 JS，需要用户确认</li>
- <li>• <strong>导航限制</strong>：默认不限制可访问的 URL，但受 Policy Engine 约束</li>
- <li>• <strong>敏感数据</strong>：截图可能包含敏感信息，会被传送到模型</li>
- <li>• <strong>Cookie/Session</strong>：浏览器实例共享会话状态，注意登录态泄露风险</li>
+ <li><strong>evaluate 操作</strong>：在页面上下文中执行任意 JS，需要用户确认</li>
+ <li><strong>导航限制</strong>：默认不限制可访问的 URL，但受 Policy Engine 约束</li>
+ <li><strong>敏感数据</strong>：截图可能包含敏感信息，会被传送到模型</li>
+ <li><strong>Cookie/Session</strong>：浏览器实例共享会话状态，注意登录态泄露风险</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="性能考虑" variant="blue">
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>启动开销</strong>：首次启动浏览器需要 1-3 秒</li>
- <li>• <strong>内存占用</strong>：Chrome 实例通常占用 100-300MB 内存</li>
- <li>• <strong>截图大小</strong>：全页截图可能产生较大的 Base64 数据</li>
- <li>• <strong>超时设置</strong>：复杂页面可能需要调高默认 30s 超时</li>
+ <li><strong>启动开销</strong>：首次启动浏览器需要 1-3 秒</li>
+ <li><strong>内存占用</strong>：Chrome 实例通常占用 100-300MB 内存</li>
+ <li><strong>截图大小</strong>：全页截图可能产生较大的 Base64 数据</li>
+ <li><strong>超时设置</strong>：复杂页面可能需要调高默认 30s 超时</li>
  </ul>
  </HighlightBox>
  </div>
@@ -908,22 +911,22 @@ class ProgressReporter {
  </thead>
  <tbody className="text-body">
  <tr className="border- border-edge">
- <td className="py-2 px-2 text-amber-400">单页面</td>
+ <td className="py-2 px-2 text-heading">单页面</td>
  <td className="py-2 px-2 text-xs">不支持同时操作多个标签页</td>
  <td className="py-2 px-2 text-xs">使用 navigate 在页面间切换</td>
  </tr>
  <tr className="border- border-edge">
- <td className="py-2 px-2 text-amber-400">无文件下载</td>
+ <td className="py-2 px-2 text-heading">无文件下载</td>
  <td className="py-2 px-2 text-xs">不支持文件下载操作</td>
  <td className="py-2 px-2 text-xs">使用 shell 命令下载文件</td>
  </tr>
  <tr className="border- border-edge">
- <td className="py-2 px-2 text-amber-400">无音视频</td>
+ <td className="py-2 px-2 text-heading">无音视频</td>
  <td className="py-2 px-2 text-xs">Headless 模式下无法播放音视频</td>
  <td className="py-2 px-2 text-xs">使用 get_text 获取页面内容</td>
  </tr>
  <tr>
- <td className="py-2 px-2 text-amber-400">验证码</td>
+ <td className="py-2 px-2 text-heading">验证码</td>
  <td className="py-2 px-2 text-xs">无法处理 CAPTCHA 验证</td>
  <td className="py-2 px-2 text-xs">切换到 headed 模式手动处理</td>
  </tr>

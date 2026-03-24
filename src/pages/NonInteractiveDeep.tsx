@@ -4,6 +4,9 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 const relatedPages: RelatedPage[] = [
  { id: 'core-architecture', label: '核心架构', description: '系统设计' },
@@ -47,7 +50,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">结构化输出</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-amber-500">Multi</div>
+ <div className="text-2xl font-bold text-heading">Multi</div>
  <div className="text-xs text-dim">多轮工具调用</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
@@ -65,7 +68,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <span className="px-3 py-1.5 bg-elevated/20 text-heading rounded-lg border border-edge/30">
  脚本自动化
  </span>
- <span className="px-3 py-1.5 bg-amber-500/20 text-amber-500 rounded-lg border border-amber-500/30">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover/30">
  管道组合
  </span>
  <span className="px-3 py-1.5 bg-elevated/20 text-heading rounded-lg border border-edge/30">
@@ -136,7 +139,7 @@ export function NonInteractiveDeep() {
 
  style Input stroke:#00d4ff
  style Loop stroke:#00ff88
- style Response stroke:#f59e0b
+ style Response stroke:${getThemeColor("--color-warning", "#b45309")}
  style Output stroke:#a855f7`;
 
  const toolLoopDiagram = `sequenceDiagram
@@ -156,302 +159,302 @@ export function NonInteractiveDeep() {
 
  const mainCodeExample = `// packages/cli/src/nonInteractiveCli.ts - runNonInteractive（节选）
 interface RunNonInteractiveParams {
- config: Config;
- settings: LoadedSettings;
- input: string;
- prompt_id: string;
- hasDeprecatedPromptArg?: boolean;
- resumedSessionData?: ResumedSessionData;
+  config: Config;
+  settings: LoadedSettings;
+  input: string;
+  prompt_id: string;
+  hasDeprecatedPromptArg?: boolean;
+  resumedSessionData?: ResumedSessionData;
 }
 
 export async function runNonInteractive({
- config,
- settings,
- input,
- prompt_id,
- hasDeprecatedPromptArg,
- resumedSessionData,
+  config,
+  settings,
+  input,
+  prompt_id,
+  hasDeprecatedPromptArg,
+  resumedSessionData,
 }: RunNonInteractiveParams): Promise<void> {
- return promptIdContext.run(prompt_id, async () => {
- const consolePatcher = new ConsolePatcher({
- stderr: true,
- debugMode: config.getDebugMode(),
- onNewMessage: (msg) => coreEvents.emitConsoleLog(msg.type, msg.content),
- });
- const { stdout: workingStdout } = createWorkingStdio();
- const textOutput = new TextOutput(workingStdout);
- const abortController = new AbortController();
+  return promptIdContext.run(prompt_id, async () => {
+  const consolePatcher = new ConsolePatcher({
+  stderr: true,
+  debugMode: config.getDebugMode(),
+  onNewMessage: (msg) => coreEvents.emitConsoleLog(msg.type, msg.content),
+  });
+  const { stdout: workingStdout } = createWorkingStdio();
+  const textOutput = new TextOutput(workingStdout);
+  const abortController = new AbortController();
 
- try {
- consolePatcher.patch();
+  try {
+  consolePatcher.patch();
 
- // Handle EPIPE when piping to a command that closes early.
- process.stdout.on('error', (err) => {
- if (err.code === 'EPIPE') process.exit(0);
- });
+  // Handle EPIPE when piping to a command that closes early.
+  process.stdout.on('error', (err) => {
+  if (err.code === 'EPIPE') process.exit(0);
+  });
 
- const geminiClient = config.getGeminiClient();
+  const geminiClient = config.getGeminiClient();
 
- // Resume session (optional)
- if (resumedSessionData) {
- await geminiClient.resumeChat(...);
- }
+  // Resume session (optional)
+  if (resumedSessionData) {
+  await geminiClient.resumeChat(...);
+  }
 
- // 1) Slash 命令（可能返回 prompt）
- let query: Part[] | undefined;
- if (isSlashCommand(input)) {
- const slashResult = await handleSlashCommand(
- input,
- abortController,
- config,
- settings,
- );
- if (slashResult) query = slashResult as Part[];
- }
+  // 1) Slash 命令（可能返回 prompt）
+  let query: Part[] | undefined;
+  if (isSlashCommand(input)) {
+  const slashResult = await handleSlashCommand(
+  input,
+  abortController,
+  config,
+  settings,
+  );
+  if (slashResult) query = slashResult as Part[];
+  }
 
- // 2) @path 展开（文件引用）
- if (!query) {
- const { processedQuery, error } = await handleAtCommand({
- query: input,
- config,
- addItem: (_item, _timestamp) => 0,
- onDebugMessage: () => {},
- messageId: Date.now(),
- signal: abortController.signal,
- });
+  // 2) @path 展开（文件引用）
+  if (!query) {
+  const { processedQuery, error } = await handleAtCommand({
+  query: input,
+  config,
+  addItem: (_item, _timestamp) => 0,
+  onDebugMessage: () => {},
+  messageId: Date.now(),
+  signal: abortController.signal,
+  });
 
- if (error || !processedQuery) {
- throw new FatalInputError(
- error || 'Exiting due to an error processing the @ command.',
- );
- }
+  if (error || !processedQuery) {
+  throw new FatalInputError(
+  error || 'Exiting due to an error processing the @ command.',
+  );
+  }
 
- query = processedQuery as Part[];
- }
+  query = processedQuery as Part[];
+  }
 
- // 3) Tool loop：sendMessageStream → executeToolCall → continuation
- // 见下方“响应处理循环”代码块
- void hasDeprecatedPromptArg;
- } finally {
- consolePatcher.cleanup();
- }
- });
+  // 3) Tool loop：sendMessageStream → executeToolCall → continuation
+  // 见下方“响应处理循环”代码块
+  void hasDeprecatedPromptArg;
+  } finally {
+  consolePatcher.cleanup();
+  }
+  });
 }`;
 
  const responseHandlingCode = `// packages/cli/src/nonInteractiveCli.ts - 响应处理循环（节选）
 const streamFormatter =
- config.getOutputFormat() === OutputFormat.STREAM_JSON
- ? new StreamJsonFormatter()
- : null;
+  config.getOutputFormat() === OutputFormat.STREAM_JSON
+  ? new StreamJsonFormatter()
+  : null;
 
 let currentMessages: Content[] = [{ role: 'user', parts: query }];
 let turnCount = 0;
 
 while (true) {
- turnCount++;
- if (
- config.getMaxSessionTurns() >= 0 &&
- turnCount > config.getMaxSessionTurns()
- ) {
- handleMaxTurnsExceededError(config);
- }
+  turnCount++;
+  if (
+  config.getMaxSessionTurns() >= 0 &&
+  turnCount > config.getMaxSessionTurns()
+  ) {
+  handleMaxTurnsExceededError(config);
+  }
 
- const toolCallRequests: ToolCallRequestInfo[] = [];
- const responseStream = geminiClient.sendMessageStream(
- currentMessages[0]?.parts || [],
- abortController.signal,
- prompt_id,
- );
+  const toolCallRequests: ToolCallRequestInfo[] = [];
+  const responseStream = geminiClient.sendMessageStream(
+  currentMessages[0]?.parts || [],
+  abortController.signal,
+  prompt_id,
+  );
 
- let responseText = '';
- for await (const event of responseStream) {
- if (abortController.signal.aborted) {
- handleCancellationError(config);
- }
+  let responseText = '';
+  for await (const event of responseStream) {
+  if (abortController.signal.aborted) {
+  handleCancellationError(config);
+  }
 
- if (event.type === GeminiEventType.Content) {
- if (streamFormatter) {
- streamFormatter.emitEvent({
- type: JsonStreamEventType.MESSAGE,
- timestamp: new Date().toISOString(),
- role: 'assistant',
- content: event.value,
- delta: true,
- });
- } else if (config.getOutputFormat() === OutputFormat.JSON) {
- responseText += event.value;
- } else {
- textOutput.write(event.value);
- }
- } else if (event.type === GeminiEventType.ToolCallRequest) {
- if (streamFormatter) {
- streamFormatter.emitEvent({
- type: JsonStreamEventType.TOOL_USE,
- timestamp: new Date().toISOString(),
- tool_name: event.value.name,
- tool_id: event.value.callId,
- parameters: event.value.args,
- });
- }
- toolCallRequests.push(event.value);
- } else if (event.type === GeminiEventType.Error) {
- throw event.value.error;
- }
- }
+  if (event.type === GeminiEventType.Content) {
+  if (streamFormatter) {
+  streamFormatter.emitEvent({
+  type: JsonStreamEventType.MESSAGE,
+  timestamp: new Date().toISOString(),
+  role: 'assistant',
+  content: event.value,
+  delta: true,
+  });
+  } else if (config.getOutputFormat() === OutputFormat.JSON) {
+  responseText += event.value;
+  } else {
+  textOutput.write(event.value);
+  }
+  } else if (event.type === GeminiEventType.ToolCallRequest) {
+  if (streamFormatter) {
+  streamFormatter.emitEvent({
+  type: JsonStreamEventType.TOOL_USE,
+  timestamp: new Date().toISOString(),
+  tool_name: event.value.name,
+  tool_id: event.value.callId,
+  parameters: event.value.args,
+  });
+  }
+  toolCallRequests.push(event.value);
+  } else if (event.type === GeminiEventType.Error) {
+  throw event.value.error;
+  }
+  }
 
- if (toolCallRequests.length > 0) {
- textOutput.ensureTrailingNewline();
- const toolResponseParts: Part[] = [];
+  if (toolCallRequests.length > 0) {
+  textOutput.ensureTrailingNewline();
+  const toolResponseParts: Part[] = [];
 
- for (const requestInfo of toolCallRequests) {
- const completedToolCall = await executeToolCall(
- config,
- requestInfo,
- abortController.signal,
- );
- const toolResponse = completedToolCall.response;
+  for (const requestInfo of toolCallRequests) {
+  const completedToolCall = await executeToolCall(
+  config,
+  requestInfo,
+  abortController.signal,
+  );
+  const toolResponse = completedToolCall.response;
 
- if (streamFormatter) {
- streamFormatter.emitEvent({
- type: JsonStreamEventType.TOOL_RESULT,
- timestamp: new Date().toISOString(),
- tool_id: requestInfo.callId,
- status: toolResponse.error ? 'error' : 'success',
- output:
- typeof toolResponse.resultDisplay === 'string'
- ? toolResponse.resultDisplay
- : undefined,
- });
- }
+  if (streamFormatter) {
+  streamFormatter.emitEvent({
+  type: JsonStreamEventType.TOOL_RESULT,
+  timestamp: new Date().toISOString(),
+  tool_id: requestInfo.callId,
+  status: toolResponse.error ? 'error' : 'success',
+  output:
+  typeof toolResponse.resultDisplay === 'string'
+  ? toolResponse.resultDisplay
+  : undefined,
+  });
+  }
 
- if (toolResponse.error) {
- handleToolError(
- requestInfo.name,
- toolResponse.error,
- config,
- toolResponse.errorType,
- typeof toolResponse.resultDisplay === 'string'
- ? toolResponse.resultDisplay
- : undefined,
- );
- }
+  if (toolResponse.error) {
+  handleToolError(
+  requestInfo.name,
+  toolResponse.error,
+  config,
+  toolResponse.errorType,
+  typeof toolResponse.resultDisplay === 'string'
+  ? toolResponse.resultDisplay
+  : undefined,
+  );
+  }
 
- if (toolResponse.responseParts) {
- toolResponseParts.push(...toolResponse.responseParts);
- }
- }
+  if (toolResponse.responseParts) {
+  toolResponseParts.push(...toolResponse.responseParts);
+  }
+  }
 
- // Continuation：把工具结果作为下一轮 user message
- currentMessages = [{ role: 'user', parts: toolResponseParts }];
- continue;
- }
+  // Continuation：把工具结果作为下一轮 user message
+  currentMessages = [{ role: 'user', parts: toolResponseParts }];
+  continue;
+  }
 
- // 无工具调用：输出最终结果并退出
- if (streamFormatter) {
- streamFormatter.emitEvent({
- type: JsonStreamEventType.RESULT,
- timestamp: new Date().toISOString(),
- status: 'success',
- });
- } else if (config.getOutputFormat() === OutputFormat.JSON) {
- const formatter = new JsonFormatter();
- const stats = uiTelemetryService.getMetrics();
- textOutput.write(
- formatter.format(config.getSessionId(), responseText, stats),
- );
- } else {
- textOutput.ensureTrailingNewline();
- }
+  // 无工具调用：输出最终结果并退出
+  if (streamFormatter) {
+  streamFormatter.emitEvent({
+  type: JsonStreamEventType.RESULT,
+  timestamp: new Date().toISOString(),
+  status: 'success',
+  });
+  } else if (config.getOutputFormat() === OutputFormat.JSON) {
+  const formatter = new JsonFormatter();
+  const stats = uiTelemetryService.getMetrics();
+  textOutput.write(
+  formatter.format(config.getSessionId(), responseText, stats),
+  );
+  } else {
+  textOutput.ensureTrailingNewline();
+  }
 
- return;
+  return;
 }`;
 
  const nonInteractiveUICode = `// packages/cli/src/ui/noninteractive/nonInteractiveUi.ts
 export function createNonInteractiveUI(): CommandContext['ui'] {
- return {
- addItem: (_item, _timestamp) => 0,
- clear: () => {},
- setDebugMessage: (_message) => {},
- loadHistory: (_newHistory) => {},
- pendingItem: null,
- setPendingItem: (_item) => {},
- toggleCorgiMode: () => {},
- toggleDebugProfiler: () => {},
- toggleVimEnabled: async () => false,
- reloadCommands: () => {},
- extensionsUpdateState: new Map(),
- dispatchExtensionStateUpdate: (_action) => {},
- addConfirmUpdateExtensionRequest: (_request) => {},
- removeComponent: () => {},
- };
+  return {
+  addItem: (_item, _timestamp) => 0,
+  clear: () => {},
+  setDebugMessage: (_message) => {},
+  loadHistory: (_newHistory) => {},
+  pendingItem: null,
+  setPendingItem: (_item) => {},
+  toggleCorgiMode: () => {},
+  toggleDebugProfiler: () => {},
+  toggleVimEnabled: async () => false,
+  reloadCommands: () => {},
+  extensionsUpdateState: new Map(),
+  dispatchExtensionStateUpdate: (_action) => {},
+  addConfirmUpdateExtensionRequest: (_request) => {},
+  removeComponent: () => {},
+  };
 }`;
 
  const slashCommandCode = `// packages/cli/src/nonInteractiveCliCommands.ts
 export const handleSlashCommand = async (
- rawQuery: string,
- abortController: AbortController,
- config: Config,
- settings: LoadedSettings,
+  rawQuery: string,
+  abortController: AbortController,
+  config: Config,
+  settings: LoadedSettings,
 ): Promise<PartListUnion | undefined> => {
- const trimmed = rawQuery.trim();
- if (!trimmed.startsWith('/')) {
- return;
- }
+  const trimmed = rawQuery.trim();
+  if (!trimmed.startsWith('/')) {
+  return;
+  }
 
- const commandService = await CommandService.create(
- [new McpPromptLoader(config), new FileCommandLoader(config)],
- abortController.signal,
- );
- const commands = commandService.getCommands();
+  const commandService = await CommandService.create(
+  [new McpPromptLoader(config), new FileCommandLoader(config)],
+  abortController.signal,
+  );
+  const commands = commandService.getCommands();
 
- const { commandToExecute, args } = parseSlashCommand(rawQuery, commands);
+  const { commandToExecute, args } = parseSlashCommand(rawQuery, commands);
 
- if (commandToExecute) {
- if (commandToExecute.action) {
- const sessionStats: SessionStatsState = {
- sessionId: config.getSessionId(),
- sessionStartTime: new Date(),
- metrics: uiTelemetryService.getMetrics(),
- lastPromptTokenCount: 0,
- promptCount: 1,
- };
+  if (commandToExecute) {
+  if (commandToExecute.action) {
+  const sessionStats: SessionStatsState = {
+  sessionId: config.getSessionId(),
+  sessionStartTime: new Date(),
+  metrics: uiTelemetryService.getMetrics(),
+  lastPromptTokenCount: 0,
+  promptCount: 1,
+  };
 
- const logger = new Logger(config.getSessionId(), config.storage);
+  const logger = new Logger(config.getSessionId(), config.storage);
 
- const context: CommandContext = {
- services: { config, settings, git: undefined, logger },
- ui: createNonInteractiveUI(),
- session: {
- stats: sessionStats,
- sessionShellAllowlist: new Set(),
- },
- invocation: {
- raw: trimmed,
- name: commandToExecute.name,
- args,
- },
- };
+  const context: CommandContext = {
+  services: { config, settings, git: undefined, logger },
+  ui: createNonInteractiveUI(),
+  session: {
+  stats: sessionStats,
+  sessionShellAllowlist: new Set(),
+  },
+  invocation: {
+  raw: trimmed,
+  name: commandToExecute.name,
+  args,
+  },
+  };
 
- const result = await commandToExecute.action(context, args);
+  const result = await commandToExecute.action(context, args);
 
- if (result) {
- switch (result.type) {
- case 'submit_prompt':
- return result.content;
- case 'confirm_shell_commands':
- throw new FatalInputError(
- 'Exiting due to a confirmation prompt requested by the command.',
- );
- default:
- throw new FatalInputError(
- 'Exiting due to command result that is not supported in non-interactive mode.',
- );
- }
- }
- }
- }
+  if (result) {
+  switch (result.type) {
+  case 'submit_prompt':
+  return result.content;
+  case 'confirm_shell_commands':
+  throw new FatalInputError(
+  'Exiting due to a confirmation prompt requested by the command.',
+  );
+  default:
+  throw new FatalInputError(
+  'Exiting due to command result that is not supported in non-interactive mode.',
+  );
+  }
+  }
+  }
+  }
 
- return;
+  return;
 };`;
 
  const usageExamples = `# 基本用法（positional prompt；-p/--prompt 已 deprecated）
@@ -509,33 +512,33 @@ gemini "check for security issues in @package.json" \\
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <div className="text-heading font-bold mb-2">1️⃣ 输入</div>
  <ul className="text-sm text-body space-y-1">
- <li>• stdin + prompt（positional；-p deprecated）</li>
- <li>• Slash 命令解析</li>
- <li>• @ 文件引用展开</li>
+ <li>stdin + prompt（positional；-p deprecated）</li>
+ <li>Slash 命令解析</li>
+ <li>@ 文件引用展开</li>
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <div className="text-heading font-bold mb-2">2️⃣ 执行</div>
  <ul className="text-sm text-body space-y-1">
- <li>• 流式发送消息</li>
- <li>• 处理响应事件</li>
- <li>• 轮次计数器</li>
+ <li>流式发送消息</li>
+ <li>处理响应事件</li>
+ <li>轮次计数器</li>
  </ul>
  </div>
- <div className="bg-surface p-4 rounded-lg border border-amber-500/30">
- <div className="text-amber-500 font-bold mb-2">3️⃣ 工具</div>
+ <div className="bg-surface p-4 rounded-lg border-l-2 border-l-edge-hover/30">
+ <div className="text-heading font-bold mb-2">3️⃣ 工具</div>
  <ul className="text-sm text-body space-y-1">
- <li>• 收集工具调用请求</li>
- <li>• 执行工具操作</li>
- <li>• 返回结果继续</li>
+ <li>收集工具调用请求</li>
+ <li>执行工具操作</li>
+ <li>返回结果继续</li>
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <div className="text-heading font-bold mb-2">4️⃣ 输出</div>
  <ul className="text-sm text-body space-y-1">
- <li>• text: 默认流式 stdout</li>
- <li>• json: 最终输出（含 stats）</li>
- <li>• stream-json: 事件流（INIT/MESSAGE/TOOL/RESULT）</li>
+ <li>text: 默认流式 stdout</li>
+ <li>json: 最终输出（含 stats）</li>
+ <li>stream-json: 事件流（INIT/MESSAGE/TOOL/RESULT）</li>
  </ul>
  </div>
  </div>
@@ -547,10 +550,10 @@ gemini "check for security issues in @package.json" \\
  <div className="mt-4 bg-base p-4 rounded-lg">
  <h4 className="text-heading font-bold mb-2">循环特点</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>无确认 UI</strong>：非交互模式不会弹确认；默认会额外 exclude 需要确认的危险工具，或通过 <code>--approval-mode</code> 放开</li>
- <li>• <strong>多轮支持</strong>：工具结果返回后继续对话</li>
- <li>• <strong>轮次限制</strong>：防止无限循环（maxSessionTurns）</li>
- <li>• <strong>错误处理</strong>：非致命工具错误会记录并继续（模型可自修正）；致命错误会直接退出</li>
+ <li><strong>无确认 UI</strong>：非交互模式不会弹确认；默认会额外 exclude 需要确认的危险工具，或通过 <code>--approval-mode</code> 放开</li>
+ <li><strong>多轮支持</strong>：工具结果返回后继续对话</li>
+ <li><strong>轮次限制</strong>：防止无限循环（maxSessionTurns）</li>
+ <li><strong>错误处理</strong>：非致命工具错误会记录并继续（模型可自修正）；致命错误会直接退出</li>
  </ul>
  </div>
  </Layer>
@@ -588,14 +591,14 @@ gemini "check for security issues in @package.json" \\
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="事件类型" color="blue">
  <ul className="text-sm text-body space-y-1">
- <li>• <code>GeminiEventType.Content</code> - 文本内容</li>
- <li>• <code>GeminiEventType.ToolCallRequest</code> - 工具调用</li>
+ <li><code>GeminiEventType.Content</code> - 文本内容</li>
+ <li><code>GeminiEventType.ToolCallRequest</code> - 工具调用</li>
  </ul>
  </HighlightBox>
  <HighlightBox title="输出模式" color="green">
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>Text</strong>：流式 process.stdout.write</li>
- <li>• <strong>JSON</strong>：累积后 JsonFormatter 格式化</li>
+ <li><strong>Text</strong>：流式 process.stdout.write</li>
+ <li><strong>JSON</strong>：累积后 JsonFormatter 格式化</li>
  </ul>
  </HighlightBox>
  </div>
@@ -619,15 +622,15 @@ gemini "check for security issues in @package.json" \\
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="支持的结果类型" color="green">
  <ul className="text-sm text-body space-y-1">
- <li>• <code>submit_prompt</code> - 返回 prompt 继续执行</li>
- <li>• 其他类型抛出 FatalInputError</li>
+ <li><code>submit_prompt</code> - 返回 prompt 继续执行</li>
+ <li>其他类型抛出 FatalInputError</li>
  </ul>
  </HighlightBox>
  <HighlightBox title="限制" color="orange">
  <ul className="text-sm text-body space-y-1">
- <li>• 不支持交互式确认</li>
- <li>• 只加载自定义文件命令</li>
- <li>• 某些内置命令不可用</li>
+ <li>不支持交互式确认</li>
+ <li>只加载自定义文件命令</li>
+ <li>某些内置命令不可用</li>
  </ul>
  </HighlightBox>
  </div>
@@ -640,21 +643,21 @@ gemini "check for security issues in @package.json" \\
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <h4 className="text-heading font-bold mb-2">✅ 适用场景</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• CI/CD 流水线中的代码审查</li>
- <li>• 批量文件处理脚本</li>
- <li>• 自动化代码生成</li>
- <li>• 管道组合工作流</li>
- <li>• 定时任务和 cron</li>
+ <li>CI/CD 流水线中的代码审查</li>
+ <li>批量文件处理脚本</li>
+ <li>自动化代码生成</li>
+ <li>管道组合工作流</li>
+ <li>定时任务和 cron</li>
  </ul>
  </div>
- <div className="bg-surface p-4 rounded-lg border border-red-500/30">
- <h4 className="text-red-500 font-bold mb-2">❌ 不适用场景</h4>
+ <div className="bg-surface p-4 rounded-lg border-l-2 border-l-edge-hover/30">
+ <h4 className="text-heading font-bold mb-2">❌ 不适用场景</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• 需要用户确认的操作</li>
- <li>• 复杂的多轮对话</li>
- <li>• 需要查看中间状态</li>
- <li>• 交互式调试</li>
- <li>• Vim 模式编辑</li>
+ <li>需要用户确认的操作</li>
+ <li>复杂的多轮对话</li>
+ <li>需要查看中间状态</li>
+ <li>交互式调试</li>
+ <li>Vim 模式编辑</li>
  </ul>
  </div>
  </div>
@@ -667,9 +670,9 @@ gemini "check for security issues in @package.json" \\
  输入处理失败时抛出，导致非零退出码：
  </p>
  <ul className="text-sm text-body space-y-1">
- <li>• @ 命令文件不存在</li>
- <li>• Slash 命令请求确认</li>
- <li>• 不支持的命令结果类型</li>
+ <li>@ 命令文件不存在</li>
+ <li>Slash 命令请求确认</li>
+ <li>不支持的命令结果类型</li>
  </ul>
  </HighlightBox>
  <HighlightBox title="EPIPE 处理" color="blue">

@@ -3,6 +3,9 @@ import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 /**
  * File Discovery & Ignore Pattern System
@@ -51,7 +54,7 @@ function Introduction({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">
+ <h4 className="text-heading font-bold mb-2">
  💡 为什么需要这个系统
  </h4>
  <div className="text-body text-sm space-y-2">
@@ -73,7 +76,7 @@ function Introduction({
  <div className="text-xs text-dim">并行批次</div>
  </div>
  <div className="text-center">
- <div className="text-xl font-bold text-amber-500">O(1)</div>
+ <div className="text-xl font-bold text-heading">O(1)</div>
  <div className="text-xs text-dim">查找复杂度</div>
  </div>
  <div className="text-center">
@@ -118,10 +121,10 @@ export function FileDiscovery() {
  filter_gemini --> collect
  collect --> result
 
- style tool fill:#22d3ee,color:#000
- style result fill:#22c55e,color:#000
- style filter_git fill:#f59e0b,color:#000
- style filter_gemini fill:#a855f7,color:#fff`;
+ style tool fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style result fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style filter_git fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style filter_gemini fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  const bfsAlgorithmChart = `flowchart TD
  start["开始 BFS 搜索"]
@@ -153,331 +156,331 @@ export function FileDiscovery() {
  check_limit -->|No| batch
  check_limit -->|Yes| endNode
 
- style start fill:#22d3ee,color:#000
- style endNode fill:#22c55e,color:#000
- style parallel fill:#a855f7,color:#fff
- style check_ignore fill:#f59e0b,color:#000`;
+ style start fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style endNode fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style parallel fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style check_ignore fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  const ignorePatternCode = `// packages/core/src/utils/ignorePatterns.ts
 
 // 默认排除模式 - 始终生效
 const COMMON_IGNORE_PATTERNS = [
- '**/node_modules/**',
- '**/.git/**',
- '**/bower_components/**',
- '**/.svn/**',
- '**/.hg/**',
+  '**/node_modules/**',
+  '**/.git/**',
+  '**/bower_components/**',
+  '**/.svn/**',
+  '**/.hg/**',
 ];
 
 // 二进制文件 - 无法有意义地读取
 const BINARY_FILE_PATTERNS = [
- '*.bin', '*.exe', '*.dll', '*.so', '*.dylib',
- '*.class', '*.jar', '*.war',
- '*.zip', '*.tar', '*.gz', '*.bz2', '*.rar', '*.7z',
- '*.doc', '*.docx', '*.xls', '*.xlsx', '*.ppt', '*.pptx',
+  '*.bin', '*.exe', '*.dll', '*.so', '*.dylib',
+  '*.class', '*.jar', '*.war',
+  '*.zip', '*.tar', '*.gz', '*.bz2', '*.rar', '*.7z',
+  '*.doc', '*.docx', '*.xls', '*.xlsx', '*.ppt', '*.pptx',
 ];
 
 // 媒体文件 - AI 无法处理（除非是 VLM）
 const MEDIA_FILE_PATTERNS = [
- '*.pdf', '*.png', '*.jpg', '*.jpeg',
- '*.gif', '*.webp', '*.bmp', '*.svg',
+  '*.pdf', '*.png', '*.jpg', '*.jpeg',
+  '*.gif', '*.webp', '*.bmp', '*.svg',
 ];
 
 // 常见需要忽略的目录
 const COMMON_DIRECTORY_EXCLUDES = [
- '**/.vscode/**',
- '**/.idea/**',
- '**/dist/**',
- '**/build/**',
- '**/coverage/**',
- '**/__pycache__/**',
+  '**/.vscode/**',
+  '**/.idea/**',
+  '**/dist/**',
+  '**/build/**',
+  '**/coverage/**',
+  '**/__pycache__/**',
 ];
 
 // FileExclusions 类提供灵活的模式组合
 export class FileExclusions {
- // 获取核心忽略模式（最小集合）
- getCoreIgnorePatterns(): string[] {
- return COMMON_IGNORE_PATTERNS;
- }
+  // 获取核心忽略模式（最小集合）
+  getCoreIgnorePatterns(): string[] {
+  return COMMON_IGNORE_PATTERNS;
+  }
 
- // 获取 glob 工具的完整排除列表
- getGlobExcludes(additionalExcludes?: string[]): string[] {
- return [
- ...COMMON_IGNORE_PATTERNS,
- ...COMMON_DIRECTORY_EXCLUDES,
- ...(additionalExcludes || []),
- ];
- }
+  // 获取 glob 工具的完整排除列表
+  getGlobExcludes(additionalExcludes?: string[]): string[] {
+  return [
+  ...COMMON_IGNORE_PATTERNS,
+  ...COMMON_DIRECTORY_EXCLUDES,
+  ...(additionalExcludes || []),
+  ];
+  }
 
- // 动态构建排除模式
- buildExcludePatterns(options: {
- includeBinary?: boolean;
- includeMedia?: boolean;
- additionalPatterns?: string[];
- }): string[] {
- const patterns = [...COMMON_IGNORE_PATTERNS];
+  // 动态构建排除模式
+  buildExcludePatterns(options: {
+  includeBinary?: boolean;
+  includeMedia?: boolean;
+  additionalPatterns?: string[];
+  }): string[] {
+  const patterns = [...COMMON_IGNORE_PATTERNS];
 
- if (!options.includeBinary) {
- patterns.push(...BINARY_FILE_PATTERNS);
- }
- if (!options.includeMedia) {
- patterns.push(...MEDIA_FILE_PATTERNS);
- }
- if (options.additionalPatterns) {
- patterns.push(...options.additionalPatterns);
- }
+  if (!options.includeBinary) {
+  patterns.push(...BINARY_FILE_PATTERNS);
+  }
+  if (!options.includeMedia) {
+  patterns.push(...MEDIA_FILE_PATTERNS);
+  }
+  if (options.additionalPatterns) {
+  patterns.push(...options.additionalPatterns);
+  }
 
- return patterns;
- }
+  return patterns;
+  }
 }`;
 
  const gitignoreParserCode = `// packages/core/src/utils/gitIgnoreParser.ts
 
 export class GitIgnoreParser implements GitIgnoreFilter {
- private patterns: Map<string, Ignore> = new Map();
- private projectRoot: string;
+  private patterns: Map<string, Ignore> = new Map();
+  private projectRoot: string;
 
- constructor(projectRoot: string) {
- this.projectRoot = projectRoot;
- }
+  constructor(projectRoot: string) {
+  this.projectRoot = projectRoot;
+  }
 
- /**
- * 检查文件是否被 .gitignore 忽略
- *
- * 特点：
- * 1. 支持嵌套的 .gitignore 文件
- * 2. 缓存已解析的模式
- * 3. 正确处理锚定模式（/开头）
- */
- isIgnored(filePath: string): boolean {
- const relativePath = path.relative(this.projectRoot, filePath);
+  /**
+  * 检查文件是否被 .gitignore 忽略
+  *
+  * 特点：
+  * 1. 支持嵌套的 .gitignore 文件
+  * 2. 缓存已解析的模式
+  * 3. 正确处理锚定模式（/开头）
+  */
+  isIgnored(filePath: string): boolean {
+  const relativePath = path.relative(this.projectRoot, filePath);
 
- // 遍历每一级目录，检查是否有 .gitignore
- const parts = relativePath.split(path.sep);
- let currentDir = this.projectRoot;
+  // 遍历每一级目录，检查是否有 .gitignore
+  const parts = relativePath.split(path.sep);
+  let currentDir = this.projectRoot;
 
- for (let i = 0; i < parts.length; i++) {
- const gitignorePath = path.join(currentDir, '.gitignore');
+  for (let i = 0; i < parts.length; i++) {
+  const gitignorePath = path.join(currentDir, '.gitignore');
 
- if (this.patterns.has(gitignorePath)) {
- const ignore = this.patterns.get(gitignorePath)!;
- // 计算相对于这个 .gitignore 的路径
- const subPath = parts.slice(i).join('/');
- if (ignore.ignores(subPath)) {
- return true;
- }
- } else if (fs.existsSync(gitignorePath)) {
- // 加载并缓存
- const ignore = this.loadPatternsForFile(gitignorePath, currentDir);
- this.patterns.set(gitignorePath, ignore);
- // 再次检查
- const subPath = parts.slice(i).join('/');
- if (ignore.ignores(subPath)) {
- return true;
- }
- }
+  if (this.patterns.has(gitignorePath)) {
+  const ignore = this.patterns.get(gitignorePath)!;
+  // 计算相对于这个 .gitignore 的路径
+  const subPath = parts.slice(i).join('/');
+  if (ignore.ignores(subPath)) {
+  return true;
+  }
+  } else if (fs.existsSync(gitignorePath)) {
+  // 加载并缓存
+  const ignore = this.loadPatternsForFile(gitignorePath, currentDir);
+  this.patterns.set(gitignorePath, ignore);
+  // 再次检查
+  const subPath = parts.slice(i).join('/');
+  if (ignore.ignores(subPath)) {
+  return true;
+  }
+  }
 
- currentDir = path.join(currentDir, parts[i]);
- }
+  currentDir = path.join(currentDir, parts[i]);
+  }
 
- return false;
- }
+  return false;
+  }
 
- /**
- * 模式转换：处理嵌套 .gitignore 的路径调整
- *
- * 例如：a/b/.gitignore 中的模式
- * - "/c" (锚定) → 只匹配 a/b/c
- * - "c" (未锚定) → 匹配 a/b/**/c
- */
- private loadPatternsForFile(
- gitignorePath: string,
- directory: string
- ): Ignore {
- const content = fs.readFileSync(gitignorePath, 'utf-8');
- const ignore = createIgnore();
+  /**
+  * 模式转换：处理嵌套 .gitignore 的路径调整
+  *
+  * 例如：a/b/.gitignore 中的模式
+  * - "/c" (锚定) → 只匹配 a/b/c
+  * - "c" (未锚定) → 匹配 a/b/**/c
+  */
+  private loadPatternsForFile(
+  gitignorePath: string,
+  directory: string
+  ): Ignore {
+  const content = fs.readFileSync(gitignorePath, 'utf-8');
+  const ignore = createIgnore();
 
- const relativeDirFromRoot = path.relative(
- this.projectRoot,
- directory
- );
+  const relativeDirFromRoot = path.relative(
+  this.projectRoot,
+  directory
+  );
 
- for (const line of content.split('\\n')) {
- const trimmed = line.trim();
- if (!trimmed || trimmed.startsWith('#')) continue;
+  for (const line of content.split('\\n')) {
+  const trimmed = line.trim();
+  if (!trimmed || trimmed.startsWith('#')) continue;
 
- // 转换模式以适应嵌套位置
- const adjustedPattern = this.adjustPattern(
- trimmed,
- relativeDirFromRoot
- );
- ignore.add(adjustedPattern);
- }
+  // 转换模式以适应嵌套位置
+  const adjustedPattern = this.adjustPattern(
+  trimmed,
+  relativeDirFromRoot
+  );
+  ignore.add(adjustedPattern);
+  }
 
- return ignore;
- }
+  return ignore;
+  }
 }`;
 
  const fileDiscoveryServiceCode = `// packages/core/src/services/fileDiscoveryService.ts
 
 export class FileDiscoveryService {
- private gitIgnoreFilter: GitIgnoreFilter | null = null;
- private geminiIgnoreFilter: GeminiIgnoreFilter | null = null;
- private projectRoot: string;
+  private gitIgnoreFilter: GitIgnoreFilter | null = null;
+  private geminiIgnoreFilter: GeminiIgnoreFilter | null = null;
+  private projectRoot: string;
 
- constructor(projectRoot: string) {
- this.projectRoot = projectRoot;
- }
+  constructor(projectRoot: string) {
+  this.projectRoot = projectRoot;
+  }
 
- /**
- * 过滤文件列表，返回过滤后的结果和统计
- */
- filterFilesWithReport(
- filePaths: string[],
- options: FilterFilesOptions = {}
- ): FilterReport {
- const {
- respectGitIgnore = true,
- respectGeminiIgnore = true,
- } = options;
+  /**
+  * 过滤文件列表，返回过滤后的结果和统计
+  */
+  filterFilesWithReport(
+  filePaths: string[],
+  options: FilterFilesOptions = {}
+  ): FilterReport {
+  const {
+  respectGitIgnore = true,
+  respectGeminiIgnore = true,
+  } = options;
 
- let gitIgnoredCount = 0;
- let geminiIgnoredCount = 0;
+  let gitIgnoredCount = 0;
+  let geminiIgnoredCount = 0;
 
- const filteredPaths = filePaths.filter((filePath) => {
- // 检查 .gitignore
- if (respectGitIgnore && this.shouldGitIgnoreFile(filePath)) {
- gitIgnoredCount++;
- return false;
- }
+  const filteredPaths = filePaths.filter((filePath) => {
+  // 检查 .gitignore
+  if (respectGitIgnore && this.shouldGitIgnoreFile(filePath)) {
+  gitIgnoredCount++;
+  return false;
+  }
 
- // 检查 .geminiignore
- if (respectGeminiIgnore && this.shouldGeminiIgnoreFile(filePath)) {
- geminiIgnoredCount++;
- return false;
- }
+  // 检查 .geminiignore
+  if (respectGeminiIgnore && this.shouldGeminiIgnoreFile(filePath)) {
+  geminiIgnoredCount++;
+  return false;
+  }
 
- return true;
- });
+  return true;
+  });
 
- return {
- filteredPaths,
- gitIgnoredCount,
- geminiIgnoredCount,
- };
- }
+  return {
+  filteredPaths,
+  gitIgnoredCount,
+  geminiIgnoredCount,
+  };
+  }
 
- /**
- * 惰性加载 GitIgnoreParser
- */
- private shouldGitIgnoreFile(filePath: string): boolean {
- if (!this.gitIgnoreFilter) {
- this.gitIgnoreFilter = new GitIgnoreParser(this.projectRoot);
- }
- return this.gitIgnoreFilter.isIgnored(filePath);
- }
+  /**
+  * 惰性加载 GitIgnoreParser
+  */
+  private shouldGitIgnoreFile(filePath: string): boolean {
+  if (!this.gitIgnoreFilter) {
+  this.gitIgnoreFilter = new GitIgnoreParser(this.projectRoot);
+  }
+  return this.gitIgnoreFilter.isIgnored(filePath);
+  }
 
- /**
- * 惰性加载 GeminiIgnoreParser
- *
- * 注意：.geminiignore 只在项目根目录查找，不支持嵌套
- */
- private shouldGeminiIgnoreFile(filePath: string): boolean {
- if (!this.geminiIgnoreFilter) {
- this.geminiIgnoreFilter = new GeminiIgnoreParser(this.projectRoot);
- }
- return this.geminiIgnoreFilter.isIgnored(filePath);
- }
+  /**
+  * 惰性加载 GeminiIgnoreParser
+  *
+  * 注意：.geminiignore 只在项目根目录查找，不支持嵌套
+  */
+  private shouldGeminiIgnoreFile(filePath: string): boolean {
+  if (!this.geminiIgnoreFilter) {
+  this.geminiIgnoreFilter = new GeminiIgnoreParser(this.projectRoot);
+  }
+  return this.geminiIgnoreFilter.isIgnored(filePath);
+  }
 }
 
 interface FilterReport {
- filteredPaths: string[];
- gitIgnoredCount: number;
- geminiIgnoredCount: number;
+  filteredPaths: string[];
+  gitIgnoredCount: number;
+  geminiIgnoredCount: number;
 }`;
 
  const bfsSearchCode = `// packages/core/src/utils/bfsFileSearch.ts
 
 /**
- * BFS 文件搜索 - 高效的广度优先文件查找
- *
- * 设计特点：
- * 1. 队列指针优化：使用 queueHead 而非 splice，O(1) 出队
- * 2. 并行批处理：每次处理 15 个目录，充分利用异步 I/O
- * 3. 提前终止：找到目标后可立即返回
- * 4. 集成 ignore 过滤：在目录级别就过滤，减少无效遍历
- */
+  * BFS 文件搜索 - 高效的广度优先文件查找
+  *
+  * 设计特点：
+  * 1. 队列指针优化：使用 queueHead 而非 splice，O(1) 出队
+  * 2. 并行批处理：每次处理 15 个目录，充分利用异步 I/O
+  * 3. 提前终止：找到目标后可立即返回
+  * 4. 集成 ignore 过滤：在目录级别就过滤，减少无效遍历
+  */
 export async function bfsFileSearch(
- rootDir: string,
- options: BfsFileSearchOptions
+  rootDir: string,
+  options: BfsFileSearchOptions
 ): Promise<string[]> {
- const {
- fileName,
- ignoreDirs = [],
- maxDirs = 1000,
- fileService,
- } = options;
+  const {
+  fileName,
+  ignoreDirs = [],
+  maxDirs = 1000,
+  fileService,
+  } = options;
 
- const BATCH_SIZE = 15; // 并行批次大小
- const queue: string[] = [rootDir];
- const visited = new Set<string>();
- const foundFiles: string[] = [];
- const ignoreDirsSet = new Set(ignoreDirs);
+  const BATCH_SIZE = 15; // 并行批次大小
+  const queue: string[] = [rootDir];
+  const visited = new Set<string>();
+  const foundFiles: string[] = [];
+  const ignoreDirsSet = new Set(ignoreDirs);
 
- let queueHead = 0; // 队列头指针，避免 splice
- let scannedDirCount = 0;
+  let queueHead = 0; // 队列头指针，避免 splice
+  let scannedDirCount = 0;
 
- while (queueHead < queue.length && scannedDirCount < maxDirs) {
- // 收集一个批次的目录
- const batch: string[] = [];
- while (
- batch.length < BATCH_SIZE &&
- queueHead < queue.length
- ) {
- const dir = queue[queueHead++];
- if (!visited.has(dir)) {
- visited.add(dir);
- batch.push(dir);
- scannedDirCount++;
- }
- }
+  while (queueHead < queue.length && scannedDirCount < maxDirs) {
+  // 收集一个批次的目录
+  const batch: string[] = [];
+  while (
+  batch.length < BATCH_SIZE &&
+  queueHead < queue.length
+  ) {
+  const dir = queue[queueHead++];
+  if (!visited.has(dir)) {
+  visited.add(dir);
+  batch.push(dir);
+  scannedDirCount++;
+  }
+  }
 
- if (batch.length === 0) break;
+  if (batch.length === 0) break;
 
- // 并行读取所有目录
- const results = await Promise.all(
- batch.map(async (dir) => {
- try {
- const entries = await fs.readdir(dir, {
- withFileTypes: true,
- });
- return { dir, entries, error: null };
- } catch (error) {
- // 权限错误等，继续处理其他目录
- return { dir, entries: [], error };
- }
- })
- );
+  // 并行读取所有目录
+  const results = await Promise.all(
+  batch.map(async (dir) => {
+  try {
+  const entries = await fs.readdir(dir, {
+  withFileTypes: true,
+  });
+  return { dir, entries, error: null };
+  } catch (error) {
+  // 权限错误等，继续处理其他目录
+  return { dir, entries: [], error };
+  }
+  })
+  );
 
- // 处理所有条目
- for (const { dir, entries } of results) {
- for (const entry of entries) {
- const fullPath = path.join(dir, entry.name);
+  // 处理所有条目
+  for (const { dir, entries } of results) {
+  for (const entry of entries) {
+  const fullPath = path.join(dir, entry.name);
 
- if (entry.isDirectory()) {
- // 检查是否应该忽略这个目录
- if (ignoreDirsSet.has(entry.name)) continue;
- if (fileService?.shouldIgnoreFile(fullPath)) continue;
+  if (entry.isDirectory()) {
+  // 检查是否应该忽略这个目录
+  if (ignoreDirsSet.has(entry.name)) continue;
+  if (fileService?.shouldIgnoreFile(fullPath)) continue;
 
- queue.push(fullPath);
- } else if (entry.name === fileName) {
- foundFiles.push(fullPath);
- }
- }
- }
- }
+  queue.push(fullPath);
+  } else if (entry.name === fileName) {
+  foundFiles.push(fullPath);
+  }
+  }
+  }
+  }
 
- return foundFiles;
+  return foundFiles;
 }`;
 
  const geminiIgnoreCode = `// .geminiignore 文件示例
@@ -538,7 +541,7 @@ logs/
  <span className="text-dim"> - 支持嵌套、多级目录</span>
  </li>
  <li>
- <strong className="text-amber-500">.geminiignore</strong>
+ <strong className="text-heading">.geminiignore</strong>
  <span className="text-dim"> - 项目根目录、CLI 专用</span>
  </li>
  <li className="text-xs text-dim">
@@ -607,28 +610,28 @@ logs/
  q6 -->|No| exclude6
  q6 -->|Yes| include
 
- style start fill:#22d3ee,color:#000
- style include fill:#22c55e,color:#000
- style exclude1 fill:#ef4444,color:#fff
- style exclude2 fill:#ef4444,color:#fff
- style exclude3 fill:#f59e0b,color:#000
- style exclude4 fill:#a855f7,color:#fff
- style exclude5 fill:#6b7280,color:#fff
- style exclude6 fill:#6b7280,color:#fff
- style q3 fill:#f59e0b33,stroke:#f59e0b
- style q4 fill:#a855f733,stroke:#a855f7`}
+ style start fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style include fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style exclude1 fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style exclude2 fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style exclude3 fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style exclude4 fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style exclude5 fill:${getThemeColor("--mermaid-muted-fill", "#f4f4f2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style exclude6 fill:${getThemeColor("--mermaid-muted-fill", "#f4f4f2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style q3 fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},stroke:${getThemeColor("--color-warning", "#b45309")}
+ style q4 fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},stroke:${getThemeColor("--purple", "#7c3aed")}`}
  title="文件包含/排除决策树"
  />
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
- <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-3">
- <h4 className="text-red-400 font-semibold text-sm mb-2">🔴 硬性排除</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-3">
+ <h4 className="text-heading font-semibold text-sm mb-2">🔴 硬性排除</h4>
  <p className="text-xs text-dim">
  内置规则 + 工具参数。无法覆盖，始终生效。
  </p>
  </div>
- <div className="bg-amber-900/20 border border-amber-500/30 rounded-lg p-3">
- <h4 className="text-amber-400 font-semibold text-sm mb-2">🟡 Git 排除</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-3">
+ <h4 className="text-heading font-semibold text-sm mb-2">🟡 Git 排除</h4>
  <p className="text-xs text-dim">
  支持多级嵌套。可通过 respectGitIgnore=false 禁用。
  </p>
@@ -655,11 +658,11 @@ logs/
  <strong>核心矛盾</strong>：.gitignore 设计目的是排除版本控制，但 AI 需要排除的文件集合不同。
  </p>
  <ul className="text-xs text-dim space-y-1 ml-4">
- <li>• <code>.env</code> 通常在 .gitignore 中，但 AI 确实不应该读取</li>
- <li>• <code>dist/</code> 在 .gitignore 中，但 AI 有时需要分析构建产物</li>
- <li>• <code>package-lock.json</code> 在 Git 中，但 AI 分析它浪费 token</li>
+ <li><code>.env</code> 通常在 .gitignore 中，但 AI 确实不应该读取</li>
+ <li><code>dist/</code> 在 .gitignore 中，但 AI 有时需要分析构建产物</li>
+ <li><code>package-lock.json</code> 在 Git 中，但 AI 分析它浪费 token</li>
  </ul>
- <p className="text-xs text-amber-500 mt-2">
+ <p className="text-xs text-heading mt-2">
  → .geminiignore 给用户一个专门控制 AI 可见性的旋钮
  </p>
  </div>
@@ -670,11 +673,11 @@ logs/
  <strong>核心问题</strong>：用户通常关心的文件在项目浅层，深层目录往往是依赖/缓存。
  </p>
  <ul className="text-xs text-dim space-y-1 ml-4">
- <li>• BFS 先遍历浅层 → 更快找到用户关心的文件</li>
- <li>• DFS 可能先钻进 node_modules 的深渊 → 浪费时间</li>
- <li>• BFS + maxDirs 限制 → 可预测的最大遍历范围</li>
+ <li>BFS 先遍历浅层 → 更快找到用户关心的文件</li>
+ <li>DFS 可能先钻进 node_modules 的深渊 → 浪费时间</li>
+ <li>BFS + maxDirs 限制 → 可预测的最大遍历范围</li>
  </ul>
- <p className="text-xs text-amber-500 mt-2">
+ <p className="text-xs text-heading mt-2">
  → 广度优先 + 批量并行 = 最快响应用户
  </p>
  </div>
@@ -685,11 +688,11 @@ logs/
  <strong>性能关键</strong>：node_modules 可能包含 50,000+ 文件，逐个检查太慢。
  </p>
  <ul className="text-xs text-dim space-y-1 ml-4">
- <li>• 在目录级别就跳过 → 完全不进入 node_modules</li>
- <li>• 文件级别过滤 → 已经遍历完目录才过滤，浪费 I/O</li>
- <li>• 代价：无法在 node_modules 内部精细控制</li>
+ <li>在目录级别就跳过 → 完全不进入 node_modules</li>
+ <li>文件级别过滤 → 已经遍历完目录才过滤，浪费 I/O</li>
+ <li>代价：无法在 node_modules 内部精细控制</li>
  </ul>
- <p className="text-xs text-amber-500 mt-2">
+ <p className="text-xs text-heading mt-2">
  → 目录剪枝 = O(1) 跳过百万文件
  </p>
  </div>
@@ -757,8 +760,8 @@ logs/
  </ul>
  </div>
 
- <div className="bg-surface rounded-lg p-4 border border-amber-500/30">
- <h4 className="text-amber-500 font-semibold mb-2">📦 二进制文件</h4>
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/30">
+ <h4 className="text-heading font-semibold mb-2">📦 二进制文件</h4>
  <ul className="text-xs text-dim space-y-1 font-mono">
  <li>*.exe, *.dll, *.so</li>
  <li>*.zip, *.tar, *.gz</li>
@@ -794,12 +797,12 @@ logs/
  <div className="mt-2">
  <span className="text-heading">/c</span>
  <span className="text-dim"> (锚定模式) → 只匹配 </span>
- <span className="text-amber-500">a/b/c</span>
+ <span className="text-heading">a/b/c</span>
  </div>
  <div>
  <span className="text-heading">c</span>
  <span className="text-dim"> (未锚定) → 匹配 </span>
- <span className="text-amber-500">a/b/**/c</span>
+ <span className="text-heading">a/b/**/c</span>
  </div>
  </div>
  </HighlightBox>
@@ -828,19 +831,19 @@ logs/
  <div className="mt-4 grid grid-cols-2 gap-4">
  <HighlightBox title="性能优化技巧" variant="green">
  <ul className="text-sm space-y-1">
- <li>• <strong>队列指针</strong>：queueHead 代替 splice，O(1) 出队</li>
- <li>• <strong>Set 查找</strong>：visited 和 ignoreDirs 用 Set，O(1)</li>
- <li>• <strong>并行批处理</strong>：15 个目录同时读取</li>
- <li>• <strong>提前剪枝</strong>：目录级别就过滤，减少遍历</li>
+ <li><strong>队列指针</strong>：queueHead 代替 splice，O(1) 出队</li>
+ <li><strong>Set 查找</strong>：visited 和 ignoreDirs 用 Set，O(1)</li>
+ <li><strong>并行批处理</strong>：15 个目录同时读取</li>
+ <li><strong>提前剪枝</strong>：目录级别就过滤，减少遍历</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="复杂度分析" variant="purple">
  <ul className="text-sm space-y-1">
- <li>• <strong>时间</strong>：O(n) 目录数</li>
- <li>• <strong>空间</strong>：O(n) 队列 + visited</li>
- <li>• <strong>I/O</strong>：并行化，最多 15 个并发</li>
- <li>• <strong>限制</strong>：maxDirs 防止无限遍历</li>
+ <li><strong>时间</strong>：O(n) 目录数</li>
+ <li><strong>空间</strong>：O(n) 队列 + visited</li>
+ <li><strong>I/O</strong>：并行化，最多 15 个并发</li>
+ <li><strong>限制</strong>：maxDirs 防止无限遍历</li>
  </ul>
  </HighlightBox>
  </div>
@@ -852,7 +855,7 @@ logs/
  .geminiignore 配置
  </h3>
  <p className="text-body mb-4">
- <code className="text-amber-500">.geminiignore</code> 是 CLI 专用的忽略文件，
+ <code className="text-heading">.geminiignore</code> 是 CLI 专用的忽略文件，
  语法与 .gitignore 相同，但只在项目根目录查找（不支持嵌套）。
  适合配置 AI 不应该读取的敏感文件。
  </p>
@@ -913,7 +916,7 @@ logs/
  </div>
 
  <div className="bg-surface rounded-lg p-4 border border-edge">
- <h4 className="font-semibold text-amber-500 mb-2">结果缓存</h4>
+ <h4 className="font-semibold text-heading mb-2">结果缓存</h4>
  <p className="text-sm text-body mb-2">
  缓存搜索结果，支持 TTL：
  </p>
@@ -958,7 +961,7 @@ logs/
  </tr>
  <tr className="border- border-edge">
  <td className="py-3">
- <code className="text-amber-500">read_many_files</code>
+ <code className="text-heading">read_many_files</code>
  </td>
  <td>globStream / 直接读取</td>
  <td>getReadManyFilesExcludes()</td>
@@ -981,22 +984,22 @@ logs/
  最佳实践
  </h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
- <h4 className="text-green-400 font-semibold mb-2">✓ 推荐做法</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">✓ 推荐做法</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• 使用 .geminiignore 排除敏感文件</li>
- <li>• 保持 .gitignore 更新，排除大型构建产物</li>
- <li>• 利用默认排除，无需手动配置 node_modules</li>
- <li>• 使用 BFS + maxDirs 限制防止超时</li>
+ <li>使用 .geminiignore 排除敏感文件</li>
+ <li>保持 .gitignore 更新，排除大型构建产物</li>
+ <li>利用默认排除，无需手动配置 node_modules</li>
+ <li>使用 BFS + maxDirs 限制防止超时</li>
  </ul>
  </div>
- <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
- <h4 className="text-red-400 font-semibold mb-2">✗ 避免做法</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">✗ 避免做法</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• 在大型 monorepo 中不设置 ignore</li>
- <li>• 搜索整个 node_modules 目录</li>
- <li>• 忽略权限错误的目录而不告知用户</li>
- <li>• 在 .geminiignore 中放置运行时需要的文件</li>
+ <li>在大型 monorepo 中不设置 ignore</li>
+ <li>搜索整个 node_modules 目录</li>
+ <li>忽略权限错误的目录而不告知用户</li>
+ <li>在 .geminiignore 中放置运行时需要的文件</li>
  </ul>
  </div>
  </div>

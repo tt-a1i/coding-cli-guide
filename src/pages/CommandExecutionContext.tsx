@@ -7,6 +7,9 @@ import { useState } from 'react';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { useNavigation } from '../contexts/NavigationContext';
+import { getThemeColor } from '../utils/theme';
+
+
 
 export function CommandExecutionContext() {
  const [activeTab, setActiveTab] = useState<'context' | 'loaders' | 'actions' | 'flow'>('context');
@@ -109,9 +112,9 @@ graph TB
  end
 
  style CommandContext stroke:#00ff88
- style services stroke:#3b82f6
+ style services stroke:${getThemeColor("--color-info", "#2457a6")}
  style ui stroke:#8b5cf6
- style session stroke:#f59e0b
+ style session stroke:${getThemeColor("--color-warning", "#b45309")}
  style invocation stroke:#10b981
 `} />
 

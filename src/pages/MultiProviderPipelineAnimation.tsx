@@ -376,9 +376,9 @@ export default function MultiProviderPipelineAnimation() {
  // Auth type descriptions
  const authTypeInfo: Record<AuthType, { label: string; description: string; color: string }> = {
  'google-oauth': { label: 'Google OAuth', description: '通义千问 OAuth 认证', color: 'text-heading' },
- 'openai': { label: 'OpenAI API', description: 'OpenAI 兼容 API', color: 'text-green-400' },
+ 'openai': { label: 'OpenAI API', description: 'OpenAI 兼容 API', color: 'text-heading' },
  'gemini-api-key': { label: 'Gemini API', description: 'Google Gemini API', color: 'text-heading' },
- 'vertex-ai': { label: 'Vertex AI', description: 'Google Cloud Vertex', color: 'text-yellow-400' },
+ 'vertex-ai': { label: 'Vertex AI', description: 'Google Cloud Vertex', color: 'text-heading' },
  };
 
  const providerInfo: Record<Provider, { label: string; features: string[]; color: string }> = {
@@ -483,7 +483,7 @@ export default function MultiProviderPipelineAnimation() {
  onClick={() => !isRunning && setProvider(type)}
  className={`p-2 rounded text-left text-sm transition-all ${
  provider === type
- ? ' bg-elevated border-2 border-white/30'
+ ? ' bg-elevated border-2 border-edge'
  : ' bg-surface border border-edge hover:border-edge-hover'
  } ${isRunning ? 'opacity-50 cursor-not-allowed' : ''}`}
  >
@@ -500,7 +500,7 @@ export default function MultiProviderPipelineAnimation() {
  {/* Current Phase Display */}
  <div className="bg-surface rounded-lg p-4 border border-edge/30">
  <div className="flex items-center gap-3">
- <div className={`w-3 h-3 rounded-full ${phase === 'idle' ? ' bg-elevated' : phase === 'complete' ? 'bg-green-500' : 'bg-yellow-500 animate-pulse'}`} />
+ <div className={`w-3 h-3 rounded-full ${phase === 'idle' ? ' bg-elevated' : phase === 'complete' ? 'bg-[var(--color-success)]' : 'bg-[var(--color-warning)] animate-pulse'}`} />
  <div>
  <span className="text-heading font-mono font-bold">
  {phaseInfo[phase].label}
@@ -534,10 +534,10 @@ export default function MultiProviderPipelineAnimation() {
  <div
  key={idx}
  className={`bg-base rounded p-2 text-xs ${
- phase === 'process_contents' ? 'ring-1 ring-yellow-500/50' : ''
+ phase === 'process_contents' ? 'ring-1 ring-[var(--color-warning)]/40' : ''
  }`}
  >
- <span className={`font-medium ${content.role === 'user' ? 'text-green-400' : 'text-heading'}`}>
+ <span className={`font-medium ${content.role === 'user' ? 'text-heading' : 'text-heading'}`}>
  {content.role}:
  </span>
  <span className="text-body ml-2">
@@ -557,8 +557,8 @@ export default function MultiProviderPipelineAnimation() {
  {geminiRequest.tools.map((tool, idx) => (
  <span
  key={idx}
- className={`px-2 py-0.5 bg-base rounded text-xs text-yellow-400 ${
- phase === 'add_tools' ? 'ring-1 ring-yellow-500/50' : ''
+ className={`px-2 py-0.5 bg-base rounded text-xs text-heading ${
+ phase === 'add_tools' ? 'ring-1 ring-[var(--color-warning)]/40' : ''
  }`}
  >
  {tool.name}
@@ -578,15 +578,15 @@ export default function MultiProviderPipelineAnimation() {
  <div className="mb-3">
  <div className="text-xs text-dim mb-1 flex items-center justify-between">
  <span>OpenAI Messages ({openaiMessages.length}):</span>
- {phase === 'clean_orphans' && <span className="text-yellow-400">🧹 清理中</span>}
- {phase === 'merge_messages' && <span className="text-yellow-400">🔗 合并中</span>}
+ {phase === 'clean_orphans' && <span className="text-heading">🧹 清理中</span>}
+ {phase === 'merge_messages' && <span className="text-heading">🔗 合并中</span>}
  </div>
  <div className="space-y-1 max-h-36 overflow-y-auto">
  {openaiMessages.map((msg, idx) => (
  <div key={idx} className="bg-base rounded p-2 text-xs">
  <span className={`font-medium ${
- msg.role === 'system' ? 'text-yellow-400' :
- msg.role === 'user' ? 'text-green-400' :
+ msg.role === 'system' ? 'text-heading' :
+ msg.role === 'user' ? 'text-heading' :
  msg.role === 'assistant' ? 'text-heading' :
  'text-heading'
  }`}>
@@ -612,7 +612,7 @@ export default function MultiProviderPipelineAnimation() {
  <div className="text-xs text-dim mb-1">OpenAI Tools:</div>
  <div className="flex flex-wrap gap-1">
  {openaiTools.map((tool, idx) => (
- <span key={idx} className="px-2 py-0.5 bg-base rounded text-xs text-green-400">
+ <span key={idx} className="px-2 py-0.5 bg-base rounded text-xs text-heading">
  {tool.function.name}
  </span>
  ))}
@@ -642,8 +642,8 @@ export default function MultiProviderPipelineAnimation() {
 
  {/* Pending Finish Response */}
  {pendingFinishResponse && (
- <div className="bg-yellow-500/10 rounded p-2 border border-yellow-500/30">
- <div className="text-xs text-yellow-400 font-medium">⏳ Pending Finish Response</div>
+ <div className="bg-elevated rounded p-2 border-l-2 border-l-edge-hover/30">
+ <div className="text-xs text-heading font-medium">⏳ Pending Finish Response</div>
  <div className="text-xs text-body mt-1">
  等待 usageMetadata 合并...
  </div>
@@ -652,8 +652,8 @@ export default function MultiProviderPipelineAnimation() {
  </div>
 
  {/* Column 3: Gemini Response */}
- <div className="bg-surface rounded-lg p-4 border border-green-500/30">
- <h3 className="text-sm font-medium text-green-400 mb-3 flex items-center gap-2">
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/30">
+ <h3 className="text-sm font-medium text-heading mb-3 flex items-center gap-2">
  <span className="text-lg">📤</span> Gemini Response 输出
  </h3>
 
@@ -669,9 +669,9 @@ export default function MultiProviderPipelineAnimation() {
  key={idx}
  className={`w-6 h-6 rounded flex items-center justify-center text-xs ${
  idx < currentChunkIdx
- ? 'bg-green-600 text-heading'
+ ? 'bg-[var(--color-success)] text-heading'
  : idx === currentChunkIdx
- ? 'bg-yellow-500 text-heading animate-pulse'
+ ? 'bg-[var(--color-warning)] text-heading animate-pulse'
  : ' bg-elevated text-dim'
  }`}
  title={`${chunk.type}: ${chunk.content?.slice(0, 20) || chunk.toolName || chunk.finishReason || 'usage'}`}
@@ -706,13 +706,13 @@ export default function MultiProviderPipelineAnimation() {
  key={idx}
  className={`bg-base rounded p-2 text-xs ${
  idx === geminiResponses.length - 1 && phase === 'yield_response'
- ? 'ring-1 ring-green-500/50'
+ ? 'ring-1 ring-[var(--color-success)]/40'
  : ''
  }`}
  >
  <div className="flex items-center gap-2">
  <span className="text-dim">#{idx + 1}</span>
- {hasText && <span className="text-green-400">📝 text</span>}
+ {hasText && <span className="text-heading">📝 text</span>}
  {hasFuncCall && <span className="text-heading">🔧 functionCall</span>}
  {hasFinish && <span className="text-heading">🏁 {hasFinish ? 'STOP' : ''}</span>}
  {hasUsage && <span className="text-heading">📊 usage</span>}
@@ -745,7 +745,7 @@ export default function MultiProviderPipelineAnimation() {
  phase === step.id
  ? ' bg-elevated/20 border border-edge'
  : phase === 'complete' || arr.findIndex(s => s.id === phase) > idx
- ? 'bg-green-900/30 border border-green-700'
+ ? 'bg-elevated border-l-2 border-l-edge-hover/60'
  : ' bg-surface border border-edge'
  }`}
  >
@@ -756,7 +756,7 @@ export default function MultiProviderPipelineAnimation() {
  </div>
  {idx < arr.length - 1 && (
  <div className={`mx-2 text-lg ${
- arr.findIndex(s => s.id === phase) > idx ? 'text-green-500' : 'text-dim'
+ arr.findIndex(s => s.id === phase) > idx ? 'text-heading' : 'text-dim'
  }`}>
  →
  </div>
@@ -779,9 +779,9 @@ export default function MultiProviderPipelineAnimation() {
  <div
  key={idx}
  className={`${
- log.includes('✅') ? 'text-green-400' :
- log.includes('❌') ? 'text-red-400' :
- log.includes('→') ? 'text-yellow-400' :
+ log.includes('✅') ? 'text-heading' :
+ log.includes('❌') ? 'text-heading' :
+ log.includes('→') ? 'text-heading' :
  'text-body'
  }`}
  >
@@ -800,19 +800,19 @@ export default function MultiProviderPipelineAnimation() {
  <div className="bg-base rounded p-2">
  <div className="text-heading font-medium">Gemini Content → OpenAI Message</div>
  <ul className="text-body mt-1 list-disc list-inside space-y-0.5">
- <li><code className="text-heading">role: 'model'</code> → <code className="text-green-400">role: 'assistant'</code></li>
- <li><code className="text-heading">functionCall</code> → <code className="text-green-400">tool_calls[]</code></li>
- <li><code className="text-heading">functionResponse</code> → <code className="text-green-400">role: 'tool'</code></li>
- <li><code className="text-heading">inlineData</code> → <code className="text-green-400">image_url</code></li>
+ <li><code className="text-heading">role: 'model'</code> → <code className="text-heading">role: 'assistant'</code></li>
+ <li><code className="text-heading">functionCall</code> → <code className="text-heading">tool_calls[]</code></li>
+ <li><code className="text-heading">functionResponse</code> → <code className="text-heading">role: 'tool'</code></li>
+ <li><code className="text-heading">inlineData</code> → <code className="text-heading">image_url</code></li>
  </ul>
  </div>
  <div className="bg-base rounded p-2">
  <div className="text-heading font-medium">FinishReason 映射</div>
  <ul className="text-body mt-1 list-disc list-inside space-y-0.5">
- <li><code className="text-green-400">'stop'</code> → <code className="text-heading">STOP</code></li>
- <li><code className="text-green-400">'length'</code> → <code className="text-heading">MAX_TOKENS</code></li>
- <li><code className="text-green-400">'content_filter'</code> → <code className="text-heading">SAFETY</code></li>
- <li><code className="text-green-400">'tool_calls'</code> → <code className="text-heading">STOP</code></li>
+ <li><code className="text-heading">'stop'</code> → <code className="text-heading">STOP</code></li>
+ <li><code className="text-heading">'length'</code> → <code className="text-heading">MAX_TOKENS</code></li>
+ <li><code className="text-heading">'content_filter'</code> → <code className="text-heading">SAFETY</code></li>
+ <li><code className="text-heading">'tool_calls'</code> → <code className="text-heading">STOP</code></li>
  </ul>
  </div>
  </div>

@@ -1,6 +1,9 @@
 import { HighlightBox } from '../components/HighlightBox';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
+import { getThemeColor } from '../utils/theme';
+
+
 
 export function WelcomeBack() {
  const welcomeBackFlowChart = `flowchart TD
@@ -25,12 +28,12 @@ export function WelcomeBack() {
  user_choice -->|继续| prefill_input
  prefill_input --> continue
 
- style start fill:#22d3ee,color:#000
- style check_enabled fill:#f59e0b,color:#000
- style has_summary fill:#f59e0b,color:#000
- style user_choice fill:#f59e0b,color:#000
- style new_session fill:#22c55e,color:#000
- style continue fill:#22c55e,color:#000`;
+ style start fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style check_enabled fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style has_summary fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style user_choice fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style new_session fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style continue fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  const quitConfirmFlowChart = `flowchart TD
  start([触发退出<br/>Ctrl+C 或 /quit-confirm])
@@ -49,10 +52,10 @@ export function WelcomeBack() {
  gen_summary --> quit_after
  save_chat --> quit_after
 
- style start fill:#22d3ee,color:#000
- style choice fill:#f59e0b,color:#000
- style quit_now fill:#ef4444,color:#fff
- style quit_after fill:#22c55e,color:#000`;
+ style start fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style choice fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style quit_now fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style quit_after fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  const projectSummaryFormat = `# Project Summary
 
@@ -96,9 +99,9 @@ export function WelcomeBack() {
 
 // settings.json - v2 配置格式
 {
- "ui": {
- "enableWelcomeBack": true // 默认: true
- }
+  "ui": {
+  "enableWelcomeBack": true // 默认: true
+  }
 }
 
 // 或通过 /settings 命令交互式设置
@@ -207,19 +210,19 @@ your-project/
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="Welcome Back" variant="green">
  <ul className="text-sm text-body space-y-1">
- <li>• 自动检测 PROJECT_SUMMARY.md</li>
- <li>• 显示上次的目标和进度</li>
- <li>• 快速继续上次对话</li>
- <li>• 保持工作连贯性</li>
+ <li>自动检测 PROJECT_SUMMARY.md</li>
+ <li>显示上次的目标和进度</li>
+ <li>快速继续上次对话</li>
+ <li>保持工作连贯性</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="Quit Confirm" variant="blue">
  <ul className="text-sm text-body space-y-1">
- <li>• Ctrl+C 两次触发</li>
- <li>• 三种退出选项</li>
- <li>• 生成摘要或保存对话</li>
- <li>• 防止工作意外丢失</li>
+ <li>Ctrl+C 两次触发</li>
+ <li>三种退出选项</li>
+ <li>生成摘要或保存对话</li>
+ <li>防止工作意外丢失</li>
  </ul>
  </HighlightBox>
  </div>
@@ -234,21 +237,21 @@ your-project/
  <h4 className="font-semibold text-heading mb-3">自动检测条件</h4>
  <ul className="text-sm text-body space-y-2">
  <li className="flex items-start gap-2">
- <span className="text-[var(--color-success)]">1.</span>
+ <span className="text-heading">1.</span>
  <div>
  <strong>settings.ui.enableWelcomeBack 设置</strong>
  <span className="text-body"> - 默认启用，可在 settings.json 中关闭</span>
  </div>
  </li>
  <li className="flex items-start gap-2">
- <span className="text-[var(--color-success)]">2.</span>
+ <span className="text-heading">2.</span>
  <div>
  <strong>PROJECT_SUMMARY.md 存在</strong>
  <span className="text-body"> - 检查 .gemini/PROJECT_SUMMARY.md</span>
  </div>
  </li>
  <li className="flex items-start gap-2">
- <span className="text-[var(--color-success)]">3.</span>
+ <span className="text-heading">3.</span>
  <div>
  <strong>有意义的对话历史</strong>
  <span className="text-body"> - 确保摘要内容可用</span>
@@ -292,7 +295,7 @@ your-project/
  <h4 className="font-semibold text-heading mb-3">摘要段落说明</h4>
  <div className="grid grid-cols-2 gap-4 text-sm">
  <div>
- <h5 className="text-[var(--color-success)] font-semibold">Overall Goal</h5>
+ <h5 className="text-heading font-semibold">Overall Goal</h5>
  <p className="text-body">单句描述高层目标</p>
  </div>
  <div>
@@ -304,7 +307,7 @@ your-project/
  <p className="text-body">最近完成的工作和发现</p>
  </div>
  <div>
- <h5 className="text-[var(--color-warning)] font-semibold">Current Plan</h5>
+ <h5 className="text-heading font-semibold">Current Plan</h5>
  <p className="text-body">任务列表，使用状态标记</p>
  </div>
  </div>
@@ -312,11 +315,11 @@ your-project/
 
  <div className="mt-4 flex gap-4 text-sm">
  <div className="flex items-center gap-2">
- <span className="text-[var(--color-success)]">[DONE]</span>
+ <span className="text-heading">[DONE]</span>
  <span className="text-body">已完成</span>
  </div>
  <div className="flex items-center gap-2">
- <span className="text-[var(--color-warning)]">[IN PROGRESS]</span>
+ <span className="text-heading">[IN PROGRESS]</span>
  <span className="text-body">进行中</span>
  </div>
  <div className="flex items-center gap-2">
@@ -346,12 +349,12 @@ your-project/
  <CodeBlock code={quitConfirmCode} language="text" title="退出确认对话框" />
 
  <div className="mt-4 grid grid-cols-3 gap-4">
- <div className="bg-[var(--color-danger-soft)] border border-[var(--color-danger)] rounded-lg p-4 text-center">
- <h5 className="text-[var(--color-danger)] font-semibold">Quit immediately</h5>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4 text-center">
+ <h5 className="text-heading font-semibold">Quit immediately</h5>
  <p className="text-body text-xs mt-1">立即退出，不保存</p>
  </div>
- <div className="bg-[var(--color-success-soft)] border border-[var(--color-success)] rounded-lg p-4 text-center">
- <h5 className="text-[var(--color-success)] font-semibold">Generate summary</h5>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4 text-center">
+ <h5 className="text-heading font-semibold">Generate summary</h5>
  <p className="text-body text-xs mt-1">生成摘要后退出<br/>下次可继续</p>
  </div>
  <div className="bg-elevated/20 border border-edge rounded-lg p-4 text-center">
@@ -400,7 +403,7 @@ your-project/
  </div>
  </div>
  <div className="flex items-start gap-4">
- <div className="w-8 h-8 rounded-full bg-[var(--color-success-soft)] border border-[var(--color-success)] flex items-center justify-center text-[var(--color-success)] font-bold">4</div>
+ <div className="w-8 h-8 rounded-full bg-elevated border-l-2 border-l-edge-hover flex items-center justify-center text-heading font-bold">4</div>
  <div>
  <h5 className="font-semibold text-heading">下次继续</h5>
  <p className="text-body text-sm">重新启动时，Welcome Back 会显示上次的进度，快速继续工作</p>
@@ -414,8 +417,8 @@ your-project/
  <section>
  <h3 className="text-xl font-semibold text-heading mb-4">最佳实践</h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <div className="bg-[var(--color-success-soft)] border border-[var(--color-success)] rounded-lg p-4">
- <h4 className="text-[var(--color-success)] font-semibold mb-2">推荐做法</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">推荐做法</h4>
  <ul className="text-sm text-body space-y-1">
  <li>✓ 长期项目使用 /quit-confirm 退出</li>
  <li>✓ 定期运行 /summary 更新摘要</li>
@@ -423,8 +426,8 @@ your-project/
  <li>✓ 利用任务状态跟踪进度</li>
  </ul>
  </div>
- <div className="bg-[var(--color-danger-soft)] border border-[var(--color-danger)] rounded-lg p-4">
- <h4 className="text-[var(--color-danger)] font-semibold mb-2">注意事项</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">注意事项</h4>
  <ul className="text-sm text-body space-y-1">
  <li>✗ 不要依赖摘要保存代码细节</li>
  <li>✗ 摘要只保存高层信息</li>

@@ -4,6 +4,9 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { RelatedPages } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 type TabType = 'overview' | 'safety' | 'performance' | 'correctness' | 'state' | 'alternatives';
 
@@ -104,7 +107,7 @@ mindmap
  <div className="overflow-x-auto">
  <table className="w-full text-sm border-collapse">
  <thead>
- <tr className="border-b border-white/20">
+ <tr className="border-b border-edge/60">
  <th className="p-3 text-left text-heading">决策领域</th>
  <th className="p-3 text-left text-heading">选择</th>
  <th className="p-3 text-left text-heading">取舍</th>
@@ -112,34 +115,34 @@ mindmap
  </tr>
  </thead>
  <tbody>
- <tr className="border-b border-white/10">
+ <tr className="border-b border-edge/40">
  <td className="p-3 text-body">工具执行</td>
  <td className="p-3 text-heading">顺序队列</td>
- <td className="p-3 text-amber-500">牺牲并发吞吐</td>
+ <td className="p-3 text-heading">牺牲并发吞吐</td>
  <td className="p-3 text-body">确保状态一致性</td>
  </tr>
- <tr className="border-b border-white/10">
+ <tr className="border-b border-edge/40">
  <td className="p-3 text-body">循环检测</td>
  <td className="p-3 text-heading">三层检测</td>
- <td className="p-3 text-amber-500">增加复杂度</td>
+ <td className="p-3 text-heading">增加复杂度</td>
  <td className="p-3 text-body">避免漏检误判</td>
  </tr>
- <tr className="border-b border-white/10">
+ <tr className="border-b border-edge/40">
  <td className="p-3 text-body">编码检测</td>
  <td className="p-3 text-heading">非对称缓存</td>
- <td className="p-3 text-amber-500">逻辑不一致</td>
+ <td className="p-3 text-heading">逻辑不一致</td>
  <td className="p-3 text-body">平衡性能与准确</td>
  </tr>
- <tr className="border-b border-white/10">
+ <tr className="border-b border-edge/40">
  <td className="p-3 text-body">遥测收集</td>
  <td className="p-3 text-heading">单例模式</td>
- <td className="p-3 text-amber-500">测试困难</td>
+ <td className="p-3 text-heading">测试困难</td>
  <td className="p-3 text-body">确保数据一致</td>
  </tr>
  <tr>
  <td className="p-3 text-body">Shell 执行</td>
  <td className="p-3 text-heading">多层回退</td>
- <td className="p-3 text-amber-500">维护成本高</td>
+ <td className="p-3 text-heading">维护成本高</td>
  <td className="p-3 text-body">环境兼容性</td>
  </tr>
  </tbody>
@@ -186,12 +189,12 @@ graph TD
  TF --> YOLO
 
  UF --> DEFAULT
- UF -.->|❌ 禁止| AUTOEDIT
- UF -.->|❌ 禁止| YOLO
+ UF -.->|"❌ 禁止"| AUTOEDIT
+ UF -.->|"❌ 禁止"| YOLO
 
- style DEFAULT fill:#3b82f6,stroke:#2563eb,color:#fff
- style AUTOEDIT fill:#f59e0b,stroke:#d97706,color:#fff
- style YOLO fill:#ef4444,stroke:#dc2626,color:#fff
+ style DEFAULT fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},stroke:${getThemeColor("--color-primary", "#2457a6")},color:${getThemeColor("--color-text", "#1c1917")}
+ style AUTOEDIT fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},stroke:${getThemeColor("--color-warning", "#b45309")},color:${getThemeColor("--color-text", "#1c1917")}
+ style YOLO fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},stroke:${getThemeColor("--color-danger", "#b91c1c")},color:${getThemeColor("--color-text", "#1c1917")}
 `} />
  </Layer>
 
@@ -320,7 +323,7 @@ async function bfsFileSearch(startDir: string): Promise<string[]> {
  <div className="text-body text-sm">指针式队列 + 并行批读</div>
  </div>
  <div className="p-3 bg-elevated rounded-lg">
- <div className="text-amber-500 font-semibold mb-1">⚠️ 取舍</div>
+ <div className="text-heading font-semibold mb-1">⚠️ 取舍</div>
  <div className="text-body text-sm">更复杂的队列管理逻辑</div>
  </div>
  </div>
@@ -363,8 +366,8 @@ flowchart TD
  B -->|null| G[检测 Buffer 编码]
  F --> G
 
- style E fill:#22c55e,stroke:#16a34a,color:#fff
- style G fill:#f59e0b,stroke:#d97706,color:#fff
+ style E fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},stroke:${getThemeColor("--color-success", "#15803d")},color:${getThemeColor("--color-text", "#1c1917")}
+ style G fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},stroke:${getThemeColor("--color-warning", "#b45309")},color:${getThemeColor("--color-text", "#1c1917")}
 `} />
 
  <HighlightBox title="设计洞察" variant="green">
@@ -411,7 +414,7 @@ class ModelConfigCache {
  <div className="text-dim text-xs">全局共享</div>
  </div>
  <div className="p-3 bg-elevated rounded-lg text-center">
- <div className="text-amber-500 text-xl font-bold">惰性</div>
+ <div className="text-heading text-xl font-bold">惰性</div>
  <div className="text-dim text-xs">按需加载</div>
  </div>
  </div>
@@ -425,7 +428,7 @@ function CorrectnessTab() {
  <div className="flex flex-col gap-6">
  <Layer title="🔄 工具执行队列">
  <p className="text-body mb-4">
- <strong className="text-red-500">拒绝并行</strong>是 Gemini CLI 最重要的架构决策之一：
+ <strong className="text-heading">拒绝并行</strong>是 Gemini CLI 最重要的架构决策之一：
  </p>
 
  <CodeBlock language="typescript" code={`// packages/core/src/core/coreToolScheduler.ts
@@ -553,7 +556,7 @@ class LoopDetectionService {
  </ul>
  </div>
  <div className="p-4 bg-elevated rounded-lg">
- <div className="text-amber-500 font-semibold mb-2">Layer 2: 内容吟唱</div>
+ <div className="text-heading font-semibold mb-2">Layer 2: 内容吟唱</div>
  <ul className="text-body text-sm space-y-1 list-disc list-inside">
  <li>阈值：10 次</li>
  <li>速度：O(n) 扫描</li>
@@ -561,7 +564,7 @@ class LoopDetectionService {
  </ul>
  </div>
  <div className="p-4 bg-elevated rounded-lg">
- <div className="text-red-500 font-semibold mb-2">Layer 3: LLM 检测</div>
+ <div className="text-heading font-semibold mb-2">Layer 3: LLM 检测</div>
  <ul className="text-body text-sm space-y-1 list-disc list-inside">
  <li>触发：30 轮后</li>
  <li>速度：慢（API 调用）</li>
@@ -667,7 +670,7 @@ export class GeminiLogger {
  </ul>
  </div>
  <div className="p-3 bg-elevated rounded-lg">
- <div className="text-amber-500 font-semibold mb-1">⚠️ 缺点</div>
+ <div className="text-heading font-semibold mb-1">⚠️ 缺点</div>
  <ul className="text-body text-sm space-y-1 list-disc list-inside">
  <li>测试隔离困难</li>
  <li>需要显式重置</li>
@@ -694,10 +697,10 @@ flowchart TD
  G --> I
  H --> J((失败))
 
- style C fill:#22c55e,stroke:#16a34a,color:#fff
- style E fill:#3b82f6,stroke:#2563eb,color:#fff
- style G fill:#f59e0b,stroke:#d97706,color:#fff
- style H fill:#ef4444,stroke:#dc2626,color:#fff
+ style C fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},stroke:${getThemeColor("--color-success", "#15803d")},color:${getThemeColor("--color-text", "#1c1917")}
+ style E fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},stroke:${getThemeColor("--color-primary", "#2457a6")},color:${getThemeColor("--color-text", "#1c1917")}
+ style G fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},stroke:${getThemeColor("--color-warning", "#b45309")},color:${getThemeColor("--color-text", "#1c1917")}
+ style H fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},stroke:${getThemeColor("--color-danger", "#b91c1c")},color:${getThemeColor("--color-text", "#1c1917")}
 `} />
 
  <HighlightBox title="设计原因" variant="green">
@@ -730,11 +733,11 @@ function AlternativesTab() {
  </p>
 
  {/* 工具并行执行 */}
- <div className="bg-red-900/10 border border-red-500/30 rounded-lg p-5 mb-4">
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-5 mb-4">
  <div className="flex items-start gap-3">
  <span className="text-2xl">❌</span>
  <div className="flex-1">
- <h4 className="text-lg font-semibold text-red-400 mb-2">替代方案 1：工具并行执行</h4>
+ <h4 className="text-lg font-semibold text-heading mb-2">替代方案 1：工具并行执行</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
  <div>
  <div className="text-body mb-1">方案描述</div>
@@ -745,19 +748,19 @@ function AlternativesTab() {
  <div>
  <div className="text-body mb-1">理论优势</div>
  <ul className="text-body space-y-1">
- <li>• 更高的吞吐量</li>
- <li>• 减少 API 往返次数</li>
- <li>• I/O 密集任务更快</li>
+ <li>更高的吞吐量</li>
+ <li>减少 API 往返次数</li>
+ <li>I/O 密集任务更快</li>
  </ul>
  </div>
  </div>
  <div className="mt-3 bg-base/30 rounded p-3">
- <div className="text-red-400 font-medium mb-1">否决原因</div>
+ <div className="text-heading font-medium mb-1">否决原因</div>
  <ul className="text-body text-xs space-y-1">
- <li>• <strong>状态竞争</strong>：工具 A 读取文件，工具 B 同时修改该文件</li>
- <li>• <strong>上下文不一致</strong>：工具 B 可能依赖工具 A 的输出，但 A 尚未完成</li>
- <li>• <strong>错误处理复杂</strong>：部分成功时如何回滚？如何通知 AI？</li>
- <li>• <strong>调试困难</strong>：并行日志交错，难以追踪问题</li>
+ <li><strong>状态竞争</strong>：工具 A 读取文件，工具 B 同时修改该文件</li>
+ <li><strong>上下文不一致</strong>：工具 B 可能依赖工具 A 的输出，但 A 尚未完成</li>
+ <li><strong>错误处理复杂</strong>：部分成功时如何回滚？如何通知 AI？</li>
+ <li><strong>调试困难</strong>：并行日志交错，难以追踪问题</li>
  </ul>
  </div>
  </div>
@@ -765,11 +768,11 @@ function AlternativesTab() {
  </div>
 
  {/* 单层循环检测 */}
- <div className="bg-red-900/10 border border-red-500/30 rounded-lg p-5 mb-4">
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-5 mb-4">
  <div className="flex items-start gap-3">
  <span className="text-2xl">❌</span>
  <div className="flex-1">
- <h4 className="text-lg font-semibold text-red-400 mb-2">替代方案 2：单层循环检测（仅 LLM）</h4>
+ <h4 className="text-lg font-semibold text-heading mb-2">替代方案 2：单层循环检测（仅 LLM）</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
  <div>
  <div className="text-body mb-1">方案描述</div>
@@ -780,19 +783,19 @@ function AlternativesTab() {
  <div>
  <div className="text-body mb-1">理论优势</div>
  <ul className="text-body space-y-1">
- <li>• 实现简单</li>
- <li>• 最高的语义准确性</li>
- <li>• 无需维护多套逻辑</li>
+ <li>实现简单</li>
+ <li>最高的语义准确性</li>
+ <li>无需维护多套逻辑</li>
  </ul>
  </div>
  </div>
  <div className="mt-3 bg-base/30 rounded p-3">
- <div className="text-red-400 font-medium mb-1">否决原因</div>
+ <div className="text-heading font-medium mb-1">否决原因</div>
  <ul className="text-body text-xs space-y-1">
- <li>• <strong>延迟高</strong>：每次检测都需要 API 调用，增加响应时间</li>
- <li>• <strong>成本高</strong>：额外的 Token 消耗用于循环检测</li>
- <li>• <strong>漏检风险</strong>：简单的精确重复用哈希更可靠</li>
- <li>• <strong>决策</strong>：采用三层混合检测（哈希 → 内容 → LLM）</li>
+ <li><strong>延迟高</strong>：每次检测都需要 API 调用，增加响应时间</li>
+ <li><strong>成本高</strong>：额外的 Token 消耗用于循环检测</li>
+ <li><strong>漏检风险</strong>：简单的精确重复用哈希更可靠</li>
+ <li><strong>决策</strong>：采用三层混合检测（哈希 → 内容 → LLM）</li>
  </ul>
  </div>
  </div>
@@ -800,11 +803,11 @@ function AlternativesTab() {
  </div>
 
  {/* 无信任边界 */}
- <div className="bg-red-900/10 border border-red-500/30 rounded-lg p-5 mb-4">
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-5 mb-4">
  <div className="flex items-start gap-3">
  <span className="text-2xl">❌</span>
  <div className="flex-1">
- <h4 className="text-lg font-semibold text-red-400 mb-2">替代方案 3：无信任边界的统一审批模式</h4>
+ <h4 className="text-lg font-semibold text-heading mb-2">替代方案 3：无信任边界的统一审批模式</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
  <div>
  <div className="text-body mb-1">方案描述</div>
@@ -815,19 +818,19 @@ function AlternativesTab() {
  <div>
  <div className="text-body mb-1">理论优势</div>
  <ul className="text-body space-y-1">
- <li>• 简化用户心智模型</li>
- <li>• 减少配置复杂度</li>
- <li>• 无需管理信任列表</li>
+ <li>简化用户心智模型</li>
+ <li>减少配置复杂度</li>
+ <li>无需管理信任列表</li>
  </ul>
  </div>
  </div>
  <div className="mt-3 bg-base/30 rounded p-3">
- <div className="text-red-400 font-medium mb-1">否决原因</div>
+ <div className="text-heading font-medium mb-1">否决原因</div>
  <ul className="text-body text-xs space-y-1">
- <li>• <strong>安全风险</strong>：恶意项目可通过 .gemini/ 配置启用 YOLO 模式</li>
- <li>• <strong>供应链攻击</strong>：克隆的仓库可能包含危险配置</li>
- <li>• <strong>行业标准</strong>：VS Code 等工具都有类似的工作区信任机制</li>
- <li>• <strong>决策</strong>：非信任目录强制降级到 DEFAULT 模式</li>
+ <li><strong>安全风险</strong>：恶意项目可通过 .gemini/ 配置启用 YOLO 模式</li>
+ <li><strong>供应链攻击</strong>：克隆的仓库可能包含危险配置</li>
+ <li><strong>行业标准</strong>：VS Code 等工具都有类似的工作区信任机制</li>
+ <li><strong>决策</strong>：非信任目录强制降级到 DEFAULT 模式</li>
  </ul>
  </div>
  </div>
@@ -835,11 +838,11 @@ function AlternativesTab() {
  </div>
 
  {/* 深合并配置 */}
- <div className="bg-red-900/10 border border-red-500/30 rounded-lg p-5">
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-5">
  <div className="flex items-start gap-3">
  <span className="text-2xl">❌</span>
  <div className="flex-1">
- <h4 className="text-lg font-semibold text-red-400 mb-2">替代方案 4：简单深合并配置</h4>
+ <h4 className="text-lg font-semibold text-heading mb-2">替代方案 4：简单深合并配置</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
  <div>
  <div className="text-body mb-1">方案描述</div>
@@ -850,19 +853,19 @@ function AlternativesTab() {
  <div>
  <div className="text-body mb-1">理论优势</div>
  <ul className="text-body space-y-1">
- <li>• 实现简单</li>
- <li>• 行为可预测</li>
- <li>• 无需维护 schema</li>
+ <li>实现简单</li>
+ <li>行为可预测</li>
+ <li>无需维护 schema</li>
  </ul>
  </div>
  </div>
  <div className="mt-3 bg-base/30 rounded p-3">
- <div className="text-red-400 font-medium mb-1">否决原因</div>
+ <div className="text-heading font-medium mb-1">否决原因</div>
  <ul className="text-body text-xs space-y-1">
- <li>• <strong>数组问题</strong>：<code>tools.allowed</code> 应该合并还是覆盖？</li>
- <li>• <strong>对象问题</strong>：<code>mcpServers</code> 应该深合并还是浅合并？</li>
- <li>• <strong>语义差异</strong>：不同字段需要不同的合并策略</li>
- <li>• <strong>决策</strong>：采用带 schema 的策略感知合并</li>
+ <li><strong>数组问题</strong>：<code>tools.allowed</code> 应该合并还是覆盖？</li>
+ <li><strong>对象问题</strong>：<code>mcpServers</code> 应该深合并还是浅合并？</li>
+ <li><strong>语义差异</strong>：不同字段需要不同的合并策略</li>
+ <li><strong>决策</strong>：采用带 schema 的策略感知合并</li>
  </ul>
  </div>
  </div>
@@ -879,22 +882,22 @@ function AlternativesTab() {
  <div className="overflow-x-auto">
  <table className="w-full text-sm border-collapse">
  <thead>
- <tr className="border-b border-white/20">
+ <tr className="border-b border-edge/60">
  <th className="p-3 text-left text-heading">决策</th>
  <th className="p-3 text-left text-heading">获得</th>
- <th className="p-3 text-left text-amber-500">失去</th>
+ <th className="p-3 text-left text-heading">失去</th>
  <th className="p-3 text-left text-dim">量化影响</th>
  </tr>
  </thead>
  <tbody>
- <tr className="border-b border-white/10">
+ <tr className="border-b border-edge/40">
  <td className="p-3 text-body">顺序工具队列</td>
  <td className="p-3 text-heading text-xs">
  • 100% 状态一致性<br/>
  • 可预测的执行顺序<br/>
  • 简化错误处理
  </td>
- <td className="p-3 text-amber-500 text-xs">
+ <td className="p-3 text-heading text-xs">
  • 无法并行 I/O<br/>
  • 批量操作更慢
  </td>
@@ -905,14 +908,14 @@ function AlternativesTab() {
  <strong>代价: 5x 延迟</strong>
  </td>
  </tr>
- <tr className="border-b border-white/10">
+ <tr className="border-b border-edge/40">
  <td className="p-3 text-body">三层循环检测</td>
  <td className="p-3 text-heading text-xs">
  • 快速精确匹配（Layer 1）<br/>
  • 模糊匹配（Layer 2）<br/>
  • 语义理解（Layer 3）
  </td>
- <td className="p-3 text-amber-500 text-xs">
+ <td className="p-3 text-heading text-xs">
  • 更多代码维护<br/>
  • 调试复杂度增加
  </td>
@@ -923,14 +926,14 @@ function AlternativesTab() {
  <strong>99% 在 Layer 1/2 拦截</strong>
  </td>
  </tr>
- <tr className="border-b border-white/10">
+ <tr className="border-b border-edge/40">
  <td className="p-3 text-body">信任边界</td>
  <td className="p-3 text-heading text-xs">
  • 阻止供应链攻击<br/>
  • 保护系统安全<br/>
  • 符合行业标准
  </td>
- <td className="p-3 text-amber-500 text-xs">
+ <td className="p-3 text-heading text-xs">
  • 首次使用需确认<br/>
  • 增加用户操作步骤
  </td>
@@ -940,13 +943,13 @@ function AlternativesTab() {
  <strong>一次性 2 秒代价</strong>
  </td>
  </tr>
- <tr className="border-b border-white/10">
+ <tr className="border-b border-edge/40">
  <td className="p-3 text-body">非对称编码缓存</td>
  <td className="p-3 text-heading text-xs">
  • 系统编码只检测一次<br/>
  • 减少 shell 调用
  </td>
- <td className="p-3 text-amber-500 text-xs">
+ <td className="p-3 text-heading text-xs">
  • 代码逻辑不一致<br/>
  • 更难理解
  </td>
@@ -962,7 +965,7 @@ function AlternativesTab() {
  • 100% 环境兼容<br/>
  • 优雅降级
  </td>
- <td className="p-3 text-amber-500 text-xs">
+ <td className="p-3 text-heading text-xs">
  • 3 套 shell 逻辑<br/>
  • 更多测试用例
  </td>

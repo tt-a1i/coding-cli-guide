@@ -47,7 +47,7 @@ function Introduction({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">
+ <h4 className="text-heading font-bold mb-2">
  🔧 核心抽象层
  </h4>
  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
@@ -66,7 +66,7 @@ function Introduction({
  </div>
  </div>
  <div className="bg-surface p-2 rounded text-center">
- <div className="text-xs text-amber-500">Converter</div>
+ <div className="text-xs text-heading">Converter</div>
  <div className="text-[10px] text-dim">
  格式转换
  </div>
@@ -99,7 +99,7 @@ function Introduction({
  </span>
  </div>
  <div className="flex items-center gap-2">
- <span className="text-amber-500">3.</span>
+ <span className="text-heading">3.</span>
  <span>
  <strong>ContentConverter</strong> - Gemini ↔ OpenAI 格式互转
  </span>
@@ -125,7 +125,7 @@ function Introduction({
  </div>
  </div>
  <div className="text-center">
- <div className="text-xl font-bold text-amber-500">1M</div>
+ <div className="text-xl font-bold text-heading">1M</div>
  <div className="text-xs text-dim">
  最大上下文
  </div>
@@ -169,7 +169,7 @@ function ProviderRoutingAnimation() {
  id: 'openai',
  name: 'OpenAI API',
  provider: 'OpenAIContentGenerator',
- color: '#f59e0b',
+ color: 'var(--color-warning)',
  icon: '🤖',
  },
  {
@@ -183,7 +183,7 @@ function ProviderRoutingAnimation() {
  id: 'oauth-personal',
  name: 'Google OAuth',
  provider: 'CodeAssistContentGenerator',
- color: 'pink',
+ color: 'var(--purple)',
  icon: '🔐',
  },
  ];
@@ -328,7 +328,7 @@ function ContentConverterFlow() {
  <div className="flex items-center justify-center">
  <div className="text-center">
  <div className="text-2xl mb-2">⚙️</div>
- <div className="text-sm text-amber-500 font-mono">
+ <div className="text-sm text-heading font-mono">
  OpenAIContentConverter
  </div>
  <div className="text-xs text-dim">
@@ -383,7 +383,7 @@ function ContentConverterFlow() {
  <div className="flex items-center justify-center">
  <div className="text-center">
  <div className="text-2xl mb-2">⚙️</div>
- <div className="text-sm text-amber-500 font-mono">
+ <div className="text-sm text-heading font-mono">
  OpenAIContentConverter
  </div>
  <div className="text-xs text-dim">
@@ -442,19 +442,19 @@ function TokenLimitsVisualization() {
  name: 'Claude-3.5-Sonnet',
  input: 200000,
  output: 8192,
- color: '#f59e0b',
+ color: 'var(--color-warning)',
  },
  {
  name: 'GPT-4o',
  input: 128000,
  output: 16384,
- color: 'pink',
+ color: 'var(--purple)',
  },
  {
  name: 'DeepSeek-V3',
  input: 128000,
  output: 8192,
- color: 'cyan',
+ color: 'var(--color-primary)',
  },
  ];
 
@@ -539,7 +539,7 @@ function ProviderFeaturesComparison() {
  {
  name: 'OpenRouter',
  features: ['HTTP-Referer 头', 'X-Title 头', '多模型路由'],
- color: '#f59e0b',
+ color: 'var(--color-warning)',
  },
  {
  name: 'Default',
@@ -707,7 +707,7 @@ export enum AuthType {
  <div className="text-dim">
  ContentGenerator (接口)
  </div>
- <div className="ml-4 text-amber-500">
+ <div className="ml-4 text-heading">
  └─ OpenAIContentGenerator
  </div>
  <div className="ml-8 text-heading">
@@ -818,9 +818,9 @@ normalize("gemini-2.5-pro-preview") → "gemini-2.5-pro"`}
  Gemini Token 管理
  </div>
  <ul className="text-sm text-body space-y-1">
- <li>• 单例模式，线程安全</li>
- <li>• 401/403 自动刷新</li>
- <li>• 缓存凭证检查过期</li>
+ <li>单例模式，线程安全</li>
+ <li>401/403 自动刷新</li>
+ <li>缓存凭证检查过期</li>
  <li>
  • 持久化到 <code>oauth_creds.json</code>
  </li>
@@ -832,10 +832,10 @@ normalize("gemini-2.5-pro-preview") → "gemini-2.5-pro"`}
  Gemini 双重回退
  </div>
  <ul className="text-sm text-body space-y-1">
- <li>• 模型特定配置优先</li>
- <li>• OAuth 凭证回退</li>
- <li>• ModelConfigCache 缓存</li>
- <li>• 用户信息注入头</li>
+ <li>模型特定配置优先</li>
+ <li>OAuth 凭证回退</li>
+ <li>ModelConfigCache 缓存</li>
+ <li>用户信息注入头</li>
  </ul>
  </div>
  </div>
@@ -929,8 +929,8 @@ async generateContent(request, promptId) {
  Gemini ↔ OpenAI 格式互转
  </div>
  </div>
- <div className="bg-surface rounded-lg p-4 border border-amber-500/30">
- <div className="text-amber-500 font-bold mb-2">Provider 模式</div>
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/30">
+ <div className="text-heading font-bold mb-2">Provider 模式</div>
  <div className="text-sm text-dim">
  动态检测厂商
  <br />
@@ -945,7 +945,7 @@ async generateContent(request, promptId) {
  包装任意实现添加日志
  </div>
  </div>
- <div className="bg-surface rounded-lg p-4 border border-pink-400/30">
+ <div className="bg-surface rounded-lg p-4 border border-[var(--purple)]/30">
  <div className="text-heading font-bold mb-2">模板方法</div>
  <div className="text-sm text-dim">
  OpenAIContentGenerator 定义管道
@@ -1031,8 +1031,8 @@ async generateContent(request, promptId) {
  </div>
  </div>
 
- <div className="bg-surface rounded-lg p-4 border border-amber-500/30">
- <div className="text-amber-500 font-bold mb-2">
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/30">
+ <div className="text-heading font-bold mb-2">
  为什么统一响应格式？
  </div>
  <div className="text-sm text-body">
@@ -1053,7 +1053,7 @@ async generateContent(request, promptId) {
  </div>
  </div>
 
- <div className="bg-surface rounded-lg p-4 border border-pink-400/30">
+ <div className="bg-surface rounded-lg p-4 border border-[var(--purple)]/30">
  <div className="text-heading font-bold mb-2">
  为什么流式响应是默认行为？
  </div>

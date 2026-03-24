@@ -4,6 +4,9 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 const relatedPages: RelatedPage[] = [
  { id: 'react-hooks', label: 'React Hooks', description: 'Hook 库' },
@@ -47,7 +50,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">模式支持</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-amber-500">Unicode</div>
+ <div className="text-2xl font-bold text-heading">Unicode</div>
  <div className="text-xs text-dim">完整支持</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
@@ -65,7 +68,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <span className="px-3 py-1.5 bg-elevated/20 text-heading rounded-lg border border-edge/30">
  词边界导航
  </span>
- <span className="px-3 py-1.5 bg-amber-500/20 text-amber-500 rounded-lg border border-amber-500/30">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover/30">
  视觉换行
  </span>
  <span className="px-3 py-1.5 bg-elevated/20 text-heading rounded-lg border border-edge/30">
@@ -134,250 +137,250 @@ export function TextBuffer() {
 
  style Hook stroke:#00d4ff
  style State stroke:#00ff88
- style Actions stroke:#f59e0b
+ style Actions stroke:${getThemeColor("--color-warning", "#b45309")}
  style Layout stroke:#a855f7`;
 
  const stateTypeCode = `// TextBuffer 状态结构
 interface TextBufferState {
- lines: string[]; // 逻辑行数组
- cursorRow: number; // 光标所在行
- cursorCol: number; // 光标所在列（code point）
- preferredCol: number | null; // 上下移动时的首选列
- undoStack: UndoHistoryEntry[];
- redoStack: UndoHistoryEntry[];
- clipboard: string | null; // Vim yank 剪贴板
- selectionAnchor: [number, number] | null; // 选区锚点
- viewportWidth: number;
- viewportHeight: number;
- visualLayout: VisualLayout; // 视觉换行布局
+  lines: string[]; // 逻辑行数组
+  cursorRow: number; // 光标所在行
+  cursorCol: number; // 光标所在列（code point）
+  preferredCol: number | null; // 上下移动时的首选列
+  undoStack: UndoHistoryEntry[];
+  redoStack: UndoHistoryEntry[];
+  clipboard: string | null; // Vim yank 剪贴板
+  selectionAnchor: [number, number] | null; // 选区锚点
+  viewportWidth: number;
+  viewportHeight: number;
+  visualLayout: VisualLayout; // 视觉换行布局
 }
 
 interface VisualLayout {
- visualLines: string[]; // 换行后的视觉行
- logicalToVisualMap: Array<Array<[number, number]>>;
- visualToLogicalMap: Array<[number, number]>;
+  visualLines: string[]; // 换行后的视觉行
+  logicalToVisualMap: Array<Array<[number, number]>>;
+  visualToLogicalMap: Array<[number, number]>;
 }
 
 interface UndoHistoryEntry {
- lines: string[];
- cursorRow: number;
- cursorCol: number;
+  lines: string[];
+  cursorRow: number;
+  cursorCol: number;
 }`;
 
  const wordBoundaryCode = `// 词边界检测 - 支持多语言脚本
 export const isWordCharStrict = (char: string): boolean =>
- /[\\w\\p{L}\\p{N}]/u.test(char); // Unicode 字母、数字、下划线
+  /[\\w\\p{L}\\p{N}]/u.test(char); // Unicode 字母、数字、下划线
 
 export const isCombiningMark = (char: string): boolean =>
- /\\p{M}/u.test(char); // 组合标记（如变音符号）
+  /\\p{M}/u.test(char); // 组合标记（如变音符号）
 
 // 脚本类型检测
 export const getCharScript = (char: string): string => {
- if (/[\\p{Script=Latin}]/u.test(char)) return 'latin';
- if (/[\\p{Script=Han}]/u.test(char)) return 'han'; // 中文
- if (/[\\p{Script=Arabic}]/u.test(char)) return 'arabic';
- if (/[\\p{Script=Hiragana}]/u.test(char)) return 'hiragana';
- if (/[\\p{Script=Katakana}]/u.test(char)) return 'katakana';
- if (/[\\p{Script=Cyrillic}]/u.test(char)) return 'cyrillic';
- return 'other';
+  if (/[\\p{Script=Latin}]/u.test(char)) return 'latin';
+  if (/[\\p{Script=Han}]/u.test(char)) return 'han'; // 中文
+  if (/[\\p{Script=Arabic}]/u.test(char)) return 'arabic';
+  if (/[\\p{Script=Hiragana}]/u.test(char)) return 'hiragana';
+  if (/[\\p{Script=Katakana}]/u.test(char)) return 'katakana';
+  if (/[\\p{Script=Cyrillic}]/u.test(char)) return 'cyrillic';
+  return 'other';
 };
 
 // 不同脚本之间视为词边界
 export const isDifferentScript = (char1: string, char2: string): boolean => {
- if (!isWordCharStrict(char1) || !isWordCharStrict(char2)) return false;
- return getCharScript(char1) !== getCharScript(char2);
+  if (!isWordCharStrict(char1) || !isWordCharStrict(char2)) return false;
+  return getCharScript(char1) !== getCharScript(char2);
 };
 
 // 查找下一个词开始位置
 export const findNextWordStartInLine = (line: string, col: number): number | null => {
- const chars = toCodePoints(line);
- let i = col;
+  const chars = toCodePoints(line);
+  let i = col;
 
- // 跳过当前词
- if (isWordCharStrict(chars[i])) {
- while (i < chars.length && isWordCharWithCombining(chars[i])) {
- // 检测脚本边界
- if (i + 1 < chars.length && isDifferentScript(chars[i], chars[i + 1])) {
- i++;
- break;
- }
- i++;
- }
- }
+  // 跳过当前词
+  if (isWordCharStrict(chars[i])) {
+  while (i < chars.length && isWordCharWithCombining(chars[i])) {
+  // 检测脚本边界
+  if (i + 1 < chars.length && isDifferentScript(chars[i], chars[i + 1])) {
+  i++;
+  break;
+  }
+  i++;
+  }
+  }
 
- // 跳过空白
- while (i < chars.length && isWhitespace(chars[i])) i++;
+  // 跳过空白
+  while (i < chars.length && isWhitespace(chars[i])) i++;
 
- return i < chars.length ? i : null;
+  return i < chars.length ? i : null;
 };`;
 
  const useTextBufferCode = `// useTextBuffer Hook - 主入口
 export function useTextBuffer({
- initialText = '',
- initialCursorOffset = 0,
- viewport,
- stdin,
- setRawMode,
- onChange,
- isValidPath,
- shellModeActive = false,
+  initialText = '',
+  initialCursorOffset = 0,
+  viewport,
+  stdin,
+  setRawMode,
+  onChange,
+  isValidPath,
+  shellModeActive = false,
 }: UseTextBufferProps): TextBuffer {
 
- const initialState = useMemo((): TextBufferState => {
- const lines = initialText.split('\\n');
- const [initialCursorRow, initialCursorCol] =
- calculateInitialCursorPosition(lines, initialCursorOffset);
- const visualLayout = calculateLayout(lines, viewport.width);
+  const initialState = useMemo((): TextBufferState => {
+  const lines = initialText.split('\\n');
+  const [initialCursorRow, initialCursorCol] =
+  calculateInitialCursorPosition(lines, initialCursorOffset);
+  const visualLayout = calculateLayout(lines, viewport.width);
 
- return {
- lines: lines.length === 0 ? [''] : lines,
- cursorRow: initialCursorRow,
- cursorCol: initialCursorCol,
- preferredCol: null,
- undoStack: [],
- redoStack: [],
- clipboard: null,
- selectionAnchor: null,
- viewportWidth: viewport.width,
- viewportHeight: viewport.height,
- visualLayout,
- };
- }, [initialText, initialCursorOffset, viewport.width, viewport.height]);
+  return {
+  lines: lines.length === 0 ? [''] : lines,
+  cursorRow: initialCursorRow,
+  cursorCol: initialCursorCol,
+  preferredCol: null,
+  undoStack: [],
+  redoStack: [],
+  clipboard: null,
+  selectionAnchor: null,
+  viewportWidth: viewport.width,
+  viewportHeight: viewport.height,
+  visualLayout,
+  };
+  }, [initialText, initialCursorOffset, viewport.width, viewport.height]);
 
- const [state, dispatch] = useReducer(textBufferReducer, initialState);
+  const [state, dispatch] = useReducer(textBufferReducer, initialState);
 
- // 返回 TextBuffer 接口
- return {
- text,
- lines,
- cursorRow,
- cursorCol,
- insert,
- backspace,
- delete: deleteChar,
- moveCursor,
- // ... 更多方法
- };
+  // 返回 TextBuffer 接口
+  return {
+  text,
+  lines,
+  cursorRow,
+  cursorCol,
+  insert,
+  backspace,
+  delete: deleteChar,
+  moveCursor,
+  // ... 更多方法
+  };
 }`;
 
  const actionsCode = `// TextBuffer Actions
 type TextBufferAction =
- | { type: 'insert'; payload: string }
- | { type: 'backspace' }
- | { type: 'delete' }
- | { type: 'move_cursor'; payload: { direction: Direction; count?: number } }
- | { type: 'set_cursor'; payload: { row: number; col: number } }
- | { type: 'set_text'; payload: string }
- | { type: 'undo' }
- | { type: 'redo' }
- | { type: 'yank' } // Vim: 复制
- | { type: 'put' } // Vim: 粘贴
- | { type: 'vim_action'; payload: VimAction }
- | { type: 'set_selection'; payload: [number, number] | null }
- | { type: 'delete_selection' }
- | { type: 'set_viewport'; payload: { width: number; height: number } };
+  | { type: 'insert'; payload: string }
+  | { type: 'backspace' }
+  | { type: 'delete' }
+  | { type: 'move_cursor'; payload: { direction: Direction; count?: number } }
+  | { type: 'set_cursor'; payload: { row: number; col: number } }
+  | { type: 'set_text'; payload: string }
+  | { type: 'undo' }
+  | { type: 'redo' }
+  | { type: 'yank' } // Vim: 复制
+  | { type: 'put' } // Vim: 粘贴
+  | { type: 'vim_action'; payload: VimAction }
+  | { type: 'set_selection'; payload: [number, number] | null }
+  | { type: 'delete_selection' }
+  | { type: 'set_viewport'; payload: { width: number; height: number } };
 
 type Direction =
- | 'left' | 'right' | 'up' | 'down'
- | 'wordLeft' | 'wordRight'
- | 'home' | 'end';
+  | 'left' | 'right' | 'up' | 'down'
+  | 'wordLeft' | 'wordRight'
+  | 'home' | 'end';
 
 // Reducer 处理
 function textBufferReducer(state: TextBufferState, action: TextBufferAction) {
- const newState = textBufferReducerLogic(state, action);
+  const newState = textBufferReducerLogic(state, action);
 
- // 行内容或视口变化时重新计算视觉布局
- if (newState.lines !== state.lines ||
- newState.viewportWidth !== state.viewportWidth) {
- return {
- ...newState,
- visualLayout: calculateLayout(newState.lines, newState.viewportWidth),
- };
- }
+  // 行内容或视口变化时重新计算视觉布局
+  if (newState.lines !== state.lines ||
+  newState.viewportWidth !== state.viewportWidth) {
+  return {
+  ...newState,
+  visualLayout: calculateLayout(newState.lines, newState.viewportWidth),
+  };
+  }
 
- return newState;
+  return newState;
 }`;
 
  const visualLayoutCode = `// 视觉换行布局计算
 function calculateLayout(logicalLines: string[], viewportWidth: number): VisualLayout {
- const visualLines: string[] = [];
- const logicalToVisualMap: Array<Array<[number, number]>> = [];
- const visualToLogicalMap: Array<[number, number]> = [];
+  const visualLines: string[] = [];
+  const logicalToVisualMap: Array<Array<[number, number]>> = [];
+  const visualToLogicalMap: Array<[number, number]> = [];
 
- for (let logicalRow = 0; logicalRow < logicalLines.length; logicalRow++) {
- const line = logicalLines[logicalRow];
- const wrappedSegments: Array<[number, number]> = [];
+  for (let logicalRow = 0; logicalRow < logicalLines.length; logicalRow++) {
+  const line = logicalLines[logicalRow];
+  const wrappedSegments: Array<[number, number]> = [];
 
- if (line.length === 0) {
- // 空行处理
- visualLines.push('');
- wrappedSegments.push([visualLines.length - 1, 0]);
- visualToLogicalMap.push([logicalRow, 0]);
- } else {
- // 按视口宽度换行
- let startCol = 0;
- while (startCol < cpLen(line)) {
- const segment = wrapLineSegment(line, startCol, viewportWidth);
- visualLines.push(segment.text);
- wrappedSegments.push([visualLines.length - 1, startCol]);
- visualToLogicalMap.push([logicalRow, startCol]);
- startCol = segment.endCol;
- }
- }
+  if (line.length === 0) {
+  // 空行处理
+  visualLines.push('');
+  wrappedSegments.push([visualLines.length - 1, 0]);
+  visualToLogicalMap.push([logicalRow, 0]);
+  } else {
+  // 按视口宽度换行
+  let startCol = 0;
+  while (startCol < cpLen(line)) {
+  const segment = wrapLineSegment(line, startCol, viewportWidth);
+  visualLines.push(segment.text);
+  wrappedSegments.push([visualLines.length - 1, startCol]);
+  visualToLogicalMap.push([logicalRow, startCol]);
+  startCol = segment.endCol;
+  }
+  }
 
- logicalToVisualMap.push(wrappedSegments);
- }
+  logicalToVisualMap.push(wrappedSegments);
+  }
 
- return { visualLines, logicalToVisualMap, visualToLogicalMap };
+  return { visualLines, logicalToVisualMap, visualToLogicalMap };
 }
 
 // 逻辑坐标 → 视觉坐标
 function calculateVisualCursorFromLayout(
- layout: VisualLayout,
- logicalPos: [number, number]
+  layout: VisualLayout,
+  logicalPos: [number, number]
 ): [number, number] {
- const [logicalRow, logicalCol] = logicalPos;
- const segments = layout.logicalToVisualMap[logicalRow] || [[0, 0]];
+  const [logicalRow, logicalCol] = logicalPos;
+  const segments = layout.logicalToVisualMap[logicalRow] || [[0, 0]];
 
- // 找到包含 logicalCol 的视觉行
- for (let i = segments.length - 1; i >= 0; i--) {
- const [visualRow, startCol] = segments[i];
- if (logicalCol >= startCol) {
- return [visualRow, logicalCol - startCol];
- }
- }
+  // 找到包含 logicalCol 的视觉行
+  for (let i = segments.length - 1; i >= 0; i--) {
+  const [visualRow, startCol] = segments[i];
+  if (logicalCol >= startCol) {
+  return [visualRow, logicalCol - startCol];
+  }
+  }
 
- return [segments[0][0], 0];
+  return [segments[0][0], 0];
 }`;
 
  const externalEditorCode = `// 外部编辑器集成
 const openExternalEditor = useCallback((): void => {
- if (!stdin || !setRawMode) return;
+  if (!stdin || !setRawMode) return;
 
- // 暂停原始模式
- setRawMode(false);
+  // 暂停原始模式
+  setRawMode(false);
 
- // 创建临时文件
- const tempFile = pathMod.join(os.tmpdir(), \`gemini-edit-\${Date.now()}.txt\`);
- fs.writeFileSync(tempFile, text, 'utf8');
+  // 创建临时文件
+  const tempFile = pathMod.join(os.tmpdir(), \`gemini-edit-\${Date.now()}.txt\`);
+  fs.writeFileSync(tempFile, text, 'utf8');
 
- // 选择编辑器
- const editor = process.env.EDITOR || process.env.VISUAL || 'nano';
+  // 选择编辑器
+  const editor = process.env.EDITOR || process.env.VISUAL || 'nano';
 
- // 同步执行编辑器
- const result = spawnSync(editor, [tempFile], {
- stdio: 'inherit',
- shell: true,
- });
+  // 同步执行编辑器
+  const result = spawnSync(editor, [tempFile], {
+  stdio: 'inherit',
+  shell: true,
+  });
 
- if (result.status === 0) {
- const newText = fs.readFileSync(tempFile, 'utf8');
- dispatch({ type: 'set_text', payload: newText });
- }
+  if (result.status === 0) {
+  const newText = fs.readFileSync(tempFile, 'utf8');
+  dispatch({ type: 'set_text', payload: newText });
+  }
 
- // 清理并恢复
- fs.unlinkSync(tempFile);
- setRawMode(true);
+  // 清理并恢复
+  fs.unlinkSync(tempFile);
+  setRawMode(true);
 }, [stdin, setRawMode, text]);`;
 
  return (
@@ -400,20 +403,20 @@ const openExternalEditor = useCallback((): void => {
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <div className="text-heading font-bold mb-2">🎯 设计目标</div>
  <ul className="text-sm text-body space-y-1">
- <li>• 多行文本编辑（类似 IDE）</li>
- <li>• 完整 Vim 键位支持</li>
- <li>• Unicode/多语言正确处理</li>
- <li>• 终端视觉换行</li>
- <li>• Undo/Redo 历史</li>
+ <li>多行文本编辑（类似 IDE）</li>
+ <li>完整 Vim 键位支持</li>
+ <li>Unicode/多语言正确处理</li>
+ <li>终端视觉换行</li>
+ <li>Undo/Redo 历史</li>
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <div className="text-heading font-bold mb-2">📦 核心模式</div>
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>useReducer</strong> 驱动状态更新</li>
- <li>• <strong>useMemo</strong> 缓存视觉布局</li>
- <li>• <strong>Action/Reducer</strong> 模式</li>
- <li>• 逻辑/视觉坐标分离</li>
+ <li><strong>useReducer</strong> 驱动状态更新</li>
+ <li><strong>useMemo</strong> 缓存视觉布局</li>
+ <li><strong>Action/Reducer</strong> 模式</li>
+ <li>逻辑/视觉坐标分离</li>
  </ul>
  </div>
  </div>
@@ -473,19 +476,19 @@ const openExternalEditor = useCallback((): void => {
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="支持的脚本类型" color="green">
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>Latin</strong> - 英文、西欧语言</li>
- <li>• <strong>Han</strong> - 中文汉字</li>
- <li>• <strong>Hiragana/Katakana</strong> - 日文</li>
- <li>• <strong>Arabic</strong> - 阿拉伯语</li>
- <li>• <strong>Cyrillic</strong> - 俄语等</li>
+ <li><strong>Latin</strong> - 英文、西欧语言</li>
+ <li><strong>Han</strong> - 中文汉字</li>
+ <li><strong>Hiragana/Katakana</strong> - 日文</li>
+ <li><strong>Arabic</strong> - 阿拉伯语</li>
+ <li><strong>Cyrillic</strong> - 俄语等</li>
  </ul>
  </HighlightBox>
  <HighlightBox title="边界检测规则" color="blue">
  <ul className="text-sm text-body space-y-1">
- <li>• 不同脚本之间视为词边界</li>
- <li>• 组合标记(变音符)属于前一个字符</li>
- <li>• 空白和标点为词分隔符</li>
- <li>• 支持 Vim w/b/e 移动</li>
+ <li>不同脚本之间视为词边界</li>
+ <li>组合标记(变音符)属于前一个字符</li>
+ <li>空白和标点为词分隔符</li>
+ <li>支持 Vim w/b/e 移动</li>
  </ul>
  </HighlightBox>
  </div>
@@ -559,10 +562,10 @@ const openExternalEditor = useCallback((): void => {
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="支持的编辑器" color="green">
  <ul className="text-sm text-body space-y-1">
- <li>• <code>$EDITOR</code> 环境变量</li>
- <li>• <code>$VISUAL</code> 环境变量</li>
- <li>• 默认回退到 <code>nano</code></li>
- <li>• vim, nvim, emacs, code...</li>
+ <li><code>$EDITOR</code> 环境变量</li>
+ <li><code>$VISUAL</code> 环境变量</li>
+ <li>默认回退到 <code>nano</code></li>
+ <li>vim, nvim, emacs, code...</li>
  </ul>
  </HighlightBox>
  <HighlightBox title="工作流程" color="blue">

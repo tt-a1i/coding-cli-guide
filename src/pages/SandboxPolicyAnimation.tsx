@@ -180,7 +180,7 @@ export default function SandboxPolicyAnimation() {
  onClick={() => isPlaying ? resetAnimation() : (resetAnimation(), setTimeout(() => setIsPlaying(true), 100))}
  className={`px-4 py-2 rounded font-mono text-sm transition-all ${
  isPlaying
- ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+ ? 'bg-elevated text-heading border-l-2 border-l-edge-hover/30'
  : ' bg-elevated/20 text-heading border border-edge/30'
  }`}
  >
@@ -234,11 +234,11 @@ export default function SandboxPolicyAnimation() {
  className={`p-2 rounded border transition-all ${
  step.result
  ? ' bg-elevated/10 border-edge/30'
- : 'bg-red-500/10 border-red-500/30'
+ : 'bg-elevated border-edge/30'
  }`}
  >
  <div className="flex items-center gap-2 mb-1">
- <span className={step.result ? 'text-heading' : 'text-red-400'}>
+ <span className={step.result ? 'text-heading' : 'text-heading'}>
  {step.result ? '✓' : '✗'}
  </span>
  <code className="text-xs text-body">
@@ -258,7 +258,7 @@ export default function SandboxPolicyAnimation() {
  {/* 沙箱配置 */}
  <div className="col-span-4">
  <div className="bg-base/60 rounded-lg p-4 border border-edge-hover">
- <h3 className="text-sm font-semibold text-amber-500 mb-3 font-mono">
+ <h3 className="text-sm font-semibold text-heading mb-3 font-mono">
  ⚙️ Sandbox Config
  </h3>
  {sandboxConfig ? (
@@ -295,7 +295,7 @@ export default function SandboxPolicyAnimation() {
  <div className="text-xs text-dim mb-1">Denied Operations</div>
  <div className="space-y-1">
  {sandboxConfig.deniedOperations.map((op, i) => (
- <div key={i} className="text-xs font-mono text-red-400">
+ <div key={i} className="text-xs font-mono text-heading">
  - {op}
  </div>
  ))}
@@ -348,9 +348,9 @@ export default function SandboxPolicyAnimation() {
  key={i}
  className={`${
  log.includes('✓') || log.includes('✅') ? 'text-heading' :
- log.includes('✗') ? 'text-red-400' :
+ log.includes('✗') ? 'text-heading' :
  log.includes('🔍') || log.includes('📋') ? 'text-heading' :
- log.includes('⚙️') ? 'text-amber-500' :
+ log.includes('⚙️') ? 'text-heading' :
  log.includes('🛡️') ? 'text-heading' :
  'text-dim'
  }`}

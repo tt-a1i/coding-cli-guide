@@ -650,7 +650,7 @@ export function FormatConverterAnimation() {
  <div className="absolute top-0 left-0 right-0 h-[3px] bg-surface " />
 
  <div className="flex items-center gap-3 mb-6">
- <span className="text-amber-500">🔄</span>
+ <span className="text-heading">🔄</span>
  <h2 className="text-2xl font-mono font-bold text-heading">
  消息格式转换管道
  </h2>
@@ -685,7 +685,7 @@ export function FormatConverterAnimation() {
  </button>
  <button
  onClick={reset}
- className="px-5 py-2.5 bg-elevated text-amber-500 rounded-md font-mono font-bold border border-edge hover:border-amber-500 transition-all cursor-pointer"
+ className="px-5 py-2.5 bg-elevated text-heading rounded-md font-mono font-bold border border-edge hover:border-edge transition-all cursor-pointer"
  >
  ↺ 重置
  </button>
@@ -703,17 +703,17 @@ export function FormatConverterAnimation() {
  >
  Gemini Format
  </div>
- <span className="text-amber-500">→</span>
+ <span className="text-heading">→</span>
  <div
  className={`px-4 py-2 rounded-lg transition-all ${
  !isGeminiPhase && !isOpenAIPhase
- ? 'bg-amber-500/20 border border-amber-500 text-amber-500'
+ ? 'bg-elevated border-l-2 border-l-edge-hover text-heading'
  : ' bg-elevated text-dim'
  }`}
  >
  Converter
  </div>
- <span className="text-amber-500">→</span>
+ <span className="text-heading">→</span>
  <div
  className={`px-4 py-2 rounded-lg transition-all ${
  isOpenAIPhase
@@ -764,7 +764,7 @@ export function FormatConverterAnimation() {
  步骤：<span className="text-heading font-bold">{currentStep + 1}</span>/{conversionSteps.length}
  </span>
  {isPlaying && (
- <span className="text-amber-500 font-mono text-sm animate-pulse">● 转换中</span>
+ <span className="text-heading font-mono text-sm animate-pulse">● 转换中</span>
  )}
  </div>
  <div className="font-mono text-sm text-heading pl-6">
@@ -789,7 +789,7 @@ export function FormatConverterAnimation() {
  </div>
  </div>
  <div className="p-3 bg-base rounded-lg border border-edge">
- <div className="text-xs font-mono text-amber-500 font-bold mb-2">内容类型映射</div>
+ <div className="text-xs font-mono text-heading font-bold mb-2">内容类型映射</div>
  <div className="space-y-1 text-xs font-mono text-dim">
  <div>parts[].text → content</div>
  <div>functionCall → tool_calls[]</div>

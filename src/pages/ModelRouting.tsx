@@ -4,6 +4,9 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 const relatedPages: RelatedPage[] = [
  { id: 'policy-engine', label: 'Policy 策略引擎', description: '安全决策系统' },
@@ -50,7 +53,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">模型层级</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-amber-500">3</div>
+ <div className="text-2xl font-bold text-heading">3</div>
  <div className="text-xs text-dim">复杂度等级</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
@@ -75,7 +78,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  Classifier
  </span>
  <span className="text-dim">→</span>
- <span className="px-3 py-1.5 bg-amber-500/20 text-amber-500 rounded-lg border border-amber-500/30">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover/30">
  Default
  </span>
  </div>
@@ -149,7 +152,7 @@ export function ModelRouting() {
  style B stroke:#00d4ff,stroke-width:2px
  style C stroke:#a855f7,stroke-width:2px
  style D stroke:#4ade80,stroke-width:2px
- style E stroke:#f59e0b,stroke-width:2px`;
+ style E stroke:${getThemeColor("--color-warning", "#b45309")},stroke-width:2px`;
 
  const classifierFlowChart = `flowchart TD
  subgraph Classifier["🧠 ClassifierStrategy"]
@@ -178,139 +181,139 @@ export function ModelRouting() {
 
 // 路由决策输出
 export interface RoutingDecision {
- model: string; // 选定模型 (如 'gemini-2.5-pro')
- metadata: {
- source: string; // 决策来源策略名
- latencyMs: number; // 决策耗时
- reasoning: string; // 决策原因
- error?: string; // 错误信息（可选）
- };
+  model: string; // 选定模型 (如 'gemini-2.5-pro')
+  metadata: {
+  source: string; // 决策来源策略名
+  latencyMs: number; // 决策耗时
+  reasoning: string; // 决策原因
+  error?: string; // 错误信息（可选）
+  };
 }
 
 // 路由上下文
 export interface RoutingContext {
- history: Content[]; // 对话历史
- request: PartListUnion; // 当前请求
- signal: AbortSignal; // 取消信号
+  history: Content[]; // 对话历史
+  request: PartListUnion; // 当前请求
+  signal: AbortSignal; // 取消信号
 }
 
 // 路由策略接口
 export interface RoutingStrategy {
- readonly name: string; // 策略名称
- route(
- context: RoutingContext,
- config: Config,
- baseLlmClient: BaseLlmClient,
- ): Promise<RoutingDecision | null>; // 返回 null 表示传递给下一策略
+  readonly name: string; // 策略名称
+  route(
+  context: RoutingContext,
+  config: Config,
+  baseLlmClient: BaseLlmClient,
+  ): Promise<RoutingDecision | null>; // 返回 null 表示传递给下一策略
 }
 
 // 终端策略 - 必须返回决策，不能返回 null
 export interface TerminalStrategy extends RoutingStrategy {
- route(...): Promise<RoutingDecision>; // 必须返回决策
+  route(...): Promise<RoutingDecision>; // 必须返回决策
 }`;
 
  const compositeStrategyCode = `// packages/core/src/routing/strategies/compositeStrategy.ts
 
 export class CompositeStrategy implements TerminalStrategy {
- readonly name: string;
- // 类型保证：最后一个必须是 TerminalStrategy
- private strategies: [...RoutingStrategy[], TerminalStrategy];
+  readonly name: string;
+  // 类型保证：最后一个必须是 TerminalStrategy
+  private strategies: [...RoutingStrategy[], TerminalStrategy];
 
- constructor(
- strategies: [...RoutingStrategy[], TerminalStrategy],
- name: string = 'composite',
- ) {
- this.strategies = strategies;
- this.name = name;
- }
+  constructor(
+  strategies: [...RoutingStrategy[], TerminalStrategy],
+  name: string = 'composite',
+  ) {
+  this.strategies = strategies;
+  this.name = name;
+  }
 
- async route(context, config, baseLlmClient): Promise<RoutingDecision> {
- const startTime = performance.now();
+  async route(context, config, baseLlmClient): Promise<RoutingDecision> {
+  const startTime = performance.now();
 
- // 分离非终端策略和终端策略
- const nonTerminal = this.strategies.slice(0, -1) as RoutingStrategy[];
- const terminal = this.strategies[this.strategies.length - 1] as TerminalStrategy;
+  // 分离非终端策略和终端策略
+  const nonTerminal = this.strategies.slice(0, -1) as RoutingStrategy[];
+  const terminal = this.strategies[this.strategies.length - 1] as TerminalStrategy;
 
- // 尝试非终端策略，允许优雅失败
- for (const strategy of nonTerminal) {
- try {
- const decision = await strategy.route(context, config, baseLlmClient);
- if (decision) {
- return this.finalizeDecision(decision, startTime);
- }
- } catch (error) {
- // 策略失败时继续下一个，不中断链
- debugLogger.warn(\`Strategy '\${strategy.name}' failed, continuing...\`);
- }
- }
+  // 尝试非终端策略，允许优雅失败
+  for (const strategy of nonTerminal) {
+  try {
+  const decision = await strategy.route(context, config, baseLlmClient);
+  if (decision) {
+  return this.finalizeDecision(decision, startTime);
+  }
+  } catch (error) {
+  // 策略失败时继续下一个，不中断链
+  debugLogger.warn(\`Strategy '\${strategy.name}' failed, continuing...\`);
+  }
+  }
 
- // 执行终端策略（保底）
- const decision = await terminal.route(context, config, baseLlmClient);
- return this.finalizeDecision(decision, startTime);
- }
+  // 执行终端策略（保底）
+  const decision = await terminal.route(context, config, baseLlmClient);
+  return this.finalizeDecision(decision, startTime);
+  }
 
- private finalizeDecision(decision: RoutingDecision, startTime: number) {
- const latency = decision.metadata.latencyMs || performance.now() - startTime;
- return {
- ...decision,
- metadata: {
- ...decision.metadata,
- source: \`\${this.name}/\${decision.metadata.source}\`,
- latencyMs: Math.round(latency),
- },
- };
- }
+  private finalizeDecision(decision: RoutingDecision, startTime: number) {
+  const latency = decision.metadata.latencyMs || performance.now() - startTime;
+  return {
+  ...decision,
+  metadata: {
+  ...decision.metadata,
+  source: \`\${this.name}/\${decision.metadata.source}\`,
+  latencyMs: Math.round(latency),
+  },
+  };
+  }
 }`;
 
  const modelRouterServiceCode = `// packages/core/src/routing/modelRouterService.ts
 
 export class ModelRouterService {
- private config: Config;
- private strategy: TerminalStrategy;
+  private config: Config;
+  private strategy: TerminalStrategy;
 
- constructor(config: Config) {
- this.config = config;
- this.strategy = this.initializeDefaultStrategy();
- }
+  constructor(config: Config) {
+  this.config = config;
+  this.strategy = this.initializeDefaultStrategy();
+  }
 
- private initializeDefaultStrategy(): TerminalStrategy {
- // 按优先级顺序初始化策略链
- return new CompositeStrategy(
- [
- new FallbackStrategy(), // 1. 模型可用性检查
- new OverrideStrategy(), // 2. 用户显式覆盖
- new ClassifierStrategy(), // 3. LLM 复杂度分类
- new DefaultStrategy(), // 4. 默认模型（终端）
- ],
- 'agent-router',
- );
- }
+  private initializeDefaultStrategy(): TerminalStrategy {
+  // 按优先级顺序初始化策略链
+  return new CompositeStrategy(
+  [
+  new FallbackStrategy(), // 1. 模型可用性检查
+  new OverrideStrategy(), // 2. 用户显式覆盖
+  new ClassifierStrategy(), // 3. LLM 复杂度分类
+  new DefaultStrategy(), // 4. 默认模型（终端）
+  ],
+  'agent-router',
+  );
+  }
 
- async route(context: RoutingContext): Promise<RoutingDecision> {
- const startTime = Date.now();
- try {
- const decision = await this.strategy.route(
- context,
- this.config,
- this.config.getBaseLlmClient(),
- );
+  async route(context: RoutingContext): Promise<RoutingDecision> {
+  const startTime = Date.now();
+  try {
+  const decision = await this.strategy.route(
+  context,
+  this.config,
+  this.config.getBaseLlmClient(),
+  );
 
- // 遥测日志
- logModelRouting(this.config, new ModelRoutingEvent(
- decision.model,
- decision.metadata.source,
- decision.metadata.latencyMs,
- decision.metadata.reasoning,
- false,
- ));
+  // 遥测日志
+  logModelRouting(this.config, new ModelRoutingEvent(
+  decision.model,
+  decision.metadata.source,
+  decision.metadata.latencyMs,
+  decision.metadata.reasoning,
+  false,
+  ));
 
- return decision;
- } catch (e) {
- // 异常时记录并重新抛出
- logModelRouting(this.config, new ModelRoutingEvent(..., true, e.message));
- throw e;
- }
- }
+  return decision;
+  } catch (e) {
+  // 异常时记录并重新抛出
+  logModelRouting(this.config, new ModelRoutingEvent(..., true, e.message));
+  throw e;
+  }
+  }
 }`;
 
  const classifierStrategyCode = `// packages/core/src/routing/strategies/classifierStrategy.ts
@@ -334,118 +337,118 @@ Output JSON: { "reasoning": "...", "model_choice": "flash" | "pro" }
 \`;
 
 export class ClassifierStrategy implements RoutingStrategy {
- readonly name = 'classifier';
+  readonly name = 'classifier';
 
- async route(context, config, baseLlmClient): Promise<RoutingDecision | null> {
- const startTime = Date.now();
- try {
- // 取最近 4 轮历史（过滤工具调用）
- const cleanHistory = context.history
- .slice(-20)
- .filter(c => !isFunctionCall(c) && !isFunctionResponse(c))
- .slice(-4);
+  async route(context, config, baseLlmClient): Promise<RoutingDecision | null> {
+  const startTime = Date.now();
+  try {
+  // 取最近 4 轮历史（过滤工具调用）
+  const cleanHistory = context.history
+  .slice(-20)
+  .filter(c => !isFunctionCall(c) && !isFunctionResponse(c))
+  .slice(-4);
 
- const response = await baseLlmClient.generateJson({
- modelConfigKey: { model: 'classifier' },
- contents: [...cleanHistory, createUserContent(context.request)],
- schema: { /* reasoning, model_choice */ },
- systemInstruction: CLASSIFIER_SYSTEM_PROMPT,
- abortSignal: context.signal,
- });
+  const response = await baseLlmClient.generateJson({
+  modelConfigKey: { model: 'classifier' },
+  contents: [...cleanHistory, createUserContent(context.request)],
+  schema: { /* reasoning, model_choice */ },
+  systemInstruction: CLASSIFIER_SYSTEM_PROMPT,
+  abortSignal: context.signal,
+  });
 
- const { reasoning, model_choice } = ClassifierResponseSchema.parse(response);
- const selectedModel = resolveClassifierModel(config.getModel(), model_choice);
+  const { reasoning, model_choice } = ClassifierResponseSchema.parse(response);
+  const selectedModel = resolveClassifierModel(config.getModel(), model_choice);
 
- return {
- model: selectedModel,
- metadata: {
- source: 'Classifier',
- latencyMs: Date.now() - startTime,
- reasoning,
- },
- };
- } catch (error) {
- debugLogger.warn('[Routing] ClassifierStrategy failed:', error);
- return null; // 传递给下一策略
- }
- }
+  return {
+  model: selectedModel,
+  metadata: {
+  source: 'Classifier',
+  latencyMs: Date.now() - startTime,
+  reasoning,
+  },
+  };
+  } catch (error) {
+  debugLogger.warn('[Routing] ClassifierStrategy failed:', error);
+  return null; // 传递给下一策略
+  }
+  }
 }`;
 
  const fallbackStrategyCode = `// packages/core/src/routing/strategies/fallbackStrategy.ts
 
 export class FallbackStrategy implements RoutingStrategy {
- readonly name = 'fallback';
+  readonly name = 'fallback';
 
- async route(_context, config, _baseLlmClient): Promise<RoutingDecision | null> {
- const requestedModel = config.getModel();
- const resolvedModel = resolveModel(requestedModel, config.getPreviewFeatures());
+  async route(_context, config, _baseLlmClient): Promise<RoutingDecision | null> {
+  const requestedModel = config.getModel();
+  const resolvedModel = resolveModel(requestedModel, config.getPreviewFeatures());
 
- // 检查模型可用性
- const service = config.getModelAvailabilityService();
- const snapshot = service.snapshot(resolvedModel);
+  // 检查模型可用性
+  const service = config.getModelAvailabilityService();
+  const snapshot = service.snapshot(resolvedModel);
 
- if (snapshot.available) {
- return null; // 模型可用，传递给下一策略
- }
+  if (snapshot.available) {
+  return null; // 模型可用，传递给下一策略
+  }
 
- // 模型不可用，选择备用模型
- const selection = selectModelForAvailability(config, requestedModel);
+  // 模型不可用，选择备用模型
+  const selection = selectModelForAvailability(config, requestedModel);
 
- if (selection?.selectedModel && selection.selectedModel !== requestedModel) {
- return {
- model: selection.selectedModel,
- metadata: {
- source: this.name,
- latencyMs: 0,
- reasoning: \`Model \${requestedModel} unavailable (\${snapshot.reason}). Using fallback: \${selection.selectedModel}\`,
- },
- };
- }
+  if (selection?.selectedModel && selection.selectedModel !== requestedModel) {
+  return {
+  model: selection.selectedModel,
+  metadata: {
+  source: this.name,
+  latencyMs: 0,
+  reasoning: \`Model \${requestedModel} unavailable (\${snapshot.reason}). Using fallback: \${selection.selectedModel}\`,
+  },
+  };
+  }
 
- return null;
- }
+  return null;
+  }
 }`;
 
  const overrideStrategyCode = `// packages/core/src/routing/strategies/overrideStrategy.ts
 
 export class OverrideStrategy implements RoutingStrategy {
- readonly name = 'override';
+  readonly name = 'override';
 
- async route(_context, config, _baseLlmClient): Promise<RoutingDecision | null> {
- const overrideModel = config.getModel();
+  async route(_context, config, _baseLlmClient): Promise<RoutingDecision | null> {
+  const overrideModel = config.getModel();
 
- // 如果是 'auto' 模式（au/ au），传递给下一策略
- if (overrideModel === DEFAULT_GEMINI_MODEL_AUTO ||
- overrideModel === PREVIEW_GEMINI_MODEL_AUTO) {
- return null;
- }
+  // 如果是 'auto' 模式（au/ au），传递给下一策略
+  if (overrideModel === DEFAULT_GEMINI_MODEL_AUTO ||
+  overrideModel === PREVIEW_GEMINI_MODEL_AUTO) {
+  return null;
+  }
 
- // 用户显式指定了模型，直接返回
- return {
- model: resolveModel(overrideModel, config.getPreviewFeatures()),
- metadata: {
- source: this.name,
- latencyMs: 0,
- reasoning: \`Routing bypassed by forced model directive. Using: \${overrideModel}\`,
- },
- };
- }
+  // 用户显式指定了模型，直接返回
+  return {
+  model: resolveModel(overrideModel, config.getPreviewFeatures()),
+  metadata: {
+  source: this.name,
+  latencyMs: 0,
+  reasoning: \`Routing bypassed by forced model directive. Using: \${overrideModel}\`,
+  },
+  };
+  }
 }
 
 // DefaultStrategy - 终端策略，保底返回默认模型
 export class DefaultStrategy implements TerminalStrategy {
- readonly name = 'default';
+  readonly name = 'default';
 
- async route(_context, _config, _baseLlmClient): Promise<RoutingDecision> {
- return {
- model: DEFAULT_GEMINI_MODEL, // 如 'gemini-2.5-pro'
- metadata: {
- source: this.name,
- latencyMs: 0,
- reasoning: \`Routing to default model: \${DEFAULT_GEMINI_MODEL}\`,
- },
- };
- }
+  async route(_context, _config, _baseLlmClient): Promise<RoutingDecision> {
+  return {
+  model: DEFAULT_GEMINI_MODEL, // 如 'gemini-2.5-pro'
+  metadata: {
+  source: this.name,
+  latencyMs: 0,
+  reasoning: \`Routing to default model: \${DEFAULT_GEMINI_MODEL}\`,
+  },
+  };
+  }
 }`;
 
  return (
@@ -480,37 +483,37 @@ export class DefaultStrategy implements TerminalStrategy {
  <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="FallbackStrategy" variant="blue">
  <ul className="text-sm space-y-1">
- <li>• <strong>优先级</strong>: 最高 (第 1 个执行)</li>
- <li>• <strong>职责</strong>: 检查首选模型可用性</li>
- <li>• <strong>决策</strong>: 模型不可用时返回备用</li>
- <li>• <strong>传递</strong>: 模型可用时传递下一策略</li>
+ <li><strong>优先级</strong>: 最高 (第 1 个执行)</li>
+ <li><strong>职责</strong>: 检查首选模型可用性</li>
+ <li><strong>决策</strong>: 模型不可用时返回备用</li>
+ <li><strong>传递</strong>: 模型可用时传递下一策略</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="OverrideStrategy" variant="purple">
  <ul className="text-sm space-y-1">
- <li>• <strong>优先级</strong>: 高 (第 2 个执行)</li>
- <li>• <strong>职责</strong>: 处理用户显式指定的模型</li>
- <li>• <strong>决策</strong>: 用户指定时直接返回</li>
- <li>• <strong>传递</strong>: 未指定时传递下一策略</li>
+ <li><strong>优先级</strong>: 高 (第 2 个执行)</li>
+ <li><strong>职责</strong>: 处理用户显式指定的模型</li>
+ <li><strong>决策</strong>: 用户指定时直接返回</li>
+ <li><strong>传递</strong>: 未指定时传递下一策略</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="ClassifierStrategy" variant="green">
  <ul className="text-sm space-y-1">
- <li>• <strong>优先级</strong>: 中 (第 3 个执行)</li>
- <li>• <strong>职责</strong>: LLM 分析任务复杂度</li>
- <li>• <strong>决策</strong>: 简单→Flash, 复杂→Pro</li>
- <li>• <strong>传递</strong>: 无法判断时传递下一策略</li>
+ <li><strong>优先级</strong>: 中 (第 3 个执行)</li>
+ <li><strong>职责</strong>: LLM 分析任务复杂度</li>
+ <li><strong>决策</strong>: 简单→Flash, 复杂→Pro</li>
+ <li><strong>传递</strong>: 无法判断时传递下一策略</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="DefaultStrategy" variant="yellow">
  <ul className="text-sm space-y-1">
- <li>• <strong>优先级</strong>: 最低 (终端策略)</li>
- <li>• <strong>职责</strong>: 提供默认模型选择</li>
- <li>• <strong>决策</strong>: 必须返回决策 (TerminalStrategy)</li>
- <li>• <strong>传递</strong>: 不传递，链尾保底</li>
+ <li><strong>优先级</strong>: 最低 (终端策略)</li>
+ <li><strong>职责</strong>: 提供默认模型选择</li>
+ <li><strong>决策</strong>: 必须返回决策 (TerminalStrategy)</li>
+ <li><strong>传递</strong>: 不传递，链尾保底</li>
  </ul>
  </HighlightBox>
  </div>
@@ -553,7 +556,7 @@ export class DefaultStrategy implements TerminalStrategy {
  <td className="py-2 px-3 text-dim">history, request, signal</td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 text-amber-500">RoutingDecision</td>
+ <td className="py-2 px-3 text-heading">RoutingDecision</td>
  <td className="py-2 px-3 text-body">路由决策结果</td>
  <td className="py-2 px-3 text-dim">model, metadata?</td>
  </tr>
@@ -604,21 +607,21 @@ export class DefaultStrategy implements TerminalStrategy {
  <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="简单任务 → Flash" variant="blue">
  <ul className="text-sm space-y-1">
- <li>• 1-3 个工具调用</li>
- <li>• 单文件读写操作</li>
- <li>• 简单问答或解释</li>
- <li>• 格式转换或计算</li>
- <li>• 快速信息查询</li>
+ <li>1-3 个工具调用</li>
+ <li>单文件读写操作</li>
+ <li>简单问答或解释</li>
+ <li>格式转换或计算</li>
+ <li>快速信息查询</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="复杂任务 → Pro" variant="purple">
  <ul className="text-sm space-y-1">
- <li>• 4+ 步骤规划</li>
- <li>• 多文件协调修改</li>
- <li>• 架构设计决策</li>
- <li>• 复杂调试分析</li>
- <li>• 跨模块重构</li>
+ <li>4+ 步骤规划</li>
+ <li>多文件协调修改</li>
+ <li>架构设计决策</li>
+ <li>复杂调试分析</li>
+ <li>跨模块重构</li>
  </ul>
  </HighlightBox>
  </div>
@@ -681,7 +684,7 @@ export class DefaultStrategy implements TerminalStrategy {
  </td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 text-amber-500 font-bold">4</td>
+ <td className="py-2 px-3 text-heading font-bold">4</td>
  <td className="py-2 px-3 text-heading">DefaultStrategy</td>
  <td className="py-2 px-3 text-body">
  保底选择：确保总有一个决策返回，防止路由失败
@@ -806,7 +809,7 @@ export class DefaultStrategy implements TerminalStrategy {
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">为什么过滤工具调用历史？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么过滤工具调用历史？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策：</strong>ClassifierStrategy 过滤 FunctionCall/FunctionResponse。</p>
  <p><strong>原因：</strong></p>

@@ -46,11 +46,11 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <h3 className="text-heading font-semibold mb-2">⚡ 何时触发？</h3>
  <div className="bg-base p-3 rounded font-mono text-xs">
  <div className="text-body"># 用户在 CLI 输入框中</div>
- <div className="text-[var(--color-success)]">$ git commit -m "fix bug"</div>
+ <div className="text-heading">$ git commit -m "fix bug"</div>
  <div className="text-body"># 按 Esc 进入 Normal 模式</div>
- <div className="text-[var(--color-warning)]">按 w → 跳到下一个词</div>
- <div className="text-[var(--color-warning)]">按 dw → 删除当前词</div>
- <div className="text-[var(--color-warning)]">按 u → 撤销操作</div>
+ <div className="text-heading">按 w → 跳到下一个词</div>
+ <div className="text-heading">按 dw → 删除当前词</div>
+ <div className="text-heading">按 u → 撤销操作</div>
  </div>
  </div>
 
@@ -59,19 +59,19 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <h3 className="text-heading font-semibold mb-2">🔧 关键设计</h3>
  <div className="grid grid-cols-2 gap-2 text-xs">
  <div className="bg-base p-2 rounded">
- <div className="text-[var(--color-warning)]">不可变状态</div>
+ <div className="text-heading">不可变状态</div>
  <div className="text-body">action → newState（旧状态保留）</div>
  </div>
  <div className="bg-base p-2 rounded">
- <div className="text-[var(--color-warning)]">纯函数处理</div>
+ <div className="text-heading">纯函数处理</div>
  <div className="text-body">handleVimAction(state, action)</div>
  </div>
  <div className="bg-base p-2 rounded">
- <div className="text-[var(--color-warning)]">Unicode 词检测</div>
+ <div className="text-heading">Unicode 词检测</div>
  <div className="text-body">/[\w\p{'{L}'}\p{'{N}'}]/u</div>
  </div>
  <div className="bg-base p-2 rounded">
- <div className="text-[var(--color-warning)]">30+ 动作类型</div>
+ <div className="text-heading">30+ 动作类型</div>
  <div className="text-body">移动、删除、修改、跳转...</div>
  </div>
  </div>
@@ -91,7 +91,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="flex flex-wrap gap-2">
  <span className="px-2 py-1 bg-elevated/50 text-heading rounded text-xs">文本缓冲区</span>
  <span className="px-2 py-1 bg-elevated text-heading rounded text-xs">输入组件</span>
- <span className="px-2 py-1 bg-green-900/50 text-[var(--color-success)] rounded text-xs">Unicode 工具</span>
+ <span className="px-2 py-1 bg-elevated text-heading rounded text-xs">Unicode 工具</span>
  </div>
  </div>
  </div>
@@ -419,7 +419,7 @@ export default function VimCompositeActionsAnimation() {
  <button
  onClick={undo}
  disabled={state.undoStack.length === 0}
- className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 disabled:bg-elevated rounded"
+ className="px-4 py-2 bg-[var(--color-warning)] hover:bg-[var(--color-warning)] disabled:bg-elevated rounded"
  >
  撤销 (u)
  </button>
@@ -440,9 +440,9 @@ export default function VimCompositeActionsAnimation() {
  key={i}
  className={`px-3 py-2 rounded text-sm ${
  i === currentActionIndex
- ? ' bg-elevated ring-2 ring-blue-400'
+ ? ' bg-elevated ring-2 ring-accent'
  : i < currentActionIndex
- ? 'bg-green-700'
+ ? 'bg-[var(--color-success)]'
  : ' bg-elevated'
  }`}
  >
@@ -480,9 +480,9 @@ export default function VimCompositeActionsAnimation() {
  isCursor
  ? ' bg-elevated text-heading'
  : isHighlighted
- ? 'bg-[var(--color-danger-soft)]'
+ ? 'bg-elevated'
  : ''
- } ${isWordBoundary ? 'border-l border-[var(--color-warning)]' : ''}`}
+ } ${isWordBoundary ? 'border-l border-edge' : ''}`}
  >
  {char}
  </span>
@@ -500,11 +500,11 @@ export default function VimCompositeActionsAnimation() {
  <div className="mt-4 p-3 bg-surface rounded flex gap-6">
  <div>
  <span className="text-body">行: </span>
- <span className="text-[var(--color-warning)]">{state.cursorRow}</span>
+ <span className="text-heading">{state.cursorRow}</span>
  </div>
  <div>
  <span className="text-body">列: </span>
- <span className="text-[var(--color-warning)]">{state.cursorCol}</span>
+ <span className="text-heading">{state.cursorCol}</span>
  </div>
  <div>
  <span className="text-body">撤销栈: </span>
@@ -521,7 +521,7 @@ export default function VimCompositeActionsAnimation() {
  <span
  key={i}
  className={`px-2 py-1 rounded text-xs ${
- pos === state.cursorCol ? 'bg-[var(--color-warning)] text-black' : ' bg-elevated'
+ pos === state.cursorCol ? 'bg-[var(--color-warning)] text-heading' : ' bg-elevated'
  }`}
  >
  {pos}
@@ -562,13 +562,13 @@ export default function VimCompositeActionsAnimation() {
  <div>
  <div className="text-heading font-semibold">Unicode 支持</div>
  <div className="text-body">
- <code className="text-[var(--color-success)]">/[\w\p{'{L}'}\p{'{N}'}]/u</code> 匹配词字符
+ <code className="text-heading">/[\w\p{'{L}'}\p{'{N}'}]/u</code> 匹配词字符
  </div>
  </div>
  <div>
  <div className="text-heading font-semibold">组合标记</div>
  <div className="text-body">
- <code className="text-[var(--color-success)]">/\p{'{M}'}/u</code> 处理 diacritics
+ <code className="text-heading">/\p{'{M}'}/u</code> 处理 diacritics
  </div>
  </div>
  </div>

@@ -40,7 +40,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <h3 className="text-heading font-semibold mb-2">📊 压缩策略</h3>
  <div className="grid grid-cols-2 gap-2 text-xs">
  <div className="bg-base p-2 rounded border border-edge">
- <div className="text-amber-500">阈值触发</div>
+ <div className="text-heading">阈值触发</div>
  <div className="text-dim">Token 超过限制时自动触发</div>
  </div>
  <div className="bg-base p-2 rounded border border-edge">
@@ -70,7 +70,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div>
  <h3 className="text-heading font-semibold mb-2">🔗 相关机制</h3>
  <div className="flex flex-wrap gap-2">
- <span className="px-2 py-1 bg-amber-500/20 text-amber-500 rounded text-xs">Token 计数</span>
+ <span className="px-2 py-1 bg-elevated text-heading rounded text-xs">Token 计数</span>
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">消息格式</span>
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">会话管理</span>
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">记忆系统</span>
@@ -141,7 +141,7 @@ function TokenUsageBar({
  <span className="text-sm font-mono text-heading">Token 使用量</span>
  <span
  className={`text-sm font-mono font-bold ${
- isOverThreshold ? 'text-red-500' : 'text-heading'
+ isOverThreshold ? 'text-heading' : 'text-heading'
  }`}
  >
  {used.toLocaleString()} / {max.toLocaleString()}
@@ -162,10 +162,10 @@ function TokenUsageBar({
 
  {/* Threshold marker */}
  <div
- className="absolute inset-y-0 w-0.5 bg-amber-500 z-10"
+ className="absolute inset-y-0 w-0.5 bg-[var(--color-warning)] z-10"
  style={{ left: `${thresholdPercentage}%` }}
  >
- <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-mono text-amber-500 whitespace-nowrap">
+ <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-xs font-mono text-heading whitespace-nowrap">
  压缩阈值 {thresholdPercentage}%
  </div>
  </div>
@@ -183,10 +183,10 @@ function TokenUsageBar({
  phase === 'normal'
  ? ' bg-elevated'
  : phase === 'threshold_reached'
- ? 'bg-red-500 animate-pulse'
+ ? 'bg-[var(--color-danger)] animate-pulse'
  : phase === 'completed'
  ? ' bg-elevated'
- : 'bg-amber-500 animate-pulse'
+ : 'bg-[var(--color-warning)] animate-pulse'
  }`}
  />
  <span className="text-xs font-mono text-dim">
@@ -234,9 +234,9 @@ function MessageList({
  <div key={msg.id}>
  {isSplitPoint && (
  <div className="flex items-center gap-2 py-2">
- <div className="flex-1 h-px bg-amber-500" />
- <span className="text-xs font-mono text-amber-500">安全分割点</span>
- <div className="flex-1 h-px bg-amber-500" />
+ <div className="flex-1 h-px bg-[var(--color-warning)]" />
+ <span className="text-xs font-mono text-heading">安全分割点</span>
+ <div className="flex-1 h-px bg-[var(--color-warning)]" />
  </div>
  )}
  <div
@@ -245,7 +245,7 @@ function MessageList({
  ? ' bg-elevated/10 border-edge'
  : isInCompressedRange
  ? phase === 'finding_split' || phase === 'summarizing'
- ? 'bg-amber-500/10 border-amber-600 opacity-60'
+ ? 'bg-elevated border-edge/60 opacity-60'
  : 'bg-base border-edge'
  : 'bg-base border-edge'
  }`}
@@ -266,7 +266,7 @@ function MessageList({
  </span>
  )}
  {isInCompressedRange && phase === 'summarizing' && (
- <span className="text-xs font-mono text-amber-500 animate-pulse">
+ <span className="text-xs font-mono text-heading animate-pulse">
  正在压缩...
  </span>
  )}
@@ -488,7 +488,7 @@ export function ContextCompressionAnimation() {
 
  {/* Header */}
  <div className="flex items-center gap-3 mb-6">
- <span className="text-amber-500">📦</span>
+ <span className="text-heading">📦</span>
  <h2 className="text-2xl font-mono font-bold text-heading">
  上下文压缩机制
  </h2>
@@ -517,7 +517,7 @@ export function ContextCompressionAnimation() {
  </button>
  <button
  onClick={reset}
- className="px-5 py-2.5 bg-elevated text-amber-500 rounded-md font-mono font-bold border border-edge hover:border-amber-600 transition-all cursor-pointer"
+ className="px-5 py-2.5 bg-elevated text-heading rounded-md font-mono font-bold border border-edge hover:border-edge/60 transition-all cursor-pointer"
  >
  ↺ 重置
  </button>
@@ -566,7 +566,7 @@ export function ContextCompressionAnimation() {
  /{phaseSequence.length}
  </span>
  {isPlaying && (
- <span className="text-amber-500 font-mono text-sm animate-pulse">
+ <span className="text-heading font-mono text-sm animate-pulse">
  ● 处理中...
  </span>
  )}

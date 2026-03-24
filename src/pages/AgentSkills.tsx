@@ -141,8 +141,8 @@ return {
 };`}
  />
 
- <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4">
- <div className="text-amber-400 font-semibold mb-2">
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <div className="text-heading font-semibold mb-2">
  为什么默认 ask_user？
  </div>
  <p className="text-sm text-body">

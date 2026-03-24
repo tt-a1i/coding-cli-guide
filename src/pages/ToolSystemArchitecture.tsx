@@ -34,19 +34,19 @@ const KIND_META: Record<
  label: 'Read',
  color: 'text-heading',
  border: 'border-edge',
- bg: 'bg-blue-400/5',
+ bg: 'bg-accent-light',
  },
  edit: {
  label: 'Edit',
- color: 'text-amber-400',
- border: 'border-amber-400/40',
- bg: 'bg-amber-400/5',
+ color: 'text-heading',
+ border: 'border-edge/40',
+ bg: 'bg-elevated',
  },
  delete: {
  label: 'Delete',
- color: 'text-red-400',
- border: 'border-red-400/40',
- bg: 'bg-red-400/5',
+ color: 'text-heading',
+ border: 'border-edge/40',
+ bg: 'bg-[var(--color-danger)]/5',
  },
  move: {
  label: 'Move',
@@ -56,27 +56,27 @@ const KIND_META: Record<
  },
  search: {
  label: 'Search',
- color: 'text-green-400',
- border: 'border-green-400/40',
- bg: 'bg-green-400/5',
+ color: 'text-heading',
+ border: 'border-edge/40',
+ bg: 'bg-[var(--color-success)]/5',
  },
  execute: {
  label: 'Execute',
  color: 'text-heading',
- border: 'border-orange-400/40',
- bg: 'bg-orange-400/5',
+ border: 'border-edge/40',
+ bg: 'bg-elevated',
  },
  think: {
  label: 'Think',
  color: 'text-heading',
  border: 'border-edge',
- bg: 'bg-cyan-400/5',
+ bg: 'bg-accent/10',
  },
  fetch: {
  label: 'Fetch',
- color: 'text-teal-400',
- border: 'border-teal-400/40',
- bg: 'bg-teal-400/5',
+ color: 'text-accent',
+ border: 'border-accent/40',
+ bg: 'bg-accent-light',
  },
  other: {
  label: 'Other',
@@ -236,7 +236,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  {isExpanded ? (
  <div className="px-6 pb-6 space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">🎯 这套系统解决什么问题？</h4>
+ <h4 className="text-heading font-bold mb-2">🎯 这套系统解决什么问题？</h4>
  <p className="text-body text-sm">
  工具系统是 Gemini CLI 与“外部世界”（文件系统、Shell、网络、MCP 服务、技能库）交互的桥梁。模型不直接操作环境，而是输出{' '}
  <code>functionCall</code>；CLI 负责验证、审批、执行，并把执行结果以 <code>functionResponse</code> 回注给模型继续生成（continuation）。
@@ -246,9 +246,9 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="bg-base/50 rounded-lg p-4 ">
  <h4 className="text-heading font-bold mb-2">🧩 三层对象：Tool / Invocation / Scheduler</h4>
  <ul className="text-body text-sm space-y-1">
- <li>• <strong>DeclarativeTool</strong>：声明工具元信息 + JSON Schema（发给模型）</li>
- <li>• <strong>ToolInvocation</strong>：一次具体调用（已校验 params + 可执行）</li>
- <li>• <strong>CoreToolScheduler</strong>：把工具调用排队/执行，并生成 functionResponse</li>
+ <li><strong>DeclarativeTool</strong>：声明工具元信息 + JSON Schema（发给模型）</li>
+ <li><strong>ToolInvocation</strong>：一次具体调用（已校验 params + 可执行）</li>
+ <li><strong>CoreToolScheduler</strong>：把工具调用排队/执行，并生成 functionResponse</li>
  </ul>
  </div>
 
@@ -266,7 +266,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">内置工具名常量</div>
  </div>
  <div className="bg-surface p-3 rounded border border-edge">
- <div className="text-xl font-bold text-amber-500">9</div>
+ <div className="text-xl font-bold text-heading">9</div>
  <div className="text-xs text-dim">Kind 分类</div>
  </div>
  <div className="bg-surface p-3 rounded border border-edge">

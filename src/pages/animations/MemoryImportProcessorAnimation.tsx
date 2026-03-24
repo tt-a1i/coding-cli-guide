@@ -2,6 +2,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { Layer } from '../../components/Layer';
 import { MermaidDiagram } from '../../components/MermaidDiagram';
 import { HighlightBox } from '../../components/HighlightBox';
+import { CodeBlock } from '../../components/CodeBlock';
+import { getThemeColor } from '../../utils/theme';
+
+
 
 interface ProcessingStep {
  id: number;
@@ -174,9 +178,9 @@ export function MemoryImportProcessorAnimation() {
 
  const getActionColor = (action: string) => {
  switch (action) {
- case 'CIRCULAR_DETECTED': return 'text-[var(--color-danger)]';
- case 'MAX_DEPTH_REACHED': return 'text-[var(--color-warning)]';
- case 'COMPLETE': return 'text-[var(--color-success)]';
+ case 'CIRCULAR_DETECTED': return 'text-heading';
+ case 'MAX_DEPTH_REACHED': return 'text-heading';
+ case 'COMPLETE': return 'text-heading';
  case 'PROCESS_IMPORT': return 'text-heading';
  case 'FIND_IMPORTS': return 'text-heading';
  case 'VALIDATE_PATH': return 'text-heading';
@@ -216,9 +220,9 @@ graph TD
  G --> H["📁 deep/level4.md"]
  H -.->|"⚠️ 达到深度限制"| I["📁 deep/level5.md"]
 
- style A fill:#22c55e,color:#000
- style E fill:#ef4444,color:#fff
- style I fill:#eab308,color:#000
+ style A fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:#000
+ style E fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:#fff
+ style I fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:#000
 `;
 
  return (
@@ -251,7 +255,7 @@ graph TD
  </div>
  </div>
  <div className="bg-elevated p-3 rounded-lg">
- <div className="font-bold text-[var(--color-warning)] mb-1">深度限制</div>
+ <div className="font-bold text-heading mb-1">深度限制</div>
  <div className="text-sm text-body">
  <code>maxDepth: 5</code><br/>
  防止无限递归
@@ -327,17 +331,17 @@ graph TD
  {step.action}
  </span>
  {step.result === 'circular' && (
- <span className="px-2 py-1 bg-[var(--color-danger-soft)] text-[var(--color-danger)] text-sm rounded">
+ <span className="px-2 py-1 bg-elevated text-heading text-sm rounded">
  循环检测
  </span>
  )}
  {step.result === 'max-depth' && (
- <span className="px-2 py-1 bg-[var(--color-warning-soft)] text-[var(--color-warning)] text-sm rounded">
+ <span className="px-2 py-1 bg-elevated text-heading text-sm rounded">
  深度限制
  </span>
  )}
  {step.result === 'success' && (
- <span className="px-2 py-1 bg-[var(--color-success-soft)] text-[var(--color-success)] text-sm rounded">
+ <span className="px-2 py-1 bg-elevated text-heading text-sm rounded">
  成功
  </span>
  )}
@@ -411,7 +415,7 @@ graph TD
  className={`h-8 flex-1 rounded flex items-center justify-center font-mono text-sm ${
  d === step.currentDepth
  ? d >= 5
- ? 'bg-red-500 text-heading'
+ ? 'bg-[var(--color-danger)] text-heading'
  : ' bg-elevated text-black'
  : d < step.currentDepth
  ? ' bg-elevated/30 text-heading'
@@ -441,46 +445,50 @@ graph TD
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div className="bg-base p-4 rounded-lg">
  <h4 className="text-heading font-bold mb-3">循环检测逻辑</h4>
- <pre className="text-sm overflow-x-auto">
-{`interface ImportState {
- processedFiles: Set<string>;
- maxDepth: number;
- currentDepth: number;
- currentFile?: string;
+ <CodeBlock
+   language="typescript"
+   title="循环检测逻辑"
+   code={`interface ImportState {
+  processedFiles: Set<string>;
+  maxDepth: number;
+  currentDepth: number;
+  currentFile?: string;
 }
 
 // 检测循环
 if (importState.processedFiles.has(fullPath)) {
- result += \`<!-- File already processed -->\`;
- continue; // 跳过已处理文件
+  result += \`<!-- File already processed -->\`;
+  continue; // 跳过已处理文件
 }
 
 // 标记为已处理
 newImportState.processedFiles.add(fullPath);`}
- </pre>
+ />
  </div>
 
  <div className="bg-base p-4 rounded-lg">
- <h4 className="text-[var(--color-warning)] font-bold mb-3">深度限制检查</h4>
- <pre className="text-sm overflow-x-auto">
-{`// 深度检查
+ <h4 className="text-heading font-bold mb-3">深度限制检查</h4>
+ <CodeBlock
+   language="typescript"
+   title="深度限制检查"
+   code={`// 深度检查
 if (importState.currentDepth >= importState.maxDepth) {
- logger.warn(\`Maximum import depth reached\`);
- return {
- content,
- importTree: {
- path: importState.currentFile || 'unknown'
- },
- };
+  logger.warn(\`Maximum import depth reached\`);
+  return {
+    content,
+    importTree: {
+      path: importState.currentFile || 'unknown'
+    },
+  };
 }
 
 // 递归时增加深度
 const newImportState: ImportState = {
- ...importState,
- currentDepth: importState.currentDepth + 1,
- currentFile: fullPath,
+  ...importState,
+  currentDepth: importState.currentDepth + 1,
+  currentFile: fullPath,
 };`}
- </pre>
+ />
  </div>
  </div>
  </Layer>

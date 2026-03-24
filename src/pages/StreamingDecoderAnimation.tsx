@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { useState, useEffect, useCallback } from 'react';
 import { HighlightBox } from '../components/HighlightBox';
+import { CodeBlock } from '../components/CodeBlock';
 
 /**
  * 流式响应解码器动画
@@ -171,8 +172,8 @@ export default function StreamingDecoderAnimation() {
  const getDepthColor = (depth: number) => {
  if (depth === 0) return 'var(--color-primary)';
  if (depth <= 2) return 'var(--color-primary)';
- if (depth <= 4) return '#f59e0b';
- return '#ef4444';
+ if (depth <= 4) return 'var(--color-warning)';
+ return 'var(--color-danger)';
  };
 
  return (
@@ -191,7 +192,7 @@ export default function StreamingDecoderAnimation() {
  onClick={() => isPlaying ? resetAnimation() : (resetAnimation(), setTimeout(() => { setCurrentChunkIndex(0); setIsPlaying(true); }, 100))}
  className={`px-4 py-2 rounded font-mono text-sm transition-all ${
  isPlaying
- ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+ ? 'bg-elevated text-heading border-l-2 border-l-edge-hover/30'
  : ' bg-elevated/20 text-heading border border-edge/30'
  }`}
  >
@@ -228,7 +229,7 @@ export default function StreamingDecoderAnimation() {
  <div className="flex items-center justify-between mb-1">
  <span className="text-dim">idx:{chunk.index}</span>
  {chunk.functionName && (
- <span className="text-amber-500">{chunk.functionName}</span>
+ <span className="text-heading">{chunk.functionName}</span>
  )}
  </div>
  <div className="text-body truncate">
@@ -243,7 +244,7 @@ export default function StreamingDecoderAnimation() {
  {/* 解析器状态 */}
  <div className="col-span-5">
  <div className="bg-base/60 rounded-lg p-4 border border-edge-hover">
- <h3 className="text-sm font-semibold text-amber-500 mb-3 font-mono">
+ <h3 className="text-sm font-semibold text-heading mb-3 font-mono">
  🔧 Parser State (per index)
  </h3>
  <div className="space-y-4">
@@ -278,13 +279,13 @@ export default function StreamingDecoderAnimation() {
  </div>
  <div className="flex items-center gap-1">
  <span className="text-dim">inString:</span>
- <span className={buf.state.inString ? 'text-amber-500' : 'text-dim'}>
+ <span className={buf.state.inString ? 'text-heading' : 'text-dim'}>
  {buf.state.inString ? 'true' : 'false'}
  </span>
  </div>
  <div className="flex items-center gap-1">
  <span className="text-dim">escape:</span>
- <span className={buf.state.escape ? 'text-red-400' : 'text-dim'}>
+ <span className={buf.state.escape ? 'text-heading' : 'text-dim'}>
  {buf.state.escape ? 'true' : 'false'}
  </span>
  </div>
@@ -381,23 +382,25 @@ export default function StreamingDecoderAnimation() {
  <h3 className="text-sm font-semibold text-heading mb-3">
  源码: streamingToolCallParser.ts
  </h3>
- <pre className="text-xs font-mono text-body bg-base/30 p-3 rounded overflow-x-auto">
-{`class StreamingToolCallParser {
- private buffers: Map<number, string> = new Map();
- private depths: Map<number, number> = new Map();
- private inStrings: Map<number, boolean> = new Map();
- private escapes: Map<number, boolean> = new Map();
- private idToIndexMap: Map<string, number> = new Map(); // 碰撞检测
+ <CodeBlock
+   language="typescript"
+   title="streamingToolCallParser.ts"
+   code={`class StreamingToolCallParser {
+  private buffers: Map<number, string> = new Map();
+  private depths: Map<number, number> = new Map();
+  private inStrings: Map<number, boolean> = new Map();
+  private escapes: Map<number, boolean> = new Map();
+  private idToIndexMap: Map<string, number> = new Map(); // 碰撞检测
 
- addChunk(index: number, chunk: string, id?: string, name?: string): ToolCallParseResult {
- // 1. 处理索引碰撞 (同一 index 不同 id)
- // 2. 追踪 JSON 嵌套深度
- // 3. 检测字符串边界和转义
- // 4. depth === 0 时尝试解析
- // 5. 自动修复未闭合字符串
- }
+  addChunk(index: number, chunk: string, id?: string, name?: string): ToolCallParseResult {
+    // 1. 处理索引碰撞 (同一 index 不同 id)
+    // 2. 追踪 JSON 嵌套深度
+    // 3. 检测字符串边界和转义
+    // 4. depth === 0 时尝试解析
+    // 5. 自动修复未闭合字符串
+  }
 }`}
- </pre>
+ />
  </div>
  </div>
  );

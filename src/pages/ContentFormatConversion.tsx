@@ -320,7 +320,7 @@ convertOpenAIResponseToGemini(response) {
 
  {/* 完成原因映射 */}
  <div className="p-4 bg-surface rounded-lg border border-edge">
- <h3 className="text-amber-500 font-bold mb-4">✅ 完成原因映射</h3>
+ <h3 className="text-heading font-bold mb-4">✅ 完成原因映射</h3>
  <div className="space-y-2">
  {[
  { openai: 'stop', gemini: 'STOP', desc: '正常结束', color: 'terminal-green' },
@@ -365,10 +365,10 @@ convertOpenAIResponseToGemini(response) {
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
  {/* Chunk 合并策略 */}
  <div className="p-4 bg-surface rounded-lg border border-edge">
- <h3 className="text-amber-500 font-bold mb-4">🔀 Chunk 合并策略</h3>
+ <h3 className="text-heading font-bold mb-4">🔀 Chunk 合并策略</h3>
  <MermaidDiagram chart={chunkMergingDiagram} />
- <div className="mt-4 p-3 bg-amber-500/10 rounded-lg border border-amber-500/30">
- <h4 className="text-amber-500 font-bold mb-2 flex items-center gap-2">
+ <div className="mt-4 p-3 bg-elevated rounded-lg border-l-2 border-l-edge-hover/30">
+ <h4 className="text-heading font-bold mb-2 flex items-center gap-2">
  ⚠️ 设计考量
  </h4>
  <p className="text-sm text-body">
@@ -522,7 +522,7 @@ cleanOrphanedToolCalls(messages) {
  <section>
  <button
  onClick={() => toggleSection('tools')}
- className="w-full flex items-center justify-between p-4 bg-surface rounded-lg border border-edge hover:border-amber-500 transition-colors"
+ className="w-full flex items-center justify-between p-4 bg-surface rounded-lg border border-edge hover:border-edge transition-colors"
  >
  <span className="text-lg font-bold text-heading">
  🔧 工具定义转换
@@ -582,7 +582,7 @@ cleanOrphanedToolCalls(messages) {
  </div>
  <div className="mt-4 text-sm text-body">
  <p className="flex items-center gap-2">
- <span className="text-amber-500">⚠️</span>
+ <span className="text-heading">⚠️</span>
  转换时需要: 类型名称大小写转换 (OBJECT → object, STRING → string)
  </p>
  </div>
@@ -647,8 +647,8 @@ private async handleError(error, context, request) {
  resetStreamingToolCalls() 防止部分解析的工具调用污染下次请求
  </p>
  </div>
- <div className="p-3 bg-amber-500/10 rounded-lg border border-amber-500/30">
- <div className="text-amber-500 font-bold mb-1">遥测记录</div>
+ <div className="p-3 bg-elevated rounded-lg border-l-2 border-l-edge-hover/30">
+ <div className="text-heading font-bold mb-1">遥测记录</div>
  <p className="text-body">
  错误信息、上下文、请求内容都会记录用于调试
  </p>
@@ -721,19 +721,19 @@ reset(): void {
  <div>
  <h4 className="text-dim mb-2">核心文件</h4>
  <ul className="space-y-1 text-body">
- <li>• packages/core/src/core/openaiContentGenerator/converter.ts</li>
- <li>• packages/core/src/core/openaiContentGenerator/pipeline.ts</li>
- <li>• packages/core/src/core/openaiContentGenerator/streamingToolCallParser.ts</li>
+ <li>packages/core/src/core/openaiContentGenerator/converter.ts</li>
+ <li>packages/core/src/core/openaiContentGenerator/pipeline.ts</li>
+ <li>packages/core/src/core/openaiContentGenerator/streamingToolCallParser.ts</li>
  </ul>
  </div>
  <div>
  <h4 className="text-dim mb-2">关键方法</h4>
  <ul className="space-y-1 text-body">
- <li>• convertGeminiRequestToOpenAI() - 请求转换</li>
- <li>• convertOpenAIResponseToGemini() - 响应转换</li>
- <li>• convertOpenAIChunkToGemini() - 流式转换</li>
- <li>• cleanOrphanedToolCalls() - 孤儿清理</li>
- <li>• handleChunkMerging() - Chunk 合并</li>
+ <li>convertGeminiRequestToOpenAI() - 请求转换</li>
+ <li>convertOpenAIResponseToGemini() - 响应转换</li>
+ <li>convertOpenAIChunkToGemini() - 流式转换</li>
+ <li>cleanOrphanedToolCalls() - 孤儿清理</li>
+ <li>handleChunkMerging() - Chunk 合并</li>
  </ul>
  </div>
  </div>

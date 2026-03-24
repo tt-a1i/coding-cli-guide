@@ -2,6 +2,9 @@ import { HighlightBox } from '../components/HighlightBox';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 export function ToolSchedulerDetails() {
  const relatedPages: RelatedPage[] = [
@@ -63,17 +66,17 @@ export function ToolSchedulerDetails() {
  truncate -->|No| success_response
  truncate_output --> success_response
 
- style start fill:#22d3ee,color:#000
- style error_response fill:#ef4444,color:#fff
- style denied fill:#ef4444,color:#fff
- style cancelled fill:#ef4444,color:#fff
- style scheduled fill:#22c55e,color:#000
- style success_response fill:#22c55e,color:#000
- style is_running fill:#a855f7,color:#fff
- style build_ok fill:#a855f7,color:#fff
- style policy_result fill:#a855f7,color:#fff
- style confirm_result fill:#a855f7,color:#fff
- style truncate fill:#a855f7,color:#fff`;
+ style start fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style error_response fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style denied fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style cancelled fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style scheduled fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style success_response fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style is_running fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style build_ok fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style policy_result fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style confirm_result fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style truncate fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  // 确认决策逻辑详细流程 - 基于 MessageBus + PolicyEngine
  const confirmationDecisionChart = `flowchart TD
@@ -98,12 +101,12 @@ export function ToolSchedulerDetails() {
  outcome -->|Proceed| update_policy
  outcome -->|Cancel| cancel
 
- style start fill:#22d3ee,color:#000
- style allow fill:#22c55e,color:#000
- style deny fill:#ef4444,color:#fff
- style cancel fill:#ef4444,color:#fff
- style update_policy fill:#22c55e,color:#000
- style policy fill:#a855f7,color:#fff`;
+ style start fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style allow fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style deny fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style cancel fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style update_policy fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style policy fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  // 并发控制流程
  const concurrencyControlChart = `sequenceDiagram
@@ -141,55 +144,55 @@ export function ToolSchedulerDetails() {
  const scheduleMethodCode = `// packages/core/src/scheduler/scheduler.ts
 
 /**
- * 调度工具执行的主入口
- */
+  * 调度工具执行的主入口
+  */
 async schedule(
- request: ToolCallRequestInfo | ToolCallRequestInfo[],
- signal: AbortSignal,
+  request: ToolCallRequestInfo | ToolCallRequestInfo[],
+  signal: AbortSignal,
 ): Promise<CompletedToolCall[]> {
- const requests = Array.isArray(request) ? request : [request];
+  const requests = Array.isArray(request) ? request : [request];
 
- if (this.isProcessing || this.state.isActive) {
- return this._enqueueRequest(requests, signal);
- }
+  if (this.isProcessing || this.state.isActive) {
+  return this._enqueueRequest(requests, signal);
+  }
 
- return this._startBatch(requests, signal);
+  return this._startBatch(requests, signal);
 }`;
 
  const shouldConfirmCode = `// scheduler.ts - Policy + Confirmation
 const decision = await checkPolicy(toolCall, this.config);
 
 if (decision === PolicyDecision.DENY) {
- this.state.updateStatus(callId, 'error', policyError);
- return;
+  this.state.updateStatus(callId, 'error', policyError);
+  return;
 }
 
 let outcome = ToolConfirmationOutcome.ProceedOnce;
 let lastDetails;
 
 if (decision === PolicyDecision.ASK_USER) {
- const result = await resolveConfirmation(toolCall, signal, {
- config: this.config,
- messageBus: this.messageBus,
- state: this.state,
- modifier: this.modifier,
- getPreferredEditor: this.getPreferredEditor,
- });
- outcome = result.outcome;
- lastDetails = result.lastDetails;
+  const result = await resolveConfirmation(toolCall, signal, {
+  config: this.config,
+  messageBus: this.messageBus,
+  state: this.state,
+  modifier: this.modifier,
+  getPreferredEditor: this.getPreferredEditor,
+  });
+  outcome = result.outcome;
+  lastDetails = result.lastDetails;
 } else {
- this.state.setOutcome(callId, ToolConfirmationOutcome.ProceedOnce);
+  this.state.setOutcome(callId, ToolConfirmationOutcome.ProceedOnce);
 }
 
 await updatePolicy(toolCall.tool, outcome, lastDetails, {
- config: this.config,
- messageBus: this.messageBus,
+  config: this.config,
+  messageBus: this.messageBus,
 });
 
 if (outcome === ToolConfirmationOutcome.Cancel) {
- this.state.updateStatus(callId, 'cancelled', 'User denied execution.');
- this.state.cancelAllQueued('User cancelled operation');
- return;
+  this.state.updateStatus(callId, 'cancelled', 'User denied execution.');
+  this.state.cancelAllQueued('User cancelled operation');
+  return;
 }
 
 await this._execute(callId, signal);`;
@@ -197,102 +200,102 @@ await this._execute(callId, signal);`;
  const convertResponseCode = `// packages/core/src/utils/generateContentResponseUtilities.ts
 
 /**
- * 将工具执行结果转换为 Gemini FunctionResponse 格式
- * @param toolName 工具名称
- * @param callId 调用 ID
- * @param llmContent 工具返回的内容（字符串、Part、Part[] 等）
- * @param model 当前模型（用于多模态处理）
- * @returns Part[] 格式的 FunctionResponse
- */
+  * 将工具执行结果转换为 Gemini FunctionResponse 格式
+  * @param toolName 工具名称
+  * @param callId 调用 ID
+  * @param llmContent 工具返回的内容（字符串、Part、Part[] 等）
+  * @param model 当前模型（用于多模态处理）
+  * @returns Part[] 格式的 FunctionResponse
+  */
 export function convertToFunctionResponse(
- toolName: string,
- callId: string,
- llmContent: PartListUnion,
- model: string,
+  toolName: string,
+  callId: string,
+  llmContent: PartListUnion,
+  model: string,
 ): Part[] {
- const contentToProcess =
- Array.isArray(llmContent) && llmContent.length === 1
- ? llmContent[0]
- : llmContent;
+  const contentToProcess =
+  Array.isArray(llmContent) && llmContent.length === 1
+  ? llmContent[0]
+  : llmContent;
 
- // 处理字符串内容
- if (typeof contentToProcess === 'string') {
- return [createFunctionResponsePart(callId, toolName, contentToProcess)];
- }
+  // 处理字符串内容
+  if (typeof contentToProcess === 'string') {
+  return [createFunctionResponsePart(callId, toolName, contentToProcess)];
+  }
 
- // 处理数组内容
- if (Array.isArray(contentToProcess)) {
- const functionResponse = createFunctionResponsePart(
- callId,
- toolName,
- 'Tool execution succeeded.',
- );
- return [functionResponse, ...toParts(contentToProcess)];
- }
+  // 处理数组内容
+  if (Array.isArray(contentToProcess)) {
+  const functionResponse = createFunctionResponsePart(
+  callId,
+  toolName,
+  'Tool execution succeeded.',
+  );
+  return [functionResponse, ...toParts(contentToProcess)];
+  }
 
- // 处理 Part 对象（functionResponse、inlineData、fileData、text 等）
- // ...
+  // 处理 Part 对象（functionResponse、inlineData、fileData、text 等）
+  // ...
 }`;
 
  const truncateOutputCode = `// packages/core/src/utils/fileUtils.ts (节选)
 
 // 格式化截断内容（展示最后 N 行或尾部片段）
 export function formatTruncatedToolOutput(
- contentStr: string,
- outputFile: string,
- truncateLines: number = 30,
+  contentStr: string,
+  outputFile: string,
+  truncateLines: number = 30,
 ): string {
- const lines = contentStr.split('\\n');
- if (lines.length > 1) {
- const lastLines = lines.slice(-truncateLines);
- return \`Output too large. For full output see: \${outputFile}\\n...\\n\${lastLines.join('\\n')}\`;
- }
- const snippet = contentStr.slice(-4000);
- return \`Output too large. For full output see: \${outputFile}\\n...\${snippet}\`;
+  const lines = contentStr.split('\\n');
+  if (lines.length > 1) {
+  const lastLines = lines.slice(-truncateLines);
+  return \`Output too large. For full output see: \${outputFile}\\n...\\n\${lastLines.join('\\n')}\`;
+  }
+  const snippet = contentStr.slice(-4000);
+  return \`Output too large. For full output see: \${outputFile}\\n...\${snippet}\`;
 }
 
 // 保存完整输出到临时文件
 export async function saveTruncatedToolOutput(
- content: string,
- toolName: string,
- id: string | number,
- projectTempDir: string,
+  content: string,
+  toolName: string,
+  id: string | number,
+  projectTempDir: string,
 ): Promise<{ outputFile: string; totalLines: number }> {
- const fileName = \`\${toolName}_\${id}.txt\`;
- const outputFile = path.join(projectTempDir, fileName);
- await fsPromises.writeFile(outputFile, content);
- return { outputFile, totalLines: content.split('\\n').length };
+  const fileName = \`\${toolName}_\${id}.txt\`;
+  const outputFile = path.join(projectTempDir, fileName);
+  await fsPromises.writeFile(outputFile, content);
+  return { outputFile, totalLines: content.split('\\n').length };
 }`;
 
  const allowedToolsMatchCode = `// PolicyEngine allowlist：当 decision=ASK_USER 时，仍可能被自动批准
 // packages/core/src/core/coreToolScheduler.ts (legacy, 节选)
 private isAutoApproved(toolCall: ValidatingToolCall): boolean {
- if (this.config.getApprovalMode() === ApprovalMode.YOLO) {
- return true;
- }
+  if (this.config.getApprovalMode() === ApprovalMode.YOLO) {
+  return true;
+  }
 
- const allowedTools = this.config.getAllowedTools() || [];
- const { tool, invocation } = toolCall;
- const toolName = typeof tool === 'string' ? tool : tool.name;
+  const allowedTools = this.config.getAllowedTools() || [];
+  const { tool, invocation } = toolCall;
+  const toolName = typeof tool === 'string' ? tool : tool.name;
 
- // Shell 需要更严格：把命令拆分为多段逐一匹配 allowlist
- if (SHELL_TOOL_NAMES.includes(toolName)) {
- return isShellInvocationAllowlisted(invocation, allowedTools);
- }
+  // Shell 需要更严格：把命令拆分为多段逐一匹配 allowlist
+  if (SHELL_TOOL_NAMES.includes(toolName)) {
+  return isShellInvocationAllowlisted(invocation, allowedTools);
+  }
 
- // 其他工具：工具名（或构造类名）匹配即可
- return doesToolInvocationMatch(tool, invocation, allowedTools);
+  // 其他工具：工具名（或构造类名）匹配即可
+  return doesToolInvocationMatch(tool, invocation, allowedTools);
 }
 
 // Shell allowlist：每一段 splitCommands() 都必须命中 patterns
 // packages/core/src/utils/shell-permissions.ts (节选)
 export function isShellInvocationAllowlisted(invocation, allowedPatterns): boolean {
- const parseResult = parseCommandDetails(command);
- if (!parseResult || parseResult.hasError) return false;
- const segments = parseResult.details.map(d => d.text.trim()).filter(Boolean);
- return segments.every(seg =>
- doesToolInvocationMatch('run_shell_command', { params: { command: seg } }, allowedPatterns)
- );
+  const parseResult = parseCommandDetails(command);
+  if (!parseResult || parseResult.hasError) return false;
+  const segments = parseResult.details.map(d => d.text.trim()).filter(Boolean);
+  return segments.every(seg =>
+  doesToolInvocationMatch('run_shell_command', { params: { command: seg } }, allowedPatterns)
+  );
 }
 
 // Pattern 语法（supports tool and tool(prefix)）
@@ -300,150 +303,150 @@ export function isShellInvocationAllowlisted(invocation, allowedPatterns): boole
 // - "read_file" → 匹配任意 read_file
 // - "run_shell_command(git)" → 仅匹配 command 以 "git" 开头
 {
- "tools": {
- "allowed": [
- "read_file",
- "run_shell_command(git)",
- "run_shell_command(npm test)"
- ]
- }
+  "tools": {
+  "allowed": [
+  "read_file",
+  "run_shell_command(git)",
+  "run_shell_command(npm test)"
+  ]
+  }
 }`;
 
  const queueManagementCode = `// packages/core/src/scheduler/scheduler.ts
 
 // 请求队列定义
 private readonly requestQueue: Array<{
- requests: ToolCallRequestInfo[];
- signal: AbortSignal;
- resolve: (results: CompletedToolCall[]) => void;
- reject: (reason?: Error) => void;
+  requests: ToolCallRequestInfo[];
+  signal: AbortSignal;
+  resolve: (results: CompletedToolCall[]) => void;
+  reject: (reason?: Error) => void;
 }> = [];
 
 // 入队逻辑
 private _enqueueRequest(
- requests: ToolCallRequestInfo[],
- signal: AbortSignal,
+  requests: ToolCallRequestInfo[],
+  signal: AbortSignal,
 ): Promise<CompletedToolCall[]> {
- return new Promise((resolve, reject) => {
- const abortHandler = () => {
- const index = this.requestQueue.findIndex(
- (item) => item.requests === requests,
- );
- if (index > -1) {
- this.requestQueue.splice(index, 1);
- reject(new Error('Tool call cancelled while in queue.'));
- }
- };
+  return new Promise((resolve, reject) => {
+  const abortHandler = () => {
+  const index = this.requestQueue.findIndex(
+  (item) => item.requests === requests,
+  );
+  if (index > -1) {
+  this.requestQueue.splice(index, 1);
+  reject(new Error('Tool call cancelled while in queue.'));
+  }
+  };
 
- if (signal.aborted) {
- reject(new Error('Operation cancelled'));
- return;
- }
+  if (signal.aborted) {
+  reject(new Error('Operation cancelled'));
+  return;
+  }
 
- signal.addEventListener('abort', abortHandler, { once: true });
- this.requestQueue.push({
- requests,
- signal,
- resolve: (results) => {
- signal.removeEventListener('abort', abortHandler);
- resolve(results);
- },
- reject: (err) => {
- signal.removeEventListener('abort', abortHandler);
- reject(err);
- },
- });
- });
+  signal.addEventListener('abort', abortHandler, { once: true });
+  this.requestQueue.push({
+  requests,
+  signal,
+  resolve: (results) => {
+  signal.removeEventListener('abort', abortHandler);
+  resolve(results);
+  },
+  reject: (err) => {
+  signal.removeEventListener('abort', abortHandler);
+  reject(err);
+  },
+  });
+  });
 }
 
 private _processNextInRequestQueue() {
- if (this.requestQueue.length > 0) {
- const next = this.requestQueue.shift()!;
- this.schedule(next.requests, next.signal)
- .then(next.resolve)
- .catch(next.reject);
- }
+  if (this.requestQueue.length > 0) {
+  const next = this.requestQueue.shift()!;
+  this.schedule(next.requests, next.signal)
+  .then(next.resolve)
+  .catch(next.reject);
+  }
 }`;
 
  const toolCallStatusCode = `// packages/core/src/scheduler/types.ts:38-115
 
 // 工具调用状态类型定义
 export type ValidatingToolCall = {
- status: 'validating'; // 验证参数阶段
- request: ToolCallRequestInfo;
- tool: AnyDeclarativeTool;
- invocation: AnyToolInvocation;
- startTime?: number;
- outcome?: ToolConfirmationOutcome;
+  status: 'validating'; // 验证参数阶段
+  request: ToolCallRequestInfo;
+  tool: AnyDeclarativeTool;
+  invocation: AnyToolInvocation;
+  startTime?: number;
+  outcome?: ToolConfirmationOutcome;
 };
 
 export type ScheduledToolCall = {
- status: 'scheduled'; // 已排期，等待执行
- request: ToolCallRequestInfo;
- tool: AnyDeclarativeTool;
- invocation: AnyToolInvocation;
- startTime?: number;
- outcome?: ToolConfirmationOutcome;
+  status: 'scheduled'; // 已排期，等待执行
+  request: ToolCallRequestInfo;
+  tool: AnyDeclarativeTool;
+  invocation: AnyToolInvocation;
+  startTime?: number;
+  outcome?: ToolConfirmationOutcome;
 };
 
 export type WaitingToolCall = {
- status: 'awaiting_approval'; // 等待用户批准
- request: ToolCallRequestInfo;
- tool: AnyDeclarativeTool;
- invocation: AnyToolInvocation;
- confirmationDetails: ToolCallConfirmationDetails;
- startTime?: number;
- outcome?: ToolConfirmationOutcome;
+  status: 'awaiting_approval'; // 等待用户批准
+  request: ToolCallRequestInfo;
+  tool: AnyDeclarativeTool;
+  invocation: AnyToolInvocation;
+  confirmationDetails: ToolCallConfirmationDetails;
+  startTime?: number;
+  outcome?: ToolConfirmationOutcome;
 };
 
 export type ExecutingToolCall = {
- status: 'executing'; // 执行中
- request: ToolCallRequestInfo;
- tool: AnyDeclarativeTool;
- invocation: AnyToolInvocation;
- liveOutput?: string | AnsiOutput; // 实时输出（ANSI 格式）
- startTime?: number;
- outcome?: ToolConfirmationOutcome;
- pid?: number; // 进程 ID (Shell 工具)
+  status: 'executing'; // 执行中
+  request: ToolCallRequestInfo;
+  tool: AnyDeclarativeTool;
+  invocation: AnyToolInvocation;
+  liveOutput?: string | AnsiOutput; // 实时输出（ANSI 格式）
+  startTime?: number;
+  outcome?: ToolConfirmationOutcome;
+  pid?: number; // 进程 ID (Shell 工具)
 };
 
 export type SuccessfulToolCall = {
- status: 'success'; // 执行成功
- request: ToolCallRequestInfo;
- tool: AnyDeclarativeTool;
- response: ToolCallResponseInfo;
- invocation: AnyToolInvocation;
- durationMs?: number;
- outcome?: ToolConfirmationOutcome;
+  status: 'success'; // 执行成功
+  request: ToolCallRequestInfo;
+  tool: AnyDeclarativeTool;
+  response: ToolCallResponseInfo;
+  invocation: AnyToolInvocation;
+  durationMs?: number;
+  outcome?: ToolConfirmationOutcome;
 };
 
 export type ErroredToolCall = {
- status: 'error'; // 执行失败
- request: ToolCallRequestInfo;
- response: ToolCallResponseInfo;
- tool?: AnyDeclarativeTool;
- durationMs?: number;
- outcome?: ToolConfirmationOutcome;
+  status: 'error'; // 执行失败
+  request: ToolCallRequestInfo;
+  response: ToolCallResponseInfo;
+  tool?: AnyDeclarativeTool;
+  durationMs?: number;
+  outcome?: ToolConfirmationOutcome;
 };
 
 export type CancelledToolCall = {
- status: 'cancelled'; // 已取消
- request: ToolCallRequestInfo;
- response: ToolCallResponseInfo;
- tool: AnyDeclarativeTool;
- invocation: AnyToolInvocation;
- durationMs?: number;
- outcome?: ToolConfirmationOutcome;
+  status: 'cancelled'; // 已取消
+  request: ToolCallRequestInfo;
+  response: ToolCallResponseInfo;
+  tool: AnyDeclarativeTool;
+  invocation: AnyToolInvocation;
+  durationMs?: number;
+  outcome?: ToolConfirmationOutcome;
 };
 
 export type ToolCall =
- | ValidatingToolCall
- | ScheduledToolCall
- | ErroredToolCall
- | SuccessfulToolCall
- | ExecutingToolCall
- | CancelledToolCall
- | WaitingToolCall;`;
+  | ValidatingToolCall
+  | ScheduledToolCall
+  | ErroredToolCall
+  | SuccessfulToolCall
+  | ExecutingToolCall
+  | CancelledToolCall
+  | WaitingToolCall;`;
 
  return (
  <div className="space-y-8">
@@ -460,31 +463,31 @@ export type ToolCall =
  <div className="text-sm">
  <p className="font-semibold text-heading mb-1">工具队列调度</p>
  <ul className="space-y-1 text-body">
- <li>• 并发控制和队列管理</li>
- <li>• 状态转换和追踪</li>
- <li>• AbortSignal 取消支持</li>
+ <li>并发控制和队列管理</li>
+ <li>状态转换和追踪</li>
+ <li>AbortSignal 取消支持</li>
  </ul>
  </div>
  </HighlightBox>
 
  <HighlightBox title="确认决策" variant="yellow">
  <div className="text-sm">
- <p className="font-semibold text-[var(--color-warning)] mb-1">智能审批</p>
+ <p className="font-semibold text-heading mb-1">智能审批</p>
  <ul className="space-y-1 text-body">
- <li>• ApprovalMode 模式判断</li>
- <li>• 工具 Kind 类型检查</li>
- <li>• allowedTools 白名单匹配</li>
+ <li>ApprovalMode 模式判断</li>
+ <li>工具 Kind 类型检查</li>
+ <li>allowedTools 白名单匹配</li>
  </ul>
  </div>
  </HighlightBox>
 
  <HighlightBox title="输出处理" variant="green">
  <div className="text-sm">
- <p className="font-semibold text-[var(--color-success)] mb-1">结果优化</p>
+ <p className="font-semibold text-heading mb-1">结果优化</p>
  <ul className="space-y-1 text-body">
- <li>• 大输出自动截断</li>
- <li>• 文件保存和引导</li>
- <li>• 格式转换和包装</li>
+ <li>大输出自动截断</li>
+ <li>文件保存和引导</li>
+ <li>格式转换和包装</li>
  </ul>
  </div>
  </HighlightBox>
@@ -492,26 +495,26 @@ export type ToolCall =
  </section>
 
  {/* 设计哲学 */}
- <section className="bg-surface rounded-lg p-6 border border-[var(--color-warning)]">
- <h3 className="text-xl font-semibold text-amber-400 mb-4 flex items-center gap-2">
+ <section className="bg-surface rounded-lg p-6 border-l-2 border-l-edge-hover">
+ <h3 className="text-xl font-semibold text-heading mb-4 flex items-center gap-2">
  <span>💡</span>
  设计哲学：为什么这样设计
  </h3>
 
  {/* 核心问题 */}
  <div className="bg-surface rounded-lg p-4 mb-6 ">
- <h4 className="text-[var(--color-warning)] font-bold mb-2">🎯 核心问题</h4>
+ <h4 className="text-heading font-bold mb-2">🎯 核心问题</h4>
  <p className="text-body text-sm">
  AI 可以调用工具执行任意操作（读写文件、执行命令、网络请求）。
- 如何在<strong className="text-amber-200">保持 AI 自主性</strong>的同时，
+ 如何在<strong className="text-heading">保持 AI 自主性</strong>的同时，
  确保<strong className="text-heading">用户对系统的控制权</strong>？
  </p>
  </div>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
  {/* 为什么需要审批机制 */}
- <div className="bg-surface rounded-lg p-4 border border-[var(--color-danger)]">
- <h5 className="text-[var(--color-danger)] font-bold mb-2 flex items-center gap-2">
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover">
+ <h5 className="text-heading font-bold mb-2 flex items-center gap-2">
  <span>🛡️</span>
  为什么需要审批机制？
  </h5>
@@ -519,12 +522,12 @@ export type ToolCall =
  AI 可能执行破坏性操作：
  </p>
  <ul className="text-sm text-body space-y-1 list-disc pl-4">
- <li>删除重要文件 <code className="text-[var(--color-danger)]">rm -rf /</code></li>
+ <li>删除重要文件 <code className="text-heading">rm -rf /</code></li>
  <li>泄露敏感信息到网络</li>
  <li>修改关键配置文件</li>
  <li>执行恶意代码</li>
  </ul>
- <div className="mt-3 bg-[var(--color-danger-soft)] rounded p-2 text-xs text-red-200">
+ <div className="mt-3 bg-elevated rounded p-2 text-xs text-heading">
  <strong>解决：</strong>修改类工具默认需要用户确认
  </div>
  </div>
@@ -544,14 +547,14 @@ export type ToolCall =
  <li>用户无法逐个审批</li>
  <li>错误难以定位</li>
  </ul>
- <div className="mt-3 bg-elevated/10 rounded p-2 text-xs text-blue-200">
+ <div className="mt-3 bg-elevated/10 rounded p-2 text-xs text-accent">
  <strong>解决：</strong>队列保证有序 + 用户可逐个审核
  </div>
  </div>
 
  {/* 为什么输出截断 */}
- <div className="bg-surface rounded-lg p-4 border border-[var(--color-success)]">
- <h5 className="text-[var(--color-success)] font-bold mb-2 flex items-center gap-2">
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover">
+ <h5 className="text-heading font-bold mb-2 flex items-center gap-2">
  <span>✂️</span>
  为什么输出截断 + 保存文件？
  </h5>
@@ -563,7 +566,7 @@ export type ToolCall =
  <li>大型代码库搜索结果</li>
  <li>二进制文件输出</li>
  </ul>
- <div className="mt-3 bg-[var(--color-success-soft)] rounded p-2 text-xs text-green-200">
+ <div className="mt-3 bg-elevated rounded p-2 text-xs text-heading">
  <strong>解决：</strong>截断节省 Token + 文件保留完整数据 + 引导 AI 按需读取
  </div>
  </div>
@@ -580,7 +583,7 @@ export type ToolCall =
  <ul className="text-sm text-body space-y-1 list-disc pl-4">
  <li><strong className="text-body">DEFAULT</strong>：修改需确认（最安全）</li>
  <li><strong className="text-heading">AUTO_EDIT</strong>：文件编辑自动（效率）</li>
- <li><strong className="text-[var(--color-danger)]">YOLO</strong>：全部自动（最快）</li>
+ <li><strong className="text-heading">YOLO</strong>：全部自动（最快）</li>
  </ul>
  <div className="mt-3 bg-elevated rounded p-2 text-xs text-heading">
  <strong>解决：</strong>用户按需选择安全 vs 效率的平衡点
@@ -590,7 +593,7 @@ export type ToolCall =
 
  {/* 设计权衡表 */}
  <div className="bg-surface rounded-lg p-4">
- <h4 className="text-[var(--color-warning)] font-bold mb-3 flex items-center gap-2">
+ <h4 className="text-heading font-bold mb-3 flex items-center gap-2">
  <span>⚖️</span>
  关键设计权衡
  </h4>
@@ -599,40 +602,40 @@ export type ToolCall =
  <thead>
  <tr className="border- border-edge">
  <th className="text-left py-2 text-body">决策点</th>
- <th className="text-left py-2 text-[var(--color-success)]">选择</th>
- <th className="text-left py-2 text-amber-400">代价</th>
+ <th className="text-left py-2 text-heading">选择</th>
+ <th className="text-left py-2 text-heading">代价</th>
  <th className="text-left py-2 text-heading">收益</th>
  </tr>
  </thead>
  <tbody className="text-body">
  <tr className="border- border-edge/50">
  <td className="py-2">并发模型</td>
- <td className="py-2 text-[var(--color-success)]">串行队列</td>
- <td className="py-2 text-amber-400">执行速度较慢</td>
+ <td className="py-2 text-heading">串行队列</td>
+ <td className="py-2 text-heading">执行速度较慢</td>
  <td className="py-2 text-heading">可预测 + 可审批</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="py-2">默认审批</td>
- <td className="py-2 text-[var(--color-success)]">修改类需确认</td>
- <td className="py-2 text-amber-400">用户需要频繁操作</td>
+ <td className="py-2 text-heading">修改类需确认</td>
+ <td className="py-2 text-heading">用户需要频繁操作</td>
  <td className="py-2 text-heading">防止意外破坏</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="py-2">大输出处理</td>
- <td className="py-2 text-[var(--color-success)]">截断 + 保存文件</td>
- <td className="py-2 text-amber-400">AI 需要额外读取</td>
+ <td className="py-2 text-heading">截断 + 保存文件</td>
+ <td className="py-2 text-heading">AI 需要额外读取</td>
  <td className="py-2 text-heading">节省 Token + 保留完整</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="py-2">PolicyEngine</td>
- <td className="py-2 text-[var(--color-success)]">规则驱动决策</td>
- <td className="py-2 text-amber-400">需要配置规则</td>
+ <td className="py-2 text-heading">规则驱动决策</td>
+ <td className="py-2 text-heading">需要配置规则</td>
  <td className="py-2 text-heading">灵活的权限控制</td>
  </tr>
  <tr>
  <td className="py-2">白名单机制</td>
- <td className="py-2 text-[var(--color-success)]">精确 + 模式匹配</td>
- <td className="py-2 text-amber-400">配置复杂度增加</td>
+ <td className="py-2 text-heading">精确 + 模式匹配</td>
+ <td className="py-2 text-heading">配置复杂度增加</td>
  <td className="py-2 text-heading">细粒度权限控制</td>
  </tr>
  </tbody>
@@ -645,13 +648,13 @@ export type ToolCall =
  <div className="bg-elevated/20 text-heading px-3 py-1 rounded-full">
  上层：GeminiChat 发起调用
  </div>
- <div className="bg-[var(--color-success-soft)] text-[var(--color-success)] px-3 py-1 rounded-full">
+ <div className="bg-elevated text-heading px-3 py-1 rounded-full">
  下层：Tool.execute() 执行
  </div>
  <div className="bg-elevated text-heading px-3 py-1 rounded-full">
  平级：Config 提供审批配置
  </div>
- <div className="bg-[var(--color-warning-soft)] text-[var(--color-warning)] px-3 py-1 rounded-full">
+ <div className="bg-elevated text-heading px-3 py-1 rounded-full">
  UI 层：展示状态 + 收集用户决策
  </div>
  </div>
@@ -680,24 +683,24 @@ export type ToolCall =
 
  <HighlightBox title="⚠️ 工具命名提示" variant="yellow">
  <div className="text-sm space-y-2">
- <p className="text-yellow-200">
+ <p className="text-heading">
  <strong>关键点：</strong> Gemini CLI 的“编辑文件”工具 API 名称是 <code className="text-heading">replace</code>（不是 <code className="text-heading">edit</code>）。
  </p>
  <div>
- <h5 className="font-semibold text-[var(--color-warning)] mb-1">影响范围</h5>
+ <h5 className="font-semibold text-heading mb-1">影响范围</h5>
  <ul className="space-y-1 text-body">
- <li>• <strong>AUTO_EDIT 模式：</strong> 自动批准 <code className="text-heading">replace</code> 和 <code className="text-heading">write_file</code></li>
- <li>• <strong>Checkpointing：</strong> 监听 <code className="text-heading">replace</code> 和 <code className="text-heading">write_file</code> 的 awaiting_approval 状态</li>
+ <li><strong>AUTO_EDIT 模式：</strong> 自动批准 <code className="text-heading">replace</code> 和 <code className="text-heading">write_file</code></li>
+ <li><strong>Checkpointing：</strong> 监听 <code className="text-heading">replace</code> 和 <code className="text-heading">write_file</code> 的 awaiting_approval 状态</li>
  </ul>
  </div>
  <div>
- <h5 className="font-semibold text-[var(--color-warning)] mb-1">源码位置</h5>
+ <h5 className="font-semibold text-heading mb-1">源码位置</h5>
  <ul className="space-y-1 text-body text-xs font-mono">
- <li>• gemini-cli/packages/core/src/tools/tool-names.ts - <code className="text-heading">EDIT_TOOL_NAME = 'replace'</code></li>
- <li>• gemini-cli/packages/core/src/tools/edit.ts - <code className="text-heading">export interface EditToolParams</code></li>
+ <li>gemini-cli/packages/core/src/tools/tool-names.ts - <code className="text-heading">EDIT_TOOL_NAME = 'replace'</code></li>
+ <li>gemini-cli/packages/core/src/tools/edit.ts - <code className="text-heading">export interface EditToolParams</code></li>
  </ul>
  </div>
- <p className="text-yellow-200 mt-2">
+ <p className="text-heading mt-2">
  <strong>建议：</strong> 当看到 <code className="text-heading">edit</code> 时，优先把它当作旧文档/误用并改为 <code className="text-heading">replace</code>。
  </p>
  </div>
@@ -705,22 +708,22 @@ export type ToolCall =
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface rounded-lg p-4">
- <h4 className="font-semibold text-[var(--color-success)] mb-2">自动批准条件</h4>
+ <h4 className="font-semibold text-heading mb-2">自动批准条件</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• <code className="text-heading">PolicyEngine = ALLOW</code> - 默认只读策略 / 用户规则 / tools.allowed</li>
- <li>• <code className="text-heading">ApprovalMode = YOLO</code> - ASK_USER 也会被调度器自动批准</li>
- <li>• <code className="text-heading">ApprovalMode = AUTO_EDIT</code> - 默认放行 <code>replace</code>/<code>write_file</code>（带 safety checker）</li>
- <li>• <code className="text-heading">tools.allowed 命中</code> - ASK_USER 场景可自动批准（Shell 会逐段解析匹配）</li>
+ <li><code className="text-heading">PolicyEngine = ALLOW</code> - 默认只读策略 / 用户规则 / tools.allowed</li>
+ <li><code className="text-heading">ApprovalMode = YOLO</code> - ASK_USER 也会被调度器自动批准</li>
+ <li><code className="text-heading">ApprovalMode = AUTO_EDIT</code> - 默认放行 <code>replace</code>/<code>write_file</code>（带 safety checker）</li>
+ <li><code className="text-heading">tools.allowed 命中</code> - ASK_USER 场景可自动批准（Shell 会逐段解析匹配）</li>
  </ul>
  </div>
 
  <div className="bg-surface rounded-lg p-4">
- <h4 className="font-semibold text-[var(--color-warning)] mb-2">需要确认条件</h4>
+ <h4 className="font-semibold text-heading mb-2">需要确认条件</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• <code className="text-heading">PolicyEngine = ASK_USER</code> - 默认写工具（write.toml）</li>
- <li>• <code className="text-heading">Shell 含重定向</code> - ALLOW 会被降级为 ASK_USER（除非 allowRedirection=true）</li>
- <li>• <code className="text-heading">MCP 未信任/未 allowlist</code> - 首次调用需要确认</li>
- <li>• <code className="text-heading">非交互模式</code> - 需要确认会直接报错（无法弹窗）</li>
+ <li><code className="text-heading">PolicyEngine = ASK_USER</code> - 默认写工具（write.toml）</li>
+ <li><code className="text-heading">Shell 含重定向</code> - ALLOW 会被降级为 ASK_USER（除非 allowRedirection=true）</li>
+ <li><code className="text-heading">MCP 未信任/未 allowlist</code> - 首次调用需要确认</li>
+ <li><code className="text-heading">非交互模式</code> - 需要确认会直接报错（无法弹窗）</li>
  </ul>
  </div>
  </div>
@@ -739,18 +742,18 @@ export type ToolCall =
  <div>
  <h5 className="font-semibold text-heading mb-1">三种决策结果</h5>
  <ul className="space-y-1 text-body">
- <li>• <code>ALLOW</code> - 自动批准执行，无需用户确认</li>
- <li>• <code>DENY</code> - 拒绝执行，抛出错误</li>
- <li>• <code>ASK_USER</code> - 需要用户确认后才能执行</li>
+ <li><code>ALLOW</code> - 自动批准执行，无需用户确认</li>
+ <li><code>DENY</code> - 拒绝执行，抛出错误</li>
+ <li><code>ASK_USER</code> - 需要用户确认后才能执行</li>
  </ul>
  </div>
  <div>
  <h5 className="font-semibold text-heading mb-1">决策优先级</h5>
  <ul className="space-y-1 text-body">
- <li>• 规则按 <code>priority</code> 排序，高优先级先匹配</li>
- <li>• 规则可限定 <code>modes</code>，只在特定 ApprovalMode 下生效</li>
- <li>• 支持 <code>toolName</code> 精确匹配和通配符（如 <code>serverName__*</code>）</li>
- <li>• 支持 <code>argsPattern</code> 正则匹配参数</li>
+ <li>规则按 <code>priority</code> 排序，高优先级先匹配</li>
+ <li>规则可限定 <code>modes</code>，只在特定 ApprovalMode 下生效</li>
+ <li>支持 <code>toolName</code> 精确匹配和通配符（如 <code>serverName__*</code>）</li>
+ <li>支持 <code>argsPattern</code> 正则匹配参数</li>
  </ul>
  </div>
  </div>
@@ -809,17 +812,17 @@ async check(
  <div>
  <h5 className="font-semibold text-body mb-1">配置参数</h5>
  <ul className="space-y-1 text-body">
- <li>• <code className="text-heading">enableToolOutputTruncation</code> - 是否启用截断</li>
- <li>• <code className="text-heading">truncateToolOutputThreshold</code> - 截断阈值（字符数）</li>
- <li>• <code className="text-heading">truncateToolOutputLines</code> - 保留的行数</li>
+ <li><code className="text-heading">enableToolOutputTruncation</code> - 是否启用截断</li>
+ <li><code className="text-heading">truncateToolOutputThreshold</code> - 截断阈值（字符数）</li>
+ <li><code className="text-heading">truncateToolOutputLines</code> - 保留的行数</li>
  </ul>
  </div>
  <div>
  <h5 className="font-semibold text-body mb-1">默认值</h5>
  <ul className="space-y-1 text-body">
- <li>• 启用截断: <code className="text-[var(--color-success)]">true</code></li>
- <li>• 阈值: <code className="text-[var(--color-success)]">50000</code> 字符</li>
- <li>• 保留行数: <code className="text-[var(--color-success)]">100</code> 行</li>
+ <li>启用截断: <code className="text-heading">true</code></li>
+ <li>阈值: <code className="text-heading">50000</code> 字符</li>
+ <li>保留行数: <code className="text-heading">100</code> 行</li>
  </ul>
  </div>
  </div>
@@ -832,19 +835,19 @@ async check(
  <div>
  <h5 className="font-semibold text-heading mb-1">截断逻辑</h5>
  <ul className="space-y-1 text-body">
- <li>• 保留开头 <code>20%</code> 的行（前 20 行）</li>
- <li>• 保留结尾 <code>80%</code> 的行（后 80 行）</li>
- <li>• 中间部分用 <code>... [CONTENT TRUNCATED] ...</code> 标记</li>
- <li>• 完整输出保存到 <code>.gemini/tmp/&lt;callId&gt;.output</code></li>
+ <li>保留开头 <code>20%</code> 的行（前 20 行）</li>
+ <li>保留结尾 <code>80%</code> 的行（后 80 行）</li>
+ <li>中间部分用 <code>... [CONTENT TRUNCATED] ...</code> 标记</li>
+ <li>完整输出保存到 <code>.gemini/tmp/&lt;callId&gt;.output</code></li>
  </ul>
  </div>
  <div>
  <h5 className="font-semibold text-heading mb-1">AI 引导</h5>
  <ul className="space-y-1 text-body">
- <li>• 响应中包含完整文件路径</li>
- <li>• 提示使用 <code>read_file</code> 工具读取</li>
- <li>• 建议使用 <code>offset</code> 和 <code>limit</code> 参数分段读取</li>
- <li>• 显示截断部分的预览内容</li>
+ <li>响应中包含完整文件路径</li>
+ <li>提示使用 <code>read_file</code> 工具读取</li>
+ <li>建议使用 <code>offset</code> 和 <code>limit</code> 参数分段读取</li>
+ <li>显示截断部分的预览内容</li>
  </ul>
  </div>
  </div>
@@ -904,20 +907,20 @@ async check(
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface rounded-lg p-4">
- <h4 className="font-semibold text-[var(--color-success)] mb-2">入队条件</h4>
+ <h4 className="font-semibold text-heading mb-2">入队条件</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• 有工具正在执行（<code>isRunning() = true</code>）</li>
- <li>• 正在调度其他工具（<code>isScheduling = true</code>）</li>
- <li>• 有工具等待用户批准（<code>awaiting_approval</code>）</li>
+ <li>有工具正在执行（<code>isRunning() = true</code>）</li>
+ <li>正在调度其他工具（<code>isScheduling = true</code>）</li>
+ <li>有工具等待用户批准（<code>awaiting_approval</code>）</li>
  </ul>
  </div>
 
  <div className="bg-surface rounded-lg p-4">
  <h4 className="font-semibold text-heading mb-2">出队时机</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• 所有工具调用完成（<code>allCallsAreTerminal</code>）</li>
- <li>• <code>onAllToolCallsComplete</code> 回调执行完毕</li>
- <li>• 调度器空闲状态（<code>isRunning() = false</code>）</li>
+ <li>所有工具调用完成（<code>allCallsAreTerminal</code>）</li>
+ <li><code>onAllToolCallsComplete</code> 回调执行完毕</li>
+ <li>调度器空闲状态（<code>isRunning() = false</code>）</li>
  </ul>
  </div>
  </div>
@@ -949,7 +952,7 @@ async check(
  </tr>
  <tr className="bg-surface/30">
  <td className="border border-edge p-3">
- <code className="text-[var(--color-success)]">scheduled</code>
+ <code className="text-heading">scheduled</code>
  </td>
  <td className="border border-edge p-3">已排期，等待执行</td>
  <td className="border border-edge p-3">
@@ -958,7 +961,7 @@ async check(
  </tr>
  <tr>
  <td className="border border-edge p-3">
- <code className="text-[var(--color-warning)]">awaiting_approval</code>
+ <code className="text-heading">awaiting_approval</code>
  </td>
  <td className="border border-edge p-3">等待用户批准</td>
  <td className="border border-edge p-3">
@@ -976,14 +979,14 @@ async check(
  </tr>
  <tr>
  <td className="border border-edge p-3">
- <code className="text-[var(--color-success)]">success</code>
+ <code className="text-heading">success</code>
  </td>
  <td className="border border-edge p-3">执行成功（终态）</td>
  <td className="border border-edge p-3">无</td>
  </tr>
  <tr className="bg-surface/30">
  <td className="border border-edge p-3">
- <code className="text-[var(--color-danger)]">error</code>
+ <code className="text-heading">error</code>
  </td>
  <td className="border border-edge p-3">执行失败（终态）</td>
  <td className="border border-edge p-3">无</td>
@@ -1084,8 +1087,8 @@ async check(
  {/* ==================== 深化内容 ==================== */}
 
  {/* 边界条件深度解析 */}
- <section className="bg-surface rounded-lg p-6 border border-[var(--color-danger)]">
- <h3 className="text-xl font-semibold text-[var(--color-danger)] mb-4 flex items-center gap-2">
+ <section className="bg-surface rounded-lg p-6 border-l-2 border-l-edge-hover">
+ <h3 className="text-xl font-semibold text-heading mb-4 flex items-center gap-2">
  <span>🔬</span>
  边界条件深度解析
  </h3>
@@ -1095,15 +1098,15 @@ async check(
 
  {/* 边界条件 1: 用户快速批准/拒绝 */}
  <div className="bg-surface rounded-lg p-4 mb-4 ">
- <h4 className="text-[var(--color-warning)] font-bold mb-2">边界 1: 用户批准期间 AbortSignal 被触发</h4>
+ <h4 className="text-heading font-bold mb-2">边界 1: 用户批准期间 AbortSignal 被触发</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">场景描述</h5>
  <p className="text-sm text-body">
  工具等待用户批准 (awaiting_approval) 时，用户按 Ctrl+C 或切换会话触发 AbortSignal。
  </p>
- <div className="mt-2 bg-[var(--color-warning-soft)] p-2 rounded text-xs">
- <strong className="text-[var(--color-warning)]">触发条件：</strong>
+ <div className="mt-2 bg-elevated p-2 rounded text-xs">
+ <strong className="text-heading">触发条件：</strong>
  <code className="text-body block mt-1">
  status = 'awaiting_approval' && signal.aborted = true
  </code>
@@ -1112,13 +1115,13 @@ async check(
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">系统行为</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 立即将状态转为 <code className="text-[var(--color-danger)]">cancelled</code></li>
- <li>• 从队列中移除等待的请求</li>
- <li>• 调用 <code className="text-heading">reject(new Error('cancelled'))</code></li>
- <li>• 触发 <code className="text-heading">checkAndNotifyCompletion()</code></li>
+ <li>立即将状态转为 <code className="text-heading">cancelled</code></li>
+ <li>从队列中移除等待的请求</li>
+ <li>调用 <code className="text-heading">reject(new Error('cancelled'))</code></li>
+ <li>触发 <code className="text-heading">checkAndNotifyCompletion()</code></li>
  </ul>
- <div className="mt-2 bg-[var(--color-success-soft)] p-2 rounded text-xs">
- <strong className="text-[var(--color-success)]">安全保障：</strong> 不会执行任何半途工具
+ <div className="mt-2 bg-elevated p-2 rounded text-xs">
+ <strong className="text-heading">安全保障：</strong> 不会执行任何半途工具
  </div>
  </div>
  </div>
@@ -1165,11 +1168,11 @@ signal.addEventListener('abort', abortHandler, { once: true });`}
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">调度行为</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 接收数组形式的 <code className="text-heading">ToolCallRequestInfo[]</code></li>
- <li>• 按数组顺序依次验证和调度</li>
- <li>• 只读工具 (read_file) 立即标记为 scheduled</li>
- <li>• 修改类工具逐个等待批准</li>
- <li>• 所有工具完成后一次性返回结果</li>
+ <li>接收数组形式的 <code className="text-heading">ToolCallRequestInfo[]</code></li>
+ <li>按数组顺序依次验证和调度</li>
+ <li>只读工具 (read_file) 立即标记为 scheduled</li>
+ <li>修改类工具逐个等待批准</li>
+ <li>所有工具完成后一次性返回结果</li>
  </ul>
  </div>
  </div>
@@ -1197,7 +1200,7 @@ signal.addEventListener('abort', abortHandler, { once: true });`}
  </div>
 
  {/* 边界条件 3: 工具执行超时 */}
- <div className="bg-surface rounded-lg p-4 mb-4 border-l-2 border-orange-500">
+ <div className="bg-surface rounded-lg p-4 mb-4 border-l-2 border-edge">
  <h4 className="text-heading font-bold mb-2">边界 3: 工具执行超时</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div>
@@ -1205,23 +1208,23 @@ signal.addEventListener('abort', abortHandler, { once: true });`}
  <p className="text-sm text-body">
  Shell 命令执行时间过长（如编译大项目、运行长时测试），超过配置的超时阈值。
  </p>
- <div className="mt-2 bg-orange-500/10 p-2 rounded text-xs">
+ <div className="mt-2 bg-elevated p-2 rounded text-xs">
  <strong className="text-heading">超时配置：</strong>
  <ul className="text-body mt-1 space-y-1">
- <li>• Shell 工具（run_shell_command）默认: 300s 无输出即超时（inactivity）</li>
- <li>• 配置项: <code className="text-heading">tools.shell.inactivityTimeout</code>（秒）</li>
- <li>• 其他工具是否超时取决于各自实现（并非统一常量）</li>
+ <li>Shell 工具（run_shell_command）默认: 300s 无输出即超时（inactivity）</li>
+ <li>配置项: <code className="text-heading">tools.shell.inactivityTimeout</code>（秒）</li>
+ <li>其他工具是否超时取决于各自实现（并非统一常量）</li>
  </ul>
  </div>
  </div>
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">超时处理</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 工具内部实现 AbortController 超时逻辑</li>
- <li>• 超时时发送 SIGTERM 给子进程</li>
- <li>• 状态转为 <code className="text-[var(--color-danger)]">error</code></li>
- <li>• 返回部分输出 + 超时错误信息</li>
- <li>• AI 收到错误后可决定重试或换方案</li>
+ <li>工具内部实现 AbortController 超时逻辑</li>
+ <li>超时时发送 SIGTERM 给子进程</li>
+ <li>状态转为 <code className="text-heading">error</code></li>
+ <li>返回部分输出 + 超时错误信息</li>
+ <li>AI 收到错误后可决定重试或换方案</li>
  </ul>
  </div>
  </div>
@@ -1273,30 +1276,30 @@ async execute(signal: AbortSignal, updateOutput?: (output: string) => void) {
 
  {/* 边界条件 4: 输出截断边界 */}
  <div className="bg-surface rounded-lg p-4 mb-4 ">
- <h4 className="text-[var(--color-success)] font-bold mb-2">边界 4: 输出刚好在截断阈值附近</h4>
+ <h4 className="text-heading font-bold mb-2">边界 4: 输出刚好在截断阈值附近</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">场景描述</h5>
  <p className="text-sm text-body">
  工具输出长度接近 50000 字符阈值（49900-50100），截断行为需要精确处理。
  </p>
- <div className="mt-2 bg-[var(--color-success-soft)] p-2 rounded text-xs">
- <strong className="text-[var(--color-success)]">边界计算：</strong>
+ <div className="mt-2 bg-elevated p-2 rounded text-xs">
+ <strong className="text-heading">边界计算：</strong>
  <ul className="text-body mt-1 space-y-1">
- <li>• 阈值: 50000 字符</li>
- <li>• 保留行数: 100 行</li>
- <li>• 头部比例: 20% (20 行)</li>
- <li>• 尾部比例: 80% (80 行)</li>
+ <li>阈值: 50000 字符</li>
+ <li>保留行数: 100 行</li>
+ <li>头部比例: 20% (20 行)</li>
+ <li>尾部比例: 80% (80 行)</li>
  </ul>
  </div>
  </div>
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">截断策略细节</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>行数少但单行很长：</strong> 先按 120 字符自动换行</li>
- <li>• <strong>超长单行：</strong> 换行后再计算截断点</li>
- <li>• <strong>刚好 50000 字符：</strong> 不截断，直接返回</li>
- <li>• <strong>50001+ 字符：</strong> 执行截断 + 保存文件</li>
+ <li><strong>行数少但单行很长：</strong> 先按 120 字符自动换行</li>
+ <li><strong>超长单行：</strong> 换行后再计算截断点</li>
+ <li><strong>刚好 50000 字符：</strong> 不截断，直接返回</li>
+ <li><strong>50001+ 字符：</strong> 执行截断 + 保存文件</li>
  </ul>
  </div>
  </div>
@@ -1312,22 +1315,22 @@ async execute(signal: AbortSignal, updateOutput?: (output: string) => void) {
  <tbody className="text-body">
  <tr className="border- border-edge/50">
  <td className="p-2">100 行 x 400 字符 = 40000</td>
- <td className="p-2 text-[var(--color-success)]">不截断</td>
+ <td className="p-2 text-heading">不截断</td>
  <td className="p-2">否</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="p-2">100 行 x 600 字符 = 60000</td>
- <td className="p-2 text-[var(--color-warning)]">换行后截断</td>
+ <td className="p-2 text-heading">换行后截断</td>
  <td className="p-2">是</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="p-2">10 行 x 6000 字符 = 60000</td>
- <td className="p-2 text-[var(--color-warning)]">先换行再截断</td>
+ <td className="p-2 text-heading">先换行再截断</td>
  <td className="p-2">是</td>
  </tr>
  <tr>
  <td className="p-2">1 行 x 100000 字符</td>
- <td className="p-2 text-[var(--color-danger)]">强制换行并截断</td>
+ <td className="p-2 text-heading">强制换行并截断</td>
  <td className="p-2">是</td>
  </tr>
  </tbody>
@@ -1355,10 +1358,10 @@ async execute(signal: AbortSignal, updateOutput?: (output: string) => void) {
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">处理策略</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• MCP 工具名格式：<code>serverName__toolName</code></li>
- <li>• 通配符规则验证 serverName 完全匹配前缀</li>
- <li>• 支持 argsPattern 对参数进行正则匹配</li>
- <li>• MCP 工具的 Kind 由 annotations 推断</li>
+ <li>MCP 工具名格式：<code>serverName__toolName</code></li>
+ <li>通配符规则验证 serverName 完全匹配前缀</li>
+ <li>支持 argsPattern 对参数进行正则匹配</li>
+ <li>MCP 工具的 Kind 由 annotations 推断</li>
  </ul>
  </div>
  </div>
@@ -1398,23 +1401,23 @@ function getMcpToolKind(tool: McpTool): Kind {
  <p className="text-sm text-body mb-2">
  模式匹配使用前缀匹配，可能存在安全漏洞：
  </p>
- <div className="bg-[var(--color-danger-soft)] p-2 rounded text-xs">
- <strong className="text-[var(--color-danger)]">危险示例：</strong>
+ <div className="bg-elevated p-2 rounded text-xs">
+ <strong className="text-heading">危险示例：</strong>
  <ul className="text-body mt-1 space-y-1">
- <li>• 配置: <code>run_shell_command(git)</code></li>
- <li>• 攻击: <code>git; rm -rf /</code> (命令注入)</li>
- <li>• 结果: 前缀 "git" 匹配，自动通过</li>
+ <li>配置: <code>run_shell_command(git)</code></li>
+ <li>攻击: <code>git; rm -rf /</code> (命令注入)</li>
+ <li>结果: 前缀 "git" 匹配，自动通过</li>
  </ul>
  </div>
  </div>
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">安全建议</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 使用精确命令匹配而非前缀匹配</li>
- <li>• 配置: <code>run_shell_command(git status)</code></li>
- <li>• 避免匹配可组合命令</li>
- <li>• Sandbox 环境提供底层保护</li>
- <li>• 定期审计 allowedTools 配置</li>
+ <li>使用精确命令匹配而非前缀匹配</li>
+ <li>配置: <code>run_shell_command(git status)</code></li>
+ <li>避免匹配可组合命令</li>
+ <li>Sandbox 环境提供底层保护</li>
+ <li>定期审计 allowedTools 配置</li>
  </ul>
  </div>
  </div>
@@ -1451,8 +1454,8 @@ function getMcpToolKind(tool: McpTool): Kind {
  </section>
 
  {/* 常见问题与调试技巧 */}
- <section className="bg-surface rounded-lg p-6 border border-[var(--color-warning)] mt-8">
- <h3 className="text-xl font-semibold text-amber-400 mb-4 flex items-center gap-2">
+ <section className="bg-surface rounded-lg p-6 border-l-2 border-l-edge-hover mt-8">
+ <h3 className="text-xl font-semibold text-heading mb-4 flex items-center gap-2">
  <span>🐛</span>
  常见问题与调试技巧
  </h3>
@@ -1463,23 +1466,23 @@ function getMcpToolKind(tool: McpTool): Kind {
  <div className="flex items-start gap-3">
  <span className="text-2xl">🔴</span>
  <div className="flex-1">
- <h4 className="text-[var(--color-danger)] font-bold mb-2">问题：工具卡在 awaiting_approval 状态不响应</h4>
+ <h4 className="text-heading font-bold mb-2">问题：工具卡在 awaiting_approval 状态不响应</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">症状</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 工具状态显示 awaiting_approval</li>
- <li>• 用户按 Y/N 无反应</li>
- <li>• UI 看似卡死</li>
+ <li>工具状态显示 awaiting_approval</li>
+ <li>用户按 Y/N 无反应</li>
+ <li>UI 看似卡死</li>
  </ul>
  </div>
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">可能原因</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 1. UI 层 onApprove 回调未正确绑定</li>
- <li>• 2. 键盘事件被其他组件截获</li>
- <li>• 3. Scheduler 实例被意外销毁</li>
- <li>• 4. 状态同步延迟 (React 状态未更新)</li>
+ <li>1. UI 层 onApprove 回调未正确绑定</li>
+ <li>2. 键盘事件被其他组件截获</li>
+ <li>3. Scheduler 实例被意外销毁</li>
+ <li>4. 状态同步延迟 (React 状态未更新)</li>
  </ul>
  </div>
  </div>
@@ -1512,22 +1515,22 @@ console.log('onApprove bound:', typeof onApprove);
  <div className="flex items-start gap-3">
  <span className="text-2xl">🟡</span>
  <div className="flex-1">
- <h4 className="text-[var(--color-warning)] font-bold mb-2">问题：YOLO 模式下某些工具仍需确认</h4>
+ <h4 className="text-heading font-bold mb-2">问题：YOLO 模式下某些工具仍需确认</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">症状</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 已设置 <code>--dangerously-skip-permissions</code></li>
- <li>• 但某些工具仍显示确认提示</li>
+ <li>已设置 <code>--dangerously-skip-permissions</code></li>
+ <li>但某些工具仍显示确认提示</li>
  </ul>
  </div>
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">可能原因</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 1. MCP 工具未正确声明 annotations</li>
- <li>• 2. 工具实现的 shouldConfirmExecute 逻辑有误</li>
- <li>• 3. ApprovalMode 未正确传递到 Scheduler</li>
- <li>• 4. 存在硬编码的确认逻辑</li>
+ <li>1. MCP 工具未正确声明 annotations</li>
+ <li>2. 工具实现的 shouldConfirmExecute 逻辑有误</li>
+ <li>3. ApprovalMode 未正确传递到 Scheduler</li>
+ <li>4. 存在硬编码的确认逻辑</li>
  </ul>
  </div>
  </div>
@@ -1573,18 +1576,18 @@ async shouldConfirmExecute(signal: AbortSignal) {
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">症状</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 输出显示 "[CONTENT TRUNCATED]"</li>
- <li>• 提示的文件路径不存在</li>
- <li>• <code>.gemini/tmp/</code> 目录为空</li>
+ <li>输出显示 "[CONTENT TRUNCATED]"</li>
+ <li>提示的文件路径不存在</li>
+ <li><code>.gemini/tmp/</code> 目录为空</li>
  </ul>
  </div>
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">可能原因</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 1. 临时目录创建失败 (权限问题)</li>
- <li>• 2. 文件被清理脚本删除</li>
- <li>• 3. 磁盘空间不足</li>
- <li>• 4. 路径中含特殊字符</li>
+ <li>1. 临时目录创建失败 (权限问题)</li>
+ <li>2. 文件被清理脚本删除</li>
+ <li>3. 磁盘空间不足</li>
+ <li>4. 路径中含特殊字符</li>
  </ul>
  </div>
  </div>
@@ -1623,18 +1626,18 @@ DEBUG=gemini:truncate gemini`}
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">症状</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 配置了 ALLOW 规则但仍需确认</li>
- <li>• 配置了 DENY 规则但仍可执行</li>
- <li>• 规则匹配未按预期工作</li>
+ <li>配置了 ALLOW 规则但仍需确认</li>
+ <li>配置了 DENY 规则但仍可执行</li>
+ <li>规则匹配未按预期工作</li>
  </ul>
  </div>
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">可能原因</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 1. 规则 priority 较低被覆盖</li>
- <li>• 2. 规则 modes 限制不匹配当前模式</li>
- <li>• 3. toolName 或 argsPattern 格式错误</li>
- <li>• 4. MCP 工具名格式错误（需 serverName__toolName）</li>
+ <li>1. 规则 priority 较低被覆盖</li>
+ <li>2. 规则 modes 限制不匹配当前模式</li>
+ <li>3. toolName 或 argsPattern 格式错误</li>
+ <li>4. MCP 工具名格式错误（需 serverName__toolName）</li>
  </ul>
  </div>
  </div>
@@ -1666,7 +1669,7 @@ DEBUG=gemini:policy gemini
 
  {/* 调试工具速查 */}
  <div className="mt-6 bg-surface rounded-lg p-4">
- <h4 className="text-[var(--color-warning)] font-bold mb-3">调试工具速查表</h4>
+ <h4 className="text-heading font-bold mb-3">调试工具速查表</h4>
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
@@ -1709,16 +1712,16 @@ DEBUG=gemini:policy gemini
  </section>
 
  {/* 性能优化建议 */}
- <section className="bg-surface rounded-lg p-6 border border-[var(--color-success)] mt-8">
- <h3 className="text-xl font-semibold text-[var(--color-success)] mb-4 flex items-center gap-2">
+ <section className="bg-surface rounded-lg p-6 border-l-2 border-l-edge-hover mt-8">
+ <h3 className="text-xl font-semibold text-heading mb-4 flex items-center gap-2">
  <span>⚡</span>
  性能优化建议
  </h3>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  {/* 优化 1: 减少确认次数 */}
- <div className="bg-surface rounded-lg p-4 border border-[var(--color-success)]">
- <h4 className="text-[var(--color-success)] font-bold mb-3 flex items-center gap-2">
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover">
+ <h4 className="text-heading font-bold mb-3 flex items-center gap-2">
  <span>🎯</span>
  减少人工确认次数
  </h4>
@@ -1764,8 +1767,8 @@ DEBUG=gemini:policy gemini
  </div>
 
  {/* 优化 2: 减少输出截断开销 */}
- <div className="bg-surface rounded-lg p-4 border border-[var(--color-success)]">
- <h4 className="text-[var(--color-success)] font-bold mb-3 flex items-center gap-2">
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover">
+ <h4 className="text-heading font-bold mb-3 flex items-center gap-2">
  <span>✂️</span>
  减少输出截断开销
  </h4>
@@ -1806,8 +1809,8 @@ DEBUG=gemini:policy gemini
  </div>
 
  {/* 优化 3: 加速批量工具执行 */}
- <div className="bg-surface rounded-lg p-4 border border-[var(--color-success)]">
- <h4 className="text-[var(--color-success)] font-bold mb-3 flex items-center gap-2">
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover">
+ <h4 className="text-heading font-bold mb-3 flex items-center gap-2">
  <span>📦</span>
  加速批量工具执行
  </h4>
@@ -1837,8 +1840,8 @@ DEBUG=gemini:policy gemini
  </div>
 
  {/* 优化 4: 队列管理优化 */}
- <div className="bg-surface rounded-lg p-4 border border-[var(--color-success)]">
- <h4 className="text-[var(--color-success)] font-bold mb-3 flex items-center gap-2">
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover">
+ <h4 className="text-heading font-bold mb-3 flex items-center gap-2">
  <span>📋</span>
  队列管理优化
  </h4>
@@ -1871,7 +1874,7 @@ DEBUG=gemini:policy gemini
 
  {/* 性能基准测试 */}
  <div className="mt-6 bg-surface rounded-lg p-4">
- <h4 className="text-[var(--color-success)] font-bold mb-3">工具调度性能基准</h4>
+ <h4 className="text-heading font-bold mb-3">工具调度性能基准</h4>
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
@@ -1885,49 +1888,49 @@ DEBUG=gemini:policy gemini
  <tbody className="text-body">
  <tr className="border- border-edge/50">
  <td className="p-2">工具参数验证</td>
- <td className="p-2 text-[var(--color-success)]">&lt; 1ms</td>
+ <td className="p-2 text-heading">&lt; 1ms</td>
  <td className="p-2">参数复杂度</td>
  <td className="p-2">无需优化</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="p-2">确认决策判断</td>
- <td className="p-2 text-[var(--color-success)]">&lt; 1ms</td>
+ <td className="p-2 text-heading">&lt; 1ms</td>
  <td className="p-2">白名单大小</td>
  <td className="p-2">保持白名单简洁</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="p-2">用户确认等待</td>
- <td className="p-2 text-[var(--color-warning)]">100ms - 10s</td>
+ <td className="p-2 text-heading">100ms - 10s</td>
  <td className="p-2">用户响应速度</td>
  <td className="p-2">合理配置自动批准</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="p-2">文件读取工具</td>
- <td className="p-2 text-[var(--color-success)]">1 - 50ms</td>
+ <td className="p-2 text-heading">1 - 50ms</td>
  <td className="p-2">文件大小、磁盘类型</td>
  <td className="p-2">使用 SSD</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="p-2">文件编辑工具</td>
- <td className="p-2 text-[var(--color-success)]">5 - 100ms</td>
+ <td className="p-2 text-heading">5 - 100ms</td>
  <td className="p-2">编辑范围</td>
  <td className="p-2">精确匹配编辑范围</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="p-2">Shell 命令执行</td>
- <td className="p-2 text-[var(--color-warning)]">10ms - 120s</td>
+ <td className="p-2 text-heading">10ms - 120s</td>
  <td className="p-2">命令复杂度</td>
  <td className="p-2">设置合理超时</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="p-2">输出截断 + 保存</td>
- <td className="p-2 text-[var(--color-warning)]">5 - 500ms</td>
+ <td className="p-2 text-heading">5 - 500ms</td>
  <td className="p-2">输出大小</td>
  <td className="p-2">调整截断阈值</td>
  </tr>
  <tr>
  <td className="p-2">MCP 工具调用</td>
- <td className="p-2 text-[var(--color-warning)]">50 - 5000ms</td>
+ <td className="p-2 text-heading">50 - 5000ms</td>
  <td className="p-2">网络延迟、服务器性能</td>
  <td className="p-2">本地 MCP Server</td>
  </tr>
@@ -1993,10 +1996,10 @@ DEBUG=gemini:policy gemini
  BashTool -->|"spawn"| Shell
  McpTool -->|"request"| McpServer
 
- style Scheduler fill:#22d3ee,color:#000
- style Config fill:#a855f7,color:#fff
- style GeminiChat fill:#22c55e,color:#000
- style McpServer fill:#f59e0b,color:#000`} title="Scheduler 依赖关系图" />
+ style Scheduler fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Config fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style GeminiChat fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style McpServer fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}`} title="Scheduler 依赖关系图" />
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
  {/* 上游依赖 */}
@@ -2010,15 +2013,15 @@ DEBUG=gemini:policy gemini
  </p>
  <code className="text-xs text-dim">packages/core/src/gemini-chat/gemini-chat.ts</code>
  </div>
- <div className="border-l-2 border-green-500 pl-3">
- <h5 className="text-sm font-semibold text-[var(--color-success)]">useGeminiStream Hook</h5>
+ <div className="border-l-2 border-edge pl-3">
+ <h5 className="text-sm font-semibold text-heading">useGeminiStream Hook</h5>
  <p className="text-xs text-body">
  React 层状态管理，监听工具状态变化，触发 UI 更新。
  </p>
  <code className="text-xs text-dim">packages/cli/src/ui/hooks/useGeminiStream.ts</code>
  </div>
- <div className="border-l-2 border-yellow-500 pl-3">
- <h5 className="text-sm font-semibold text-[var(--color-warning)]">ToolApproval Component</h5>
+ <div className="border-l-2 border-edge pl-3">
+ <h5 className="text-sm font-semibold text-heading">ToolApproval Component</h5>
  <p className="text-xs text-body">
  UI 组件，显示确认对话框，收集用户决策后调用 setToolCallOutcome()。
  </p>
@@ -2038,15 +2041,15 @@ DEBUG=gemini:policy gemini
  </p>
  <code className="text-xs text-dim">packages/core/src/config/core-config.ts</code>
  </div>
- <div className="border-l-2 border-orange-500 pl-3">
+ <div className="border-l-2 border-edge pl-3">
  <h5 className="text-sm font-semibold text-heading">Tool Registry</h5>
  <p className="text-xs text-body">
  工具注册表，通过名称查找工具实例，验证参数 schema。
  </p>
  <code className="text-xs text-dim">packages/core/src/tools/registry.ts</code>
  </div>
- <div className="border-l-2 border-red-500 pl-3">
- <h5 className="text-sm font-semibold text-[var(--color-danger)]">具体工具实现</h5>
+ <div className="border-l-2 border-edge pl-3">
+ <h5 className="text-sm font-semibold text-heading">具体工具实现</h5>
  <p className="text-xs text-body">
  ReadFileTool、EditFileTool、BashTool 等，执行实际操作。
  </p>
@@ -2167,19 +2170,19 @@ interface ToolCallRequestInfo {
  <h4 className="text-heading font-bold mb-3">当前限制</h4>
  <ul className="text-sm text-body space-y-2">
  <li className="flex items-start gap-2">
- <span className="text-[var(--color-danger)]">•</span>
+ <span className="text-heading">•</span>
  <span><strong>串行执行：</strong>多个独立工具无法并行执行</span>
  </li>
  <li className="flex items-start gap-2">
- <span className="text-[var(--color-danger)]">•</span>
+ <span className="text-heading">•</span>
  <span><strong>工具名不一致：</strong>Core 层与 CLI 层的工具名定义有差异</span>
  </li>
  <li className="flex items-start gap-2">
- <span className="text-[var(--color-danger)]">•</span>
+ <span className="text-heading">•</span>
  <span><strong>MCP Kind 推断：</strong>依赖 MCP Server 的 annotations，缺少统一标准</span>
  </li>
  <li className="flex items-start gap-2">
- <span className="text-[var(--color-danger)]">•</span>
+ <span className="text-heading">•</span>
  <span><strong>白名单前缀匹配：</strong>存在安全漏洞风险</span>
  </li>
  </ul>
@@ -2189,19 +2192,19 @@ interface ToolCallRequestInfo {
  <h4 className="text-heading font-bold mb-3">潜在改进方向</h4>
  <ul className="text-sm text-body space-y-2">
  <li className="flex items-start gap-2">
- <span className="text-[var(--color-success)]">•</span>
+ <span className="text-heading">•</span>
  <span><strong>并行执行：</strong>识别无依赖的只读工具，支持并行执行</span>
  </li>
  <li className="flex items-start gap-2">
- <span className="text-[var(--color-success)]">•</span>
+ <span className="text-heading">•</span>
  <span><strong>智能批准：</strong>基于历史行为学习，自动调整批准策略</span>
  </li>
  <li className="flex items-start gap-2">
- <span className="text-[var(--color-success)]">•</span>
+ <span className="text-heading">•</span>
  <span><strong>正则白名单：</strong>支持正则表达式匹配，提升安全性</span>
  </li>
  <li className="flex items-start gap-2">
- <span className="text-[var(--color-success)]">•</span>
+ <span className="text-heading">•</span>
  <span><strong>工具链优化：</strong>识别常见工具链模式，一次性批准</span>
  </li>
  </ul>

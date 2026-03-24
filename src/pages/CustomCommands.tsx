@@ -3,6 +3,9 @@ import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 const relatedPages: RelatedPage[] = [
  { id: 'slash-cmd', label: '斜杠命令', description: '内置命令系统概览' },
@@ -44,13 +47,13 @@ export function CustomCommands() {
  rename --> register
  register --> ready
 
- style start fill:#22d3ee,color:#000
- style ready fill:#22c55e,color:#000
- style check_trust fill:#a855f7,color:#fff
- style resolve_conflict fill:#a855f7,color:#fff
- style skip_project fill:#ef4444,color:#fff
- style load_user fill:#3b82f6,color:#fff
- style load_project fill:#8b5cf6,color:#fff`;
+ style start fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style ready fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style check_trust fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style resolve_conflict fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style skip_project fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style load_user fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style load_project fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  // Prompt 处理流程
  const promptProcessingFlow = `flowchart TD
@@ -80,11 +83,11 @@ export function CustomCommands() {
  default_args --> final_prompt
  final_prompt --> send_ai
 
- classDef start_node fill:#22d3ee,color:#000
- classDef terminal_node fill:#22c55e,color:#000
- classDef decision_node fill:#a855f7,color:#fff
- classDef processor_node fill:#3b82f6,color:#fff
- classDef shell_node fill:#f59e0b,color:#fff
+ classDef start_node fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ classDef terminal_node fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ classDef decision_node fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ classDef processor_node fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ classDef shell_node fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
 
  class start start_node
  class send_ai terminal_node
@@ -133,12 +136,12 @@ export function CustomCommands() {
  add_session --> execute
  execute --> inject
 
- classDef start fill:#22d3ee,color:#000
- classDef success fill:#22c55e,color:#000
- classDef error fill:#ef4444,color:#fff
- classDef decision fill:#a855f7,color:#fff
- classDef warn fill:#f59e0b,color:#fff
- classDef approve fill:#22c55e,color:#fff
+ classDef start fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ classDef success fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ classDef error fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ classDef decision fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ classDef warn fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ classDef approve fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
 
  class start start
  class inject success
@@ -488,12 +491,12 @@ if (!allAllowed && isHardDenial) {
  <code>tools.core</code>（全局允许列表）、<code>sessionShellAllowlist</code>（会话允许列表）
  </p>
  <div className="space-y-2 text-sm text-body">
- <div className="bg-red-500/10 border border-red-500/30 rounded p-3">
- <strong className="text-red-400">1. tools.exclude（最高优先级）</strong>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded p-3">
+ <strong className="text-heading">1. tools.exclude（最高优先级）</strong>
  <p className="mt-1">包含 <code>run_shell_command(pattern)</code> 形式的阻止规则，匹配的命令<strong>硬拒绝</strong>，无法通过确认对话框绕过</p>
  </div>
- <div className="bg-green-500/10 border border-green-500/30 rounded p-3">
- <strong className="text-green-400">2. tools.core（全局允许列表）</strong>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded p-3">
+ <strong className="text-heading">2. tools.core（全局允许列表）</strong>
  <p className="mt-1">
  包含 <code>run_shell_command</code> 或 <code>run_shell_command(pattern)</code> 形式的允许规则：
  </p>
@@ -623,11 +626,11 @@ prompt = """
  />
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
- <div className="bg-elevated/5 rounded-lg p-3 border border-white/10">
+ <div className="bg-elevated/5 rounded-lg p-3 border border-edge/40">
  <code className="text-heading text-sm">@{'{src/utils.ts}'}</code>
  <p className="text-xs text-body mt-1">注入单个文件内容</p>
  </div>
- <div className="bg-elevated/5 rounded-lg p-3 border border-white/10">
+ <div className="bg-elevated/5 rounded-lg p-3 border border-edge/40">
  <code className="text-heading text-sm">@{'{src/components/}'}</code>
  <p className="text-xs text-body mt-1">递归注入目录（尊重 .gitignore）</p>
  </div>
@@ -699,7 +702,7 @@ prompt = """
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">为什么项目命令优先于用户命令？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么项目命令优先于用户命令？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：同名命令时，项目级覆盖用户级。</p>
  <p><strong>原因</strong>：</p>
@@ -712,7 +715,7 @@ prompt = """
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-red-400 font-bold mb-2">为什么非信任工作区不加载项目命令？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么非信任工作区不加载项目命令？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：未信任的工作区只加载用户级命令。</p>
  <p><strong>原因</strong>：</p>

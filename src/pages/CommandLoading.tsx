@@ -4,6 +4,10 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
+
 
 const relatedPages: RelatedPage[] = [
  { id: 'slash-cmd', label: '斜杠命令', description: '命令使用指南' },
@@ -50,7 +54,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">命令来源</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-amber-500">30+</div>
+ <div className="text-2xl font-bold text-heading">30+</div>
  <div className="text-xs text-dim">内置命令</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
@@ -71,7 +75,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  User ~/.config
  </span>
  <span className="text-dim">→</span>
- <span className="px-3 py-1.5 bg-amber-500/20 text-amber-500 rounded-lg border border-amber-500/30">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover/30">
  Project .gemini
  </span>
  <span className="text-dim">→</span>
@@ -134,244 +138,244 @@ export function CommandLoading() {
  resolve --> freeze
  freeze --> output
 
- style BL fill:#22d3ee,color:#000
- style FL fill:#a855f7,color:#fff
- style resolve fill:#f59e0b,color:#000
- style output fill:#22c55e,color:#000`;
+ style BL fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style FL fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style resolve fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style output fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  const commandServiceCode = `// packages/cli/src/services/CommandService.ts
 
 export class CommandService {
- private constructor(private readonly commands: readonly SlashCommand[]) {}
+  private constructor(private readonly commands: readonly SlashCommand[]) {}
 
- /**
- * 工厂方法：并行加载所有命令并解决冲突
- */
- static async create(
- loaders: ICommandLoader[],
- signal: AbortSignal,
- ): Promise<CommandService> {
- // 1. 并行执行所有加载器
- const results = await Promise.allSettled(
- loaders.map((loader) => loader.loadCommands(signal)),
- );
+  /**
+  * 工厂方法：并行加载所有命令并解决冲突
+  */
+  static async create(
+  loaders: ICommandLoader[],
+  signal: AbortSignal,
+  ): Promise<CommandService> {
+  // 1. 并行执行所有加载器
+  const results = await Promise.allSettled(
+  loaders.map((loader) => loader.loadCommands(signal)),
+  );
 
- // 2. 收集所有命令
- const allCommands: SlashCommand[] = [];
- for (const result of results) {
- if (result.status === 'fulfilled') {
- allCommands.push(...result.value);
- } else {
- console.debug('A command loader failed:', result.reason);
- }
- }
+  // 2. 收集所有命令
+  const allCommands: SlashCommand[] = [];
+  for (const result of results) {
+  if (result.status === 'fulfilled') {
+  allCommands.push(...result.value);
+  } else {
+  console.debug('A command loader failed:', result.reason);
+  }
+  }
 
- // 3. 解决命名冲突
- const commandMap = new Map<string, SlashCommand>();
- for (const cmd of allCommands) {
- let finalName = cmd.name;
+  // 3. 解决命名冲突
+  const commandMap = new Map<string, SlashCommand>();
+  for (const cmd of allCommands) {
+  let finalName = cmd.name;
 
- // 扩展命令冲突时重命名
- if (cmd.extensionName && commandMap.has(cmd.name)) {
- let renamedName = \`\${cmd.extensionName}.\${cmd.name}\`;
- let suffix = 1;
- while (commandMap.has(renamedName)) {
- renamedName = \`\${cmd.extensionName}.\${cmd.name}\${suffix}\`;
- suffix++;
- }
- finalName = renamedName;
- }
+  // 扩展命令冲突时重命名
+  if (cmd.extensionName && commandMap.has(cmd.name)) {
+  let renamedName = \`\${cmd.extensionName}.\${cmd.name}\`;
+  let suffix = 1;
+  while (commandMap.has(renamedName)) {
+  renamedName = \`\${cmd.extensionName}.\${cmd.name}\${suffix}\`;
+  suffix++;
+  }
+  finalName = renamedName;
+  }
 
- commandMap.set(finalName, { ...cmd, name: finalName });
- }
+  commandMap.set(finalName, { ...cmd, name: finalName });
+  }
 
- // 4. 冻结并返回
- const finalCommands = Object.freeze(Array.from(commandMap.values()));
- return new CommandService(finalCommands);
- }
+  // 4. 冻结并返回
+  const finalCommands = Object.freeze(Array.from(commandMap.values()));
+  return new CommandService(finalCommands);
+  }
 
- getCommands(): readonly SlashCommand[] {
- return this.commands;
- }
+  getCommands(): readonly SlashCommand[] {
+  return this.commands;
+  }
 }`;
 
  const builtinLoaderCode = `// packages/cli/src/services/BuiltinCommandLoader.ts
 
 export class BuiltinCommandLoader implements ICommandLoader {
- constructor(private config: Config | null) {}
+  constructor(private config: Config | null) {}
 
- async loadCommands(_signal: AbortSignal): Promise<SlashCommand[]> {
- const allDefinitions: Array<SlashCommand | null> = [
- aboutCommand,
- agentsCommand,
- approvalModeCommand,
- authCommand,
- bugCommand,
- chatCommand,
- clearCommand,
- compressCommand,
- copyCommand,
- corgiCommand,
- docsCommand,
- directoryCommand,
- editorCommand,
- extensionsCommand,
- helpCommand,
- await ideCommand(),
- initCommand,
- mcpCommand,
- memoryCommand,
- modelCommand,
- // 条件命令
- ...(this.config?.getFolderTrust() ? [permissionsCommand] : []),
- quitCommand,
- quitConfirmCommand,
- restoreCommand(this.config),
- statsCommand,
- summaryCommand,
- themeCommand,
- toolsCommand,
- settingsCommand,
- vimCommand,
- setupGithubCommand,
- terminalSetupCommand,
- ];
+  async loadCommands(_signal: AbortSignal): Promise<SlashCommand[]> {
+  const allDefinitions: Array<SlashCommand | null> = [
+  aboutCommand,
+  agentsCommand,
+  approvalModeCommand,
+  authCommand,
+  bugCommand,
+  chatCommand,
+  clearCommand,
+  compressCommand,
+  copyCommand,
+  corgiCommand,
+  docsCommand,
+  directoryCommand,
+  editorCommand,
+  extensionsCommand,
+  helpCommand,
+  await ideCommand(),
+  initCommand,
+  mcpCommand,
+  memoryCommand,
+  modelCommand,
+  // 条件命令
+  ...(this.config?.getFolderTrust() ? [permissionsCommand] : []),
+  quitCommand,
+  quitConfirmCommand,
+  restoreCommand(this.config),
+  statsCommand,
+  summaryCommand,
+  themeCommand,
+  toolsCommand,
+  settingsCommand,
+  vimCommand,
+  setupGithubCommand,
+  terminalSetupCommand,
+  ];
 
- return allDefinitions.filter((cmd): cmd is SlashCommand => cmd !== null);
- }
+  return allDefinitions.filter((cmd): cmd is SlashCommand => cmd !== null);
+  }
 }`;
 
  const fileLoaderCode = `// packages/cli/src/services/FileCommandLoader.ts
 
 export class FileCommandLoader implements ICommandLoader {
- private readonly projectRoot: string;
- private readonly folderTrust: boolean;
+  private readonly projectRoot: string;
+  private readonly folderTrust: boolean;
 
- constructor(private readonly config: Config | null) {
- this.folderTrust = !!config?.getFolderTrust();
- this.projectRoot = config?.getProjectRoot() || process.cwd();
- }
+  constructor(private readonly config: Config | null) {
+  this.folderTrust = !!config?.getFolderTrust();
+  this.projectRoot = config?.getProjectRoot() || process.cwd();
+  }
 
- async loadCommands(signal: AbortSignal): Promise<SlashCommand[]> {
- // 不信任的文件夹不加载文件命令
- if (this.folderTrustEnabled && !this.folderTrust) {
- return [];
- }
+  async loadCommands(signal: AbortSignal): Promise<SlashCommand[]> {
+  // 不信任的文件夹不加载文件命令
+  if (this.folderTrustEnabled && !this.folderTrust) {
+  return [];
+  }
 
- const allCommands: SlashCommand[] = [];
- const commandDirs = this.getCommandDirectories();
+  const allCommands: SlashCommand[] = [];
+  const commandDirs = this.getCommandDirectories();
 
- for (const dirInfo of commandDirs) {
- const files = await glob('**/*.toml', { cwd: dirInfo.path, signal });
- const commands = await Promise.all(
- files.map((file) => this.parseAndAdaptFile(
- path.join(dirInfo.path, file),
- dirInfo.path,
- dirInfo.extensionName,
- ))
- );
- allCommands.push(...commands.filter(Boolean));
- }
+  for (const dirInfo of commandDirs) {
+  const files = await glob('**/*.toml', { cwd: dirInfo.path, signal });
+  const commands = await Promise.all(
+  files.map((file) => this.parseAndAdaptFile(
+  path.join(dirInfo.path, file),
+  dirInfo.path,
+  dirInfo.extensionName,
+  ))
+  );
+  allCommands.push(...commands.filter(Boolean));
+  }
 
- return allCommands;
- }
+  return allCommands;
+  }
 
- private getCommandDirectories(): CommandDirectory[] {
- return [
- { path: Storage.getUserCommandsDir() }, // 用户级
- { path: storage.getProjectCommandsDir() }, // 项目级
- ...this.getExtensionCommandDirs(), // 扩展级
- ];
- }
+  private getCommandDirectories(): CommandDirectory[] {
+  return [
+  { path: Storage.getUserCommandsDir() }, // 用户级
+  { path: storage.getProjectCommandsDir() }, // 项目级
+  ...this.getExtensionCommandDirs(), // 扩展级
+  ];
+  }
 }`;
 
  const tomlParsingCode = `// TOML 命令文件解析
 
 const TomlCommandDefSchema = z.object({
- prompt: z.string({ required_error: "The 'prompt' field is required." }),
- description: z.string().optional(),
+  prompt: z.string({ required_error: "The 'prompt' field is required." }),
+  description: z.string().optional(),
 });
 
 private async parseAndAdaptFile(
- filePath: string,
- baseDir: string,
- extensionName?: string,
+  filePath: string,
+  baseDir: string,
+  extensionName?: string,
 ): Promise<SlashCommand | null> {
- // 1. 读取文件
- const fileContent = await fs.readFile(filePath, 'utf-8');
+  // 1. 读取文件
+  const fileContent = await fs.readFile(filePath, 'utf-8');
 
- // 2. 解析 TOML
- const parsed = toml.parse(fileContent);
+  // 2. 解析 TOML
+  const parsed = toml.parse(fileContent);
 
- // 3. 验证 Schema
- const validationResult = TomlCommandDefSchema.safeParse(parsed);
- if (!validationResult.success) {
- console.error(\`Skipping invalid command file: \${filePath}\`);
- return null;
- }
+  // 3. 验证 Schema
+  const validationResult = TomlCommandDefSchema.safeParse(parsed);
+  if (!validationResult.success) {
+  console.error(\`Skipping invalid command file: \${filePath}\`);
+  return null;
+  }
 
- // 4. 生成命令名（路径转换）
- // examples/test.toml → examples:test
- const relativePath = path.relative(baseDir, filePath);
- const commandName = relativePath
- .slice(0, -5) // 移除 .toml
- .split(path.sep)
- .map((s) => s.replaceAll(':', '_'))
- .join(':');
+  // 4. 生成命令名（路径转换）
+  // examples/test.toml → examples:test
+  const relativePath = path.relative(baseDir, filePath);
+  const commandName = relativePath
+  .slice(0, -5) // 移除 .toml
+  .split(path.sep)
+  .map((s) => s.replaceAll(':', '_'))
+  .join(':');
 
- // 5. 构建处理器链
- const processors: IPromptProcessor[] = [];
- if (usesAtFileInjection) processors.push(new AtFileProcessor());
- if (usesShellInjection) processors.push(new ShellProcessor());
- if (!usesArgs) processors.push(new DefaultArgumentProcessor());
+  // 5. 构建处理器链
+  const processors: IPromptProcessor[] = [];
+  if (usesAtFileInjection) processors.push(new AtFileProcessor());
+  if (usesShellInjection) processors.push(new ShellProcessor());
+  if (!usesArgs) processors.push(new DefaultArgumentProcessor());
 
- // 6. 返回命令定义
- return {
- name: commandName,
- description: validDef.description || \`Custom command\`,
- kind: CommandKind.FILE,
- extensionName,
- action: async (context, args) => {
- let content = [{ text: validDef.prompt }];
- for (const processor of processors) {
- content = await processor.process(content, context);
- }
- return { type: 'submit_prompt', content };
- },
- };
+  // 6. 返回命令定义
+  return {
+  name: commandName,
+  description: validDef.description || \`Custom command\`,
+  kind: CommandKind.FILE,
+  extensionName,
+  action: async (context, args) => {
+  let content = [{ text: validDef.prompt }];
+  for (const processor of processors) {
+  content = await processor.process(content, context);
+  }
+  return { type: 'submit_prompt', content };
+  },
+  };
 }`;
 
  const conflictResolutionCode = `// 冲突解决策略
 
 /**
- * 命令冲突解决规则：
- *
- * 1. 非扩展命令（内置/用户/项目）：后者覆盖前者
- * - 加载顺序：Builtin → User → Project
- * - 项目命令可以覆盖用户命令和内置命令
- *
- * 2. 扩展命令：冲突时重命名
- * - 不覆盖已有命令
- * - 重命名为 extensionName.commandName
- * - 多次冲突时添加数字后缀
- */
+  * 命令冲突解决规则：
+  *
+  * 1. 非扩展命令（内置/用户/项目）：后者覆盖前者
+  * - 加载顺序：Builtin → User → Project
+  * - 项目命令可以覆盖用户命令和内置命令
+  *
+  * 2. 扩展命令：冲突时重命名
+  * - 不覆盖已有命令
+  * - 重命名为 extensionName.commandName
+  * - 多次冲突时添加数字后缀
+  */
 
 // 冲突处理示例
 const commandMap = new Map<string, SlashCommand>();
 
 for (const cmd of allCommands) {
- if (cmd.extensionName && commandMap.has(cmd.name)) {
- // 扩展命令冲突 → 重命名
- // "help" → "my-ext.help"
- let newName = \`\${cmd.extensionName}.\${cmd.name}\`;
- while (commandMap.has(newName)) {
- newName = \`\${cmd.extensionName}.\${cmd.name}\${suffix++}\`;
- }
- commandMap.set(newName, { ...cmd, name: newName });
- } else {
- // 非扩展命令 → 直接覆盖
- commandMap.set(cmd.name, cmd);
- }
+  if (cmd.extensionName && commandMap.has(cmd.name)) {
+  // 扩展命令冲突 → 重命名
+  // "help" → "my-ext.help"
+  let newName = \`\${cmd.extensionName}.\${cmd.name}\`;
+  while (commandMap.has(newName)) {
+  newName = \`\${cmd.extensionName}.\${cmd.name}\${suffix++}\`;
+  }
+  commandMap.set(newName, { ...cmd, name: newName });
+  } else {
+  // 非扩展命令 → 直接覆盖
+  commandMap.set(cmd.name, cmd);
+  }
 }`;
 
  return (
@@ -400,10 +404,10 @@ for (const cmd of allCommands) {
  <div className="text-sm space-y-2">
  <p className="text-body">内置命令加载器</p>
  <ul className="text-body space-y-1">
- <li>• 硬编码的核心命令</li>
- <li>• 30+ 内置命令</li>
- <li>• 同步加载，无 IO</li>
- <li>• 条件命令支持</li>
+ <li>硬编码的核心命令</li>
+ <li>30+ 内置命令</li>
+ <li>同步加载，无 IO</li>
+ <li>条件命令支持</li>
  </ul>
  </div>
  </HighlightBox>
@@ -412,10 +416,10 @@ for (const cmd of allCommands) {
  <div className="text-sm space-y-2">
  <p className="text-body">文件命令加载器</p>
  <ul className="text-body space-y-1">
- <li>• 扫描 TOML 文件</li>
- <li>• 支持递归目录</li>
- <li>• Zod Schema 验证</li>
- <li>• 处理器链构建</li>
+ <li>扫描 TOML 文件</li>
+ <li>支持递归目录</li>
+ <li>Zod Schema 验证</li>
+ <li>处理器链构建</li>
  </ul>
  </div>
  </HighlightBox>

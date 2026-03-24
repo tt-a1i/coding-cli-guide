@@ -5,6 +5,9 @@ import { Module } from '../components/Module';
 import { ComparisonTable } from '../components/ComparisonTable';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
  return (
@@ -24,14 +27,14 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="bg-base rounded-lg p-4 border-l-[3px] border-edge">
  <h4 className="text-heading font-semibold mb-2">核心设计原则</h4>
  <ul className="text-body text-sm space-y-2">
- <li>- <strong className="text-heading">请求-响应模式</strong>：AI 不是持续运行的服务，每次交互都是独立的 API 调用</li>
- <li>- <strong className="text-heading">CLI 为中心</strong>：所有工具执行发生在本地，AI 只负责决策</li>
- <li>- <strong className="text-heading">流式处理</strong>：实时处理 AI 响应，提供即时反馈</li>
+ <li><strong className="text-heading">请求-响应模式</strong>：AI 不是持续运行的服务，每次交互都是独立的 API 调用</li>
+ <li><strong className="text-heading">CLI 为中心</strong>：所有工具执行发生在本地，AI 只负责决策</li>
+ <li><strong className="text-heading">流式处理</strong>：实时处理 AI 响应，提供即时反馈</li>
  </ul>
  </div>
 
- <div className="bg-base rounded-lg p-4 border-l-[3px] border-amber-400">
- <h4 className="text-amber-400 font-semibold mb-2">为什么这样设计</h4>
+ <div className="bg-base rounded-lg p-4 border-l-[3px] border-edge">
+ <h4 className="text-heading font-semibold mb-2">为什么这样设计</h4>
  <div className="text-body text-sm space-y-2">
  <p><strong className="text-heading">安全性</strong>：工具在本地执行意味着用户完全控制权限，不需要将敏感数据发送到云端</p>
  <p><strong className="text-heading">灵活性</strong>：CLI 层和 Core 层分离，便于在不同 Gemini 后端（Gemini API / Vertex AI / Code Assist）之间切换</p>
@@ -61,8 +64,8 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
  </div>
 
- <div className="bg-base rounded-lg p-4 border-l-[3px] border-amber-400">
- <h4 className="text-amber-400 font-semibold mb-2">设计权衡</h4>
+ <div className="bg-base rounded-lg p-4 border-l-[3px] border-edge">
+ <h4 className="text-heading font-semibold mb-2">设计权衡</h4>
  <div className="text-body text-sm space-y-2">
  <p><strong className="text-heading">复杂性 vs 灵活性</strong>：多层架构增加了代码复杂度，但提供了极大的扩展能力</p>
  <p><strong className="text-heading">安全 vs 便利</strong>：审批机制可能降低效率，但保护了用户免受误操作</p>
@@ -566,7 +569,7 @@ sequenceDiagram
  <p className="mb-2">分层也有成本，需要权衡：</p>
  <div className="grid md:grid-cols-2 gap-4 mt-3">
  <div>
- <p className="text-emerald-400 font-semibold mb-1">收益</p>
+ <p className="text-heading font-semibold mb-1">收益</p>
  <ul className="pl-5 list-disc text-sm text-body">
  <li>关注点分离，易于理解</li>
  <li>各层可独立测试</li>
@@ -575,7 +578,7 @@ sequenceDiagram
  </ul>
  </div>
  <div>
- <p className="text-amber-400 font-semibold mb-1">代价</p>
+ <p className="text-heading font-semibold mb-1">代价</p>
  <ul className="pl-5 list-disc text-sm text-body">
  <li>更多文件和目录</li>
  <li>层间通信开销</li>
@@ -602,11 +605,11 @@ graph TB
  X2["Core ❌→ CLI"]
  end
 
- style CLI fill:#22c55e20,stroke:#22c55e
- style Core fill:#3b82f620,stroke:#3b82f6
- style Tool fill:#eab30820,stroke:#eab308
- style X1 fill:#ef444420,stroke:#ef4444
- style X2 fill:#ef444420,stroke:#ef4444
+ style CLI fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},stroke:${getThemeColor("--color-success", "#15803d")}
+ style Core fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},stroke:${getThemeColor("--color-primary", "#2457a6")}
+ style Tool fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},stroke:${getThemeColor("--color-warning", "#b45309")}
+ style X1 fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},stroke:${getThemeColor("--color-danger", "#b91c1c")}
+ style X2 fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},stroke:${getThemeColor("--color-danger", "#b91c1c")}
 `} />
  </Layer>
 
@@ -649,14 +652,14 @@ graph TB
  <div className="bg-surface rounded-lg p-5 border border-edge">
  <div className="flex items-center gap-3 mb-3">
  <h4 className="text-lg font-semibold text-heading">Policy Engine</h4>
- <span className="text-xs px-2 py-0.5 rounded bg-amber-400/10 text-amber-400 border border-amber-400/20">权限决策</span>
+ <span className="text-xs px-2 py-0.5 rounded bg-elevated text-heading border-l-2 border-l-edge-hover/20">权限决策</span>
  </div>
  <div className="grid md:grid-cols-2 gap-4">
  <div>
  <p className="text-heading mb-2"><strong>决策类型：</strong></p>
  <ul className="pl-5 list-disc text-sm text-body space-y-1">
- <li><code className="text-emerald-400">ALLOW</code> - 直接允许执行</li>
- <li><code className="text-amber-400">DENY</code> - 直接拒绝执行</li>
+ <li><code className="text-heading">ALLOW</code> - 直接允许执行</li>
+ <li><code className="text-heading">DENY</code> - 直接拒绝执行</li>
  <li><code className="text-heading">ASK_USER</code> - 请求用户确认</li>
  </ul>
  </div>
@@ -711,17 +714,17 @@ graph LR
  Policy --> Tool
  end
 
- style Hook fill:#0891b220,stroke:#0891b2
- style Policy fill:#ea580c20,stroke:#ea580c
- style Bus fill:#6366f120,stroke:#6366f1
- style Tool fill:#eab30820,stroke:#eab308
- style UI fill:#22c55e20,stroke:#22c55e
+ style Hook fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},stroke:${getThemeColor("--color-primary", "#2457a6")}
+ style Policy fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},stroke:${getThemeColor("--color-warning", "#b45309")}
+ style Bus fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},stroke:${getThemeColor("--color-primary", "#2457a6")}
+ style Tool fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},stroke:${getThemeColor("--color-warning", "#b45309")}
+ style UI fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},stroke:${getThemeColor("--color-success", "#15803d")}
 `} />
 
  <HighlightBox title="为什么用事件驱动？" variant="info">
  <div className="grid md:grid-cols-2 gap-4">
  <div>
- <p className="text-emerald-400 font-semibold mb-1">优势</p>
+ <p className="text-heading font-semibold mb-1">优势</p>
  <ul className="pl-5 list-disc text-sm text-body">
  <li>组件间松耦合，易于测试</li>
  <li>新功能可通过订阅事件扩展</li>
@@ -730,7 +733,7 @@ graph LR
  </ul>
  </div>
  <div>
- <p className="text-amber-400 font-semibold mb-1">权衡</p>
+ <p className="text-heading font-semibold mb-1">权衡</p>
  <ul className="pl-5 list-disc text-sm text-body">
  <li>事件流追踪较复杂</li>
  <li>需要理解订阅关系</li>
@@ -748,7 +751,7 @@ graph LR
  </p>
 
  <div className="space-y-4">
- <div className="bg-surface rounded-lg p-4 border-l-[3px] border-amber-400">
+ <div className="bg-surface rounded-lg p-4 border-l-[3px] border-edge">
  <div className="flex items-start gap-3">
  <div className="flex-1">
  <h4 className="font-semibold text-heading mb-2">API 连接失败</h4>
@@ -770,7 +773,7 @@ graph LR
  </div>
  </div>
 
- <div className="bg-surface rounded-lg p-4 border-l-[3px] border-amber-400">
+ <div className="bg-surface rounded-lg p-4 border-l-[3px] border-edge">
  <div className="flex items-start gap-3">
  <div className="flex-1">
  <h4 className="font-semibold text-heading mb-2">Token 超限</h4>
@@ -836,7 +839,7 @@ graph LR
  </div>
  </div>
 
- <div className="bg-surface rounded-lg p-4 border-l-[3px] border-emerald-400">
+ <div className="bg-surface rounded-lg p-4 border-l-[3px] border-edge">
  <div className="flex items-start gap-3">
  <div className="flex-1">
  <h4 className="font-semibold text-heading mb-2">响应速度慢</h4>

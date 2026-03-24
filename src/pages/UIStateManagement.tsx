@@ -4,6 +4,9 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 const relatedPages: RelatedPage[] = [
  { id: 'ui', label: 'UI渲染层', description: 'Ink 渲染架构' },
@@ -54,7 +57,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">渲染引擎</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-[var(--color-warning)]">React</div>
+ <div className="text-2xl font-bold text-heading">React</div>
  <div className="text-xs text-dim">状态模型</div>
  </div>
  </div>
@@ -72,7 +75,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <span className="px-3 py-1.5 bg-elevated/20 text-heading rounded-lg border border-edge/30">
  UI 状态
  </span>
- <span className="px-3 py-1.5 bg-[var(--color-warning-soft)] text-[var(--color-warning)] rounded-lg border border-[var(--color-warning)]">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover">
  输入焦点
  </span>
  </div>
@@ -129,214 +132,214 @@ export function UIStateManagement() {
  Keypress --> VimMode
  VimMode --> ShellFocus
 
- style App fill:#a855f7,color:#fff
- style Session fill:#22d3ee,color:#000
- style UIState fill:#22c55e,color:#000
- style Keypress fill:#f59e0b,color:#000`;
+ style App fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Session fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style UIState fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Keypress fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  const appContextCode = `// packages/cli/src/ui/contexts/AppContext.tsx
 
 export interface AppState {
- version: string; // CLI 版本号
- startupWarnings: string[]; // 启动时的警告信息
+  version: string; // CLI 版本号
+  startupWarnings: string[]; // 启动时的警告信息
 }
 
 export const AppContext = createContext<AppState | null>(null);
 
 export const useAppContext = () => {
- const context = useContext(AppContext);
- if (!context) {
- throw new Error('useAppContext must be used within an AppProvider');
- }
- return context;
+  const context = useContext(AppContext);
+  if (!context) {
+  throw new Error('useAppContext must be used within an AppProvider');
+  }
+  return context;
 };`;
 
  const sessionContextCode = `// packages/cli/src/ui/contexts/SessionContext.tsx
 
 export interface SessionStatsState {
- sessionId: string;
- sessionStartTime: Date;
- metrics: SessionMetrics; // 模型/工具调用统计
- lastPromptTokenCount: number;
- promptCount: number;
+  sessionId: string;
+  sessionStartTime: Date;
+  metrics: SessionMetrics; // 模型/工具调用统计
+  lastPromptTokenCount: number;
+  promptCount: number;
 }
 
 export interface ComputedSessionStats {
- totalApiTime: number;
- totalToolTime: number;
- agentActiveTime: number;
- cacheEfficiency: number; // 缓存命中率
- successRate: number; // 成功率
- totalLinesAdded: number;
- totalLinesRemoved: number;
+  totalApiTime: number;
+  totalToolTime: number;
+  agentActiveTime: number;
+  cacheEfficiency: number; // 缓存命中率
+  successRate: number; // 成功率
+  totalLinesAdded: number;
+  totalLinesRemoved: number;
 }
 
 export const SessionStatsProvider: React.FC<{ children: React.ReactNode }> = ({
- children,
+  children,
 }) => {
- const [stats, setStats] = useState<SessionStatsState>({
- sessionId,
- sessionStartTime: new Date(),
- metrics: uiTelemetryService.getMetrics(),
- lastPromptTokenCount: 0,
- promptCount: 0,
- });
+  const [stats, setStats] = useState<SessionStatsState>({
+  sessionId,
+  sessionStartTime: new Date(),
+  metrics: uiTelemetryService.getMetrics(),
+  lastPromptTokenCount: 0,
+  promptCount: 0,
+  });
 
- useEffect(() => {
- // 订阅遥测服务更新
- const handleUpdate = ({ metrics, lastPromptTokenCount }) => {
- setStats((prev) => {
- if (areMetricsEqual(prev.metrics, metrics)) return prev;
- return { ...prev, metrics, lastPromptTokenCount };
- });
- };
+  useEffect(() => {
+  // 订阅遥测服务更新
+  const handleUpdate = ({ metrics, lastPromptTokenCount }) => {
+  setStats((prev) => {
+  if (areMetricsEqual(prev.metrics, metrics)) return prev;
+  return { ...prev, metrics, lastPromptTokenCount };
+  });
+  };
 
- uiTelemetryService.on('update', handleUpdate);
- return () => uiTelemetryService.off('update', handleUpdate);
- }, []);
+  uiTelemetryService.on('update', handleUpdate);
+  return () => uiTelemetryService.off('update', handleUpdate);
+  }, []);
 
- // ...
+  // ...
 };`;
 
  const uiStateContextCode = `// packages/cli/src/ui/contexts/UIStateContext.tsx
 
 export interface UIState {
- // 历史与消息
- history: HistoryItem[];
- historyManager: UseHistoryManagerReturn;
- pendingHistoryItems: HistoryItemWithoutId[];
+  // 历史与消息
+  history: HistoryItem[];
+  historyManager: UseHistoryManagerReturn;
+  pendingHistoryItems: HistoryItemWithoutId[];
 
- // 认证状态
- isAuthenticating: boolean;
- authError: string | null;
- isAuthDialogOpen: boolean;
- isGoogleAuth: boolean;
- deviceAuth: DeviceAuthorizationInfo | null;
- authStatus: 'idle' | 'polling' | 'success' | 'error' | 'timeout';
+  // 认证状态
+  isAuthenticating: boolean;
+  authError: string | null;
+  isAuthDialogOpen: boolean;
+  isGoogleAuth: boolean;
+  deviceAuth: DeviceAuthorizationInfo | null;
+  authStatus: 'idle' | 'polling' | 'success' | 'error' | 'timeout';
 
- // 对话框状态
- isThemeDialogOpen: boolean;
- isSettingsDialogOpen: boolean;
- isModelDialogOpen: boolean;
- isPermissionsDialogOpen: boolean;
- isFolderTrustDialogOpen: boolean;
- isVisionSwitchDialogOpen: boolean;
- isAgentsManagerDialogOpen: boolean;
+  // 对话框状态
+  isThemeDialogOpen: boolean;
+  isSettingsDialogOpen: boolean;
+  isModelDialogOpen: boolean;
+  isPermissionsDialogOpen: boolean;
+  isFolderTrustDialogOpen: boolean;
+  isVisionSwitchDialogOpen: boolean;
+  isAgentsManagerDialogOpen: boolean;
 
- // 确认请求
- shellConfirmationRequest: ShellConfirmationRequest | null;
- confirmationRequest: ConfirmationRequest | null;
- loopDetectionConfirmationRequest: LoopDetectionConfirmationRequest | null;
- quitConfirmationRequest: QuitConfirmationRequest | null;
+  // 确认请求
+  shellConfirmationRequest: ShellConfirmationRequest | null;
+  confirmationRequest: ConfirmationRequest | null;
+  loopDetectionConfirmationRequest: LoopDetectionConfirmationRequest | null;
+  quitConfirmationRequest: QuitConfirmationRequest | null;
 
- // 流式与输入
- streamingState: StreamingState;
- buffer: TextBuffer;
- isInputActive: boolean;
- shellModeActive: boolean;
+  // 流式与输入
+  streamingState: StreamingState;
+  buffer: TextBuffer;
+  isInputActive: boolean;
+  shellModeActive: boolean;
 
- // 布局与尺寸
- terminalWidth: number;
- terminalHeight: number;
- availableTerminalHeight: number | undefined;
- mainAreaWidth: number;
+  // 布局与尺寸
+  terminalWidth: number;
+  terminalHeight: number;
+  availableTerminalHeight: number | undefined;
+  mainAreaWidth: number;
 
- // 命令与扩展
- slashCommands: readonly SlashCommand[];
- commandContext: CommandContext;
- extensionsUpdateState: Map<string, ExtensionUpdateState>;
+  // 命令与扩展
+  slashCommands: readonly SlashCommand[];
+  commandContext: CommandContext;
+  extensionsUpdateState: Map<string, ExtensionUpdateState>;
 
- // IDE 集成
- currentIDE: IdeInfo | null;
- ideContextState: IdeContext | undefined;
- shouldShowIdePrompt: boolean;
+  // IDE 集成
+  currentIDE: IdeInfo | null;
+  ideContextState: IdeContext | undefined;
+  shouldShowIdePrompt: boolean;
 
- // 会话恢复
- showWelcomeBackDialog: boolean;
- welcomeBackInfo: { hasHistory: boolean; lastPrompt?: string } | null;
- welcomeBackChoice: 'continue' | 'restart' | null;
+  // 会话恢复
+  showWelcomeBackDialog: boolean;
+  welcomeBackInfo: { hasHistory: boolean; lastPrompt?: string } | null;
+  welcomeBackChoice: 'continue' | 'restart' | null;
 
- // ... 150+ 字段
+  // ... 150+ 字段
 }
 
 export const UIStateContext = createContext<UIState | null>(null);
 
 export const useUIState = () => {
- const context = useContext(UIStateContext);
- if (!context) {
- throw new Error('useUIState must be used within a UIStateProvider');
- }
- return context;
+  const context = useContext(UIStateContext);
+  if (!context) {
+  throw new Error('useUIState must be used within a UIStateProvider');
+  }
+  return context;
 };`;
 
  const keypressContextCode = `// packages/cli/src/ui/contexts/KeypressContext.tsx
 
 export interface KeypressHandler {
- (input: string, key: Key): boolean | void;
+  (input: string, key: Key): boolean | void;
 }
 
 export interface KeypressContextValue {
- addHandler: (handler: KeypressHandler, priority?: number) => void;
- removeHandler: (handler: KeypressHandler) => void;
+  addHandler: (handler: KeypressHandler, priority?: number) => void;
+  removeHandler: (handler: KeypressHandler) => void;
 }
 
 /**
- * 键盘事件分发系统
- *
- * 特点：
- * - 优先级排序：高优先级处理器先执行
- * - 事件消费：返回 true 阻止后续处理器
- * - 动态注册：组件可按需添加/移除处理器
- */
+  * 键盘事件分发系统
+  *
+  * 特点：
+  * - 优先级排序：高优先级处理器先执行
+  * - 事件消费：返回 true 阻止后续处理器
+  * - 动态注册：组件可按需添加/移除处理器
+  */
 export const KeypressProvider: React.FC = ({ children }) => {
- const handlersRef = useRef<Map<KeypressHandler, number>>(new Map());
+  const handlersRef = useRef<Map<KeypressHandler, number>>(new Map());
 
- const addHandler = useCallback((handler, priority = 0) => {
- handlersRef.current.set(handler, priority);
- }, []);
+  const addHandler = useCallback((handler, priority = 0) => {
+  handlersRef.current.set(handler, priority);
+  }, []);
 
- const removeHandler = useCallback((handler) => {
- handlersRef.current.delete(handler);
- }, []);
+  const removeHandler = useCallback((handler) => {
+  handlersRef.current.delete(handler);
+  }, []);
 
- useInput((input, key) => {
- // 按优先级排序
- const sorted = [...handlersRef.current.entries()]
- .sort((a, b) => b[1] - a[1]);
+  useInput((input, key) => {
+  // 按优先级排序
+  const sorted = [...handlersRef.current.entries()]
+  .sort((a, b) => b[1] - a[1]);
 
- for (const [handler] of sorted) {
- const consumed = handler(input, key);
- if (consumed) break; // 事件被消费
- }
- });
+  for (const [handler] of sorted) {
+  const consumed = handler(input, key);
+  if (consumed) break; // 事件被消费
+  }
+  });
 
- return (
- <KeypressContext.Provider value={{ addHandler, removeHandler }}>
- {children}
- </KeypressContext.Provider>
- );
+  return (
+  <KeypressContext.Provider value={{ addHandler, removeHandler }}>
+  {children}
+  </KeypressContext.Provider>
+  );
 };`;
 
  const vimModeContextCode = `// packages/cli/src/ui/contexts/VimModeContext.tsx
 
 export interface VimModeState {
- mode: 'normal' | 'insert' | 'visual' | 'command';
- register: string; // 寄存器内容
- count: number; // 数字前缀
- pendingOperator: string; // 待执行操作符
+  mode: 'normal' | 'insert' | 'visual' | 'command';
+  register: string; // 寄存器内容
+  count: number; // 数字前缀
+  pendingOperator: string; // 待执行操作符
 }
 
 export const VimModeContext = createContext<{
- state: VimModeState;
- dispatch: React.Dispatch<VimAction>;
+  state: VimModeState;
+  dispatch: React.Dispatch<VimAction>;
 } | null>(null);
 
 export const useVimMode = () => {
- const context = useContext(VimModeContext);
- if (!context) {
- throw new Error('useVimMode must be used within VimModeProvider');
- }
- return context;
+  const context = useContext(VimModeContext);
+  if (!context) {
+  throw new Error('useVimMode must be used within VimModeProvider');
+  }
+  return context;
 };`;
 
  return (
@@ -391,22 +394,22 @@ export const useVimMode = () => {
  <td className="border border-edge p-3">流式更新时</td>
  </tr>
  <tr>
- <td className="border border-edge p-3"><code className="text-[var(--color-success)]">UIStateContext</code></td>
+ <td className="border border-edge p-3"><code className="text-heading">UIStateContext</code></td>
  <td className="border border-edge p-3">完整 UI 状态</td>
  <td className="border border-edge p-3">高频</td>
  </tr>
  <tr className="bg-surface/30">
- <td className="border border-edge p-3"><code className="text-[var(--color-success)]">UIActionsContext</code></td>
+ <td className="border border-edge p-3"><code className="text-heading">UIActionsContext</code></td>
  <td className="border border-edge p-3">状态更新函数</td>
  <td className="border border-edge p-3">固定引用</td>
  </tr>
  <tr>
- <td className="border border-edge p-3"><code className="text-amber-300">KeypressContext</code></td>
+ <td className="border border-edge p-3"><code className="text-heading">KeypressContext</code></td>
  <td className="border border-edge p-3">键盘事件处理器</td>
  <td className="border border-edge p-3">每次按键</td>
  </tr>
  <tr className="bg-surface/30">
- <td className="border border-edge p-3"><code className="text-amber-300">VimModeContext</code></td>
+ <td className="border border-edge p-3"><code className="text-heading">VimModeContext</code></td>
  <td className="border border-edge p-3">Vim 模式状态</td>
  <td className="border border-edge p-3">模式切换时</td>
  </tr>
@@ -442,9 +445,9 @@ export const useVimMode = () => {
  <HighlightBox title="SessionMetrics" variant="blue">
  <div className="text-sm space-y-2 text-body">
  <ul className="space-y-1">
- <li>• <code>models</code>: 各模型 API 调用统计</li>
- <li>• <code>tools</code>: 工具调用成功/失败计数</li>
- <li>• <code>files</code>: 文件修改行数统计</li>
+ <li><code>models</code>: 各模型 API 调用统计</li>
+ <li><code>tools</code>: 工具调用成功/失败计数</li>
+ <li><code>files</code>: 文件修改行数统计</li>
  </ul>
  </div>
  </HighlightBox>
@@ -452,9 +455,9 @@ export const useVimMode = () => {
  <HighlightBox title="性能优化" variant="green">
  <div className="text-sm space-y-2 text-body">
  <ul className="space-y-1">
- <li>• <code>areMetricsEqual</code>: 深度比较避免无效更新</li>
- <li>• 事件驱动：仅在遥测服务发出事件时更新</li>
- <li>• useMemo：缓存 context value</li>
+ <li><code>areMetricsEqual</code>: 深度比较避免无效更新</li>
+ <li>事件驱动：仅在遥测服务发出事件时更新</li>
+ <li>useMemo：缓存 context value</li>
  </ul>
  </div>
  </HighlightBox>
@@ -478,11 +481,11 @@ export const useVimMode = () => {
  <span className="text-body">isAuthenticating, authStatus, deviceAuth</span>
  </div>
  <div>
- <strong className="text-amber-400">对话框状态：</strong>
+ <strong className="text-heading">对话框状态：</strong>
  <span className="text-body">isThemeDialogOpen, isSettingsDialogOpen, ...</span>
  </div>
  <div>
- <strong className="text-[var(--color-success)]">确认请求：</strong>
+ <strong className="text-heading">确认请求：</strong>
  <span className="text-body">shellConfirmationRequest, loopDetectionConfirmationRequest</span>
  </div>
  <div>
@@ -539,8 +542,8 @@ export const useVimMode = () => {
  <div className="text-lg font-bold text-heading">visual</div>
  <div className="text-xs text-body">可视模式</div>
  </div>
- <div className="bg-[var(--color-warning-soft)] rounded-lg p-3 text-center border border-[var(--color-warning)]">
- <div className="text-lg font-bold text-[var(--color-warning)]">command</div>
+ <div className="bg-elevated rounded-lg p-3 text-center border-l-2 border-l-edge-hover">
+ <div className="text-lg font-bold text-heading">command</div>
  <div className="text-xs text-body">命令模式</div>
  </div>
  </div>
@@ -564,7 +567,7 @@ export const useVimMode = () => {
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-[var(--color-warning)] font-bold mb-2">为什么 UIState 有 150+ 字段？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么 UIState 有 150+ 字段？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>现实：</strong>CLI 应用的 UI 状态确实复杂。</p>
  <p><strong>考量：</strong></p>

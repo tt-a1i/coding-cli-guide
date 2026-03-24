@@ -456,7 +456,7 @@ function TerminalGridVisualizer({
  if (!grid) return null;
 
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}>
+ <div className="mb-6 p-4 rounded-lg" className="bg-elevated">
  <div className="text-xs text-dim mb-3 font-mono">Terminal Buffer</div>
  <div className="font-mono text-sm">
  {grid.map((row, y) => (
@@ -493,14 +493,14 @@ function BitFlagsVisualizer({
  if (!encoding) return null;
 
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" className="bg-surface">
  <div className="text-xs text-dim mb-3 font-mono">属性位编码</div>
  <div className="space-y-2">
  {encoding.map((e) => (
  <div
  key={e.attr}
  className={`flex items-center gap-3 p-2 rounded ${
- e.value ? 'bg-green-500/20' : 'bg-base/20'
+ e.value ? 'bg-elevated' : 'bg-base/20'
  }`}
  >
  <span className="w-20 text-sm text-body">{e.attr}</span>
@@ -508,7 +508,7 @@ function BitFlagsVisualizer({
  <div className="flex-1" />
  <span
  className={`px-2 py-0.5 rounded text-xs font-bold ${
- e.value ? 'bg-green-500 text-heading' : ' bg-elevated text-body'
+ e.value ? 'bg-[var(--color-success)] text-heading' : ' bg-elevated text-body'
  }`}
  >
  {e.value ? '1' : '0'}
@@ -535,7 +535,7 @@ function ColorModeVisualizer({
  if (!modes) return null;
 
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" className="bg-surface">
  <div className="text-xs text-dim mb-3 font-mono">颜色模式</div>
  <div className="space-y-2">
  {modes.map((m, i) => (
@@ -575,7 +575,7 @@ function CellGroupVisualizer({
  if (!cells) return null;
 
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" className="bg-surface">
  <div className="text-xs text-dim mb-3 font-mono">单元格分组</div>
 
  {/* 原始单元格 */}
@@ -588,7 +588,7 @@ function CellGroupVisualizer({
  ${cell.bold ? 'font-bold' : ''}
  `}
  style={{
- backgroundColor: cell.bold ? 'rgba(16,185,129,0.2)' : 'rgba(0,0,0,0.3)',
+ backgroundColor: cell.bold ? 'rgba(16,185,129,0.2)' : 'var(--color-bg-surface)',
  color: cell.bold ? '#10b981' : '#9ca3af',
  }}
  >
@@ -606,7 +606,7 @@ function CellGroupVisualizer({
  className="px-3 py-2 rounded"
  style={{
  backgroundColor:
- group.attrs.includes('bold') ? 'rgba(16,185,129,0.2)' : 'rgba(0,0,0,0.3)',
+ group.attrs.includes('bold') ? 'rgba(16,185,129,0.2)' : 'var(--color-bg-surface)',
  }}
  >
  <div className="font-mono text-heading">{group.chars}</div>
@@ -630,7 +630,7 @@ function TokenAggregateVisualizer({
  if (!output) return null;
 
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" className="bg-surface">
  <div className="text-xs text-dim mb-3 font-mono">Token 聚合</div>
 
  {/* 输入 */}
@@ -659,7 +659,7 @@ function TokenAggregateVisualizer({
  key={i}
  className={`px-3 py-2 rounded ${token.italic ? 'italic' : ''} ${token.bold ? 'font-bold' : ''}`}
  style={{
- backgroundColor: token.fg ? `${token.fg}20` : 'rgba(0,0,0,0.3)',
+ backgroundColor: token.fg ? `${token.fg}20` : 'var(--color-bg-surface)',
  color: token.fg || '#9ca3af',
  }}
  >
@@ -681,7 +681,7 @@ function OutputStructureVisualizer({
  if (!output) return null;
 
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" className="bg-surface">
  <div className="text-xs text-dim mb-3 font-mono">AnsiOutput 结构</div>
  <div className="space-y-2">
  {output.map((line, y) => (
@@ -693,7 +693,7 @@ function OutputStructureVisualizer({
  key={i}
  className={`px-2 py-1 rounded text-sm ${token.italic ? 'italic' : ''} ${token.bold ? 'font-bold' : ''}`}
  style={{
- backgroundColor: token.fg ? `${token.fg}15` : 'rgba(0,0,0,0.3)',
+ backgroundColor: token.fg ? `${token.fg}15` : 'var(--color-bg-surface)',
  color: token.fg || '#9ca3af',
  }}
  >
@@ -717,8 +717,8 @@ function StatsVisualizer({
  if (!stats) return null;
 
  return (
- <div className="mb-6 p-4 rounded-lg border border-green-500/30 bg-green-500/10">
- <div className="text-sm font-bold text-green-400 mb-3">压缩统计</div>
+ <div className="mb-6 p-4 rounded-lg border-l-2 border-l-edge-hover/30 bg-elevated">
+ <div className="text-sm font-bold text-heading mb-3">压缩统计</div>
  <div className="grid grid-cols-3 gap-4">
  <div className="text-center">
  <div className="text-2xl font-bold text-body line-through">
@@ -727,7 +727,7 @@ function StatsVisualizer({
  <div className="text-xs text-dim">原始单元格</div>
  </div>
  <div className="text-center">
- <div className="text-2xl font-bold text-green-400">{stats.outputTokens}</div>
+ <div className="text-2xl font-bold text-heading">{stats.outputTokens}</div>
  <div className="text-xs text-dim">输出 Token</div>
  </div>
  <div className="text-center">
@@ -826,7 +826,7 @@ export function TerminalSerializerAnimation() {
  <div
  className="rounded-lg p-6 border border-edge/30"
  style={{
- background: 'linear-gradient(135deg, rgba(16,185,129,0.1), rgba(0,0,0,0.8))',
+ background: 'linear-gradient(135deg, rgba(16,185,129,0.1), var(--color-bg))',
  }}
  >
  <div className="flex items-center gap-3 mb-4">
@@ -941,21 +941,7 @@ export function TerminalSerializerAnimation() {
 
  {/* 右侧：代码 */}
  <div>
- <h3 className="text-sm font-bold text-body mb-3 font-mono">源码实现</h3>
- <div
- className="rounded-lg overflow-hidden border border-edge"
- style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
- >
- <div className="p-1 border- border-edge flex items-center gap-2">
- <div className="w-3 h-3 rounded-full bg-red-500/80" />
- <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
- <div className="w-3 h-3 rounded-full bg-green-500/80" />
- <span className="text-xs text-dim ml-2 font-mono">
- terminalSerializer.ts
- </span>
- </div>
- <JsonBlock code={step.codeSnippet} />
- </div>
+ <JsonBlock code={step.codeSnippet} title="terminalSerializer.ts" />
  </div>
  </div>
 
@@ -980,7 +966,7 @@ export function TerminalSerializerAnimation() {
  px-6 py-2 rounded-lg font-medium transition-colors
  ${
  isPlaying
- ? 'bg-amber-600 text-heading hover:bg-amber-500'
+ ? 'bg-[var(--color-warning)] text-heading hover:bg-[var(--color-warning)]'
  : ' bg-elevated text-heading hover:opacity-90'
  }
  `}

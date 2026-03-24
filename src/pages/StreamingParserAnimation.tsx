@@ -4,6 +4,9 @@ import { Layer } from '../components/Layer';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
+import { getThemeColor } from '../utils/theme';
+
+
 
 // 模拟流式数据块
 interface StreamChunk {
@@ -113,7 +116,7 @@ function ParserStateVisual({ state }: { state: ParserState }) {
  <span
  className={`px-3 py-1 rounded ${
  state.inString
- ? 'bg-amber-500/20 border border-amber-500 text-amber-500'
+ ? 'bg-elevated border-l-2 border-l-edge-hover text-heading'
  : 'bg-base border border-edge text-dim'
  }`}
  >
@@ -176,7 +179,7 @@ function BufferVisual({ buffer, newContent }: { buffer: string; newContent: stri
  return (
  <div className="bg-base rounded-lg p-4 border border-edge">
  <div className="flex items-center gap-2 mb-3">
- <span className="text-amber-500">📦</span>
+ <span className="text-heading">📦</span>
  <span className="text-sm font-mono font-bold text-heading">累积缓冲区</span>
  </div>
 
@@ -239,7 +242,7 @@ function ChunkVisual({
  chunk.type === 'text'
  ? 'text-body'
  : chunk.type === 'tool_start'
- ? 'text-amber-500'
+ ? 'text-heading'
  : chunk.type === 'tool_end'
  ? 'text-heading'
  : 'text-heading'
@@ -444,7 +447,7 @@ export function StreamingParserAnimation() {
  </button>
  <button
  onClick={reset}
- className="px-5 py-2.5 bg-elevated text-amber-500 rounded-md font-mono font-bold border border-edge hover:border-amber-600 transition-all cursor-pointer"
+ className="px-5 py-2.5 bg-elevated text-heading rounded-md font-mono font-bold border border-edge hover:border-edge/60 transition-all cursor-pointer"
  >
  ↺ 重置
  </button>
@@ -477,7 +480,7 @@ export function StreamingParserAnimation() {
  /{streamChunks.length}
  </span>
  {isPlaying && (
- <span className="text-amber-500 font-mono text-sm animate-pulse">
+ <span className="text-heading font-mono text-sm animate-pulse">
  ● 处理中...
  </span>
  )}
@@ -543,10 +546,10 @@ class StreamingToolCallParser {
 
  {/* Key challenges section */}
  <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
- <div className="p-4 bg-base rounded-lg border border-amber-600">
+ <div className="p-4 bg-base rounded-lg border-l-2 border-l-edge-hover/60">
  <div className="flex items-center gap-2 mb-2">
- <span className="text-amber-500">⚠️</span>
- <span className="text-sm font-mono font-bold text-amber-500">索引冲突处理</span>
+ <span className="text-heading">⚠️</span>
+ <span className="text-sm font-mono font-bold text-heading">索引冲突处理</span>
  </div>
  <p className="text-xs font-mono text-dim">
  多个工具调用可能共享同一索引，需要通过缓冲区隔离
@@ -584,7 +587,7 @@ class StreamingToolCallParser {
  {/* 边界条件 1: 不完整 JSON 处理 */}
  <div className="mb-8 bg-surface rounded-lg border border-edge overflow-hidden">
  <div className="px-4 py-3 bg-surface border- border-edge">
- <h4 className="text-red-400 font-bold flex items-center gap-2">
+ <h4 className="text-heading font-bold flex items-center gap-2">
  <span>1️⃣</span> 不完整 JSON 的自动修复
  </h4>
  </div>
@@ -693,7 +696,7 @@ repair.repair('{"a": {"b": [{"c": "val')
  {/* 边界条件 2: Unicode 和转义处理 */}
  <div className="mb-8 bg-surface rounded-lg border border-edge overflow-hidden">
  <div className="px-4 py-3 bg-surface border- border-edge">
- <h4 className="text-amber-400 font-bold flex items-center gap-2">
+ <h4 className="text-heading font-bold flex items-center gap-2">
  <span>2️⃣</span> Unicode 和转义序列处理
  </h4>
  </div>
@@ -941,21 +944,21 @@ class MultiToolParser {
  <td className="py-2 px-3">1</td>
  <td className="py-2 px-3 text-heading">0</td>
  <td className="py-2 px-3">{"{"}"file_path":</td>
- <td className="py-2 px-3 text-green-400">{"{"}"file_path":</td>
+ <td className="py-2 px-3 text-heading">{"{"}"file_path":</td>
  <td className="py-2 px-3 text-dim">-</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="py-2 px-3">2</td>
  <td className="py-2 px-3 text-heading">1</td>
  <td className="py-2 px-3">{"{"}"pattern":</td>
- <td className="py-2 px-3 text-green-400">{"{"}"file_path":</td>
+ <td className="py-2 px-3 text-heading">{"{"}"file_path":</td>
  <td className="py-2 px-3 text-heading">{"{"}"pattern":</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="py-2 px-3">3</td>
  <td className="py-2 px-3 text-heading">0</td>
  <td className="py-2 px-3">"/src/main.ts"{"}"}</td>
- <td className="py-2 px-3 text-green-400">✓ 完成</td>
+ <td className="py-2 px-3 text-heading">✓ 完成</td>
  <td className="py-2 px-3 text-heading">{"{"}"pattern":</td>
  </tr>
  <tr>
@@ -963,7 +966,7 @@ class MultiToolParser {
  <td className="py-2 px-3 text-heading">1</td>
  <td className="py-2 px-3">"*.ts"{"}"}</td>
  <td className="py-2 px-3 text-dim">-</td>
- <td className="py-2 px-3 text-green-400">✓ 完成</td>
+ <td className="py-2 px-3 text-heading">✓ 完成</td>
  </tr>
  </tbody>
  </table>
@@ -1112,12 +1115,12 @@ async function handleLargeContent(
  </thead>
  <tbody className="text-body">
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 text-amber-400">流中断</td>
+ <td className="py-2 px-3 text-heading">流中断</td>
  <td className="py-2 px-3">JSON 不完整</td>
  <td className="py-2 px-3">自动补全括号 + 标记 repaired</td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 text-amber-400">转义中断</td>
+ <td className="py-2 px-3 text-heading">转义中断</td>
  <td className="py-2 px-3">\u00 等未完成</td>
  <td className="py-2 px-3">保持状态，等待更多数据</td>
  </tr>
@@ -1132,7 +1135,7 @@ async function handleLargeContent(
  <td className="py-2 px-3">设置限制 + 截断或中止</td>
  </tr>
  <tr>
- <td className="py-2 px-3 text-green-400">深层嵌套</td>
+ <td className="py-2 px-3 text-heading">深层嵌套</td>
  <td className="py-2 px-3">栈溢出风险</td>
  <td className="py-2 px-3">限制最大深度（50层）</td>
  </tr>
@@ -1149,9 +1152,9 @@ async function handleLargeContent(
  </p>
 
  {/* 问题 1: 工具调用丢失 */}
- <div className="mb-6 bg-surface rounded-lg border border-red-500/30 overflow-hidden">
- <div className="px-4 py-3 bg-red-500/10 border-b border-red-500/30">
- <h4 className="text-red-400 font-bold">❌ 问题1: 工具调用丢失或不完整</h4>
+ <div className="mb-6 bg-surface rounded-lg border-l-2 border-l-edge-hover/30 overflow-hidden">
+ <div className="px-4 py-3 bg-elevated border-b border-edge/30">
+ <h4 className="text-heading font-bold">❌ 问题1: 工具调用丢失或不完整</h4>
  </div>
  <div className="p-4 space-y-3">
  <p className="text-body text-sm">
@@ -1211,9 +1214,9 @@ const checkpoints = [
  </div>
 
  {/* 问题 2: 解析卡住 */}
- <div className="mb-6 bg-surface rounded-lg border border-amber-500/30 overflow-hidden">
- <div className="px-4 py-3 bg-amber-500/10 border-b border-amber-500/30">
- <h4 className="text-amber-400 font-bold">⚠️ 问题2: 解析器卡住不返回结果</h4>
+ <div className="mb-6 bg-surface rounded-lg border-l-2 border-l-edge-hover/30 overflow-hidden">
+ <div className="px-4 py-3 bg-elevated border-b border-edge/30">
+ <h4 className="text-heading font-bold">⚠️ 问题2: 解析器卡住不返回结果</h4>
  </div>
  <div className="p-4 space-y-3">
  <p className="text-body text-sm">
@@ -1385,7 +1388,7 @@ function parseArgs(raw: unknown): ParsedArgs {
  {/* 优化 1: 字符处理优化 */}
  <div className="mb-8 bg-surface rounded-lg border border-edge overflow-hidden">
  <div className="px-4 py-3 bg-surface border- border-edge">
- <h4 className="text-green-400 font-bold flex items-center gap-2">
+ <h4 className="text-heading font-bold flex items-center gap-2">
  <span>1️⃣</span> 字符处理优化
  </h4>
  </div>
@@ -1667,25 +1670,25 @@ parser.on('tool_args_progress', (event) => {
  <td className="py-2 px-3">解析 1MB 响应</td>
  <td className="py-2 px-3">80ms</td>
  <td className="py-2 px-3">12ms</td>
- <td className="py-2 px-3 text-green-400">6.7x</td>
+ <td className="py-2 px-3 text-heading">6.7x</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="py-2 px-3">首字节到工具名显示</td>
  <td className="py-2 px-3">等待完成</td>
  <td className="py-2 px-3">~50ms</td>
- <td className="py-2 px-3 text-green-400">即时</td>
+ <td className="py-2 px-3 text-heading">即时</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="py-2 px-3">内存峰值 (10MB)</td>
  <td className="py-2 px-3">~50MB</td>
  <td className="py-2 px-3">~12MB</td>
- <td className="py-2 px-3 text-green-400">4x</td>
+ <td className="py-2 px-3 text-heading">4x</td>
  </tr>
  <tr>
  <td className="py-2 px-3">GC 暂停</td>
  <td className="py-2 px-3">频繁</td>
  <td className="py-2 px-3">罕见</td>
- <td className="py-2 px-3 text-green-400">显著改善</td>
+ <td className="py-2 px-3 text-heading">显著改善</td>
  </tr>
  </tbody>
  </table>
@@ -1733,10 +1736,10 @@ parser.on('tool_args_progress', (event) => {
  TC -->|"execute"| TS
  TS -->|"result"| UI
 
- style Parser fill:#1a365d,stroke:#3182ce
- style Network fill:#2d3748,stroke:#718096
- style Output fill:#1a3a32,stroke:#48bb78
- style Execution fill:#744210,stroke:#d69e2e`} />
+ style Parser fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},stroke:${getThemeColor("--color-primary", "#2457a6")}
+ style Network fill:${getThemeColor("--mermaid-muted-fill", "#f4f4f2")},stroke:${getThemeColor("--mermaid-muted-fill", "#f4f4f2")}
+ style Output fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},stroke:${getThemeColor("--color-success", "#15803d")}
+ style Execution fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},stroke:${getThemeColor("--color-warning", "#b45309")}`} />
  </div>
 
  {/* 核心接口 */}

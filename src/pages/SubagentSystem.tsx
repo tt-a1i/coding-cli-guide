@@ -2,6 +2,10 @@ import { useState } from 'react';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
+
 
 export function SubagentSystem() {
  const [expandedSections, setExpandedSections] = useState<Set<string>>(
@@ -34,7 +38,7 @@ export function SubagentSystem() {
  <span className="px-2 py-1 bg-elevated/20 text-heading text-xs rounded">
  packages/core/src/agents/
  </span>
- <span className="px-2 py-1 bg-amber-500/20 text-amber-500 text-xs rounded">
+ <span className="px-2 py-1 bg-elevated text-heading text-xs rounded">
  Markdown frontmatter 驱动
  </span>
  </div>
@@ -55,7 +59,7 @@ export function SubagentSystem() {
  <span className="text-dim">← 本地执行</span>
  </div>
  <div className="flex items-center gap-2">
- <span className="text-amber-500 font-mono">remote</span>
+ <span className="text-heading font-mono">remote</span>
  <span className="text-dim">← A2A 远程调用</span>
  </div>
  </div>
@@ -67,13 +71,13 @@ export function SubagentSystem() {
  <div className="flex items-center gap-2">
  <span className="text-heading">1.</span>
  <span className="text-body">
- <code className="text-amber-500">.gemini/agents/</code> 项目级
+ <code className="text-heading">.gemini/agents/</code> 项目级
  </span>
  </div>
  <div className="flex items-center gap-2">
  <span className="text-heading">2.</span>
  <span className="text-body">
- <code className="text-amber-500">~/.gemini/agents/</code> 用户级
+ <code className="text-heading">~/.gemini/agents/</code> 用户级
  </span>
  </div>
  <div className="flex items-center gap-2">
@@ -84,14 +88,14 @@ export function SubagentSystem() {
  </div>
 
  <div className="bg-base/50 rounded-lg p-4">
- <h3 className="text-amber-500 font-bold mb-3">终止模式 (6种)</h3>
+ <h3 className="text-heading font-bold mb-3">终止模式 (6种)</h3>
  <div className="space-y-1 text-xs font-mono">
  <div className="text-heading">GOAL ← 调用 complete_task</div>
- <div className="text-amber-500">MAX_TURNS ← 超过轮次限制</div>
- <div className="text-amber-500">TIMEOUT ← 超时</div>
- <div className="text-red-400">ERROR ← 执行异常</div>
+ <div className="text-heading">MAX_TURNS ← 超过轮次限制</div>
+ <div className="text-heading">TIMEOUT ← 超时</div>
+ <div className="text-heading">ERROR ← 执行异常</div>
  <div className="text-dim">ABORTED ← 外部取消</div>
- <div className="text-red-400">ERROR_NO_COMPLETE_TASK_CALL</div>
+ <div className="text-heading">ERROR_NO_COMPLETE_TASK_CALL</div>
  </div>
  </div>
  </div>
@@ -177,9 +181,9 @@ export function SubagentSystem() {
  LocalExec --> Complete
  LocalExec --> Activity
 
- style Registry fill:#22c55e,color:#000
- style LocalExec fill:#3b82f6,color:#fff
- style Delegate fill:#f59e0b,color:#000`}
+ style Registry fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style LocalExec fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Delegate fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}`}
  />
  </section>
 
@@ -277,7 +281,7 @@ interface RunConfig {
  </div>
 
  <div className="bg-base/50 rounded-lg p-4">
- <h4 className="text-amber-500 font-bold mb-3">InputConfig & OutputConfig</h4>
+ <h4 className="text-heading font-bold mb-3">InputConfig & OutputConfig</h4>
  <CodeBlock
  language="typescript"
  code={`// 输入参数配置
@@ -362,7 +366,7 @@ When reviewing code:
  </div>
 
  <div className="bg-base/50 rounded-lg p-4">
- <h4 className="text-amber-500 font-bold mb-3">配置字段说明</h4>
+ <h4 className="text-heading font-bold mb-3">配置字段说明</h4>
  <div className="text-sm space-y-2 text-body">
  <div className="flex gap-2">
  <code className="text-heading">name</code>
@@ -454,8 +458,8 @@ async function loadAgentsFromDirectory(dir: string): Promise<AgentLoadResult> {
  />
  </div>
 
- <div className="bg-amber-500/10 rounded-lg p-4 border border-amber-500/30">
- <h4 className="text-amber-500 font-bold mb-2">⚠️ 安全限制</h4>
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/30">
+ <h4 className="text-heading font-bold mb-2">⚠️ 安全限制</h4>
  <p className="text-sm text-body">
  子 Agent 不能使用 <code className="text-heading">delegate_to_agent</code> 工具，
  防止无限递归和复杂的嵌套调用链。配置时 tools 列表中包含该工具会导致加载失败。
@@ -492,9 +496,9 @@ async function loadAgentsFromDirectory(dir: string): Promise<AgentLoadResult> {
  E -->|否| G[跳过 Project 级]
  end
 
- style A fill:#f59e0b,color:#000
- style D fill:#3b82f6,color:#fff
- style F fill:#22c55e,color:#000`}
+ style A fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style D fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style F fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}`}
  />
 
  <CodeBlock
@@ -705,7 +709,7 @@ export class LocalAgentExecutor<TOutput extends z.ZodTypeAny> {
  />
 
  <div className="bg-base/50 rounded-lg p-4">
- <h4 className="text-amber-500 font-bold mb-3">complete_task 工具</h4>
+ <h4 className="text-heading font-bold mb-3">complete_task 工具</h4>
  <CodeBlock
  language="typescript"
  code={`// 动态生成 complete_task 工具
@@ -777,11 +781,11 @@ private prepareToolsList(): FunctionDeclaration[] {
  </div>
  <div className="flex justify-between">
  <span className="text-dim">超时</span>
- <span className="text-amber-500">5 分钟</span>
+ <span className="text-heading">5 分钟</span>
  </div>
  <div className="flex justify-between">
  <span className="text-dim">轮次</span>
- <span className="text-amber-500">15</span>
+ <span className="text-heading">15</span>
  </div>
  </div>
  </div>
@@ -798,7 +802,7 @@ private prepareToolsList(): FunctionDeclaration[] {
  </div>
  <div className="flex justify-between">
  <span className="text-dim">模型</span>
- <span className="text-amber-500">flash</span>
+ <span className="text-heading">flash</span>
  </div>
  </div>
  </div>
@@ -811,7 +815,7 @@ private prepareToolsList(): FunctionDeclaration[] {
  <div className="text-xs space-y-1">
  <div className="flex justify-between">
  <span className="text-dim">状态</span>
- <span className="text-amber-500">experimental 默认禁用</span>
+ <span className="text-heading">experimental 默认禁用</span>
  </div>
  </div>
  </div>
@@ -876,7 +880,7 @@ export const CodebaseInvestigatorAgent: LocalAgentDefinition = {
  <div className="space-y-6">
  <div className="bg-base/50 rounded-lg p-4">
  <p className="text-sm text-body mb-4">
- <code className="text-amber-500">delegate_to_agent</code> 是主 Agent 委托任务给子 Agent 的核心工具。
+ <code className="text-heading">delegate_to_agent</code> 是主 Agent 委托任务给子 Agent 的核心工具。
  它动态生成 discriminated union schema，根据可用 Agent 自动构建参数验证。
  </p>
  </div>
@@ -975,8 +979,8 @@ async execute(signal: AbortSignal): Promise<ToolResult> {
  {[
  { name: 'TOOL_CALL_START', desc: '工具调用开始', color: 'text-heading' },
  { name: 'TOOL_CALL_END', desc: '工具调用结束', color: 'text-heading' },
- { name: 'THOUGHT_CHUNK', desc: '思考片段', color: 'text-amber-500' },
- { name: 'ERROR', desc: '发生错误', color: 'text-red-400' },
+ { name: 'THOUGHT_CHUNK', desc: '思考片段', color: 'text-heading' },
+ { name: 'ERROR', desc: '发生错误', color: 'text-heading' },
  ].map((event) => (
  <div
  key={event.name}

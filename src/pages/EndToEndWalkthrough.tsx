@@ -3,6 +3,9 @@ import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 // ============================================================
 // 端到端走读 - 一次完整请求的全流程解析
@@ -83,7 +86,7 @@ function StageCard({ number, title, duration, description, keyPoints, sourceFile
  <ul className="text-body text-xs space-y-1">
  {keyPoints.map((point, i) => (
  <li key={i} className="flex items-start gap-2">
- <span className="text-green-400">•</span>
+ <span className="text-heading">•</span>
  <span>{point}</span>
  </li>
  ))}
@@ -94,7 +97,7 @@ function StageCard({ number, title, duration, description, keyPoints, sourceFile
  <div className="space-y-1">
  {sourceFiles.map((file, i) => (
  <div key={i} className="text-xs bg-surface rounded px-2 py-1">
- <code className="text-yellow-400">{file.path}</code>
+ <code className="text-heading">{file.path}</code>
  <span className="text-dim mx-2">→</span>
  <code className="text-heading">{file.function}</code>
  </div>
@@ -126,9 +129,9 @@ export function EndToEndWalkthrough() {
  hasFc -->|Yes| toolCalls --> approval --> exec --> addResult --> nextRound --> buildReq
  hasFc -->|No| final --> persist
 
- style start fill:#4a9eff,stroke:#2563eb,stroke-width:2px
- style final fill:#22c55e,stroke:#16a34a,stroke-width:2px
- style approval fill:#f59e0b,stroke:#d97706,stroke-width:2px`;
+ style start fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},stroke:${getThemeColor("--color-primary", "#2457a6")},stroke-width:2px
+ style final fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},stroke:${getThemeColor("--color-success", "#15803d")},stroke-width:2px
+ style approval fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},stroke:${getThemeColor("--color-warning", "#b45309")},stroke-width:2px`;
 
  // 详细时序图
  const sequenceDiagram = `sequenceDiagram
@@ -180,10 +183,10 @@ export function EndToEndWalkthrough() {
  输入 → 预处理 → API 请求 → 流式响应 → 工具调用（循环）→ 最终输出 → 持久化
  </p>
  <ol className="list-decimal pl-5 space-y-1">
- <li>CLI 接收用户输入，先做 <code className="text-yellow-400">@file/@memory/@url</code> 等预处理</li>
- <li>把历史对话 + 系统提示词 + 工具定义组装成一次 API 请求，走<strong className="text-green-400">流式输出</strong></li>
- <li>如果响应中包含 <code className="text-yellow-400">functionCall</code>（<code>parts[].functionCall</code>），CLI 进入工具调度：校验参数 → 走审批/沙箱 → 执行工具</li>
- <li>工具结果以 <code className="text-yellow-400">functionResponse</code> 写回历史，再发起下一轮请求，直到不再出现 functionCall，输出最终答案</li>
+ <li>CLI 接收用户输入，先做 <code className="text-heading">@file/@memory/@url</code> 等预处理</li>
+ <li>把历史对话 + 系统提示词 + 工具定义组装成一次 API 请求，走<strong className="text-heading">流式输出</strong></li>
+ <li>如果响应中包含 <code className="text-heading">functionCall</code>（<code>parts[].functionCall</code>），CLI 进入工具调度：校验参数 → 走审批/沙箱 → 执行工具</li>
+ <li>工具结果以 <code className="text-heading">functionResponse</code> 写回历史，再发起下一轮请求，直到不再出现 functionCall，输出最终答案</li>
  </ol>
  <div className="mt-3 text-xs text-body">
  注：Innies/Qwen 的 OpenAI 兼容层可能出现 <code>tool_calls</code>/<code>finish_reason=tool_calls</code>；上游 Gemini CLI 的核心链路以 <code>functionCall/functionResponse</code> 为准。
@@ -242,13 +245,13 @@ export function EndToEndWalkthrough() {
  ]}
  />
 
- <div className="mt-4 p-4 bg-yellow-900/20 rounded-lg border border-yellow-500/30">
- <h5 className="text-yellow-400 font-semibold mb-2">边界情况</h5>
+ <div className="mt-4 p-4 bg-elevated rounded-lg border-l-2 border-l-edge-hover/30">
+ <h5 className="text-heading font-semibold mb-2">边界情况</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>文件不存在</strong>：报错但不中断，提示用户检查路径</li>
- <li>• <strong>二进制文件</strong>：跳过或提示不支持</li>
- <li>• <strong>超大文件</strong>：自动截断到配置限制（默认 10k 行）</li>
- <li>• <strong>循环引用</strong>：检测并阻止</li>
+ <li><strong>文件不存在</strong>：报错但不中断，提示用户检查路径</li>
+ <li><strong>二进制文件</strong>：跳过或提示不支持</li>
+ <li><strong>超大文件</strong>：自动截断到配置限制（默认 10k 行）</li>
+ <li><strong>循环引用</strong>：检测并阻止</li>
  </ul>
  </div>
  </CollapsibleSection>
@@ -292,10 +295,10 @@ export function EndToEndWalkthrough() {
  </HighlightBox>
  <HighlightBox title="Token 预算分配" variant="green">
  <ul className="text-xs text-body space-y-1">
- <li>• 系统提示词：~2000 tokens (固定)</li>
- <li>• 工具定义：~1500 tokens (动态)</li>
- <li>• 历史对话：剩余空间 - 输出预留</li>
- <li>• 输出预留：max_tokens 配置值</li>
+ <li>系统提示词：~2000 tokens (固定)</li>
+ <li>工具定义：~1500 tokens (动态)</li>
+ <li>历史对话：剩余空间 - 输出预留</li>
+ <li>输出预留：max_tokens 配置值</li>
  </ul>
  </HighlightBox>
  </div>
@@ -358,30 +361,30 @@ chunk: { candidates: [{ finishReason: "STOP" }] }`}
  <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
  <HighlightBox title="常用工具" variant="blue">
  <ul className="text-xs text-body space-y-1">
- <li>• <code>read_file</code> - 读取文件</li>
- <li>• <code>write_file</code> - 写入文件</li>
- <li>• <code>replace</code> - 局部替换编辑</li>
- <li>• <code>run_shell_command</code> - 执行命令</li>
- <li>• <code>glob</code> - 文件搜索</li>
- <li>• <code>search_file_content</code> - 内容搜索</li>
+ <li><code>read_file</code> - 读取文件</li>
+ <li><code>write_file</code> - 写入文件</li>
+ <li><code>replace</code> - 局部替换编辑</li>
+ <li><code>run_shell_command</code> - 执行命令</li>
+ <li><code>glob</code> - 文件搜索</li>
+ <li><code>search_file_content</code> - 内容搜索</li>
  </ul>
  </HighlightBox>
  <HighlightBox title="审批触发条件" variant="purple">
  <ul className="text-xs text-body space-y-1">
- <li>• 写入/删除文件</li>
- <li>• 执行 shell 命令</li>
- <li>• 访问敏感目录</li>
- <li>• 网络请求</li>
- <li>• 新增工具首次使用</li>
+ <li>写入/删除文件</li>
+ <li>执行 shell 命令</li>
+ <li>访问敏感目录</li>
+ <li>网络请求</li>
+ <li>新增工具首次使用</li>
  </ul>
  </HighlightBox>
  <HighlightBox title="沙箱保护" variant="green">
  <ul className="text-xs text-body space-y-1">
- <li>• macOS seatbelt</li>
- <li>• Docker 容器</li>
- <li>• 文件系统隔离</li>
- <li>• 网络限制</li>
- <li>• 资源配额</li>
+ <li>macOS seatbelt</li>
+ <li>Docker 容器</li>
+ <li>文件系统隔离</li>
+ <li>网络限制</li>
+ <li>资源配额</li>
  </ul>
  </HighlightBox>
  </div>
@@ -406,13 +409,13 @@ chunk: { candidates: [{ finishReason: "STOP" }] }`}
  ]}
  />
 
- <div className="mt-4 p-4 bg-red-900/20 rounded-lg border border-red-500/30">
- <h5 className="text-red-400 font-semibold mb-2">循环保护机制</h5>
+ <div className="mt-4 p-4 bg-elevated rounded-lg border-l-2 border-l-edge-hover/30">
+ <h5 className="text-heading font-semibold mb-2">循环保护机制</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>最大轮次</strong>：默认 50 轮，可配置</li>
- <li>• <strong>重复检测</strong>：连续 3 次相同工具调用触发警告</li>
- <li>• <strong>Token 限制</strong>：单次会话总 Token 上限</li>
- <li>• <strong>超时保护</strong>：单工具执行超时 5 分钟</li>
+ <li><strong>最大轮次</strong>：默认 50 轮，可配置</li>
+ <li><strong>重复检测</strong>：连续 3 次相同工具调用触发警告</li>
+ <li><strong>Token 限制</strong>：单次会话总 Token 上限</li>
+ <li><strong>超时保护</strong>：单工具执行超时 5 分钟</li>
  </ul>
  </div>
  </CollapsibleSection>
@@ -440,17 +443,17 @@ chunk: { candidates: [{ finishReason: "STOP" }] }`}
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="持久化内容" variant="blue">
  <ul className="text-xs text-body space-y-1">
- <li>• 完整对话历史</li>
- <li>• 工具调用记录</li>
- <li>• Token 使用统计</li>
- <li>• 会话元数据（时间、模型）</li>
+ <li>完整对话历史</li>
+ <li>工具调用记录</li>
+ <li>Token 使用统计</li>
+ <li>会话元数据（时间、模型）</li>
  </ul>
  </HighlightBox>
  <HighlightBox title="存储位置" variant="green">
  <ul className="text-xs text-body space-y-1">
- <li>• <code>~/.gemini/history/&lt;project-hash&gt;/</code></li>
- <li>• <code>~/.gemini/memory.md</code>（全局）</li>
- <li>• <code>.gemini/settings.json</code>（项目级）</li>
+ <li><code>~/.gemini/history/&lt;project-hash&gt;/</code></li>
+ <li><code>~/.gemini/memory.md</code>（全局）</li>
+ <li><code>.gemini/settings.json</code>（项目级）</li>
  </ul>
  </HighlightBox>
  </div>
@@ -480,19 +483,19 @@ chunk: { candidates: [{ finishReason: "STOP" }] }`}
  <h5 className="text-heading font-semibold mb-2">建议你打开的核心文件</h5>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
  <div className="bg-surface rounded px-3 py-2">
- <code className="text-yellow-400">packages/cli/src/ui/hooks/useGeminiStream.ts</code>
+ <code className="text-heading">packages/cli/src/ui/hooks/useGeminiStream.ts</code>
  <div className="text-dim mt-1">CLI 流式交互核心</div>
  </div>
  <div className="bg-surface rounded px-3 py-2">
- <code className="text-yellow-400">packages/core/src/core/geminiChat.ts</code>
+ <code className="text-heading">packages/core/src/core/geminiChat.ts</code>
  <div className="text-dim mt-1">聊天主循环</div>
  </div>
  <div className="bg-surface rounded px-3 py-2">
- <code className="text-yellow-400">packages/core/src/core/coreToolScheduler.ts</code>
+ <code className="text-heading">packages/core/src/core/coreToolScheduler.ts</code>
  <div className="text-dim mt-1">工具调度器</div>
  </div>
  <div className="bg-surface rounded px-3 py-2">
- <code className="text-yellow-400">packages/core/src/core/contentGenerator.ts</code>
+ <code className="text-heading">packages/core/src/core/contentGenerator.ts</code>
  <div className="text-dim mt-1">API 调用层</div>
  </div>
  </div>
@@ -525,8 +528,8 @@ chunk: { candidates: [{ finishReason: "STOP" }] }`}
  <div className="p-4 bg-surface rounded-lg border border-edge">
  <div className="text-heading font-semibold">Q：如何调试整个流程？</div>
  <div className="text-body mt-1">
- A：设置 <code className="text-yellow-400">DEBUG=1</code> 环境变量可输出详细日志；
- <code className="text-yellow-400">GEMINI_LOG_LEVEL=debug</code> 可控制日志级别。
+ A：设置 <code className="text-heading">DEBUG=1</code> 环境变量可输出详细日志；
+ <code className="text-heading">GEMINI_LOG_LEVEL=debug</code> 可控制日志级别。
  </div>
  </div>
  </div>

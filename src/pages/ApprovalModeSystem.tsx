@@ -4,6 +4,10 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
+
 
 const relatedPages: RelatedPage[] = [
  {
@@ -73,7 +77,7 @@ function QuickSummary({
  <div className="text-xs text-dim">工具 Kind</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-[var(--color-warning)]">6</div>
+ <div className="text-2xl font-bold text-heading">6</div>
  <div className="text-xs text-dim">
  确认结果类型
  </div>
@@ -112,7 +116,7 @@ function QuickSummary({
  Default
  </span>
  <span className="text-dim">↔</span>
- <span className="px-3 py-1.5 bg-[var(--color-danger-soft)] text-[var(--color-danger)] rounded-lg border border-[var(--color-danger)]">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover">
  YOLO
  </span>
  </div>
@@ -121,8 +125,8 @@ function QuickSummary({
 
  {/* 关键规则 */}
  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
- <div className="bg-[var(--color-success-soft)] rounded-lg p-3 border border-[var(--color-success)]">
- <h4 className="text-sm font-semibold text-[var(--color-success)] mb-1">
+ <div className="pl-4 border-l-2 border-l-edge-hover border-l-edge-hover">
+ <h4 className="text-sm font-semibold text-heading mb-1">
  ✅ 自动批准
  </h4>
  <p className="text-xs text-body">
@@ -130,8 +134,8 @@ function QuickSummary({
  read_file、list_directory、glob、search_file_content、google_web_search）
  </p>
  </div>
- <div className="bg-[var(--color-danger-soft)] rounded-lg p-3 border border-[var(--color-danger)]">
- <h4 className="text-sm font-semibold text-[var(--color-danger)] mb-1">
+ <div className="pl-4 border-l-2 border-l-edge-hover border-l-edge-hover">
+ <h4 className="text-sm font-semibold text-heading mb-1">
  🚫 不可信文件夹
  </h4>
  <p className="text-xs text-body">
@@ -176,17 +180,17 @@ export function ApprovalModeSystem() {
  decision -->|deny| deny
  decision -->|ask_user| ask
  ask --> autoApproved
- autoApproved -->|YOLO 或 allowlisted| proceed
+ autoApproved -->|"YOLO 或 allowlisted"| proceed
  autoApproved -->|需要用户确认| prompt_user --> user_choice
  user_choice -->|Proceed| proceed
  user_choice -->|Cancel| cancel
 
- style start fill:#22d3ee,color:#000
- style deny fill:#ef4444,color:#fff
- style allow fill:#22c55e,color:#000
- style prompt_user fill:#f59e0b,color:#000
- style decision fill:#a855f7,color:#fff
- style autoApproved fill:#a855f7,color:#fff`;
+ style start fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style deny fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style allow fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style prompt_user fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style decision fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style autoApproved fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  // 工具调用状态机 - Mermaid stateDiagram
  const toolCallStateChart = `stateDiagram-v2
@@ -224,91 +228,91 @@ export enum ApprovalMode {
 
  const setApprovalModeCode = `// gemini-cli/packages/core/src/config/config.ts
 setApprovalMode(mode: ApprovalMode): void {
- // 不可信文件夹：禁止开启特权模式（autoEdit / yolo）
- if (!this.isTrustedFolder() && mode !== ApprovalMode.DEFAULT) {
- throw new Error('Cannot enable privileged approval modes in an untrusted folder.');
- }
- this.policyEngine.setApprovalMode(mode);
+  // 不可信文件夹：禁止开启特权模式（autoEdit / yolo）
+  if (!this.isTrustedFolder() && mode !== ApprovalMode.DEFAULT) {
+  throw new Error('Cannot enable privileged approval modes in an untrusted folder.');
+  }
+  this.policyEngine.setApprovalMode(mode);
 }
 
 // gemini-cli/packages/core/src/policy/policy-engine.ts
 setApprovalMode(mode: ApprovalMode): void {
- this.approvalMode = mode;
+  this.approvalMode = mode;
 }`;
 
  const toolConfirmationCode = `// gemini-cli/packages/core/src/tools/tools.ts
 
 export type WaitingToolCall = {
- status: 'awaiting_approval';
- request: ToolCallRequestInfo;
- tool: AnyDeclarativeTool;
- invocation: AnyToolInvocation;
- confirmationDetails: ToolCallConfirmationDetails;
- startTime?: number;
- outcome?: ToolConfirmationOutcome;
+  status: 'awaiting_approval';
+  request: ToolCallRequestInfo;
+  tool: AnyDeclarativeTool;
+  invocation: AnyToolInvocation;
+  confirmationDetails: ToolCallConfirmationDetails;
+  startTime?: number;
+  outcome?: ToolConfirmationOutcome;
 };
 
 // 确认结果类型 - 来自 gemini-cli/packages/core/src/tools/tools.ts:721
 export enum ToolConfirmationOutcome {
- ProceedOnce = 'proceed_once', // 批准一次
- ProceedAlways = 'proceed_always', // 总是批准此工具
- ProceedAlwaysAndSave = 'proceed_always_and_save', // 批准并保存到配置
- ProceedAlwaysServer = 'proceed_always_server', // 总是批准此 MCP 服务器
- ProceedAlwaysTool = 'proceed_always_tool', // 总是批准此工具类型
- ModifyWithEditor = 'modify_with_editor', // 用外部编辑器修改后批准
- Cancel = 'cancel', // 取消
+  ProceedOnce = 'proceed_once', // 批准一次
+  ProceedAlways = 'proceed_always', // 总是批准此工具
+  ProceedAlwaysAndSave = 'proceed_always_and_save', // 批准并保存到配置
+  ProceedAlwaysServer = 'proceed_always_server', // 总是批准此 MCP 服务器
+  ProceedAlwaysTool = 'proceed_always_tool', // 总是批准此工具类型
+  ModifyWithEditor = 'modify_with_editor', // 用外部编辑器修改后批准
+  Cancel = 'cancel', // 取消
 }`;
 
  const policyDecisionCode = `// PolicyEngine 决策结果
 // gemini-cli/packages/core/src/policy/types.ts
 
 export enum PolicyDecision {
- ALLOW = 'allow', // 允许执行
- DENY = 'deny', // 拒绝执行
- ASK_USER = 'ask_user', // 需要用户确认
+  ALLOW = 'allow', // 允许执行
+  DENY = 'deny', // 拒绝执行
+  ASK_USER = 'ask_user', // 需要用户确认
 }
 
 // PolicyRule 规则结构
 export interface PolicyRule {
- toolName?: string; // 工具名，支持通配符 serverName__*
- argsPattern?: RegExp; // 参数匹配正则
- modes?: ApprovalMode[]; // 限定模式
- allowRedirection?: boolean; // shell 命令含重定向时是否仍允许 ALLOW（否则会降级为 ASK_USER）
- decision: PolicyDecision;
- priority?: number; // 优先级，高优先
+  toolName?: string; // 工具名，支持通配符 serverName__*
+  argsPattern?: RegExp; // 参数匹配正则
+  modes?: ApprovalMode[]; // 限定模式
+  allowRedirection?: boolean; // shell 命令含重定向时是否仍允许 ALLOW（否则会降级为 ASK_USER）
+  decision: PolicyDecision;
+  priority?: number; // 优先级，高优先
 }`;
 
  const allowedToolsCode = `// settings.json - v2 配置格式
 // 来源: gemini-cli/packages/core/src/utils/tool-utils.ts
 {
- "tools": {
- // 跳过确认的 allowlist（支持 run_shell_command(...) 这种 invocation pattern）
- "allowed": [
- "glob",
- "read_file",
- "list_directory",
- "search_file_content",
- "google_web_search",
- "run_shell_command(git status)"
- ],
+  "tools": {
+  // 跳过确认的 allowlist（支持 run_shell_command(...) 这种 invocation pattern）
+  "allowed": [
+  "glob",
+  "read_file",
+  "list_directory",
+  "search_file_content",
+  "google_web_search",
+  "run_shell_command(git status)"
+  ],
 
- // 排除某些工具（强制拒绝/禁用）
- "exclude": [
- "write_file"
- ]
- }
+  // 排除某些工具（强制拒绝/禁用）
+  "exclude": [
+  "write_file"
+  ]
+  }
 }
 
 // Pattern 语法 - 支持带参数的命令匹配
 // 来源: gemini-cli/packages/core/src/utils/tool-utils.ts:doesToolInvocationMatch()
 {
- "tools": {
- "allowed": [
- "run_shell_command(git)", // 只允许 git 开头的命令
- "run_shell_command(npm test)", // 只允许 npm test 命令
- "read_file" // 允许所有 read_file 调用
- ]
- }
+  "tools": {
+  "allowed": [
+  "run_shell_command(git)", // 只允许 git 开头的命令
+  "run_shell_command(npm test)", // 只允许 npm test 命令
+  "read_file" // 允许所有 read_file 调用
+  ]
+  }
 }`;
 
  const keyboardShortcutsCode = `// 审批模式相关快捷键
@@ -578,31 +582,31 @@ export interface PolicyRule {
  <div className="text-sm">
  <p className="font-semibold text-heading mb-1">默认模式</p>
  <ul className="space-y-1 text-body">
- <li>• 只读工具自动执行</li>
- <li>• 修改工具需确认</li>
- <li>• 推荐日常使用</li>
+ <li>只读工具自动执行</li>
+ <li>修改工具需确认</li>
+ <li>推荐日常使用</li>
  </ul>
  </div>
  </HighlightBox>
 
  <HighlightBox title="Au" variant="green">
  <div className="text-sm">
- <p className="font-semibold text-[var(--color-success)] mb-1">自动编辑</p>
+ <p className="font-semibold text-heading mb-1">自动编辑</p>
  <ul className="space-y-1 text-body">
- <li>• 文件编辑自动批准</li>
- <li>• run_shell_command 仍需确认</li>
- <li>• 适合信任的任务</li>
+ <li>文件编辑自动批准</li>
+ <li>run_shell_command 仍需确认</li>
+ <li>适合信任的任务</li>
  </ul>
  </div>
  </HighlightBox>
 
  <HighlightBox title="YOLO" variant="red">
  <div className="text-sm">
- <p className="font-semibold text-[var(--color-danger)] mb-1">完全自动</p>
+ <p className="font-semibold text-heading mb-1">完全自动</p>
  <ul className="space-y-1 text-body">
- <li>• 所有工具自动执行</li>
- <li>• 无需任何确认</li>
- <li>• 仅限可信环境</li>
+ <li>所有工具自动执行</li>
+ <li>无需任何确认</li>
+ <li>仅限可信环境</li>
  </ul>
  </div>
  </HighlightBox>
@@ -626,7 +630,7 @@ export interface PolicyRule {
  default
  </span>
  <span className="text-dim">↔</span>
- <span className="px-4 py-2 bg-[var(--color-success-soft)] border border-green-500 rounded">
+ <span className="px-4 py-2 bg-elevated border-l-2 border-l-edge-hover rounded">
  autoEdit
  </span>
  </div>
@@ -638,7 +642,7 @@ export interface PolicyRule {
  default
  </span>
  <span className="text-dim">↔</span>
- <span className="px-4 py-2 bg-[var(--color-danger-soft)] border border-red-500 rounded">
+ <span className="px-4 py-2 bg-elevated border-l-2 border-l-edge-hover rounded">
  yolo
  </span>
  </div>
@@ -672,11 +676,11 @@ export interface PolicyRule {
  </p>
  <p className="text-body">
  尝试切换到{' '}
- <strong className="text-[var(--color-success)]">AUTO_EDIT</strong> 或{' '}
- <strong className="text-[var(--color-danger)]">YOLO</strong>
+ <strong className="text-heading">AUTO_EDIT</strong> 或{' '}
+ <strong className="text-heading">YOLO</strong>
  会抛出错误：
  <br />
- <code className="bg-base/30 px-1 rounded text-[var(--color-danger)]">
+ <code className="bg-base/30 px-1 rounded text-heading">
  Cannot enable privileged approval modes in an untrusted
  folder.
  </code>
@@ -738,7 +742,7 @@ export interface PolicyRule {
  <h4 className="text-heading font-semibold mb-2">工具 Kind 分类</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface rounded-lg p-4">
- <h5 className="font-semibold text-[var(--color-success)] mb-2">
+ <h5 className="font-semibold text-heading mb-2">
  自动批准类 (Kind: Read/Search/Fetch/Think/Other)
  </h5>
  <ul className="text-sm text-body space-y-1">
@@ -773,7 +777,7 @@ export interface PolicyRule {
  </div>
 
  <div className="bg-surface rounded-lg p-4">
- <h5 className="font-semibold text-[var(--color-warning)] mb-2">
+ <h5 className="font-semibold text-heading mb-2">
  需确认类 (Kind: Edit/Delete/Move/Execute)
  </h5>
  <ul className="text-sm text-body space-y-1">
@@ -828,13 +832,13 @@ export interface PolicyRule {
  </tr>
  <tr className="border- border-edge/50">
  <td className="p-2">
- <code className="text-[var(--color-success)]">ProceedAlways</code>
+ <code className="text-heading">ProceedAlways</code>
  </td>
  <td className="p-2">总是批准此工具（加入 allowedTools）</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="p-2">
- <code className="text-emerald-300">
+ <code className="text-heading">
  ProceedAlwaysAndSave
  </code>
  </td>
@@ -854,13 +858,13 @@ export interface PolicyRule {
  </tr>
  <tr className="border- border-edge/50">
  <td className="p-2">
- <code className="text-[var(--color-warning)]">ModifyWithEditor</code>
+ <code className="text-heading">ModifyWithEditor</code>
  </td>
  <td className="p-2">用外部编辑器修改参数后批准</td>
  </tr>
  <tr>
  <td className="p-2">
- <code className="text-[var(--color-danger)]">Cancel</code>
+ <code className="text-heading">Cancel</code>
  </td>
  <td className="p-2">取消执行</td>
  </tr>
@@ -878,13 +882,13 @@ export interface PolicyRule {
  <h4 className="text-heading font-semibold mb-2">失败场景</h4>
  <div className="bg-surface rounded-lg p-4 space-y-3">
  <div>
- <h5 className="text-[var(--color-warning)] font-semibold mb-1">
+ <h5 className="text-heading font-semibold mb-1">
  场景 1：不可信文件夹尝试切换高权限模式
  </h5>
  <ul className="text-sm text-body list-disc list-inside ml-4">
  <li>
  <strong>错误</strong>：
- <code className="bg-base/30 px-1 rounded text-[var(--color-danger)]">
+ <code className="bg-base/30 px-1 rounded text-heading">
  Cannot enable privileged approval modes in an untrusted
  folder.
  </code>
@@ -897,7 +901,7 @@ export interface PolicyRule {
  </div>
 
  <div>
- <h5 className="text-[var(--color-warning)] font-semibold mb-1">
+ <h5 className="text-heading font-semibold mb-1">
  场景 2：Policy 规则拒绝工具执行
  </h5>
  <ul className="text-sm text-body list-disc list-inside ml-4">
@@ -912,7 +916,7 @@ export interface PolicyRule {
  </div>
 
  <div>
- <h5 className="text-[var(--color-warning)] font-semibold mb-1">
+ <h5 className="text-heading font-semibold mb-1">
  场景 3：用户取消工具执行
  </h5>
  <ul className="text-sm text-body list-disc list-inside ml-4">
@@ -927,7 +931,7 @@ export interface PolicyRule {
  </div>
 
  <div>
- <h5 className="text-[var(--color-warning)] font-semibold mb-1">
+ <h5 className="text-heading font-semibold mb-1">
  场景 4：allowedTools 白名单不匹配
  </h5>
  <ul className="text-sm text-body list-disc list-inside ml-4">
@@ -1098,7 +1102,7 @@ priority = 10`}
  <kbd className="px-2 py-1 bg-elevated rounded">y</kbd> /{' '}
  <kbd className="px-2 py-1 bg-elevated rounded">Enter</kbd>
  </td>
- <td className="p-2 text-[var(--color-success)]">批准</td>
+ <td className="p-2 text-heading">批准</td>
  <td className="p-2">执行当前工具调用</td>
  </tr>
  <tr className="border- border-edge/50">
@@ -1106,14 +1110,14 @@ priority = 10`}
  <kbd className="px-2 py-1 bg-elevated rounded">n</kbd> /{' '}
  <kbd className="px-2 py-1 bg-elevated rounded">Esc</kbd>
  </td>
- <td className="p-2 text-[var(--color-danger)]">拒绝</td>
+ <td className="p-2 text-heading">拒绝</td>
  <td className="p-2">取消工具执行</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="p-2">
  <kbd className="px-2 py-1 bg-elevated rounded">e</kbd>
  </td>
- <td className="p-2 text-[var(--color-warning)]">编辑</td>
+ <td className="p-2 text-heading">编辑</td>
  <td className="p-2">修改工具参数后执行</td>
  </tr>
  <tr>
@@ -1145,10 +1149,10 @@ priority = 10`}
  <th className="border border-edge p-3 text-center text-heading">
  default
  </th>
- <th className="border border-edge p-3 text-center text-[var(--color-success)]">
+ <th className="border border-edge p-3 text-center text-heading">
  autoEdit
  </th>
- <th className="border border-edge p-3 text-center text-[var(--color-danger)]">
+ <th className="border border-edge p-3 text-center text-heading">
  yolo
  </th>
  </tr>
@@ -1158,13 +1162,13 @@ priority = 10`}
  <td className="border border-edge p-3">
  <code className="text-heading">Read</code> 读取文件
  </td>
- <td className="border border-edge p-3 text-center text-[var(--color-success)]">
+ <td className="border border-edge p-3 text-center text-heading">
  ✅ 自动
  </td>
- <td className="border border-edge p-3 text-center text-[var(--color-success)]">
+ <td className="border border-edge p-3 text-center text-heading">
  ✅ 自动
  </td>
- <td className="border border-edge p-3 text-center text-[var(--color-success)]">
+ <td className="border border-edge p-3 text-center text-heading">
  ✅ 自动
  </td>
  </tr>
@@ -1172,13 +1176,13 @@ priority = 10`}
  <td className="border border-edge p-3">
  <code className="text-heading">Search</code> 搜索文件
  </td>
- <td className="border border-edge p-3 text-center text-[var(--color-success)]">
+ <td className="border border-edge p-3 text-center text-heading">
  ✅ 自动
  </td>
- <td className="border border-edge p-3 text-center text-[var(--color-success)]">
+ <td className="border border-edge p-3 text-center text-heading">
  ✅ 自动
  </td>
- <td className="border border-edge p-3 text-center text-[var(--color-success)]">
+ <td className="border border-edge p-3 text-center text-heading">
  ✅ 自动
  </td>
  </tr>
@@ -1186,13 +1190,13 @@ priority = 10`}
  <td className="border border-edge p-3">
  <code className="text-heading">Fetch</code> 网络请求
  </td>
- <td className="border border-edge p-3 text-center text-[var(--color-warning)]">
+ <td className="border border-edge p-3 text-center text-heading">
  ⚠️ 确认
  </td>
- <td className="border border-edge p-3 text-center text-[var(--color-warning)]">
+ <td className="border border-edge p-3 text-center text-heading">
  ⚠️ 确认
  </td>
- <td className="border border-edge p-3 text-center text-[var(--color-success)]">
+ <td className="border border-edge p-3 text-center text-heading">
  ✅ 自动
  </td>
  </tr>
@@ -1200,13 +1204,13 @@ priority = 10`}
  <td className="border border-edge p-3">
  <code className="text-heading">Edit</code> 编辑文件
  </td>
- <td className="border border-edge p-3 text-center text-[var(--color-warning)]">
+ <td className="border border-edge p-3 text-center text-heading">
  ⚠️ 确认
  </td>
- <td className="border border-edge p-3 text-center text-[var(--color-success)]">
+ <td className="border border-edge p-3 text-center text-heading">
  ✅ 自动
  </td>
- <td className="border border-edge p-3 text-center text-[var(--color-success)]">
+ <td className="border border-edge p-3 text-center text-heading">
  ✅ 自动
  </td>
  </tr>
@@ -1214,27 +1218,27 @@ priority = 10`}
  <td className="border border-edge p-3">
  <code className="text-heading">Delete</code> 删除文件
  </td>
- <td className="border border-edge p-3 text-center text-[var(--color-warning)]">
+ <td className="border border-edge p-3 text-center text-heading">
  ⚠️ 确认
  </td>
- <td className="border border-edge p-3 text-center text-[var(--color-warning)]">
+ <td className="border border-edge p-3 text-center text-heading">
  ⚠️ 确认
  </td>
- <td className="border border-edge p-3 text-center text-[var(--color-success)]">
+ <td className="border border-edge p-3 text-center text-heading">
  ✅ 自动
  </td>
  </tr>
  <tr className="bg-surface/30">
  <td className="border border-edge p-3">
- <code className="text-[var(--color-danger)]">Execute</code> Shell 命令
+ <code className="text-heading">Execute</code> Shell 命令
  </td>
- <td className="border border-edge p-3 text-center text-[var(--color-warning)]">
+ <td className="border border-edge p-3 text-center text-heading">
  ⚠️ 确认
  </td>
- <td className="border border-edge p-3 text-center text-[var(--color-warning)]">
+ <td className="border border-edge p-3 text-center text-heading">
  ⚠️ 确认
  </td>
- <td className="border border-edge p-3 text-center text-[var(--color-success)]">
+ <td className="border border-edge p-3 text-center text-heading">
  ✅ 自动
  </td>
  </tr>
@@ -1242,13 +1246,13 @@ priority = 10`}
  <td className="border border-edge p-3">
  <code className="text-heading">MCP Tools</code> 外部服务器
  </td>
- <td className="border border-edge p-3 text-center text-[var(--color-warning)]">
+ <td className="border border-edge p-3 text-center text-heading">
  ⚠️ 确认
  </td>
- <td className="border border-edge p-3 text-center text-[var(--color-warning)]">
+ <td className="border border-edge p-3 text-center text-heading">
  ⚠️ 确认
  </td>
- <td className="border border-edge p-3 text-center text-[var(--color-success)]">
+ <td className="border border-edge p-3 text-center text-heading">
  ✅ 自动
  </td>
  </tr>
@@ -1289,7 +1293,7 @@ priority = 10`}
  默认：需要确认（除 read-only）
  </div>
  <div className="mt-2 text-center text-dim">↔</div>
- <div className="text-[var(--color-success)] font-bold text-center">
+ <div className="text-heading font-bold text-center">
  autoEdit
  </div>
  <div className="text-body text-xs mt-1 text-center">
@@ -1305,7 +1309,7 @@ priority = 10`}
  默认：需要确认（除 read-only）
  </div>
  <div className="mt-2 text-center text-dim">↔</div>
- <div className="text-[var(--color-danger)] font-bold text-center">yolo</div>
+ <div className="text-heading font-bold text-center">yolo</div>
  <div className="text-body text-xs mt-1 text-center">
  自动批准所有工具调用
  </div>
@@ -1318,8 +1322,8 @@ priority = 10`}
  <div>
  <h5 className="font-semibold text-heading mb-1">自动批准</h5>
  <ul className="space-y-1">
- <li>• PolicyDecision.ALLOW 返回</li>
- <li>• YOLO 模式所有工具</li>
+ <li>PolicyDecision.ALLOW 返回</li>
+ <li>YOLO 模式所有工具</li>
  <li>
  • AUTO_EDIT 模式启用{' '}
  <code className="bg-base/30 px-1 rounded">
@@ -1327,16 +1331,16 @@ priority = 10`}
  </code>{' '}
  的 allow 规则（如 write_file / replace）
  </li>
- <li>• 匹配 Policy 规则的工具</li>
+ <li>匹配 Policy 规则的工具</li>
  </ul>
  </div>
  <div>
  <h5 className="font-semibold text-heading mb-1">需要确认</h5>
  <ul className="space-y-1">
- <li>• PolicyDecision.ASK_USER 返回</li>
- <li>• DEFAULT 模式修改类工具</li>
- <li>• 未匹配任何 ALLOW 规则</li>
- <li>• 危险操作（Shell 命令等）</li>
+ <li>PolicyDecision.ASK_USER 返回</li>
+ <li>DEFAULT 模式修改类工具</li>
+ <li>未匹配任何 ALLOW 规则</li>
+ <li>危险操作（Shell 命令等）</li>
  </ul>
  </div>
  </div>
@@ -1347,8 +1351,8 @@ priority = 10`}
  <section>
  <h3 className="text-xl font-semibold text-heading mb-4">最佳实践</h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <div className="bg-[var(--color-success-soft)] border border-[var(--color-success)] rounded-lg p-4">
- <h4 className="text-[var(--color-success)] font-semibold mb-2">推荐做法</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">推荐做法</h4>
  <ul className="text-sm text-body space-y-1">
  <li>✓ 日常开发使用 default 模式</li>
  <li>✓ 审查不熟悉的代码时仔细看 Diff</li>
@@ -1357,8 +1361,8 @@ priority = 10`}
  <li>✓ 配置合理的 allowedTools</li>
  </ul>
  </div>
- <div className="bg-[var(--color-danger-soft)] border border-[var(--color-danger)] rounded-lg p-4">
- <h4 className="text-[var(--color-danger)] font-semibold mb-2">避免做法</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">避免做法</h4>
  <ul className="text-sm text-body space-y-1">
  <li>✗ 在不可信项目中使用 yolo</li>
  <li>✗ 不看 Diff 直接批准</li>
@@ -1438,7 +1442,7 @@ priority = 10`}
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-[var(--color-warning)] font-bold mb-2">
+ <h4 className="text-heading font-bold mb-2">
  🔄 为什么用 Shift+Tab 而非配置文件？
  </h4>
  <div className="text-sm text-body space-y-2">
@@ -1513,7 +1517,7 @@ priority = 10`}
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-red-500 font-bold mb-2">
+ <h4 className="text-heading font-bold mb-2">
  ⚠️ 为什么 Shell 命令需要特殊处理？
  </h4>
  <div className="text-sm text-body space-y-2">
@@ -1562,7 +1566,7 @@ priority = 10`}
  ApprovalMode
  </span>
  <span className="text-dim">+</span>
- <span className="px-2 py-1 bg-[var(--color-warning-soft)] text-[var(--color-warning)] rounded text-xs">
+ <span className="px-2 py-1 bg-elevated text-heading rounded text-xs">
  TOML 规则
  </span>
  <span className="text-dim">+</span>
@@ -1587,13 +1591,13 @@ priority = 10`}
 
  subgraph "Policy Engine 决策"
  policy --> toml{TOML 规则}
- toml -->|匹配 allow| allow[ALLOW]
- toml -->|匹配 deny| deny[DENY]
+ toml -->|"匹配 allow"| allow[ALLOW]
+ toml -->|"匹配 deny"| deny[DENY]
  toml -->|无匹配| mode{检查 ApprovalMode}
 
  mode -->|YOLO| allow
- mode -->|Default + 修改工具| safety{Safety Checker}
- mode -->|Au+ Read| allow
+ mode -->|"Default + 修改工具"| safety{Safety Checker}
+ mode -->|"Au+ Read"| allow
 
  safety -->|安全| auto[自动决策]
  safety -->|危险| ask[ASK_USER]
@@ -1604,10 +1608,10 @@ priority = 10`}
  ask --> bus[MessageBus]
  bus --> ui[UI 确认对话框]
 
- style policy fill:#ea580c,color:#fff
- style allow fill:#22c55e,color:#000
- style deny fill:#ef4444,color:#fff
- style ask fill:#f59e0b,color:#000
+ style policy fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style allow fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style deny fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style ask fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
 `}
  />
  </div>
@@ -1631,7 +1635,7 @@ priority = 10`}
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-[var(--color-warning)] font-bold mb-2">
+ <h4 className="text-heading font-bold mb-2">
  TOML 规则优先级
  </h4>
  <ul className="text-sm text-body space-y-1">
@@ -1640,9 +1644,9 @@ priority = 10`}
  规则直接批准
  </li>
  <li>
- • <code className="text-[var(--color-danger)]">deny</code> 规则直接拒绝
+ • <code className="text-heading">deny</code> 规则直接拒绝
  </li>
- <li>• 无匹配时回退到 ApprovalMode</li>
+ <li>无匹配时回退到 ApprovalMode</li>
  </ul>
  </div>
  </div>
@@ -1696,10 +1700,10 @@ async evaluate(request: ToolRequest): Promise<PolicyDecision> {
  q3 -->|否| default
  q3 -->|是| autoedit[Au模式<br/>自动编辑]
 
- style start fill:#22d3ee,color:#000
- style default fill:#3b82f6,color:#fff
- style autoedit fill:#22c55e,color:#000
- style yolo fill:#ef4444,color:#fff
+ style start fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style default fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style autoedit fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style yolo fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
 `}
  />
  </Layer>

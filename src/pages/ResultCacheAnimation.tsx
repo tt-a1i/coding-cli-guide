@@ -389,13 +389,13 @@ function CacheVisualizer({
  hasPrefixPotential?: boolean;
 }) {
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" className="bg-surface">
  <div className="flex items-center justify-between mb-3">
  <div className="text-xs text-dim font-mono">Cache Storage</div>
  {result && (
  <span
  className={`px-2 py-0.5 rounded text-xs font-bold ${
- result === 'HIT' ? 'bg-[var(--color-success-soft)] text-[var(--color-success)]' : 'bg-[var(--color-danger-soft)] text-[var(--color-danger)]'
+ result === 'HIT' ? 'bg-elevated text-heading' : 'bg-elevated text-heading'
  }`}
  >
  {result}
@@ -420,16 +420,16 @@ function CacheVisualizer({
  key={key}
  className={`p-2 rounded border transition-all ${
  isMatch
- ? 'border-green-500 bg-[var(--color-success-soft)]'
+ ? 'border-edge bg-elevated'
  : isPrefix
- ? 'border-amber-500 bg-[var(--color-warning-soft)]'
+ ? 'border-edge bg-elevated'
  : ' border-edge bg-base/20'
  }`}
  >
  <div className="flex items-center gap-2">
  <span className="font-mono text-sm text-heading">"{key}"</span>
- {isMatch && <span className="text-xs text-[var(--color-success)]">← 精确匹配</span>}
- {isPrefix && <span className="text-xs text-amber-400">← 可用前缀</span>}
+ {isMatch && <span className="text-xs text-heading">← 精确匹配</span>}
+ {isPrefix && <span className="text-xs text-heading">← 可用前缀</span>}
  </div>
  <div className="text-xs text-dim mt-1">
  {Array.isArray(files) ? files.slice(0, 3).join(', ') : `${files} 个文件`}
@@ -441,7 +441,7 @@ function CacheVisualizer({
  </div>
 
  {hasPrefixPotential && (
- <div className="mt-3 p-2 rounded bg-[var(--color-warning-soft)] border border-[var(--color-warning)] text-xs text-amber-400">
+ <div className="mt-3 p-2 rounded bg-elevated border-l-2 border-l-edge-hover text-xs text-heading">
  存在可用前缀，可优化搜索
  </div>
  )}
@@ -462,7 +462,7 @@ function PrefixScanVisualizer({
  if (!scanning) return null;
 
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" className="bg-surface">
  <div className="text-xs text-dim mb-3 font-mono">
  扫描前缀: "{query}"
  </div>
@@ -472,9 +472,9 @@ function PrefixScanVisualizer({
  key={item.key}
  className={`flex items-center gap-3 p-2 rounded ${
  item.key === bestPrefix
- ? 'bg-[var(--color-success-soft)] border border-green-500'
+ ? 'bg-elevated border-l-2 border-l-edge-hover'
  : item.isPrefix
- ? 'bg-[var(--color-warning-soft)]'
+ ? 'bg-elevated'
  : 'bg-base/20'
  }`}
  >
@@ -484,7 +484,7 @@ function PrefixScanVisualizer({
  <div className="flex items-center gap-2">
  <span className="text-xs text-body">length: {item.length}</span>
  {item.key === bestPrefix && (
- <span className="px-2 py-0.5 rounded text-xs bg-green-500 text-heading">
+ <span className="px-2 py-0.5 rounded text-xs bg-[var(--color-success)] text-heading">
  最优
  </span>
  )}
@@ -514,8 +514,8 @@ function ScopeOptimizationVisualizer({
  if (!originalScope) return null;
 
  return (
- <div className="mb-6 p-4 rounded-lg border border-[var(--color-success)] bg-[var(--color-success-soft)]">
- <div className="text-sm font-bold text-[var(--color-success)] mb-3">搜索范围优化</div>
+ <div className="mb-6 p-4 rounded-lg border-l-2 border-l-edge-hover bg-elevated">
+ <div className="text-sm font-bold text-heading mb-3">搜索范围优化</div>
  <div className="grid grid-cols-3 gap-4 mb-4">
  <div className="text-center">
  <div className="text-2xl font-bold text-body line-through">
@@ -524,24 +524,24 @@ function ScopeOptimizationVisualizer({
  <div className="text-xs text-dim">原始范围</div>
  </div>
  <div className="flex items-center justify-center">
- <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+ <svg className="w-8 h-8 text-heading" fill="none" stroke="currentColor" viewBox="0 0 24 24">
  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
  </svg>
  </div>
  <div className="text-center">
- <div className="text-2xl font-bold text-[var(--color-success)]">
+ <div className="text-2xl font-bold text-heading">
  {optimizedScope}
  </div>
  <div className="text-xs text-dim">优化后</div>
  </div>
  </div>
  <div className="text-center">
- <span className="px-3 py-1 rounded-full bg-[var(--color-success-soft)] text-[var(--color-success)] text-sm font-bold">
+ <span className="px-3 py-1 rounded-full bg-elevated text-heading text-sm font-bold">
  减少 {reduction}
  </span>
  </div>
  {prefixResults && (
- <div className="mt-4 pt-3 border-t border-[var(--color-success)]">
+ <div className="mt-4 pt-3 border-t border-edge">
  <div className="text-xs text-dim mb-2">只搜索这些文件:</div>
  <div className="flex flex-wrap gap-1">
  {prefixResults.map((file, i) => (
@@ -569,7 +569,7 @@ function FilterVisualizer({
  if (!checking) return null;
 
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" className="bg-surface">
  <div className="text-xs text-dim mb-3 font-mono">
  过滤: 包含 "{remaining}"
  </div>
@@ -578,13 +578,13 @@ function FilterVisualizer({
  <div
  key={i}
  className={`flex items-center gap-3 p-2 rounded ${
- item.matches ? 'bg-[var(--color-success-soft)]' : 'bg-base/20'
+ item.matches ? 'bg-elevated' : 'bg-base/20'
  }`}
  >
  <span className="font-mono text-sm text-heading">{item.file}</span>
  <div className="flex-1" />
  {item.matches ? (
- <span className="text-[var(--color-success)]">✓ 匹配</span>
+ <span className="text-heading">✓ 匹配</span>
  ) : (
  <span className="text-dim">✗</span>
  )}
@@ -612,15 +612,15 @@ function StatsVisualizer({
  if (!stats) return null;
 
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" className="bg-surface">
  <div className="text-xs text-dim mb-3 font-mono">缓存统计</div>
  <div className="grid grid-cols-3 gap-4 mb-4">
- <div className="p-3 rounded bg-[var(--color-success-soft)] text-center">
- <div className="text-2xl font-bold text-[var(--color-success)]">{stats.hits}</div>
+ <div className="p-3 rounded bg-elevated text-center">
+ <div className="text-2xl font-bold text-heading">{stats.hits}</div>
  <div className="text-xs text-dim">命中</div>
  </div>
- <div className="p-3 rounded bg-[var(--color-danger-soft)] text-center">
- <div className="text-2xl font-bold text-[var(--color-danger)]">{stats.misses}</div>
+ <div className="p-3 rounded bg-elevated text-center">
+ <div className="text-2xl font-bold text-heading">{stats.misses}</div>
  <div className="text-xs text-dim">未命中</div>
  </div>
  <div className="p-3 rounded bg-elevated/10 text-center">
@@ -630,13 +630,13 @@ function StatsVisualizer({
  </div>
  <div className="relative h-4 bg-base/30 rounded overflow-hidden">
  <div
- className="h-full bg-green-500 transition-all"
+ className="h-full bg-[var(--color-success)] transition-all"
  style={{ width: `${stats.hitRate * 100}%` }}
  />
  </div>
  <div className="mt-2 text-center text-sm">
  <span className="text-body">命中率: </span>
- <span className="text-[var(--color-success)] font-bold">{(stats.hitRate * 100).toFixed(1)}%</span>
+ <span className="text-heading font-bold">{(stats.hitRate * 100).toFixed(1)}%</span>
  </div>
  </div>
  );
@@ -657,7 +657,7 @@ function SequenceVisualizer({
  if (!sequence) return null;
 
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" className="bg-surface">
  <div className="text-xs text-dim mb-3 font-mono">渐进式搜索序列</div>
  <div className="space-y-2 mb-4">
  {sequence.map((item, i) => (
@@ -668,13 +668,13 @@ function SequenceVisualizer({
  </span>
  <div className="flex-1" />
  <span className="text-xs text-body">
- 扫描 <span className="text-amber-400">{item.scans.toLocaleString()}</span>
+ 扫描 <span className="text-heading">{item.scans.toLocaleString()}</span>
  </span>
  <svg className="w-4 h-4 text-dim" fill="none" stroke="currentColor" viewBox="0 0 24 24">
  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
  </svg>
  <span className="text-xs text-body">
- 结果 <span className="text-[var(--color-success)]">{item.results}</span>
+ 结果 <span className="text-heading">{item.results}</span>
  </span>
  </div>
  ))}
@@ -682,19 +682,19 @@ function SequenceVisualizer({
  <div className="grid grid-cols-2 gap-4 p-3 rounded bg-base/30">
  <div className="text-center">
  <div className="text-dim text-xs mb-1">无优化</div>
- <div className="text-xl font-bold text-[var(--color-danger)] line-through">
+ <div className="text-xl font-bold text-heading line-through">
  {totalWithout?.toLocaleString()}
  </div>
  </div>
  <div className="text-center">
  <div className="text-dim text-xs mb-1">有优化</div>
- <div className="text-xl font-bold text-[var(--color-success)]">
+ <div className="text-xl font-bold text-heading">
  {totalWith?.toLocaleString()}
  </div>
  </div>
  </div>
  <div className="mt-3 text-center">
- <span className="px-4 py-1 rounded-full bg-[var(--color-success-soft)] text-[var(--color-success)] font-bold">
+ <span className="px-4 py-1 rounded-full bg-elevated text-heading font-bold">
  节省 {savings}
  </span>
  </div>
@@ -783,7 +783,7 @@ export function ResultCacheAnimation() {
  {/* 当前步骤 */}
  <div
  className="rounded-lg p-6 border border-edge/30"
- style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.1), rgba(0,0,0,0.8))' }}
+ style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.1), var(--color-bg))' }}
  >
  <div className="flex items-center gap-3 mb-4">
  <div
@@ -863,21 +863,7 @@ export function ResultCacheAnimation() {
 
  {/* 右侧：代码 */}
  <div>
- <h3 className="text-sm font-bold text-body mb-3 font-mono">源码实现</h3>
- <div
- className="rounded-lg overflow-hidden border border-edge"
- style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
- >
- <div className="p-1 border- border-edge flex items-center gap-2">
- <div className="w-3 h-3 rounded-full bg-red-500/80" />
- <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
- <div className="w-3 h-3 rounded-full bg-green-500/80" />
- <span className="text-xs text-dim ml-2 font-mono">
- result-cache.ts
- </span>
- </div>
- <JsonBlock code={step.codeSnippet} />
- </div>
+ <JsonBlock code={step.codeSnippet} title="result-cache.ts" />
  </div>
  </div>
 
@@ -901,7 +887,7 @@ export function ResultCacheAnimation() {
  className={`
  px-6 py-2 rounded-lg font-medium transition-colors
  ${isPlaying
- ? 'bg-amber-600 text-heading hover:bg-amber-500'
+ ? 'bg-[var(--color-warning)] text-heading hover:bg-[var(--color-warning)]'
  : ' bg-elevated text-heading hover:opacity-90'
  }
  `}

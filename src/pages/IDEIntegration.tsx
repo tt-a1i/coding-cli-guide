@@ -3,6 +3,9 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 const relatedPages: RelatedPage[] = [
  { id: 'ide-diff', label: 'IDE Diff 协议', description: '深入理解 gemini-diff:// 虚拟文档机制' },
@@ -38,10 +41,10 @@ export function IDEIntegration() {
  check_workspace -->|Match| connected
  check_workspace -->|Mismatch| standalone
 
- classDef start fill:#22d3ee,color:#000
- classDef success fill:#22c55e,color:#000
- classDef decision fill:#f59e0b,color:#000
- classDef hint fill:#f59e0b,color:#000
+ classDef start fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ classDef success fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ classDef decision fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ classDef hint fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
 
  class start start
  class connected,standalone success
@@ -69,11 +72,11 @@ export function IDEIntegration() {
  user_action -->|✓ / Cmd+S| accept
  user_action -->|✗ / 关闭| reject
 
- style start fill:#22d3ee,color:#000
- style accept fill:#22c55e,color:#000
- style reject fill:#ef4444,color:#fff
- style check_ide fill:#f59e0b,color:#000
- style user_action fill:#f59e0b,color:#000`;
+ style start fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style accept fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style reject fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style check_ide fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style user_action fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  return (
  <div className="space-y-8">
@@ -88,25 +91,25 @@ export function IDEIntegration() {
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
  <HighlightBox title="工作区上下文" variant="blue">
  <ul className="text-sm text-body space-y-1">
- <li>• 最近访问的 10 个文件</li>
- <li>• 当前光标位置</li>
- <li>• 选中的文本 (最多 16KB)</li>
+ <li>最近访问的 10 个文件</li>
+ <li>当前光标位置</li>
+ <li>选中的文本 (最多 16KB)</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="原生 Diff" variant="green">
  <ul className="text-sm text-body space-y-1">
- <li>• 在 IDE 中查看修改</li>
- <li>• 支持编辑后接受</li>
- <li>• 熟悉的 Diff 界面</li>
+ <li>在 IDE 中查看修改</li>
+ <li>支持编辑后接受</li>
+ <li>熟悉的 Diff 界面</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="信任同步" variant="purple">
  <ul className="text-sm text-body space-y-1">
- <li>• 自动获取 IDE 信任状态</li>
- <li>• 统一的安全管理</li>
- <li>• 与 Trusted Folders 集成</li>
+ <li>自动获取 IDE 信任状态</li>
+ <li>统一的安全管理</li>
+ <li>与 Trusted Folders 集成</li>
  </ul>
  </HighlightBox>
  </div>
@@ -116,55 +119,55 @@ export function IDEIntegration() {
  <section className="bg-surface/30 rounded-lg border border-edge/50 p-6">
  <h3 className="text-xl font-semibold text-heading mb-4">集成边界：什么能做/不能做</h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
- <div className="bg-[var(--color-success-soft)] border border-[var(--color-success)] rounded-lg p-4">
- <h4 className="text-[var(--color-success)] font-semibold mb-3">✓ IDE 集成能做</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-3">✓ IDE 集成能做</h4>
  <ul className="text-sm text-body space-y-2">
  <li className="flex items-start gap-2">
- <span className="text-[var(--color-success)]">•</span>
+ <span className="text-heading">•</span>
  <span><strong>原生 Diff 视图</strong> — 在 IDE 中查看/编辑/接受修改</span>
  </li>
  <li className="flex items-start gap-2">
- <span className="text-[var(--color-success)]">•</span>
+ <span className="text-heading">•</span>
  <span><strong>上下文同步</strong> — 获取打开的文件、光标位置、选中文本</span>
  </li>
  <li className="flex items-start gap-2">
- <span className="text-[var(--color-success)]">•</span>
+ <span className="text-heading">•</span>
  <span><strong>信任状态</strong> — 继承 IDE 工作区信任设置</span>
  </li>
  <li className="flex items-start gap-2">
- <span className="text-[var(--color-success)]">•</span>
+ <span className="text-heading">•</span>
  <span><strong>终端内启动</strong> — 在 IDE 集成终端直接运行</span>
  </li>
  </ul>
  </div>
- <div className="bg-[var(--color-danger-soft)] border border-[var(--color-danger)] rounded-lg p-4">
- <h4 className="text-[var(--color-danger)] font-semibold mb-3">✗ IDE 集成不能做</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-3">✗ IDE 集成不能做</h4>
  <ul className="text-sm text-body space-y-2">
  <li className="flex items-start gap-2">
- <span className="text-[var(--color-danger)]">•</span>
+ <span className="text-heading">•</span>
  <span><strong>代码补全</strong> — 没有 inline completion provider</span>
  </li>
  <li className="flex items-start gap-2">
- <span className="text-[var(--color-danger)]">•</span>
+ <span className="text-heading">•</span>
  <span><strong>实时诊断</strong> — 不提供 diagnostics/linting</span>
  </li>
  <li className="flex items-start gap-2">
- <span className="text-[var(--color-danger)]">•</span>
+ <span className="text-heading">•</span>
  <span><strong>代码导航</strong> — 不实现 go-等</span>
  </li>
  <li className="flex items-start gap-2">
- <span className="text-[var(--color-danger)]">•</span>
+ <span className="text-heading">•</span>
  <span><strong>重构工具</strong> — 没有 rename/extract method 等</span>
  </li>
  <li className="flex items-start gap-2">
- <span className="text-[var(--color-danger)]">•</span>
+ <span className="text-heading">•</span>
  <span><strong>调试集成</strong> — 不与 debugger 交互</span>
  </li>
  </ul>
  </div>
  </div>
- <div className="mt-4 bg-[var(--color-warning-soft)] border border-[var(--color-warning)] rounded-lg p-4">
- <h4 className="text-amber-400 font-semibold mb-2">💡 设计哲学</h4>
+ <div className="mt-4 bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">💡 设计哲学</h4>
  <p className="text-sm text-body">
  IDE 集成的定位是<strong>增强 CLI 体验</strong>，而非替代传统 IDE 插件。核心价值是
  <span className="text-heading mx-1">Native Diff</span>和
@@ -182,25 +185,25 @@ export function IDEIntegration() {
  <span className="text-3xl">📘</span>
  <p className="text-heading font-semibold mt-2">VS Code</p>
  <p className="text-body text-xs">完全支持</p>
- <div className="mt-2 px-2 py-1 bg-green-600/30 text-[var(--color-success)] text-xs rounded">Official</div>
+ <div className="mt-2 px-2 py-1 bg-elevated text-heading text-xs rounded">Official</div>
  </div>
- <div className="bg-[var(--color-success-soft)] border border-[var(--color-success)] rounded-lg p-4 text-center">
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4 text-center">
  <span className="text-3xl">📗</span>
- <p className="text-[var(--color-success)] font-semibold mt-2">VSCodium</p>
+ <p className="text-heading font-semibold mt-2">VSCodium</p>
  <p className="text-body text-xs">通过 Open VSX</p>
- <div className="mt-2 px-2 py-1 bg-green-600/30 text-[var(--color-success)] text-xs rounded">Compatible</div>
+ <div className="mt-2 px-2 py-1 bg-elevated text-heading text-xs rounded">Compatible</div>
  </div>
  <div className="bg-elevated border border-edge rounded-lg p-4 text-center">
  <span className="text-3xl">📕</span>
  <p className="text-heading font-semibold mt-2">Cursor</p>
  <p className="text-body text-xs">兼容 VSCode 扩展</p>
- <div className="mt-2 px-2 py-1 bg-green-600/30 text-[var(--color-success)] text-xs rounded">Compatible</div>
+ <div className="mt-2 px-2 py-1 bg-elevated text-heading text-xs rounded">Compatible</div>
  </div>
- <div className="bg-[var(--color-warning-soft)] border border-[var(--color-warning)] rounded-lg p-4 text-center">
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4 text-center">
  <span className="text-3xl">⚡</span>
- <p className="text-amber-400 font-semibold mt-2">Zed</p>
+ <p className="text-heading font-semibold mt-2">Zed</p>
  <p className="text-body text-xs">Terminal + Context</p>
- <div className="mt-2 px-2 py-1 bg-amber-600/30 text-amber-400 text-xs rounded">Partial</div>
+ <div className="mt-2 px-2 py-1 bg-elevated text-heading text-xs rounded">Partial</div>
  </div>
  <div className="bg-surface border border-edge rounded-lg p-4 text-center">
  <span className="text-3xl">📓</span>
@@ -215,29 +218,29 @@ export function IDEIntegration() {
  <Layer title="Zed 集成" icon="⚡">
  <HighlightBox title="Zed 支持状态" icon="⚡" variant="yellow">
  <p className="text-sm mb-2">
- <strong className="text-amber-400">Zed</strong> 是一款高性能的现代编辑器。
+ <strong className="text-heading">Zed</strong> 是一款高性能的现代编辑器。
  Gemini CLI 可在 Zed 的集成终端中运行，但原生 Diff 功能需要额外配置。
  </p>
  </HighlightBox>
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
- <div className="bg-[var(--color-success-soft)] border border-[var(--color-success)] rounded-lg p-4">
- <h4 className="text-[var(--color-success)] font-semibold mb-2">✓ Zed 中可用</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">✓ Zed 中可用</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• 在集成终端中运行 CLI</li>
- <li>• 使用 CLI 内置 Diff 视图</li>
- <li>• 读取/写入文件</li>
- <li>• 执行 shell 命令</li>
- <li>• 使用 MCP 服务器 (通过 Zed MCP 支持)</li>
+ <li>在集成终端中运行 CLI</li>
+ <li>使用 CLI 内置 Diff 视图</li>
+ <li>读取/写入文件</li>
+ <li>执行 shell 命令</li>
+ <li>使用 MCP 服务器 (通过 Zed MCP 支持)</li>
  </ul>
  </div>
- <div className="bg-[var(--color-warning-soft)] border border-[var(--color-warning)] rounded-lg p-4">
- <h4 className="text-amber-400 font-semibold mb-2">⚠️ Zed 限制</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">⚠️ Zed 限制</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• 无 Companion 扩展 — Zed 扩展 API 不同</li>
- <li>• 无原生 Diff — 需使用 CLI 内置 Diff</li>
- <li>• 无上下文同步 — 无法获取打开文件列表</li>
- <li>• 无信任状态继承</li>
+ <li>无 Companion 扩展 — Zed 扩展 API 不同</li>
+ <li>无原生 Diff — 需使用 CLI 内置 Diff</li>
+ <li>无上下文同步 — 无法获取打开文件列表</li>
+ <li>无信任状态继承</li>
  </ul>
  </div>
  </div>
@@ -291,13 +294,13 @@ gemini
  </HighlightBox>
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
- <div className="bg-[var(--color-success-soft)] border border-[var(--color-success)] rounded-lg p-4">
- <h4 className="text-[var(--color-success)] font-semibold mb-2">✓ 可用功能</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">✓ 可用功能</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• 在终端工具窗口运行 CLI</li>
- <li>• 使用 CLI 内置 Diff</li>
- <li>• 文件读写操作</li>
- <li>• 所有 CLI 核心功能</li>
+ <li>在终端工具窗口运行 CLI</li>
+ <li>使用 CLI 内置 Diff</li>
+ <li>文件读写操作</li>
+ <li>所有 CLI 核心功能</li>
  </ul>
  </div>
  <div className="bg-surface border border-edge rounded-lg p-4">
@@ -306,9 +309,9 @@ gemini
  欢迎开发 JetBrains 插件！需要实现：
  </p>
  <ul className="text-xs text-body mt-2 space-y-1">
- <li>• HTTP Server + MCP 协议</li>
- <li>• Diff 工具接口</li>
- <li>• 工作区上下文 API</li>
+ <li>HTTP Server + MCP 协议</li>
+ <li>Diff 工具接口</li>
+ <li>工作区上下文 API</li>
  </ul>
  </div>
  </div>
@@ -323,8 +326,8 @@ gemini
  <h5 className="text-heading font-semibold mb-2">Express HTTP Server</h5>
  <p className="text-xs text-body">监听 127.0.0.1 随机端口，处理 HTTP/SSE 请求</p>
  </div>
- <div className="bg-[var(--color-success-soft)] border border-[var(--color-success)] rounded-lg p-3">
- <h5 className="text-[var(--color-success)] font-semibold mb-2">MCP Server</h5>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-3">
+ <h5 className="text-heading font-semibold mb-2">MCP Server</h5>
  <p className="text-xs text-body">提供 openDiff 和 closeDiff 两个工具</p>
  </div>
  <div className="bg-elevated border border-edge rounded-lg p-3">
@@ -386,15 +389,15 @@ gemini
  <HighlightBox title="三层安全认证" icon="🔒" variant="green" className="mt-4">
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
  <div>
- <h5 className="font-semibold text-[var(--color-success)]">1. CORS 保护</h5>
+ <h5 className="font-semibold text-heading">1. CORS 保护</h5>
  <p className="text-body text-xs">拒绝浏览器请求，仅接受 CLI 请求</p>
  </div>
  <div>
- <h5 className="font-semibold text-[var(--color-success)]">2. Host 头验证</h5>
+ <h5 className="font-semibold text-heading">2. Host 头验证</h5>
  <p className="text-body text-xs">仅允许 localhost/127.0.0.1</p>
  </div>
  <div>
- <h5 className="font-semibold text-[var(--color-success)]">3. Bearer Token</h5>
+ <h5 className="font-semibold text-heading">3. Bearer Token</h5>
  <p className="text-body text-xs">每次启动生成随机 UUID</p>
  </div>
  </div>
@@ -406,7 +409,7 @@ gemini
  <HighlightBox title="技术原理" icon="💡" variant="blue">
  <p className="text-sm mb-2">
  VS Code 的 Diff 视图需要两个文档 URI：左侧（原始）和右侧（修改后）。
- <code className="text-[var(--color-warning)] mx-1">gemini-diff://</code> 是自定义的虚拟文档 scheme，
+ <code className="text-heading mx-1">gemini-diff://</code> 是自定义的虚拟文档 scheme，
  用于提供 AI 提议的新内容，而无需实际写入文件。
  </p>
  </HighlightBox>
@@ -477,8 +480,8 @@ class DiffContentProvider implements TextDocumentContentProvider {
 );`}
  </pre>
  </div>
- <div className="bg-[var(--color-success-soft)] border border-[var(--color-success)] rounded-lg p-3">
- <h5 className="text-[var(--color-success)] font-semibold mb-2">3. 打开 Diff</h5>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-3">
+ <h5 className="text-heading font-semibold mb-2">3. 打开 Diff</h5>
  <pre className="text-xs text-body">
 {`vscode.commands
  .executeCommand(
@@ -487,7 +490,7 @@ class DiffContentProvider implements TextDocumentContentProvider {
 );`}
  </pre>
  </div>
- <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-3">
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-3">
  <h5 className="text-heading font-semibold mb-2">4. 允许编辑</h5>
  <pre className="text-xs text-body">
 {`executeCommand(
@@ -502,8 +505,8 @@ class DiffContentProvider implements TextDocumentContentProvider {
 
  <HighlightBox title="左侧文档选择策略" icon="📋" variant="purple" className="mt-4">
  <ul className="text-sm space-y-1">
- <li>• 如果文件存在：使用 <code>file://</code> 真实文件 URI</li>
- <li>• 如果是新文件：使用 <code>untitled:</code> scheme (空文档)</li>
+ <li>如果文件存在：使用 <code>file://</code> 真实文件 URI</li>
+ <li>如果是新文件：使用 <code>untitled:</code> scheme (空文档)</li>
  </ul>
  </HighlightBox>
  </Layer>
@@ -553,16 +556,16 @@ server.registerTool('closeDiff', {
  />
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
- <div className="bg-[var(--color-success-soft)] border border-[var(--color-success)] rounded-lg p-4">
- <h4 className="text-[var(--color-success)] font-bold mb-2">openDiff</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-bold mb-2">openDiff</h4>
  <ul className="text-sm space-y-1">
  <li><strong>输入</strong>: filePath, newContent</li>
  <li><strong>输出</strong>: 空 (异步等待用户操作)</li>
  <li><strong>通知</strong>: ide/diffAccepted 或 ide/diffRejected</li>
  </ul>
  </div>
- <div className="bg-[var(--color-danger-soft)] border border-[var(--color-danger)] rounded-lg p-4">
- <h4 className="text-[var(--color-danger)] font-bold mb-2">closeDiff</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-bold mb-2">closeDiff</h4>
  <ul className="text-sm space-y-1">
  <li><strong>输入</strong>: filePath, suppressNotification?</li>
  <li><strong>输出</strong>: 当前编辑器中的内容</li>
@@ -618,16 +621,18 @@ GEMINI_CLI_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
  <HighlightBox title="容器支持" icon="🐳" variant="blue" className="mt-4">
  <p className="text-sm mb-2">
  在 Docker/Podman 容器中运行时，CLI 自动检测容器环境并使用
- <code className="mx-1 text-[var(--color-warning)]">host.docker.internal</code> 连接宿主机。
+ <code className="mx-1 text-heading">host.docker.internal</code> 连接宿主机。
  </p>
- <pre className="bg-base/30 p-3 rounded text-xs">
-{`function getIdeServerHost() {
- const isInContainer =
- fs.existsSync('/.dockerenv') ||
- fs.existsSync('/run/.containerenv');
- return isInContainer ? 'host.docker.internal' : '127.0.0.1';
+ <CodeBlock
+   language="typescript"
+   title="getIdeServerHost"
+   code={`function getIdeServerHost() {
+  const isInContainer =
+    fs.existsSync('/.dockerenv') ||
+    fs.existsSync('/run/.containerenv');
+  return isInContainer ? 'host.docker.internal' : '127.0.0.1';
 }`}
- </pre>
+ />
  </HighlightBox>
  </Layer>
 
@@ -686,10 +691,10 @@ GEMINI_CLI_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
  <div className="bg-elevated border border-edge rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">限制与优化</h4>
  <ul className="text-sm space-y-1">
- <li>• 最多保留 <strong>10 个</strong>最近文件</li>
- <li>• 选中文本最多 <strong>16 KB</strong></li>
- <li>• 50ms 防抖，减少频繁更新</li>
- <li>• 按时间戳倒序排列</li>
+ <li>最多保留 <strong>10 个</strong>最近文件</li>
+ <li>选中文本最多 <strong>16 KB</strong></li>
+ <li>50ms 防抖，减少频繁更新</li>
+ <li>按时间戳倒序排列</li>
  </ul>
  </div>
  </div>
@@ -699,10 +704,10 @@ GEMINI_CLI_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
  上下文变更通过 <code>ide/contextUpdate</code> 通知推送给 CLI：
  </p>
  <ul className="text-sm space-y-1">
- <li>• 新会话初始化时</li>
- <li>• 打开的文件列表变更时</li>
- <li>• Diff 状态变更时</li>
- <li>• 工作区信任状态变更时</li>
+ <li>新会话初始化时</li>
+ <li>打开的文件列表变更时</li>
+ <li>Diff 状态变更时</li>
+ <li>工作区信任状态变更时</li>
  </ul>
  </HighlightBox>
  </Layer>
@@ -715,24 +720,24 @@ GEMINI_CLI_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
  <div className="mt-4 bg-base rounded-lg p-4 border border-edge">
  <h4 className="text-heading font-semibold mb-3">Diff 视图示例</h4>
  <div className="grid grid-cols-2 gap-4 text-sm font-mono">
- <div className="bg-[var(--color-danger-soft)] p-3 rounded">
+ <div className="bg-elevated p-3 rounded">
  <p className="text-body mb-2">// 原始文件 (file://)</p>
- <p className="text-[var(--color-danger)]">- function hello() {'{'}</p>
- <p className="text-[var(--color-danger)]">- console.log("Hello");</p>
- <p className="text-[var(--color-danger)]">- {'}'}</p>
+ <p className="text-heading">- function hello() {'{'}</p>
+ <p className="text-heading">- console.log("Hello");</p>
+ <p className="text-heading">- {'}'}</p>
  </div>
- <div className="bg-[var(--color-success-soft)] p-3 rounded">
+ <div className="bg-elevated p-3 rounded">
  <p className="text-body mb-2">// 修改后 (gemini-diff://)</p>
- <p className="text-[var(--color-success)]">+ function hello(name: string) {'{'}</p>
- <p className="text-[var(--color-success)]">+ console.log(`Hello, ${'{'}name{'}'}`)</p>
- <p className="text-[var(--color-success)]">+ {'}'}</p>
+ <p className="text-heading">+ function hello(name: string) {'{'}</p>
+ <p className="text-heading">+ console.log(`Hello, ${'{'}name{'}'}`)</p>
+ <p className="text-heading">+ {'}'}</p>
  </div>
  </div>
  <div className="flex gap-4 mt-4 justify-center">
- <button className="px-4 py-2 bg-green-600 text-heading rounded flex items-center gap-2">
+ <button className="px-4 py-2 bg-[var(--color-success)] text-heading rounded flex items-center gap-2">
  <span>✓</span> Accept (Cmd+S)
  </button>
- <button className="px-4 py-2 bg-red-600 text-heading rounded flex items-center gap-2">
+ <button className="px-4 py-2 bg-[var(--color-danger)] text-heading rounded flex items-center gap-2">
  <span>✗</span> Reject
  </button>
  </div>
@@ -789,9 +794,9 @@ GEMINI_CLI_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
 
  <HighlightBox title="为什么需要互斥锁？" icon="❓" variant="yellow">
  <ul className="text-sm space-y-1">
- <li>• 避免多个 Diff 视图同时打开造成混乱</li>
- <li>• 确保用户按顺序处理每个修改建议</li>
- <li>• 防止 Promise 解析错乱</li>
+ <li>避免多个 Diff 视图同时打开造成混乱</li>
+ <li>确保用户按顺序处理每个修改建议</li>
+ <li>防止 Promise 解析错乱</li>
  </ul>
  </HighlightBox>
  </Layer>
@@ -852,26 +857,26 @@ GEMINI_CLI_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
  {/* 故障排查 */}
  <Layer title="故障排查" icon="🔍">
  <div className="space-y-3 text-sm">
- <div className="p-3 bg-[var(--color-danger-soft)] rounded">
- <p className="text-[var(--color-danger)] font-mono">🔴 Failed to connect to IDE companion extension</p>
+ <div className="p-3 bg-elevated rounded">
+ <p className="text-heading font-mono">🔴 Failed to connect to IDE companion extension</p>
  <p className="text-body mt-1">
  → 确保扩展已安装且 IDE 已打开，在 IDE 集成终端中启动 CLI
  </p>
  </div>
- <div className="p-3 bg-[var(--color-danger-soft)] rounded">
- <p className="text-[var(--color-danger)] font-mono">🔴 Directory mismatch</p>
+ <div className="p-3 bg-elevated rounded">
+ <p className="text-heading font-mono">🔴 Directory mismatch</p>
  <p className="text-body mt-1">
  → CLI 工作目录必须在 IDE 工作区内，使用 <code>cd</code> 切换到正确目录
  </p>
  </div>
- <div className="p-3 bg-[var(--color-danger-soft)] rounded">
- <p className="text-[var(--color-danger)] font-mono">🔴 To use this feature, please open a workspace</p>
+ <div className="p-3 bg-elevated rounded">
+ <p className="text-heading font-mono">🔴 To use this feature, please open a workspace</p>
  <p className="text-body mt-1">
  → 在 IDE 中打开项目文件夹，不是单个文件
  </p>
  </div>
- <div className="p-3 bg-[var(--color-warning-soft)] rounded">
- <p className="text-[var(--color-warning)] font-mono">⚠️ 容器中连接失败</p>
+ <div className="p-3 bg-elevated rounded">
+ <p className="text-heading font-mono">⚠️ 容器中连接失败</p>
  <p className="text-body mt-1">
  → 确保容器可以访问 <code>host.docker.internal</code>，检查网络配置
  </p>
@@ -932,8 +937,8 @@ GEMINI_CLI_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
  <section>
  <h3 className="text-xl font-semibold text-heading mb-4">最佳实践</h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <div className="bg-[var(--color-success-soft)] border border-[var(--color-success)] rounded-lg p-4">
- <h4 className="text-[var(--color-success)] font-semibold mb-2">推荐做法</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">推荐做法</h4>
  <ul className="text-sm text-body space-y-1">
  <li>✓ 在 IDE 集成终端中启动 CLI</li>
  <li>✓ 使用原生 Diff 查看修改</li>
@@ -942,8 +947,8 @@ GEMINI_CLI_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
  <li>✓ 保持 IDE 和 CLI 目录一致</li>
  </ul>
  </div>
- <div className="bg-[var(--color-danger-soft)] border border-[var(--color-danger)] rounded-lg p-4">
- <h4 className="text-[var(--color-danger)] font-semibold mb-2">注意事项</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">注意事项</h4>
  <ul className="text-sm text-body space-y-1">
  <li>✗ 不要在外部终端启动后尝试连接</li>
  <li>✗ 避免目录不匹配</li>

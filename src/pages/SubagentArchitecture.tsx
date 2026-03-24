@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 export function SubagentArchitecture() {
  const [expandedSections, setExpandedSections] = useState<Set<string>>(
@@ -34,7 +37,7 @@ export function SubagentArchitecture() {
  <span className="px-2 py-1 bg-elevated/20 text-heading text-xs rounded">
  packages/core/src/agents/
  </span>
- <span className="px-2 py-1 bg-amber-500/20 text-amber-500 text-xs rounded">
+ <span className="px-2 py-1 bg-elevated text-heading text-xs rounded">
  深度解析
  </span>
  </div>
@@ -51,7 +54,7 @@ export function SubagentArchitecture() {
  <h3 className="text-heading font-bold mb-3">类型系统层次</h3>
  <div className="space-y-2 text-sm font-mono">
  <div className="flex items-center gap-2">
- <span className="text-amber-500">AgentDefinition</span>
+ <span className="text-heading">AgentDefinition</span>
  <span className="text-dim">← 联合类型</span>
  </div>
  <div className="flex items-center gap-2 pl-4">
@@ -67,7 +70,7 @@ export function SubagentArchitecture() {
  <span className="text-dim">← 6 种终止原因</span>
  </div>
  <div className="flex items-center gap-2">
- <span className="text-amber-500">SubagentActivityEvent</span>
+ <span className="text-heading">SubagentActivityEvent</span>
  <span className="text-dim">← 4 种活动事件</span>
  </div>
  </div>
@@ -105,7 +108,7 @@ export function SubagentArchitecture() {
  </div>
 
  <div className="bg-surface rounded-lg p-4">
- <h3 className="text-amber-500 font-bold mb-3">源码位置速查</h3>
+ <h3 className="text-heading font-bold mb-3">源码位置速查</h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs font-mono">
  <div className="flex justify-between">
  <span className="text-dim">类型定义</span>
@@ -257,7 +260,7 @@ interface AgentInputDefinition {
  </div>
 
  <div className="bg-base/50 rounded-lg p-4">
- <h4 className="text-amber-500 font-bold mb-3">AgentTerminateMode 枚举</h4>
+ <h4 className="text-heading font-bold mb-3">AgentTerminateMode 枚举</h4>
  <table className="w-full text-sm">
  <thead>
  <tr className="border- border-edge">
@@ -273,12 +276,12 @@ interface AgentInputDefinition {
  <td className="py-2 text-body">正常完成</td>
  </tr>
  <tr className="border- border-edge">
- <td className="py-2 text-amber-500 font-mono">MAX_TURNS</td>
+ <td className="py-2 text-heading font-mono">MAX_TURNS</td>
  <td className="py-2 text-body">超过 runConfig.max_turns</td>
  <td className="py-2 text-body">强制终止</td>
  </tr>
  <tr className="border- border-edge">
- <td className="py-2 text-amber-500 font-mono">TIMEOUT</td>
+ <td className="py-2 text-heading font-mono">TIMEOUT</td>
  <td className="py-2 text-body">超过 max_time_minutes</td>
  <td className="py-2 text-body">强制终止</td>
  </tr>
@@ -288,12 +291,12 @@ interface AgentInputDefinition {
  <td className="py-2 text-body">立即停止</td>
  </tr>
  <tr className="border- border-edge">
- <td className="py-2 text-red-400 font-mono">ERROR</td>
+ <td className="py-2 text-heading font-mono">ERROR</td>
  <td className="py-2 text-body">执行过程发生不可恢复错误</td>
  <td className="py-2 text-body">错误处理</td>
  </tr>
  <tr>
- <td className="py-2 text-red-400 font-mono">ERROR_NO_COMPLETE_TASK_CALL</td>
+ <td className="py-2 text-heading font-mono">ERROR_NO_COMPLETE_TASK_CALL</td>
  <td className="py-2 text-body">模型停止但未调用 complete_task</td>
  <td className="py-2 text-body">60秒恢复期</td>
  </tr>
@@ -355,19 +358,19 @@ Always provide specific line numbers and actionable suggestions.`}
  <div>
  <h5 className="text-heading font-bold mb-2">必需字段</h5>
  <ul className="space-y-1 text-body">
- <li>• <code>name</code> - 唯一标识符 (slug 格式)</li>
- <li>• <code>description</code> - Agent 用途说明</li>
- <li>• <code>Markdown Body</code> - 系统提示词</li>
+ <li><code>name</code> - 唯一标识符 (slug 格式)</li>
+ <li><code>description</code> - Agent 用途说明</li>
+ <li><code>Markdown Body</code> - 系统提示词</li>
  </ul>
  </div>
  <div>
- <h5 className="text-amber-500 font-bold mb-2">可选字段</h5>
+ <h5 className="text-heading font-bold mb-2">可选字段</h5>
  <ul className="space-y-1 text-body">
- <li>• <code>tools</code> - 可用工具列表</li>
- <li>• <code>model</code> / <code>temperature</code> - 模型配置</li>
- <li>• <code>max_turns</code> / <code>timeout_mins</code> - 运行时配置</li>
- <li>• <code>display_name</code> - 显示名称</li>
- <li>• <code>kind</code> / <code>agent_card_url</code> - 远程 Agent</li>
+ <li><code>tools</code> - 可用工具列表</li>
+ <li><code>model</code> / <code>temperature</code> - 模型配置</li>
+ <li><code>max_turns</code> / <code>timeout_mins</code> - 运行时配置</li>
+ <li><code>display_name</code> - 显示名称</li>
+ <li><code>kind</code> / <code>agent_card_url</code> - 远程 Agent</li>
  </ul>
  </div>
  </div>
@@ -414,7 +417,7 @@ const remoteAgentSchema = z.object({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4">
- <h4 className="text-amber-500 font-bold mb-3">💡 禁止嵌套委托</h4>
+ <h4 className="text-heading font-bold mb-3">💡 禁止嵌套委托</h4>
  <CodeBlock
  language="typescript"
  code={`// agentLoader.ts - 防止循环委托
@@ -544,7 +547,7 @@ class SubAgentScope {
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">文本响应终止</h4>
+ <h4 className="text-heading font-bold mb-2">文本响应终止</h4>
  <CodeBlock
  language="typescript"
  code={`// 处理工具调用
@@ -635,9 +638,9 @@ if (!roundText || roundText.trim().length === 0) {
  Check -->|remote| RA["RemoteAgentInvocation"]
  end
 
- style U fill:#22c55e,color:#000
- style LE fill:#3b82f6,color:#fff
- style RA fill:#f59e0b,color:#000`}
+ style U fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style LE fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style RA fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}`}
  />
 
  <div className="bg-base/50 rounded-lg p-4">
@@ -793,8 +796,8 @@ class DelegateInvocation extends BaseToolInvocation {
  {[
  { name: 'TOOL_CALL_START', desc: '工具调用开始', color: 'text-heading' },
  { name: 'TOOL_CALL_END', desc: '工具调用结束', color: 'text-heading' },
- { name: 'THOUGHT_CHUNK', desc: '思考过程片段', color: 'text-amber-500' },
- { name: 'ERROR', desc: '执行错误', color: 'text-red-400' },
+ { name: 'THOUGHT_CHUNK', desc: '思考过程片段', color: 'text-heading' },
+ { name: 'ERROR', desc: '执行错误', color: 'text-heading' },
  ].map((event) => (
  <div
  key={event.name}
@@ -893,10 +896,10 @@ await executor.run(signal, updateOutput);`}
  为什么用 Markdown frontmatter？
  </h4>
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>统一格式</strong>：与 Skill 的 frontmatter 结构一致</li>
- <li>• <strong>配置 + 提示词分离</strong>：YAML 承载元信息，正文直接作为 system prompt</li>
- <li>• <strong>兼容远程 Agent</strong>：frontmatter 可用数组声明多个 remote agent</li>
- <li>• <strong>Zod 验证</strong>：运行时进行严格类型校验</li>
+ <li><strong>统一格式</strong>：与 Skill 的 frontmatter 结构一致</li>
+ <li><strong>配置 + 提示词分离</strong>：YAML 承载元信息，正文直接作为 system prompt</li>
+ <li><strong>兼容远程 Agent</strong>：frontmatter 可用数组声明多个 remote agent</li>
+ <li><strong>Zod 验证</strong>：运行时进行严格类型校验</li>
  </ul>
  </div>
 
@@ -905,22 +908,22 @@ await executor.run(signal, updateOutput);`}
  为什么用文本响应作为终止信号？
  </h4>
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>自然流程</strong>：模型完成工具调用后自然输出总结</li>
- <li>• <strong>简化实现</strong>：无需注入特殊工具</li>
- <li>• <strong>防止空转</strong>：Nudge 机制确保最终输出</li>
- <li>• <strong>灵活性</strong>：支持任意格式的最终结果</li>
+ <li><strong>自然流程</strong>：模型完成工具调用后自然输出总结</li>
+ <li><strong>简化实现</strong>：无需注入特殊工具</li>
+ <li><strong>防止空转</strong>：Nudge 机制确保最终输出</li>
+ <li><strong>灵活性</strong>：支持任意格式的最终结果</li>
  </ul>
  </div>
 
  <div className="bg-base/50 rounded-lg p-4">
- <h4 className="text-amber-500 font-bold mb-2">
+ <h4 className="text-heading font-bold mb-2">
  什么是 Nudge 提示机制？
  </h4>
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>空响应处理</strong>：当模型不输出文本也不调用工具时触发</li>
- <li>• <strong>引导输出</strong>：发送提示消息让模型提供最终结果</li>
- <li>• <strong>消耗 Turn</strong>：每次 Nudge 消耗一个 turn 配额</li>
- <li>• <strong>终止保障</strong>：最终会触发 GOAL、MAX_TURNS 或 TIMEOUT</li>
+ <li><strong>空响应处理</strong>：当模型不输出文本也不调用工具时触发</li>
+ <li><strong>引导输出</strong>：发送提示消息让模型提供最终结果</li>
+ <li><strong>消耗 Turn</strong>：每次 Nudge 消耗一个 turn 配额</li>
+ <li><strong>终止保障</strong>：最终会触发 GOAL、MAX_TURNS 或 TIMEOUT</li>
  </ul>
  </div>
 
@@ -929,10 +932,10 @@ await executor.run(signal, updateOutput);`}
  local vs remote Agent 的选择？
  </h4>
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>local</strong>：需要访问本地工具（文件、Shell），低延迟</li>
- <li>• <strong>remote</strong>：外部服务、专有能力、隔离执行</li>
- <li>• <strong>A2A 协议</strong>：标准化的 Agent 互操作接口</li>
- <li>• <strong>统一接口</strong>：delegate_to_agent 透明处理两种类型</li>
+ <li><strong>local</strong>：需要访问本地工具（文件、Shell），低延迟</li>
+ <li><strong>remote</strong>：外部服务、专有能力、隔离执行</li>
+ <li><strong>A2A 协议</strong>：标准化的 Agent 互操作接口</li>
+ <li><strong>统一接口</strong>：delegate_to_agent 透明处理两种类型</li>
  </ul>
  </div>
  </div>

@@ -2,6 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { Layer } from '../../components/Layer';
 import { MermaidDiagram } from '../../components/MermaidDiagram';
 import { HighlightBox } from '../../components/HighlightBox';
+import { getThemeColor } from '../../utils/theme';
+
+
 
 type ToolCallStatus =
  | 'validating'
@@ -197,12 +200,12 @@ export function ToolConfirmationFlowAnimation() {
 
  const getStatusColor = (status: ToolCallStatus) => {
  switch (status) {
- case 'validating': return 'bg-purple-500/20 text-heading border-purple-500';
- case 'scheduled': return 'bg-blue-500/20 text-heading border-blue-500';
- case 'executing': return 'bg-cyan-500/20 text-heading border-cyan-500';
- case 'awaiting_approval': return 'bg-[var(--color-warning-soft)] text-[var(--color-warning)] border-[var(--color-warning)]';
- case 'success': return 'bg-[var(--color-success-soft)] text-[var(--color-success)] border-[var(--color-success)]';
- case 'error': return 'bg-[var(--color-danger-soft)] text-[var(--color-danger)] border-[var(--color-danger)]';
+ case 'validating': return 'bg-accent/10 text-heading border-accent';
+ case 'scheduled': return 'bg-accent/10 text-heading border-accent';
+ case 'executing': return 'bg-accent/10 text-heading border-accent';
+ case 'awaiting_approval': return 'bg-elevated text-heading border-edge';
+ case 'success': return 'bg-elevated text-heading border-edge';
+ case 'error': return 'bg-elevated text-heading border-edge';
  case 'cancelled': return ' bg-elevated/20 text-body border-edge-hover';
  default: return ' bg-elevated/20 text-body border-edge-hover';
  }
@@ -258,8 +261,8 @@ flowchart LR
  P -->|"完成后"| Next["处理下一个"]
  Next -.-> Q2
 
- style P fill:#22c55e,color:#000
- style Queue fill:#3b82f6,color:#fff
+ style P fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:#000
+ style Queue fill:${getThemeColor("--color-info", "#2457a6")},color:#fff
 `;
 
  const confirmationOutcomesDiagram = `
@@ -273,10 +276,10 @@ flowchart TD
  F --> G["更新 args"]
  G --> A
 
- style C fill:#22c55e,color:#000
- style D fill:#16a34a,color:#fff
- style E fill:#dc2626,color:#fff
- style F fill:#f59e0b,color:#000
+ style C fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:#000
+ style D fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:#fff
+ style E fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:#fff
+ style F fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:#000
 `;
 
  return (
@@ -380,7 +383,7 @@ flowchart TD
  </div>
 
  {step.isQueueProcessing && (
- <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+ <div className="bg-accent-light border border-accent/30 rounded-lg p-4">
  <div className="text-heading font-bold mb-2">🔄 队列处理模式</div>
  <div className="text-sm text-body">
  当有工具调用正在执行时，新请求会被加入队列。
@@ -422,10 +425,10 @@ flowchart TD
  <div className="flex flex-wrap gap-2 text-xs">
  {call.outcome && (
  <span className={`px-2 py-1 rounded ${
- call.outcome === 'ProceedAlways' ? 'bg-green-500/30 text-[var(--color-success)]' :
- call.outcome === 'ProceedOnce' ? 'bg-blue-500/30 text-heading' :
- call.outcome === 'Cancel' ? 'bg-red-500/30 text-[var(--color-danger)]' :
- 'bg-[var(--color-warning-soft)] text-[var(--color-warning)]'
+ call.outcome === 'ProceedAlways' ? 'bg-elevated text-heading' :
+ call.outcome === 'ProceedOnce' ? 'bg-accent/10 text-heading' :
+ call.outcome === 'Cancel' ? 'bg-elevated text-heading' :
+ 'bg-elevated text-heading'
  }`}>
  {call.outcome}
  </span>

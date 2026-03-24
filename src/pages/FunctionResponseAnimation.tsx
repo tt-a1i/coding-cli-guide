@@ -385,19 +385,19 @@ function ResponseStructure({ phase }: { phase: BuildPhase }) {
  <div className="p-1.5 bg-elevated/10 rounded">
  <span className="text-heading">id</span>
  <span className="text-dim">: </span>
- <span className="text-amber-500">"call_abc123"</span>
+ <span className="text-heading">"call_abc123"</span>
  </div>
  <div className="p-1.5 bg-elevated/10 rounded">
  <span className="text-heading">name</span>
  <span className="text-dim">: </span>
- <span className="text-amber-500">"read_file"</span>
+ <span className="text-heading">"read_file"</span>
  </div>
  <div className="p-1.5 bg-elevated/10 rounded">
  <span className="text-heading">response</span>
  <span className="text-dim">: {'{'}</span>
  <div className="pl-4 mt-1">
  {isError ? (
- <span className="text-red-400">
+ <span className="text-heading">
  error: "ENOENT: file not found"
  </span>
  ) : (
@@ -429,7 +429,7 @@ function HistoryInjection({ phase }: { phase: BuildPhase }) {
  return (
  <div className="bg-base rounded-lg p-4 border border-edge">
  <div className="flex items-center gap-2 mb-3">
- <span className="text-amber-500">📚</span>
+ <span className="text-heading">📚</span>
  <span className="text-sm font-mono font-bold text-heading">对话历史</span>
  </div>
 
@@ -452,11 +452,11 @@ function HistoryInjection({ phase }: { phase: BuildPhase }) {
  <div
  className={`p-2 rounded border transition-all duration-500 ${
  showInjection
- ? 'bg-amber-500/20 border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]'
+ ? 'bg-elevated border-edge shadow-[0_0_10px_rgba(245,158,11,0.5)]'
  : 'bg-base border-edge opacity-30'
  }`}
  >
- <div className="text-amber-500 mb-1">
+ <div className="text-heading mb-1">
  role: "user" {showInjection && <span className="animate-pulse">← NEW</span>}
  </div>
  <div className="text-dim">
@@ -519,7 +519,7 @@ export function FunctionResponseAnimation() {
  <div className="absolute top-0 left-0 right-0 h-[3px] bg-surface " />
 
  <div className="flex items-center gap-3 mb-6">
- <span className="text-amber-500">⚡</span>
+ <span className="text-heading">⚡</span>
  <h2 className="text-2xl font-mono font-bold text-heading">
  FunctionResponse 构建
  </h2>
@@ -547,7 +547,7 @@ export function FunctionResponseAnimation() {
  </button>
  <button
  onClick={reset}
- className="px-5 py-2.5 bg-elevated text-amber-500 rounded-md font-mono font-bold border border-edge hover:border-amber-600 transition-all cursor-pointer"
+ className="px-5 py-2.5 bg-elevated text-heading rounded-md font-mono font-bold border border-edge hover:border-edge/60 transition-all cursor-pointer"
  >
  ↺ 重置
  </button>
@@ -586,7 +586,7 @@ export function FunctionResponseAnimation() {
  步骤：<span className="text-heading font-bold">{currentStep + 1}</span>/{buildSteps.length}
  </span>
  {isPlaying && (
- <span className="text-amber-500 font-mono text-sm animate-pulse">● 构建中</span>
+ <span className="text-heading font-mono text-sm animate-pulse">● 构建中</span>
  )}
  </div>
  <div className="font-mono text-sm text-heading pl-6">
@@ -614,8 +614,8 @@ export function FunctionResponseAnimation() {
  工具响应作为 user 消息添加到历史
  </div>
  </div>
- <div className="p-3 bg-base rounded-lg border border-amber-600">
- <div className="text-xs font-mono text-amber-500 font-bold mb-1">二进制处理</div>
+ <div className="p-3 bg-base rounded-lg border-l-2 border-l-edge-hover/60">
+ <div className="text-xs font-mono text-heading font-bold mb-1">二进制处理</div>
  <div className="text-xs font-mono text-dim">
  图像等附加为额外 Part
  </div>

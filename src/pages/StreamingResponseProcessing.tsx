@@ -1,3 +1,4 @@
+
 /**
  * StreamingResponseProcessing - 流式响应处理详解
  * 以 Gemini CLI（上游实现）为准：深入解析 sendMessageStream → Turn.run → UI 的事件流
@@ -12,6 +13,9 @@ import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { useNavigation } from '../contexts/NavigationContext';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 const relatedPages: RelatedPage[] = [
  { id: 'gemini-chat', label: 'GeminiChat 核心', description: 'sendMessageStream 的真实来源' },
@@ -54,7 +58,7 @@ export function StreamingResponseProcessing() {
  className={`px-6 py-3 rounded-lg cursor-pointer transition-all font-medium ${
  activeTab === tab.key
  ? 'border-2 border-edge bg-[rgba(0,255,136,0.1)] text-heading'
- : 'border border-white/10 bg-transparent text-body hover:text-heading'
+ : 'border border-edge/40 bg-transparent text-body hover:text-heading'
  }`}
  >
  {tab.label}
@@ -326,9 +330,9 @@ flowchart TD
  D --> E[UI 丢弃 partial 内容]
  E --> F[sendMessageStream() attempt #2]
 
- style C fill:#059669,stroke:#059669,color:#fff
- style D fill:#d97706,stroke:#d97706,color:#fff
- style F fill:#3182ce,stroke:#3182ce,color:#fff
+ style C fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},stroke:${getThemeColor("--color-success", "#15803d")},color:${getThemeColor("--color-text", "#1c1917")}
+ style D fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},stroke:${getThemeColor("--color-warning", "#b45309")},color:${getThemeColor("--color-text", "#1c1917")}
+ style F fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},stroke:${getThemeColor("--color-primary", "#2457a6")},color:${getThemeColor("--color-text", "#1c1917")}
 `} />
 
  <h3>无效流类型（上游源码）</h3>
@@ -395,7 +399,7 @@ try {
  </button>
 
  <button onClick={() => navigate('retry')} className="block p-4 text-left bg-[rgba(245,158,11,0.1)] rounded-lg hover:bg-[rgba(245,158,11,0.2)] transition-colors border-none cursor-pointer">
- <h4 className="text-amber-500 m-0 mb-2">♻️ 重试回退</h4>
+ <h4 className="text-heading m-0 mb-2">♻️ 重试回退</h4>
  <p className="m-0 text-sm text-body">InvalidStream / 网络错误处理</p>
  </button>
 
@@ -405,7 +409,7 @@ try {
  </button>
 
  <button onClick={() => navigate('error-recovery-patterns')} className="block p-4 text-left bg-[rgba(239,68,68,0.1)] rounded-lg hover:bg-[rgba(239,68,68,0.2)] transition-colors border-none cursor-pointer">
- <h4 className="text-red-400 m-0 mb-2">🛡️ 错误恢复模式</h4>
+ <h4 className="text-heading m-0 mb-2">🛡️ 错误恢复模式</h4>
  <p className="m-0 text-sm text-body">流式错误处理策略</p>
  </button>
  </div>

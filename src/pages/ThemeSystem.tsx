@@ -6,287 +6,287 @@ export function ThemeSystem() {
 // packages/cli/src/ui/themes/types.ts
 
 interface Theme {
- name: string;
- description: string;
+  name: string;
+  description: string;
 
- // 主要颜色
- colors: {
- // 文本颜色
- text: string;
- textMuted: string;
- textHighlight: string;
+  // 主要颜色
+  colors: {
+  // 文本颜色
+  text: string;
+  textMuted: string;
+  textHighlight: string;
 
- // 背景颜色
- background: string;
- backgroundAlt: string;
+  // 背景颜色
+  background: string;
+  backgroundAlt: string;
 
- // 强调色
- primary: string;
- secondary: string;
- accent: string;
+  // 强调色
+  primary: string;
+  secondary: string;
+  accent: string;
 
- // 状态颜色
- success: string;
- warning: string;
- error: string;
- info: string;
+  // 状态颜色
+  success: string;
+  warning: string;
+  error: string;
+  info: string;
 
- // 边框
- border: string;
- borderFocus: string;
- };
+  // 边框
+  border: string;
+  borderFocus: string;
+  };
 
- // 语法高亮
- syntax: {
- keyword: string;
- string: string;
- number: string;
- comment: string;
- function: string;
- variable: string;
- operator: string;
- punctuation: string;
- };
+  // 语法高亮
+  syntax: {
+  keyword: string;
+  string: string;
+  number: string;
+  comment: string;
+  function: string;
+  variable: string;
+  operator: string;
+  punctuation: string;
+  };
 
- // UI 元素
- ui: {
- // 提示符
- prompt: string;
- promptSymbol: string;
+  // UI 元素
+  ui: {
+  // 提示符
+  prompt: string;
+  promptSymbol: string;
 
- // 进度指示器
- spinner: string;
- progressBar: string;
+  // 进度指示器
+  spinner: string;
+  progressBar: string;
 
- // 高亮
- selection: string;
- match: string;
+  // 高亮
+  selection: string;
+  match: string;
 
- // 工具调用
- toolName: string;
- toolArg: string;
- toolResult: string;
- };
+  // 工具调用
+  toolName: string;
+  toolArg: string;
+  toolResult: string;
+  };
 }`;
 
  const builtInThemesCode = `// 内置主题
 // packages/cli/src/ui/themes/builtIn.ts
 
 export const themes: Record<string, Theme> = {
- // 默认深色主题
- dark: {
- name: 'Dark',
- description: '默认深色主题',
- colors: {
- text: '#E0E0E0',
- textMuted: '#808080',
- textHighlight: '#FFFFFF',
- background: '#1E1E1E',
- backgroundAlt: '#2D2D2D',
- primary: '#4FC3F7',
- secondary: '#81C784',
- accent: '#FFB74D',
- success: '#4CAF50',
- warning: '#FF9800',
- error: '#F44336',
- info: '#2196F3',
- border: '#404040',
- borderFocus: '#4FC3F7',
- },
- syntax: {
- keyword: '#C792EA',
- string: '#C3E88D',
- number: '#F78C6C',
- comment: '#546E7A',
- function: '#82AAFF',
- variable: '#EEFFFF',
- operator: '#89DDFF',
- punctuation: '#89DDFF',
- },
- ui: {
- prompt: '#4FC3F7',
- promptSymbol: '❯',
- spinner: '#4FC3F7',
- progressBar: '#4FC3F7',
- selection: '#264F78',
- match: '#515C6A',
- toolName: '#82AAFF',
- toolArg: '#C3E88D',
- toolResult: '#808080',
- },
- },
+  // 默认深色主题
+  dark: {
+  name: 'Dark',
+  description: '默认深色主题',
+  colors: {
+  text: '#E0E0E0',
+  textMuted: '#808080',
+  textHighlight: '#FFFFFF',
+  background: '#1E1E1E',
+  backgroundAlt: '#2D2D2D',
+  primary: '#4FC3F7',
+  secondary: '#81C784',
+  accent: '#FFB74D',
+  success: '#4CAF50',
+  warning: '#FF9800',
+  error: '#F44336',
+  info: '#2196F3',
+  border: '#404040',
+  borderFocus: '#4FC3F7',
+  },
+  syntax: {
+  keyword: '#C792EA',
+  string: '#C3E88D',
+  number: '#F78C6C',
+  comment: '#546E7A',
+  function: '#82AAFF',
+  variable: '#EEFFFF',
+  operator: '#89DDFF',
+  punctuation: '#89DDFF',
+  },
+  ui: {
+  prompt: '#4FC3F7',
+  promptSymbol: '❯',
+  spinner: '#4FC3F7',
+  progressBar: '#4FC3F7',
+  selection: '#264F78',
+  match: '#515C6A',
+  toolName: '#82AAFF',
+  toolArg: '#C3E88D',
+  toolResult: '#808080',
+  },
+  },
 
- // 浅色主题
- light: {
- name: 'Light',
- description: '浅色主题',
- colors: {
- text: '#333333',
- textMuted: '#666666',
- textHighlight: '#000000',
- background: '#FFFFFF',
- backgroundAlt: '#F5F5F5',
- primary: '#0288D1',
- secondary: '#388E3C',
- accent: '#F57C00',
- success: '#4CAF50',
- warning: '#FF9800',
- error: '#D32F2F',
- info: '#1976D2',
- border: '#E0E0E0',
- borderFocus: '#0288D1',
- },
- syntax: {
- keyword: '#7B1FA2',
- string: '#388E3C',
- number: '#E64A19',
- comment: '#9E9E9E',
- function: '#1565C0',
- variable: '#212121',
- operator: '#00796B',
- punctuation: '#607D8B',
- },
- ui: {
- prompt: '#0288D1',
- promptSymbol: '❯',
- spinner: '#0288D1',
- progressBar: '#0288D1',
- selection: '#BBDEFB',
- match: '#FFF59D',
- toolName: '#1565C0',
- toolArg: '#388E3C',
- toolResult: '#666666',
- },
- },
+  // 浅色主题
+  light: {
+  name: 'Light',
+  description: '浅色主题',
+  colors: {
+  text: '#333333',
+  textMuted: '#666666',
+  textHighlight: '#000000',
+  background: '#FFFFFF',
+  backgroundAlt: '#F5F5F5',
+  primary: '#0288D1',
+  secondary: '#388E3C',
+  accent: '#F57C00',
+  success: '#4CAF50',
+  warning: '#FF9800',
+  error: '#D32F2F',
+  info: '#1976D2',
+  border: '#E0E0E0',
+  borderFocus: '#0288D1',
+  },
+  syntax: {
+  keyword: '#7B1FA2',
+  string: '#388E3C',
+  number: '#E64A19',
+  comment: '#9E9E9E',
+  function: '#1565C0',
+  variable: '#212121',
+  operator: '#00796B',
+  punctuation: '#607D8B',
+  },
+  ui: {
+  prompt: '#0288D1',
+  promptSymbol: '❯',
+  spinner: '#0288D1',
+  progressBar: '#0288D1',
+  selection: '#BBDEFB',
+  match: '#FFF59D',
+  toolName: '#1565C0',
+  toolArg: '#388E3C',
+  toolResult: '#666666',
+  },
+  },
 
- // Dracula 主题
- dracula: {
- name: 'Dracula',
- description: 'Dracula 暗色主题',
- colors: {
- text: '#F8F8F2',
- textMuted: '#6272A4',
- textHighlight: '#FFFFFF',
- background: '#282A36',
- backgroundAlt: '#44475A',
- primary: '#BD93F9',
- secondary: '#50FA7B',
- accent: '#FFB86C',
- success: '#50FA7B',
- warning: '#FFB86C',
- error: '#FF5555',
- info: '#8BE9FD',
- border: '#44475A',
- borderFocus: '#BD93F9',
- },
- syntax: {
- keyword: '#FF79C6',
- string: '#F1FA8C',
- number: '#BD93F9',
- comment: '#6272A4',
- function: '#50FA7B',
- variable: '#F8F8F2',
- operator: '#FF79C6',
- punctuation: '#F8F8F2',
- },
- ui: {
- prompt: '#BD93F9',
- promptSymbol: '❯',
- spinner: '#BD93F9',
- progressBar: '#BD93F9',
- selection: '#44475A',
- match: '#6272A4',
- toolName: '#50FA7B',
- toolArg: '#F1FA8C',
- toolResult: '#6272A4',
- },
- },
+  // Dracula 主题
+  dracula: {
+  name: 'Dracula',
+  description: 'Dracula 暗色主题',
+  colors: {
+  text: '#F8F8F2',
+  textMuted: '#6272A4',
+  textHighlight: '#FFFFFF',
+  background: '#282A36',
+  backgroundAlt: '#44475A',
+  primary: '#BD93F9',
+  secondary: '#50FA7B',
+  accent: '#FFB86C',
+  success: '#50FA7B',
+  warning: '#FFB86C',
+  error: '#FF5555',
+  info: '#8BE9FD',
+  border: '#44475A',
+  borderFocus: '#BD93F9',
+  },
+  syntax: {
+  keyword: '#FF79C6',
+  string: '#F1FA8C',
+  number: '#BD93F9',
+  comment: '#6272A4',
+  function: '#50FA7B',
+  variable: '#F8F8F2',
+  operator: '#FF79C6',
+  punctuation: '#F8F8F2',
+  },
+  ui: {
+  prompt: '#BD93F9',
+  promptSymbol: '❯',
+  spinner: '#BD93F9',
+  progressBar: '#BD93F9',
+  selection: '#44475A',
+  match: '#6272A4',
+  toolName: '#50FA7B',
+  toolArg: '#F1FA8C',
+  toolResult: '#6272A4',
+  },
+  },
 
- // Monokai 主题
- monokai: {
- name: 'Monokai',
- description: 'Monokai Pro 风格',
- colors: {
- text: '#F8F8F2',
- textMuted: '#75715E',
- textHighlight: '#FFFFFF',
- background: '#272822',
- backgroundAlt: '#3E3D32',
- primary: '#66D9EF',
- secondary: '#A6E22E',
- accent: '#FD971F',
- success: '#A6E22E',
- warning: '#FD971F',
- error: '#F92672',
- info: '#66D9EF',
- border: '#3E3D32',
- borderFocus: '#66D9EF',
- },
- syntax: {
- keyword: '#F92672',
- string: '#E6DB74',
- number: '#AE81FF',
- comment: '#75715E',
- function: '#A6E22E',
- variable: '#F8F8F2',
- operator: '#F92672',
- punctuation: '#F8F8F2',
- },
- ui: {
- prompt: '#66D9EF',
- promptSymbol: '❯',
- spinner: '#66D9EF',
- progressBar: '#A6E22E',
- selection: '#49483E',
- match: '#75715E',
- toolName: '#A6E22E',
- toolArg: '#E6DB74',
- toolResult: '#75715E',
- },
- },
+  // Monokai 主题
+  monokai: {
+  name: 'Monokai',
+  description: 'Monokai Pro 风格',
+  colors: {
+  text: '#F8F8F2',
+  textMuted: '#75715E',
+  textHighlight: '#FFFFFF',
+  background: '#272822',
+  backgroundAlt: '#3E3D32',
+  primary: '#66D9EF',
+  secondary: '#A6E22E',
+  accent: '#FD971F',
+  success: '#A6E22E',
+  warning: '#FD971F',
+  error: '#F92672',
+  info: '#66D9EF',
+  border: '#3E3D32',
+  borderFocus: '#66D9EF',
+  },
+  syntax: {
+  keyword: '#F92672',
+  string: '#E6DB74',
+  number: '#AE81FF',
+  comment: '#75715E',
+  function: '#A6E22E',
+  variable: '#F8F8F2',
+  operator: '#F92672',
+  punctuation: '#F8F8F2',
+  },
+  ui: {
+  prompt: '#66D9EF',
+  promptSymbol: '❯',
+  spinner: '#66D9EF',
+  progressBar: '#A6E22E',
+  selection: '#49483E',
+  match: '#75715E',
+  toolName: '#A6E22E',
+  toolArg: '#E6DB74',
+  toolResult: '#75715E',
+  },
+  },
 
- // Nord 主题
- nord: {
- name: 'Nord',
- description: 'Nord 极简主题',
- colors: {
- text: '#ECEFF4',
- textMuted: '#4C566A',
- textHighlight: '#FFFFFF',
- background: '#2E3440',
- backgroundAlt: '#3B4252',
- primary: '#88C0D0',
- secondary: '#A3BE8C',
- accent: '#EBCB8B',
- success: '#A3BE8C',
- warning: '#EBCB8B',
- error: '#BF616A',
- info: '#5E81AC',
- border: '#4C566A',
- borderFocus: '#88C0D0',
- },
- syntax: {
- keyword: '#81A1C1',
- string: '#A3BE8C',
- number: '#B48EAD',
- comment: '#4C566A',
- function: '#88C0D0',
- variable: '#ECEFF4',
- operator: '#81A1C1',
- punctuation: '#ECEFF4',
- },
- ui: {
- prompt: '#88C0D0',
- promptSymbol: '❯',
- spinner: '#88C0D0',
- progressBar: '#88C0D0',
- selection: '#3B4252',
- match: '#4C566A',
- toolName: '#88C0D0',
- toolArg: '#A3BE8C',
- toolResult: '#4C566A',
- },
- },
+  // Nord 主题
+  nord: {
+  name: 'Nord',
+  description: 'Nord 极简主题',
+  colors: {
+  text: '#ECEFF4',
+  textMuted: '#4C566A',
+  textHighlight: '#FFFFFF',
+  background: '#2E3440',
+  backgroundAlt: '#3B4252',
+  primary: '#88C0D0',
+  secondary: '#A3BE8C',
+  accent: '#EBCB8B',
+  success: '#A3BE8C',
+  warning: '#EBCB8B',
+  error: '#BF616A',
+  info: '#5E81AC',
+  border: '#4C566A',
+  borderFocus: '#88C0D0',
+  },
+  syntax: {
+  keyword: '#81A1C1',
+  string: '#A3BE8C',
+  number: '#B48EAD',
+  comment: '#4C566A',
+  function: '#88C0D0',
+  variable: '#ECEFF4',
+  operator: '#81A1C1',
+  punctuation: '#ECEFF4',
+  },
+  ui: {
+  prompt: '#88C0D0',
+  promptSymbol: '❯',
+  spinner: '#88C0D0',
+  progressBar: '#88C0D0',
+  selection: '#3B4252',
+  match: '#4C566A',
+  toolName: '#88C0D0',
+  toolArg: '#A3BE8C',
+  toolResult: '#4C566A',
+  },
+  },
 };
 
 // 更多内置主题...
@@ -305,83 +305,83 @@ export const themes: Record<string, Theme> = {
 // packages/cli/src/ui/themes/service.ts
 
 export class ThemeService {
- private currentTheme: Theme;
- private customThemes: Map<string, Theme> = new Map();
+  private currentTheme: Theme;
+  private customThemes: Map<string, Theme> = new Map();
 
- constructor() {
- // 加载用户配置的主题
- const themeName = getConfig('theme') || 'dark';
- this.currentTheme = this.getTheme(themeName);
- }
+  constructor() {
+  // 加载用户配置的主题
+  const themeName = getConfig('theme') || 'dark';
+  this.currentTheme = this.getTheme(themeName);
+  }
 
- // 获取主题
- getTheme(name: string): Theme {
- // 优先检查自定义主题
- if (this.customThemes.has(name)) {
- return this.customThemes.get(name)!;
- }
- // 使用内置主题
- return themes[name] || themes.dark;
- }
+  // 获取主题
+  getTheme(name: string): Theme {
+  // 优先检查自定义主题
+  if (this.customThemes.has(name)) {
+  return this.customThemes.get(name)!;
+  }
+  // 使用内置主题
+  return themes[name] || themes.dark;
+  }
 
- // 设置当前主题
- setTheme(name: string): void {
- this.currentTheme = this.getTheme(name);
- saveConfig('theme', name);
- }
+  // 设置当前主题
+  setTheme(name: string): void {
+  this.currentTheme = this.getTheme(name);
+  saveConfig('theme', name);
+  }
 
- // 获取当前主题
- getCurrentTheme(): Theme {
- return this.currentTheme;
- }
+  // 获取当前主题
+  getCurrentTheme(): Theme {
+  return this.currentTheme;
+  }
 
- // 注册自定义主题
- registerTheme(theme: Theme): void {
- this.customThemes.set(theme.name, theme);
- }
+  // 注册自定义主题
+  registerTheme(theme: Theme): void {
+  this.customThemes.set(theme.name, theme);
+  }
 
- // 列出所有可用主题
- listThemes(): ThemeInfo[] {
- const allThemes: ThemeInfo[] = [];
+  // 列出所有可用主题
+  listThemes(): ThemeInfo[] {
+  const allThemes: ThemeInfo[] = [];
 
- // 内置主题
- for (const [name, theme] of Object.entries(themes)) {
- allThemes.push({
- name,
- description: theme.description,
- isBuiltIn: true,
- isCurrent: name === this.currentTheme.name,
- });
- }
+  // 内置主题
+  for (const [name, theme] of Object.entries(themes)) {
+  allThemes.push({
+  name,
+  description: theme.description,
+  isBuiltIn: true,
+  isCurrent: name === this.currentTheme.name,
+  });
+  }
 
- // 自定义主题
- for (const [name, theme] of this.customThemes) {
- allThemes.push({
- name,
- description: theme.description,
- isBuiltIn: false,
- isCurrent: name === this.currentTheme.name,
- });
- }
+  // 自定义主题
+  for (const [name, theme] of this.customThemes) {
+  allThemes.push({
+  name,
+  description: theme.description,
+  isBuiltIn: false,
+  isCurrent: name === this.currentTheme.name,
+  });
+  }
 
- return allThemes;
- }
+  return allThemes;
+  }
 
- // 根据终端能力自动选择
- autoSelectTheme(): void {
- const colorSupport = getColorSupport();
+  // 根据终端能力自动选择
+  autoSelectTheme(): void {
+  const colorSupport = getColorSupport();
 
- if (colorSupport === 'truecolor') {
- // 支持真彩色，使用完整主题
- return;
- } else if (colorSupport === '256') {
- // 256 色模式，使用简化调色板
- this.currentTheme = this.simplifyTheme(this.currentTheme, 256);
- } else {
- // 16 色模式，使用基本调色板
- this.currentTheme = this.simplifyTheme(this.currentTheme, 16);
- }
- }
+  if (colorSupport === 'truecolor') {
+  // 支持真彩色，使用完整主题
+  return;
+  } else if (colorSupport === '256') {
+  // 256 色模式，使用简化调色板
+  this.currentTheme = this.simplifyTheme(this.currentTheme, 256);
+  } else {
+  // 16 色模式，使用基本调色板
+  this.currentTheme = this.simplifyTheme(this.currentTheme, 16);
+  }
+  }
 }`;
 
  const colorUtilsCode = `// 颜色工具函数
@@ -391,126 +391,126 @@ import chalk from 'chalk';
 
 // 将十六进制颜色转换为 ANSI 256 色
 export function hexTo256(hex: string): number {
- const r = parseInt(hex.slice(1, 3), 16);
- const g = parseInt(hex.slice(3, 5), 16);
- const b = parseInt(hex.slice(5, 7), 16);
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
 
- // 转换为 216 色立方体
- const ri = Math.round(r / 51);
- const gi = Math.round(g / 51);
- const bi = Math.round(b / 51);
+  // 转换为 216 色立方体
+  const ri = Math.round(r / 51);
+  const gi = Math.round(g / 51);
+  const bi = Math.round(b / 51);
 
- return 16 + 36 * ri + 6 * gi + bi;
+  return 16 + 36 * ri + 6 * gi + bi;
 }
 
 // 将十六进制颜色转换为 RGB
 export function hexToRgb(hex: string): { r: number; g: number; b: number } {
- const r = parseInt(hex.slice(1, 3), 16);
- const g = parseInt(hex.slice(3, 5), 16);
- const b = parseInt(hex.slice(5, 7), 16);
- return { r, g, b };
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return { r, g, b };
 }
 
 // 应用主题颜色
 export function applyColor(text: string, color: string): string {
- const colorSupport = getColorSupport();
+  const colorSupport = getColorSupport();
 
- if (colorSupport === 'truecolor') {
- // 真彩色
- const { r, g, b } = hexToRgb(color);
- return chalk.rgb(r, g, b)(text);
- } else if (colorSupport === '256') {
- // 256 色
- const code = hexTo256(color);
- return chalk.ansi256(code)(text);
- } else {
- // 基本 16 色，使用最接近的颜色
- return mapToBasicColor(text, color);
- }
+  if (colorSupport === 'truecolor') {
+  // 真彩色
+  const { r, g, b } = hexToRgb(color);
+  return chalk.rgb(r, g, b)(text);
+  } else if (colorSupport === '256') {
+  // 256 色
+  const code = hexTo256(color);
+  return chalk.ansi256(code)(text);
+  } else {
+  // 基本 16 色，使用最接近的颜色
+  return mapToBasicColor(text, color);
+  }
 }
 
 // 检测终端颜色支持
 export function getColorSupport(): 'truecolor' | '256' | '16' | 'none' {
- // 环境变量检测
- if (process.env.COLORTERM === 'truecolor' ||
- process.env.COLORTERM === '24bit') {
- return 'truecolor';
- }
+  // 环境变量检测
+  if (process.env.COLORTERM === 'truecolor' ||
+  process.env.COLORTERM === '24bit') {
+  return 'truecolor';
+  }
 
- if (process.env.TERM?.includes('256color')) {
- return '256';
- }
+  if (process.env.TERM?.includes('256color')) {
+  return '256';
+  }
 
- // chalk 的检测
- if (chalk.supportsColor) {
- if (chalk.supportsColor.has16m) return 'truecolor';
- if (chalk.supportsColor.has256) return '256';
- if (chalk.supportsColor.hasBasic) return '16';
- }
+  // chalk 的检测
+  if (chalk.supportsColor) {
+  if (chalk.supportsColor.has16m) return 'truecolor';
+  if (chalk.supportsColor.has256) return '256';
+  if (chalk.supportsColor.hasBasic) return '16';
+  }
 
- return 'none';
+  return 'none';
 }
 
 // 主题化输出
 export function themed(part: keyof Theme['ui'], text: string): string {
- const theme = themeService.getCurrentTheme();
- const color = theme.ui[part];
- return applyColor(text, color);
+  const theme = themeService.getCurrentTheme();
+  const color = theme.ui[part];
+  return applyColor(text, color);
 }
 
 // 语法高亮
 export function highlight(type: keyof Theme['syntax'], text: string): string {
- const theme = themeService.getCurrentTheme();
- const color = theme.syntax[type];
- return applyColor(text, color);
+  const theme = themeService.getCurrentTheme();
+  const color = theme.syntax[type];
+  return applyColor(text, color);
 }`;
 
  const customThemeCode = `// 自定义主题
 // ~/.gemini/themes/my-theme.json
 
 {
- "name": "my-theme",
- "description": "我的自定义主题",
+  "name": "my-theme",
+  "description": "我的自定义主题",
 
- "colors": {
- "text": "#E0E0E0",
- "textMuted": "#808080",
- "textHighlight": "#FFFFFF",
- "background": "#1A1A2E",
- "backgroundAlt": "#16213E",
- "primary": "#E94560",
- "secondary": "#0F3460",
- "accent": "#F39C12",
- "success": "#27AE60",
- "warning": "#F39C12",
- "error": "#E74C3C",
- "info": "#3498DB",
- "border": "#16213E",
- "borderFocus": "#E94560"
- },
+  "colors": {
+  "text": "#E0E0E0",
+  "textMuted": "#808080",
+  "textHighlight": "#FFFFFF",
+  "background": "#1A1A2E",
+  "backgroundAlt": "#16213E",
+  "primary": "#E94560",
+  "secondary": "#0F3460",
+  "accent": "#F39C12",
+  "success": "#27AE60",
+  "warning": "#F39C12",
+  "error": "#E74C3C",
+  "info": "#3498DB",
+  "border": "#16213E",
+  "borderFocus": "#E94560"
+  },
 
- "syntax": {
- "keyword": "#E94560",
- "string": "#27AE60",
- "number": "#F39C12",
- "comment": "#808080",
- "function": "#3498DB",
- "variable": "#E0E0E0",
- "operator": "#E94560",
- "punctuation": "#808080"
- },
+  "syntax": {
+  "keyword": "#E94560",
+  "string": "#27AE60",
+  "number": "#F39C12",
+  "comment": "#808080",
+  "function": "#3498DB",
+  "variable": "#E0E0E0",
+  "operator": "#E94560",
+  "punctuation": "#808080"
+  },
 
- "ui": {
- "prompt": "#E94560",
- "promptSymbol": "❯",
- "spinner": "#E94560",
- "progressBar": "#E94560",
- "selection": "#16213E",
- "match": "#0F3460",
- "toolName": "#3498DB",
- "toolArg": "#27AE60",
- "toolResult": "#808080"
- }
+  "ui": {
+  "prompt": "#E94560",
+  "promptSymbol": "❯",
+  "spinner": "#E94560",
+  "progressBar": "#E94560",
+  "selection": "#16213E",
+  "match": "#0F3460",
+  "toolName": "#3498DB",
+  "toolArg": "#27AE60",
+  "toolResult": "#808080"
+  }
 }
 
 // 加载自定义主题
@@ -649,12 +649,12 @@ gemini config export-theme > current-theme.json`;
 
  <HighlightBox title="自定义支持" color="green">
  <p className="text-sm">完全自定义调色板</p>
- <code className="text-xs text-green-400">JSON 格式</code>
+ <code className="text-xs text-heading">JSON 格式</code>
  </HighlightBox>
 
  <HighlightBox title="语法高亮" color="yellow">
  <p className="text-sm">代码块颜色主题</p>
- <code className="text-xs text-yellow-400">8 种类型</code>
+ <code className="text-xs text-heading">8 种类型</code>
  </HighlightBox>
 
  <HighlightBox title="终端兼容" color="purple">
@@ -807,8 +807,8 @@ gemini config export-theme > current-theme.json`;
  <section>
  <h3 className="text-xl font-semibold text-heading mb-4">最佳实践</h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
- <h4 className="text-green-400 font-semibold mb-2">创建自定义主题</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">创建自定义主题</h4>
  <ul className="text-sm text-body space-y-1">
  <li>✓ 保持足够的对比度</li>
  <li>✓ 使用一致的色调</li>

@@ -83,7 +83,7 @@ function Introduction({
  </div>
 
  <div className="space-y-4">
- <h3 className="font-semibold text-amber-500">
+ <h3 className="font-semibold text-heading">
  📂 核心文件
  </h3>
  <ul className="text-sm text-body space-y-2">
@@ -626,20 +626,20 @@ class CoreToolScheduler {
  <div className="grid md:grid-cols-2 gap-4">
  <HighlightBox title="分层设计" icon="📊" variant="blue">
  <ul className="text-sm space-y-1">
- <li>• <strong>GeminiClient</strong>: 最高层，管理整体流程</li>
- <li>• <strong>Turn</strong>: 中间层，管理单次响应</li>
- <li>• <strong>GeminiChat</strong>: 历史管理和消息格式</li>
- <li>• <strong>ContentGenerator</strong>: API 调用抽象</li>
- <li>• <strong>ToolScheduler</strong>: 工具执行管理</li>
+ <li><strong>GeminiClient</strong>: 最高层，管理整体流程</li>
+ <li><strong>Turn</strong>: 中间层，管理单次响应</li>
+ <li><strong>GeminiChat</strong>: 历史管理和消息格式</li>
+ <li><strong>ContentGenerator</strong>: API 调用抽象</li>
+ <li><strong>ToolScheduler</strong>: 工具执行管理</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="关键模式" icon="🔑" variant="purple">
  <ul className="text-sm space-y-1">
- <li>• <strong>AsyncGenerator</strong>: 流式处理</li>
- <li>• <strong>Provider Pattern</strong>: 多厂商支持</li>
- <li>• <strong>State Machine</strong>: 工具调用状态</li>
- <li>• <strong>Decorator Pattern</strong>: 工具能力扩展</li>
+ <li><strong>AsyncGenerator</strong>: 流式处理</li>
+ <li><strong>Provider Pattern</strong>: 多厂商支持</li>
+ <li><strong>State Machine</strong>: 工具调用状态</li>
+ <li><strong>Decorator Pattern</strong>: 工具能力扩展</li>
  </ul>
  </HighlightBox>
  </div>
@@ -700,7 +700,7 @@ class CoreToolScheduler {
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">为什么 ContentGenerator 要抽象为接口？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么 ContentGenerator 要抽象为接口？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：ContentGenerator 是接口，有多个厂商实现。</p>
  <p><strong>原因</strong>：</p>

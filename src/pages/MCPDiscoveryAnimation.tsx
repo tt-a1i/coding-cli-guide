@@ -48,7 +48,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-dim">spawn 进程，建立 stdio 通道</div>
  </div>
  <div className="bg-base p-2 rounded border border-edge">
- <div className="text-amber-500">3. 能力协商</div>
+ <div className="text-heading">3. 能力协商</div>
  <div className="text-dim">交换版本和能力信息</div>
  </div>
  <div className="bg-base p-2 rounded border border-edge">
@@ -72,7 +72,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="flex flex-wrap gap-2">
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">工具系统</span>
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">扩展系统</span>
- <span className="px-2 py-1 bg-amber-500/20 text-amber-500 rounded text-xs">配置管理</span>
+ <span className="px-2 py-1 bg-elevated text-heading rounded text-xs">配置管理</span>
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">进程管理</span>
  </div>
  </div>
@@ -137,9 +137,9 @@ function ServerCard({ server, isActive }: { server: MCPServer; isActive: boolean
  const statusColors: Record<ServerStatus, string> = {
  pending: 'var(--color-text-muted)',
  connecting: 'var(--color-primary)',
- negotiating: '#f59e0b',
+ negotiating: 'var(--color-warning)',
  ready: 'var(--color-primary)',
- error: '#ef4444',
+ error: 'var(--color-danger)',
  };
 
  const typeColors = {
@@ -163,7 +163,7 @@ function ServerCard({ server, isActive }: { server: MCPServer; isActive: boolean
  : server.status === 'ready'
  ? 'bg-base border-edge'
  : server.status === 'error'
- ? 'bg-base border-red-600'
+ ? 'bg-base border-edge/60'
  : 'bg-base border-edge'
  }`}
  >
@@ -202,7 +202,7 @@ function ServerCard({ server, isActive }: { server: MCPServer; isActive: boolean
 
  {/* Tools or Error */}
  {server.status === 'error' ? (
- <div className="text-xs font-mono text-red-500 p-2 bg-red-500/10 rounded">
+ <div className="text-xs font-mono text-heading p-2 bg-elevated rounded">
  ⚠ {server.error}
  </div>
  ) : server.status === 'ready' ? (
@@ -496,7 +496,7 @@ export function MCPDiscoveryAnimation() {
  </button>
  <button
  onClick={reset}
- className="px-5 py-2.5 bg-elevated text-amber-500 rounded-md font-mono font-bold border border-edge hover:border-amber-600 transition-all cursor-pointer"
+ className="px-5 py-2.5 bg-elevated text-heading rounded-md font-mono font-bold border border-edge hover:border-edge/60 transition-all cursor-pointer"
  >
  ↺ 重置
  </button>
@@ -550,7 +550,7 @@ export function MCPDiscoveryAnimation() {
  /{discoveryPhases.length}
  </span>
  {isPlaying && (
- <span className="text-amber-500 font-mono text-sm animate-pulse">
+ <span className="text-heading font-mono text-sm animate-pulse">
  ● 发现中...
  </span>
  )}

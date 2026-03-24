@@ -4,6 +4,9 @@ import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
  return (
@@ -46,7 +49,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">重试次数</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-[var(--color-warning)]">10</div>
+ <div className="text-2xl font-bold text-heading">10</div>
  <div className="text-xs text-dim">IDE 最大文件</div>
  </div>
  </div>
@@ -67,11 +70,11 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  流式响应
  </span>
  <span className="text-dim">→</span>
- <span className="px-3 py-1.5 bg-[var(--color-warning-soft)] text-[var(--color-warning)] rounded-lg border border-[var(--color-warning)]">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover">
  工具调度
  </span>
  <span className="text-dim">→</span>
- <span className="px-3 py-1.5 bg-[var(--color-warning-soft)] text-heading rounded-lg border border-[var(--color-warning)]">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover">
  Continuation
  </span>
  <span className="text-dim">↻</span>
@@ -79,8 +82,8 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  {/* 关键洞察 */}
- <div className="bg-[var(--color-warning-soft)] rounded-lg p-3 border border-[var(--color-warning)]">
- <h4 className="text-sm font-semibold text-[var(--color-warning)] mb-1">💡 核心机制：Continuation</h4>
+ <div className="pl-4 border-l-2 border-l-edge-hover border-l-edge-hover">
+ <h4 className="text-sm font-semibold text-heading mb-1">💡 核心机制：Continuation</h4>
  <p className="text-xs text-body">
  工具执行结果被转换为 <code className="text-heading">functionResponse</code>，
  作为下一条消息重新进入 submitQuery，创造"单次请求即可使用工具"的错觉
@@ -143,11 +146,11 @@ export function InteractionLoop() {
  convert --> continuation
  continuation --> collect
 
- style start fill:#00ff41,color:#000
- style complete fill:#00ff41,color:#000
- style has_tools fill:#a855f7,color:#fff
- style finished fill:#a855f7,color:#fff
- style continuation fill:#f59e0b,color:#000`;
+ style start fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style complete fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style has_tools fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style finished fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style continuation fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  // Stream事件处理流程
  const streamEventsChart = `flowchart LR
@@ -180,9 +183,9 @@ export function InteractionLoop() {
  error --> retry
  token --> counter
 
- style api fill:#00d4ff,color:#000
- style trigger fill:#00ff41,color:#000
- style retry fill:#ef4444,color:#fff`;
+ style api fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style trigger fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style retry fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  // Continuation机制流程
  const continuationChart = `sequenceDiagram
@@ -279,42 +282,42 @@ export function InteractionLoop() {
  <div className="bg-surface rounded-lg p-4 border border-edge">
  <h5 className="text-heading font-semibold mb-2">为什么用流式响应？</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>用户体验</strong>：实时显示 AI 思考过程，避免长时间等待</li>
- <li>• <strong>早期取消</strong>：用户可以在完成前中断</li>
- <li>• <strong>渐进收集</strong>：工具调用可以在流式过程中累积</li>
+ <li><strong>用户体验</strong>：实时显示 AI 思考过程，避免长时间等待</li>
+ <li><strong>早期取消</strong>：用户可以在完成前中断</li>
+ <li><strong>渐进收集</strong>：工具调用可以在流式过程中累积</li>
  </ul>
  </div>
 
  <div className="bg-surface rounded-lg p-4 border border-edge">
- <h5 className="text-[var(--color-warning)] font-semibold mb-2">为什么用 Continuation？</h5>
+ <h5 className="text-heading font-semibold mb-2">为什么用 Continuation？</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>单一入口</strong>：所有请求走同一个 submitQuery</li>
- <li>• <strong>透明循环</strong>：用户无需感知多次 API 调用</li>
- <li>• <strong>状态一致</strong>：prompt_id 关联同一次交互</li>
+ <li><strong>单一入口</strong>：所有请求走同一个 submitQuery</li>
+ <li><strong>透明循环</strong>：用户无需感知多次 API 调用</li>
+ <li><strong>状态一致</strong>：prompt_id 关联同一次交互</li>
  </ul>
  </div>
 
  <div className="bg-surface rounded-lg p-4 border border-edge">
  <h5 className="text-heading font-semibold mb-2">为什么分离 CLI 和 Core？</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>可测试性</strong>：Core 层可独立于 UI 测试</li>
- <li>• <strong>可移植性</strong>：同一个 Core 可用于 IDE 插件</li>
- <li>• <strong>关注点分离</strong>：UI 负责展示，Core 负责逻辑</li>
+ <li><strong>可测试性</strong>：Core 层可独立于 UI 测试</li>
+ <li><strong>可移植性</strong>：同一个 Core 可用于 IDE 插件</li>
+ <li><strong>关注点分离</strong>：UI 负责展示，Core 负责逻辑</li>
  </ul>
  </div>
 
  <div className="bg-surface rounded-lg p-4 border border-edge">
  <h5 className="text-heading font-semibold mb-2">为什么用 Hook 而非 Class？</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>React 生态</strong>：与 Ink 的 React 组件无缝集成</li>
- <li>• <strong>状态管理</strong>：useState/useRef 管理复杂状态</li>
- <li>• <strong>生命周期</strong>：useEffect 处理副作用和清理</li>
+ <li><strong>React 生态</strong>：与 Ink 的 React 组件无缝集成</li>
+ <li><strong>状态管理</strong>：useState/useRef 管理复杂状态</li>
+ <li><strong>生命周期</strong>：useEffect 处理副作用和清理</li>
  </ul>
  </div>
  </div>
 
- <div className="bg-[var(--color-warning-soft)] rounded-lg p-4 border border-[var(--color-warning)]">
- <h5 className="text-[var(--color-warning)] font-semibold mb-2">⚖️ 设计权衡</h5>
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover">
+ <h5 className="text-heading font-semibold mb-2">⚖️ 设计权衡</h5>
  <div className="text-sm text-body space-y-2">
  <p><strong>复杂性 vs 可控性</strong>：useGeminiStream Hook 有 1000+ 行代码，但提供了对整个流程的精细控制。</p>
  <p><strong>性能 vs 简单</strong>：IDE 上下文增量计算增加了代码复杂度，但避免了每次发送完整文件内容。</p>
@@ -412,23 +415,23 @@ const request = await prepareRequest(userParts, ideContextDelta);
  <div className="bg-base rounded-lg p-4 space-y-2 font-mono text-sm border border-edge">
  <div className="text-heading font-bold">packages/cli/src/ui/hooks/useGeminiStream.ts</div>
  <div className="pl-4 space-y-1 text-dim">
- <div>:786 - <span className="text-[var(--color-warning)]">submitQuery()</span> - 主循环入口</div>
- <div>:702 - <span className="text-[var(--color-warning)]">流事件处理循环</span> - 处理 17 种事件类型</div>
- <div>:994 - <span className="text-[var(--color-warning)]">handleCompletedTools()</span> - Continuation 触发</div>
- <div>:488 - <span className="text-[var(--color-warning)]">getIdeContextDelta()</span> - IDE 上下文增量</div>
+ <div>:786 - <span className="text-heading">submitQuery()</span> - 主循环入口</div>
+ <div>:702 - <span className="text-heading">流事件处理循环</span> - 处理 17 种事件类型</div>
+ <div>:994 - <span className="text-heading">handleCompletedTools()</span> - Continuation 触发</div>
+ <div>:488 - <span className="text-heading">getIdeContextDelta()</span> - IDE 上下文增量</div>
  </div>
 
  <div className="text-heading font-bold mt-4">packages/core/src/core/client.ts</div>
  <div className="pl-4 space-y-1 text-dim">
- <div>:396 - <span className="text-[var(--color-warning)]">sendMessageStream()</span> - API 流式请求</div>
- <div>:155 - <span className="text-[var(--color-warning)]">AsyncGenerator&lt;TurnEvent&gt;</span> - 事件流生成器</div>
+ <div>:396 - <span className="text-heading">sendMessageStream()</span> - API 流式请求</div>
+ <div>:155 - <span className="text-heading">AsyncGenerator&lt;TurnEvent&gt;</span> - 事件流生成器</div>
  </div>
 
  <div className="text-heading font-bold mt-4">packages/core/src/core/coreToolScheduler.ts</div>
  <div className="pl-4 space-y-1 text-dim">
- <div>:625 - <span className="text-[var(--color-warning)]">schedule()</span> - 工具调度入口</div>
- <div>:970 - <span className="text-[var(--color-warning)]">并行执行逻辑</span> - Promise.then() 链</div>
- <div>:340 - <span className="text-[var(--color-warning)]">checkAndNotifyCompletion()</span> - 完成检测</div>
+ <div>:625 - <span className="text-heading">schedule()</span> - 工具调度入口</div>
+ <div>:970 - <span className="text-heading">并行执行逻辑</span> - Promise.then() 链</div>
+ <div>:340 - <span className="text-heading">checkAndNotifyCompletion()</span> - 完成检测</div>
  </div>
 
  <div className="text-heading font-bold mt-4">packages/core/src/core/turn.ts</div>
@@ -474,7 +477,7 @@ const request = await prepareRequest(userParts, ideContextDelta);
  <td className="py-2 px-3">追加到 UI 显示</td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 font-mono text-[var(--color-warning)]">ToolCallRequest</td>
+ <td className="py-2 px-3 font-mono text-heading">ToolCallRequest</td>
  <td className="py-2 px-3">模型请求工具</td>
  <td className="py-2 px-3">收集到队列，流结束后调度</td>
  </tr>
@@ -494,7 +497,7 @@ const request = await prepareRequest(userParts, ideContextDelta);
  <td className="py-2 px-3">终止当前请求</td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 font-mono text-[var(--color-danger)]">Error</td>
+ <td className="py-2 px-3 font-mono text-heading">Error</td>
  <td className="py-2 px-3">API 或执行错误</td>
  <td className="py-2 px-3">重试或显示错误</td>
  </tr>
@@ -509,7 +512,7 @@ const request = await prepareRequest(userParts, ideContextDelta);
  <td className="py-2 px-3">记录但不加入历史</td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 font-mono text-[var(--color-warning)]">MaxSessionTurns</td>
+ <td className="py-2 px-3 font-mono text-heading">MaxSessionTurns</td>
  <td className="py-2 px-3">达到会话轮次上限</td>
  <td className="py-2 px-3">终止会话</td>
  </tr>
@@ -534,12 +537,12 @@ const request = await prepareRequest(userParts, ideContextDelta);
  <td className="py-2 px-3">重新发送 API 请求</td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 font-mono text-[var(--color-warning)]">ContextWindowWillOverflow</td>
+ <td className="py-2 px-3 font-mono text-heading">ContextWindowWillOverflow</td>
  <td className="py-2 px-3">上下文窗口即将溢出</td>
  <td className="py-2 px-3">触发压缩或提示用户</td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 font-mono text-[var(--color-danger)]">InvalidStream</td>
+ <td className="py-2 px-3 font-mono text-heading">InvalidStream</td>
  <td className="py-2 px-3">无效流数据</td>
  <td className="py-2 px-3">流解析失败处理</td>
  </tr>
@@ -559,9 +562,9 @@ const request = await prepareRequest(userParts, ideContextDelta);
  <div className="bg-surface border border-edge/30 rounded-lg p-4 mb-4">
  <h5 className="text-heading font-bold font-mono mb-2">关键洞察</h5>
  <p className="text-body text-sm">
- 工具执行结果会被转换为 <code className="text-[var(--color-warning)]">functionResponse</code>，作为<strong className="text-[var(--color-warning)]">下一条用户消息</strong>
- 重新进入 <code className="text-[var(--color-warning)]">submitQuery</code>，创造出"单次请求即可使用工具"的错觉。
- 实际上是多次 API 调用，由相同的 <code className="text-[var(--color-warning)]">prompt_id</code> 关联。
+ 工具执行结果会被转换为 <code className="text-heading">functionResponse</code>，作为<strong className="text-heading">下一条用户消息</strong>
+ 重新进入 <code className="text-heading">submitQuery</code>，创造出"单次请求即可使用工具"的错觉。
+ 实际上是多次 API 调用，由相同的 <code className="text-heading">prompt_id</code> 关联。
  </p>
  </div>
  <MermaidDiagram chart={continuationChart} title="Continuation 循环序列" />
@@ -577,11 +580,11 @@ const request = await prepareRequest(userParts, ideContextDelta);
  <HighlightBox title="防重提交" icon="🔒" variant="red">
  <div className="text-sm space-y-2">
  <div className="flex justify-between">
- <code className="text-[var(--color-warning)]">isSubmittingQueryRef</code>
+ <code className="text-heading">isSubmittingQueryRef</code>
  <span className="text-dim">防止并发提交</span>
  </div>
  <div className="flex justify-between">
- <code className="text-[var(--color-warning)]">sendPromise</code>
+ <code className="text-heading">sendPromise</code>
  <span className="text-dim">API 调用串行化</span>
  </div>
  <div className="text-dim text-xs mt-2">
@@ -763,13 +766,13 @@ function setupAbortHandler(signal: AbortSignal) {
  <div className="space-y-4">
  <h4 className="text-heading font-semibold font-mono">环境变量</h4>
  <div className="bg-base rounded-lg p-4 space-y-2 font-mono text-sm border border-edge">
- <div className="text-[var(--color-warning)]">GEMINI_API_KEY</div>
+ <div className="text-heading">GEMINI_API_KEY</div>
  <div className="pl-4 text-dim">Gemini API 密钥</div>
 
- <div className="text-[var(--color-warning)] mt-2">OPENAI_API_KEY / OPENAI_BASE_URL / OPENAI_MODEL</div>
+ <div className="text-heading mt-2">OPENAI_API_KEY / OPENAI_BASE_URL / OPENAI_MODEL</div>
  <div className="pl-4 text-dim">OpenAI 兼容 API 配置</div>
 
- <div className="text-[var(--color-warning)] mt-2">DEBUG=1</div>
+ <div className="text-heading mt-2">DEBUG=1</div>
  <div className="pl-4 text-dim">启用详细日志输出</div>
  </div>
 
@@ -1065,8 +1068,8 @@ Token 消耗: ~4,000 (估算)
  {/* 边界条件深度解析 */}
  <Layer title="边界条件深度解析" icon="🔬">
  <div className="space-y-6">
- <div className="bg-surface rounded-lg p-4 border border-[var(--color-danger)]">
- <h4 className="text-[var(--color-danger)] font-bold mb-2">为什么边界条件如此重要？</h4>
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover">
+ <h4 className="text-heading font-bold mb-2">为什么边界条件如此重要？</h4>
  <p className="text-body text-sm">
  交互循环是 CLI 的核心路径，任何边界条件处理不当都会导致用户体验下降或资源浪费。
  以下是实际运行中会遇到的各种边界情况及其处理策略。
@@ -1075,7 +1078,7 @@ Token 消耗: ~4,000 (估算)
 
  {/* 边界条件1: Token 耗尽 */}
  <div className="bg-surface rounded-lg p-5 border border-edge">
- <h5 className="text-[var(--color-warning)] font-semibold mb-3 flex items-center gap-2">
+ <h5 className="text-heading font-semibold mb-3 flex items-center gap-2">
  <span className="text-xl">📊</span> 边界条件 1: Token 上下文窗口耗尽
  </h5>
  <div className="space-y-3 text-sm">
@@ -1124,19 +1127,19 @@ if (totalTokens > contextWindowSize * 0.9) {
  <div className="text-dim mb-2">中断类型：</div>
  <div className="grid grid-cols-2 gap-2">
  <div className="bg-base p-2 rounded">
- <div className="text-[var(--color-warning)]">ECONNRESET</div>
+ <div className="text-heading">ECONNRESET</div>
  <div className="text-dim text-xs">连接被重置，可重试</div>
  </div>
  <div className="bg-base p-2 rounded">
- <div className="text-[var(--color-warning)]">ETIMEDOUT</div>
+ <div className="text-heading">ETIMEDOUT</div>
  <div className="text-dim text-xs">连接超时，可重试</div>
  </div>
  <div className="bg-base p-2 rounded">
- <div className="text-[var(--color-danger)]">ENOTFOUND</div>
+ <div className="text-heading">ENOTFOUND</div>
  <div className="text-dim text-xs">DNS 解析失败，检查网络</div>
  </div>
  <div className="bg-base p-2 rounded">
- <div className="text-[var(--color-danger)]">流中断</div>
+ <div className="text-heading">流中断</div>
  <div className="text-dim text-xs">响应流意外结束</div>
  </div>
  </div>
@@ -1170,7 +1173,7 @@ if (totalTokens > contextWindowSize * 0.9) {
  <div className="text-dim text-xs">Shell 命令最大</div>
  </div>
  <div className="bg-base p-2 rounded text-center">
- <div className="text-[var(--color-warning)] font-bold">30 秒</div>
+ <div className="text-heading font-bold">30 秒</div>
  <div className="text-dim text-xs">WebFetch 超时</div>
  </div>
  </div>
@@ -1189,7 +1192,7 @@ if (totalTokens > contextWindowSize * 0.9) {
 
  {/* 边界条件4: 循环检测触发 */}
  <div className="bg-surface rounded-lg p-5 border border-edge">
- <h5 className="text-[var(--color-danger)] font-semibold mb-3 flex items-center gap-2">
+ <h5 className="text-heading font-semibold mb-3 flex items-center gap-2">
  <span className="text-xl">🔄</span> 边界条件 4: 循环检测触发
  </h5>
  <div className="space-y-3 text-sm">
@@ -1201,8 +1204,8 @@ if (totalTokens > contextWindowSize * 0.9) {
  <li><strong>轮次限制</strong>：单次用户输入超过 100 轮 Continuation</li>
  </ul>
  </div>
- <div className="bg-[var(--color-danger-soft)] rounded p-3 border border-[var(--color-danger)]">
- <div className="text-[var(--color-danger)] font-semibold mb-1">循环触发后的行为：</div>
+ <div className="pl-4 border-l-2 border-l-edge-hover border-l-edge-hover">
+ <div className="text-heading font-semibold mb-1">循环触发后的行为：</div>
  <ul className="text-body space-y-1 list-disc list-inside">
  <li>立即中断当前 Continuation 循环</li>
  <li>向用户显示循环检测警告</li>
@@ -1232,19 +1235,19 @@ if (totalTokens > contextWindowSize * 0.9) {
  <div className="text-dim mb-2">防护机制：</div>
  <div className="grid grid-cols-2 gap-2">
  <div className="bg-base p-2 rounded">
- <code className="text-[var(--color-warning)]">isSubmittingQueryRef</code>
+ <code className="text-heading">isSubmittingQueryRef</code>
  <div className="text-dim text-xs mt-1">防止并发 submitQuery 调用</div>
  </div>
  <div className="bg-base p-2 rounded">
- <code className="text-[var(--color-warning)]">sendPromise</code>
+ <code className="text-heading">sendPromise</code>
  <div className="text-dim text-xs mt-1">串行化 API 请求</div>
  </div>
  <div className="bg-base p-2 rounded">
- <code className="text-[var(--color-warning)]">completionCount</code>
+ <code className="text-heading">completionCount</code>
  <div className="text-dim text-xs mt-1">工具完成计数器</div>
  </div>
  <div className="bg-base p-2 rounded">
- <code className="text-[var(--color-warning)]">AbortController</code>
+ <code className="text-heading">AbortController</code>
  <div className="text-dim text-xs mt-1">统一中断信号</div>
  </div>
  </div>
@@ -1278,10 +1281,10 @@ if (totalTokens > contextWindowSize * 0.9) {
  <div className="bg-elevated/10 rounded p-3 border border-edge/30">
  <div className="text-heading mb-2">调试步骤：</div>
  <ol className="text-body space-y-1 list-decimal list-inside">
- <li>启用 <code className="text-[var(--color-warning)]">DEBUG=1</code> 查看详细日志</li>
- <li>检查 <code className="text-[var(--color-warning)]">~/.gemini/logs/</code> 中的错误日志</li>
+ <li>启用 <code className="text-heading">DEBUG=1</code> 查看详细日志</li>
+ <li>检查 <code className="text-heading">~/.gemini/logs/</code> 中的错误日志</li>
  <li>确认 Token 使用量是否接近模型上限</li>
- <li>尝试使用 <code className="text-[var(--color-warning)]">/compress</code> 压缩历史后重试</li>
+ <li>尝试使用 <code className="text-heading">/compress</code> 压缩历史后重试</li>
  </ol>
  </div>
  </div>
@@ -1311,7 +1314,7 @@ if (totalTokens > contextWindowSize * 0.9) {
  <div className="text-heading mb-2">调试步骤：</div>
  <ol className="text-body space-y-1 list-decimal list-inside">
  <li>检查工具执行日志，确认工具确实完成了</li>
- <li>使用 <code className="text-[var(--color-warning)]">/stats</code> 查看 API 调用次数</li>
+ <li>使用 <code className="text-heading">/stats</code> 查看 API 调用次数</li>
  <li>确认 Turn 计数是否增加（应该 +1）</li>
  <li>检查 Continuation 是否被循环检测误触发拦截</li>
  </ol>
@@ -1342,8 +1345,8 @@ if (totalTokens > contextWindowSize * 0.9) {
  <div className="bg-elevated/10 rounded p-3 border border-edge/30">
  <div className="text-heading mb-2">解决方案：</div>
  <ol className="text-body space-y-1 list-decimal list-inside">
- <li>按 <code className="text-[var(--color-warning)]">Ctrl+C</code> 中断当前循环</li>
- <li>使用 <code className="text-[var(--color-warning)]">/restore</code> 回退到之前的状态</li>
+ <li>按 <code className="text-heading">Ctrl+C</code> 中断当前循环</li>
+ <li>使用 <code className="text-heading">/restore</code> 回退到之前的状态</li>
  <li>重新描述任务，提供更具体的指导</li>
  <li>如果是工具 bug，报告到 GitHub Issues</li>
  </ol>
@@ -1374,9 +1377,9 @@ if (totalTokens > contextWindowSize * 0.9) {
  <div className="bg-elevated/10 rounded p-3 border border-edge/30">
  <div className="text-heading mb-2">优化建议：</div>
  <ol className="text-body space-y-1 list-decimal list-inside">
- <li>使用 <code className="text-[var(--color-warning)]">/compress</code> 手动压缩历史</li>
+ <li>使用 <code className="text-heading">/compress</code> 手动压缩历史</li>
  <li>关闭不需要的 IDE 文件</li>
- <li>使用 <code className="text-[var(--color-warning)]">/stats</code> 查看 Token 使用情况</li>
+ <li>使用 <code className="text-heading">/stats</code> 查看 Token 使用情况</li>
  <li>考虑使用更快的模型进行简单任务</li>
  </ol>
  </div>
@@ -1390,27 +1393,27 @@ if (totalTokens > contextWindowSize * 0.9) {
  <h4 className="text-heading font-bold mb-3">🔧 调试工具速查</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
  <div className="bg-surface p-3 rounded">
- <code className="text-[var(--color-warning)]">DEBUG=1 gemini</code>
+ <code className="text-heading">DEBUG=1 gemini</code>
  <div className="text-dim text-xs mt-1">启用详细调试日志</div>
  </div>
  <div className="bg-surface p-3 rounded">
- <code className="text-[var(--color-warning)]">/stats</code>
+ <code className="text-heading">/stats</code>
  <div className="text-dim text-xs mt-1">查看会话统计（Token、时长、API 调用）</div>
  </div>
  <div className="bg-surface p-3 rounded">
- <code className="text-[var(--color-warning)]">/memory show</code>
+ <code className="text-heading">/memory show</code>
  <div className="text-dim text-xs mt-1">查看当前加载的上下文</div>
  </div>
  <div className="bg-surface p-3 rounded">
- <code className="text-[var(--color-warning)]">/tools</code>
+ <code className="text-heading">/tools</code>
  <div className="text-dim text-xs mt-1">查看可用工具列表</div>
  </div>
  <div className="bg-surface p-3 rounded">
- <code className="text-[var(--color-warning)]">/restore</code>
+ <code className="text-heading">/restore</code>
  <div className="text-dim text-xs mt-1">列出/恢复文件检查点</div>
  </div>
  <div className="bg-surface p-3 rounded">
- <code className="text-[var(--color-warning)]">/compress</code>
+ <code className="text-heading">/compress</code>
  <div className="text-dim text-xs mt-1">手动压缩对话历史</div>
  </div>
  </div>
@@ -1438,7 +1441,7 @@ if (totalTokens > contextWindowSize * 0.9) {
  <ul className="text-sm text-body space-y-2">
  <li className="flex items-start gap-2">
  <span className="text-heading">✓</span>
- <span>定期使用 <code className="text-[var(--color-warning)]">/compress</code> 压缩历史</span>
+ <span>定期使用 <code className="text-heading">/compress</code> 压缩历史</span>
  </li>
  <li className="flex items-start gap-2">
  <span className="text-heading">✓</span>
@@ -1457,7 +1460,7 @@ if (totalTokens > contextWindowSize * 0.9) {
 
  {/* 优化2 */}
  <div className="bg-surface rounded-lg p-4 border border-edge">
- <h5 className="text-[var(--color-warning)] font-semibold mb-2 flex items-center gap-2">
+ <h5 className="text-heading font-semibold mb-2 flex items-center gap-2">
  <span>🚀</span> 加速工具执行
  </h5>
  <ul className="text-sm text-body space-y-2">
@@ -1560,13 +1563,13 @@ if (totalTokens > contextWindowSize * 0.9) {
  <tr className="border- border-edge/50">
  <td className="py-2 px-3">多文件重构</td>
  <td className="py-2 px-3">~15K</td>
- <td className="py-2 px-3 text-[var(--color-warning)]">3-5s</td>
+ <td className="py-2 px-3 text-heading">3-5s</td>
  <td className="py-2 px-3">高</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="py-2 px-3">大型代码库分析</td>
  <td className="py-2 px-3">~50K</td>
- <td className="py-2 px-3 text-[var(--color-warning)]">10-20s</td>
+ <td className="py-2 px-3 text-heading">10-20s</td>
  <td className="py-2 px-3">高</td>
  </tr>
  <tr>
@@ -1626,29 +1629,29 @@ if (totalTokens > contextWindowSize * 0.9) {
  ToolScheduler --> GitService
  useGeminiStream --> LoopDetection
 
- style useGeminiStream fill:#22d3ee,color:#000
- style ToolScheduler fill:#a855f7,color:#fff
- style API fill:#f59e0b,color:#000`}
+ style useGeminiStream fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style ToolScheduler fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style API fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}`}
  />
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface rounded-lg p-4 border border-edge">
  <h5 className="text-heading font-semibold mb-2">上游依赖</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>TextInput</strong> - 提供用户输入触发</li>
- <li>• <strong>ConfigSystem</strong> - 提供模型、Token 限制等配置</li>
- <li>• <strong>AuthService</strong> - 提供 API 认证凭据</li>
- <li>• <strong>MemorySystem</strong> - 提供 GEMINI.md 上下文</li>
+ <li><strong>TextInput</strong> - 提供用户输入触发</li>
+ <li><strong>ConfigSystem</strong> - 提供模型、Token 限制等配置</li>
+ <li><strong>AuthService</strong> - 提供 API 认证凭据</li>
+ <li><strong>MemorySystem</strong> - 提供 GEMINI.md 上下文</li>
  </ul>
  </div>
 
  <div className="bg-surface rounded-lg p-4 border border-edge">
  <h5 className="text-heading font-semibold mb-2">下游消费者</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>MessageDisplay</strong> - 消费流式内容展示</li>
- <li>• <strong>ToolCard</strong> - 消费工具调用状态</li>
- <li>• <strong>StatsPanel</strong> - 消费 Token 使用统计</li>
- <li>• <strong>TelemetryService</strong> - 消费交互事件</li>
+ <li><strong>MessageDisplay</strong> - 消费流式内容展示</li>
+ <li><strong>ToolCard</strong> - 消费工具调用状态</li>
+ <li><strong>StatsPanel</strong> - 消费 Token 使用统计</li>
+ <li><strong>TelemetryService</strong> - 消费交互事件</li>
  </ul>
  </div>
  </div>

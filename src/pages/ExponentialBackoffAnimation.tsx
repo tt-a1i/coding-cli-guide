@@ -219,20 +219,20 @@ export default function ExponentialBackoffAnimation() {
  };
 
  const getStatusColor = (status: number) => {
- if (status === 200) return 'text-green-400 bg-green-900/30';
- if (status === 429) return 'text-heading bg-orange-900/30';
- if (status >= 500) return 'text-red-400 bg-red-900/30';
+ if (status === 200) return 'text-heading bg-elevated';
+ if (status === 429) return 'text-heading bg-elevated';
+ if (status >= 500) return 'text-heading bg-elevated';
  return 'text-body bg-surface';
  };
 
  const getPhaseColor = () => {
  switch (phase) {
  case 'requesting': return ' bg-elevated';
- case 'error': return 'bg-red-500';
- case 'backoff': return 'bg-yellow-500';
+ case 'error': return 'bg-[var(--color-danger)]';
+ case 'backoff': return 'bg-[var(--color-warning)]';
  case 'fallback': return ' bg-elevated';
- case 'success': return 'bg-green-500';
- case 'failed': return 'bg-red-600';
+ case 'success': return 'bg-[var(--color-success)]';
+ case 'failed': return 'bg-[var(--color-danger)]';
  default: return ' bg-elevated';
  }
  };
@@ -367,14 +367,14 @@ export default function ExponentialBackoffAnimation() {
 
  {/* Countdown Bar */}
  {phase === 'backoff' && countdown > 0 && (
- <div className="mb-6 p-4 bg-yellow-900/20 border border-yellow-700/50 rounded-lg">
+ <div className="mb-6 p-4 bg-elevated border-l-2 border-l-edge-hover/40 rounded-lg">
  <div className="flex items-center justify-between mb-2">
- <span className="text-yellow-400 text-sm">退避等待中...</span>
- <span className="text-yellow-300 font-mono">{countdown}ms</span>
+ <span className="text-heading text-sm">退避等待中...</span>
+ <span className="text-heading font-mono">{countdown}ms</span>
  </div>
  <div className="w-full h-2 bg-elevated rounded-full overflow-hidden">
  <div
- className="h-full bg-yellow-500 transition-all duration-100"
+ className="h-full bg-[var(--color-warning)] transition-all duration-100"
  style={{ width: `${(countdown / currentDelay) * 100}%` }}
  />
  </div>
@@ -389,10 +389,10 @@ export default function ExponentialBackoffAnimation() {
  <div
  key={idx}
  className={`p-3 rounded-lg border-l-2 ${
- attempt.action === 'success' ? 'border-green-500 bg-green-900/20' :
- attempt.action === 'fail' ? 'border-red-500 bg-red-900/20' :
+ attempt.action === 'success' ? 'border-edge bg-elevated' :
+ attempt.action === 'fail' ? 'border-edge bg-elevated' :
  attempt.action === 'fallback' ? ' border-edge bg-elevated' :
- attempt.action === 'backoff' ? 'border-yellow-500 bg-yellow-900/20' :
+ attempt.action === 'backoff' ? 'border-edge bg-elevated' :
  ' border-edge bg-surface'
  }`}
  >
@@ -409,10 +409,10 @@ export default function ExponentialBackoffAnimation() {
  )}
  </div>
  <span className={`text-xs px-2 py-0.5 rounded ${
- attempt.action === 'success' ? 'bg-green-800 text-green-300' :
- attempt.action === 'fail' ? 'bg-red-800 text-red-300' :
+ attempt.action === 'success' ? 'bg-elevated text-heading' :
+ attempt.action === 'fail' ? 'bg-elevated text-heading' :
  attempt.action === 'fallback' ? ' bg-elevated text-heading' :
- attempt.action === 'backoff' ? 'bg-yellow-800 text-yellow-300' :
+ attempt.action === 'backoff' ? 'bg-elevated text-heading' :
  ' bg-elevated text-body'
  }`}>
  {attempt.action === 'request' ? '请求' :
@@ -430,16 +430,16 @@ export default function ExponentialBackoffAnimation() {
  </div>
  <div className="p-2 bg-base/30 rounded">
  <span className="text-dim">抖动:</span>
- <span className={`ml-2 ${attempt.jitter && attempt.jitter > 0 ? 'text-green-400' : 'text-red-400'}`}>
+ <span className={`ml-2 ${attempt.jitter && attempt.jitter > 0 ? 'text-heading' : 'text-heading'}`}>
  {attempt.jitter && attempt.jitter > 0 ? '+' : ''}{attempt.jitter}ms
  </span>
  </div>
  <div className="p-2 bg-base/30 rounded">
  <span className="text-dim">实际延迟:</span>
- <span className="ml-2 text-yellow-300">{attempt.delayWithJitter}ms</span>
+ <span className="ml-2 text-heading">{attempt.delayWithJitter}ms</span>
  </div>
  {attempt.retryAfter && (
- <div className="col-span-3 p-2 bg-orange-900/30 rounded">
+ <div className="col-span-3 p-2 bg-elevated rounded">
  <span className="text-heading">Retry-After 头:</span>
  <span className="ml-2 text-heading">{attempt.retryAfter}ms</span>
  </div>
@@ -457,17 +457,17 @@ export default function ExponentialBackoffAnimation() {
  <h3 className="text-sm font-semibold text-heading mb-2">配额回退已触发</h3>
  <div className="flex items-center gap-4 text-xs">
  <div className="flex items-center gap-2">
- <span className="w-2 h-2 rounded-full bg-blue-400" />
+ <span className="w-2 h-2 rounded-full bg-accent" />
  <span className="text-body">Pro 配额</span>
  </div>
  <span className="text-dim">→</span>
  <div className="flex items-center gap-2">
- <span className="w-2 h-2 rounded-full bg-green-400" />
+ <span className="w-2 h-2 rounded-full bg-[var(--color-success)]" />
  <span className="text-body">Generic 配额</span>
  </div>
  <span className="text-dim">→</span>
  <div className="flex items-center gap-2">
- <span className="w-2 h-2 rounded-full bg-orange-400" />
+ <span className="w-2 h-2 rounded-full bg-[var(--color-warning)]" />
  <span className="text-body font-medium">Gemini 限流</span>
  </div>
  </div>
@@ -483,10 +483,10 @@ export default function ExponentialBackoffAnimation() {
  <span className="text-heading">delay</span> = min(maxDelay, initialDelay × 2<sup>attempt</sup>)
  </div>
  <div className="p-2 bg-base/30 rounded">
- <span className="text-yellow-400">jitter</span> = delay × jitterPercent × random(-1, 1)
+ <span className="text-heading">jitter</span> = delay × jitterPercent × random(-1, 1)
  </div>
  <div className="p-2 bg-base/30 rounded">
- <span className="text-green-400">actualDelay</span> = max(0, delay + jitter)
+ <span className="text-heading">actualDelay</span> = max(0, delay + jitter)
  </div>
  </div>
  </div>

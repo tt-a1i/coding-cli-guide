@@ -258,8 +258,8 @@ export default function CommandInjectionDetectionAnimation() {
  const getSeverityColor = (severity: string) => {
  switch (severity) {
  case 'safe': return 'var(--color-primary)';
- case 'warning': return '#f59e0b';
- case 'blocked': return '#ef4444';
+ case 'warning': return 'var(--color-warning)';
+ case 'blocked': return 'var(--color-danger)';
  default: return 'var(--color-text-muted)';
  }
  };
@@ -280,7 +280,7 @@ export default function CommandInjectionDetectionAnimation() {
  onClick={() => isPlaying ? resetAnimation() : (resetAnimation(), setTimeout(() => setIsPlaying(true), 100))}
  className={`px-4 py-2 rounded font-mono text-sm transition-all ${
  isPlaying
- ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+ ? 'bg-elevated text-heading border-l-2 border-l-edge-hover/30'
  : ' bg-elevated/20 text-heading border border-edge/30'
  }`}
  >
@@ -301,7 +301,7 @@ export default function CommandInjectionDetectionAnimation() {
  {EXAMPLE_TOOLS_EXCLUDE.map((p) => (
  <span
  key={p}
- className="text-xs font-mono px-2 py-1 rounded bg-red-500/10 text-red-300 border border-red-500/30"
+ className="text-xs font-mono px-2 py-1 rounded bg-elevated text-heading border-l-2 border-l-edge-hover/30"
  >
  {p}
  </span>
@@ -325,7 +325,7 @@ export default function CommandInjectionDetectionAnimation() {
 
  <div>
  <div className="text-xs text-dim mb-2 font-mono">PolicyRule.allowRedirection</div>
- <div className="text-xs font-mono px-2 py-1 rounded bg-amber-500/10 text-amber-500 border border-amber-500/30 inline-block">
+ <div className="text-xs font-mono px-2 py-1 rounded bg-elevated text-heading border-l-2 border-l-edge-hover/30 inline-block">
  {String(EXAMPLE_ALLOW_REDIRECTION)}
  </div>
  </div>
@@ -359,7 +359,7 @@ export default function CommandInjectionDetectionAnimation() {
  {/* 检测结果 */}
  <div className="col-span-8">
  <div className="bg-surface rounded-lg p-4 border border-edge-hover">
- <h3 className="text-sm font-semibold text-amber-500 mb-3 font-mono">
+ <h3 className="text-sm font-semibold text-heading mb-3 font-mono">
  🔍 Security Analysis
  </h3>
  <div className="space-y-4 max-h-96 overflow-y-auto">
@@ -373,9 +373,9 @@ export default function CommandInjectionDetectionAnimation() {
  key={i}
  className={`p-4 rounded-lg border transition-all ${
  !analysis.isAllowed
- ? 'bg-red-500/10 border-red-500/30'
+ ? 'bg-elevated border-edge/30'
  : analysis.requiresPermission
- ? 'bg-amber-500/10 border-amber-500/30'
+ ? 'bg-elevated border-edge/30'
  : ' bg-elevated/10 border-edge/30'
  }`}
  >
@@ -430,8 +430,8 @@ export default function CommandInjectionDetectionAnimation() {
  key={i}
  className={`${
  log.includes('✓') || log.includes('✅') ? 'text-heading' :
- log.includes('✗') ? 'text-red-400' :
- log.includes('⚠️') ? 'text-amber-500' :
+ log.includes('✗') ? 'text-heading' :
+ log.includes('⚠️') ? 'text-heading' :
  log.includes('🔒') || log.includes('📝') ? 'text-heading' :
  'text-dim'
  }`}

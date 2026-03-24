@@ -5,6 +5,7 @@ import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
 import { JsonBlock } from '../components/JsonBlock';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
 
 const relatedPages: RelatedPage[] = [
  { id: 'approval-mode', label: '审批模式', description: '沙箱与审批模式的协同' },
@@ -55,7 +56,7 @@ function Introduction({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-[var(--color-warning)] font-bold mb-2">
+ <h4 className="text-heading font-bold mb-2">
  🔧 沙箱类型
  </h4>
  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
@@ -68,7 +69,7 @@ function Introduction({
  <div className="text-[10px] text-dim">无守护进程</div>
  </div>
  <div className="bg-surface p-2 rounded text-center">
- <div className="text-xs text-[var(--color-warning)]">Seatbelt</div>
+ <div className="text-xs text-heading">Seatbelt</div>
  <div className="text-[10px] text-dim">macOS 原生</div>
  </div>
  <div className="bg-surface p-2 rounded text-center">
@@ -83,9 +84,9 @@ function Introduction({
  🏗️ 沙箱策略
  </h4>
  <ul className="text-body text-sm space-y-1">
- <li>• <strong>permissive-open</strong> - 宽松模式，允许大多数操作</li>
- <li>• <strong>restrictive-closed</strong> - 严格模式，只读访问</li>
- <li>• <strong>自定义 Dockerfile</strong> - 项目专用沙箱环境</li>
+ <li><strong>permissive-open</strong> - 宽松模式，允许大多数操作</li>
+ <li><strong>restrictive-closed</strong> - 严格模式，只读访问</li>
+ <li><strong>自定义 Dockerfile</strong> - 项目专用沙箱环境</li>
  </ul>
  </div>
 
@@ -101,7 +102,7 @@ function Introduction({
  <div className="text-xs text-dim">Seatbelt 策略</div>
  </div>
  <div className="text-center">
- <div className="text-xl font-bold text-[var(--color-warning)]">ENV</div>
+ <div className="text-xl font-bold text-heading">ENV</div>
  <div className="text-xs text-dim">GEMINI_SANDBOX</div>
  </div>
  <div className="text-center">
@@ -144,11 +145,11 @@ export function SandboxSystem() {
  is_macos -->|No<br/>默认Docker| docker_exec
 
  style start stroke:#22d3ee
- style no_sandbox stroke:#22c55e
- style is_docker stroke:#f59e0b
- style is_podman stroke:#f59e0b
- style is_true stroke:#f59e0b
- style is_macos stroke:#f59e0b
+ style no_sandbox stroke:${getThemeColor("--color-success", "#15803d")}
+ style is_docker stroke:${getThemeColor("--color-warning", "#b45309")}
+ style is_podman stroke:${getThemeColor("--color-warning", "#b45309")}
+ style is_true stroke:${getThemeColor("--color-warning", "#b45309")}
+ style is_macos stroke:${getThemeColor("--color-warning", "#b45309")}
 `;
 
  const containerStartupFlow = `flowchart TD
@@ -171,85 +172,85 @@ export function SandboxSystem() {
  capture_output --> return_result
 
  style start stroke:#22d3ee
- style return_result stroke:#22c55e
- style check_running stroke:#f59e0b
+ style return_result stroke:${getThemeColor("--color-success", "#15803d")}
+ style check_running stroke:${getThemeColor("--color-warning", "#b45309")}
 `;
 
  const sandboxTypeCode = `// packages/cli/src/utils/sandbox.ts
 export type SandboxType = 'docker' | 'podman' | 'seatbelt' | 'none';
 
 export function getSandboxType(): SandboxType {
- const sandboxEnv = process.env.GEMINI_SANDBOX?.toLowerCase();
+  const sandboxEnv = process.env.GEMINI_SANDBOX?.toLowerCase();
 
- if (sandboxEnv === 'docker') return 'docker';
- if (sandboxEnv === 'podman') return 'podman';
- if (sandboxEnv === 'true') {
- // macOS 优先使用 seatbelt，其他平台使用 docker
- return process.platform === 'darwin' ? 'seatbelt' : 'docker';
- }
+  if (sandboxEnv === 'docker') return 'docker';
+  if (sandboxEnv === 'podman') return 'podman';
+  if (sandboxEnv === 'true') {
+  // macOS 优先使用 seatbelt，其他平台使用 docker
+  return process.platform === 'darwin' ? 'seatbelt' : 'docker';
+  }
 
- return 'none';
+  return 'none';
 }`;
 
  const dockerConfigCode = `// Docker 容器配置
 interface DockerSandboxConfig {
- // 镜像配置
- image: string; // 默认: ghcr.io/google/generative-ai-cli:{version}
- dockerfile?: string; // 自定义: .gemini/sandbox.Dockerfile
+  // 镜像配置
+  image: string; // 默认: ghcr.io/google/generative-ai-cli:{version}
+  dockerfile?: string; // 自定义: .gemini/sandbox.Dockerfile
 
- // 挂载配置
- workdir: string; // 工作目录挂载
- readOnly: boolean; // 是否只读挂载
+  // 挂载配置
+  workdir: string; // 工作目录挂载
+  readOnly: boolean; // 是否只读挂载
 
- // 用户配置
- uid: number; // 宿主机 UID
- gid: number; // 宿主机 GID
+  // 用户配置
+  uid: number; // 宿主机 UID
+  gid: number; // 宿主机 GID
 
- // 资源限制
- memory?: string; // 内存限制 (如 "2g")
- cpus?: number; // CPU 核心数
+  // 资源限制
+  memory?: string; // 内存限制 (如 "2g")
+  cpus?: number; // CPU 核心数
 
- // 网络配置
- network: 'none' | 'host' | 'bridge';
+  // 网络配置
+  network: 'none' | 'host' | 'bridge';
 }
 
 // 容器启动命令
 const dockerRunArgs = [
- 'run',
- '--rm', // 退出后删除容器
- '-d', // 后台运行
- '--name', containerName, // 容器名称
- '-v', \`\${workdir}:/workspace\`, // 挂载工作目录
- '-w', '/workspace', // 设置工作目录
- '-u', \`\${uid}:\${gid}\`, // 用户映射
- '--network', 'none', // 默认无网络
- image,
- 'sleep', 'infinity' // 保持容器运行
+  'run',
+  '--rm', // 退出后删除容器
+  '-d', // 后台运行
+  '--name', containerName, // 容器名称
+  '-v', \`\${workdir}:/workspace\`, // 挂载工作目录
+  '-w', '/workspace', // 设置工作目录
+  '-u', \`\${uid}:\${gid}\`, // 用户映射
+  '--network', 'none', // 默认无网络
+  image,
+  'sleep', 'infinity' // 保持容器运行
 ];`;
 
  const seatbeltCode = `// macOS Seatbelt (sandbox-exec) 配置
 // packages/cli/src/utils/sandbox.ts
 
 export type SeatbeltProfile =
- | 'permissive-open' // 宽松模式：允许大部分操作
- | 'permissive-closed' // 半宽松：限制网络和某些系统调用
- | 'restrictive-open' // 半严格：允许网络但限制文件访问
- | 'restrictive-closed'; // 严格模式：最大限制
+  | 'permissive-open' // 宽松模式：允许大部分操作
+  | 'permissive-closed' // 半宽松：限制网络和某些系统调用
+  | 'restrictive-open' // 半严格：允许网络但限制文件访问
+  | 'restrictive-closed'; // 严格模式：最大限制
 
 // Seatbelt 执行命令
 function executeSeatbelt(
- command: string,
- profile: SeatbeltProfile = 'permissive-closed'
+  command: string,
+  profile: SeatbeltProfile = 'permissive-closed'
 ): Promise<ExecutionResult> {
- const profilePath = getProfilePath(profile);
+  const profilePath = getProfilePath(profile);
 
- // sandbox-exec 是 macOS 内置的沙箱工具
- return spawn('sandbox-exec', [
- '-f', profilePath, // 沙箱配置文件
- '/bin/bash',
- '-c',
- command
- ]);
+  // sandbox-exec 是 macOS 内置的沙箱工具
+  return spawn('sandbox-exec', [
+  '-f', profilePath, // 沙箱配置文件
+  '/bin/bash',
+  '-c',
+  command
+  ]);
 }
 
 // 沙箱配置文件示例 (.sb 格式)
@@ -264,7 +265,7 @@ function executeSeatbelt(
 
 ; 限制写入到工作目录
 (allow file-write*
- (subpath "/workspace"))
+  (subpath "/workspace"))
 
 ; 禁止网络访问
 (deny network*)
@@ -281,10 +282,10 @@ FROM node:20-slim
 
 # 安装开发工具
 RUN apt-get update && apt-get install -y \\
- git \\
- curl \\
- build-essential \\
- && rm -rf /var/lib/apt/lists/*
+  git \\
+  curl \\
+  build-essential \\
+  && rm -rf /var/lib/apt/lists/*
 
 # 创建工作目录
 WORKDIR /workspace
@@ -293,7 +294,7 @@ WORKDIR /workspace
 ARG UID=1000
 ARG GID=1000
 RUN groupadd -g \${GID} developer && \\
- useradd -u \${UID} -g \${GID} -m developer
+  useradd -u \${UID} -g \${GID} -m developer
 USER developer
 
 # .gemini/sandbox.bashrc
@@ -304,86 +305,86 @@ alias ll='ls -la'
 # 项目检测到这些文件时会使用自定义沙箱
 // packages/cli/src/utils/sandbox.ts
 function getCustomDockerfile(): string | null {
- const customPath = path.join(process.cwd(), '.gemini', 'sandbox.Dockerfile');
- if (fs.existsSync(customPath)) {
- return customPath;
- }
- return null;
+  const customPath = path.join(process.cwd(), '.gemini', 'sandbox.Dockerfile');
+  if (fs.existsSync(customPath)) {
+  return customPath;
+  }
+  return null;
 }`;
 
  const securityFeaturesCode = `// 安全特性实现
 // packages/cli/src/utils/sandbox.ts
 
 interface SecurityFeatures {
- // 文件系统隔离
- filesystem: {
- readOnly: boolean; // 只读模式
- allowedPaths: string[]; // 允许访问的路径
- deniedPaths: string[]; // 禁止访问的路径
- };
+  // 文件系统隔离
+  filesystem: {
+  readOnly: boolean; // 只读模式
+  allowedPaths: string[]; // 允许访问的路径
+  deniedPaths: string[]; // 禁止访问的路径
+  };
 
- // 网络隔离
- network: {
- enabled: boolean; // 是否允许网络
- allowedHosts?: string[]; // 允许的主机
- allowedPorts?: number[]; // 允许的端口
- };
+  // 网络隔离
+  network: {
+  enabled: boolean; // 是否允许网络
+  allowedHosts?: string[]; // 允许的主机
+  allowedPorts?: number[]; // 允许的端口
+  };
 
- // 进程隔离
- process: {
- maxProcesses: number; // 最大进程数
- allowFork: boolean; // 是否允许 fork
- allowExec: boolean; // 是否允许 exec
- };
+  // 进程隔离
+  process: {
+  maxProcesses: number; // 最大进程数
+  allowFork: boolean; // 是否允许 fork
+  allowExec: boolean; // 是否允许 exec
+  };
 
- // 资源限制
- resources: {
- maxMemory: string; // 最大内存
- maxCpu: number; // 最大 CPU
- timeout: number; // 执行超时 (ms)
- };
+  // 资源限制
+  resources: {
+  maxMemory: string; // 最大内存
+  maxCpu: number; // 最大 CPU
+  timeout: number; // 执行超时 (ms)
+  };
 }
 
 // 验证命令安全性
 function validateCommand(command: string): boolean {
- const dangerousPatterns = [
- /rm\\s+-rf\\s+\\/(?!\\s)/, // rm -rf /
- /mkfs/, // 格式化磁盘
- /dd\\s+if=/, // 低级磁盘操作
- /:(){ :|:& };:/, // Fork 炸弹
- ];
+  const dangerousPatterns = [
+  /rm\\s+-rf\\s+\\/(?!\\s)/, // rm -rf /
+  /mkfs/, // 格式化磁盘
+  /dd\\s+if=/, // 低级磁盘操作
+  /:(){ :|:& };:/, // Fork 炸弹
+  ];
 
- return !dangerousPatterns.some(p => p.test(command));
+  return !dangerousPatterns.some(p => p.test(command));
 }`;
 
  const uidMappingCode = `// UID/GID 映射机制
 // 确保容器内文件权限与宿主机一致
 
 function getUidGid(): { uid: number; gid: number } {
- // Unix 系统获取当前用户 UID/GID
- if (process.platform !== 'win32') {
- return {
- uid: process.getuid?.() ?? 1000,
- gid: process.getgid?.() ?? 1000,
- };
- }
+  // Unix 系统获取当前用户 UID/GID
+  if (process.platform !== 'win32') {
+  return {
+  uid: process.getuid?.() ?? 1000,
+  gid: process.getgid?.() ?? 1000,
+  };
+  }
 
- // Windows 使用默认值
- return { uid: 1000, gid: 1000 };
+  // Windows 使用默认值
+  return { uid: 1000, gid: 1000 };
 }
 
 // 容器启动时映射用户
 async function startContainer(config: DockerSandboxConfig) {
- const { uid, gid } = getUidGid();
+  const { uid, gid } = getUidGid();
 
- // 创建容器时指定用户
- await exec('docker', [
- 'run',
- '-u', \`\${uid}:\${gid}\`, // 用户映射
- ...otherArgs
- ]);
+  // 创建容器时指定用户
+  await exec('docker', [
+  'run',
+  '-u', \`\${uid}:\${gid}\`, // 用户映射
+  ...otherArgs
+  ]);
 
- // 这样容器内创建的文件，宿主机也有正确的所有权
+  // 这样容器内创建的文件，宿主机也有正确的所有权
 }
 
 /*
@@ -393,8 +394,8 @@ async function startContainer(config: DockerSandboxConfig) {
 │ └── project/ │
 │ └── src/ (owner: 501) │
 └─────────────────────────────────────────────────────┘
- │ 挂载
- ▼
+  │ 挂载
+  ▼
 ┌─────────────────────────────────────────────────────┐
 │ 容器 (运行用户: root/1000) │
 │ └── /workspace/ │
@@ -465,7 +466,7 @@ async function startContainer(config: DockerSandboxConfig) {
  </div>
 
  <div className="mt-4 bg-surface rounded-lg p-4">
- <h4 className="font-semibold text-[var(--color-warning)] mb-2">环境变量配置</h4>
+ <h4 className="font-semibold text-heading mb-2">环境变量配置</h4>
  <table className="w-full text-sm">
  <thead>
  <tr className="text-body">
@@ -476,17 +477,17 @@ async function startContainer(config: DockerSandboxConfig) {
  </thead>
  <tbody className="text-body">
  <tr className="border-t border-edge">
- <td className="p-2"><code className="text-[var(--color-success)]">docker</code></td>
+ <td className="p-2"><code className="text-heading">docker</code></td>
  <td className="p-2">Docker 容器沙箱</td>
  <td className="p-2">需要安装 Docker</td>
  </tr>
  <tr className="border-t border-edge">
- <td className="p-2"><code className="text-[var(--color-success)]">podman</code></td>
+ <td className="p-2"><code className="text-heading">podman</code></td>
  <td className="p-2">Podman 容器沙箱</td>
  <td className="p-2">Docker 的无守护进程替代</td>
  </tr>
  <tr className="border-t border-edge">
- <td className="p-2"><code className="text-[var(--color-success)]">true</code></td>
+ <td className="p-2"><code className="text-heading">true</code></td>
  <td className="p-2">自动选择</td>
  <td className="p-2">macOS 用 Seatbelt，其他用 Docker</td>
  </tr>
@@ -514,19 +515,19 @@ async function startContainer(config: DockerSandboxConfig) {
  <div>
  <h5 className="font-semibold text-heading mb-1">优势</h5>
  <ul className="space-y-1">
- <li>• 完整的进程和文件系统隔离</li>
- <li>• 可自定义开发环境</li>
- <li>• 支持复杂的网络配置</li>
- <li>• 跨平台一致性</li>
+ <li>完整的进程和文件系统隔离</li>
+ <li>可自定义开发环境</li>
+ <li>支持复杂的网络配置</li>
+ <li>跨平台一致性</li>
  </ul>
  </div>
  <div>
  <h5 className="font-semibold text-heading mb-1">注意事项</h5>
  <ul className="space-y-1">
- <li>• 需要安装 Docker/Podman</li>
- <li>• 首次启动较慢（构建镜像）</li>
- <li>• 占用更多系统资源</li>
- <li>• 需要正确配置 UID 映射</li>
+ <li>需要安装 Docker/Podman</li>
+ <li>首次启动较慢（构建镜像）</li>
+ <li>占用更多系统资源</li>
+ <li>需要正确配置 UID 映射</li>
  </ul>
  </div>
  </div>
@@ -539,25 +540,25 @@ async function startContainer(config: DockerSandboxConfig) {
  <CodeBlock code={seatbeltCode} language="typescript" title="Seatbelt 实现" />
 
  <div className="mt-4 bg-surface rounded-lg p-4">
- <h4 className="font-semibold text-[var(--color-success)] mb-2">Seatbelt 配置文件级别</h4>
+ <h4 className="font-semibold text-heading mb-2">Seatbelt 配置文件级别</h4>
  <div className="grid grid-cols-2 gap-4 text-sm">
  <div className="space-y-2">
- <div className="bg-green-900/30 rounded p-2">
- <span className="font-semibold text-[var(--color-success)]">permissive-open</span>
+ <div className="bg-elevated rounded p-2">
+ <span className="font-semibold text-heading">permissive-open</span>
  <p className="text-body mt-1">最宽松：允许大部分操作，适合开发调试</p>
  </div>
- <div className="bg-yellow-900/30 rounded p-2">
- <span className="font-semibold text-[var(--color-warning)]">permissive-closed</span>
+ <div className="bg-elevated rounded p-2">
+ <span className="font-semibold text-heading">permissive-closed</span>
  <p className="text-body mt-1">半宽松：限制网络和某些系统调用</p>
  </div>
  </div>
  <div className="space-y-2">
- <div className="bg-orange-900/30 rounded p-2">
+ <div className="bg-elevated rounded p-2">
  <span className="font-semibold text-heading">restrictive-open</span>
  <p className="text-body mt-1">半严格：允许网络但限制文件访问</p>
  </div>
- <div className="bg-red-900/30 rounded p-2">
- <span className="font-semibold text-[var(--color-danger)]">restrictive-closed</span>
+ <div className="bg-elevated rounded p-2">
+ <span className="font-semibold text-heading">restrictive-closed</span>
  <p className="text-body mt-1">最严格：最大限制，适合不信任的代码</p>
  </div>
  </div>
@@ -572,8 +573,8 @@ async function startContainer(config: DockerSandboxConfig) {
 
  <HighlightBox title="自定义沙箱文件" color="yellow" className="mt-4">
  <div className="text-sm space-y-2">
- <p><code className="text-[var(--color-warning)]">.gemini/sandbox.Dockerfile</code> - 自定义容器镜像</p>
- <p><code className="text-[var(--color-warning)]">.gemini/sandbox.bashrc</code> - 容器初始化脚本</p>
+ <p><code className="text-heading">.gemini/sandbox.Dockerfile</code> - 自定义容器镜像</p>
+ <p><code className="text-heading">.gemini/sandbox.bashrc</code> - 容器初始化脚本</p>
  <p className="text-body mt-2">
  当项目根目录存在这些文件时，CLI 会自动使用自定义沙箱配置而不是默认镜像。
  </p>
@@ -595,21 +596,21 @@ async function startContainer(config: DockerSandboxConfig) {
  <div className="mt-4 grid grid-cols-2 gap-4">
  <HighlightBox title="防护的威胁" color="red">
  <ul className="text-sm space-y-1">
- <li>• 恶意文件删除 (rm -rf /)</li>
- <li>• 系统文件篡改</li>
- <li>• 网络攻击和数据泄露</li>
- <li>• Fork 炸弹和资源耗尽</li>
- <li>• 权限提升攻击</li>
+ <li>恶意文件删除 (rm -rf /)</li>
+ <li>系统文件篡改</li>
+ <li>网络攻击和数据泄露</li>
+ <li>Fork 炸弹和资源耗尽</li>
+ <li>权限提升攻击</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="隔离层级" color="green">
  <ul className="text-sm space-y-1">
- <li>• <strong>L1</strong>: 命令验证和过滤</li>
- <li>• <strong>L2</strong>: 文件系统隔离</li>
- <li>• <strong>L3</strong>: 网络隔离</li>
- <li>• <strong>L4</strong>: 进程隔离</li>
- <li>• <strong>L5</strong>: 资源限制</li>
+ <li><strong>L1</strong>: 命令验证和过滤</li>
+ <li><strong>L2</strong>: 文件系统隔离</li>
+ <li><strong>L3</strong>: 网络隔离</li>
+ <li><strong>L4</strong>: 进程隔离</li>
+ <li><strong>L5</strong>: 资源限制</li>
  </ul>
  </HighlightBox>
  </div>
@@ -667,8 +668,8 @@ async function startContainer(config: DockerSandboxConfig) {
  <section>
  <h3 className="text-xl font-semibold text-heading mb-4">最佳实践</h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <div className="bg-[var(--color-success-soft)] border border-[var(--color-success)] rounded-lg p-4">
- <h4 className="text-[var(--color-success)] font-semibold mb-2">推荐做法</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">推荐做法</h4>
  <ul className="text-sm text-body space-y-1">
  <li>✓ 生产环境始终启用沙箱</li>
  <li>✓ 使用自定义 Dockerfile 控制环境</li>
@@ -677,8 +678,8 @@ async function startContainer(config: DockerSandboxConfig) {
  <li>✓ 禁用不必要的网络访问</li>
  </ul>
  </div>
- <div className="bg-[var(--color-danger-soft)] border border-[var(--color-danger)] rounded-lg p-4">
- <h4 className="text-[var(--color-danger)] font-semibold mb-2">避免做法</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">避免做法</h4>
  <ul className="text-sm text-body space-y-1">
  <li>✗ 在沙箱中运行特权容器</li>
  <li>✗ 挂载敏感目录到容器</li>
@@ -700,18 +701,18 @@ async function startContainer(config: DockerSandboxConfig) {
 
  {/* 边界 1: Docker 不可用 */}
  <div className="bg-elevated rounded-lg p-4 border border-edge mb-4">
- <h4 className="text-sm font-bold text-red-500 mb-2">边界 1: Docker/Podman 不可用时的降级策略</h4>
+ <h4 className="text-sm font-bold text-heading mb-2">边界 1: Docker/Podman 不可用时的降级策略</h4>
  <p className="text-body text-sm mb-3">
  当用户配置了容器沙箱但 Docker/Podman 未安装或未运行时，系统必须安全地处理这种情况。
  </p>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-base rounded p-3">
- <div className="text-xs text-red-500 font-bold mb-2">失败场景</div>
+ <div className="text-xs text-heading font-bold mb-2">失败场景</div>
  <ul className="text-xs text-body space-y-1">
- <li>• Docker Desktop 未启动</li>
- <li>• docker.sock 权限不足</li>
- <li>• 磁盘空间不足无法创建容器</li>
- <li>• 镜像拉取失败 (网络问题)</li>
+ <li>Docker Desktop 未启动</li>
+ <li>docker.sock 权限不足</li>
+ <li>磁盘空间不足无法创建容器</li>
+ <li>镜像拉取失败 (网络问题)</li>
  </ul>
  </div>
  <div className="bg-base rounded p-3">
@@ -780,18 +781,18 @@ if (!available) {
 
  {/* 边界 2: 容器启动超时 */}
  <div className="bg-elevated rounded-lg p-4 border border-edge mb-4">
- <h4 className="text-sm font-bold text-[var(--color-warning)] mb-2">边界 2: 容器启动超时与健康检查</h4>
+ <h4 className="text-sm font-bold text-heading mb-2">边界 2: 容器启动超时与健康检查</h4>
  <p className="text-body text-sm mb-3">
  容器首次启动需要构建镜像，可能耗时较长。系统需要区分正常启动和启动失败。
  </p>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-base rounded p-3">
- <div className="text-xs text-[var(--color-warning)] font-bold mb-2">超时场景</div>
+ <div className="text-xs text-heading font-bold mb-2">超时场景</div>
  <ul className="text-xs text-body space-y-1">
- <li>• 首次拉取基础镜像 (可能 10+ 分钟)</li>
- <li>• 自定义 Dockerfile 构建</li>
- <li>• 容器内 npm install 等初始化</li>
- <li>• 网络缓慢导致依赖下载超时</li>
+ <li>首次拉取基础镜像 (可能 10+ 分钟)</li>
+ <li>自定义 Dockerfile 构建</li>
+ <li>容器内 npm install 等初始化</li>
+ <li>网络缓慢导致依赖下载超时</li>
  </ul>
  </div>
  <div className="bg-base rounded p-3">
@@ -898,12 +899,12 @@ async function waitForHealthy(
  </p>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-base rounded p-3">
- <div className="text-xs text-[var(--color-warning)] font-bold mb-2">问题场景</div>
+ <div className="text-xs text-heading font-bold mb-2">问题场景</div>
  <ul className="text-xs text-body space-y-1">
- <li>• 工作目录是符号链接</li>
- <li>• 路径包含空格: <code>/My Projects/app</code></li>
- <li>• 路径包含 Unicode: <code>/项目/测试</code></li>
- <li>• 相对路径 vs 绝对路径</li>
+ <li>工作目录是符号链接</li>
+ <li>路径包含空格: <code>/My Projects/app</code></li>
+ <li>路径包含 Unicode: <code>/项目/测试</code></li>
+ <li>相对路径 vs 绝对路径</li>
  </ul>
  </div>
  <div className="bg-base rounded p-3">
@@ -919,6 +920,9 @@ async function waitForHealthy(
  <JsonBlock code={`// 路径规范化处理
 import * as path from 'path';
 import * as fs from 'fs';
+
+
+
 
 function normalizeWorkdir(workdir: string): {
  hostPath: string;
@@ -991,12 +995,12 @@ const mountArg = buildMountArg(hostPath, containerPath);
  </p>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-base rounded p-3">
- <div className="text-xs text-red-500 font-bold mb-2">常见冲突</div>
+ <div className="text-xs text-heading font-bold mb-2">常见冲突</div>
  <ul className="text-xs text-body space-y-1">
- <li>• git credential helper 无法访问 Keychain</li>
- <li>• npm login 需要网络但被禁止</li>
- <li>• 某些 CLI 工具依赖 /tmp 目录</li>
- <li>• 代码签名验证失败</li>
+ <li>git credential helper 无法访问 Keychain</li>
+ <li>npm login 需要网络但被禁止</li>
+ <li>某些 CLI 工具依赖 /tmp 目录</li>
+ <li>代码签名验证失败</li>
  </ul>
  </div>
  <div className="bg-base rounded p-3">
@@ -1076,12 +1080,12 @@ const profile = selectSeatbeltProfile('git push origin main');
  </p>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-base rounded p-3">
- <div className="text-xs text-[var(--color-warning)] font-bold mb-2">资源问题</div>
+ <div className="text-xs text-heading font-bold mb-2">资源问题</div>
  <ul className="text-xs text-body space-y-1">
- <li>• 内存不足导致 OOM Kill</li>
- <li>• CPU 限制导致命令超时</li>
- <li>• 磁盘空间用尽</li>
- <li>• 进程数超限</li>
+ <li>内存不足导致 OOM Kill</li>
+ <li>CPU 限制导致命令超时</li>
+ <li>磁盘空间用尽</li>
+ <li>进程数超限</li>
  </ul>
  </div>
  <div className="bg-base rounded p-3">
@@ -1181,12 +1185,12 @@ async function monitorContainerResources(containerId: string): Promise<void> {
  </p>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-base rounded p-3">
- <div className="text-xs text-[var(--color-warning)] font-bold mb-2">残留场景</div>
+ <div className="text-xs text-heading font-bold mb-2">残留场景</div>
  <ul className="text-xs text-body space-y-1">
- <li>• 用户按 Ctrl+C 中断</li>
- <li>• CLI 进程崩溃</li>
- <li>• 系统重启</li>
- <li>• Docker daemon 重启</li>
+ <li>用户按 Ctrl+C 中断</li>
+ <li>CLI 进程崩溃</li>
+ <li>系统重启</li>
+ <li>Docker daemon 重启</li>
  </ul>
  </div>
  <div className="bg-base rounded p-3">
@@ -1287,24 +1291,24 @@ function registerCleanupHandler(containerId: string): void {
 
  {/* 问题 1 */}
  <div className="bg-elevated rounded-lg p-4 border border-edge mb-4">
- <h4 className="text-sm font-bold text-red-500 mb-2">问题 1: 容器内文件权限错误</h4>
+ <h4 className="text-sm font-bold text-heading mb-2">问题 1: 容器内文件权限错误</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
  <div className="bg-base rounded p-3">
- <div className="text-xs text-[var(--color-warning)] font-bold mb-2">症状</div>
+ <div className="text-xs text-heading font-bold mb-2">症状</div>
  <ul className="text-xs text-body space-y-1">
- <li>• 容器内无法写入文件</li>
- <li>• git 报告 "dubious ownership"</li>
- <li>• npm install 创建的文件宿主机无法删除</li>
- <li>• Permission denied 错误</li>
+ <li>容器内无法写入文件</li>
+ <li>git 报告 "dubious ownership"</li>
+ <li>npm install 创建的文件宿主机无法删除</li>
+ <li>Permission denied 错误</li>
  </ul>
  </div>
  <div className="bg-base rounded p-3">
  <div className="text-xs text-heading font-bold mb-2">原因分析</div>
  <ul className="text-xs text-body space-y-1">
- <li>• UID/GID 映射不正确</li>
- <li>• 容器以 root 用户运行</li>
- <li>• 挂载目录权限不足</li>
- <li>• SELinux/AppArmor 限制</li>
+ <li>UID/GID 映射不正确</li>
+ <li>容器以 root 用户运行</li>
+ <li>挂载目录权限不足</li>
+ <li>SELinux/AppArmor 限制</li>
  </ul>
  </div>
  </div>
@@ -1335,15 +1339,15 @@ docker run -v /path:/workspace:z ...`} />
 
  {/* 问题 2 */}
  <div className="bg-elevated rounded-lg p-4 border border-edge mb-4">
- <h4 className="text-sm font-bold text-[var(--color-warning)] mb-2">问题 2: Seatbelt 拒绝合法操作</h4>
+ <h4 className="text-sm font-bold text-heading mb-2">问题 2: Seatbelt 拒绝合法操作</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
  <div className="bg-base rounded p-3">
- <div className="text-xs text-[var(--color-warning)] font-bold mb-2">症状</div>
+ <div className="text-xs text-heading font-bold mb-2">症状</div>
  <ul className="text-xs text-body space-y-1">
- <li>• 命令返回 "Operation not permitted"</li>
- <li>• git push 失败 (无法访问凭证)</li>
- <li>• 某些目录无法访问</li>
- <li>• 网络请求被拒绝</li>
+ <li>命令返回 "Operation not permitted"</li>
+ <li>git push 失败 (无法访问凭证)</li>
+ <li>某些目录无法访问</li>
+ <li>网络请求被拒绝</li>
  </ul>
  </div>
  <div className="bg-base rounded p-3">
@@ -1389,12 +1393,12 @@ security find-generic-password -s "github.com" -w`} />
  <h4 className="text-sm font-bold text-heading mb-2">问题 3: 容器启动缓慢或失败</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
  <div className="bg-base rounded p-3">
- <div className="text-xs text-[var(--color-warning)] font-bold mb-2">症状</div>
+ <div className="text-xs text-heading font-bold mb-2">症状</div>
  <ul className="text-xs text-body space-y-1">
- <li>• 首次执行命令等待很长时间</li>
- <li>• "Cannot connect to Docker daemon"</li>
- <li>• 镜像拉取超时</li>
- <li>• 容器一直处于 "Created" 状态</li>
+ <li>首次执行命令等待很长时间</li>
+ <li>"Cannot connect to Docker daemon"</li>
+ <li>镜像拉取超时</li>
+ <li>容器一直处于 "Created" 状态</li>
  </ul>
  </div>
  <div className="bg-base rounded p-3">
@@ -1445,12 +1449,12 @@ export GEMINI_SANDBOX_TIMEOUT=120 # 秒`} />
  <h4 className="text-sm font-bold text-heading mb-2">问题 4: 容器内命令找不到</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
  <div className="bg-base rounded p-3">
- <div className="text-xs text-[var(--color-warning)] font-bold mb-2">症状</div>
+ <div className="text-xs text-heading font-bold mb-2">症状</div>
  <ul className="text-xs text-body space-y-1">
- <li>• "command not found: python"</li>
- <li>• node 版本与预期不符</li>
- <li>• 项目依赖的工具未安装</li>
- <li>• PATH 环境变量不正确</li>
+ <li>"command not found: python"</li>
+ <li>node 版本与预期不符</li>
+ <li>项目依赖的工具未安装</li>
+ <li>PATH 环境变量不正确</li>
  </ul>
  </div>
  <div className="bg-base rounded p-3">
@@ -1510,12 +1514,12 @@ docker build -t gemini-sandbox-custom -f .gemini/sandbox.Dockerfile .
  </thead>
  <tbody className="text-body">
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 font-mono text-red-500">权限错误</td>
+ <td className="py-2 px-3 font-mono text-heading">权限错误</td>
  <td className="py-2 px-3"><code>docker exec &lt;id&gt; id</code></td>
  <td className="py-2 px-3">UID/GID 是否与宿主机一致</td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 font-mono text-[var(--color-warning)]">Seatbelt 拒绝</td>
+ <td className="py-2 px-3 font-mono text-heading">Seatbelt 拒绝</td>
  <td className="py-2 px-3"><code>log show --predicate 'subsystem == "com.apple.sandbox"'</code></td>
  <td className="py-2 px-3">查看具体被拒绝的操作</td>
  </tr>
@@ -1554,19 +1558,19 @@ docker build -t gemini-sandbox-custom -f .gemini/sandbox.Dockerfile .
  </p>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
  <div className="bg-base rounded p-3">
- <div className="text-xs text-red-500 font-bold mb-2">不复用</div>
+ <div className="text-xs text-heading font-bold mb-2">不复用</div>
  <ul className="text-xs text-body space-y-1">
- <li>• 每条命令: 创建 → 启动 → 执行 → 销毁</li>
- <li>• 启动开销: ~2-5 秒/次</li>
- <li>• 无法保留会话状态</li>
+ <li>每条命令: 创建 → 启动 → 执行 → 销毁</li>
+ <li>启动开销: ~2-5 秒/次</li>
+ <li>无法保留会话状态</li>
  </ul>
  </div>
  <div className="bg-base rounded p-3">
  <div className="text-xs text-heading font-bold mb-2">复用容器</div>
  <ul className="text-xs text-body space-y-1">
- <li>• 首次: 创建 → 启动</li>
- <li>• 后续: docker exec (直接执行)</li>
- <li>• 启动开销: ~50-100ms</li>
+ <li>首次: 创建 → 启动</li>
+ <li>后续: docker exec (直接执行)</li>
+ <li>启动开销: ~50-100ms</li>
  </ul>
  </div>
  </div>
@@ -1669,7 +1673,7 @@ COPY --from=builder /build/node_modules ./node_modules
 
  {/* 优化 3: 选择合适的沙箱类型 */}
  <div className="bg-elevated rounded-lg p-4 border border-edge mb-4">
- <h4 className="text-sm font-bold text-[var(--color-warning)] mb-2">优化 3: 根据场景选择沙箱类型</h4>
+ <h4 className="text-sm font-bold text-heading mb-2">优化 3: 根据场景选择沙箱类型</h4>
  <p className="text-body text-sm mb-3">
  不同沙箱类型有不同的性能特点，根据实际需求选择最合适的类型。
  </p>
@@ -1686,7 +1690,7 @@ COPY --from=builder /build/node_modules ./node_modules
  </thead>
  <tbody className="text-body">
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 font-mono text-[var(--color-warning)]">Seatbelt</td>
+ <td className="py-2 px-3 font-mono text-heading">Seatbelt</td>
  <td className="py-2 px-3 text-heading">~10ms</td>
  <td className="py-2 px-3 text-heading">原生速度</td>
  <td className="py-2 px-3">中等</td>
@@ -1695,14 +1699,14 @@ COPY --from=builder /build/node_modules ./node_modules
  <tr className="border- border-edge/50">
  <td className="py-2 px-3 font-mono text-heading">Docker (复用)</td>
  <td className="py-2 px-3 text-heading">~100ms</td>
- <td className="py-2 px-3 text-[var(--color-warning)]">~1.1x 原生</td>
+ <td className="py-2 px-3 text-heading">~1.1x 原生</td>
  <td className="py-2 px-3">高</td>
  <td className="py-2 px-3">需要完整隔离</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="py-2 px-3 font-mono text-heading">Docker (新建)</td>
- <td className="py-2 px-3 text-red-500">~3s</td>
- <td className="py-2 px-3 text-[var(--color-warning)]">~1.1x 原生</td>
+ <td className="py-2 px-3 text-heading">~3s</td>
+ <td className="py-2 px-3 text-heading">~1.1x 原生</td>
  <td className="py-2 px-3">高</td>
  <td className="py-2 px-3">一次性任务</td>
  </tr>
@@ -1848,28 +1852,28 @@ const commands = [
  <td className="py-2 px-3">简单命令 (echo)</td>
  <td className="py-2 px-3 text-heading">5ms</td>
  <td className="py-2 px-3 text-heading">15ms</td>
- <td className="py-2 px-3 text-red-500">3.2s</td>
+ <td className="py-2 px-3 text-heading">3.2s</td>
  <td className="py-2 px-3 text-heading">120ms</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="py-2 px-3">npm install</td>
  <td className="py-2 px-3 text-heading">8.5s</td>
  <td className="py-2 px-3 text-heading">8.6s</td>
- <td className="py-2 px-3 text-[var(--color-warning)]">12.1s</td>
- <td className="py-2 px-3 text-[var(--color-warning)]">9.2s</td>
+ <td className="py-2 px-3 text-heading">12.1s</td>
+ <td className="py-2 px-3 text-heading">9.2s</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="py-2 px-3">10 条顺序命令</td>
  <td className="py-2 px-3 text-heading">2.1s</td>
  <td className="py-2 px-3 text-heading">2.3s</td>
- <td className="py-2 px-3 text-red-500">35s</td>
+ <td className="py-2 px-3 text-heading">35s</td>
  <td className="py-2 px-3 text-heading">3.5s</td>
  </tr>
  <tr>
  <td className="py-2 px-3">5 条并行命令</td>
  <td className="py-2 px-3 text-heading">1.8s</td>
  <td className="py-2 px-3 text-heading">2.0s</td>
- <td className="py-2 px-3 text-[var(--color-warning)]">5.2s</td>
+ <td className="py-2 px-3 text-heading">5.2s</td>
  <td className="py-2 px-3 text-heading">2.5s</td>
  </tr>
  </tbody>
@@ -1938,7 +1942,7 @@ const commands = [
  classDef sandbox stroke:#4f46e5
  classDef tool stroke:#059669
  classDef infra stroke:#d97706
- classDef security stroke:#dc2626
+ classDef security stroke:${getThemeColor("--color-danger", "#b91c1c")}
 
  class Detector,Docker,Seatbelt,Pool sandbox
  class Shell,RunShell tool
@@ -2072,10 +2076,10 @@ export function getSandboxExecutor(type: SandboxType): SandboxExecutor {
 
  {/* 扩展点 */}
  <div className="bg-elevated rounded-lg p-4 border border-edge">
- <h4 className="text-sm font-bold text-[var(--color-warning)] mb-3">扩展点与自定义</h4>
+ <h4 className="text-sm font-bold text-heading mb-3">扩展点与自定义</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-base rounded p-3">
- <div className="text-xs text-[var(--color-warning)] font-bold mb-2">自定义沙箱实现</div>
+ <div className="text-xs text-heading font-bold mb-2">自定义沙箱实现</div>
  <JsonBlock code={`// 实现自定义沙箱
 class FirejailExecutor implements SandboxExecutor {
  async execute(command: string, config: SandboxConfig) {
@@ -2148,7 +2152,7 @@ registerSandboxExecutor('firejail', FirejailExecutor);`} />
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-[var(--color-warning)] font-bold mb-2">📂 为什么工作目录使用读写挂载？</h4>
+ <h4 className="text-heading font-bold mb-2">📂 为什么工作目录使用读写挂载？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：项目工作目录默认以读写模式挂载到容器中。</p>
  <p><strong>原因</strong>：</p>
@@ -2176,7 +2180,7 @@ registerSandboxExecutor('firejail', FirejailExecutor);`} />
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-red-500 font-bold mb-2">🌐 为什么默认禁用网络？</h4>
+ <h4 className="text-heading font-bold mb-2">🌐 为什么默认禁用网络？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：<code className="bg-base/30 px-1 rounded">restrictive-closed</code> 策略默认禁用网络访问。</p>
  <p><strong>原因</strong>：</p>
@@ -2205,19 +2209,19 @@ registerSandboxExecutor('firejail', FirejailExecutor);`} />
  </thead>
  <tbody className="text-body">
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 font-mono text-red-500">Docker 未运行</td>
+ <td className="py-2 px-3 font-mono text-heading">Docker 未运行</td>
  <td className="py-2 px-3 text-xs">Cannot connect to Docker daemon</td>
  <td className="py-2 px-3">Docker Desktop 未启动</td>
  <td className="py-2 px-3">启动 Docker Desktop 或设置 GEMINI_SANDBOX=false</td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 font-mono text-[var(--color-warning)]">镜像拉取失败</td>
+ <td className="py-2 px-3 font-mono text-heading">镜像拉取失败</td>
  <td className="py-2 px-3 text-xs">manifest unknown</td>
  <td className="py-2 px-3">网络问题或镜像不存在</td>
  <td className="py-2 px-3">检查网络或使用自定义 Dockerfile</td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 font-mono text-[var(--color-warning)]">权限拒绝</td>
+ <td className="py-2 px-3 font-mono text-heading">权限拒绝</td>
  <td className="py-2 px-3 text-xs">Permission denied</td>
  <td className="py-2 px-3">Seatbelt 策略阻止了操作</td>
  <td className="py-2 px-3">切换到 permissive-open 或调整自定义规则</td>

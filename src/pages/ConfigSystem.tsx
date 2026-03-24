@@ -4,6 +4,9 @@ import { CodeBlock } from '../components/CodeBlock';
 import { JsonBlock } from '../components/JsonBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 export function ConfigSystem() {
  return (
@@ -46,7 +49,7 @@ export function ConfigSystem() {
  </div>
  </div>
  <div className="flex items-start gap-2">
- <span className="text-[var(--color-success)] font-bold">🔄</span>
+ <span className="text-heading font-bold">🔄</span>
  <div>
  <strong>自动迁移</strong>
  <div className="text-xs text-body">v1 扁平结构 → v2 嵌套结构</div>
@@ -65,16 +68,16 @@ export function ConfigSystem() {
 
  <div className="mt-4 bg-base/30 rounded-lg p-4 font-mono text-xs overflow-x-auto">
  <div className="text-dim mb-2">// 核心常量 - packages/cli/src/config/settings.ts</div>
- <div><span className="text-heading">USER_SETTINGS_PATH</span> = <span className="text-[var(--color-success)]">"~/.gemini/settings.json"</span> <span className="text-dim">// 用户配置</span></div>
- <div><span className="text-heading">WORKSPACE_SETTINGS_PATH</span> = <span className="text-[var(--color-success)]">".gemini/settings.json"</span> <span className="text-dim">// 项目配置</span></div>
- <div><span className="text-heading">GEMINI_DIR</span> = <span className="text-[var(--color-success)]">".gemini"</span> <span className="text-dim">// 配置目录名</span></div>
- <div><span className="text-heading">DEFAULT_EXCLUDED_ENV_VARS</span> = [<span className="text-[var(--color-success)]">"DEBUG"</span>, <span className="text-[var(--color-success)]">"DEBUG_MODE"</span>]</div>
- <div><span className="text-heading">MIGRATE_V2_OVERWRITE</span> = <span className="text-[var(--color-warning)]">true</span> <span className="text-dim">// 迁移写回 settings.json，并备份 .orig</span></div>
+ <div><span className="text-heading">USER_SETTINGS_PATH</span> = <span className="text-heading">"~/.gemini/settings.json"</span> <span className="text-dim">// 用户配置</span></div>
+ <div><span className="text-heading">WORKSPACE_SETTINGS_PATH</span> = <span className="text-heading">".gemini/settings.json"</span> <span className="text-dim">// 项目配置</span></div>
+ <div><span className="text-heading">GEMINI_DIR</span> = <span className="text-heading">".gemini"</span> <span className="text-dim">// 配置目录名</span></div>
+ <div><span className="text-heading">DEFAULT_EXCLUDED_ENV_VARS</span> = [<span className="text-heading">"DEBUG"</span>, <span className="text-heading">"DEBUG_MODE"</span>]</div>
+ <div><span className="text-heading">MIGRATE_V2_OVERWRITE</span> = <span className="text-heading">true</span> <span className="text-dim">// 迁移写回 settings.json，并备份 .orig</span></div>
  <div className="mt-2 text-dim">// 合并策略枚举 - packages/cli/src/config/settingsSchema.ts:51-60</div>
- <div><span className="text-heading">MergeStrategy.REPLACE</span> = <span className="text-[var(--color-success)]">"replace"</span> <span className="text-dim">// 直接覆盖（默认）</span></div>
- <div><span className="text-heading">MergeStrategy.CONCAT</span> = <span className="text-[var(--color-success)]">"concat"</span> <span className="text-dim">// 数组拼接</span></div>
- <div><span className="text-heading">MergeStrategy.UNION</span> = <span className="text-[var(--color-success)]">"union"</span> <span className="text-dim">// 数组去重合并</span></div>
- <div><span className="text-heading">MergeStrategy.SHALLOW_MERGE</span> = <span className="text-[var(--color-success)]">"shallow_merge"</span> <span className="text-dim">// 对象浅合并</span></div>
+ <div><span className="text-heading">MergeStrategy.REPLACE</span> = <span className="text-heading">"replace"</span> <span className="text-dim">// 直接覆盖（默认）</span></div>
+ <div><span className="text-heading">MergeStrategy.CONCAT</span> = <span className="text-heading">"concat"</span> <span className="text-dim">// 数组拼接</span></div>
+ <div><span className="text-heading">MergeStrategy.UNION</span> = <span className="text-heading">"union"</span> <span className="text-dim">// 数组去重合并</span></div>
+ <div><span className="text-heading">MergeStrategy.SHALLOW_MERGE</span> = <span className="text-heading">"shallow_merge"</span> <span className="text-dim">// 对象浅合并</span></div>
  </div>
  </Layer>
 
@@ -170,8 +173,8 @@ export function ConfigSystem() {
  </p>
  </div>
 
- <div className="bg-[var(--color-success-soft)] border-2 border-[var(--color-success)] rounded-lg p-4">
- <h4 className="text-[var(--color-success)] font-bold mb-2">🏢 System Defaults</h4>
+ <div className="bg-elevated border-2 border-edge rounded-lg p-4">
+ <h4 className="text-heading font-bold mb-2">🏢 System Defaults</h4>
  <code className="text-xs text-body block mb-2">
  /etc/gemini-cli/system-defaults.json (Linux)<br/>
  /Library/Application Support/GeminiCli/system-defaults.json (macOS)
@@ -181,8 +184,8 @@ export function ConfigSystem() {
  </p>
  </div>
 
- <div className="bg-[var(--color-danger-soft)] border-2 border-[var(--color-danger)] rounded-lg p-4">
- <h4 className="text-[var(--color-danger)] font-bold mb-2">🔒 System Settings (Override)</h4>
+ <div className="bg-elevated border-2 border-edge rounded-lg p-4">
+ <h4 className="text-heading font-bold mb-2">🔒 System Settings (Override)</h4>
  <code className="text-xs text-body block mb-2">
  /etc/gemini-cli/settings.json (Linux)<br/>
  /Library/Application Support/GeminiCli/settings.json (macOS)
@@ -491,8 +494,8 @@ const MIGRATION_MAP: Record<string, string> = {
  <table className="w-full text-sm">
  <thead>
  <tr className="border- border-edge">
- <th className="text-left py-2 text-[var(--color-danger)]">v1 (旧)</th>
- <th className="text-left py-2 text-[var(--color-success)]">v2 (新)</th>
+ <th className="text-left py-2 text-heading">v1 (旧)</th>
+ <th className="text-left py-2 text-heading">v2 (新)</th>
  </tr>
  </thead>
  <tbody className="text-body">
@@ -557,7 +560,7 @@ export function needsMigration(settings: Record<string, unknown>): boolean {
  <div className="flex items-center gap-2 flex-wrap">
  <div className="bg-elevated border border-edge rounded px-3 py-2 text-center">
  <div className="text-xs text-body">Layer 1</div>
- <div className="text-[var(--color-success)] font-mono text-sm">systemDefaults</div>
+ <div className="text-heading font-mono text-sm">systemDefaults</div>
  <div className="text-xs text-dim">最低优先级</div>
  </div>
  <span className="text-heading">→</span>
@@ -573,9 +576,9 @@ export function needsMigration(settings: Record<string, unknown>): boolean {
  <div className="text-xs text-heading">⚠️ 需信任</div>
  </div>
  <span className="text-heading">→</span>
- <div className="bg-[var(--color-danger-soft)] border border-[var(--color-danger)]/50 rounded px-3 py-2 text-center">
+ <div className="bg-elevated border-l-2 border-l-edge-hover/50 rounded px-3 py-2 text-center">
  <div className="text-xs text-body">Layer 4</div>
- <div className="text-[var(--color-danger)] font-mono text-sm">system</div>
+ <div className="text-heading font-mono text-sm">system</div>
  <div className="text-xs text-dim">最高优先级</div>
  </div>
  </div>
@@ -691,44 +694,44 @@ export function customDeepMerge(
  <div className="text-heading font-bold text-sm mb-1">REPLACE (默认)</div>
  <p className="text-xs text-body mb-2">高优先级的值直接替换低优先级</p>
  <div className="text-xs font-mono">
- <span className="text-dim">user:</span> <span className="text-[var(--color-success)]">"dark"</span>
+ <span className="text-dim">user:</span> <span className="text-heading">"dark"</span>
  <span className="text-dim mx-1">+</span>
  <span className="text-dim">workspace:</span> <span className="text-heading">"light"</span>
  <span className="text-dim mx-1">=</span>
- <span className="text-[var(--color-warning)]">"light"</span>
+ <span className="text-heading">"light"</span>
  </div>
  </div>
  <div className="bg-base/30 rounded p-3">
  <div className="text-heading font-bold text-sm mb-1">CONCAT</div>
  <p className="text-xs text-body mb-2">数组按顺序拼接（可能重复）</p>
  <div className="text-xs font-mono">
- <span className="text-[var(--color-success)]">["a"]</span>
+ <span className="text-heading">["a"]</span>
  <span className="text-dim mx-1">+</span>
  <span className="text-heading">["b"]</span>
  <span className="text-dim mx-1">=</span>
- <span className="text-[var(--color-warning)]">["a","b"]</span>
+ <span className="text-heading">["a","b"]</span>
  </div>
  </div>
  <div className="bg-base/30 rounded p-3">
- <div className="text-[var(--color-success)] font-bold text-sm mb-1">UNION</div>
+ <div className="text-heading font-bold text-sm mb-1">UNION</div>
  <p className="text-xs text-body mb-2">数组合并并去重</p>
  <div className="text-xs font-mono">
- <span className="text-[var(--color-success)]">["a","b"]</span>
+ <span className="text-heading">["a","b"]</span>
  <span className="text-dim mx-1">+</span>
  <span className="text-heading">["b","c"]</span>
  <span className="text-dim mx-1">=</span>
- <span className="text-[var(--color-warning)]">["a","b","c"]</span>
+ <span className="text-heading">["a","b","c"]</span>
  </div>
  </div>
  <div className="bg-base/30 rounded p-3">
  <div className="text-heading font-bold text-sm mb-1">SHALLOW_MERGE</div>
  <p className="text-xs text-body mb-2">对象浅合并（顶层 key 合并）</p>
  <div className="text-xs font-mono">
- <span className="text-[var(--color-success)]">{'{a:1}'}</span>
+ <span className="text-heading">{'{a:1}'}</span>
  <span className="text-dim mx-1">+</span>
  <span className="text-heading">{'{b:2}'}</span>
  <span className="text-dim mx-1">=</span>
- <span className="text-[var(--color-warning)]">{'{a:1,b:2}'}</span>
+ <span className="text-heading">{'{a:1,b:2}'}</span>
  </div>
  </div>
  </div>
@@ -757,17 +760,17 @@ export function customDeepMerge(
  </tr>
  <tr className="border- border-edge">
  <td className="py-1"><code>tools.exclude</code></td>
- <td className="text-[var(--color-success)]">UNION</td>
+ <td className="text-heading">UNION</td>
  <td className="text-xs">排除工具列表去重合并</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-1"><code>advanced.excludedEnvVars</code></td>
- <td className="text-[var(--color-success)]">UNION</td>
+ <td className="text-heading">UNION</td>
  <td className="text-xs">排除的环境变量去重</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-1"><code>extensions.disabled</code></td>
- <td className="text-[var(--color-success)]">UNION</td>
+ <td className="text-heading">UNION</td>
  <td className="text-xs">禁用扩展列表去重</td>
  </tr>
  <tr className="border- border-edge">
@@ -891,20 +894,20 @@ function resolveEnvVarsInObjectInternal<T>(
  />
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
- <div className="bg-[var(--color-success-soft)] border-2 border-[var(--color-success)] rounded-lg p-4">
- <h4 className="text-[var(--color-success)] font-bold mb-2">解析示例</h4>
+ <div className="bg-elevated border-2 border-edge rounded-lg p-4">
+ <h4 className="text-heading font-bold mb-2">解析示例</h4>
  <div className="text-xs space-y-2 font-mono">
  <div>
- <span className="text-body">输入:</span> <span className="text-[var(--color-success)]">"$API_KEY"</span><br/>
- <span className="text-body">输出:</span> <span className="text-[var(--color-warning)]">"sk-xxxx"</span>
+ <span className="text-body">输入:</span> <span className="text-heading">"$API_KEY"</span><br/>
+ <span className="text-body">输出:</span> <span className="text-heading">"sk-xxxx"</span>
  </div>
  <div>
- <span className="text-body">输入:</span> <span className="text-[var(--color-success)]">"{'${BASE_URL}'}/api"</span><br/>
- <span className="text-body">输出:</span> <span className="text-[var(--color-warning)]">"https://example.com/api"</span>
+ <span className="text-body">输入:</span> <span className="text-heading">"{'${BASE_URL}'}/api"</span><br/>
+ <span className="text-body">输出:</span> <span className="text-heading">"https://example.com/api"</span>
  </div>
  <div>
- <span className="text-body">输入:</span> <span className="text-[var(--color-success)]">"$UNDEFINED_VAR"</span><br/>
- <span className="text-body">输出:</span> <span className="text-[var(--color-danger)]">"$UNDEFINED_VAR"</span> (保留)
+ <span className="text-body">输入:</span> <span className="text-heading">"$UNDEFINED_VAR"</span><br/>
+ <span className="text-body">输出:</span> <span className="text-heading">"$UNDEFINED_VAR"</span> (保留)
  </div>
  </div>
  </div>
@@ -1067,8 +1070,8 @@ function findEnvFile(startDir: string): string | null {
  />
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
- <div className="bg-[var(--color-success-soft)] border-2 border-[var(--color-success)] rounded-lg p-4">
- <h4 className="text-[var(--color-success)] font-bold mb-2">.env 搜索优先级</h4>
+ <div className="bg-elevated border-2 border-edge rounded-lg p-4">
+ <h4 className="text-heading font-bold mb-2">.env 搜索优先级</h4>
  <ol className="text-sm space-y-1 list-decimal pl-4 text-body">
  <li><code>.gemini/.env</code> (当前目录)</li>
  <li><code>.env</code> (当前目录)</li>
@@ -1078,8 +1081,8 @@ function findEnvFile(startDir: string): string | null {
  </ol>
  </div>
 
- <div className="bg-[var(--color-danger-soft)] border-2 border-[var(--color-danger)] rounded-lg p-4">
- <h4 className="text-[var(--color-danger)] font-bold mb-2">排除的环境变量</h4>
+ <div className="bg-elevated border-2 border-edge rounded-lg p-4">
+ <h4 className="text-heading font-bold mb-2">排除的环境变量</h4>
  <p className="text-sm text-body mb-2">
  项目级 .env 中的这些变量不会被加载：
  </p>
@@ -1525,10 +1528,10 @@ if (
  McpTools --> FinalConfig
 
  style Start stroke:#0891b2
- style FinalConfig stroke:#16a34a
+ style FinalConfig stroke:${getThemeColor("--color-success", "#15803d")}
  style TrustCheck stroke:#d97706
  style ApprovalCheck stroke:#d97706
- style ForceDefault stroke:#dc2626
+ style ForceDefault stroke:${getThemeColor("--color-danger", "#b91c1c")}
  style LoadMemory stroke:#7c3aed
  style ToolRegistry stroke:#0891b2`}
  />
@@ -1865,22 +1868,22 @@ if (!interactive && !argv.experimentalAcp) {
 
  {/* 边界 1: 循环引用符号链接 */}
  <div className="bg-surface rounded-lg p-5 mb-4 ">
- <h4 className="text-lg font-semibold text-[var(--color-warning)] mb-3">边界 1: 工作区目录是符号链接</h4>
+ <h4 className="text-lg font-semibold text-heading mb-3">边界 1: 工作区目录是符号链接</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">场景描述</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 工作区通过符号链接访问</li>
- <li>• 符号链接指向 home 目录</li>
- <li>• 符号链接循环引用</li>
+ <li>工作区通过符号链接访问</li>
+ <li>符号链接指向 home 目录</li>
+ <li>符号链接循环引用</li>
  </ul>
  </div>
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">处理方式</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 使用 <code className="text-heading">fs.realpathSync()</code> 解析真实路径</li>
- <li>• 如果解析后等于 home 目录，跳过 workspace 配置</li>
- <li>• 解析失败时使用原始路径</li>
+ <li>使用 <code className="text-heading">fs.realpathSync()</code> 解析真实路径</li>
+ <li>如果解析后等于 home 目录，跳过 workspace 配置</li>
+ <li>解析失败时使用原始路径</li>
  </ul>
  </div>
  </div>
@@ -1902,29 +1905,29 @@ if (realWorkspaceDir !== realHomeDir) {
 
  {/* 边界 2: JSON 解析失败 */}
  <div className="bg-surface rounded-lg p-5 mb-4 ">
- <h4 className="text-lg font-semibold text-[var(--color-danger)] mb-3">边界 2: 配置文件 JSON 解析失败</h4>
+ <h4 className="text-lg font-semibold text-heading mb-3">边界 2: 配置文件 JSON 解析失败</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">触发条件</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• JSON 语法错误（缺少逗号、引号不匹配）</li>
- <li>• 文件内容为数组而非对象</li>
- <li>• 文件内容为 null 或非 JSON</li>
- <li>• 编码问题（BOM、非 UTF-8）</li>
+ <li>JSON 语法错误（缺少逗号、引号不匹配）</li>
+ <li>文件内容为数组而非对象</li>
+ <li>文件内容为 null 或非 JSON</li>
+ <li>编码问题（BOM、非 UTF-8）</li>
  </ul>
  </div>
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">处理方式</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 记录错误到 <code className="text-heading">settingsErrors</code> 数组</li>
- <li>• 该层配置视为空对象 <code className="text-heading">{'{}'}</code></li>
- <li>• 继续加载其他层配置</li>
- <li>• 最终合并时不受影响</li>
+ <li>记录错误到 <code className="text-heading">settingsErrors</code> 数组</li>
+ <li>该层配置视为空对象 <code className="text-heading">{'{}'}</code></li>
+ <li>继续加载其他层配置</li>
+ <li>最终合并时不受影响</li>
  </ul>
  </div>
  </div>
- <div className="mt-4 p-3 bg-[var(--color-danger-soft)] rounded-lg border border-[var(--color-danger)]">
- <h5 className="text-[var(--color-danger)] font-semibold mb-2">⚠️ 注意</h5>
+ <div className="mt-4 p-3 bg-elevated rounded-lg border-l-2 border-l-edge-hover">
+ <h5 className="text-heading font-semibold mb-2">⚠️ 注意</h5>
  <p className="text-sm text-body">
  配置解析失败不会阻止 CLI 启动，但可能导致期望的配置未生效。
  错误信息会在启动日志中显示。
@@ -1939,19 +1942,19 @@ if (realWorkspaceDir !== realHomeDir) {
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">特殊情况</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• <code className="text-heading">$VAR</code> 未定义 → 保留原值</li>
- <li>• <code className="text-heading">{'${VAR:-default}'}</code> → 不支持默认值语法</li>
- <li>• 嵌套解析 <code className="text-heading">${'${$VAR}'}</code> → 不支持</li>
- <li>• <code className="text-heading">$$VAR</code> → 解析为 <code>$值</code></li>
+ <li><code className="text-heading">$VAR</code> 未定义 → 保留原值</li>
+ <li><code className="text-heading">{'${VAR:-default}'}</code> → 不支持默认值语法</li>
+ <li>嵌套解析 <code className="text-heading">${'${$VAR}'}</code> → 不支持</li>
+ <li><code className="text-heading">$$VAR</code> → 解析为 <code>$值</code></li>
  </ul>
  </div>
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">解析规则</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 只解析字符串类型的值</li>
- <li>• 深度递归处理嵌套对象和数组</li>
- <li>• 解析发生在合并之前</li>
- <li>• 每层配置独立解析</li>
+ <li>只解析字符串类型的值</li>
+ <li>深度递归处理嵌套对象和数组</li>
+ <li>解析发生在合并之前</li>
+ <li>每层配置独立解析</li>
  </ul>
  </div>
  </div>
@@ -1966,22 +1969,22 @@ if (realWorkspaceDir !== realHomeDir) {
  </thead>
  <tbody className="text-body font-mono text-xs">
  <tr className="border- border-edge/50">
- <td className="p-2 text-[var(--color-success)]">"$API_KEY"</td>
+ <td className="p-2 text-heading">"$API_KEY"</td>
  <td className="p-2">API_KEY=sk-xxx</td>
  <td className="p-2">"sk-xxx"</td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="p-2 text-[var(--color-success)]">"{'${BASE_URL}'}/api"</td>
+ <td className="p-2 text-heading">"{'${BASE_URL}'}/api"</td>
  <td className="p-2">BASE_URL=https://a.com</td>
  <td className="p-2">"https://a.com/api"</td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="p-2 text-[var(--color-success)]">"$UNDEFINED"</td>
+ <td className="p-2 text-heading">"$UNDEFINED"</td>
  <td className="p-2 text-dim">未定义</td>
- <td className="p-2 text-[var(--color-warning)]">"$UNDEFINED"</td>
+ <td className="p-2 text-heading">"$UNDEFINED"</td>
  </tr>
  <tr>
- <td className="p-2 text-[var(--color-success)]">"$$ESCAPE"</td>
+ <td className="p-2 text-heading">"$$ESCAPE"</td>
  <td className="p-2">ESCAPE=value</td>
  <td className="p-2">"$value"</td>
  </tr>
@@ -1997,19 +2000,19 @@ if (realWorkspaceDir !== realHomeDir) {
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">失败场景</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 文件写入权限不足</li>
- <li>• 磁盘空间不足</li>
- <li>• 文件被其他进程锁定</li>
- <li>• 配置包含无法迁移的自定义字段</li>
+ <li>文件写入权限不足</li>
+ <li>磁盘空间不足</li>
+ <li>文件被其他进程锁定</li>
+ <li>配置包含无法迁移的自定义字段</li>
  </ul>
  </div>
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">容错机制</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 迁移失败不阻止启动</li>
- <li>• 使用内存中的迁移结果</li>
- <li>• 下次启动重新尝试迁移</li>
- <li>• 原文件不被修改</li>
+ <li>迁移失败不阻止启动</li>
+ <li>使用内存中的迁移结果</li>
+ <li>下次启动重新尝试迁移</li>
+ <li>原文件不被修改</li>
  </ul>
  </div>
  </div>
@@ -2037,28 +2040,28 @@ if (needsMigration(settingsObject)) {
 
  {/* 边界 5: 信任状态边界 */}
  <div className="bg-surface rounded-lg p-5 ">
- <h4 className="text-lg font-semibold text-[var(--color-success)] mb-3">边界 5: 信任状态的级联影响</h4>
+ <h4 className="text-lg font-semibold text-heading mb-3">边界 5: 信任状态的级联影响</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">非信任状态触发</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• <code className="text-heading">security.folderTrust.enabled = true</code></li>
- <li>• 当前目录不在信任列表中</li>
- <li>• 无法获取用户交互确认</li>
+ <li><code className="text-heading">security.folderTrust.enabled = true</code></li>
+ <li>当前目录不在信任列表中</li>
+ <li>无法获取用户交互确认</li>
  </ul>
  </div>
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">级联影响</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• workspace 配置被忽略</li>
- <li>• 项目 .env 不加载</li>
- <li>• approvalMode 强制降级为 DEFAULT</li>
- <li>• MCP Server 不启动</li>
+ <li>workspace 配置被忽略</li>
+ <li>项目 .env 不加载</li>
+ <li>approvalMode 强制降级为 DEFAULT</li>
+ <li>MCP Server 不启动</li>
  </ul>
  </div>
  </div>
- <div className="mt-4 p-3 bg-[var(--color-success-soft)] rounded-lg border border-[var(--color-success)]">
- <h5 className="text-[var(--color-success)] font-semibold mb-2">✅ 安全设计</h5>
+ <div className="mt-4 p-3 bg-elevated rounded-lg border-l-2 border-l-edge-hover">
+ <h5 className="text-heading font-semibold mb-2">✅ 安全设计</h5>
  <p className="text-sm text-body">
  信任检查分两次进行：第一次仅用 user+system 配置（排除 workspace），
  决定是否加载 workspace 配置；第二次使用完整合并后的配置，决定功能降级。
@@ -2078,23 +2081,23 @@ if (needsMigration(settingsObject)) {
  <div className="flex items-start gap-4">
  <span className="text-3xl">🔴</span>
  <div className="flex-1">
- <h4 className="text-lg font-semibold text-[var(--color-danger)] mb-2">问题：配置修改后不生效</h4>
+ <h4 className="text-lg font-semibold text-heading mb-2">问题：配置修改后不生效</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">症状</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 修改了 settings.json</li>
- <li>• 重启 CLI 后设置未生效</li>
- <li>• 或者部分设置生效部分不生效</li>
+ <li>修改了 settings.json</li>
+ <li>重启 CLI 后设置未生效</li>
+ <li>或者部分设置生效部分不生效</li>
  </ul>
  </div>
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">可能原因</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 1. 更高优先级的配置覆盖了</li>
- <li>• 2. JSON 语法错误导致整个文件未加载</li>
- <li>• 3. 目录不受信任，workspace 配置被忽略</li>
- <li>• 4. 配置路径错误（v1 vs v2 结构）</li>
+ <li>1. 更高优先级的配置覆盖了</li>
+ <li>2. JSON 语法错误导致整个文件未加载</li>
+ <li>3. 目录不受信任，workspace 配置被忽略</li>
+ <li>4. 配置路径错误（v1 vs v2 结构）</li>
  </ul>
  </div>
  </div>
@@ -2121,23 +2124,23 @@ console.log(JSON.stringify(mergedSettings, null, 2));`}
  <div className="flex items-start gap-4">
  <span className="text-3xl">🟡</span>
  <div className="flex-1">
- <h4 className="text-lg font-semibold text-[var(--color-warning)] mb-2">问题：环境变量在配置中不解析</h4>
+ <h4 className="text-lg font-semibold text-heading mb-2">问题：环境变量在配置中不解析</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">症状</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 配置中写了 "$API_KEY"</li>
- <li>• 但实际值仍是字符串 "$API_KEY"</li>
- <li>• API 调用失败</li>
+ <li>配置中写了 "$API_KEY"</li>
+ <li>但实际值仍是字符串 "$API_KEY"</li>
+ <li>API 调用失败</li>
  </ul>
  </div>
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">可能原因</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 1. 环境变量未设置</li>
- <li>• 2. 配置解析时环境变量未加载</li>
- <li>• 3. 使用了不支持的语法（如 {'${VAR:-default}'}）</li>
- <li>• 4. 配置值不是字符串类型</li>
+ <li>1. 环境变量未设置</li>
+ <li>2. 配置解析时环境变量未加载</li>
+ <li>3. 使用了不支持的语法（如 {'${VAR:-default}'}）</li>
+ <li>4. 配置值不是字符串类型</li>
  </ul>
  </div>
  </div>
@@ -2175,18 +2178,18 @@ echo "API_KEY=sk-xxx" >> ~/.gemini/.env
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">症状</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 升级后某些配置失效</li>
- <li>• settings.json 结构变了</li>
- <li>• 出现 settings.json.orig 备份</li>
+ <li>升级后某些配置失效</li>
+ <li>settings.json 结构变了</li>
+ <li>出现 settings.json.orig 备份</li>
  </ul>
  </div>
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">解决方案</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 1. 检查 .orig 备份中的原始配置</li>
- <li>• 2. 对照 MIGRATION_MAP 手动迁移缺失项</li>
- <li>• 3. 自定义字段需要手动移动</li>
- <li>• 4. 注意 model 字段变为 model.name</li>
+ <li>1. 检查 .orig 备份中的原始配置</li>
+ <li>2. 对照 MIGRATION_MAP 手动迁移缺失项</li>
+ <li>3. 自定义字段需要手动移动</li>
+ <li>4. 注意 model 字段变为 model.name</li>
  </ul>
  </div>
  </div>
@@ -2218,18 +2221,18 @@ cat ~/.gemini/settings.json.orig
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">症状</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 配置了 mcpServers</li>
- <li>• 但 MCP 工具不可用</li>
- <li>• 或者连接失败</li>
+ <li>配置了 mcpServers</li>
+ <li>但 MCP 工具不可用</li>
+ <li>或者连接失败</li>
  </ul>
  </div>
  <div>
  <h5 className="text-sm font-semibold text-body mb-2">可能原因</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 1. MCP Server 在 mcp.excluded 列表中</li>
- <li>• 2. 目录不受信任，MCP 不启动</li>
- <li>• 3. command/args 配置错误</li>
- <li>• 4. 依赖未安装（如 npx 找不到包）</li>
+ <li>1. MCP Server 在 mcp.excluded 列表中</li>
+ <li>2. 目录不受信任，MCP 不启动</li>
+ <li>3. command/args 配置错误</li>
+ <li>4. 依赖未安装（如 npx 找不到包）</li>
  </ul>
  </div>
  </div>
@@ -2301,33 +2304,33 @@ gemini config --show | grep trust`}
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  {/* 优化 1 */}
- <div className="bg-surface rounded-lg p-5 border border-[var(--color-success)]">
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover">
  <div className="flex items-center gap-3 mb-4">
  <span className="text-2xl">📁</span>
- <h4 className="text-lg font-semibold text-[var(--color-success)]">减少配置文件数量</h4>
+ <h4 className="text-lg font-semibold text-heading">减少配置文件数量</h4>
  </div>
  <p className="text-sm text-body mb-3">
  每个配置文件都需要磁盘 I/O 和 JSON 解析。
  </p>
  <div className="space-y-2">
  <div className="flex items-center gap-2 text-sm">
- <span className="text-[var(--color-success)]">✓</span>
+ <span className="text-heading">✓</span>
  <span className="text-body">合并用户级和项目级配置</span>
  </div>
  <div className="flex items-center gap-2 text-sm">
- <span className="text-[var(--color-success)]">✓</span>
+ <span className="text-heading">✓</span>
  <span className="text-body">删除空的配置文件</span>
  </div>
  <div className="flex items-center gap-2 text-sm">
- <span className="text-[var(--color-success)]">✓</span>
+ <span className="text-heading">✓</span>
  <span className="text-body">避免创建不必要的层级</span>
  </div>
  </div>
  <div className="mt-4 p-3 bg-surface rounded-lg">
  <div className="text-xs text-dim">性能数据</div>
  <div className="text-sm text-body mt-1">
- 每个配置文件: <span className="text-[var(--color-warning)]">~2-5ms</span><br/>
- 4 层全加载: <span className="text-[var(--color-warning)]">~10-20ms</span>
+ 每个配置文件: <span className="text-heading">~2-5ms</span><br/>
+ 4 层全加载: <span className="text-heading">~10-20ms</span>
  </div>
  </div>
  </div>
@@ -2343,55 +2346,55 @@ gemini config --show | grep trust`}
  </p>
  <div className="space-y-2">
  <div className="flex items-center gap-2 text-sm">
- <span className="text-[var(--color-success)]">✓</span>
+ <span className="text-heading">✓</span>
  <span className="text-body">只在必要时使用环境变量</span>
  </div>
  <div className="flex items-center gap-2 text-sm">
- <span className="text-[var(--color-success)]">✓</span>
+ <span className="text-heading">✓</span>
  <span className="text-body">避免在数组中使用环境变量</span>
  </div>
  <div className="flex items-center gap-2 text-sm">
- <span className="text-[var(--color-success)]">✓</span>
+ <span className="text-heading">✓</span>
  <span className="text-body">敏感值用 .env 而非配置文件</span>
  </div>
  </div>
  <div className="mt-4 p-3 bg-surface rounded-lg">
  <div className="text-xs text-dim">性能数据</div>
  <div className="text-sm text-body mt-1">
- 环境变量解析: <span className="text-[var(--color-success)]">&lt; 1ms</span><br/>
- 深度嵌套: <span className="text-[var(--color-warning)]">~2-3ms</span>
+ 环境变量解析: <span className="text-heading">&lt; 1ms</span><br/>
+ 深度嵌套: <span className="text-heading">~2-3ms</span>
  </div>
  </div>
  </div>
 
  {/* 优化 3 */}
- <div className="bg-surface rounded-lg p-5 border border-[var(--color-warning)]">
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover">
  <div className="flex items-center gap-3 mb-4">
  <span className="text-2xl">📄</span>
- <h4 className="text-lg font-semibold text-[var(--color-warning)]">.env 文件位置优化</h4>
+ <h4 className="text-lg font-semibold text-heading">.env 文件位置优化</h4>
  </div>
  <p className="text-sm text-body mb-3">
  .env 文件搜索会向上遍历目录树。
  </p>
  <div className="space-y-2">
  <div className="flex items-center gap-2 text-sm">
- <span className="text-[var(--color-success)]">✓</span>
+ <span className="text-heading">✓</span>
  <span className="text-body">将 .env 放在项目根目录</span>
  </div>
  <div className="flex items-center gap-2 text-sm">
- <span className="text-[var(--color-success)]">✓</span>
+ <span className="text-heading">✓</span>
  <span className="text-body">或使用 .gemini/.env 精确匹配</span>
  </div>
  <div className="flex items-center gap-2 text-sm">
- <span className="text-[var(--color-warning)]">△</span>
+ <span className="text-heading">△</span>
  <span className="text-body">避免深层嵌套目录启动 CLI</span>
  </div>
  </div>
  <div className="mt-4 p-3 bg-surface rounded-lg">
  <div className="text-xs text-dim">性能影响</div>
  <div className="text-sm text-body mt-1">
- 每级目录遍历: <span className="text-[var(--color-success)]">~0.5ms</span><br/>
- 10 层深度: <span className="text-[var(--color-warning)]">~5ms</span>
+ 每级目录遍历: <span className="text-heading">~0.5ms</span><br/>
+ 10 层深度: <span className="text-heading">~5ms</span>
  </div>
  </div>
  </div>
@@ -2407,23 +2410,23 @@ gemini config --show | grep trust`}
  </p>
  <div className="space-y-2">
  <div className="flex items-center gap-2 text-sm">
- <span className="text-[var(--color-success)]">✓</span>
+ <span className="text-heading">✓</span>
  <span className="text-body">Config 实例是单例</span>
  </div>
  <div className="flex items-center gap-2 text-sm">
- <span className="text-[var(--color-success)]">✓</span>
+ <span className="text-heading">✓</span>
  <span className="text-body">LoadedSettings 支持保存</span>
  </div>
  <div className="flex items-center gap-2 text-sm">
- <span className="text-[var(--color-warning)]">△</span>
+ <span className="text-heading">△</span>
  <span className="text-body">热重载时需重新加载</span>
  </div>
  </div>
  <div className="mt-4 p-3 bg-surface rounded-lg">
  <div className="text-xs text-dim">缓存效果</div>
  <div className="text-sm text-body mt-1">
- 首次加载: <span className="text-[var(--color-warning)]">~30-50ms</span><br/>
- 缓存命中: <span className="text-[var(--color-success)]">&lt; 1ms</span>
+ 首次加载: <span className="text-heading">~30-50ms</span><br/>
+ 缓存命中: <span className="text-heading">&lt; 1ms</span>
  </div>
  </div>
  </div>
@@ -2443,37 +2446,37 @@ gemini config --show | grep trust`}
  <tbody className="text-body text-xs">
  <tr className="border- border-edge/50">
  <td className="p-2">文件读取 (4 层)</td>
- <td className="p-2 text-[var(--color-success)]">5-15ms</td>
+ <td className="p-2 text-heading">5-15ms</td>
  <td className="text-dim">磁盘类型、文件大小</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="p-2">JSON 解析</td>
- <td className="p-2 text-[var(--color-success)]">1-3ms</td>
+ <td className="p-2 text-heading">1-3ms</td>
  <td className="text-dim">配置复杂度</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="p-2">v1→v2 迁移</td>
- <td className="p-2 text-[var(--color-warning)]">5-20ms</td>
+ <td className="p-2 text-heading">5-20ms</td>
  <td className="text-dim">仅首次、配置大小</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="p-2">环境变量解析</td>
- <td className="p-2 text-[var(--color-success)]">&lt; 1ms</td>
+ <td className="p-2 text-heading">&lt; 1ms</td>
  <td className="text-dim">变量数量</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="p-2">配置合并</td>
- <td className="p-2 text-[var(--color-success)]">1-3ms</td>
+ <td className="p-2 text-heading">1-3ms</td>
  <td className="text-dim">嵌套深度</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="p-2">.env 搜索</td>
- <td className="p-2 text-[var(--color-success)]">1-5ms</td>
+ <td className="p-2 text-heading">1-5ms</td>
  <td className="text-dim">目录深度</td>
  </tr>
  <tr>
  <td className="p-2 font-semibold">总计</td>
- <td className="p-2 text-[var(--color-warning)]">15-50ms</td>
+ <td className="p-2 text-heading">15-50ms</td>
  <td className="text-dim">典型启动</td>
  </tr>
  </tbody>
@@ -2546,7 +2549,7 @@ gemini config --show | grep trust`}
 
 style Config stroke:#22d3ee
 style LoadSettings stroke:#a855f7
-style LoadCliConfig stroke:#22c55e`}
+style LoadCliConfig stroke:${getThemeColor("--color-success", "#15803d")}`}
  />
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
@@ -2560,14 +2563,14 @@ style LoadCliConfig stroke:#22c55e`}
  四层配置文件 + .env 文件
  </p>
  </div>
- <div className="border-l-2 border-[var(--color-success)] pl-3">
- <h5 className="font-semibold text-[var(--color-success)]">Shell 环境</h5>
+ <div className="border-l-2 border-edge pl-3">
+ <h5 className="font-semibold text-heading">Shell 环境</h5>
  <p className="text-xs text-body mt-1">
  process.env 中的环境变量
  </p>
  </div>
- <div className="border-l-2 border-[var(--color-warning)] pl-3">
- <h5 className="font-semibold text-[var(--color-warning)]">命令行参数</h5>
+ <div className="border-l-2 border-edge pl-3">
+ <h5 className="font-semibold text-heading">命令行参数</h5>
  <p className="text-xs text-body mt-1">
  argv 解析后的 CLI 参数
  </p>
@@ -2591,14 +2594,14 @@ style LoadCliConfig stroke:#22c55e`}
  模型选择、Token 限制、生成配置
  </p>
  </div>
- <div className="border-l-2 border-[var(--color-warning)] pl-3">
+ <div className="border-l-2 border-edge pl-3">
  <h5 className="font-semibold text-heading">ToolScheduler</h5>
  <p className="text-xs text-body mt-1">
  approvalMode、allowedTools、sandbox
  </p>
  </div>
- <div className="border-l-2 border-[var(--color-danger)] pl-3">
- <h5 className="font-semibold text-[var(--color-danger)]">Auth Manager</h5>
+ <div className="border-l-2 border-edge pl-3">
+ <h5 className="font-semibold text-heading">Auth Manager</h5>
  <p className="text-xs text-body mt-1">
  认证类型、API 密钥、Base URL
  </p>
@@ -2609,8 +2612,8 @@ style LoadCliConfig stroke:#22c55e`}
  mcpServers 配置、允许/排除列表
  </p>
  </div>
- <div className="border-l-2 border-[var(--color-success)] pl-3">
- <h5 className="font-semibold text-[var(--color-success)]">UI Components</h5>
+ <div className="border-l-2 border-edge pl-3">
+ <h5 className="font-semibold text-heading">UI Components</h5>
  <p className="text-xs text-body mt-1">
  主题、显示选项、无障碍设置
  </p>
@@ -2698,20 +2701,20 @@ class LoadedSettings {
  <h4 className="text-lg font-medium text-heading mb-3">1. 为什么采用四层配置而非两层？</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
  <div>
- <div className="text-[var(--color-danger)] font-medium mb-1">两层模型（用户 + 项目）的不足</div>
+ <div className="text-heading font-medium mb-1">两层模型（用户 + 项目）的不足</div>
  <ul className="text-body space-y-1">
- <li>• 无法满足企业管控需求</li>
- <li>• 无法提供系统级默认值</li>
- <li>• IT 无法统一配置策略</li>
+ <li>无法满足企业管控需求</li>
+ <li>无法提供系统级默认值</li>
+ <li>IT 无法统一配置策略</li>
  </ul>
  </div>
  <div>
- <div className="text-[var(--color-success)] font-medium mb-1">四层模型的优势</div>
+ <div className="text-heading font-medium mb-1">四层模型的优势</div>
  <ul className="text-body space-y-1">
- <li>• <strong>systemDefaults</strong>: 企业可预设默认值</li>
- <li>• <strong>user</strong>: 个人偏好</li>
- <li>• <strong>workspace</strong>: 项目需求</li>
- <li>• <strong>system</strong>: IT 强制策略</li>
+ <li><strong>systemDefaults</strong>: 企业可预设默认值</li>
+ <li><strong>user</strong>: 个人偏好</li>
+ <li><strong>workspace</strong>: 项目需求</li>
+ <li><strong>system</strong>: IT 强制策略</li>
  </ul>
  </div>
  </div>
@@ -2754,18 +2757,18 @@ class LoadedSettings {
  <tbody className="text-body">
  <tr className="border- border-edge">
  <td className="py-2"><code>mcpServers</code></td>
- <td className="py-2 text-[var(--color-danger)]">项目配置完全覆盖用户服务器</td>
- <td className="py-2 text-[var(--color-success)]">SHALLOW_MERGE: 按 key 合并</td>
+ <td className="py-2 text-heading">项目配置完全覆盖用户服务器</td>
+ <td className="py-2 text-heading">SHALLOW_MERGE: 按 key 合并</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2"><code>tools.exclude</code></td>
- <td className="py-2 text-[var(--color-danger)]">项目排除列表覆盖用户列表</td>
- <td className="py-2 text-[var(--color-success)]">UNION: 去重合并</td>
+ <td className="py-2 text-heading">项目排除列表覆盖用户列表</td>
+ <td className="py-2 text-heading">UNION: 去重合并</td>
  </tr>
  <tr>
  <td className="py-2"><code>context.includeDirectories</code></td>
- <td className="py-2 text-[var(--color-danger)]">项目目录覆盖用户目录</td>
- <td className="py-2 text-[var(--color-success)]">CONCAT: 拼接保留全部</td>
+ <td className="py-2 text-heading">项目目录覆盖用户目录</td>
+ <td className="py-2 text-heading">CONCAT: 拼接保留全部</td>
  </tr>
  </tbody>
  </table>
@@ -2775,10 +2778,10 @@ class LoadedSettings {
  <div className="bg-base/30 rounded-lg p-5">
  <h4 className="text-lg font-medium text-heading mb-3">4. 为什么工作区配置需要信任检查？</h4>
  <div className="text-sm text-body">
- <p className="mb-2"><strong className="text-[var(--color-danger)]">安全风险</strong>：恶意仓库可能包含危险配置</p>
+ <p className="mb-2"><strong className="text-heading">安全风险</strong>：恶意仓库可能包含危险配置</p>
  <ul className="text-body space-y-1 text-xs">
- <li>• <code>mcpServers</code> - 启动恶意 MCP 服务器</li>
- <li>• <code>tools.allowed</code> - 跳过危险操作确认</li>
+ <li><code>mcpServers</code> - 启动恶意 MCP 服务器</li>
+ <li><code>tools.allowed</code> - 跳过危险操作确认</li>
  </ul>
  <p className="mt-3 text-heading">
  解决方案：非信任工作区的 workspace 配置被替换为空对象
@@ -2801,17 +2804,17 @@ class LoadedSettings {
  </thead>
  <tbody className="text-body">
  <tr className="border- border-edge">
- <td className="py-2 px-2 text-[var(--color-danger)]">JSON 语法错误</td>
+ <td className="py-2 px-2 text-heading">JSON 语法错误</td>
  <td className="py-2 px-2 text-xs">settings.json 包含无效 JSON</td>
  <td className="py-2 px-2 text-xs">跳过该文件，使用默认值，输出警告</td>
  </tr>
  <tr className="border- border-edge">
- <td className="py-2 px-2 text-[var(--color-warning)]">迁移冲突</td>
+ <td className="py-2 px-2 text-heading">迁移冲突</td>
  <td className="py-2 px-2 text-xs">v1 字段与 v2 容器同名</td>
  <td className="py-2 px-2 text-xs">检测 v2 容器类型，跳过迁移</td>
  </tr>
  <tr className="border- border-edge">
- <td className="py-2 px-2 text-[var(--color-warning)]">环境变量未定义</td>
+ <td className="py-2 px-2 text-heading">环境变量未定义</td>
  <td className="py-2 px-2 text-xs">$VAR 引用不存在的变量</td>
  <td className="py-2 px-2 text-xs">保留原始字符串 "$VAR"</td>
  </tr>

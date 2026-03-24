@@ -3,6 +3,9 @@ import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 // 学习路径类型
 interface LearningPath {
@@ -64,14 +67,14 @@ function Introduction({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">
+ <h4 className="text-heading font-bold mb-2">
  ⚡ 快速开始建议
  </h4>
  <ul className="text-body text-sm space-y-1">
- <li>• <strong>想快速了解全貌？</strong> 选择「快速概览路径」</li>
- <li>• <strong>想开发工具/扩展？</strong> 选择「扩展开发路径」</li>
- <li>• <strong>想深入源码？</strong> 选择「架构师路径」</li>
- <li>• <strong>想改造项目？</strong> 选择「核心机制路径」</li>
+ <li><strong>想快速了解全貌？</strong> 选择「快速概览路径」</li>
+ <li><strong>想开发工具/扩展？</strong> 选择「扩展开发路径」</li>
+ <li><strong>想深入源码？</strong> 选择「架构师路径」</li>
+ <li><strong>想改造项目？</strong> 选择「核心机制路径」</li>
  </ul>
  </div>
 
@@ -102,7 +105,7 @@ function PathCard({
 }) {
  const difficultyColors = {
  beginner: 'var(--color-primary)',
- intermediate: '#f59e0b',
+ intermediate: 'var(--color-warning)',
  advanced: 'var(--color-primary)',
  };
 
@@ -240,8 +243,8 @@ function StepDetail({
 
  {/* 检查点 */}
  {step.checkpoint && (
- <div className="p-3 bg-amber-500/10 rounded-lg border border-amber-500/30">
- <h5 className="text-xs text-amber-500 font-bold mb-1">
+ <div className="p-3 bg-elevated rounded-lg border-l-2 border-l-edge-hover/30">
+ <h5 className="text-xs text-heading font-bold mb-1">
  ✓ 检查点
  </h5>
  <p className="text-sm text-body">
@@ -606,7 +609,7 @@ const architectureMap = `flowchart TB
 
  style CLI stroke:#22d3ee
  style CORE stroke:#10b981
- style SERVICES stroke:#f59e0b
+ style SERVICES stroke:${getThemeColor("--color-warning", "#b45309")}
  style EXTERNAL stroke:#a855f7
 `;
 
@@ -695,21 +698,21 @@ export function LearningPathGuide() {
  ✓ 推荐做法
  </h4>
  <ul className="text-body space-y-1">
- <li>• 按顺序学习，不要跳跃</li>
- <li>• 结合动画演示加深理解</li>
- <li>• 回答每个检查点问题</li>
- <li>• 阅读相关源代码文件</li>
- <li>• 实际运行 CLI 体验功能</li>
+ <li>按顺序学习，不要跳跃</li>
+ <li>结合动画演示加深理解</li>
+ <li>回答每个检查点问题</li>
+ <li>阅读相关源代码文件</li>
+ <li>实际运行 CLI 体验功能</li>
  </ul>
  </div>
  <div>
- <h4 className="font-bold text-amber-500 mb-2">⚠️ 避免做法</h4>
+ <h4 className="font-bold text-heading mb-2">⚠️ 避免做法</h4>
  <ul className="text-body space-y-1">
- <li>• 一次学习过多内容</li>
- <li>• 跳过基础直接看高级内容</li>
- <li>• 只看文档不动手实践</li>
- <li>• 忽略设计原理章节</li>
- <li>• 不回答检查点问题</li>
+ <li>一次学习过多内容</li>
+ <li>跳过基础直接看高级内容</li>
+ <li>只看文档不动手实践</li>
+ <li>忽略设计原理章节</li>
+ <li>不回答检查点问题</li>
  </ul>
  </div>
  </div>
@@ -760,8 +763,8 @@ export function LearningPathGuide() {
  </p>
  </div>
 
- <div className="bg-surface rounded-lg p-5 border border-amber-500/30">
- <h4 className="text-amber-500 font-bold font-mono mb-3">目标导向设计</h4>
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/30">
+ <h4 className="text-heading font-bold font-mono mb-3">目标导向设计</h4>
  <p className="text-body text-sm leading-relaxed">
  每条路径针对特定目标：想开发扩展的选扩展开发路径，想理解核心机制的选核心机制路径。
  这种设计避免了读者在不相关的内容上浪费时间，同时保证覆盖达到目标所需的全部知识点。

@@ -53,7 +53,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-dim">理解意图、生成回复、调用工具</div>
  </div>
  <div className="bg-base p-2 rounded border border-edge">
- <div className="text-amber-500">🔧 工具</div>
+ <div className="text-heading">🔧 工具</div>
  <div className="text-dim">读写文件、执行命令、搜索代码</div>
  </div>
  </div>
@@ -77,7 +77,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">工具调度器</span>
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">流式解析</span>
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">权限审批</span>
- <span className="px-2 py-1 bg-amber-500/20 text-amber-500 rounded text-xs">上下文管理</span>
+ <span className="px-2 py-1 bg-elevated text-heading rounded text-xs">上下文管理</span>
  </div>
  </div>
  </div>
@@ -153,10 +153,10 @@ const animSteps = [
  },
  {
  from: '🖥️ CLI',
- fromColor: 'text-amber-500',
+ fromColor: 'text-heading',
  to: '👤 用户',
  message: '请求确认执行工具',
- messageColor: 'bg-amber-500/10',
+ messageColor: 'bg-elevated',
  extra: `{
  // shouldConfirmExecute() 判断是否需要审批
  tool: "read_file",
@@ -176,7 +176,7 @@ const animSteps = [
  fromColor: 'text-heading',
  to: '🔧 工具',
  message: '执行 read_file 工具',
- messageColor: 'bg-amber-500/10',
+ messageColor: 'bg-elevated',
  extra: `// tool.build(args) → invocation.execute()
 const invocation = readFileTool.build({ file_path: "package.json" });
 await invocation.execute(signal);`,
@@ -186,7 +186,7 @@ await invocation.execute(signal);`,
  fromColor: 'text-dim',
  to: '🔧 工具',
  message: '返回 ToolResult',
- messageColor: 'bg-amber-500/10',
+ messageColor: 'bg-elevated',
  extra: `{
  llmContent: "{\\"name\\": \\"@google/gemini-cli\\", ...}",
  returnDisplay: "package.json (1.2KB)"
@@ -324,7 +324,7 @@ export function Animation() {
  </button>
  <button
  onClick={reset}
- className="px-5 py-2.5 bg-elevated text-amber-500 rounded-md font-mono font-bold border border-edge hover:border-amber-600 hover:shadow-[0_0_10px_rgba(245,158,11,0.5)] transition-all cursor-pointer"
+ className="px-5 py-2.5 bg-elevated text-heading rounded-md font-mono font-bold border border-edge hover:border-edge/60 hover:shadow-[0_0_10px_rgba(245,158,11,0.5)] transition-all cursor-pointer"
  >
  ↺ 重置
  </button>
@@ -348,7 +348,7 @@ export function Animation() {
  </div>
  <div className="text-center">
  <div className="text-3xl mb-1">🔧</div>
- <div className="font-mono text-sm text-amber-500">工具</div>
+ <div className="font-mono text-sm text-heading">工具</div>
  </div>
  </div>
 
@@ -377,7 +377,7 @@ export function Animation() {
  当前步骤：<span className="text-heading font-bold">{step}</span>/{maxSteps}
  </span>
  {isPlaying && (
- <span className="text-amber-500 font-mono text-sm animate-pulse">
+ <span className="text-heading font-mono text-sm animate-pulse">
  ● 播放中...
  </span>
  )}

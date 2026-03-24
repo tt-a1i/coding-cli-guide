@@ -2,6 +2,9 @@ import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { getThemeColor } from '../utils/theme';
+
+
 
 export function ShellModes() {
  // 核心流程图：两条执行路径对比
@@ -71,9 +74,9 @@ export function ShellModes() {
  style ui_shell_input stroke:#22d3ee
  style toml_shell_input stroke:#a78bfa
  style pty_mode stroke:#10b981
- style confirm_dialog stroke:#f59e0b
- style blocked_error stroke:#ef4444
- style direct_output stroke:#22c55e
+ style confirm_dialog stroke:${getThemeColor("--color-warning", "#b45309")}
+ style blocked_error stroke:${getThemeColor("--color-danger", "#b91c1c")}
+ style direct_output stroke:${getThemeColor("--color-success", "#15803d")}
  style send_to_ai stroke:#8b5cf6`;
 
  // PTY vs 子进程执行对比
@@ -108,8 +111,8 @@ export function ShellModes() {
  cp_decode --> cp_text
 
  style pty stroke:#10b981
- style child stroke:#3b82f6
- style pty_interact stroke:#22c55e`;
+ style child stroke:${getThemeColor("--color-info", "#2457a6")}
+ style pty_interact stroke:${getThemeColor("--color-success", "#15803d")}`;
 
  // 权限检查流程
  const permissionCheckChart = `flowchart TD
@@ -159,13 +162,13 @@ export function ShellModes() {
  allow_check -->|All allowed| allow_default
  allow_check -->|Disallowed| soft_deny2
 
- style hard_parse stroke:#ef4444
- style hard_shell_disabled stroke:#ef4444
- style hard_exclude stroke:#ef4444
- style soft_deny stroke:#f59e0b
- style soft_deny2 stroke:#f59e0b
- style allow_all stroke:#22c55e
- style allow_default stroke:#22c55e
+ style hard_parse stroke:${getThemeColor("--color-danger", "#b91c1c")}
+ style hard_shell_disabled stroke:${getThemeColor("--color-danger", "#b91c1c")}
+ style hard_exclude stroke:${getThemeColor("--color-danger", "#b91c1c")}
+ style soft_deny stroke:${getThemeColor("--color-warning", "#b45309")}
+ style soft_deny2 stroke:${getThemeColor("--color-warning", "#b45309")}
+ style allow_all stroke:${getThemeColor("--color-success", "#15803d")}
+ style allow_default stroke:${getThemeColor("--color-success", "#15803d")}
  style default_deny stroke:#a78bfa
  style default_allow stroke:#22d3ee`;
 
@@ -274,7 +277,7 @@ export function ShellModes() {
  <HighlightBox title="触发条件" variant="yellow" className="mt-4">
  <div className="text-sm space-y-2">
  <div>
- <strong className="text-yellow-300">交互式 Shell:</strong>
+ <strong className="text-heading">交互式 Shell:</strong>
  <ul className="list-disc pl-5 mt-1 text-body">
  <li>
  用户在 CLI 输入以 <code>!</code> 开头的命令
@@ -286,7 +289,7 @@ export function ShellModes() {
  </ul>
  </div>
  <div>
- <strong className="text-yellow-300">自定义命令注入:</strong>
+ <strong className="text-heading">自定义命令注入:</strong>
  <ul className="list-disc pl-5 mt-1 text-body">
  <li>
  用户调用包含 <code>!{'{...}'}</code> 的自定义命令
@@ -384,16 +387,16 @@ export function ShellModes() {
  <p className="mb-2">两种模式都会设置以下环境变量：</p>
  <ul className="list-disc pl-5 space-y-1 text-body">
  <li>
- <code className="text-green-300">GEMINI_CLI=1</code> -
+ <code className="text-heading">GEMINI_CLI=1</code> -
  标记命令在 Gemini CLI 中运行
  </li>
  <li>
- <code className="text-green-300">TERM=xterm-256color</code> -
+ <code className="text-heading">TERM=xterm-256color</code> -
  提供基础终端能力
  </li>
  <li>
- <code className="text-green-300">PAGER</code> /{' '}
- <code className="text-green-300">GIT_PAGER</code> - 默认{' '}
+ <code className="text-heading">PAGER</code> /{' '}
+ <code className="text-heading">GIT_PAGER</code> - 默认{' '}
  <code>cat</code> 或使用 <code>tools.shell.pager</code>
  </li>
  <li>其他继承自父进程的环境变量</li>
@@ -626,8 +629,8 @@ if (commandsToConfirm.size > 0) {
  </div>
  </div>
 
- <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
- <h4 className="text-green-400 font-semibold mb-2">
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">
  二进制输出检测
  </h4>
  <CodeBlock
@@ -671,8 +674,8 @@ if (commandsToConfirm.size > 0) {
  </div>
  </div>
 
- <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
- <h4 className="text-yellow-400 font-semibold mb-2">参数转义边界</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">参数转义边界</h4>
  <CodeBlock
  code={`// gemini-cli/packages/cli/src/services/prompt-processors/shellProcessor.ts:99
 const { shell } = getShellConfiguration();
@@ -701,8 +704,8 @@ for (const injection of injections) {
  {/* 失败与恢复 */}
  <Layer title="失败与恢复" icon="🔧">
  <div className="space-y-4">
- <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
- <h4 className="text-red-400 font-semibold mb-3">PTY 降级机制</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-3">PTY 降级机制</h4>
  <div className="text-sm space-y-2 text-body">
  <div>
  <strong>失败场景:</strong>
@@ -731,7 +734,7 @@ for (const injection of injections) {
  </div>
  </div>
 
- <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4">
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-3">权限拒绝处理</h4>
  <div className="text-sm space-y-2 text-body">
  <div>
@@ -802,8 +805,8 @@ signal.addEventListener('abort', () => {
  </div>
  </div>
 
- <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
- <h4 className="text-yellow-400 font-semibold mb-3">
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-3">
  工作目录跟踪失败
  </h4>
  <div className="text-sm space-y-2 text-body">
@@ -993,7 +996,7 @@ signal.addEventListener('abort', () => {
  </div>
 
  <div className="bg-surface rounded-lg p-4">
- <h4 className="text-green-400 font-semibold mb-3">环境变量</h4>
+ <h4 className="text-heading font-semibold mb-3">环境变量</h4>
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
@@ -1006,7 +1009,7 @@ signal.addEventListener('abort', () => {
  <tbody className="text-body">
  <tr className="border- border-edge/50">
  <td className="p-2">
- <code className="text-green-300">GEMINI_CLI</code>
+ <code className="text-heading">GEMINI_CLI</code>
  </td>
  <td className="p-2">ShellExecutionService</td>
  <td className="p-2">
@@ -1015,7 +1018,7 @@ signal.addEventListener('abort', () => {
  </tr>
  <tr className="border- border-edge/50">
  <td className="p-2">
- <code className="text-green-300">TERM</code>
+ <code className="text-heading">TERM</code>
  </td>
  <td className="p-2">ShellExecutionService</td>
  <td className="p-2">
@@ -1024,7 +1027,7 @@ signal.addEventListener('abort', () => {
  </tr>
  <tr className="border- border-edge/50">
  <td className="p-2">
- <code className="text-green-300">PAGER</code>
+ <code className="text-heading">PAGER</code>
  </td>
  <td className="p-2">ShellExecutionService</td>
  <td className="p-2">
@@ -1034,7 +1037,7 @@ signal.addEventListener('abort', () => {
  </tr>
  <tr className="border- border-edge/50">
  <td className="p-2">
- <code className="text-green-300">GIT_PAGER</code>
+ <code className="text-heading">GIT_PAGER</code>
  </td>
  <td className="p-2">ShellExecutionService</td>
  <td className="p-2">
@@ -1043,7 +1046,7 @@ signal.addEventListener('abort', () => {
  </tr>
  <tr>
  <td className="p-2">
- <code className="text-green-300">PATH</code>
+ <code className="text-heading">PATH</code>
  </td>
  <td className="p-2">继承（可能被净化）</td>
  <td className="p-2">命令搜索路径</td>
@@ -1096,7 +1099,7 @@ prompt = """
  {/* 常见误解澄清 */}
  <Layer title="常见误解澄清" icon="❓">
  <div className="space-y-4">
- <div className="bg-elevated/5 rounded-lg p-4 border border-white/10">
+ <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40">
  <h4 className="text-heading font-bold mb-2">
  ❌ 误解：两者都需要用户确认
  </h4>
@@ -1114,7 +1117,7 @@ prompt = """
  </ul>
  </div>
 
- <div className="bg-elevated/5 rounded-lg p-4 border border-white/10">
+ <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40">
  <h4 className="text-heading font-bold mb-2">
  ❌ 误解：两者输出都显示在终端
  </h4>
@@ -1131,7 +1134,7 @@ prompt = """
  </ul>
  </div>
 
- <div className="bg-elevated/5 rounded-lg p-4 border border-white/10">
+ <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40">
  <h4 className="text-heading font-bold mb-2">
  ❌ 误解：两者安全模型相同
  </h4>
@@ -1150,7 +1153,7 @@ prompt = """
  </ul>
  </div>
 
- <div className="bg-elevated/5 rounded-lg p-4 border border-white/10">
+ <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40">
  <h4 className="text-heading font-bold mb-2">
  ❌ 误解：PTY 模式总是可用
  </h4>
@@ -1168,7 +1171,7 @@ prompt = """
  </ul>
  </div>
 
- <div className="bg-elevated/5 rounded-lg p-4 border border-white/10">
+ <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40">
  <h4 className="text-heading font-bold mb-2">
  ❌ 误解：run_shell_command 和交互式 Shell 是同一个
  </h4>

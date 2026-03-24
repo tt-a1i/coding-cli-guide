@@ -3,6 +3,9 @@ import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 export function SlashCommands() {
  return (
@@ -32,17 +35,17 @@ export function SlashCommands() {
  </HighlightBox>
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
- <div className="bg-elevated/5 rounded-lg p-4 border border-white/10 text-center">
+ <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40 text-center">
  <div className="text-3xl mb-2">📦</div>
  <h4 className="text-heading font-bold">BuiltinCommandLoader</h4>
  <p className="text-sm text-body">内置命令（~25个）</p>
  </div>
- <div className="bg-elevated/5 rounded-lg p-4 border border-white/10 text-center">
+ <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40 text-center">
  <div className="text-3xl mb-2">📂</div>
  <h4 className="text-heading font-bold">FileCommandLoader</h4>
  <p className="text-sm text-body">用户/项目自定义命令</p>
  </div>
- <div className="bg-elevated/5 rounded-lg p-4 border border-white/10 text-center">
+ <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40 text-center">
  <div className="text-3xl mb-2">🔌</div>
  <h4 className="text-heading font-bold">McpPromptLoader</h4>
  <p className="text-sm text-body">MCP 提示命令</p>
@@ -193,19 +196,19 @@ export function SlashCommands() {
  </HighlightBox>
 
  <div className="space-y-3 mt-4">
- <div className="bg-elevated/5 rounded-lg p-3 border border-white/10">
+ <div className="bg-elevated/5 rounded-lg p-3 border border-edge/40">
  <code className="text-heading">
  @src/components/Button.tsx 解释这个组件
  </code>
  <p className="text-sm text-body mt-1">注入单个文件</p>
  </div>
- <div className="bg-elevated/5 rounded-lg p-3 border border-white/10">
+ <div className="bg-elevated/5 rounded-lg p-3 border border-edge/40">
  <code className="text-heading">@src/api/ 总结这个目录的功能</code>
  <p className="text-sm text-body mt-1">
  注入目录下所有文件（递归，尊重 .gitignore）
  </p>
  </div>
- <div className="bg-elevated/5 rounded-lg p-3 border border-white/10">
+ <div className="bg-elevated/5 rounded-lg p-3 border border-edge/40">
  <code className="text-heading">
  @My\ Documents/report.pdf 帮我分析
  </code>
@@ -385,15 +388,15 @@ flowchart TB
  H --> H2["结果发送 AI"]
  H --> H3["AI 处理后返回"]
 
- style L fill:#22c55e20,stroke:#22c55e
- style A fill:#3b82f620,stroke:#3b82f6
- style H fill:#a855f720,stroke:#a855f7
+ style L fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},stroke:${getThemeColor("--color-success", "#15803d")}
+ style A fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},stroke:${getThemeColor("--color-primary", "#2457a6")}
+ style H fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},stroke:${getThemeColor("--purple", "#7c3aed")}
 `}
  />
 
  <div className="mt-6 grid md:grid-cols-3 gap-4">
- <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
- <h4 className="text-green-400 font-semibold mb-2">🟢 LOCAL 模式</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">🟢 LOCAL 模式</h4>
  <p className="text-sm text-body mb-3">
  命令完全在本地执行，不涉及 AI
  </p>
@@ -467,9 +470,9 @@ flowchart TB
  </th>
  </tr>
  </thead>
- <tbody className="divide-y divide-gray-700/50">
+ <tbody className="divide-y divide-edge/60">
  <tr>
- <td className="px-3 py-2 text-green-400">LOCAL</td>
+ <td className="px-3 py-2 text-heading">LOCAL</td>
  <td className="px-3 py-2 text-body">0</td>
  <td className="px-3 py-2 text-body">{'<'} 100ms</td>
  <td className="px-3 py-2 text-dim">
@@ -505,7 +508,7 @@ flowchart TB
  <div className="space-y-6">
  {/* 场景1：Token 管理 */}
  <div className="bg-surface rounded-lg p-5 border border-edge">
- <h4 className="text-lg font-semibold text-yellow-400 mb-3">
+ <h4 className="text-lg font-semibold text-heading mb-3">
  💰 Token 管理场景
  </h4>
  <div className="overflow-x-auto">
@@ -521,7 +524,7 @@ flowchart TB
  <th className="px-3 py-2 text-left text-body">说明</th>
  </tr>
  </thead>
- <tbody className="divide-y divide-gray-700/50">
+ <tbody className="divide-y divide-edge/60">
  <tr>
  <td className="px-3 py-2 text-body">
  查看 Token 使用情况
@@ -589,7 +592,7 @@ flowchart TB
  <th className="px-3 py-2 text-left text-body">对比</th>
  </tr>
  </thead>
- <tbody className="divide-y divide-gray-700/50">
+ <tbody className="divide-y divide-edge/60">
  <tr>
  <td className="px-3 py-2 text-body">让 AI 读取文件</td>
  <td className="px-3 py-2 text-heading font-mono">
@@ -639,7 +642,7 @@ flowchart TB
 
  {/* 场景3：会话控制 */}
  <div className="bg-surface rounded-lg p-5 border border-edge">
- <h4 className="text-lg font-semibold text-green-400 mb-3">
+ <h4 className="text-lg font-semibold text-heading mb-3">
  🔄 会话控制场景
  </h4>
  <div className="overflow-x-auto">
@@ -655,7 +658,7 @@ flowchart TB
  <th className="px-3 py-2 text-left text-body">说明</th>
  </tr>
  </thead>
- <tbody className="divide-y divide-gray-700/50">
+ <tbody className="divide-y divide-edge/60">
  <tr>
  <td className="px-3 py-2 text-body">
  清空屏幕（保留历史）
@@ -799,7 +802,7 @@ flowchart TB
 
  <div className="space-y-4">
  <div className="bg-surface rounded-lg p-4 border border-edge">
- <h4 className="text-green-400 font-semibold mb-2">
+ <h4 className="text-heading font-semibold mb-2">
  1. 全局命令（所有项目可用）
  </h4>
  <code className="text-sm text-body block mb-2">
@@ -869,10 +872,10 @@ flowchart LR
  P --> G["全局命令<br/>(~/.gemini/)"]
  G --> M["MCP 命令<br/>(最高)"]
 
- style B fill:#4b556320,stroke:#4b5563
- style P fill:#3b82f620,stroke:#3b82f6
- style G fill:#22c55e20,stroke:#22c55e
- style M fill:#a855f720,stroke:#a855f7
+ style B fill:${getThemeColor("--mermaid-muted-fill", "#f4f4f2")},stroke:${getThemeColor("--mermaid-muted-fill", "#f4f4f2")}
+ style P fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},stroke:${getThemeColor("--color-primary", "#2457a6")}
+ style G fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},stroke:${getThemeColor("--color-success", "#15803d")}
+ style M fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},stroke:${getThemeColor("--purple", "#7c3aed")}
 `}
  />
  <p className="text-sm text-body mt-2">
@@ -961,7 +964,7 @@ flowchart LR
 // 辅助组件
 function CommandCard({ name, desc }: { name: string; desc: string }) {
  return (
- <div className="bg-elevated/5 rounded-lg p-2 border border-white/10">
+ <div className="bg-elevated/5 rounded-lg p-2 border border-edge/40">
  <code className="text-heading text-sm">{name}</code>
  <p className="text-xs text-body mt-1">{desc}</p>
  </div>
@@ -970,7 +973,7 @@ function CommandCard({ name, desc }: { name: string; desc: string }) {
 
 function ShortcutCard({ keys, desc }: { keys: string; desc: string }) {
  return (
- <div className="bg-elevated/5 rounded-lg p-3 border border-white/10 flex items-center gap-3">
+ <div className="bg-elevated/5 rounded-lg p-3 border border-edge/40 flex items-center gap-3">
  <kbd className="bg-elevated px-2 py-1 rounded text-sm font-mono text-heading">
  {keys}
  </kbd>

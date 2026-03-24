@@ -222,18 +222,18 @@ export default function SessionStateMachineAnimation() {
  switch (type) {
  case 'content': return 'var(--color-primary)';
  case 'thought': return '#a855f7';
- case 'tool_call_request': return '#f59e0b';
- case 'tool_call_confirmation': return '#f59e0b';
+ case 'tool_call_request': return 'var(--color-warning)';
+ case 'tool_call_confirmation': return 'var(--color-warning)';
  case 'tool_call_response': return 'var(--color-primary)';
  case 'finished': return 'var(--color-primary)';
- case 'error': return '#ef4444';
- case 'retry': return '#f59e0b';
+ case 'error': return 'var(--color-danger)';
+ case 'retry': return 'var(--color-warning)';
  case 'citation': return 'var(--color-primary)';
  case 'chat_compressed': return '#6b7280';
- case 'loop_detected': return '#ef4444';
+ case 'loop_detected': return 'var(--color-danger)';
  case 'user_cancelled': return '#6b7280';
- case 'context_window_will_overflow': return '#f59e0b';
- case 'invalid_stream': return '#ef4444';
+ case 'context_window_will_overflow': return 'var(--color-warning)';
+ case 'invalid_stream': return 'var(--color-danger)';
  case 'model_info': return 'var(--color-primary)';
  case 'max_session_turns': return '#6b7280';
  }
@@ -276,7 +276,7 @@ export default function SessionStateMachineAnimation() {
  onClick={() => isPlaying ? resetAnimation() : (resetAnimation(), setTimeout(() => setIsPlaying(true), 100))}
  className={`px-4 py-2 rounded font-mono text-sm transition-all ${
  isPlaying
- ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+ ? 'bg-elevated text-heading border-l-2 border-l-edge-hover/30'
  : ' bg-elevated/20 text-heading border border-edge/30'
  }`}
  >
@@ -355,7 +355,7 @@ export default function SessionStateMachineAnimation() {
  {/* Turn 状态 */}
  <div className="col-span-4">
  <div className="bg-base/60 rounded-lg p-4 border border-edge-hover">
- <h3 className="text-sm font-semibold text-amber-500 mb-3 font-mono">
+ <h3 className="text-sm font-semibold text-heading mb-3 font-mono">
  🎯 Turn State
  </h3>
 
@@ -366,8 +366,8 @@ export default function SessionStateMachineAnimation() {
  className="text-lg font-mono font-bold"
  style={{
  color: phase === 'completed' ? 'var(--color-primary)' :
- phase === 'error' ? '#ef4444' :
- phase === 'tool_execution' || phase === 'waiting_confirmation' ? '#f59e0b' : 'var(--color-primary)'
+ phase === 'error' ? 'var(--color-danger)' :
+ phase === 'tool_execution' || phase === 'waiting_confirmation' ? 'var(--color-warning)' : 'var(--color-primary)'
  }}
  >
  {phase.toUpperCase().replace('_', ' ')}
@@ -382,7 +382,7 @@ export default function SessionStateMachineAnimation() {
  ) : (
  <div className="space-y-1">
  {pendingToolCalls.map((tc, i) => (
- <div key={i} className="text-xs font-mono text-amber-500">
+ <div key={i} className="text-xs font-mono text-heading">
  {tc}
  </div>
  ))}
@@ -418,13 +418,13 @@ export default function SessionStateMachineAnimation() {
  STREAMING
  </div>
  <div className="ml-4 text-dim">↓ tool_call_request</div>
- <div className={`flex items-center gap-2 ${phase === 'waiting_confirmation' ? 'text-amber-500' : 'text-dim'}`}>
- <span className={`w-2 h-2 rounded-full ${phase === 'waiting_confirmation' ? 'bg-amber-500 animate-pulse' : ' bg-elevated/30'}`} />
+ <div className={`flex items-center gap-2 ${phase === 'waiting_confirmation' ? 'text-heading' : 'text-dim'}`}>
+ <span className={`w-2 h-2 rounded-full ${phase === 'waiting_confirmation' ? 'bg-[var(--color-warning)] animate-pulse' : ' bg-elevated/30'}`} />
  WAITING_CONFIRMATION
  </div>
  <div className="ml-4 text-dim">↓ tool_call_response</div>
- <div className={`flex items-center gap-2 ${phase === 'tool_execution' ? 'text-amber-500' : 'text-dim'}`}>
- <span className={`w-2 h-2 rounded-full ${phase === 'tool_execution' ? 'bg-amber-500 animate-pulse' : ' bg-elevated/30'}`} />
+ <div className={`flex items-center gap-2 ${phase === 'tool_execution' ? 'text-heading' : 'text-dim'}`}>
+ <span className={`w-2 h-2 rounded-full ${phase === 'tool_execution' ? 'bg-[var(--color-warning)] animate-pulse' : ' bg-elevated/30'}`} />
  TOOL_EXECUTION
  </div>
  <div className="ml-4 text-dim">↓ finished</div>
@@ -449,7 +449,7 @@ export default function SessionStateMachineAnimation() {
  key={i}
  className={`${
  log.includes('✅') || log.includes('🏁') ? 'text-heading' :
- log.includes('⚡') || log.includes('🚀') ? 'text-amber-500' :
+ log.includes('⚡') || log.includes('🚀') ? 'text-heading' :
  log.includes('📝') ? 'text-heading' :
  log.includes('💭') ? 'text-heading' :
  log.includes('📥') || log.includes('🔗') ? 'text-heading' :

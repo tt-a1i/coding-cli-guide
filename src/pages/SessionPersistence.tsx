@@ -23,14 +23,14 @@ function CollapsibleSection({
  const [isOpen, setIsOpen] = useState(defaultOpen);
 
  return (
- <div className={`mb-6 rounded-lg border ${highlight ? 'border-[var(--color-success)] bg-[var(--color-success-soft)]' : ' border-edge/50 bg-surface/30'}`}>
+ <div className={`mb-6 rounded-lg border ${highlight ? 'border-edge bg-elevated' : ' border-edge/50 bg-surface/30'}`}>
  <button
  onClick={() => setIsOpen(!isOpen)}
  className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-elevated/20 transition-colors rounded-lg"
  >
  <div className="flex items-center gap-3">
  <span className="text-2xl">{icon}</span>
- <span className={`text-lg font-semibold ${highlight ? 'text-[var(--color-success)]' : 'text-heading'}`}>{title}</span>
+ <span className={`text-lg font-semibold ${highlight ? 'text-heading' : 'text-heading'}`}>{title}</span>
  </div>
  <span className={`text-xl transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
  ▼
@@ -69,11 +69,11 @@ function DesignRationaleCard({ title, why, how, benefit }: {
  benefit: string;
 }) {
  return (
- <div className="my-4 rounded-lg border border-[var(--color-success)] bg-surface p-5">
- <h4 className="mb-3 text-lg font-semibold text-[var(--color-success)]">💡 {title}</h4>
+ <div className="my-4 rounded-lg border-l-2 border-l-edge-hover bg-surface p-5">
+ <h4 className="mb-3 text-lg font-semibold text-heading">💡 {title}</h4>
  <div className="space-y-3 text-sm">
  <div>
- <span className="font-medium text-[var(--color-warning)]">为什么：</span>
+ <span className="font-medium text-heading">为什么：</span>
  <span className="text-body ml-2">{why}</span>
  </div>
  <div>
@@ -81,7 +81,7 @@ function DesignRationaleCard({ title, why, how, benefit }: {
  <span className="text-body ml-2">{how}</span>
  </div>
  <div>
- <span className="font-medium text-[var(--color-success)]">带来的好处：</span>
+ <span className="font-medium text-heading">带来的好处：</span>
  <span className="text-body ml-2">{benefit}</span>
  </div>
  </div>
@@ -98,9 +98,9 @@ function SessionFileVisualization() {
  <div className="text-body">~/.gemini/</div>
  <div className="pl-4 text-body">└── tmp/</div>
  <div className="pl-8 text-heading">└── {'<project_hash>'}/ <span className="text-dim">← 项目唯一标识</span></div>
- <div className="pl-12 text-[var(--color-success)]">└── chats/</div>
- <div className="pl-16 text-[var(--color-warning)]">├── session-2024-12-26T10-30-abc12345.json</div>
- <div className="pl-16 text-[var(--color-warning)]">├── session-2024-12-26T14-15-def67890.json</div>
+ <div className="pl-12 text-heading">└── chats/</div>
+ <div className="pl-16 text-heading">├── session-2024-12-26T10-30-abc12345.json</div>
+ <div className="pl-16 text-heading">├── session-2024-12-26T14-15-def67890.json</div>
  <div className="pl-16 text-dim">└── ...</div>
  </div>
  <div className="mt-4 text-xs text-dim">
@@ -115,15 +115,15 @@ function SessionRecordFlow() {
  const steps = [
  { icon: '👤', label: '用户输入', color: 'text-heading', desc: 'recordMessage(user)' },
  { icon: '🤔', label: 'AI思考', color: 'text-heading', desc: 'recordThought()' },
- { icon: '🔧', label: '工具调用', color: 'text-[var(--color-warning)]', desc: 'recordToolCalls()' },
- { icon: '🤖', label: 'AI响应', color: 'text-[var(--color-success)]', desc: 'recordMessage(gemini)' },
+ { icon: '🔧', label: '工具调用', color: 'text-heading', desc: 'recordToolCalls()' },
+ { icon: '🤖', label: 'AI响应', color: 'text-heading', desc: 'recordMessage(gemini)' },
  { icon: '📊', label: 'Token统计', color: 'text-heading', desc: 'recordMessageTokens()' },
  { icon: '💾', label: '写入磁盘', color: 'text-heading', desc: 'writeConversation()' },
  ];
 
  return (
- <div className="my-6 rounded-lg border border-[var(--color-success)] bg-surface p-6">
- <h4 className="mb-4 text-lg font-semibold text-[var(--color-success)]">📝 会话记录数据流</h4>
+ <div className="my-6 rounded-lg border-l-2 border-l-edge-hover bg-surface p-6">
+ <h4 className="mb-4 text-lg font-semibold text-heading">📝 会话记录数据流</h4>
  <div className="flex items-center justify-between overflow-x-auto pb-2">
  {steps.map((step, i) => (
  <div key={i} className="flex items-center min-w-[100px]">
@@ -148,7 +148,7 @@ function CompressionThresholdVisualization() {
  const needsCompression = tokenUsage >= threshold;
 
  return (
- <div className="my-6 rounded-lg border border-[var(--color-warning)] bg-surface p-6">
+ <div className="my-6 rounded-lg border-l-2 border-l-edge-hover bg-surface p-6">
  <h4 className="text-lg font-semibold text-heading mb-4">📊 压缩阈值判断</h4>
 
  <div className="mb-4">
@@ -175,15 +175,15 @@ function CompressionThresholdVisualization() {
  style={{ left: `${threshold}%` }}
  />
  <div
- className="absolute -top-6 text-xs font-mono text-[var(--color-warning)]"
+ className="absolute -top-6 text-xs font-mono text-heading"
  style={{ left: `${threshold}%`, transform: 'translateX(-50%)' }}
  >
  70% 阈值
  </div>
  </div>
 
- <div className={`mt-4 rounded-lg p-3 ${needsCompression ? 'border border-[var(--color-danger)] bg-[var(--color-danger-soft)]' : 'border border-[var(--color-success)] bg-[var(--color-success-soft)]'}`}>
- <span className={needsCompression ? 'text-[var(--color-danger)]' : 'text-[var(--color-success)]'}>
+ <div className={`mt-4 rounded-lg p-3 ${needsCompression ? 'border-l-2 border-l-edge-hover bg-elevated' : 'border-l-2 border-l-edge-hover bg-elevated'}`}>
+ <span className={needsCompression ? 'text-heading' : 'text-heading'}>
  {needsCompression
  ? '⚠️ 超过阈值，需要触发压缩'
  : '✓ 未超过阈值，无需压缩'}
@@ -251,20 +251,20 @@ function CompressionSplitPointVisualization() {
  return (
  <div key={i} className="flex items-center gap-2">
  {isSplitPoint && (
- <div className="absolute -ml-6 text-yellow-400 animate-pulse">✂️</div>
+ <div className="absolute -ml-6 text-heading animate-pulse">✂️</div>
  )}
- <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${isUser ? ' bg-elevated' : 'bg-green-600'}`}>
+ <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${isUser ? ' bg-elevated' : 'bg-[var(--color-success)]'}`}>
  {isUser ? 'U' : 'M'}
  </div>
  <div
- className={`flex-1 p-2 rounded-lg text-sm ${willCompress ? 'bg-red-900/30 border border-red-700/30' : 'bg-green-900/30 border border-green-700/30'}`}
+ className={`flex-1 p-2 rounded-lg text-sm ${willCompress ? 'bg-elevated border-l-2 border-l-edge-hover/30' : 'bg-elevated border-l-2 border-l-edge-hover/30'}`}
  >
  <span className="text-body">{msg.content}</span>
  <span className="text-xs text-dim ml-2">({msg.chars} chars)</span>
- {msg.hasFunctionCall && <span className="text-xs text-yellow-400 ml-2">[函数调用]</span>}
+ {msg.hasFunctionCall && <span className="text-xs text-heading ml-2">[函数调用]</span>}
  {msg.hasFunctionResponse && <span className="text-xs text-heading ml-2">[函数响应]</span>}
  </div>
- <div className={`text-xs ${willCompress ? 'text-red-400' : 'text-green-400'}`}>
+ <div className={`text-xs ${willCompress ? 'text-heading' : 'text-heading'}`}>
  {willCompress ? '压缩' : '保留'}
  </div>
  </div>
@@ -275,9 +275,9 @@ function CompressionSplitPointVisualization() {
  <div className="mt-4 p-3 bg-surface rounded-lg text-sm">
  <div className="text-body">分割点选择规则：</div>
  <ul className="mt-2 space-y-1 text-body text-xs">
- <li>• 只能在 <code className="text-heading">user</code> 消息处分割（保持对话完整性）</li>
- <li>• 不能在 <code className="text-heading">functionResponse</code> 处分割（保持工具调用完整性）</li>
- <li>• 不能在 <code className="text-yellow-400">functionCall</code> 后面分割（等待函数执行完成）</li>
+ <li>只能在 <code className="text-heading">user</code> 消息处分割（保持对话完整性）</li>
+ <li>不能在 <code className="text-heading">functionResponse</code> 处分割（保持工具调用完整性）</li>
+ <li>不能在 <code className="text-heading">functionCall</code> 后面分割（等待函数执行完成）</li>
  </ul>
  </div>
  </div>
@@ -301,14 +301,14 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  {isExpanded && (
  <div className="space-y-4 text-body animate-fadeIn">
  <p className="text-lg">
- Gemini CLI 实现了完整的会话持久化系统，用于<strong className="text-emerald-300">记录对话历史</strong>、
+ Gemini CLI 实现了完整的会话持久化系统，用于<strong className="text-heading">记录对话历史</strong>、
  <strong className="text-heading">恢复中断会话</strong>、以及<strong className="text-heading">智能压缩上下文</strong>。
  </p>
 
  <div className="grid grid-cols-3 gap-4 mt-6">
- <div className="p-4 bg-emerald-900/30 rounded-lg border border-emerald-600/30">
+ <div className="p-4 bg-elevated rounded-lg border-l-2 border-l-edge-hover/30">
  <div className="text-3xl mb-2">💾</div>
- <h3 className="font-semibold text-emerald-300">会话记录</h3>
+ <h3 className="font-semibold text-heading">会话记录</h3>
  <p className="text-sm text-body mt-1">自动保存对话、工具调用、Token统计</p>
  </div>
  <div className="p-4 bg-elevated/30 rounded-lg border border-edge">
@@ -316,7 +316,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <h3 className="font-semibold text-heading">会话恢复</h3>
  <p className="text-sm text-body mt-1">支持从历史记录恢复会话</p>
  </div>
- <div className="p-4 bg-orange-900/30 rounded-lg border border-orange-600/30">
+ <div className="p-4 bg-elevated rounded-lg border-l-2 border-l-edge-hover/30">
  <div className="text-3xl mb-2">📦</div>
  <h3 className="font-semibold text-heading">上下文压缩</h3>
  <p className="text-sm text-body mt-1">智能压缩防止 Token 溢出</p>
@@ -333,7 +333,7 @@ function ChatRecordingSection() {
  return (
  <div className="pt-6 space-y-4">
  <p className="text-body">
- <code className="text-emerald-400">ChatRecordingService</code> 负责将对话实时记录到磁盘，
+ <code className="text-heading">ChatRecordingService</code> 负责将对话实时记录到磁盘，
  包括用户消息、AI响应、工具调用和Token使用统计。
  </p>
 
@@ -476,7 +476,7 @@ function CompressionSection() {
  />
 
  <h4 className="text-lg font-semibold text-heading mt-6">压缩流程</h4>
- <div className="my-4 p-6 bg-surface rounded-lg border border-orange-700/50">
+ <div className="my-4 p-6 bg-surface rounded-lg border-l-2 border-l-edge-hover/50">
  <div className="space-y-4">
  {[
  { step: 1, action: '判断是否需要压缩', desc: 'tokenCount > 70% × tokenLimit(model)' },
@@ -486,7 +486,7 @@ function CompressionSection() {
  { step: 5, action: '验证压缩结果', desc: '新 Token 数 < 原 Token 数？' },
  ].map(({ step, action, desc }) => (
  <div key={step} className="flex items-start gap-4">
- <div className="w-8 h-8 rounded-full bg-orange-600/30 text-heading flex items-center justify-center font-bold">
+ <div className="w-8 h-8 rounded-full bg-elevated text-heading flex items-center justify-center font-bold">
  {step}
  </div>
  <div>
@@ -518,9 +518,9 @@ const newHistory = [
  <div className="grid grid-cols-2 gap-3 mt-3">
  {[
  { status: 'NOOP', desc: '无需压缩', color: 'text-body' },
- { status: 'COMPRESSED', desc: '压缩成功', color: 'text-green-400' },
- { status: 'COMPRESSION_FAILED_EMPTY_SUMMARY', desc: '摘要为空', color: 'text-red-400' },
- { status: 'COMPRESSION_FAILED_INFLATED_TOKEN_COUNT', desc: '压缩后反而更大', color: 'text-red-400' },
+ { status: 'COMPRESSED', desc: '压缩成功', color: 'text-heading' },
+ { status: 'COMPRESSION_FAILED_EMPTY_SUMMARY', desc: '摘要为空', color: 'text-heading' },
+ { status: 'COMPRESSION_FAILED_INFLATED_TOKEN_COUNT', desc: '压缩后反而更大', color: 'text-heading' },
  ].map(({ status, desc, color }) => (
  <div key={status} className="p-3 bg-surface rounded-lg">
  <code className={`text-sm ${color}`}>{status}</code>
@@ -613,22 +613,22 @@ function BestPracticesSection() {
  return (
  <div className="pt-6 space-y-4">
  <div className="grid grid-cols-2 gap-4">
- <div className="rounded-lg border border-[var(--color-success)] bg-[var(--color-success-soft)] p-4">
- <h4 className="mb-2 font-semibold text-[var(--color-success)]">✓ 推荐做法</h4>
+ <div className="rounded-lg border-l-2 border-l-edge-hover bg-elevated p-4">
+ <h4 className="mb-2 font-semibold text-heading">✓ 推荐做法</h4>
  <ul className="text-sm text-body space-y-2">
- <li>• 定期让 AI 生成阶段性总结</li>
- <li>• 使用 CLAUDE.md 记录关键决策</li>
- <li>• 对长对话主动触发压缩</li>
- <li>• 保存重要会话到 checkpoints</li>
+ <li>定期让 AI 生成阶段性总结</li>
+ <li>使用 CLAUDE.md 记录关键决策</li>
+ <li>对长对话主动触发压缩</li>
+ <li>保存重要会话到 checkpoints</li>
  </ul>
  </div>
- <div className="rounded-lg border border-[var(--color-danger)] bg-[var(--color-danger-soft)] p-4">
- <h4 className="mb-2 font-semibold text-[var(--color-danger)]">✗ 避免做法</h4>
+ <div className="rounded-lg border-l-2 border-l-edge-hover bg-elevated p-4">
+ <h4 className="mb-2 font-semibold text-heading">✗ 避免做法</h4>
  <ul className="text-sm text-body space-y-2">
- <li>• 在一个会话中处理过多不相关任务</li>
- <li>• 忽略 Token 使用量警告</li>
- <li>• 手动编辑会话 JSON 文件</li>
- <li>• 删除 tmp 目录中的会话文件</li>
+ <li>在一个会话中处理过多不相关任务</li>
+ <li>忽略 Token 使用量警告</li>
+ <li>手动编辑会话 JSON 文件</li>
+ <li>删除 tmp 目录中的会话文件</li>
  </ul>
  </div>
  </div>
@@ -657,19 +657,19 @@ function EdgeCasesSection() {
  </thead>
  <tbody className="text-body">
  <tr className="border- border-edge">
- <td className="px-2 py-2 text-[var(--color-danger)]">会话文件损坏</td>
+ <td className="px-2 py-2 text-heading">会话文件损坏</td>
  <td className="py-2 px-2 text-xs">JSON 解析失败</td>
  <td className="py-2 px-2 text-xs">跳过该文件，不显示在列表</td>
  <td className="py-2 px-2 text-xs">该会话无法恢复</td>
  </tr>
  <tr className="border- border-edge">
- <td className="py-2 px-2 text-amber-400">压缩摘要为空</td>
+ <td className="py-2 px-2 text-heading">压缩摘要为空</td>
  <td className="py-2 px-2 text-xs">模型返回空响应</td>
  <td className="py-2 px-2 text-xs">返回 COMPRESSION_FAILED_EMPTY_SUMMARY</td>
  <td className="py-2 px-2 text-xs">保持原有历史不变</td>
  </tr>
  <tr className="border- border-edge">
- <td className="py-2 px-2 text-amber-400">压缩后膨胀</td>
+ <td className="py-2 px-2 text-heading">压缩后膨胀</td>
  <td className="py-2 px-2 text-xs">新 Token 数 {'>'} 原 Token 数</td>
  <td className="py-2 px-2 text-xs">返回 COMPRESSION_FAILED_INFLATED_TOKEN_COUNT</td>
  <td className="py-2 px-2 text-xs">保持原有历史不变</td>
@@ -701,7 +701,7 @@ function EdgeCasesSection() {
  <h4 className="text-lg font-semibold text-heading mb-4">🔧 常见问题排查</h4>
  <div className="space-y-4">
  <div className="bg-base/30 rounded-lg p-4">
- <div className="text-amber-400 font-medium mb-2">问题: Welcome Back 列表为空</div>
+ <div className="text-heading font-medium mb-2">问题: Welcome Back 列表为空</div>
  <ul className="text-sm text-body space-y-1 list-disc list-inside">
  <li>检查 <code>ui.enableWelcomeBack</code> 是否为 true</li>
  <li>确认当前目录与之前会话的目录一致</li>
@@ -709,7 +709,7 @@ function EdgeCasesSection() {
  </ul>
  </div>
  <div className="bg-base/30 rounded-lg p-4">
- <div className="text-amber-400 font-medium mb-2">问题: 会话恢复后内容不完整</div>
+ <div className="text-heading font-medium mb-2">问题: 会话恢复后内容不完整</div>
  <ul className="text-sm text-body space-y-1 list-disc list-inside">
  <li>可能会话在压缩后中断，部分历史已被摘要替换</li>
  <li>检查会话 JSON 中是否有 <code>state_snapshot</code> 标记</li>
@@ -717,7 +717,7 @@ function EdgeCasesSection() {
  </ul>
  </div>
  <div className="bg-base/30 rounded-lg p-4">
- <div className="text-amber-400 font-medium mb-2">问题: 手动编辑后无法加载</div>
+ <div className="text-heading font-medium mb-2">问题: 手动编辑后无法加载</div>
  <ul className="text-sm text-body space-y-1 list-disc list-inside">
  <li>使用 <code>jq . session.json</code> 验证 JSON 格式</li>
  <li>确保必须字段存在: sessionId, projectHash, messages</li>
@@ -760,17 +760,17 @@ function DesignDecisionsSection() {
  </div>
  </div>
 
- <div className="rounded-lg border border-[var(--color-success)] bg-surface p-5">
- <h4 className="mb-3 text-lg font-semibold text-[var(--color-success)]">3. 为什么只能在 user 消息处分割？</h4>
+ <div className="rounded-lg border-l-2 border-l-edge-hover bg-surface p-5">
+ <h4 className="mb-3 text-lg font-semibold text-heading">3. 为什么只能在 user 消息处分割？</h4>
  <div className="text-sm text-body space-y-2">
  <p>保证对话的<strong className="text-heading">语义完整性</strong>：</p>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
  <div className="bg-base/30 rounded p-3">
- <div className="mb-1 text-[var(--color-danger)]">如果在 model 消息处分割</div>
+ <div className="mb-1 text-heading">如果在 model 消息处分割</div>
  <p className="text-body">AI 的回复可能被截断，失去上下文</p>
  </div>
  <div className="bg-base/30 rounded p-3">
- <div className="mb-1 text-[var(--color-danger)]">如果在 functionResponse 处分割</div>
+ <div className="mb-1 text-heading">如果在 functionResponse 处分割</div>
  <p className="text-body">工具调用和结果被分离，AI 无法理解</p>
  </div>
  </div>
@@ -778,8 +778,8 @@ function DesignDecisionsSection() {
  </div>
  </div>
 
- <div className="bg-surface rounded-lg p-5 border border-amber-500/30">
- <h4 className="text-lg font-semibold text-amber-300 mb-3">4. 为什么使用队列缓存 Thoughts 和 Tokens？</h4>
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/30">
+ <h4 className="text-lg font-semibold text-heading mb-3">4. 为什么使用队列缓存 Thoughts 和 Tokens？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong className="text-heading">时序问题</strong>：AI 的思考过程和 Token 统计可能在消息对象创建之前就产生。</p>
  <div className="bg-base/30 rounded p-3 mt-2">
@@ -794,8 +794,8 @@ function DesignDecisionsSection() {
  </div>
  </div>
 
- <div className="rounded-lg border border-[var(--color-danger)] bg-surface p-5">
- <h4 className="mb-3 text-lg font-semibold text-[var(--color-danger)]">5. 为什么使用增量写入优化？</h4>
+ <div className="rounded-lg border-l-2 border-l-edge-hover bg-surface p-5">
+ <h4 className="mb-3 text-lg font-semibold text-heading">5. 为什么使用增量写入优化？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong className="text-heading">性能考量</strong>：每次消息都写入磁盘会造成：</p>
  <ul className="text-body space-y-1 list-disc list-inside text-xs">

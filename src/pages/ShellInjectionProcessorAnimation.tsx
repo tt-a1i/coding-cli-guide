@@ -476,11 +476,11 @@ export default function ShellInjectionProcessorAnimation() {
   const statusCardClassName = (status: ProcessStep['status']) => {
     switch (status) {
       case 'active':
-        return 'border-[var(--color-info)] bg-[var(--color-info-soft)] scale-105';
+        return 'border-edge bg-elevated scale-105';
       case 'done':
-        return 'border-[var(--color-success)] bg-[var(--color-success-soft)]';
+        return 'border-edge bg-elevated';
       case 'error':
-        return 'border-[var(--color-danger)] bg-[var(--color-danger-soft)]';
+        return 'border-edge bg-elevated';
       default:
         return 'border-edge bg-elevated/70';
     }
@@ -492,16 +492,16 @@ export default function ShellInjectionProcessorAnimation() {
       case 'done':
         return 'bg-[var(--color-success)] text-black';
       case 'error':
-        return 'bg-[var(--color-danger)] text-white';
+        return 'bg-[var(--color-danger)] text-heading';
       default:
         return 'bg-muted text-dim';
     }
   };
   const permissionStateClassName = {
-    allowed: 'border-[var(--color-success)] bg-[var(--color-success-soft)] text-[var(--color-success)]',
-    denied: 'border-[var(--color-danger)] bg-[var(--color-danger-soft)] text-[var(--color-danger)]',
+    allowed: 'border-edge bg-elevated text-heading',
+    denied: 'border-edge bg-elevated text-heading',
     confirm_required:
-      'border-[var(--color-warning)] bg-[var(--color-warning-soft)] text-[var(--color-warning)]',
+      'border-edge bg-elevated text-heading',
     pending: 'border-edge bg-elevated/70 text-dim',
   } as const;
 
@@ -581,7 +581,7 @@ export default function ShellInjectionProcessorAnimation() {
             </div>
           ))}
         </div>
-        <div className="mt-4 text-sm font-mono text-[var(--color-info)]">{state.message}</div>
+        <div className="mt-4 text-sm font-mono text-heading">{state.message}</div>
       </div>
 
       {/* 输入输出对比 */}
@@ -610,8 +610,8 @@ export default function ShellInjectionProcessorAnimation() {
                   return (
                     <span
                       key={i}
-                      className="rounded px-1 text-[var(--color-info)]"
-                      style={{ backgroundColor: 'var(--color-info-soft)' }}
+                      className="rounded px-1 text-heading"
+                      style={{ backgroundColor: 'var(--color-bg-elevated)' }}
                     >
                       {part}
                     </span>
@@ -631,12 +631,12 @@ export default function ShellInjectionProcessorAnimation() {
             <div className="space-y-2 font-mono text-sm">
               <div className={`${insetClassName} flex items-center justify-between p-2`}>
                 <span className="text-dim">原始:</span>
-                <span className="text-[var(--color-info)]">"{state.userArgs}"</span>
+                <span className="text-heading">"{state.userArgs}"</span>
               </div>
               {state.escapedArgs && (
                 <div className={`${insetClassName} flex items-center justify-between p-2`}>
                   <span className="text-dim">转义后:</span>
-                  <span className="text-[var(--color-success)]">{state.escapedArgs}</span>
+                  <span className="text-heading">{state.escapedArgs}</span>
                 </div>
               )}
             </div>
@@ -655,7 +655,7 @@ export default function ShellInjectionProcessorAnimation() {
                     <div className="mb-1 text-xs text-dim">位置: [{inj.startIndex}, {inj.endIndex}]</div>
                     <div className="text-accent">原始: {inj.content}</div>
                     {inj.content !== inj.resolvedCommand && (
-                      <div className="mt-1 text-[var(--color-success)]">解析: {inj.resolvedCommand}</div>
+                      <div className="mt-1 text-heading">解析: {inj.resolvedCommand}</div>
                     )}
                   </div>
                 ))}
@@ -690,7 +690,7 @@ export default function ShellInjectionProcessorAnimation() {
                 命令输出
               </h3>
               <pre
-                className={`${insetClassName} overflow-x-auto whitespace-pre-wrap text-sm text-[var(--color-success)]`}
+                className={`${insetClassName} overflow-x-auto whitespace-pre-wrap text-sm text-heading`}
               >
                 {state.executionOutput}
               </pre>
@@ -723,7 +723,7 @@ export default function ShellInjectionProcessorAnimation() {
             </div>
           </div>
           <div className={insetClassName}>
-            <div className="mb-2 font-mono text-[var(--color-info)]">&#123;&#123;args&#125;&#125;</div>
+            <div className="mb-2 font-mono text-heading">&#123;&#123;args&#125;&#125;</div>
             <div className="text-body">
               参数占位符。在 !&#123;&#125; 内部会被转义后的参数替换，外部则使用原始参数。
             </div>
@@ -736,28 +736,28 @@ export default function ShellInjectionProcessorAnimation() {
         <h3 className="mb-3 font-semibold text-heading">安全机制</h3>
         <div className="space-y-3 text-sm">
           <div className="flex items-start gap-3">
-            <span className="text-[var(--color-success)]">✓</span>
+            <span className="text-heading">✓</span>
             <div>
               <span className="text-heading">参数转义</span>
               <span className="ml-2 text-body">用户参数在 Shell 命令中会被 escapeShellArg() 转义，防止命令注入</span>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <span className="text-[var(--color-success)]">✓</span>
+            <span className="text-heading">✓</span>
             <div>
               <span className="text-heading">权限检查</span>
               <span className="ml-2 text-body">checkCommandPermissions() 检查命令是否在白名单中</span>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <span className="text-[var(--color-success)]">✓</span>
+            <span className="text-heading">✓</span>
             <div>
               <span className="text-heading">确认机制</span>
               <span className="ml-2 text-body">危险命令需要用户确认，抛出 ConfirmationRequiredError</span>
             </div>
           </div>
           <div className="flex items-start gap-3">
-            <span className="text-[var(--color-success)]">✓</span>
+            <span className="text-heading">✓</span>
             <div>
               <span className="text-heading">YOLO 模式</span>
               <span className="ml-2 text-body">ApprovalMode.YOLO 时跳过确认，但硬拒绝命令仍然被阻止</span>

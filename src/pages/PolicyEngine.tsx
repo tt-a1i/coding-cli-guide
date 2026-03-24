@@ -4,6 +4,10 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
+
 
 const relatedPages: RelatedPage[] = [
  { id: 'hook-system', label: 'Hook 事件系统', description: '事件拦截机制' },
@@ -44,7 +48,7 @@ function QuickSummary({
  {/* 一句话总结 */}
  <div className="bg-base/50 rounded-lg p-4 ">
  <p className="text-heading font-medium">
- <span className="text-amber-500 font-bold">一句话：</span>
+ <span className="text-heading font-bold">一句话：</span>
  多层次安全决策系统，通过规则匹配和 Safety Checker 对工具调用和
  Hook 执行进行 ALLOW/DENY/ASK_USER 决策
  </p>
@@ -65,7 +69,7 @@ function QuickSummary({
  <div className="text-xs text-dim">审批模式</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-amber-500">2</div>
+ <div className="text-2xl font-bold text-heading">2</div>
  <div className="text-xs text-dim">
  Checker 类型
  </div>
@@ -82,13 +86,13 @@ function QuickSummary({
  Policy 决策类型
  </h4>
  <div className="flex items-center gap-3 flex-wrap text-sm">
- <span className="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg border border-green-500/30 font-semibold">
+ <span className="px-4 py-2 text-heading pl-3 border-l-2 border-l-edge-hover/30 font-semibold">
  ALLOW ✓
  </span>
- <span className="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg border border-red-500/30 font-semibold">
+ <span className="px-4 py-2 text-heading pl-3 border-l-2 border-l-edge-hover/30 font-semibold">
  DENY ✗
  </span>
- <span className="px-4 py-2 bg-amber-500/20 text-amber-400 rounded-lg border border-amber-500/30 font-semibold">
+ <span className="px-4 py-2 text-heading pl-3 border-l-2 border-l-edge-hover/30 font-semibold">
  ASK_USER ?
  </span>
  </div>
@@ -129,27 +133,27 @@ export function PolicyEngine() {
  checkers -->|拒绝| deny
  checkers -->|需确认| ask
 
- style request fill:#22d3ee,color:#000
- style allow fill:#22c55e,color:#000
- style deny fill:#ef4444,color:#fff
- style ask fill:#f59e0b,color:#000
- style rules fill:#a855f7,color:#fff
- style checkers fill:#6366f1,color:#fff`;
+ style request fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style allow fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style deny fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style ask fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style rules fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style checkers fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  const policyTypesCode = `// gemini-cli/packages/core/src/policy/types.ts
 
 // 决策类型
 export enum PolicyDecision {
- ALLOW = 'allow', // 允许执行
- DENY = 'deny', // 拒绝执行
- ASK_USER = 'ask_user', // 询问用户
+  ALLOW = 'allow', // 允许执行
+  DENY = 'deny', // 拒绝执行
+  ASK_USER = 'ask_user', // 询问用户
 }
 
 // 审批模式（与 ApprovalMode 不同，这是 Policy 层面的）
 export enum ApprovalMode {
- DEFAULT = 'default', // 默认模式
- AUTO_EDIT = 'autoEdit', // 自动编辑
- YOLO = 'yolo', // 全自动
+  DEFAULT = 'default', // 默认模式
+  AUTO_EDIT = 'autoEdit', // 自动编辑
+  YOLO = 'yolo', // 全自动
 }
 
 // Hook 来源类型
@@ -157,178 +161,178 @@ export type HookSource = 'project' | 'user' | 'system' | 'extension';`;
 
  const policyRuleCode = `// 策略规则定义
 export interface PolicyRule {
- toolName?: string; // 工具名称（支持通配符 serverName__*）
- argsPattern?: RegExp; // 参数匹配正则
- allowRedirection?: boolean; // 仅对 shell 生效：含重定向时是否仍允许 ALLOW（否则会降级 ASK_USER）
- decision: PolicyDecision; // 决策结果
- priority?: number; // 优先级（越高越先匹配）
- modes?: ApprovalMode[]; // 适用的审批模式
+  toolName?: string; // 工具名称（支持通配符 serverName__*）
+  argsPattern?: RegExp; // 参数匹配正则
+  allowRedirection?: boolean; // 仅对 shell 生效：含重定向时是否仍允许 ALLOW（否则会降级 ASK_USER）
+  decision: PolicyDecision; // 决策结果
+  priority?: number; // 优先级（越高越先匹配）
+  modes?: ApprovalMode[]; // 适用的审批模式
 }
 
 // Safety Checker 规则
 export interface SafetyCheckerRule {
- toolName?: string;
- argsPattern?: RegExp;
- priority?: number;
- checker: SafetyCheckerConfig;
- modes?: ApprovalMode[];
+  toolName?: string;
+  argsPattern?: RegExp;
+  priority?: number;
+  checker: SafetyCheckerConfig;
+  modes?: ApprovalMode[];
 }
 
 // Checker 配置（外部或内置）
 export type SafetyCheckerConfig =
- | ExternalCheckerConfig // 外部脚本
- | InProcessCheckerConfig; // 内置检查器
+  | ExternalCheckerConfig // 外部脚本
+  | InProcessCheckerConfig; // 内置检查器
 
 // 内置 Checker 类型
 export enum InProcessCheckerType {
- ALLOWED_PATH = 'allowed-path', // 路径白名单检查
+  ALLOWED_PATH = 'allowed-path', // 路径白名单检查
 }
 
 // Hook Checker 规则（用于 Hook 执行的安全检查）
 export interface HookCheckerRule {
- eventName?: string; // Hook 事件名（BeforeTool, AfterModel 等）
- hookSource?: HookSource; // Hook 来源（project, user, system, extension）
- checker: string; // 检查器名称
- priority?: number; // 优先级（越高越先匹配）
+  eventName?: string; // Hook 事件名（BeforeTool, AfterModel 等）
+  hookSource?: HookSource; // Hook 来源（project, user, system, extension）
+  checker: string; // 检查器名称
+  priority?: number; // 优先级（越高越先匹配）
 }`;
 
  const policyEngineCode = `// gemini-cli/packages/core/src/policy/policy-engine.ts
 
 export class PolicyEngine {
- private rules: PolicyRule[];
- private checkers: SafetyCheckerRule[];
- private hookCheckers: HookCheckerRule[];
- private readonly defaultDecision: PolicyDecision;
- private readonly nonInteractive: boolean;
- private readonly checkerRunner?: CheckerRunner;
- private readonly allowHooks: boolean;
- private approvalMode: ApprovalMode;
+  private rules: PolicyRule[];
+  private checkers: SafetyCheckerRule[];
+  private hookCheckers: HookCheckerRule[];
+  private readonly defaultDecision: PolicyDecision;
+  private readonly nonInteractive: boolean;
+  private readonly checkerRunner?: CheckerRunner;
+  private readonly allowHooks: boolean;
+  private approvalMode: ApprovalMode;
 
- constructor(config: PolicyEngineConfig = {}, checkerRunner?: CheckerRunner) {
- // 按优先级排序规则
- this.rules = (config.rules ?? []).sort(
- (a, b) => (b.priority ?? 0) - (a.priority ?? 0)
- );
- this.checkers = (config.checkers ?? []).sort(
- (a, b) => (b.priority ?? 0) - (a.priority ?? 0)
- );
- this.hookCheckers = (config.hookCheckers ?? []).sort(
- (a, b) => (b.priority ?? 0) - (a.priority ?? 0)
- );
- this.defaultDecision = config.defaultDecision ?? PolicyDecision.ASK_USER;
- this.nonInteractive = config.nonInteractive ?? false;
- this.checkerRunner = checkerRunner;
- this.allowHooks = config.allowHooks ?? true;
- this.approvalMode = config.approvalMode ?? ApprovalMode.DEFAULT;
- }
+  constructor(config: PolicyEngineConfig = {}, checkerRunner?: CheckerRunner) {
+  // 按优先级排序规则
+  this.rules = (config.rules ?? []).sort(
+  (a, b) => (b.priority ?? 0) - (a.priority ?? 0)
+  );
+  this.checkers = (config.checkers ?? []).sort(
+  (a, b) => (b.priority ?? 0) - (a.priority ?? 0)
+  );
+  this.hookCheckers = (config.hookCheckers ?? []).sort(
+  (a, b) => (b.priority ?? 0) - (a.priority ?? 0)
+  );
+  this.defaultDecision = config.defaultDecision ?? PolicyDecision.ASK_USER;
+  this.nonInteractive = config.nonInteractive ?? false;
+  this.checkerRunner = checkerRunner;
+  this.allowHooks = config.allowHooks ?? true;
+  this.approvalMode = config.approvalMode ?? ApprovalMode.DEFAULT;
+  }
 
- // 检查工具调用
- async check(toolCall: FunctionCall, serverName: string | undefined): Promise<{
- decision: PolicyDecision;
- rule?: PolicyRule;
- }> {
- let stringifiedArgs: string | undefined;
+  // 检查工具调用
+  async check(toolCall: FunctionCall, serverName: string | undefined): Promise<{
+  decision: PolicyDecision;
+  rule?: PolicyRule;
+  }> {
+  let stringifiedArgs: string | undefined;
 
- // 1. 序列化参数用于模式匹配（仅在必要时计算）
- if (
- toolCall.args &&
- (this.rules.some((rule) => rule.argsPattern) ||
- this.checkers.some((checker) => checker.argsPattern))
- ) {
- stringifiedArgs = stableStringify(toolCall.args);
- }
+  // 1. 序列化参数用于模式匹配（仅在必要时计算）
+  if (
+  toolCall.args &&
+  (this.rules.some((rule) => rule.argsPattern) ||
+  this.checkers.some((checker) => checker.argsPattern))
+  ) {
+  stringifiedArgs = stableStringify(toolCall.args);
+  }
 
- // 2. 查找匹配的规则（已按 priority 排序）
- let matchedRule: PolicyRule | undefined;
- let decision: PolicyDecision | undefined;
+  // 2. 查找匹配的规则（已按 priority 排序）
+  let matchedRule: PolicyRule | undefined;
+  let decision: PolicyDecision | undefined;
 
- for (const rule of this.rules) {
- if (ruleMatches(rule, toolCall, stringifiedArgs, serverName, this.approvalMode)) {
- if (toolCall.name && SHELL_TOOL_NAMES.includes(toolCall.name)) {
- const args = toolCall.args as { command?: string; dir_path?: string };
- decision = await this.checkShellCommand(
- toolCall.name,
- args?.command,
- rule.decision,
- serverName,
- args?.dir_path,
- rule.allowRedirection,
- );
- } else {
- decision = this.applyNonInteractiveMode(rule.decision);
- }
- matchedRule = rule;
- break;
- }
- }
+  for (const rule of this.rules) {
+  if (ruleMatches(rule, toolCall, stringifiedArgs, serverName, this.approvalMode)) {
+  if (toolCall.name && SHELL_TOOL_NAMES.includes(toolCall.name)) {
+  const args = toolCall.args as { command?: string; dir_path?: string };
+  decision = await this.checkShellCommand(
+  toolCall.name,
+  args?.command,
+  rule.decision,
+  serverName,
+  args?.dir_path,
+  rule.allowRedirection,
+  );
+  } else {
+  decision = this.applyNonInteractiveMode(rule.decision);
+  }
+  matchedRule = rule;
+  break;
+  }
+  }
 
- if (!decision) {
- // 未命中规则：使用默认决策
- decision = this.applyNonInteractiveMode(this.defaultDecision);
- }
+  if (!decision) {
+  // 未命中规则：使用默认决策
+  decision = this.applyNonInteractiveMode(this.defaultDecision);
+  }
 
- // 3. 运行 Safety Checkers（DENY 直接短路）
- if (decision !== PolicyDecision.DENY && this.checkerRunner) {
- for (const checkerRule of this.checkers) {
- if (
- ruleMatches(
- checkerRule,
- toolCall,
- stringifiedArgs,
- serverName,
- this.approvalMode
- )
- ) {
- const result = await this.checkerRunner.runChecker(toolCall, checkerRule.checker);
- if (result.decision === SafetyCheckDecision.DENY) {
- return { decision: PolicyDecision.DENY, rule: matchedRule };
- } else if (result.decision === SafetyCheckDecision.ASK_USER) {
- decision = PolicyDecision.ASK_USER;
- }
- }
- }
- }
+  // 3. 运行 Safety Checkers（DENY 直接短路）
+  if (decision !== PolicyDecision.DENY && this.checkerRunner) {
+  for (const checkerRule of this.checkers) {
+  if (
+  ruleMatches(
+  checkerRule,
+  toolCall,
+  stringifiedArgs,
+  serverName,
+  this.approvalMode
+  )
+  ) {
+  const result = await this.checkerRunner.runChecker(toolCall, checkerRule.checker);
+  if (result.decision === SafetyCheckDecision.DENY) {
+  return { decision: PolicyDecision.DENY, rule: matchedRule };
+  } else if (result.decision === SafetyCheckDecision.ASK_USER) {
+  decision = PolicyDecision.ASK_USER;
+  }
+  }
+  }
+  }
 
- return { decision: this.applyNonInteractiveMode(decision), rule: matchedRule };
- }
+  return { decision: this.applyNonInteractiveMode(decision), rule: matchedRule };
+  }
 }`;
 
  const ruleMatchingCode = `// 规则匹配逻辑
 function ruleMatches(
- rule: PolicyRule | SafetyCheckerRule,
- toolCall: FunctionCall,
- stringifiedArgs: string | undefined,
- serverName: string | undefined,
- currentApprovalMode: ApprovalMode,
+  rule: PolicyRule | SafetyCheckerRule,
+  toolCall: FunctionCall,
+  stringifiedArgs: string | undefined,
+  serverName: string | undefined,
+  currentApprovalMode: ApprovalMode,
 ): boolean {
- // 1. 检查审批模式
- if (rule.modes?.length > 0 && !rule.modes.includes(currentApprovalMode)) {
- return false;
- }
+  // 1. 检查审批模式
+  if (rule.modes?.length > 0 && !rule.modes.includes(currentApprovalMode)) {
+  return false;
+  }
 
- // 2. 检查工具名称
- if (rule.toolName) {
- // 支持通配符：serverName__* 匹配该服务器所有工具
- if (rule.toolName.endsWith('__*')) {
- const prefix = rule.toolName.slice(0, -3);
- // 安全检查：serverName 必须精确匹配
- if (serverName !== undefined && serverName !== prefix) {
- return false;
- }
- if (!toolCall.name?.startsWith(prefix + '__')) {
- return false;
- }
- } else if (toolCall.name !== rule.toolName) {
- return false;
- }
- }
+  // 2. 检查工具名称
+  if (rule.toolName) {
+  // 支持通配符：serverName__* 匹配该服务器所有工具
+  if (rule.toolName.endsWith('__*')) {
+  const prefix = rule.toolName.slice(0, -3);
+  // 安全检查：serverName 必须精确匹配
+  if (serverName !== undefined && serverName !== prefix) {
+  return false;
+  }
+  if (!toolCall.name?.startsWith(prefix + '__')) {
+  return false;
+  }
+  } else if (toolCall.name !== rule.toolName) {
+  return false;
+  }
+  }
 
- // 3. 检查参数模式
- if (rule.argsPattern && !rule.argsPattern.test(stringifiedArgs ?? '')) {
- return false;
- }
+  // 3. 检查参数模式
+  if (rule.argsPattern && !rule.argsPattern.test(stringifiedArgs ?? '')) {
+  return false;
+  }
 
- return true;
+  return true;
 }`;
 
  const tomlConfigCode = `# ~/.gemini/policies/my-rules.toml - Policy 配置示例
@@ -372,38 +376,38 @@ included_args = ["file_path"]`;
 
  const hookPolicyCode = `// Hook 执行的策略检查
 async checkHook(
- request: HookExecutionRequest | HookExecutionContext
+  request: HookExecutionRequest | HookExecutionContext
 ): Promise<PolicyDecision> {
- // 1. 全局 Hook 开关
- if (!this.allowHooks) {
- return PolicyDecision.DENY;
- }
+  // 1. 全局 Hook 开关
+  if (!this.allowHooks) {
+  return PolicyDecision.DENY;
+  }
 
- const context = 'input' in request ? {
- eventName: request.eventName,
- hookSource: getHookSource(request.input),
- trustedFolder: request.input['trusted_folder'],
- } : request;
+  const context = 'input' in request ? {
+  eventName: request.eventName,
+  hookSource: getHookSource(request.input),
+  trustedFolder: request.input['trusted_folder'],
+  } : request;
 
- // 2. 不可信文件夹：拒绝项目级 Hook
- if (context.trustedFolder === false && context.hookSource === 'project') {
- return PolicyDecision.DENY;
- }
+  // 2. 不可信文件夹：拒绝项目级 Hook
+  if (context.trustedFolder === false && context.hookSource === 'project') {
+  return PolicyDecision.DENY;
+  }
 
- // 3. 运行 Hook Checker
- for (const checkerRule of this.hookCheckers) {
- if (hookCheckerMatches(checkerRule, context)) {
- const result = await this.checkerRunner.runChecker(
- { name: \`hook:\${context.eventName}\`, args: {...} },
- checkerRule.checker
- );
- if (result.decision === SafetyCheckDecision.DENY) {
- return PolicyDecision.DENY;
- }
- }
- }
+  // 3. 运行 Hook Checker
+  for (const checkerRule of this.hookCheckers) {
+  if (hookCheckerMatches(checkerRule, context)) {
+  const result = await this.checkerRunner.runChecker(
+  { name: \`hook:\${context.eventName}\`, args: {...} },
+  checkerRule.checker
+  );
+  if (result.decision === SafetyCheckDecision.DENY) {
+  return PolicyDecision.DENY;
+  }
+  }
+  }
 
- return PolicyDecision.ALLOW;
+  return PolicyDecision.ALLOW;
 }`;
 
  return (
@@ -439,9 +443,9 @@ async checkHook(
  <div className="text-sm space-y-2">
  <p className="text-body font-semibold">允许执行</p>
  <ul className="text-body space-y-1">
- <li>• 自动执行工具</li>
- <li>• 无需用户确认</li>
- <li>• 用于可信操作</li>
+ <li>自动执行工具</li>
+ <li>无需用户确认</li>
+ <li>用于可信操作</li>
  </ul>
  </div>
  </HighlightBox>
@@ -450,9 +454,9 @@ async checkHook(
  <div className="text-sm space-y-2">
  <p className="text-body font-semibold">拒绝执行</p>
  <ul className="text-body space-y-1">
- <li>• 直接阻止操作</li>
- <li>• 返回错误给 AI</li>
- <li>• 用于危险操作</li>
+ <li>直接阻止操作</li>
+ <li>返回错误给 AI</li>
+ <li>用于危险操作</li>
  </ul>
  </div>
  </HighlightBox>
@@ -461,9 +465,9 @@ async checkHook(
  <div className="text-sm space-y-2">
  <p className="text-body font-semibold">询问用户</p>
  <ul className="text-body space-y-1">
- <li>• 显示确认对话框</li>
- <li>• 用户决定批准/拒绝</li>
- <li>• 默认决策类型</li>
+ <li>显示确认对话框</li>
+ <li>用户决定批准/拒绝</li>
+ <li>默认决策类型</li>
  </ul>
  </div>
  </HighlightBox>
@@ -524,7 +528,7 @@ async checkHook(
  <li>
  • <code className="text-heading">decision</code>: 决策结果
  </li>
- <li>• 首个匹配的规则生效</li>
+ <li>首个匹配的规则生效</li>
  </ul>
  </div>
  </div>
@@ -565,7 +569,7 @@ async checkHook(
  <span className="text-body">→ 精确匹配单个工具</span>
  </div>
  </div>
- <p className="text-amber-400 text-xs">
+ <p className="text-heading text-xs">
  ⚠️ 安全检查：serverName 必须精确匹配前缀，防止恶意服务器伪造名称
  </p>
  </div>
@@ -581,9 +585,9 @@ async checkHook(
  <div className="text-sm space-y-2">
  <p className="text-body">外部脚本检查器</p>
  <ul className="text-body space-y-1">
- <li>• 执行自定义脚本</li>
- <li>• 通过 stdout JSON 返回结果</li>
- <li>• 可访问完整上下文</li>
+ <li>执行自定义脚本</li>
+ <li>通过 stdout JSON 返回结果</li>
+ <li>可访问完整上下文</li>
  </ul>
  <CodeBlock
  code={`{
@@ -604,8 +608,8 @@ async checkHook(
  <li>
  • <code>allowed-path</code>: 路径白名单
  </li>
- <li>• 高效，无进程开销</li>
- <li>• 可配置参数</li>
+ <li>高效，无进程开销</li>
+ <li>可配置参数</li>
  </ul>
  <CodeBlock
  code={`{
@@ -684,7 +688,7 @@ async checkHook(
  时， 来自项目配置（<code>hookSource === 'project'</code>）的
  Hook 会被自动拒绝。
  </p>
- <p className="text-amber-400">
+ <p className="text-heading">
  这防止恶意项目通过 Hook 在用户机器上执行任意命令。
  </p>
  </div>
@@ -718,10 +722,10 @@ async checkHook(
  final -->|任一 DENY| deny([DENY])
  final -->|任一 ASK_USER| ask([ASK_USER])
 
- style shell fill:#22d3ee,color:#000
- style allow fill:#22c55e,color:#000
- style deny fill:#ef4444,color:#fff
- style ask fill:#f59e0b,color:#000`}
+ style shell fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style allow fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style deny fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style ask fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}`}
  title="复合 Shell 命令处理"
  />
 
@@ -776,7 +780,7 @@ async checkHook(
  在非交互模式（如 CI/CD 环境）下，
  <code className="bg-base/30 px-1 rounded">ASK_USER</code>
  决策会自动转换为{' '}
- <code className="bg-base/30 px-1 rounded text-red-400">
+ <code className="bg-base/30 px-1 rounded text-heading">
  DENY
  </code>
  。
@@ -838,7 +842,7 @@ async checkHook(
  <Layer title="设计决策" icon="💡">
  <div className="space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">
+ <h4 className="text-heading font-bold mb-2">
  为什么默认是 ASK_USER 而非 DENY？
  </h4>
  <div className="text-sm text-body space-y-2">

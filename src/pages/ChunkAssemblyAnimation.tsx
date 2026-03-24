@@ -115,7 +115,7 @@ function ChunkVisual({
 }) {
  const typeColors = {
  content: 'var(--color-primary)',
- tool_meta: '#f59e0b',
+ tool_meta: 'var(--color-warning)',
  tool_args: 'var(--color-primary)',
  finish: 'var(--color-primary)',
  usage: 'var(--color-text-muted)',
@@ -160,7 +160,7 @@ function BufferVisual({
  return (
  <div className="bg-base rounded-lg p-4 border border-edge">
  <div className="flex items-center gap-2 mb-3">
- <span className="text-amber-500">📦</span>
+ <span className="text-heading">📦</span>
  <span className="text-sm font-mono font-bold text-heading">累积缓冲区</span>
  </div>
 
@@ -196,8 +196,8 @@ function BufferVisual({
 
  {/* Tool metadata */}
  {toolCall && (
- <div className="p-3 bg-base rounded border border-amber-600">
- <div className="text-xs font-mono text-amber-500 mb-1">toolCalls[0] metadata</div>
+ <div className="p-3 bg-base rounded border-l-2 border-l-edge-hover/60">
+ <div className="text-xs font-mono text-heading mb-1">toolCalls[0] metadata</div>
  <div className="font-mono text-xs text-body">
  id: {toolCall.id || '(pending)'}
  <br />
@@ -229,7 +229,7 @@ function DepthTracker({ depth, char }: { depth: number; char: string }) {
 
  <div className="flex items-center gap-3 mb-3">
  <div className="text-xs font-mono text-dim">当前字符:</div>
- <div className="px-3 py-1 bg-base rounded font-mono text-lg text-amber-500">
+ <div className="px-3 py-1 bg-base rounded font-mono text-lg text-heading">
  {char || '-'}
  </div>
  </div>
@@ -254,7 +254,7 @@ function DepthTracker({ depth, char }: { depth: number; char: string }) {
  <div className="mt-3 text-xs font-mono text-dim">
  <span className="text-heading">{'{'}</span> → depth++
  <span className="mx-2">|</span>
- <span className="text-red-500">{'}'}</span> → depth--
+ <span className="text-heading">{'}'}</span> → depth--
  <span className="mx-2">|</span>
  depth=0 → JSON 完成
  </div>
@@ -522,7 +522,7 @@ yield {
  // 源码位置: packages/core/src/core/openaiContentGenerator/pipeline.ts
  </p>
 
- <div className="mb-6 bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 text-sm text-amber-200">
+ <div className="mb-6 bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-3 text-sm text-heading">
  注意：本页展示的是 Innies/Qwen CLI 的 OpenAI 兼容流式输出（SSE chunks / tool_calls）如何被组装；
  上游 Gemini CLI 使用 <code className="bg-base/30 px-1 rounded">@google/genai</code> 的流式响应结构，
  不需要解析 OpenAI 的 <code className="bg-base/30 px-1 rounded">tool_calls</code>。
@@ -544,7 +544,7 @@ yield {
  </button>
  <button
  onClick={reset}
- className="px-5 py-2.5 bg-elevated text-amber-500 rounded-md font-mono font-bold border border-edge hover:border-amber-600 transition-all cursor-pointer"
+ className="px-5 py-2.5 bg-elevated text-heading rounded-md font-mono font-bold border border-edge hover:border-edge/60 transition-all cursor-pointer"
  >
  ↺ 重置
  </button>
@@ -598,7 +598,7 @@ yield {
  Chunk：<span className="text-heading font-bold">{currentChunkIndex + 1}</span>/{chunks.length}
  </span>
  {isPlaying && (
- <span className="text-amber-500 font-mono text-sm animate-pulse">● 处理中</span>
+ <span className="text-heading font-mono text-sm animate-pulse">● 处理中</span>
  )}
  </div>
  <div className="mt-3 h-1 bg-elevated rounded-full overflow-hidden">
@@ -617,8 +617,8 @@ yield {
  文本内容逐 chunk 累积到 buffer
  </div>
  </div>
- <div className="p-3 bg-base rounded-lg border border-amber-600">
- <div className="text-xs font-mono text-amber-500 font-bold mb-1">元数据先行</div>
+ <div className="p-3 bg-base rounded-lg border-l-2 border-l-edge-hover/60">
+ <div className="text-xs font-mono text-heading font-bold mb-1">元数据先行</div>
  <div className="text-xs font-mono text-dim">
  工具 id/name 通常先于参数到达
  </div>

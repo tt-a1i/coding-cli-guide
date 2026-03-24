@@ -362,9 +362,9 @@ function StepBadge({
  result === 'allowed'
  ? 'var(--color-primary)'
  : result === 'denied'
- ? '#ef4444'
+ ? 'var(--color-danger)'
  : result === 'ask'
- ? '#f59e0b'
+ ? 'var(--color-warning)'
  : isActive
  ? 'var(--color-primary)'
  : 'var(--color-text-muted)';
@@ -767,7 +767,7 @@ const options = [
  resetPlayhead();
  }}
  className={`px-3 py-2 rounded text-sm border ${approvalMode === m
- ? 'bg-amber-500/15 text-amber-500 border-amber-500/40'
+ ? 'bg-elevated text-heading border-edge/40'
  : 'bg-base text-body border-edge'
  }`}
  >
@@ -807,7 +807,7 @@ const options = [
  <div className="flex flex-wrap gap-1">
  {preset.excludeTools.length > 0 ? (
  preset.excludeTools.map((t) => (
- <span key={t} className="px-2 py-0.5 rounded bg-red-500/15 text-red-500">
+ <span key={t} className="px-2 py-0.5 rounded bg-[var(--color-danger)]/15 text-heading">
  {t}
  </span>
  ))
@@ -851,7 +851,7 @@ const options = [
  <div className="text-dim mb-1">oneTimeShellAllowlist</div>
  <div className="flex flex-wrap gap-1">
  {[...oneTimeAllowlist].map((t) => (
- <span key={t} className="px-2 py-0.5 rounded bg-amber-500/15 text-amber-500">
+ <span key={t} className="px-2 py-0.5 rounded bg-elevated text-heading">
  {t}
  </span>
  ))}
@@ -900,7 +900,7 @@ const options = [
  <button
  onClick={() => setIsPlaying((p) => !p)}
  className={`px-4 py-1.5 rounded text-sm font-medium border ${isPlaying
- ? 'bg-amber-500/20 text-amber-500 border-amber-500/50'
+ ? 'bg-elevated text-heading border-edge/40'
  : ' bg-elevated/20 text-heading border-edge-hover'
  }`}
  >
@@ -919,8 +919,8 @@ const options = [
  className={`
  px-4 py-1.5 rounded-lg text-sm font-bold
  ${uiResult === 'allowed' ? ' bg-elevated/20 text-heading' : ''}
- ${uiResult === 'denied' ? 'bg-red-500/20 text-red-500' : ''}
- ${uiResult === 'ask' ? 'bg-amber-500/20 text-amber-500' : ''}
+ ${uiResult === 'denied' ? 'bg-elevated text-heading' : ''}
+ ${uiResult === 'ask' ? 'bg-elevated text-heading' : ''}
  ${uiResult === 'pending' ? 'bg-base text-dim' : ''}
  `}
  >
@@ -1013,7 +1013,7 @@ const options = [
  <div className="flex flex-wrap gap-2">
  <button
  onClick={handleAllowOnce}
- className="px-3 py-2 rounded border bg-amber-500/10 text-amber-500 border-amber-500/40 text-sm"
+ className="px-3 py-2 rounded border bg-elevated text-heading border-edge/40 text-sm"
  >
  Allow once
  </button>
@@ -1025,7 +1025,7 @@ const options = [
  </button>
  <button
  onClick={handleCancel}
- className="px-3 py-2 rounded border bg-red-500/10 text-red-500 border-red-500/40 text-sm"
+ className="px-3 py-2 rounded border bg-elevated text-heading border-edge/40 text-sm"
  >
  No (esc)
  </button>

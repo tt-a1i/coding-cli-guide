@@ -4,6 +4,10 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
+
 
 const relatedPages: RelatedPage[] = [
  { id: 'mcp', label: 'MCP集成', description: 'MCP 服务器协议' },
@@ -50,7 +54,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">存储结构</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-amber-500">MCP</div>
+ <div className="text-2xl font-bold text-heading">MCP</div>
  <div className="text-xs text-dim">Prompt 来源</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
@@ -71,7 +75,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  注册 Prompt
  </span>
  <span className="text-dim">→</span>
- <span className="px-3 py-1.5 bg-amber-500/20 text-amber-500 rounded-lg border border-amber-500/30">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover/30">
  冲突检测
  </span>
  <span className="text-dim">→</span>
@@ -116,103 +120,103 @@ export function PromptRegistry() {
  store --> query
  query --> output
 
- style mcp fill:#22d3ee,color:#000
- style register fill:#22c55e,color:#000
- style check fill:#f59e0b,color:#000
- style rename fill:#a855f7,color:#fff
- style store fill:#6366f1,color:#fff
- style query fill:#ec4899,color:#fff`;
+ style mcp fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style register fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style check fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style rename fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style store fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style query fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  const promptTypeCode = `// packages/core/src/tools/mcp-client.ts
 
 /** MCP 发现的 Prompt 定义 */
 export interface DiscoveredMCPPrompt {
- name: string; // Prompt 名称
- serverName: string; // 来源 MCP 服务器
- description?: string; // 描述
- arguments?: Array<{ // 参数定义
- name: string;
- description?: string;
- required?: boolean;
- }>;
- // 执行函数
- getMessages: (args: Record<string, string>) => Promise<PromptMessage[]>;
+  name: string; // Prompt 名称
+  serverName: string; // 来源 MCP 服务器
+  description?: string; // 描述
+  arguments?: Array<{ // 参数定义
+  name: string;
+  description?: string;
+  required?: boolean;
+  }>;
+  // 执行函数
+  getMessages: (args: Record<string, string>) => Promise<PromptMessage[]>;
 }
 
 /** Prompt 消息 */
 export interface PromptMessage {
- role: 'user' | 'assistant';
- content: TextContent | ImageContent | EmbeddedResource;
+  role: 'user' | 'assistant';
+  content: TextContent | ImageContent | EmbeddedResource;
 }`;
 
  const registryCode = `// packages/core/src/prompts/prompt-registry.ts
 
 export class PromptRegistry {
- private prompts: Map<string, DiscoveredMCPPrompt> = new Map();
+  private prompts: Map<string, DiscoveredMCPPrompt> = new Map();
 
- /**
- * 注册 Prompt 定义
- * 名称冲突时自动重命名为 serverName_promptName
- */
- registerPrompt(prompt: DiscoveredMCPPrompt): void {
- if (this.prompts.has(prompt.name)) {
- const newName = \`\${prompt.serverName}_\${prompt.name}\`;
- console.warn(
- \`Prompt with name "\${prompt.name}" is already registered. \` +
- \`Renaming to "\${newName}".\`
- );
- this.prompts.set(newName, { ...prompt, name: newName });
- } else {
- this.prompts.set(prompt.name, prompt);
- }
- }
+  /**
+  * 注册 Prompt 定义
+  * 名称冲突时自动重命名为 serverName_promptName
+  */
+  registerPrompt(prompt: DiscoveredMCPPrompt): void {
+  if (this.prompts.has(prompt.name)) {
+  const newName = \`\${prompt.serverName}_\${prompt.name}\`;
+  console.warn(
+  \`Prompt with name "\${prompt.name}" is already registered. \` +
+  \`Renaming to "\${newName}".\`
+  );
+  this.prompts.set(newName, { ...prompt, name: newName });
+  } else {
+  this.prompts.set(prompt.name, prompt);
+  }
+  }
 
- /**
- * 获取所有已注册的 Prompt（按名称排序）
- */
- getAllPrompts(): DiscoveredMCPPrompt[] {
- return Array.from(this.prompts.values())
- .sort((a, b) => a.name.localeCompare(b.name));
- }
+  /**
+  * 获取所有已注册的 Prompt（按名称排序）
+  */
+  getAllPrompts(): DiscoveredMCPPrompt[] {
+  return Array.from(this.prompts.values())
+  .sort((a, b) => a.name.localeCompare(b.name));
+  }
 
- /**
- * 按名称获取 Prompt
- */
- getPrompt(name: string): DiscoveredMCPPrompt | undefined {
- return this.prompts.get(name);
- }
+  /**
+  * 按名称获取 Prompt
+  */
+  getPrompt(name: string): DiscoveredMCPPrompt | undefined {
+  return this.prompts.get(name);
+  }
 }`;
 
  const serverMethodsCode = `/**
- * 获取特定 MCP 服务器的所有 Prompts
- */
+  * 获取特定 MCP 服务器的所有 Prompts
+  */
 getPromptsByServer(serverName: string): DiscoveredMCPPrompt[] {
- const serverPrompts: DiscoveredMCPPrompt[] = [];
- for (const prompt of this.prompts.values()) {
- if (prompt.serverName === serverName) {
- serverPrompts.push(prompt);
- }
- }
- return serverPrompts.sort((a, b) => a.name.localeCompare(b.name));
+  const serverPrompts: DiscoveredMCPPrompt[] = [];
+  for (const prompt of this.prompts.values()) {
+  if (prompt.serverName === serverName) {
+  serverPrompts.push(prompt);
+  }
+  }
+  return serverPrompts.sort((a, b) => a.name.localeCompare(b.name));
 }
 
 /**
- * 移除特定服务器的所有 Prompts
- * 用于服务器断开连接时清理
- */
+  * 移除特定服务器的所有 Prompts
+  * 用于服务器断开连接时清理
+  */
 removePromptsByServer(serverName: string): void {
- for (const [name, prompt] of this.prompts.entries()) {
- if (prompt.serverName === serverName) {
- this.prompts.delete(name);
- }
- }
+  for (const [name, prompt] of this.prompts.entries()) {
+  if (prompt.serverName === serverName) {
+  this.prompts.delete(name);
+  }
+  }
 }
 
 /**
- * 清空所有 Prompts
- */
+  * 清空所有 Prompts
+  */
 clear(): void {
- this.prompts.clear();
+  this.prompts.clear();
 }`;
 
  const usageCode = `// 使用示例
@@ -223,13 +227,13 @@ const registry = new PromptRegistry();
 // 2. 从 MCP 服务器发现并注册
 const mcpPrompts = await mcpClient.listPrompts();
 for (const prompt of mcpPrompts) {
- registry.registerPrompt({
- name: prompt.name,
- serverName: mcpClient.serverName,
- description: prompt.description,
- arguments: prompt.arguments,
- getMessages: async (args) => mcpClient.getPrompt(prompt.name, args),
- });
+  registry.registerPrompt({
+  name: prompt.name,
+  serverName: mcpClient.serverName,
+  description: prompt.description,
+  arguments: prompt.arguments,
+  getMessages: async (args) => mcpClient.getPrompt(prompt.name, args),
+  });
 }
 
 // 3. 查询和使用
@@ -238,8 +242,8 @@ console.log(\`Available prompts: \${allPrompts.map(p => p.name).join(', ')}\`);
 
 const codeReview = registry.getPrompt('code-review');
 if (codeReview) {
- const messages = await codeReview.getMessages({ file: 'main.ts' });
- // 使用 messages...
+  const messages = await codeReview.getMessages({ file: 'main.ts' });
+  // 使用 messages...
 }
 
 // 4. 服务器断开时清理
@@ -270,10 +274,10 @@ registry.removePromptsByServer('my-mcp-server');`;
  <HighlightBox title="Prompt 元数据" variant="blue">
  <div className="text-sm space-y-2">
  <ul className="text-body space-y-1">
- <li>• <code>name</code>: Prompt 唯一标识</li>
- <li>• <code>serverName</code>: 来源服务器</li>
- <li>• <code>description</code>: 描述说明</li>
- <li>• <code>arguments</code>: 参数定义列表</li>
+ <li><code>name</code>: Prompt 唯一标识</li>
+ <li><code>serverName</code>: 来源服务器</li>
+ <li><code>description</code>: 描述说明</li>
+ <li><code>arguments</code>: 参数定义列表</li>
  </ul>
  </div>
  </HighlightBox>
@@ -282,9 +286,9 @@ registry.removePromptsByServer('my-mcp-server');`;
  <div className="text-sm space-y-2">
  <p className="text-body">getMessages 函数：</p>
  <ul className="text-body space-y-1">
- <li>• 接收参数对象</li>
- <li>• 调用 MCP 服务器</li>
- <li>• 返回 PromptMessage 数组</li>
+ <li>接收参数对象</li>
+ <li>调用 MCP 服务器</li>
+ <li>返回 PromptMessage 数组</li>
  </ul>
  </div>
  </HighlightBox>
@@ -323,7 +327,7 @@ registry.removePromptsByServer('my-mcp-server');`;
  <p><strong>冲突检测：</strong>使用 <code className="bg-base/30 px-1 rounded">Map.has()</code> 检查名称是否已存在</p>
  <p><strong>重命名格式：</strong><code className="bg-base/30 px-1 rounded">{`\${serverName}_\${promptName}`}</code></p>
  <p><strong>警告日志：</strong>输出 console.warn 提醒用户</p>
- <p className="mt-2 text-amber-400">
+ <p className="mt-2 text-heading">
  注意：先注册的 Prompt 保留原名，后注册的被重命名
  </p>
  </div>
@@ -341,9 +345,9 @@ registry.removePromptsByServer('my-mcp-server');`;
  <div className="text-sm space-y-2">
  <p className="text-body">按服务器查询</p>
  <ul className="text-body space-y-1">
- <li>• 遍历所有 Prompt</li>
- <li>• 过滤 serverName</li>
- <li>• 按名称排序返回</li>
+ <li>遍历所有 Prompt</li>
+ <li>过滤 serverName</li>
+ <li>按名称排序返回</li>
  </ul>
  </div>
  </HighlightBox>
@@ -352,9 +356,9 @@ registry.removePromptsByServer('my-mcp-server');`;
  <div className="text-sm space-y-2">
  <p className="text-body">服务器断开清理</p>
  <ul className="text-body space-y-1">
- <li>• 遍历所有 Prompt</li>
- <li>• 匹配 serverName</li>
- <li>• 从 Map 删除</li>
+ <li>遍历所有 Prompt</li>
+ <li>匹配 serverName</li>
+ <li>从 Map 删除</li>
  </ul>
  </div>
  </HighlightBox>
@@ -363,9 +367,9 @@ registry.removePromptsByServer('my-mcp-server');`;
  <div className="text-sm space-y-2">
  <p className="text-body">清空所有</p>
  <ul className="text-body space-y-1">
- <li>• 调用 Map.clear()</li>
- <li>• 用于重置状态</li>
- <li>• 重新发现时使用</li>
+ <li>调用 Map.clear()</li>
+ <li>用于重置状态</li>
+ <li>重新发现时使用</li>
  </ul>
  </div>
  </HighlightBox>
@@ -412,7 +416,7 @@ registry.removePromptsByServer('my-mcp-server');`;
  PR --> Slash
  PR --> UI
 
- style PR fill:#22c55e,color:#000`} title="MCP Prompt 集成架构" />
+ style PR fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}`} title="MCP Prompt 集成架构" />
 
  <HighlightBox title="集成点" variant="blue">
  <div className="text-sm space-y-2 text-body">
@@ -452,7 +456,7 @@ registry.removePromptsByServer('my-mcp-server');`;
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">为什么自动重命名而非报错？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么自动重命名而非报错？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策：</strong>名称冲突时自动重命名，而非抛出错误。</p>
  <p><strong>原因：</strong></p>

@@ -95,7 +95,7 @@ mindmap
  <div className="overflow-x-auto">
  <table className="w-full text-sm border-collapse">
  <thead>
- <tr className="border-b border-white/20">
+ <tr className="border-b border-edge/60">
  <th className="p-3 text-left text-heading">模式</th>
  <th className="p-3 text-left text-heading">技术</th>
  <th className="p-3 text-left text-heading">并发度</th>
@@ -103,32 +103,32 @@ mindmap
  </tr>
  </thead>
  <tbody>
- <tr className="border-b border-white/10">
+ <tr className="border-b border-edge/40">
  <td className="p-3 text-heading font-semibold">批量并行</td>
  <td className="p-3 text-body">Promise.all + 分批</td>
  <td className="p-3 text-heading">15-20</td>
  <td className="p-3 text-body">目录遍历 / 文件读取</td>
  </tr>
- <tr className="border-b border-white/10">
- <td className="p-3 text-amber-500 font-semibold">请求队列</td>
+ <tr className="border-b border-edge/40">
+ <td className="p-3 text-heading font-semibold">请求队列</td>
  <td className="p-3 text-body">FIFO + 状态机</td>
  <td className="p-3 text-heading">1</td>
  <td className="p-3 text-body">工具调用执行</td>
  </tr>
- <tr className="border-b border-white/10">
+ <tr className="border-b border-edge/40">
  <td className="p-3 text-heading font-semibold">Promise 去重</td>
  <td className="p-3 text-body">Promise 缓存</td>
  <td className="p-3 text-heading">N→1</td>
  <td className="p-3 text-body">Token 刷新</td>
  </tr>
- <tr className="border-b border-white/10">
+ <tr className="border-b border-edge/40">
  <td className="p-3 text-heading font-semibold">分布式锁</td>
  <td className="p-3 text-body">文件锁 + 退避</td>
  <td className="p-3 text-heading">跨进程 1</td>
  <td className="p-3 text-body">凭证文件写入</td>
  </tr>
  <tr>
- <td className="p-3 text-red-500 font-semibold">容错并行</td>
+ <td className="p-3 text-heading font-semibold">容错并行</td>
  <td className="p-3 text-body">Promise.allSettled</td>
  <td className="p-3 text-heading">N</td>
  <td className="p-3 text-body">MCP 服务发现</td>
@@ -210,7 +210,7 @@ async function bfsFileSearch(startDir: string): Promise<string[]> {
  <Layer title="🔢 为什么是 15？">
  <div className="grid grid-cols-3 gap-3 mb-4">
  <div className="p-4 bg-elevated rounded-lg text-center">
- <div className="text-red-500 text-2xl font-bold">EMFILE</div>
+ <div className="text-heading text-2xl font-bold">EMFILE</div>
  <div className="text-body text-xs mt-1">避免文件句柄耗尽</div>
  </div>
  <div className="p-4 bg-elevated rounded-lg text-center">
@@ -290,7 +290,7 @@ for (let i = 0; i < filePaths.length; i += FILE_CONCURRENT_LIMIT) {
 
  <div className="grid grid-cols-2 gap-3 mt-4">
  <div className="p-3 bg-elevated rounded-lg">
- <div className="text-amber-500 font-semibold mb-1">目录发现</div>
+ <div className="text-heading font-semibold mb-1">目录发现</div>
  <div className="text-body text-sm">
  并发度 10：涉及元数据读取、权限检查，系统调用较重
  </div>
@@ -663,7 +663,7 @@ function ResilienceTab() {
 
  <div className="grid grid-cols-2 gap-4">
  <div className="p-4 bg-elevated rounded-lg">
- <div className="text-red-500 font-semibold mb-2">Promise.all</div>
+ <div className="text-heading font-semibold mb-2">Promise.all</div>
  <div className="text-body text-sm mb-2">
  任意一个 Promise reject，整体 reject
  </div>
@@ -802,24 +802,24 @@ for (const result of results) {
  <div className="overflow-x-auto">
  <table className="w-full text-sm border-collapse">
  <thead>
- <tr className="border-b border-white/20">
+ <tr className="border-b border-edge/60">
  <th className="p-3 text-left text-heading">场景</th>
  <th className="p-3 text-left text-heading">模式</th>
  <th className="p-3 text-left text-heading">失败处理</th>
  </tr>
  </thead>
  <tbody>
- <tr className="border-b border-white/10">
+ <tr className="border-b border-edge/40">
  <td className="p-3 text-body">MCP 服务发现</td>
  <td className="p-3 text-heading">allSettled</td>
  <td className="p-3 text-body">记录错误，使用其他服务</td>
  </tr>
- <tr className="border-b border-white/10">
+ <tr className="border-b border-edge/40">
  <td className="p-3 text-body">批量文件读取</td>
  <td className="p-3 text-heading">allSettled</td>
  <td className="p-3 text-body">跳过失败文件，报告原因</td>
  </tr>
- <tr className="border-b border-white/10">
+ <tr className="border-b border-edge/40">
  <td className="p-3 text-body">目录扫描</td>
  <td className="p-3 text-heading">allSettled</td>
  <td className="p-3 text-body">返回空结果，继续遍历</td>

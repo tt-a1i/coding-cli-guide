@@ -30,17 +30,17 @@ export function AtCommands() {
  </HighlightBox>
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
- <div className="bg-elevated/5 rounded-lg p-4 border border-white/10 text-center">
+ <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40 text-center">
  <div className="text-3xl mb-2">📄</div>
  <h4 className="text-heading font-bold">单文件</h4>
  <p className="text-sm text-body">@path/to/file.ts</p>
  </div>
- <div className="bg-elevated/5 rounded-lg p-4 border border-white/10 text-center">
+ <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40 text-center">
  <div className="text-3xl mb-2">📂</div>
  <h4 className="text-heading font-bold">目录</h4>
  <p className="text-sm text-body">@src/ (自动展开为 @src/**)</p>
  </div>
- <div className="bg-elevated/5 rounded-lg p-4 border border-white/10 text-center">
+ <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40 text-center">
  <div className="text-3xl mb-2">🔍</div>
  <h4 className="text-heading font-bold">模糊搜索</h4>
  <p className="text-sm text-body">@utils (搜索 **/\*utils\*)</p>
@@ -124,7 +124,7 @@ function parseAllAtCommands(query: string): AtCommandPart[] {
  <Layer title="@ 命令处理流程" icon="⚡">
  <div className="bg-base/30 rounded-lg p-6">
  <div className="flex flex-col items-center space-y-3">
- <div className="bg-blue-400/20 border border-edge rounded-lg px-4 py-2 text-center w-full max-w-md">
+ <div className="bg-accent/10 border border-edge rounded-lg px-4 py-2 text-center w-full max-w-md">
  <strong>1. 解析 @ 命令</strong>
  <div className="text-xs text-body">parseAllAtCommands()</div>
  </div>
@@ -136,19 +136,19 @@ function parseAllAtCommands(query: string): AtCommandPart[] {
  </div>
  <div className="text-heading">↓</div>
 
- <div className="bg-green-400/20 border border-green-400 rounded-lg px-4 py-2 text-center w-full max-w-md">
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg px-4 py-2 text-center w-full max-w-md">
  <strong>3. 解析路径</strong>
  <div className="text-xs text-body">文件 / 目录 / glob 搜索</div>
  </div>
  <div className="text-heading">↓</div>
 
- <div className="bg-orange-400/20 border border-orange-400 rounded-lg px-4 py-2 text-center w-full max-w-md">
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg px-4 py-2 text-center w-full max-w-md">
  <strong>4. 读取文件</strong>
  <div className="text-xs text-body">read_many_files 工具</div>
  </div>
  <div className="text-heading">↓</div>
 
- <div className="bg-cyan-400/20 border border-edge rounded-lg px-4 py-2 text-center w-full max-w-md">
+ <div className="bg-accent/10 border border-edge rounded-lg px-4 py-2 text-center w-full max-w-md">
  <strong>5. 构建消息</strong>
  <div className="text-xs text-body">原始文本 + 文件内容</div>
  </div>
@@ -247,8 +247,8 @@ async function handleAtCommand({
  </code>
  </div>
 
- <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
- <h4 className="text-green-400 font-bold mb-2">模糊搜索（ENOENT）</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-bold mb-2">模糊搜索（ENOENT）</h4>
  <p className="text-sm text-body mb-2">
  <code>@utils</code> → 搜索 <code>**/*utils*</code>
  </p>
@@ -257,7 +257,7 @@ async function handleAtCommand({
  </code>
  </div>
 
- <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4">
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">转义空格</h4>
  <p className="text-sm text-body mb-2">
  <code>@path\ with\ spaces/file.ts</code> → 使用反斜杠转义空格
@@ -398,13 +398,13 @@ if (totalIgnored > 0) {
  统一管理 .gitignore 和 .geminiignore 规则。
  </p>
  </div>
- <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
- <h4 className="text-green-400 font-bold mb-2">glob 工具</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-bold mb-2">glob 工具</h4>
  <p className="text-sm text-body">
  当直接路径不存在时，使用 glob 工具进行模糊搜索。
  </p>
  </div>
- <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4">
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">WorkspaceContext</h4>
  <p className="text-sm text-body">
  验证路径是否在工作区内，防止读取工作区外的敏感文件。
@@ -456,7 +456,7 @@ if (totalIgnored > 0) {
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">为什么要尊重 .gitignore 和 .geminiignore？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么要尊重 .gitignore 和 .geminiignore？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：被忽略的文件不会被 @ 命令读取。</p>
  <p><strong>原因</strong>：</p>

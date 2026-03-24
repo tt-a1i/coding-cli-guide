@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { useState, useEffect, useCallback } from 'react';
+import { CodeBlock } from '../components/CodeBlock';
 
 /**
  * React 工具调度器动画
@@ -176,10 +177,10 @@ export default function ReactToolSchedulerAnimation() {
  switch (status) {
  case 'scheduled': return 'var(--color-text-muted)';
  case 'validating': return 'var(--color-primary)';
- case 'awaiting_approval': return '#f59e0b';
+ case 'awaiting_approval': return 'var(--color-warning)';
  case 'executing': return 'var(--color-primary)';
  case 'success': return 'var(--color-primary)';
- case 'error': return '#ef4444';
+ case 'error': return 'var(--color-danger)';
  case 'cancelled': return 'var(--color-text-muted)';
  }
  };
@@ -212,7 +213,7 @@ export default function ReactToolSchedulerAnimation() {
  onClick={() => isPlaying ? resetAnimation() : (resetAnimation(), setTimeout(() => setIsPlaying(true), 100))}
  className={`px-4 py-2 rounded font-mono text-sm transition-all ${
  isPlaying
- ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+ ? 'bg-elevated text-heading border-l-2 border-l-edge-hover/30'
  : ' bg-elevated/20 text-heading border border-edge/30'
  }`}
  >
@@ -329,7 +330,7 @@ export default function ReactToolSchedulerAnimation() {
  {/* 中间: 调度器状态 */}
  <div className="col-span-4">
  <div className="bg-surface rounded-lg p-4 border border-edge-hover h-full">
- <h3 className="text-sm font-semibold text-amber-500 mb-4 font-mono">
+ <h3 className="text-sm font-semibold text-heading mb-4 font-mono">
  CoreToolScheduler (legacy)
  </h3>
 
@@ -351,7 +352,7 @@ export default function ReactToolSchedulerAnimation() {
  <span className="text-dim ml-2">// 全部完成</span>
  </div>
  <div className={`p-2 rounded ${
- currentStatusIndex >= 0 ? 'bg-amber-500/20 text-amber-500' : 'text-body'
+ currentStatusIndex >= 0 ? 'bg-elevated text-heading' : 'text-body'
  }`}>
  onToolCallsUpdate
  <span className="text-dim ml-2">// 状态更新</span>
@@ -426,9 +427,9 @@ export default function ReactToolSchedulerAnimation() {
  key={i}
  className={`${
  log.includes('✓') || log.includes('✅') ? 'text-heading' :
- log.includes('❌') ? 'text-red-400' :
+ log.includes('❌') ? 'text-heading' :
  log.includes('🔧') || log.includes('📤') ? 'text-heading' :
- log.includes('⏳') || log.includes('→') ? 'text-amber-500' :
+ log.includes('⏳') || log.includes('→') ? 'text-heading' :
  log.includes('⚡') ? 'text-heading' :
  log.includes('📋') ? 'text-dim' :
  'text-body'
@@ -448,57 +449,59 @@ export default function ReactToolSchedulerAnimation() {
  <h3 className="text-sm font-semibold text-heading mb-3">
  源码: useReactToolScheduler.ts
  </h3>
- <pre className="text-xs font-mono text-body bg-base/30 p-3 rounded overflow-x-auto">
-{`export function useReactToolScheduler(
- onComplete: (tools: CompletedToolCall[]) => Promise<void>,
- config: Config,
- getPreferredEditor: () => EditorType | undefined,
- onEditorClose: () => void,
+ <CodeBlock
+   language="typescript"
+   title="useReactToolScheduler.ts"
+   code={`export function useReactToolScheduler(
+  onComplete: (tools: CompletedToolCall[]) => Promise<void>,
+  config: Config,
+  getPreferredEditor: () => EditorType | undefined,
+  onEditorClose: () => void,
 ): [TrackedToolCall[], ScheduleFn, MarkToolsAsSubmittedFn] {
 
- const [toolCallsForDisplay, setToolCallsForDisplay] = useState<TrackedToolCall[]>([]);
+  const [toolCallsForDisplay, setToolCallsForDisplay] = useState<TrackedToolCall[]>([]);
 
- // 实时输出更新
- const outputUpdateHandler: OutputUpdateHandler = useCallback((toolCallId, outputChunk) => {
- setToolCallsForDisplay(prevCalls =>
- prevCalls.map(tc => {
- if (tc.request.callId === toolCallId && tc.status === 'executing') {
- return { ...tc, liveOutput: outputChunk };
- }
- return tc;
- })
- );
- }, []);
+  // 实时输出更新
+  const outputUpdateHandler: OutputUpdateHandler = useCallback((toolCallId, outputChunk) => {
+    setToolCallsForDisplay(prevCalls =>
+      prevCalls.map(tc => {
+        if (tc.request.callId === toolCallId && tc.status === 'executing') {
+          return { ...tc, liveOutput: outputChunk };
+        }
+        return tc;
+      })
+    );
+  }, []);
 
- // 工具状态更新
- const toolCallsUpdateHandler: ToolCallsUpdateHandler = useCallback((updatedCoreToolCalls) => {
- setToolCallsForDisplay(prevTrackedCalls =>
- updatedCoreToolCalls.map(coreTc => {
- const existing = prevTrackedCalls.find(ptc => ptc.request.callId === coreTc.request.callId);
- return {
- ...coreTc,
- responseSubmittedToGemini: existing?.responseSubmittedToGemini ?? false,
- liveOutput: coreTc.status === 'executing' ? existing?.liveOutput : undefined,
- pid: coreTc.status === 'executing' ? coreTc.pid : undefined,
- };
- })
- );
- }, []);
+  // 工具状态更新
+  const toolCallsUpdateHandler: ToolCallsUpdateHandler = useCallback((updatedCoreToolCalls) => {
+    setToolCallsForDisplay(prevTrackedCalls =>
+      updatedCoreToolCalls.map(coreTc => {
+        const existing = prevTrackedCalls.find(ptc => ptc.request.callId === coreTc.request.callId);
+        return {
+          ...coreTc,
+          responseSubmittedToGemini: existing?.responseSubmittedToGemini ?? false,
+          liveOutput: coreTc.status === 'executing' ? existing?.liveOutput : undefined,
+          pid: coreTc.status === 'executing' ? coreTc.pid : undefined,
+        };
+      })
+    );
+  }, []);
 
- // 标记为已提交
- const markToolsAsSubmitted: MarkToolsAsSubmittedFn = useCallback((callIds) => {
- setToolCallsForDisplay(prevCalls =>
- prevCalls.map(tc =>
- callIds.includes(tc.request.callId)
- ? { ...tc, responseSubmittedToGemini: true }
- : tc
- )
- );
- }, []);
+  // 标记为已提交
+  const markToolsAsSubmitted: MarkToolsAsSubmittedFn = useCallback((callIds) => {
+    setToolCallsForDisplay(prevCalls =>
+      prevCalls.map(tc =>
+        callIds.includes(tc.request.callId)
+          ? { ...tc, responseSubmittedToGemini: true }
+          : tc
+      )
+    );
+  }, []);
 
- return [toolCallsForDisplay, schedule, markToolsAsSubmitted];
+  return [toolCallsForDisplay, schedule, markToolsAsSubmitted];
 }`}
- </pre>
+ />
  </div>
  </div>
  );

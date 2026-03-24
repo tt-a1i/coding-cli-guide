@@ -335,9 +335,9 @@ export default function ImageTokenizerAnimation() {
  {(['loading', 'detecting', 'parsing', 'scaling', 'complete'] as Phase[]).map((p, idx) => (
  <div key={p} className="flex items-center gap-2">
  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-all ${
- phase === p ? ' bg-elevated text-heading ring-2 ring-blue-400/50' :
+ phase === p ? ' bg-elevated text-heading ring-2 ring-accent/50' :
  ['detecting', 'parsing', 'scaling', 'complete'].indexOf(phase) > ['detecting', 'parsing', 'scaling', 'complete'].indexOf(p) - 1 && phase !== 'idle' && phase !== 'loading'
- ? 'bg-green-600 text-heading' : ' bg-elevated text-body'
+ ? 'bg-[var(--color-success)] text-heading' : ' bg-elevated text-body'
  }`}>
  {idx + 1}
  </div>
@@ -364,7 +364,7 @@ export default function ImageTokenizerAnimation() {
  key={idx}
  className={`px-1.5 py-0.5 rounded transition-all duration-300 ${
  highlightedBytes.includes(idx)
- ? 'bg-yellow-500/30 text-yellow-300 ring-1 ring-yellow-500/50'
+ ? 'bg-elevated text-heading ring-1 ring-[var(--color-warning)]/40'
  : 'text-dim'
  }`}
  >
@@ -383,10 +383,10 @@ export default function ImageTokenizerAnimation() {
 
  {/* Format Detection Result */}
  {detectedFormat && (
- <div className="mt-4 p-3 bg-green-900/30 border border-green-700/50 rounded">
+ <div className="mt-4 p-3 bg-elevated border-l-2 border-l-edge-hover/40 rounded">
  <div className="flex items-center gap-2">
- <span className="text-green-400">检测到格式:</span>
- <span className="font-bold text-green-300">{detectedFormat}</span>
+ <span className="text-heading">检测到格式:</span>
+ <span className="font-bold text-heading">{detectedFormat}</span>
  </div>
  </div>
  )}
@@ -424,7 +424,7 @@ export default function ImageTokenizerAnimation() {
  {/* Token Scaling Process */}
  <div className="p-4 bg-base rounded-lg border border-edge">
  <h3 className="text-sm font-semibold text-body mb-3 flex items-center gap-2">
- <span className="w-2 h-2 rounded-full bg-orange-500" />
+ <span className="w-2 h-2 rounded-full bg-[var(--color-warning)]" />
  Token 缩放计算
  </h3>
 
@@ -449,12 +449,12 @@ export default function ImageTokenizerAnimation() {
  {scalingSteps.map((step, idx) => (
  <div
  key={idx}
- className="p-3 bg-surface rounded border-l-2 border-orange-500 animate-fadeIn"
+ className="p-3 bg-surface rounded border-l-2 border-edge animate-fadeIn"
  >
  <div className="flex items-center justify-between mb-2">
  <span className="text-sm font-medium text-heading">{step.step}</span>
  {step.beta && (
- <span className="text-xs bg-orange-900/50 px-2 py-0.5 rounded text-heading">
+ <span className="text-xs bg-elevated px-2 py-0.5 rounded text-heading">
  β = {step.beta}
  </span>
  )}
@@ -474,7 +474,7 @@ export default function ImageTokenizerAnimation() {
  )}
  <div className="mt-2 text-right">
  <span className="text-xs text-dim">Token: </span>
- <span className={`font-bold ${idx === scalingSteps.length - 1 ? 'text-green-400 text-lg' : 'text-body'}`}>
+ <span className={`font-bold ${idx === scalingSteps.length - 1 ? 'text-heading text-lg' : 'text-body'}`}>
  {step.tokens.toLocaleString()}
  </span>
  </div>
@@ -484,10 +484,10 @@ export default function ImageTokenizerAnimation() {
 
  {/* Final Result */}
  {phase === 'complete' && (
- <div className="mt-4 p-4 bg-surface border border-green-600/50 rounded-lg">
+ <div className="mt-4 p-4 bg-surface border-l-2 border-l-edge-hover/40 rounded-lg">
  <div className="text-center">
- <div className="text-sm text-green-400 mb-1">最终 Vision Token 数</div>
- <div className="text-3xl font-bold text-green-300">{finalTokens.toLocaleString()}</div>
+ <div className="text-sm text-heading mb-1">最终 Vision Token 数</div>
+ <div className="text-3xl font-bold text-heading">{finalTokens.toLocaleString()}</div>
  <div className="text-xs text-dim mt-2">
  包含 {VISION_SPECIAL_TOKENS} 个特殊标记
  </div>
@@ -506,7 +506,7 @@ export default function ImageTokenizerAnimation() {
  加载二进制
  </div>
  <span className="text-dim">→</span>
- <div className={`p-2 rounded border ${phase === 'detecting' ? 'border-yellow-500 bg-yellow-900/30' : ' border-edge'}`}>
+ <div className={`p-2 rounded border ${phase === 'detecting' ? 'border-edge bg-elevated' : ' border-edge'}`}>
  Magic 检测
  </div>
  <span className="text-dim">→</span>
@@ -514,15 +514,15 @@ export default function ImageTokenizerAnimation() {
  维度提取
  </div>
  <span className="text-dim">→</span>
- <div className={`p-2 rounded border ${phase === 'scaling' ? 'border-orange-500 bg-orange-900/30' : ' border-edge'}`}>
+ <div className={`p-2 rounded border ${phase === 'scaling' ? 'border-edge bg-elevated' : ' border-edge'}`}>
  28px 对齐
  </div>
  <span className="text-dim">→</span>
- <div className={`p-2 rounded border ${phase === 'scaling' ? 'border-orange-500 bg-orange-900/30' : ' border-edge'}`}>
+ <div className={`p-2 rounded border ${phase === 'scaling' ? 'border-edge bg-elevated' : ' border-edge'}`}>
  边界检查
  </div>
  <span className="text-dim">→</span>
- <div className={`p-2 rounded border ${phase === 'complete' ? 'border-green-500 bg-green-900/30' : ' border-edge'}`}>
+ <div className={`p-2 rounded border ${phase === 'complete' ? 'border-edge bg-elevated' : ' border-edge'}`}>
  Token 输出
  </div>
  </div>

@@ -3,6 +3,9 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 const relatedPages: RelatedPage[] = [
  { id: 'git-service-deep', label: 'GitService深度', description: '影子仓库的实现细节' },
@@ -36,8 +39,8 @@ export function Checkpointing() {
  execute_tool --> tool_done
 
  classDef start_node fill:#22d3ee,color:#000
- classDef terminal_node fill:#22c55e,color:#000
- classDef decision_node fill:#f59e0b,color:#000
+ classDef terminal_node fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:#000
+ classDef decision_node fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:#000
 
  class start start_node
  class tool_done terminal_node
@@ -60,7 +63,7 @@ export function Checkpointing() {
  restore_tool --> restore_done
 
  classDef start_node fill:#22d3ee,color:#000
- classDef terminal_node fill:#22c55e,color:#000
+ classDef terminal_node fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:#000
 
  class start start_node
  class restore_done terminal_node`;
@@ -71,11 +74,11 @@ $ gemini --checkpointing # ⚠️ Deprecated
 // 方式二：settings.json 永久启用(推荐)
 // ~/.gemini/settings.json
 {
- "general": {
- "checkpointing": {
- "enabled": true
- }
- }
+  "general": {
+  "checkpointing": {
+  "enabled": true
+  }
+  }
 }`;
 
  const checkpointStorageCode = `// 检查点数据存储结构
@@ -87,73 +90,73 @@ $ gemini --checkpointing # ⚠️ Deprecated
 │ └── ... # 项目文件快照
 │
 └── tmp/
- └── <project_hash>/
- └── checkpoints/ # 检查点元数据
- ├── 2025-06-22T10-00-00_000Z-app.ts-write_file.json
- ├── 2025-06-22T10-05-00_000Z-index.ts-replace.json
- └── ...
+  └── <project_hash>/
+  └── checkpoints/ # 检查点元数据
+  ├── 2025-06-22T10-00-00_000Z-app.ts-write_file.json
+  ├── 2025-06-22T10-05-00_000Z-index.ts-replace.json
+  └── ...
 
 // 检查点 JSON 结构
 interface Checkpoint {
- timestamp: string; // ISO 时间戳
- gitCommitHash: string; // 影子仓库的 commit SHA
- targetFile: string; // 将被修改的文件
- toolName: string; // 工具名称
- toolCall: ToolCallInfo; // 完整的工具调用信息
- conversationHistory: Message[]; // 对话历史
+  timestamp: string; // ISO 时间戳
+  gitCommitHash: string; // 影子仓库的 commit SHA
+  targetFile: string; // 将被修改的文件
+  toolName: string; // 工具名称
+  toolCall: ToolCallInfo; // 完整的工具调用信息
+  conversationHistory: Message[]; // 对话历史
 }`;
 
  const shadowGitCode = `// 影子 Git 仓库机制 (简化版)
 // 来源: packages/core/src/services/gitService.ts
 
 class GitService {
- private projectRoot: string;
- private storage: Storage; // 管理全局路径
+  private projectRoot: string;
+  private storage: Storage; // 管理全局路径
 
- constructor(projectRoot: string, storage: Storage) {
- this.projectRoot = path.resolve(projectRoot);
- this.storage = storage;
- }
+  constructor(projectRoot: string, storage: Storage) {
+  this.projectRoot = path.resolve(projectRoot);
+  this.storage = storage;
+  }
 
- // 影子仓库位置: ~/.gemini/history/<project-hash>/
- // 注意: 不在项目目录内，而是在全局 ~/.gemini 下
- private getHistoryDir(): string {
- return this.storage.getHistoryDir();
- // 实际路径: ~/.gemini/history/<sha256(projectRoot)>/
- }
+  // 影子仓库位置: ~/.gemini/history/<project-hash>/
+  // 注意: 不在项目目录内，而是在全局 ~/.gemini 下
+  private getHistoryDir(): string {
+  return this.storage.getHistoryDir();
+  // 实际路径: ~/.gemini/history/<sha256(projectRoot)>/
+  }
 
- async initialize(): Promise<void> {
- const gitAvailable = await this.verifyGitAvailability();
- if (!gitAvailable) {
- throw new Error(
- 'Checkpointing is enabled, but Git is not installed.'
- );
- }
- await this.setupShadowGitRepository();
- }
+  async initialize(): Promise<void> {
+  const gitAvailable = await this.verifyGitAvailability();
+  if (!gitAvailable) {
+  throw new Error(
+  'Checkpointing is enabled, but Git is not installed.'
+  );
+  }
+  await this.setupShadowGitRepository();
+  }
 
- async setupShadowGitRepository(): Promise<void> {
- const repoDir = this.getHistoryDir();
- await fs.mkdir(repoDir, { recursive: true });
+  async setupShadowGitRepository(): Promise<void> {
+  const repoDir = this.getHistoryDir();
+  await fs.mkdir(repoDir, { recursive: true });
 
- // 创建专用 gitconfig，避免继承用户配置
- const gitConfigContent =
- '[user]\\n name = Gemini CLI\\n email = ...';
- await fs.writeFile(path.join(repoDir, '.gitconfig'), gitConfigContent);
+  // 创建专用 gitconfig，避免继承用户配置
+  const gitConfigContent =
+  '[user]\\n name = Gemini CLI\\n email = ...';
+  await fs.writeFile(path.join(repoDir, '.gitconfig'), gitConfigContent);
 
- const repo = simpleGit(repoDir);
- if (!await repo.checkIsRepo()) {
- await repo.init(false, { '--initial-branch': 'main' });
- await repo.commit('Initial commit', { '--allow-empty': null });
- }
- }
+  const repo = simpleGit(repoDir);
+  if (!await repo.checkIsRepo()) {
+  await repo.init(false, { '--initial-branch': 'main' });
+  await repo.commit('Initial commit', { '--allow-empty': null });
+  }
+  }
 
- /**
- * 恢复到指定检查点
- */
- async restoreToCheckpoint(commitHash: string): Promise<void> {
- await this.runGitCommand(['checkout', commitHash, '--', '.']);
- }
+  /**
+  * 恢复到指定检查点
+  */
+  async restoreToCheckpoint(commitHash: string): Promise<void> {
+  await this.runGitCommand(['checkout', commitHash, '--', '.']);
+  }
 }`;
 
  const restoreCommandCode = `// /restore 命令使用
@@ -275,15 +278,15 @@ Select: 1
  <HighlightBox title="检查点包含内容" variant="green">
  <div className="grid grid-cols-3 gap-4 text-sm">
  <div>
- <h5 className="font-semibold text-green-300 mb-1">1. Git 快照</h5>
+ <h5 className="font-semibold text-heading mb-1">1. Git 快照</h5>
  <p className="text-body">项目文件的完整状态，存储在影子仓库中</p>
  </div>
  <div>
- <h5 className="font-semibold text-green-300 mb-1">2. 对话历史</h5>
+ <h5 className="font-semibold text-heading mb-1">2. 对话历史</h5>
  <p className="text-body">到检查点为止的完整对话记录</p>
  </div>
  <div>
- <h5 className="font-semibold text-green-300 mb-1">3. 工具调用</h5>
+ <h5 className="font-semibold text-heading mb-1">3. 工具调用</h5>
  <p className="text-body">即将执行的工具及其参数</p>
  </div>
  </div>
@@ -368,21 +371,21 @@ useEffect(() => {
  <h4 className="font-semibold text-heading mb-3">触发条件总结</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-body">
  <div>
- <p className="font-semibold text-green-300 mb-2">必须满足的条件：</p>
+ <p className="font-semibold text-heading mb-2">必须满足的条件：</p>
  <ul className="space-y-1">
- <li>• Checkpointing 功能已启用</li>
- <li>• 工具调用是编辑类工具（write_file、replace 等）</li>
- <li>• 工具调用状态为 'awaiting_approval'</li>
- <li>• 工具调用参数中包含 file_path</li>
+ <li>Checkpointing 功能已启用</li>
+ <li>工具调用是编辑类工具（write_file、replace 等）</li>
+ <li>工具调用状态为 'awaiting_approval'</li>
+ <li>工具调用参数中包含 file_path</li>
  </ul>
  </div>
  <div>
  <p className="font-semibold text-heading mb-2">触发时间点：</p>
  <ul className="space-y-1">
- <li>• AI 生成工具调用后</li>
- <li>• 用户批准工具调用前</li>
- <li>• 在工具实际执行之前</li>
- <li>• 每个编辑工具调用独立触发</li>
+ <li>AI 生成工具调用后</li>
+ <li>用户批准工具调用前</li>
+ <li>在工具实际执行之前</li>
+ <li>每个编辑工具调用独立触发</li>
  </ul>
  </div>
  </div>
@@ -397,7 +400,7 @@ useEffect(() => {
  <div className="mt-4 bg-surface rounded-lg p-4">
  <h4 className="font-semibold text-heading mb-3">检查点命名规则</h4>
  <div className="text-sm text-body">
- <code className="text-yellow-300">{`{timestamp}-{filename}-{toolname}`}</code>
+ <code className="text-heading">{`{timestamp}-{filename}-{toolname}`}</code>
  <div className="mt-2 space-y-1">
  <p><strong>timestamp</strong>: ISO 8601 格式时间戳</p>
  <p><strong>filename</strong>: 将被修改的目标文件名</p>
@@ -494,18 +497,18 @@ async restoreProjectFromSnapshot(commitHash: string): Promise<void> {
  <h5 className="font-semibold text-heading mb-3">关键技术细节</h5>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div>
- <h6 className="font-semibold text-green-300 mb-2">环境变量隔离</h6>
+ <h6 className="font-semibold text-heading mb-2">环境变量隔离</h6>
  <ul className="text-sm text-body space-y-2">
  <li>
- <code className="text-yellow-300">GIT_DIR</code>:
+ <code className="text-heading">GIT_DIR</code>:
  <span className="text-body"> 指定 .git 元数据位置，与项目 .git 分离</span>
  </li>
  <li>
- <code className="text-yellow-300">GIT_WORK_TREE</code>:
+ <code className="text-heading">GIT_WORK_TREE</code>:
  <span className="text-body"> 工作树指向项目目录，直接操作项目文件</span>
  </li>
  <li>
- <code className="text-yellow-300">HOME / XDG_CONFIG_HOME</code>:
+ <code className="text-heading">HOME / XDG_CONFIG_HOME</code>:
  <span className="text-body"> 隔离用户全局配置，避免继承 GPG 签名等设置</span>
  </li>
  </ul>
@@ -528,19 +531,19 @@ async restoreProjectFromSnapshot(commitHash: string): Promise<void> {
  <div className="mt-4 grid grid-cols-2 gap-4">
  <HighlightBox title="为什么用影子仓库？" variant="blue">
  <ul className="text-sm text-body space-y-1">
- <li>• 不污染项目的 Git 历史</li>
- <li>• 不影响 git status / git diff</li>
- <li>• 支持非 Git 项目</li>
- <li>• 独立的版本控制</li>
+ <li>不污染项目的 Git 历史</li>
+ <li>不影响 git status / git diff</li>
+ <li>支持非 Git 项目</li>
+ <li>独立的版本控制</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="存储位置" variant="green">
  <ul className="text-sm text-body space-y-1">
- <li>• 路径: ~/.gemini/history/&lt;hash&gt;</li>
- <li>• 每个项目一个独立仓库</li>
- <li>• hash 基于项目路径生成</li>
- <li>• 可手动删除清理空间</li>
+ <li>路径: ~/.gemini/history/&lt;hash&gt;</li>
+ <li>每个项目一个独立仓库</li>
+ <li>hash 基于项目路径生成</li>
+ <li>可手动删除清理空间</li>
  </ul>
  </HighlightBox>
  </div>
@@ -674,21 +677,21 @@ async function restoreAction(
  <p className="text-body text-sm mb-4">恢复检查点后，原始的工具调用会被重新提议：</p>
 
  <div className="grid grid-cols-3 gap-4">
- <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4 text-center">
- <kbd className="px-3 py-1 bg-elevated rounded text-green-400">y</kbd>
- <p className="text-green-400 font-medium mt-2">重新执行</p>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4 text-center">
+ <kbd className="px-3 py-1 bg-elevated rounded text-heading">y</kbd>
+ <p className="text-heading font-medium mt-2">重新执行</p>
  <p className="text-body text-xs mt-1">再次尝试相同的修改</p>
  </div>
 
- <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4 text-center">
- <kbd className="px-3 py-1 bg-elevated rounded text-red-400">n</kbd>
- <p className="text-red-400 font-medium mt-2">取消执行</p>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4 text-center">
+ <kbd className="px-3 py-1 bg-elevated rounded text-heading">n</kbd>
+ <p className="text-heading font-medium mt-2">取消执行</p>
  <p className="text-body text-xs mt-1">放弃这个修改</p>
  </div>
 
- <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-4 text-center">
- <kbd className="px-3 py-1 bg-elevated rounded text-yellow-400">e</kbd>
- <p className="text-yellow-400 font-medium mt-2">编辑后执行</p>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4 text-center">
+ <kbd className="px-3 py-1 bg-elevated rounded text-heading">e</kbd>
+ <p className="text-heading font-medium mt-2">编辑后执行</p>
  <p className="text-body text-xs mt-1">修改工具参数后执行</p>
  </div>
  </div>
@@ -871,8 +874,8 @@ async function restoreAction(
  <section>
  <h3 className="text-xl font-semibold text-heading mb-4">最佳实践</h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
- <h4 className="text-green-400 font-semibold mb-2">推荐做法</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">推荐做法</h4>
  <ul className="text-sm text-body space-y-1">
  <li>✓ 尝试新功能时启用检查点</li>
  <li>✓ 重构代码时启用检查点</li>
@@ -881,8 +884,8 @@ async function restoreAction(
  <li>✓ 使用配置文件永久启用</li>
  </ul>
  </div>
- <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
- <h4 className="text-red-400 font-semibold mb-2">注意事项</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">注意事项</h4>
  <ul className="text-sm text-body space-y-1">
  <li>✗ 不要依赖检查点作为唯一备份</li>
  <li>✗ 大型项目注意磁盘空间</li>
@@ -927,7 +930,7 @@ async function restoreAction(
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">📝 为什么只对修改工具创建检查点？</h4>
+ <h4 className="text-heading font-bold mb-2">📝 为什么只对修改工具创建检查点？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：只有 <code className="bg-base/30 px-1 rounded">write_file</code>、<code className="bg-base/30 px-1 rounded">replace</code> 等修改工具触发检查点。</p>
  <p><strong>原因</strong>：</p>
@@ -955,7 +958,7 @@ async function restoreAction(
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-red-500 font-bold mb-2">🚫 为什么默认不启用检查点？</h4>
+ <h4 className="text-heading font-bold mb-2">🚫 为什么默认不启用检查点？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：检查点功能默认关闭，需要用户显式启用。</p>
  <p><strong>原因</strong>：</p>
@@ -983,12 +986,12 @@ async function restoreAction(
  </thead>
  <tbody className="text-body">
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 font-mono text-amber-500">影子仓库损坏</td>
+ <td className="py-2 px-3 font-mono text-heading">影子仓库损坏</td>
  <td className="py-2 px-3">/restore 列表为空或报错</td>
  <td className="py-2 px-3">删除 ~/.gemini/history/{'{hash}'} 重建</td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 font-mono text-amber-500">磁盘空间不足</td>
+ <td className="py-2 px-3 font-mono text-heading">磁盘空间不足</td>
  <td className="py-2 px-3">检查点创建失败</td>
  <td className="py-2 px-3">清理旧检查点或禁用功能</td>
  </tr>
@@ -1003,7 +1006,7 @@ async function restoreAction(
  <td className="py-2 px-3">恢复后重新描述需求给 AI</td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 font-mono text-red-500">恢复后文件冲突</td>
+ <td className="py-2 px-3 font-mono text-heading">恢复后文件冲突</td>
  <td className="py-2 px-3">当前有未保存的修改</td>
  <td className="py-2 px-3">恢复前提示用户确认覆盖</td>
  </tr>

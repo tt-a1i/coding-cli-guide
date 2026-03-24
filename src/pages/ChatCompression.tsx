@@ -4,6 +4,9 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 const relatedPages: RelatedPage[] = [
  { id: 'summarizer-system', label: '摘要系统', description: '上下文压缩' },
@@ -47,7 +50,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">保留比例</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-amber-500">LLM</div>
+ <div className="text-2xl font-bold text-heading">LLM</div>
  <div className="text-xs text-dim">智能摘要</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
@@ -65,7 +68,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <span className="px-3 py-1.5 bg-elevated/20 text-heading rounded-lg border border-edge/30">
  分割点计算
  </span>
- <span className="px-3 py-1.5 bg-amber-500/20 text-amber-500 rounded-lg border border-amber-500/30">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover/30">
  LLM 摘要生成
  </span>
  <span className="px-3 py-1.5 bg-elevated/20 text-heading rounded-lg border border-edge/30">
@@ -128,7 +131,7 @@ export function ChatCompression() {
 
  style Input stroke:#00d4ff
  style Split stroke:#00ff88
- style Compress stroke:#f59e0b
+ style Compress stroke:${getThemeColor("--color-warning", "#b45309")}
  style Output stroke:#a855f7`;
 
  const thresholdDiagram = `flowchart LR
@@ -157,48 +160,48 @@ export const COMPRESSION_PRESERVE_THRESHOLD = 0.3; // 保留最近 30%
 
 // 压缩状态枚举
 export enum CompressionStatus {
- NOOP = 'noop', // 无需压缩
- COMPRESSED = 'compressed', // 压缩成功
- COMPRESSION_FAILED_EMPTY_SUMMARY = 'compression_failed_empty_summary',
- COMPRESSION_FAILED_EXCEEDED_TOKEN_BUDGET = 'compression_failed_exceeded_token_budget',
- COMPRESSION_FAILED_EXCEPTION = 'compression_failed_exception',
+  NOOP = 'noop', // 无需压缩
+  COMPRESSED = 'compressed', // 压缩成功
+  COMPRESSION_FAILED_EMPTY_SUMMARY = 'compression_failed_empty_summary',
+  COMPRESSION_FAILED_EXCEEDED_TOKEN_BUDGET = 'compression_failed_exceeded_token_budget',
+  COMPRESSION_FAILED_EXCEPTION = 'compression_failed_exception',
 }
 
 // 压缩信息接口
 export interface ChatCompressionInfo {
- status: CompressionStatus;
- compressedTokens?: number; // 被压缩的 Token 数
- preservedTokens?: number; // 保留的 Token 数
- summaryTokens?: number; // 摘要 Token 数
- totalTokensBefore?: number; // 压缩前总 Token
- totalTokensAfter?: number; // 压缩后总 Token
+  status: CompressionStatus;
+  compressedTokens?: number; // 被压缩的 Token 数
+  preservedTokens?: number; // 保留的 Token 数
+  summaryTokens?: number; // 摘要 Token 数
+  totalTokensBefore?: number; // 压缩前总 Token
+  totalTokensAfter?: number; // 压缩后总 Token
 }`;
 
  const splitPointCode = `// 计算分割点 - 找到保留 fraction 比例的位置
 export function findCompressSplitPoint(
- contents: Content[],
- fraction: number
+  contents: Content[],
+  fraction: number
 ): number {
- // 计算总 Token 数
- const totalTokens = contents.reduce((sum, c) => sum + countTokens(c), 0);
- const targetPreserve = totalTokens * fraction;
+  // 计算总 Token 数
+  const totalTokens = contents.reduce((sum, c) => sum + countTokens(c), 0);
+  const targetPreserve = totalTokens * fraction;
 
- // 从后向前累计，找到保留边界
- let preservedTokens = 0;
- let splitIndex = contents.length;
+  // 从后向前累计，找到保留边界
+  let preservedTokens = 0;
+  let splitIndex = contents.length;
 
- for (let i = contents.length - 1; i >= 0; i--) {
- const tokens = countTokens(contents[i]);
- preservedTokens += tokens;
+  for (let i = contents.length - 1; i >= 0; i--) {
+  const tokens = countTokens(contents[i]);
+  preservedTokens += tokens;
 
- if (preservedTokens >= targetPreserve) {
- splitIndex = i;
- break;
- }
- }
+  if (preservedTokens >= targetPreserve) {
+  splitIndex = i;
+  break;
+  }
+  }
 
- // 确保至少压缩一条消息
- return Math.max(1, splitIndex);
+  // 确保至少压缩一条消息
+  return Math.max(1, splitIndex);
 }
 
 // 示例：10 条消息，保留 30%
@@ -208,80 +211,80 @@ export function findCompressSplitPoint(
 
  const serviceCode = `// ChatCompressionService 核心类
 export class ChatCompressionService {
- private summarizer: Summarizer;
- private tokenCounter: TokenCounter;
+  private summarizer: Summarizer;
+  private tokenCounter: TokenCounter;
 
- constructor(deps: ChatCompressionServiceDeps) {
- this.summarizer = deps.summarizer;
- this.tokenCounter = deps.tokenCounter;
- }
+  constructor(deps: ChatCompressionServiceDeps) {
+  this.summarizer = deps.summarizer;
+  this.tokenCounter = deps.tokenCounter;
+  }
 
- async compress(
- chat: Chat,
- promptId: string,
- force: boolean,
- model: ModelConfig,
- config: CompressionConfig,
- hasFailedCompressionAttempt: boolean
- ): Promise<{
- newHistory: Content[] | null;
- info: ChatCompressionInfo;
- }> {
- const contents = chat.getHistory();
- const totalTokens = this.tokenCounter.countAll(contents);
- const maxTokens = model.maxTokens || 128000;
+  async compress(
+  chat: Chat,
+  promptId: string,
+  force: boolean,
+  model: ModelConfig,
+  config: CompressionConfig,
+  hasFailedCompressionAttempt: boolean
+  ): Promise<{
+  newHistory: Content[] | null;
+  info: ChatCompressionInfo;
+  }> {
+  const contents = chat.getHistory();
+  const totalTokens = this.tokenCounter.countAll(contents);
+  const maxTokens = model.maxTokens || 128000;
 
- // 检查是否需要压缩
- if (!force && totalTokens < maxTokens * COMPRESSION_TOKEN_THRESHOLD) {
- return {
- newHistory: null,
- info: { status: CompressionStatus.NOOP }
- };
- }
+  // 检查是否需要压缩
+  if (!force && totalTokens < maxTokens * COMPRESSION_TOKEN_THRESHOLD) {
+  return {
+  newHistory: null,
+  info: { status: CompressionStatus.NOOP }
+  };
+  }
 
- // 计算分割点
- const splitPoint = findCompressSplitPoint(
- contents,
- COMPRESSION_PRESERVE_THRESHOLD
- );
+  // 计算分割点
+  const splitPoint = findCompressSplitPoint(
+  contents,
+  COMPRESSION_PRESERVE_THRESHOLD
+  );
 
- // 提取待压缩和保留部分
- const toCompress = contents.slice(0, splitPoint);
- const toPreserve = contents.slice(splitPoint);
+  // 提取待压缩和保留部分
+  const toCompress = contents.slice(0, splitPoint);
+  const toPreserve = contents.slice(splitPoint);
 
- // 生成摘要
- const summary = await this.summarizer.summarize(toCompress, {
- maxTokens: config.summaryMaxTokens,
- model: config.summaryModel,
- });
+  // 生成摘要
+  const summary = await this.summarizer.summarize(toCompress, {
+  maxTokens: config.summaryMaxTokens,
+  model: config.summaryModel,
+  });
 
- if (!summary || summary.trim() === '') {
- return {
- newHistory: null,
- info: { status: CompressionStatus.COMPRESSION_FAILED_EMPTY_SUMMARY }
- };
- }
+  if (!summary || summary.trim() === '') {
+  return {
+  newHistory: null,
+  info: { status: CompressionStatus.COMPRESSION_FAILED_EMPTY_SUMMARY }
+  };
+  }
 
- // 构建新历史
- const summaryContent: Content = {
- role: 'user',
- parts: [{ text: \`[Previous conversation summary]\\n\${summary}\` }]
- };
+  // 构建新历史
+  const summaryContent: Content = {
+  role: 'user',
+  parts: [{ text: \`[Previous conversation summary]\\n\${summary}\` }]
+  };
 
- const newHistory = [summaryContent, ...toPreserve];
+  const newHistory = [summaryContent, ...toPreserve];
 
- return {
- newHistory,
- info: {
- status: CompressionStatus.COMPRESSED,
- compressedTokens: this.tokenCounter.countAll(toCompress),
- preservedTokens: this.tokenCounter.countAll(toPreserve),
- summaryTokens: this.tokenCounter.count(summary),
- totalTokensBefore: totalTokens,
- totalTokensAfter: this.tokenCounter.countAll(newHistory),
- }
- };
- }
+  return {
+  newHistory,
+  info: {
+  status: CompressionStatus.COMPRESSED,
+  compressedTokens: this.tokenCounter.countAll(toCompress),
+  preservedTokens: this.tokenCounter.countAll(toPreserve),
+  summaryTokens: this.tokenCounter.count(summary),
+  totalTokensBefore: totalTokens,
+  totalTokensAfter: this.tokenCounter.countAll(newHistory),
+  }
+  };
+  }
 }`;
 
  const summaryPromptCode = `// 摘要生成 Prompt
@@ -303,51 +306,51 @@ Format:
 
 // 摘要请求
 async function generateSummary(
- history: Content[],
- maxTokens: number
+  history: Content[],
+  maxTokens: number
 ): Promise<string> {
- const response = await model.generateContent({
- contents: history,
- systemInstruction: SUMMARY_SYSTEM_PROMPT,
- generationConfig: {
- maxOutputTokens: maxTokens,
- temperature: 0.3, // 低温度确保一致性
- }
- });
+  const response = await model.generateContent({
+  contents: history,
+  systemInstruction: SUMMARY_SYSTEM_PROMPT,
+  generationConfig: {
+  maxOutputTokens: maxTokens,
+  temperature: 0.3, // 低温度确保一致性
+  }
+  });
 
- return response.text;
+  return response.text;
 }`;
 
  const integrationCode = `// 在主循环中集成压缩服务
 async function runConversationLoop(chat: Chat) {
- const compressionService = new ChatCompressionService({
- summarizer: new LLMSummarizer(model),
- tokenCounter: new TikTokenCounter(),
- });
+  const compressionService = new ChatCompressionService({
+  summarizer: new LLMSummarizer(model),
+  tokenCounter: new TikTokenCounter(),
+  });
 
- while (true) {
- // 用户输入
- const userMessage = await getUserInput();
+  while (true) {
+  // 用户输入
+  const userMessage = await getUserInput();
 
- // 检查并压缩历史（在发送前）
- const { newHistory, info } = await compressionService.compress(
- chat,
- promptId,
- false, // 非强制
- modelConfig,
- compressionConfig,
- hasFailedAttempt
- );
+  // 检查并压缩历史（在发送前）
+  const { newHistory, info } = await compressionService.compress(
+  chat,
+  promptId,
+  false, // 非强制
+  modelConfig,
+  compressionConfig,
+  hasFailedAttempt
+  );
 
- if (info.status === CompressionStatus.COMPRESSED) {
- console.log(\`Compressed: \${info.compressedTokens} → \${info.summaryTokens} tokens\`);
- chat.setHistory(newHistory!);
- }
+  if (info.status === CompressionStatus.COMPRESSED) {
+  console.log(\`Compressed: \${info.compressedTokens} → \${info.summaryTokens} tokens\`);
+  chat.setHistory(newHistory!);
+  }
 
- // 发送消息并获取响应
- const response = await chat.sendMessage(userMessage);
- displayResponse(response);
- }
+  // 发送消息并获取响应
+  const response = await chat.sendMessage(userMessage);
+  displayResponse(response);
+  }
 }`;
 
  const statusTableData = [
@@ -378,25 +381,25 @@ async function runConversationLoop(chat: Chat) {
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <div className="text-heading font-bold mb-2">1️⃣ 检测阶段</div>
  <ul className="text-sm text-body space-y-1">
- <li>• 计算当前历史 Token 数</li>
- <li>• 与 50% 阈值比较</li>
- <li>• 决定是否需要压缩</li>
+ <li>计算当前历史 Token 数</li>
+ <li>与 50% 阈值比较</li>
+ <li>决定是否需要压缩</li>
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <div className="text-heading font-bold mb-2">2️⃣ 分割阶段</div>
  <ul className="text-sm text-body space-y-1">
- <li>• 从后向前计算 Token</li>
- <li>• 找到保留 30% 的分割点</li>
- <li>• 确保至少压缩 1 条</li>
+ <li>从后向前计算 Token</li>
+ <li>找到保留 30% 的分割点</li>
+ <li>确保至少压缩 1 条</li>
  </ul>
  </div>
- <div className="bg-surface p-4 rounded-lg border border-amber-500/30">
- <div className="text-amber-500 font-bold mb-2">3️⃣ 压缩阶段</div>
+ <div className="bg-surface p-4 rounded-lg border-l-2 border-l-edge-hover/30">
+ <div className="text-heading font-bold mb-2">3️⃣ 压缩阶段</div>
  <ul className="text-sm text-body space-y-1">
- <li>• LLM 生成摘要</li>
- <li>• 合并摘要+保留部分</li>
- <li>• 返回压缩后历史</li>
+ <li>LLM 生成摘要</li>
+ <li>合并摘要+保留部分</li>
+ <li>返回压缩后历史</li>
  </ul>
  </div>
  </div>
@@ -428,18 +431,18 @@ async function runConversationLoop(chat: Chat) {
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="算法特点" color="green">
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>从后向前</strong>计算，保留最新内容</li>
- <li>• 按 <strong>Token 数量</strong>而非消息数量</li>
- <li>• 保证至少压缩 <strong>1 条消息</strong></li>
- <li>• 支持不同长度的消息</li>
+ <li><strong>从后向前</strong>计算，保留最新内容</li>
+ <li>按 <strong>Token 数量</strong>而非消息数量</li>
+ <li>保证至少压缩 <strong>1 条消息</strong></li>
+ <li>支持不同长度的消息</li>
  </ul>
  </HighlightBox>
  <HighlightBox title="边界情况" color="orange">
  <ul className="text-sm text-body space-y-1">
- <li>• 只有 1 条消息：返回 1（压缩它）</li>
- <li>• 保留比例 = 0：压缩全部</li>
- <li>• 保留比例 = 1：不压缩</li>
- <li>• 单条超长消息：单独处理</li>
+ <li>只有 1 条消息：返回 1（压缩它）</li>
+ <li>保留比例 = 0：压缩全部</li>
+ <li>保留比例 = 1：不压缩</li>
+ <li>单条超长消息：单独处理</li>
  </ul>
  </HighlightBox>
  </div>
@@ -455,10 +458,10 @@ async function runConversationLoop(chat: Chat) {
  <div className="mt-4 bg-surface p-4 rounded-lg border border-edge/30">
  <h4 className="text-heading font-bold mb-2">摘要质量保证</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• 低温度 (0.3) 确保一致性</li>
- <li>• 保留技术细节（文件路径、函数名）</li>
- <li>• 按时间顺序组织关键点</li>
- <li>• 明确当前状态便于后续对话</li>
+ <li>低温度 (0.3) 确保一致性</li>
+ <li>保留技术细节（文件路径、函数名）</li>
+ <li>按时间顺序组织关键点</li>
+ <li>明确当前状态便于后续对话</li>
  </ul>
  </div>
  </Layer>
@@ -492,16 +495,16 @@ async function runConversationLoop(chat: Chat) {
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="触发时机" color="blue">
  <ul className="text-sm text-body space-y-1">
- <li>• 每次发送消息前检查</li>
- <li>• 可通过 <code>force</code> 参数强制压缩</li>
- <li>• 失败后标记避免重复尝试</li>
+ <li>每次发送消息前检查</li>
+ <li>可通过 <code>force</code> 参数强制压缩</li>
+ <li>失败后标记避免重复尝试</li>
  </ul>
  </HighlightBox>
  <HighlightBox title="性能考虑" color="green">
  <ul className="text-sm text-body space-y-1">
- <li>• 压缩会产生额外 LLM 调用</li>
- <li>• Token 预估使用 ASCII/CJK 启发式 + countTokens（媒体）</li>
- <li>• 摘要模型可配置为更快的模型</li>
+ <li>压缩会产生额外 LLM 调用</li>
+ <li>Token 预估使用 ASCII/CJK 启发式 + countTokens（媒体）</li>
+ <li>摘要模型可配置为更快的模型</li>
  </ul>
  </HighlightBox>
  </div>
@@ -512,21 +515,21 @@ async function runConversationLoop(chat: Chat) {
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <h4 className="text-heading font-bold mb-2">✅ 推荐做法</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• 在发送消息前而非后压缩</li>
- <li>• 为摘要使用专用的快速模型</li>
- <li>• 记录压缩统计用于调试</li>
- <li>• 保留足够的最近上下文</li>
- <li>• 处理所有错误状态</li>
+ <li>在发送消息前而非后压缩</li>
+ <li>为摘要使用专用的快速模型</li>
+ <li>记录压缩统计用于调试</li>
+ <li>保留足够的最近上下文</li>
+ <li>处理所有错误状态</li>
  </ul>
  </div>
- <div className="bg-surface p-4 rounded-lg border border-red-500/30">
- <h4 className="text-red-500 font-bold mb-2">❌ 避免做法</h4>
+ <div className="bg-surface p-4 rounded-lg border-l-2 border-l-edge-hover/30">
+ <h4 className="text-heading font-bold mb-2">❌ 避免做法</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• 频繁触发压缩（阈值太低）</li>
- <li>• 忽略压缩失败状态</li>
- <li>• 使用过高的摘要 Token 限制</li>
- <li>• 保留比例过低丢失上下文</li>
- <li>• 在压缩后立即再次压缩</li>
+ <li>频繁触发压缩（阈值太低）</li>
+ <li>忽略压缩失败状态</li>
+ <li>使用过高的摘要 Token 限制</li>
+ <li>保留比例过低丢失上下文</li>
+ <li>在压缩后立即再次压缩</li>
  </ul>
  </div>
  </div>

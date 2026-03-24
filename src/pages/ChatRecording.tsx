@@ -4,6 +4,10 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
+
 
 const relatedPages: RelatedPage[] = [
  { id: 'session-persistence', label: '会话持久化', description: '会话数据存储' },
@@ -54,7 +58,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">工具调用字段</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-amber-500">JSON</div>
+ <div className="text-2xl font-bold text-heading">JSON</div>
  <div className="text-xs text-dim">存储格式</div>
  </div>
  </div>
@@ -75,7 +79,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  合并写入
  </span>
  <span className="text-dim">→</span>
- <span className="px-3 py-1.5 bg-amber-500/20 text-amber-500 rounded-lg border border-amber-500/30">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover/30">
  JSON 文件
  </span>
  </div>
@@ -126,243 +130,243 @@ export function ChatRecording() {
  update --> write
  write --> file
 
- style init fill:#22d3ee,color:#000
- style queue fill:#a855f7,color:#fff
- style update fill:#22c55e,color:#000
- style file fill:#f59e0b,color:#000`;
+ style init fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style queue fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style update fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style file fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  const dataTypesCode = `// packages/core/src/services/chatRecordingService.ts
 
 /** Token 使用摘要 */
 export interface TokensSummary {
- input: number; // promptTokenCount
- output: number; // candidatesTokenCount
- cached: number; // cachedContentTokenCount
- thoughts?: number; // thoughtsTokenCount
- tool?: number; // toolUsePromptTokenCount
- total: number; // totalTokenCount
+  input: number;    // promptTokenCount
+  output: number;   // candidatesTokenCount
+  cached: number;   // cachedContentTokenCount
+  thoughts?: number; // thoughtsTokenCount
+  tool?: number;    // toolUsePromptTokenCount
+  total: number;    // totalTokenCount
 }
 
 /** 消息基础字段 */
 export interface BaseMessageRecord {
- id: string;
- timestamp: string;
- content: PartListUnion;
+  id: string;
+  timestamp: string;
+  content: PartListUnion;
 }
 
 /** 工具调用记录 */
 export interface ToolCallRecord {
- id: string;
- name: string;
- args: Record<string, unknown>;
- result?: PartListUnion | null;
- status: Status;
- timestamp: string;
- // UI 显示字段
- displayName?: string;
- description?: string;
- resultDisplay?: string;
- renderOutputAsMarkdown?: boolean;
+  id: string;
+  name: string;
+  args: Record<string, unknown>;
+  result?: PartListUnion | null;
+  status: Status;
+  timestamp: string;
+  // UI 显示字段
+  displayName?: string;
+  description?: string;
+  resultDisplay?: string;
+  renderOutputAsMarkdown?: boolean;
 }`;
 
  const messageTypeCode = `/** 消息类型 */
 export type ConversationRecordExtra =
- | { type: 'user' }
- | {
- type: 'model'; // AI 助手消息
- toolCalls?: ToolCallRecord[];
- thoughts?: Array<ThoughtSummary & { timestamp: string }>;
- tokens?: TokensSummary | null;
- model?: string;
- };
+  | { type: 'user' }
+  | {
+      type: 'model'; // AI 助手消息
+      toolCalls?: ToolCallRecord[];
+      thoughts?: Array<ThoughtSummary & { timestamp: string }>;
+      tokens?: TokensSummary | null;
+      model?: string;
+    };
 
 /** 完整消息记录 */
 export type MessageRecord = BaseMessageRecord & ConversationRecordExtra;
 
 /** 会话记录 */
 export interface ConversationRecord {
- sessionId: string;
- projectHash: string;
- startTime: string;
- lastUpdated: string;
- messages: MessageRecord[];
+  sessionId: string;
+  projectHash: string;
+  startTime: string;
+  lastUpdated: string;
+  messages: MessageRecord[];
 }`;
 
  const serviceCode = `export class ChatRecordingService {
- private conversationFile: string | null = null;
- private cachedLastConvData: string | null = null;
- private sessionId: string;
- private projectHash: string;
- private queuedThoughts: Array<ThoughtSummary & { timestamp: string }> = [];
- private queuedTokens: TokensSummary | null = null;
- private config: Config;
+  private conversationFile: string | null = null;
+  private cachedLastConvData: string | null = null;
+  private sessionId: string;
+  private projectHash: string;
+  private queuedThoughts: Array<ThoughtSummary & { timestamp: string }> = [];
+  private queuedTokens: TokensSummary | null = null;
+  private config: Config;
 
- constructor(config: Config) {
- this.config = config;
- this.sessionId = config.getSessionId();
- this.projectHash = getProjectHash(config.getProjectRoot());
- }
+  constructor(config: Config) {
+    this.config = config;
+    this.sessionId = config.getSessionId();
+    this.projectHash = getProjectHash(config.getProjectRoot());
+  }
 
- /** 初始化服务 */
- initialize(resumedSessionData?: ResumedSessionData): void {
- if (resumedSessionData) {
- // 恢复已有会话
- this.conversationFile = resumedSessionData.filePath;
- this.sessionId = resumedSessionData.conversation.sessionId;
- this.updateConversation((conv) => {
- conv.sessionId = this.sessionId;
- });
- } else {
- // 创建新会话
- const chatsDir = path.join(
- this.config.storage.getProjectTempDir(),
- 'chats',
- );
- fs.mkdirSync(chatsDir, { recursive: true });
+  /** 初始化服务 */
+  initialize(resumedSessionData?: ResumedSessionData): void {
+    if (resumedSessionData) {
+      // 恢复已有会话
+      this.conversationFile = resumedSessionData.filePath;
+      this.sessionId = resumedSessionData.conversation.sessionId;
+      this.updateConversation((conv) => {
+        conv.sessionId = this.sessionId;
+      });
+    } else {
+      // 创建新会话
+      const chatsDir = path.join(
+        this.config.storage.getProjectTempDir(),
+        'chats',
+      );
+      fs.mkdirSync(chatsDir, { recursive: true });
 
- const timestamp = new Date().toISOString()
- .slice(0, 16).replace(/:/g, '-');
- const filename = \`session-\${timestamp}-\${this.sessionId.slice(0, 8)}.json\`;
- this.conversationFile = path.join(chatsDir, filename);
+      const timestamp = new Date().toISOString()
+        .slice(0, 16).replace(/:/g, '-');
+      const filename = \`session-\${timestamp}-\${this.sessionId.slice(0, 8)}.json\`;
+      this.conversationFile = path.join(chatsDir, filename);
 
- this.writeConversation({
- sessionId: this.sessionId,
- projectHash: this.projectHash,
- startTime: new Date().toISOString(),
- lastUpdated: new Date().toISOString(),
- messages: [],
- });
- }
- }
+      this.writeConversation({
+        sessionId: this.sessionId,
+        projectHash: this.projectHash,
+        startTime: new Date().toISOString(),
+        lastUpdated: new Date().toISOString(),
+        messages: [],
+      });
+    }
+  }
 }`;
 
  const recordMethodsCode = `/** 记录消息 */
 recordMessage(message: {
- model: string;
- type: 'user' | 'model';
- content: PartListUnion;
+  model: string;
+  type: 'user' | 'model';
+  content: PartListUnion;
 }): void {
- this.updateConversation((conversation) => {
- const msg = this.newMessage(message.type, message.content);
- if (msg.type === 'model') {
- // 合并队列中的 thoughts 和 tokens
- conversation.messages.push({
- ...msg,
- thoughts: this.queuedThoughts,
- tokens: this.queuedTokens,
- model: message.model,
- });
- this.queuedThoughts = [];
- this.queuedTokens = null;
- } else {
- conversation.messages.push(msg);
- }
- });
+  this.updateConversation((conversation) => {
+    const msg = this.newMessage(message.type, message.content);
+    if (msg.type === 'model') {
+      // 合并队列中的 thoughts 和 tokens
+      conversation.messages.push({
+        ...msg,
+        thoughts: this.queuedThoughts,
+        tokens: this.queuedTokens,
+        model: message.model,
+      });
+      this.queuedThoughts = [];
+      this.queuedTokens = null;
+    } else {
+      conversation.messages.push(msg);
+    }
+  });
 }
 
 /** 记录思考过程（先入队列） */
 recordThought(thought: ThoughtSummary): void {
- this.queuedThoughts.push({
- ...thought,
- timestamp: new Date().toISOString(),
- });
+  this.queuedThoughts.push({
+    ...thought,
+    timestamp: new Date().toISOString(),
+  });
 }
 
 /** 记录 Token 统计 */
 recordMessageTokens(respUsageMetadata: GenerateContentResponseUsageMetadata): void {
- const tokens = {
- input: respUsageMetadata.promptTokenCount ?? 0,
- output: respUsageMetadata.candidatesTokenCount ?? 0,
- cached: respUsageMetadata.cachedContentTokenCount ?? 0,
- thoughts: respUsageMetadata.thoughtsTokenCount ?? 0,
- tool: respUsageMetadata.toolUsePromptTokenCount ?? 0,
- total: respUsageMetadata.totalTokenCount ?? 0,
- };
- // 尝试附加到最后一条消息，否则入队列
- this.updateConversation((conversation) => {
- const lastMsg = conversation.messages.at(-1);
- if (lastMsg?.type === 'model' && !lastMsg.tokens) {
- lastMsg.tokens = tokens;
- } else {
- this.queuedTokens = tokens;
- }
- });
+  const tokens = {
+    input: respUsageMetadata.promptTokenCount ?? 0,
+    output: respUsageMetadata.candidatesTokenCount ?? 0,
+    cached: respUsageMetadata.cachedContentTokenCount ?? 0,
+    thoughts: respUsageMetadata.thoughtsTokenCount ?? 0,
+    tool: respUsageMetadata.toolUsePromptTokenCount ?? 0,
+    total: respUsageMetadata.totalTokenCount ?? 0,
+  };
+  // 尝试附加到最后一条消息，否则入队列
+  this.updateConversation((conversation) => {
+    const lastMsg = conversation.messages.at(-1);
+    if (lastMsg?.type === 'model' && !lastMsg.tokens) {
+      lastMsg.tokens = tokens;
+    } else {
+      this.queuedTokens = tokens;
+    }
+  });
 }`;
 
  const toolCallsCode = `/** 记录工具调用 */
 recordToolCalls(model: string, toolCalls: ToolCallRecord[]): void {
- // 从 ToolRegistry 获取元数据
- const toolRegistry = this.config.getToolRegistry();
- const enrichedToolCalls = toolCalls.map((tc) => {
- const tool = toolRegistry.getTool(tc.name);
- return {
- ...tc,
- displayName: tool?.displayName || tc.name,
- description: tool?.description || '',
- renderOutputAsMarkdown: tool?.isOutputMarkdown || false,
- };
- });
+  // 从 ToolRegistry 获取元数据
+  const toolRegistry = this.config.getToolRegistry();
+  const enrichedToolCalls = toolCalls.map((tc) => {
+    const tool = toolRegistry.getTool(tc.name);
+    return {
+      ...tc,
+      displayName: tool?.displayName || tc.name,
+      description: tool?.description || '',
+      renderOutputAsMarkdown: tool?.isOutputMarkdown || false,
+    };
+  });
 
- this.updateConversation((conversation) => {
- const lastMsg = conversation.messages.at(-1);
+  this.updateConversation((conversation) => {
+    const lastMsg = conversation.messages.at(-1);
 
- // 如果没有 AI 消息或有新思考，创建新消息
- if (!lastMsg || lastMsg.type !== 'model' || this.queuedThoughts.length > 0) {
- const newMsg: MessageRecord = {
- ...this.newMessage('model', ''),
- type: 'model',
- toolCalls: enrichedToolCalls,
- thoughts: this.queuedThoughts,
- model,
- };
- if (this.queuedTokens) {
- newMsg.tokens = this.queuedTokens;
- this.queuedTokens = null;
- }
- this.queuedThoughts = [];
- conversation.messages.push(newMsg);
- } else {
- // 更新已有消息的工具调用
- if (!lastMsg.toolCalls) lastMsg.toolCalls = [];
- // 合并更新...
- }
- });
+    // 如果没有 AI 消息或有新思考，创建新消息
+    if (!lastMsg || lastMsg.type !== 'model' || this.queuedThoughts.length > 0) {
+      const newMsg: MessageRecord = {
+        ...this.newMessage('model', ''),
+        type: 'model',
+        toolCalls: enrichedToolCalls,
+        thoughts: this.queuedThoughts,
+        model,
+      };
+      if (this.queuedTokens) {
+        newMsg.tokens = this.queuedTokens;
+        this.queuedTokens = null;
+      }
+      this.queuedThoughts = [];
+      conversation.messages.push(newMsg);
+    } else {
+      // 更新已有消息的工具调用
+      if (!lastMsg.toolCalls) lastMsg.toolCalls = [];
+      // 合并更新...
+    }
+  });
 }`;
 
  const fileOpsCode = `/** 文件操作 */
 private readConversation(): ConversationRecord {
- try {
- this.cachedLastConvData = fs.readFileSync(this.conversationFile!, 'utf8');
- return JSON.parse(this.cachedLastConvData);
- } catch (error) {
- // 文件不存在时返回空会话
- return {
- sessionId: this.sessionId,
- projectHash: this.projectHash,
- startTime: new Date().toISOString(),
- lastUpdated: new Date().toISOString(),
- messages: [],
- };
- }
+  try {
+    this.cachedLastConvData = fs.readFileSync(this.conversationFile!, 'utf8');
+    return JSON.parse(this.cachedLastConvData);
+  } catch (error) {
+    // 文件不存在时返回空会话
+    return {
+      sessionId: this.sessionId,
+      projectHash: this.projectHash,
+      startTime: new Date().toISOString(),
+      lastUpdated: new Date().toISOString(),
+      messages: [],
+    };
+  }
 }
 
 private writeConversation(conversation: ConversationRecord): void {
- if (!this.conversationFile) return;
- if (conversation.messages.length === 0) return; // 无消息不写
+  if (!this.conversationFile) return;
+  if (conversation.messages.length === 0) return; // 无消息不写
 
- // 仅在内容变化时写入
- if (this.cachedLastConvData !== JSON.stringify(conversation, null, 2)) {
- conversation.lastUpdated = new Date().toISOString();
- const newContent = JSON.stringify(conversation, null, 2);
- this.cachedLastConvData = newContent;
- fs.writeFileSync(this.conversationFile, newContent);
- }
+  // 仅在内容变化时写入
+  if (this.cachedLastConvData !== JSON.stringify(conversation, null, 2)) {
+    conversation.lastUpdated = new Date().toISOString();
+    const newContent = JSON.stringify(conversation, null, 2);
+    this.cachedLastConvData = newContent;
+    fs.writeFileSync(this.conversationFile, newContent);
+  }
 }
 
 private updateConversation(updateFn: (conv: ConversationRecord) => void) {
- const conversation = this.readConversation();
- updateFn(conversation);
- this.writeConversation(conversation);
+  const conversation = this.readConversation();
+  updateFn(conversation);
+  this.writeConversation(conversation);
 }`;
 
  return (
@@ -391,10 +395,10 @@ private updateConversation(updateFn: (conv: ConversationRecord) => void) {
  <HighlightBox title="用户消息 (user)" variant="blue">
  <div className="text-sm space-y-2">
  <ul className="text-body space-y-1">
- <li>• <code>id</code>: UUID</li>
- <li>• <code>timestamp</code>: ISO 时间戳</li>
- <li>• <code>content</code>: 消息内容</li>
- <li>• <code>type</code>: "user"</li>
+ <li><code>id</code>: UUID</li>
+ <li><code>timestamp</code>: ISO 时间戳</li>
+ <li><code>content</code>: 消息内容</li>
+ <li><code>type</code>: "user"</li>
  </ul>
  </div>
  </HighlightBox>
@@ -402,10 +406,10 @@ private updateConversation(updateFn: (conv: ConversationRecord) => void) {
  <HighlightBox title="AI 消息 (model)" variant="purple">
  <div className="text-sm space-y-2">
  <ul className="text-body space-y-1">
- <li>• <code>toolCalls</code>: 工具调用列表</li>
- <li>• <code>thoughts</code>: 思考过程</li>
- <li>• <code>tokens</code>: Token 统计</li>
- <li>• <code>model</code>: 使用的模型</li>
+ <li><code>toolCalls</code>: 工具调用列表</li>
+ <li><code>thoughts</code>: 思考过程</li>
+ <li><code>tokens</code>: Token 统计</li>
+ <li><code>model</code>: 使用的模型</li>
  </ul>
  </div>
  </HighlightBox>
@@ -506,9 +510,9 @@ private updateConversation(updateFn: (conv: ConversationRecord) => void) {
  <HighlightBox title="写入优化" variant="green">
  <div className="text-sm space-y-2 text-body">
  <ul className="space-y-1">
- <li>• <strong>缓存比较</strong>：仅在内容变化时写入</li>
- <li>• <strong>延迟写入</strong>：无消息时不创建文件</li>
- <li>• <strong>时间戳更新</strong>：每次写入更新 lastUpdated</li>
+ <li><strong>缓存比较</strong>：仅在内容变化时写入</li>
+ <li><strong>延迟写入</strong>：无消息时不创建文件</li>
+ <li><strong>时间戳更新</strong>：每次写入更新 lastUpdated</li>
  </ul>
  </div>
  </HighlightBox>
@@ -571,7 +575,7 @@ private updateConversation(updateFn: (conv: ConversationRecord) => void) {
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">为什么需要队列缓冲？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么需要队列缓冲？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策：</strong>思考和 Token 先入队列，消息写入时合并。</p>
  <p><strong>原因：</strong></p>

@@ -47,7 +47,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">输出字段</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-amber-500">JSON</div>
+ <div className="text-2xl font-bold text-heading">JSON</div>
  <div className="text-xs text-dim">结构化格式</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
@@ -122,88 +122,88 @@ export function OutputFormatter() {
 
 // 输出格式枚举
 export enum OutputFormat {
- TEXT = 'text', // 纯文本模式
- JSON = 'json', // JSON 结构化模式
+  TEXT = 'text', // 纯文本模式
+  JSON = 'json', // JSON 结构化模式
 }
 
 // JSON 错误结构
 export interface JsonError {
- type: string; // 错误类型
- message: string; // 错误消息
- code?: string | number; // 错误代码
+  type: string; // 错误类型
+  message: string; // 错误消息
+  code?: string | number; // 错误代码
 }
 
 // JSON 输出结构
 export interface JsonOutput {
- response?: string; // AI 响应文本
- stats?: SessionMetrics; // 会话指标统计
- error?: JsonError; // 错误信息（如有）
+  response?: string; // AI 响应文本
+  stats?: SessionMetrics; // 会话指标统计
+  error?: JsonError; // 错误信息（如有）
 }`;
 
  const sessionMetricsCode = `// SessionMetrics 会话指标（来自 telemetry）
 interface SessionMetrics {
- // 时间指标
- totalDuration: number; // 总耗时 (ms)
- firstTokenLatency: number; // 首 Token 延迟 (ms)
+  // 时间指标
+  totalDuration: number; // 总耗时 (ms)
+  firstTokenLatency: number; // 首 Token 延迟 (ms)
 
- // Token 统计
- inputTokens: number; // 输入 Token 数
- outputTokens: number; // 输出 Token 数
- totalTokens: number; // 总 Token 数
+  // Token 统计
+  inputTokens: number; // 输入 Token 数
+  outputTokens: number; // 输出 Token 数
+  totalTokens: number; // 总 Token 数
 
- // 调用统计
- turnCount: number; // 对话轮次
- toolCalls: number; // 工具调用次数
+  // 调用统计
+  turnCount: number; // 对话轮次
+  toolCalls: number; // 工具调用次数
 
- // 模型信息
- model: string; // 使用的模型
+  // 模型信息
+  model: string; // 使用的模型
 
- // 成本估算（如可用）
- estimatedCost?: number; // 估算成本
+  // 成本估算（如可用）
+  estimatedCost?: number; // 估算成本
 }`;
 
  const jsonFormatterCode = `// json-formatter.ts 核心逻辑
 import { OutputFormat, type JsonOutput, type JsonError } from './types.js';
 
 export function formatOutput(
- format: OutputFormat,
- response: string | undefined,
- stats: SessionMetrics | undefined,
- error: JsonError | undefined,
+  format: OutputFormat,
+  response: string | undefined,
+  stats: SessionMetrics | undefined,
+  error: JsonError | undefined,
 ): string {
- // TEXT 模式：仅输出响应文本
- if (format === OutputFormat.TEXT) {
- if (error) {
- return \`Error: \${error.message}\`;
- }
- return response ?? '';
- }
+  // TEXT 模式：仅输出响应文本
+  if (format === OutputFormat.TEXT) {
+  if (error) {
+  return \`Error: \${error.message}\`;
+  }
+  return response ?? '';
+  }
 
- // JSON 模式：结构化输出
- const output: JsonOutput = {};
+  // JSON 模式：结构化输出
+  const output: JsonOutput = {};
 
- if (response) {
- output.response = response;
- }
+  if (response) {
+  output.response = response;
+  }
 
- if (stats) {
- output.stats = stats;
- }
+  if (stats) {
+  output.stats = stats;
+  }
 
- if (error) {
- output.error = error;
- }
+  if (error) {
+  output.error = error;
+  }
 
- return JSON.stringify(output, null, 2);
+  return JSON.stringify(output, null, 2);
 }
 
 // 快捷方法
 export function formatJsonResponse(response: string, stats?: SessionMetrics): string {
- return formatOutput(OutputFormat.JSON, response, stats, undefined);
+  return formatOutput(OutputFormat.JSON, response, stats, undefined);
 }
 
 export function formatJsonError(error: JsonError): string {
- return formatOutput(OutputFormat.JSON, undefined, undefined, error);
+  return formatOutput(OutputFormat.JSON, undefined, undefined, error);
 }`;
 
  const usageExampleCode = `// 非交互模式使用示例
@@ -213,10 +213,10 @@ import { formatOutput, OutputFormat } from './output/json-formatter.js';
 const result = await runNonInteractiveSession(prompt);
 
 const output = formatOutput(
- OutputFormat.JSON,
- result.response,
- result.metrics,
- undefined
+  OutputFormat.JSON,
+  result.response,
+  result.metrics,
+  undefined
 );
 
 console.log(output);
@@ -233,14 +233,14 @@ console.log(output);
 
 // 处理错误
 const errorOutput = formatOutput(
- OutputFormat.JSON,
- undefined,
- undefined,
- {
- type: 'QuotaExceeded',
- message: 'API quota exceeded',
- code: 429
- }
+  OutputFormat.JSON,
+  undefined,
+  undefined,
+  {
+  type: 'QuotaExceeded',
+  message: 'API quota exceeded',
+  code: 429
+  }
 );
 
 console.log(errorOutput);
@@ -273,19 +273,19 @@ console.log(errorOutput);
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <div className="text-heading font-bold mb-2">📝 TEXT 模式</div>
  <ul className="text-sm text-body space-y-1">
- <li>• 仅输出 AI 响应文本</li>
- <li>• 适合管道和脚本</li>
- <li>• 错误时输出 "Error: message"</li>
- <li>• 无额外元数据</li>
+ <li>仅输出 AI 响应文本</li>
+ <li>适合管道和脚本</li>
+ <li>错误时输出 "Error: message"</li>
+ <li>无额外元数据</li>
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <div className="text-heading font-bold mb-2">📊 JSON 模式</div>
  <ul className="text-sm text-body space-y-1">
- <li>• 结构化 JSON 输出</li>
- <li>• 包含响应 + 指标 + 错误</li>
- <li>• 适合程序解析</li>
- <li>• 完整会话元数据</li>
+ <li>结构化 JSON 输出</li>
+ <li>包含响应 + 指标 + 错误</li>
+ <li>适合程序解析</li>
+ <li>完整会话元数据</li>
  </ul>
  </div>
  </div>

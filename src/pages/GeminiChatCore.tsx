@@ -5,6 +5,9 @@ import { CodeBlock } from '../components/CodeBlock';
 import { JsonBlock } from '../components/JsonBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
  return (
@@ -32,11 +35,11 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">🔧 为什么这样设计</h4>
+ <h4 className="text-heading font-bold mb-2">🔧 为什么这样设计</h4>
  <p className="text-body text-sm">
  AI Agent 需要自主决策何时完成任务。GeminiChat 的 Continuation 主要通过检测响应{' '}
- <code className="text-amber-500 bg-amber-500/10 px-1 rounded">parts[].functionCall</code> 来决定是否需要执行工具并继续；
- <code className="text-amber-500 bg-amber-500/10 px-1 rounded">finishReason</code> 更多用于流式完整性与错误处理（例如 MALFORMED_FUNCTION_CALL）。
+ <code className="text-heading bg-elevated px-1 rounded">parts[].functionCall</code> 来决定是否需要执行工具并继续；
+ <code className="text-heading bg-elevated px-1 rounded">finishReason</code> 更多用于流式完整性与错误处理（例如 MALFORMED_FUNCTION_CALL）。
  </p>
  </div>
 
@@ -51,8 +54,8 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-heading font-semibold text-sm">2. Stream</div>
  <div className="text-xs text-dim mt-1">流式接收响应</div>
  </div>
- <div className="bg-surface p-3 rounded border border-amber-500/30 text-center">
- <div className="text-amber-500 font-semibold text-sm">3. Tool Call</div>
+ <div className="bg-surface p-3 rounded border-l-2 border-l-edge-hover/30 text-center">
+ <div className="text-heading font-semibold text-sm">3. Tool Call</div>
  <div className="text-xs text-dim mt-1">执行工具调用</div>
  </div>
  <div className="bg-surface p-3 rounded border border-edge/30 text-center">
@@ -68,7 +71,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">最大轮次</div>
  </div>
  <div className="bg-surface p-3 rounded border border-edge">
- <div className="text-xl font-bold text-amber-500">3</div>
+ <div className="text-xl font-bold text-heading">3</div>
  <div className="text-xs text-dim">重试次数</div>
  </div>
  <div className="bg-surface p-3 rounded border border-edge">
@@ -120,17 +123,17 @@ export function GeminiChatCore() {
  </HighlightBox>
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
- <div className="bg-elevated/5 rounded-lg p-4 border border-white/10 text-center">
+ <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40 text-center">
  <div className="text-3xl mb-2">📨</div>
  <h4 className="text-heading font-bold">消息管理</h4>
  <p className="text-sm text-body">维护完整的对话历史</p>
  </div>
- <div className="bg-elevated/5 rounded-lg p-4 border border-white/10 text-center">
+ <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40 text-center">
  <div className="text-3xl mb-2">🔄</div>
  <h4 className="text-heading font-bold">循环控制</h4>
  <p className="text-sm text-body">处理多轮工具调用</p>
  </div>
- <div className="bg-elevated/5 rounded-lg p-4 border border-white/10 text-center">
+ <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40 text-center">
  <div className="text-3xl mb-2">📡</div>
  <h4 className="text-heading font-bold">流式处理</h4>
  <p className="text-sm text-body">实时处理 API 响应</p>
@@ -142,8 +145,8 @@ export function GeminiChatCore() {
  <Layer title="设计哲学深度解析" icon="💡">
  <div className="space-y-6">
  {/* 核心约束 */}
- <div className="bg-surface rounded-lg p-5 border border-amber-500/30">
- <h4 className="text-amber-500 font-bold text-lg mb-3 flex items-center gap-2">
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/30">
+ <h4 className="text-heading font-bold text-lg mb-3 flex items-center gap-2">
  <span>🧠</span>
  核心约束：AI 是无状态的
  </h4>
@@ -235,7 +238,7 @@ export function GeminiChatCore() {
  <tr className="border- border-edge">
  <th className="text-left py-2 text-dim">决策</th>
  <th className="text-left py-2 text-heading">选择</th>
- <th className="text-left py-2 text-amber-500">代价</th>
+ <th className="text-left py-2 text-heading">代价</th>
  <th className="text-left py-2 text-heading">收益</th>
  </tr>
  </thead>
@@ -243,25 +246,25 @@ export function GeminiChatCore() {
  <tr className="border- border-edge/50">
  <td className="py-2">历史发送</td>
  <td className="py-2 text-heading">每次全量</td>
- <td className="py-2 text-amber-500">Token 消耗大</td>
+ <td className="py-2 text-heading">Token 消耗大</td>
  <td className="py-2 text-heading">上下文完整一致</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="py-2">工具执行</td>
  <td className="py-2 text-heading">串行等待</td>
- <td className="py-2 text-amber-500">速度较慢</td>
+ <td className="py-2 text-heading">速度较慢</td>
  <td className="py-2 text-heading">可控可审批</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="py-2">错误处理</td>
  <td className="py-2 text-heading">指数退避重试</td>
- <td className="py-2 text-amber-500">延迟增加</td>
+ <td className="py-2 text-heading">延迟增加</td>
  <td className="py-2 text-heading">成功率提高</td>
  </tr>
  <tr>
  <td className="py-2">写操作</td>
  <td className="py-2 text-heading">第二个前停止</td>
- <td className="py-2 text-amber-500">需要多轮</td>
+ <td className="py-2 text-heading">需要多轮</td>
  <td className="py-2 text-heading">防止连续破坏</td>
  </tr>
  </tbody>
@@ -285,7 +288,7 @@ export function GeminiChatCore() {
  <div className="bg-elevated/20 text-heading px-3 py-1 rounded-full">
  平级：ToolScheduler 执行工具
  </div>
- <div className="bg-amber-500/20 text-amber-500 px-3 py-1 rounded-full">
+ <div className="bg-elevated text-heading px-3 py-1 rounded-full">
  输出：StreamEvent 事件流
  </div>
  </div>
@@ -444,8 +447,8 @@ export function GeminiChatCore() {
  </p>
  <code className="text-xs">getHistory(curated: false)</code>
  </div>
- <div className="bg-elevated/5 rounded-lg p-4 border border-green-400/30">
- <h4 className="text-green-400 font-bold mb-2">精选历史 (Curated)</h4>
+ <div className="bg-elevated/5 rounded-lg p-4 border-l-2 border-l-edge-hover/30">
+ <h4 className="text-heading font-bold mb-2">精选历史 (Curated)</h4>
  <p className="text-sm text-body mb-2">
  仅有效的用户-模型交互
  </p>
@@ -483,15 +486,15 @@ history: Content[] = [
  {/* 循环终止条件 */}
  <Layer title="循环终止条件" icon="🏁">
  <div className="space-y-3">
- <div className="flex items-center gap-3 bg-green-500/10 p-3 rounded-lg">
+ <div className="flex items-center gap-3 bg-elevated p-3 rounded-lg">
  <span className="text-2xl">✅</span>
  <div>
- <strong className="text-green-400">无 functionCall</strong>
+ <strong className="text-heading">无 functionCall</strong>
  <p className="text-sm text-body">响应包含有效文本且不需要工具，结束本轮</p>
  </div>
  </div>
 
- <div className="flex items-center gap-3 bg-orange-500/10 p-3 rounded-lg">
+ <div className="flex items-center gap-3 bg-elevated p-3 rounded-lg">
  <span className="text-2xl">🔄</span>
  <div>
  <strong className="text-heading">检测到 functionCall</strong>
@@ -499,10 +502,10 @@ history: Content[] = [
  </div>
  </div>
 
- <div className="flex items-center gap-3 bg-red-500/10 p-3 rounded-lg">
+ <div className="flex items-center gap-3 bg-elevated p-3 rounded-lg">
  <span className="text-2xl">🛑</span>
  <div>
- <strong className="text-red-400">MAX_TURNS 达到上限</strong>
+ <strong className="text-heading">MAX_TURNS 达到上限</strong>
  <p className="text-sm text-body">默认 100 轮，防止无限循环</p>
  </div>
  </div>
@@ -521,12 +524,12 @@ history: Content[] = [
  <Layer title="完整循环流程图" icon="🔄">
  <div className="bg-base/30 rounded-lg p-6">
  <div className="flex flex-col items-center space-y-4">
- <div className="bg-cyan-400/20 border border-edge rounded-lg px-6 py-3 text-center">
+ <div className="bg-accent/10 border border-edge rounded-lg px-6 py-3 text-center">
  <strong>用户输入</strong>
  </div>
  <div className="text-heading">↓</div>
 
- <div className="bg-blue-400/20 border border-edge rounded-lg px-6 py-3 text-center">
+ <div className="bg-accent/10 border border-edge rounded-lg px-6 py-3 text-center">
  <strong>history.push(userMessage)</strong>
  </div>
  <div className="text-heading">↓</div>
@@ -537,35 +540,35 @@ history: Content[] = [
  </div>
  <div className="text-heading">↓</div>
 
- <div className="bg-pink-400/20 border border-pink-400 rounded-lg px-6 py-3 text-center">
+ <div className="bg-[var(--purple-glow)] border border-[var(--purple)] rounded-lg px-6 py-3 text-center">
  <strong>API 请求 (generateContentStream)</strong>
  </div>
  <div className="text-heading">↓</div>
 
- <div className="bg-orange-400/20 border border-orange-400 rounded-lg px-6 py-3 text-center">
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg px-6 py-3 text-center">
  <strong>处理流式响应</strong>
  </div>
  <div className="text-heading">↓</div>
 
- <div className="bg-yellow-400/20 border border-yellow-400 rounded-lg px-6 py-3 text-center">
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg px-6 py-3 text-center">
  <strong>检查 functionCall?</strong>
  </div>
 
  <div className="flex gap-8 items-start">
  <div className="flex flex-col items-center">
- <div className="text-green-400">↓ 无</div>
- <div className="bg-green-400/20 border border-green-400 rounded-lg px-4 py-2 text-center">
+ <div className="text-heading">↓ 无</div>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg px-4 py-2 text-center">
  <strong>break</strong>
  <div className="text-xs">结束循环</div>
  </div>
  </div>
  <div className="flex flex-col items-center">
  <div className="text-heading">↓ 有</div>
- <div className="bg-orange-400/20 border border-orange-400 rounded-lg px-4 py-2 text-center">
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg px-4 py-2 text-center">
  <strong>执行工具</strong>
  </div>
  <div className="text-heading">↓</div>
- <div className="bg-blue-400/20 border border-edge rounded-lg px-4 py-2 text-center">
+ <div className="bg-accent/10 border border-edge rounded-lg px-4 py-2 text-center">
  <strong>结果加入历史</strong>
  </div>
  <div className="text-heading">↺ 继续循环</div>
@@ -1289,11 +1292,11 @@ class LoopSafetyGuard {
  <HighlightBox title="安全阀层级" color="red" className="mt-4">
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
  <div>
- <h5 className="font-semibold text-red-400 mb-2">第一层：轮次限制</h5>
+ <h5 className="font-semibold text-heading mb-2">第一层：轮次限制</h5>
  <p className="text-body">最多 100 轮对话，防止无限循环</p>
  </div>
  <div>
- <h5 className="font-semibold text-yellow-400 mb-2">第二层：工具调用限制</h5>
+ <h5 className="font-semibold text-heading mb-2">第二层：工具调用限制</h5>
  <p className="text-body">总计 500 次工具调用上限</p>
  </div>
  <div>
@@ -1315,9 +1318,9 @@ class LoopSafetyGuard {
  <Layer title="问题1: AI 无响应或响应中断" depth={2} defaultOpen={true}>
  <HighlightBox title="常见症状" color="red">
  <ul className="text-sm space-y-1">
- <li>• 发送消息后长时间无响应</li>
- <li>• 响应在中间突然停止</li>
- <li>• 出现"正在思考..."但没有后续</li>
+ <li>发送消息后长时间无响应</li>
+ <li>响应在中间突然停止</li>
+ <li>出现"正在思考..."但没有后续</li>
  </ul>
  </HighlightBox>
 
@@ -1454,19 +1457,19 @@ console.log('诊断报告:', report);
  <HighlightBox title="快速解决方案" color="green" className="mt-4">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
  <div>
- <h5 className="font-semibold text-green-400 mb-2">网络问题</h5>
+ <h5 className="font-semibold text-heading mb-2">网络问题</h5>
  <ul className="text-body space-y-1">
- <li>• 检查网络连接</li>
- <li>• 尝试使用代理</li>
- <li>• 检查防火墙设置</li>
+ <li>检查网络连接</li>
+ <li>尝试使用代理</li>
+ <li>检查防火墙设置</li>
  </ul>
  </div>
  <div>
- <h5 className="font-semibold text-green-400 mb-2">API 问题</h5>
+ <h5 className="font-semibold text-heading mb-2">API 问题</h5>
  <ul className="text-body space-y-1">
- <li>• 检查 API 状态页</li>
- <li>• 验证 API Key</li>
- <li>• 检查配额限制</li>
+ <li>检查 API 状态页</li>
+ <li>验证 API Key</li>
+ <li>检查配额限制</li>
  </ul>
  </div>
  </div>
@@ -1477,9 +1480,9 @@ console.log('诊断报告:', report);
  <Layer title="问题2: 工具调用执行失败" depth={2} defaultOpen={true}>
  <HighlightBox title="常见症状" color="red">
  <ul className="text-sm space-y-1">
- <li>• AI 发起工具调用但执行失败</li>
- <li>• 工具返回错误后 AI 反复重试</li>
- <li>• 工具参数解析错误</li>
+ <li>AI 发起工具调用但执行失败</li>
+ <li>工具返回错误后 AI 反复重试</li>
+ <li>工具参数解析错误</li>
  </ul>
  </HighlightBox>
 
@@ -1639,9 +1642,9 @@ class ToolCallDebugger {
  <Layer title="问题3: AI 上下文丢失" depth={2} defaultOpen={true}>
  <HighlightBox title="常见症状" color="red">
  <ul className="text-sm space-y-1">
- <li>• AI 突然"忘记"之前讨论的内容</li>
- <li>• AI 重复已经完成的操作</li>
- <li>• AI 无法引用之前的文件或代码</li>
+ <li>AI 突然"忘记"之前讨论的内容</li>
+ <li>AI 重复已经完成的操作</li>
+ <li>AI 无法引用之前的文件或代码</li>
  </ul>
  </HighlightBox>
 
@@ -2464,10 +2467,10 @@ flowchart TB
  GC --> TM
  CFG --> GC
 
- style GC fill:#22d3ee,color:#000
- style IL fill:#a855f7,color:#fff
- style CG fill:#22c55e,color:#000
- style TS fill:#f59e0b,color:#000
+ style GC fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style IL fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style CG fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style TS fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
  `} />
 
  <div className="mt-4 bg-surface rounded-lg p-4">
@@ -2481,7 +2484,7 @@ flowchart TB
  </ul>
  </div>
  <div>
- <h6 className="text-green-400 font-semibold mb-1">下游模块</h6>
+ <h6 className="text-heading font-semibold mb-1">下游模块</h6>
  <ul className="space-y-1">
  <li><strong>ContentGenerator：</strong>API 调用</li>
  <li><strong>ToolScheduler：</strong>工具执行</li>

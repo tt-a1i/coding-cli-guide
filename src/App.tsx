@@ -175,10 +175,17 @@ const TaskTracking = lazy(() => import('./pages/TaskTracking').then(m => ({ defa
 
 function PageLoading() {
   return (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <div className="flex items-center gap-3 text-[var(--text-muted)]">
-        <div className="w-4 h-4 border-2 border-[var(--terminal-green-dim)] border-t-transparent rounded-full animate-spin" />
-        <span className="text-sm">加载中...</span>
+    <div className="min-h-[400px] pt-8 space-y-6 animate-pulse">
+      <div className="h-6 bg-surface rounded-md w-48" />
+      <div className="space-y-3">
+        <div className="h-4 bg-surface rounded-md w-full" />
+        <div className="h-4 bg-surface rounded-md w-5/6" />
+        <div className="h-4 bg-surface rounded-md w-4/6" />
+      </div>
+      <div className="h-32 bg-surface rounded-xl w-full" />
+      <div className="space-y-3">
+        <div className="h-4 bg-surface rounded-md w-full" />
+        <div className="h-4 bg-surface rounded-md w-3/4" />
       </div>
     </div>
   );
@@ -250,6 +257,15 @@ function App() {
     if (!url.searchParams.has('tab')) {
       url.searchParams.set('tab', 'start-here');
       window.history.replaceState({}, '', url);
+    }
+  }, []);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('theme');
+    if (stored === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else if (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.classList.add('dark');
     }
   }, []);
 
@@ -591,7 +607,7 @@ function App() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[var(--bg-void)]">
+    <div className="flex h-screen overflow-hidden bg-base">
       {/* Desktop Sidebar */}
       <div className="hidden md:block">
         <Sidebar activeTab={activeTab} onTabChange={(tab) => navigateToTab(tab)} />
@@ -603,9 +619,9 @@ function App() {
           <button
             aria-label="关闭侧边栏"
             onClick={() => setIsMobileSidebarOpen(false)}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"
           />
-          <div className="absolute inset-y-0 left-0 w-72 max-w-[85vw] shadow-2xl shadow-black/40">
+          <div className="absolute inset-y-0 left-0 w-72 max-w-[85vw] shadow-[var(--color-shadow-md)]">
             <Sidebar
               activeTab={activeTab}
               onTabChange={(tab) => {
@@ -620,29 +636,29 @@ function App() {
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto">
         {/* Mobile Top Bar */}
-        <div className="md:hidden sticky top-0 z-20 bg-[var(--bg-void)]/90 backdrop-blur-md border-b border-[var(--border-subtle)]">
+        <div className="md:hidden sticky top-0 z-20 bg-base/95 backdrop-blur-lg border-b border-edge">
           <div className="px-4 py-2.5 flex items-center gap-3">
             <button
               onClick={() => setIsMobileSidebarOpen(true)}
-              className="p-2 rounded-lg bg-[var(--bg-panel)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
+              className="p-2 rounded-lg border border-edge bg-base text-body hover:text-heading hover:bg-surface transition-all duration-150"
               aria-label="打开侧边栏"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" /></svg>
             </button>
             <div className="flex-1 min-w-0">
-              <div className="text-sm text-[var(--text-primary)] truncate font-medium">{activeTabLabel}</div>
+              <div className="text-sm text-heading truncate font-medium">{activeTabLabel}</div>
             </div>
             <button
               onClick={() => navigateToTab('start-here')}
-              className="p-2 rounded-lg bg-[var(--bg-panel)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--terminal-green)] transition-colors"
+              className="p-2 rounded-lg border border-edge bg-base text-body hover:text-heading hover:bg-surface transition-all duration-150"
               aria-label="回到首页"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
             </button>
           </div>
         </div>
 
-        <div className="max-w-4xl mx-auto px-4 py-6 md:px-8 md:py-10">
+        <div className="max-w-4xl mx-auto px-4 py-6 md:px-10 md:py-10">
           <div className="animate-fadeIn">
             <PageLayout activeTab={activeTab} onNavigate={navigateToTab}>
               <Suspense fallback={<PageLoading />}>

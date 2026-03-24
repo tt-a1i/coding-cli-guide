@@ -20,17 +20,17 @@ export function UIRenderingLayer() {
  </HighlightBox>
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
- <div className="bg-elevated/5 rounded-lg p-4 border border-white/10 text-center">
+ <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40 text-center">
  <div className="text-3xl mb-2">⚛️</div>
  <h4 className="text-heading font-bold">React 组件</h4>
  <p className="text-sm text-body">使用 JSX 和 hooks</p>
  </div>
- <div className="bg-elevated/5 rounded-lg p-4 border border-white/10 text-center">
+ <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40 text-center">
  <div className="text-3xl mb-2">📐</div>
  <h4 className="text-heading font-bold">Flexbox 布局</h4>
  <p className="text-sm text-body">熟悉的 CSS 布局</p>
  </div>
- <div className="bg-elevated/5 rounded-lg p-4 border border-white/10 text-center">
+ <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40 text-center">
  <div className="text-3xl mb-2">🎨</div>
  <h4 className="text-heading font-bold">丰富的样式</h4>
  <p className="text-sm text-body">颜色、边框、文本样式</p>
@@ -114,8 +114,8 @@ export function UIRenderingLayer() {
  />
  </div>
 
- <div className="bg-elevated/5 rounded-lg p-4 border border-green-400/30">
- <h4 className="text-green-400 font-bold mb-2">useReactToolScheduler</h4>
+ <div className="bg-elevated/5 rounded-lg p-4 border-l-2 border-l-edge-hover/30">
+ <h4 className="text-heading font-bold mb-2">useReactToolScheduler</h4>
  <p className="text-sm text-body mb-2">工具执行调度</p>
  <CodeBlock
  code={`const {
@@ -127,7 +127,7 @@ export function UIRenderingLayer() {
  />
  </div>
 
- <div className="bg-elevated/5 rounded-lg p-4 border border-orange-400/30">
+ <div className="bg-elevated/5 rounded-lg p-4 border-l-2 border-l-edge-hover/30">
  <h4 className="text-heading font-bold mb-2">useKeypress</h4>
  <p className="text-sm text-body mb-2">键盘输入处理</p>
  <CodeBlock
@@ -142,7 +142,7 @@ export function UIRenderingLayer() {
  />
  </div>
 
- <div className="bg-elevated/5 rounded-lg p-4 border border-pink-400/30">
+ <div className="bg-elevated/5 rounded-lg p-4 border border-[var(--purple)]/30">
  <h4 className="text-heading font-bold mb-2">useVim</h4>
  <p className="text-sm text-body mb-2">VIM 模式支持</p>
  <CodeBlock
@@ -210,8 +210,8 @@ export function UIRenderingLayer() {
  {/* Static vs Pending */}
  <Layer title="Static vs Pending 渲染" icon="📊">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <div className="bg-green-500/10 border-2 border-green-500/30 rounded-lg p-4">
- <h4 className="text-green-400 font-bold mb-2">Static (已完成)</h4>
+ <div className="bg-elevated border-2 border-edge/30 rounded-lg p-4">
+ <h4 className="text-heading font-bold mb-2">Static (已完成)</h4>
  <p className="text-sm text-body mb-3">
  已完成的消息，不会重新渲染
  </p>
@@ -231,7 +231,7 @@ export function UIRenderingLayer() {
  </p>
  </div>
 
- <div className="bg-orange-500/10 border-2 border-orange-500/30 rounded-lg p-4">
+ <div className="bg-elevated border-2 border-edge/30 rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">Pending (进行中)</h4>
  <p className="text-sm text-body mb-3">
  当前正在流式输出的内容，实时更新
@@ -410,8 +410,8 @@ function handleSlashCommand(input: string) {
  {/* 性能优化 */}
  <Layer title="UI 性能优化" icon="⚡">
  <div className="space-y-3">
- <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-4">
- <h4 className="text-green-400 font-bold mb-2">Static 组件</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-bold mb-2">Static 组件</h4>
  <p className="text-sm text-body">
  已完成的消息使用 Static 包装，只渲染一次，避免不必要的重绘
  </p>
@@ -431,7 +431,7 @@ function handleSlashCommand(input: string) {
  </p>
  </div>
 
- <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4">
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">虚拟滚动</h4>
  <p className="text-sm text-body">
  长历史记录使用虚拟滚动，只渲染可见区域

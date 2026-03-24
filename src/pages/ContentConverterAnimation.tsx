@@ -555,7 +555,7 @@ function FormatComparisonVisualizer({
  className={`p-4 rounded-lg border ${
  isGeminiToOpenai ? ' border-edge' : ' border-edge'
  }`}
- style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
+ className="bg-surface"
  >
  <div className="flex items-center gap-2 mb-2">
  <span className="text-xs font-bold text-heading">Gemini</span>
@@ -573,7 +573,7 @@ function FormatComparisonVisualizer({
  className={`p-4 rounded-lg border ${
  !isGeminiToOpenai ? ' border-edge' : ' border-edge'
  }`}
- style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
+ className="bg-surface"
  >
  <div className="flex items-center gap-2 mb-2">
  <span className="text-xs font-bold text-heading">OpenAI</span>
@@ -602,7 +602,7 @@ function CleanupVisualizer({
  removed: string;
 }) {
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" className="bg-surface">
  <div className="grid grid-cols-2 gap-4 mb-4">
  <div>
  <div className="text-xs text-dim mb-2">清理前</div>
@@ -614,12 +614,12 @@ function CleanupVisualizer({
  >
  <span className="text-body">{msg.role}</span>
  {msg.tool_calls && (
- <span className="text-amber-400 ml-2">
+ <span className="text-heading ml-2">
  tool_calls: [{msg.tool_calls.map(t => t.id).join(', ')}]
  </span>
  )}
  {msg.tool_call_id && (
- <span className="text-green-400 ml-2">
+ <span className="text-heading ml-2">
  id: {msg.tool_call_id}
  </span>
  )}
@@ -637,12 +637,12 @@ function CleanupVisualizer({
  >
  <span className="text-body">{msg.role}</span>
  {msg.tool_calls && (
- <span className="text-green-400 ml-2">
+ <span className="text-heading ml-2">
  tool_calls: [{msg.tool_calls.map(t => t.id).join(', ')}]
  </span>
  )}
  {msg.tool_call_id && (
- <span className="text-green-400 ml-2">
+ <span className="text-heading ml-2">
  id: {msg.tool_call_id}
  </span>
  )}
@@ -651,7 +651,7 @@ function CleanupVisualizer({
  </div>
  </div>
  </div>
- <div className="p-2 rounded bg-red-500/10 border border-red-500/30 text-xs text-red-400">
+ <div className="p-2 rounded bg-elevated border-l-2 border-l-edge-hover/30 text-xs text-heading">
  已移除: {removed}
  </div>
  </div>
@@ -667,7 +667,7 @@ function MergeVisualizer({
  after: Array<{ role: string; content: string }>;
 }) {
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" className="bg-surface">
  <div className="grid grid-cols-2 gap-4">
  <div>
  <div className="text-xs text-dim mb-2">合并前 ({before.length} 条)</div>
@@ -675,9 +675,9 @@ function MergeVisualizer({
  {before.map((msg, i) => (
  <div
  key={i}
- className="p-2 rounded bg-amber-500/10 border border-amber-500/30 text-xs"
+ className="p-2 rounded bg-elevated border-l-2 border-l-edge-hover/30 text-xs"
  >
- <span className="text-amber-400">{msg.role}:</span>
+ <span className="text-heading">{msg.role}:</span>
  <span className="text-body ml-2">{msg.content}</span>
  </div>
  ))}
@@ -689,9 +689,9 @@ function MergeVisualizer({
  {after.map((msg, i) => (
  <div
  key={i}
- className="p-2 rounded bg-green-500/10 border border-green-500/30 text-xs"
+ className="p-2 rounded bg-elevated border-l-2 border-l-edge-hover/30 text-xs"
  >
- <span className="text-green-400">{msg.role}:</span>
+ <span className="text-heading">{msg.role}:</span>
  <pre className="text-body ml-2 whitespace-pre-wrap">{msg.content}</pre>
  </div>
  ))}
@@ -748,7 +748,7 @@ export function ContentConverterAnimation() {
  <div className="text-xs text-dim mt-1 font-mono">
  核心文件: packages/core/src/core/openaiContentGenerator/converter.ts
  </div>
- <div className="mt-4 bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 text-sm text-amber-200">
+ <div className="mt-4 bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-3 text-sm text-heading">
  注意：本页描述的是 Innies/Qwen CLI 为了对接 OpenAI 兼容 API 而引入的格式转换层；
  上游 Gemini CLI 没有 <code className="bg-base/30 px-1 rounded">openaiContentGenerator</code> 这条链路。
  </div>
@@ -807,18 +807,15 @@ export function ContentConverterAnimation() {
  : 'rgba(59,130,246,0.3)',
  background:
  step.direction === 'gemini_to_openai'
- ? 'linear-gradient(135deg, rgba(16,185,129,0.1), rgba(0,0,0,0.8))'
- : 'linear-gradient(135deg, rgba(59,130,246,0.1), rgba(0,0,0,0.8))',
+ ? 'linear-gradient(135deg, rgba(16,185,129,0.1), var(--color-bg))'
+ : 'linear-gradient(135deg, rgba(59,130,246,0.1), var(--color-bg))',
  }}
  >
  <div className="flex items-center gap-3 mb-4">
  <div
  className="w-10 h-10 rounded-lg flex items-center justify-center text-lg font-bold"
  style={{
- backgroundColor:
- step.direction === 'gemini_to_openai'
- ? '#0ea5e9'
- : 'var(--color-primary)',
+ backgroundColor: 'var(--color-primary)',
  color: 'white',
  }}
  >
@@ -834,14 +831,8 @@ export function ContentConverterAnimation() {
  <div
  className="inline-block px-3 py-1 rounded-full text-sm font-medium"
  style={{
- backgroundColor:
- step.direction === 'gemini_to_openai'
- ? 'rgba(14,165,233,0.2)'
- : 'rgba(56,189,248,0.2)',
- color:
- step.direction === 'gemini_to_openai'
- ? '#0ea5e9'
- : 'var(--color-primary)',
+ backgroundColor: 'var(--color-primary-light)',
+ color: 'var(--color-primary)',
  }}
  >
  {step.highlight}
@@ -919,19 +910,7 @@ export function ContentConverterAnimation() {
 
  {/* 右侧：代码 */}
  <div>
- <h3 className="text-sm font-bold text-body mb-3 font-mono">源码实现</h3>
- <div
- className="rounded-lg overflow-hidden border border-edge"
- style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
- >
- <div className="p-1 border- border-edge flex items-center gap-2">
- <div className="w-3 h-3 rounded-full bg-red-500/80" />
- <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
- <div className="w-3 h-3 rounded-full bg-green-500/80" />
- <span className="text-xs text-dim ml-2 font-mono">converter.ts</span>
- </div>
- <JsonBlock code={step.codeSnippet} />
- </div>
+ <JsonBlock code={step.codeSnippet} title="converter.ts" />
  </div>
  </div>
 
@@ -956,7 +935,7 @@ export function ContentConverterAnimation() {
  px-6 py-2 rounded-lg font-medium transition-colors
  ${
  isPlaying
- ? 'bg-amber-600 text-heading hover:bg-amber-500'
+ ? 'bg-[var(--color-warning)] text-heading hover:bg-[var(--color-warning)]'
  : ' bg-elevated text-heading hover:opacity-90'
  }
  `}

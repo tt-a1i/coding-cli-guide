@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { CodeBlock } from '../components/CodeBlock';
 
 type OperationType = 'get' | 'set' | 'evict';
 
@@ -262,14 +263,14 @@ export default function LruCacheAnimation() {
  </div>
  </div>
  <div className="p-3 bg-surface rounded">
- <span className="text-green-400 font-medium">SET 操作</span>
+ <span className="text-heading font-medium">SET 操作</span>
  <div className="text-dim mt-1">
  已存在: delete + set (更新位置)<br />
  满容量: 淘汰 first key (最旧)
  </div>
  </div>
  <div className="p-3 bg-surface rounded">
- <span className="text-red-400 font-medium">淘汰策略</span>
+ <span className="text-heading font-medium">淘汰策略</span>
  <div className="text-dim mt-1">
  Map.keys().next().value<br />
  获取第一个 key 并删除
@@ -327,11 +328,11 @@ export default function LruCacheAnimation() {
  </div>
  <div className="p-3 bg-base rounded-lg border border-edge">
  <div className="text-xs text-dim">命中次数</div>
- <div className="text-xl font-bold text-green-400">{stats.hits}</div>
+ <div className="text-xl font-bold text-heading">{stats.hits}</div>
  </div>
  <div className="p-3 bg-base rounded-lg border border-edge">
  <div className="text-xs text-dim">未命中次数</div>
- <div className="text-xl font-bold text-red-400">{stats.misses}</div>
+ <div className="text-xl font-bold text-heading">{stats.misses}</div>
  </div>
  <div className="p-3 bg-base rounded-lg border border-edge">
  <div className="text-xs text-dim">淘汰次数</div>
@@ -363,9 +364,9 @@ export default function LruCacheAnimation() {
  <div
  key={`${entry.key}-${entry.order}`}
  className={`flex-shrink-0 w-32 p-3 rounded-lg border-2 transition-all duration-300 ${
- entry.isNew ? 'border-green-500 bg-green-900/30 scale-105' :
+ entry.isNew ? 'border-edge bg-elevated scale-105' :
  entry.isAccessed ? ' border-edge bg-elevated/30 scale-105' :
- idx === 0 ? 'border-red-500/50 bg-red-900/20' :
+ idx === 0 ? 'border-edge/40 bg-elevated' :
  ' border-edge bg-surface'
  }`}
  >
@@ -375,9 +376,9 @@ export default function LruCacheAnimation() {
  </div>
  <div className="text-xs text-body truncate">{entry.value}</div>
  {idx === 0 && cacheState.entries.length >= cacheState.maxSize && (
- <div className="mt-2 text-xs text-red-400">← 下次淘汰</div>
+ <div className="mt-2 text-xs text-heading">← 下次淘汰</div>
  )}
- {entry.isNew && <div className="mt-2 text-xs text-green-400">新增</div>}
+ {entry.isNew && <div className="mt-2 text-xs text-heading">新增</div>}
  {entry.isAccessed && <div className="mt-2 text-xs text-heading">已访问</div>}
  </div>
  ))
@@ -399,7 +400,7 @@ export default function LruCacheAnimation() {
  {/* Operation History */}
  <div className="p-4 bg-base rounded-lg border border-edge">
  <h3 className="text-sm font-semibold text-body mb-3 flex items-center gap-2">
- <span className="w-2 h-2 rounded-full bg-green-500" />
+ <span className="w-2 h-2 rounded-full bg-[var(--color-success)]" />
  操作历史
  </h3>
  <div className="h-60 overflow-y-auto space-y-2">
@@ -408,11 +409,11 @@ export default function LruCacheAnimation() {
  key={idx}
  className={`p-2 rounded text-xs ${
  op.type === 'get' && op.result !== 'undefined'
- ? 'bg-green-900/30 border-l-2 border-green-500'
+ ? 'bg-elevated border-l-2 border-edge'
  : op.type === 'get'
- ? 'bg-red-900/30 border-l-2 border-red-500'
+ ? 'bg-elevated border-l-2 border-edge'
  : op.evictedKey
- ? 'bg-orange-900/30 border-l-2 border-orange-500'
+ ? 'bg-elevated border-l-2 border-edge'
  : ' bg-elevated/30' }`}
  >
  <div className="flex items-center gap-2">
@@ -427,7 +428,7 @@ export default function LruCacheAnimation() {
  )}
  </div>
  {op.type === 'get' && (
- <div className={`mt-1 ${op.result !== 'undefined' ? 'text-green-400' : 'text-red-400'}`}>
+ <div className={`mt-1 ${op.result !== 'undefined' ? 'text-heading' : 'text-heading'}`}>
  → {op.result !== 'undefined' ? `"${op.result}" (HIT)` : 'undefined (MISS)'}
  </div>
  )}
@@ -494,9 +495,9 @@ export default function LruCacheAnimation() {
  key={idx}
  className={`px-2 py-1 rounded text-xs ${
  idx === currentOpIndex
- ? 'bg-yellow-900/50 text-yellow-300 ring-1 ring-yellow-500'
+ ? 'bg-elevated text-heading ring-1 ring-[var(--color-warning)]'
  : idx < currentOpIndex
- ? 'bg-green-900/30 text-green-400'
+ ? 'bg-elevated text-heading'
  : ' bg-surface text-dim'
  }`}
  >
@@ -512,32 +513,34 @@ export default function LruCacheAnimation() {
  {/* Code Reference */}
  <div className="mt-6 p-4 bg-surface rounded-lg">
  <h4 className="text-sm font-semibold text-body mb-3">核心代码</h4>
- <pre className="text-xs text-body font-mono overflow-x-auto">
-{`class LruCache<K, V> {
- private cache = new Map<K, V>();
+ <CodeBlock
+   language="typescript"
+   title="LruCache"
+   code={`class LruCache<K, V> {
+  private cache = new Map<K, V>();
 
- get(key: K): V | undefined {
- const value = this.cache.get(key);
- if (value) {
- // 移动到末尾 (最新)
- this.cache.delete(key);
- this.cache.set(key, value);
- }
- return value;
- }
+  get(key: K): V | undefined {
+    const value = this.cache.get(key);
+    if (value) {
+      // 移动到末尾 (最新)
+      this.cache.delete(key);
+      this.cache.set(key, value);
+    }
+    return value;
+  }
 
- set(key: K, value: V): void {
- if (this.cache.has(key)) {
- this.cache.delete(key); // 更新位置
- } else if (this.cache.size >= this.maxSize) {
- // 淘汰第一个 (最旧)
- const firstKey = this.cache.keys().next().value;
- this.cache.delete(firstKey);
- }
- this.cache.set(key, value);
- }
+  set(key: K, value: V): void {
+    if (this.cache.has(key)) {
+      this.cache.delete(key); // 更新位置
+    } else if (this.cache.size >= this.maxSize) {
+      // 淘汰第一个 (最旧)
+      const firstKey = this.cache.keys().next().value;
+      this.cache.delete(firstKey);
+    }
+    this.cache.set(key, value);
+  }
 }`}
- </pre>
+ />
  </div>
  </div>
  );

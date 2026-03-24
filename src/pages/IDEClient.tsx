@@ -47,7 +47,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">视图集成</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-amber-500">Trust</div>
+ <div className="text-2xl font-bold text-heading">Trust</div>
  <div className="text-xs text-dim">工作区信任</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
@@ -65,7 +65,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <span className="px-3 py-1.5 bg-elevated/20 text-heading rounded-lg border border-edge/30">
  VS Code Forks
  </span>
- <span className="px-3 py-1.5 bg-amber-500/20 text-amber-500 rounded-lg border border-amber-500/30">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover/30">
  Antigravity
  </span>
  <span className="px-3 py-1.5 bg-elevated/20 text-heading rounded-lg border border-edge/30">
@@ -155,304 +155,304 @@ export function IDEClient() {
 
  const ideClientCode = `// IdeClient - 单例模式管理 IDE 连接
 export class IdeClient {
- private static instancePromise: Promise<IdeClient> | null = null;
- private client: Client | undefined = undefined;
- private state: IDEConnectionState = {
- status: IDEConnectionStatus.Disconnected,
- details: 'IDE integration is currently disabled. To enable it, run /ide enable.',
- };
- private currentIde: IdeInfo | undefined;
- private ideProcessInfo: { pid: number; command: string } | undefined;
- private connectionConfig: ConnectionConfig | undefined;
- private authToken: string | undefined;
- private diffResponses = new Map<string, (result: DiffUpdateResult) => void>();
- private statusListeners = new Set<(state: IDEConnectionState) => void>();
- private trustChangeListeners = new Set<(isTrusted: boolean) => void>();
- private availableTools: string[] = [];
- private diffMutex = Promise.resolve(); // Diff 互斥锁
+  private static instancePromise: Promise<IdeClient> | null = null;
+  private client: Client | undefined = undefined;
+  private state: IDEConnectionState = {
+  status: IDEConnectionStatus.Disconnected,
+  details: 'IDE integration is currently disabled. To enable it, run /ide enable.',
+  };
+  private currentIde: IdeInfo | undefined;
+  private ideProcessInfo: { pid: number; command: string } | undefined;
+  private connectionConfig: ConnectionConfig | undefined;
+  private authToken: string | undefined;
+  private diffResponses = new Map<string, (result: DiffUpdateResult) => void>();
+  private statusListeners = new Set<(state: IDEConnectionState) => void>();
+  private trustChangeListeners = new Set<(isTrusted: boolean) => void>();
+  private availableTools: string[] = [];
+  private diffMutex = Promise.resolve(); // Diff 互斥锁
 
- private constructor() {}
+  private constructor() {}
 
- static getInstance(): Promise<IdeClient> {
- if (!IdeClient.instancePromise) {
- IdeClient.instancePromise = (async () => {
- const client = new IdeClient();
- client.ideProcessInfo = await getIdeProcessInfo();
- client.connectionConfig = await client.getConnectionConfigFromFile();
- client.currentIde = detectIde(
- client.ideProcessInfo,
- client.connectionConfig?.ideInfo,
- );
- return client;
- })();
- }
- return IdeClient.instancePromise;
- }
+  static getInstance(): Promise<IdeClient> {
+  if (!IdeClient.instancePromise) {
+  IdeClient.instancePromise = (async () => {
+  const client = new IdeClient();
+  client.ideProcessInfo = await getIdeProcessInfo();
+  client.connectionConfig = await client.getConnectionConfigFromFile();
+  client.currentIde = detectIde(
+  client.ideProcessInfo,
+  client.connectionConfig?.ideInfo,
+  );
+  return client;
+  })();
+  }
+  return IdeClient.instancePromise;
+  }
 }`;
 
  const connectionStatusCode = `// 连接状态枚举
 export enum IDEConnectionStatus {
- Connected = 'connected',
- Disconnected = 'disconnected',
- Connecting = 'connecting',
+  Connected = 'connected',
+  Disconnected = 'disconnected',
+  Connecting = 'connecting',
 }
 
 export type IDEConnectionState = {
- status: IDEConnectionStatus;
- details?: string; // 用户可见的详情
+  status: IDEConnectionStatus;
+  details?: string; // 用户可见的详情
 };
 
 // 连接配置
 type ConnectionConfig = {
- port?: string; // HTTP 端口
- authToken?: string; // 认证 Token
- stdio?: StdioConfig; // Stdio 配置
- workspacePath?: string; // 工作区路径
- ideInfo?: IdeInfo; // IDE 信息
+  port?: string; // HTTP 端口
+  authToken?: string; // 认证 Token
+  stdio?: StdioConfig; // Stdio 配置
+  workspacePath?: string; // 工作区路径
+  ideInfo?: IdeInfo; // IDE 信息
 };
 
 type StdioConfig = {
- command: string;
- args: string[];
+  command: string;
+  args: string[];
 };`;
 
  const connectCode = `// 连接到 IDE
 async connect(options: { logToConsole?: boolean } = {}): Promise<void> {
- const logError = options.logToConsole ?? true;
+  const logError = options.logToConsole ?? true;
 
- if (!this.currentIde) {
- this.setState(
- IDEConnectionStatus.Disconnected,
- 'IDE integration is not supported in your current environment.',
- false,
- );
- return;
- }
+  if (!this.currentIde) {
+  this.setState(
+  IDEConnectionStatus.Disconnected,
+  'IDE integration is not supported in your current environment.',
+  false,
+  );
+  return;
+  }
 
- this.setState(IDEConnectionStatus.Connecting);
+  this.setState(IDEConnectionStatus.Connecting);
 
- // 获取连接配置
- this.connectionConfig = await this.getConnectionConfigFromFile();
- this.authToken =
- this.connectionConfig?.authToken ??
- process.env['GEMINI_CLI_IDE_AUTH_TOKEN'];
+  // 获取连接配置
+  this.connectionConfig = await this.getConnectionConfigFromFile();
+  this.authToken =
+  this.connectionConfig?.authToken ??
+  process.env['GEMINI_CLI_IDE_AUTH_TOKEN'];
 
- // 验证工作区路径
- const workspacePath =
- this.connectionConfig?.workspacePath ??
- process.env['GEMINI_CLI_IDE_WORKSPACE_PATH'];
+  // 验证工作区路径
+  const workspacePath =
+  this.connectionConfig?.workspacePath ??
+  process.env['GEMINI_CLI_IDE_WORKSPACE_PATH'];
 
- const { isValid, error } = IdeClient.validateWorkspacePath(
- workspacePath,
- process.cwd(),
- );
+  const { isValid, error } = IdeClient.validateWorkspacePath(
+  workspacePath,
+  process.cwd(),
+  );
 
- if (!isValid) {
- this.setState(IDEConnectionStatus.Disconnected, error, logError);
- return;
- }
+  if (!isValid) {
+  this.setState(IDEConnectionStatus.Disconnected, error, logError);
+  return;
+  }
 
- // 尝试 HTTP 连接
- if (this.connectionConfig?.port) {
- const connected = await this.establishHttpConnection(
- this.connectionConfig.port,
- );
- if (connected) return;
- }
+  // 尝试 HTTP 连接
+  if (this.connectionConfig?.port) {
+  const connected = await this.establishHttpConnection(
+  this.connectionConfig.port,
+  );
+  if (connected) return;
+  }
 
- // 尝试 Stdio 连接
- if (this.connectionConfig?.stdio) {
- const connected = await this.establishStdioConnection(
- this.connectionConfig.stdio,
- );
- if (connected) return;
- }
+  // 尝试 Stdio 连接
+  if (this.connectionConfig?.stdio) {
+  const connected = await this.establishStdioConnection(
+  this.connectionConfig.stdio,
+  );
+  if (connected) return;
+  }
 
- // 尝试从环境变量连接
- const portFromEnv = this.getPortFromEnv();
- if (portFromEnv) {
- const connected = await this.establishHttpConnection(portFromEnv);
- if (connected) return;
- }
+  // 尝试从环境变量连接
+  const portFromEnv = this.getPortFromEnv();
+  if (portFromEnv) {
+  const connected = await this.establishHttpConnection(portFromEnv);
+  if (connected) return;
+  }
 
- this.setState(
- IDEConnectionStatus.Disconnected,
- 'Failed to connect to IDE companion extension.',
- logError,
- );
+  this.setState(
+  IDEConnectionStatus.Disconnected,
+  'Failed to connect to IDE companion extension.',
+  logError,
+  );
 }`;
 
  const diffCode = `// Diff 视图管理
 export type DiffUpdateResult =
- | { status: 'accepted'; content?: string }
- | { status: 'rejected'; content: undefined };
+  | { status: 'accepted'; content?: string }
+  | { status: 'rejected'; content: undefined };
 
 // 打开 Diff 视图
 async openDiff(
- filePath: string,
- newContent: string,
+  filePath: string,
+  newContent: string,
 ): Promise<DiffUpdateResult> {
- // 获取互斥锁 - 确保同时只有一个 Diff 视图
- const release = await this.acquireMutex();
+  // 获取互斥锁 - 确保同时只有一个 Diff 视图
+  const release = await this.acquireMutex();
 
- const promise = new Promise<DiffUpdateResult>((resolve, reject) => {
- if (!this.client) {
- return reject(new Error('IDE client is not connected.'));
- }
+  const promise = new Promise<DiffUpdateResult>((resolve, reject) => {
+  if (!this.client) {
+  return reject(new Error('IDE client is not connected.'));
+  }
 
- // 保存回调
- this.diffResponses.set(filePath, resolve);
+  // 保存回调
+  this.diffResponses.set(filePath, resolve);
 
- // 发送 openDiff 请求
- this.client.request(
- {
- method: 'tools/call',
- params: {
- name: 'openDiff',
- arguments: { filePath, newContent },
- },
- },
- CallToolResultSchema,
- { timeout: IDE_REQUEST_TIMEOUT_MS },
- )
- .then((result) => {
- if (result.isError) {
- this.diffResponses.delete(filePath);
- reject(new Error(result.content[0]?.text));
- }
- })
- .catch((err) => {
- this.diffResponses.delete(filePath);
- reject(err);
- });
- });
+  // 发送 openDiff 请求
+  this.client.request(
+  {
+  method: 'tools/call',
+  params: {
+  name: 'openDiff',
+  arguments: { filePath, newContent },
+  },
+  },
+  CallToolResultSchema,
+  { timeout: IDE_REQUEST_TIMEOUT_MS },
+  )
+  .then((result) => {
+  if (result.isError) {
+  this.diffResponses.delete(filePath);
+  reject(new Error(result.content[0]?.text));
+  }
+  })
+  .catch((err) => {
+  this.diffResponses.delete(filePath);
+  reject(err);
+  });
+  });
 
- // 确保释放互斥锁
- promise.finally(release);
- return promise;
+  // 确保释放互斥锁
+  promise.finally(release);
+  return promise;
 }
 
 // 互斥锁实现
 private acquireMutex(): Promise<() => void> {
- let release: () => void;
- const newMutex = new Promise<void>((resolve) => {
- release = resolve;
- });
- const oldMutex = this.diffMutex;
- this.diffMutex = newMutex;
- return oldMutex.then(() => release);
+  let release: () => void;
+  const newMutex = new Promise<void>((resolve) => {
+  release = resolve;
+  });
+  const oldMutex = this.diffMutex;
+  this.diffMutex = newMutex;
+  return oldMutex.then(() => release);
 }`;
 
  const ideCommandCode = `// /ide 命令实现
 export const ideCommand = async (): Promise<SlashCommand> => {
- const ideClient = await IdeClient.getInstance();
- const currentIDE = ideClient.getCurrentIde();
+  const ideClient = await IdeClient.getInstance();
+  const currentIDE = ideClient.getCurrentIde();
 
- if (!currentIDE) {
- return {
- name: 'ide',
- description: 'Manage IDE integration',
- kind: CommandKind.BUILT_IN,
- action: () => ({
- type: 'message',
- messageType: 'error',
- content: 'IDE integration is not supported in your current environment.',
- }),
- };
- }
+  if (!currentIDE) {
+  return {
+  name: 'ide',
+  description: 'Manage IDE integration',
+  kind: CommandKind.BUILT_IN,
+  action: () => ({
+  type: 'message',
+  messageType: 'error',
+  content: 'IDE integration is not supported in your current environment.',
+  }),
+  };
+  }
 
- // 根据连接状态动态生成子命令
- const { status } = ideClient.getConnectionStatus();
- const isConnected = status === IDEConnectionStatus.Connected;
+  // 根据连接状态动态生成子命令
+  const { status } = ideClient.getConnectionStatus();
+  const isConnected = status === IDEConnectionStatus.Connected;
 
- const subCommands = isConnected
- ? [statusCommand, disableCommand]
- : [enableCommand, statusCommand, installCommand];
+  const subCommands = isConnected
+  ? [statusCommand, disableCommand]
+  : [enableCommand, statusCommand, installCommand];
 
- return {
- name: 'ide',
- description: 'Manage IDE integration',
- kind: CommandKind.BUILT_IN,
- subCommands,
- };
+  return {
+  name: 'ide',
+  description: 'Manage IDE integration',
+  kind: CommandKind.BUILT_IN,
+  subCommands,
+  };
 };
 
 // 状态检查命令
 const statusCommand: SlashCommand = {
- name: 'status',
- description: 'Check status of IDE integration',
- action: async () => {
- const ideClient = await IdeClient.getInstance();
- const connection = ideClient.getConnectionStatus();
+  name: 'status',
+  description: 'Check status of IDE integration',
+  action: async () => {
+  const ideClient = await IdeClient.getInstance();
+  const connection = ideClient.getConnectionStatus();
 
- switch (connection.status) {
- case IDEConnectionStatus.Connected:
- // 获取打开的文件列表
- const context = ideContextStore.get();
- const openFiles = context?.workspaceState?.openFiles;
- let content = '🟢 Connected to ' + ideClient.getDetectedIdeDisplayName();
- if (openFiles?.length > 0) {
- content += formatFileList(openFiles);
- }
- return { type: 'message', messageType: 'info', content };
+  switch (connection.status) {
+  case IDEConnectionStatus.Connected:
+  // 获取打开的文件列表
+  const context = ideContextStore.get();
+  const openFiles = context?.workspaceState?.openFiles;
+  let content = '🟢 Connected to ' + ideClient.getDetectedIdeDisplayName();
+  if (openFiles?.length > 0) {
+  content += formatFileList(openFiles);
+  }
+  return { type: 'message', messageType: 'info', content };
 
- case IDEConnectionStatus.Connecting:
- return { type: 'message', messageType: 'info', content: '🟡 Connecting...' };
+  case IDEConnectionStatus.Connecting:
+  return { type: 'message', messageType: 'info', content: '🟡 Connecting...' };
 
- default:
- return { type: 'message', messageType: 'error', content: '🔴 Disconnected' };
- }
- },
+  default:
+  return { type: 'message', messageType: 'error', content: '🔴 Disconnected' };
+  }
+  },
 };`;
 
  const trustListenerCode = `// Trust 状态监听 Hook
 export function useIdeTrustListener() {
- const settings = useSettings();
- const [connectionStatus, setConnectionStatus] = useState<IDEConnectionStatus>(
- IDEConnectionStatus.Disconnected,
- );
- const previousTrust = useRef<boolean | undefined>(undefined);
- const [restartReason, setRestartReason] = useState<RestartReason>('NONE');
- const [needsRestart, setNeedsRestart] = useState(false);
+  const settings = useSettings();
+  const [connectionStatus, setConnectionStatus] = useState<IDEConnectionStatus>(
+  IDEConnectionStatus.Disconnected,
+  );
+  const previousTrust = useRef<boolean | undefined>(undefined);
+  const [restartReason, setRestartReason] = useState<RestartReason>('NONE');
+  const [needsRestart, setNeedsRestart] = useState(false);
 
- const subscribe = useCallback((onStoreChange: () => void) => {
- const handleStatusChange = (state: IDEConnectionState) => {
- setConnectionStatus(state.status);
- setRestartReason('CONNECTION_CHANGE');
- onStoreChange();
- };
+  const subscribe = useCallback((onStoreChange: () => void) => {
+  const handleStatusChange = (state: IDEConnectionState) => {
+  setConnectionStatus(state.status);
+  setRestartReason('CONNECTION_CHANGE');
+  onStoreChange();
+  };
 
- const handleTrustChange = () => {
- setRestartReason('TRUST_CHANGE');
- onStoreChange();
- };
+  const handleTrustChange = () => {
+  setRestartReason('TRUST_CHANGE');
+  onStoreChange();
+  };
 
- (async () => {
- const ideClient = await IdeClient.getInstance();
- ideClient.addTrustChangeListener(handleTrustChange);
- ideClient.addStatusChangeListener(handleStatusChange);
- setConnectionStatus(ideClient.getConnectionStatus().status);
- })();
+  (async () => {
+  const ideClient = await IdeClient.getInstance();
+  ideClient.addTrustChangeListener(handleTrustChange);
+  ideClient.addStatusChangeListener(handleStatusChange);
+  setConnectionStatus(ideClient.getConnectionStatus().status);
+  })();
 
- return () => {
- // 清理监听器
- };
- }, []);
+  return () => {
+  // 清理监听器
+  };
+  }, []);
 
- // 使用 useSyncExternalStore 同步 IDE Trust 状态
- const isIdeTrusted = useSyncExternalStore(subscribe, getSnapshot);
+  // 使用 useSyncExternalStore 同步 IDE Trust 状态
+  const isIdeTrusted = useSyncExternalStore(subscribe, getSnapshot);
 
- // 检测 Trust 变化是否需要重启
- useEffect(() => {
- const currentTrust = isWorkspaceTrusted(settings.merged).isTrusted;
- if (previousTrust.current !== undefined &&
- previousTrust.current !== currentTrust) {
- setNeedsRestart(true);
- }
- previousTrust.current = currentTrust;
- }, [isIdeTrusted, settings.merged]);
+  // 检测 Trust 变化是否需要重启
+  useEffect(() => {
+  const currentTrust = isWorkspaceTrusted(settings.merged).isTrusted;
+  if (previousTrust.current !== undefined &&
+  previousTrust.current !== currentTrust) {
+  setNeedsRestart(true);
+  }
+  previousTrust.current = currentTrust;
+  }, [isIdeTrusted, settings.merged]);
 
- return { isIdeTrusted, needsRestart, restartReason };
+  return { isIdeTrusted, needsRestart, restartReason };
 }
 
 export type RestartReason = 'NONE' | 'CONNECTION_CHANGE' | 'TRUST_CHANGE';`;
@@ -490,28 +490,28 @@ export type RestartReason = 'NONE' | 'CONNECTION_CHANGE' | 'TRUST_CHANGE';`;
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <div className="text-heading font-bold mb-2">🔌 MCP 协议</div>
  <ul className="text-sm text-body space-y-1">
- <li>• Model Context Protocol</li>
- <li>• HTTP 或 Stdio 传输</li>
- <li>• 双向工具调用</li>
- <li>• 实时通知订阅</li>
+ <li>Model Context Protocol</li>
+ <li>HTTP 或 Stdio 传输</li>
+ <li>双向工具调用</li>
+ <li>实时通知订阅</li>
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <div className="text-heading font-bold mb-2">📂 工作区感知</div>
  <ul className="text-sm text-body space-y-1">
- <li>• 获取打开的文件列表</li>
- <li>• 活动文件标记</li>
- <li>• 工作区路径验证</li>
- <li>• 上下文自动同步</li>
+ <li>获取打开的文件列表</li>
+ <li>活动文件标记</li>
+ <li>工作区路径验证</li>
+ <li>上下文自动同步</li>
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <div className="text-heading font-bold mb-2">🔐 信任管理</div>
  <ul className="text-sm text-body space-y-1">
- <li>• IDE 信任状态同步</li>
- <li>• Trust 变化检测</li>
- <li>• 重启提示</li>
- <li>• 权限自动调整</li>
+ <li>IDE 信任状态同步</li>
+ <li>Trust 变化检测</li>
+ <li>重启提示</li>
+ <li>权限自动调整</li>
  </ul>
  </div>
  </div>
@@ -564,9 +564,9 @@ export type RestartReason = 'NONE' | 'CONNECTION_CHANGE' | 'TRUST_CHANGE';`;
  </HighlightBox>
  <HighlightBox title="环境变量" color="green">
  <ul className="text-sm text-body space-y-1">
- <li>• <code>GEMINI_CLI_IDE_AUTH_TOKEN</code></li>
- <li>• <code>GEMINI_CLI_IDE_WORKSPACE_PATH</code></li>
- <li>• <code>GEMINI_CLI_IDE_PORT</code></li>
+ <li><code>GEMINI_CLI_IDE_AUTH_TOKEN</code></li>
+ <li><code>GEMINI_CLI_IDE_WORKSPACE_PATH</code></li>
+ <li><code>GEMINI_CLI_IDE_PORT</code></li>
  </ul>
  </HighlightBox>
  </div>
@@ -613,16 +613,16 @@ export type RestartReason = 'NONE' | 'CONNECTION_CHANGE' | 'TRUST_CHANGE';`;
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="Trust 变化触发" color="orange">
  <ul className="text-sm text-body space-y-1">
- <li>• IDE 工作区信任状态变化</li>
- <li>• 连接状态变化</li>
- <li>• 设置修改</li>
+ <li>IDE 工作区信任状态变化</li>
+ <li>连接状态变化</li>
+ <li>设置修改</li>
  </ul>
  </HighlightBox>
  <HighlightBox title="重启原因" color="blue">
  <ul className="text-sm text-body space-y-1">
- <li>• <code>NONE</code> - 无需重启</li>
- <li>• <code>CONNECTION_CHANGE</code> - 连接变化</li>
- <li>• <code>TRUST_CHANGE</code> - 信任状态变化</li>
+ <li><code>NONE</code> - 无需重启</li>
+ <li><code>CONNECTION_CHANGE</code> - 连接变化</li>
+ <li><code>TRUST_CHANGE</code> - 信任状态变化</li>
  </ul>
  </HighlightBox>
  </div>
@@ -633,10 +633,10 @@ export type RestartReason = 'NONE' | 'CONNECTION_CHANGE' | 'TRUST_CHANGE';`;
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <h4 className="text-heading font-bold mb-2">检测方式</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• 父进程命令行分析</li>
- <li>• 配置文件 ideInfo</li>
- <li>• 环境变量检测</li>
- <li>• 进程树遍历</li>
+ <li>父进程命令行分析</li>
+ <li>配置文件 ideInfo</li>
+ <li>环境变量检测</li>
+ <li>进程树遍历</li>
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
@@ -659,19 +659,19 @@ export type RestartReason = 'NONE' | 'CONNECTION_CHANGE' | 'TRUST_CHANGE';`;
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <h4 className="text-heading font-bold mb-2">✅ 适用场景</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• 在 IDE 集成终端中运行 CLI</li>
- <li>• 需要可视化 Diff 审查的编辑</li>
- <li>• 想要获取 IDE 打开文件上下文</li>
- <li>• 利用 IDE 工作区信任设置</li>
+ <li>在 IDE 集成终端中运行 CLI</li>
+ <li>需要可视化 Diff 审查的编辑</li>
+ <li>想要获取 IDE 打开文件上下文</li>
+ <li>利用 IDE 工作区信任设置</li>
  </ul>
  </div>
- <div className="bg-surface p-4 rounded-lg border border-red-500/30">
- <h4 className="text-red-500 font-bold mb-2">❌ 限制</h4>
+ <div className="bg-surface p-4 rounded-lg border-l-2 border-l-edge-hover/30">
+ <h4 className="text-heading font-bold mb-2">❌ 限制</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• 需要安装 companion 扩展</li>
- <li>• 仅支持特定 IDE（VS Code 系）</li>
- <li>• 工作区路径必须匹配</li>
- <li>• 同时只能打开一个 Diff 视图</li>
+ <li>需要安装 companion 扩展</li>
+ <li>仅支持特定 IDE（VS Code 系）</li>
+ <li>工作区路径必须匹配</li>
+ <li>同时只能打开一个 Diff 视图</li>
  </ul>
  </div>
  </div>

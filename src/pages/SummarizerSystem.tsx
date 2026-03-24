@@ -47,7 +47,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">摘要模型</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-amber-500">3</div>
+ <div className="text-2xl font-bold text-heading">3</div>
  <div className="text-xs text-dim">摘要规则</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
@@ -71,7 +71,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  LLM 摘要
  </span>
  <span className="text-dim">→</span>
- <span className="px-3 py-1.5 bg-amber-500/20 text-amber-500 rounded-lg border border-amber-500/30">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover/30">
  压缩输出
  </span>
  </div>
@@ -133,40 +133,40 @@ export function SummarizerSystem() {
 import type { GeminiClient } from '../core/client.js';
 
 /**
- * Summarizer 函数类型定义
- * @param result - 工具执行结果
- * @param geminiClient - Gemini 客户端
- * @param abortSignal - 中断信号
- * @returns 摘要文本
- */
+  * Summarizer 函数类型定义
+  * @param result - 工具执行结果
+  * @param geminiClient - Gemini 客户端
+  * @param abortSignal - 中断信号
+  * @returns 摘要文本
+  */
 export type Summarizer = (
- result: ToolResult,
- geminiClient: GeminiClient,
- abortSignal: AbortSignal,
+  result: ToolResult,
+  geminiClient: GeminiClient,
+  abortSignal: AbortSignal,
 ) => Promise<string>;
 
 /**
- * 默认 Summarizer - 直接 JSON 序列化
- * 不调用 LLM，仅序列化输出
- */
+  * 默认 Summarizer - 直接 JSON 序列化
+  * 不调用 LLM，仅序列化输出
+  */
 export const defaultSummarizer: Summarizer = (
- result: ToolResult,
- _geminiClient: GeminiClient,
- _abortSignal: AbortSignal,
+  result: ToolResult,
+  _geminiClient: GeminiClient,
+  _abortSignal: AbortSignal,
 ) => Promise.resolve(JSON.stringify(result.llmContent));
 
 /**
- * LLM Summarizer - 使用 Flash-Lite 模型摘要
- * 智能压缩超长工具输出
- */
+  * LLM Summarizer - 使用 Flash-Lite 模型摘要
+  * 智能压缩超长工具输出
+  */
 export const llmSummarizer: Summarizer = (
- result,
- geminiClient,
- abortSignal
+  result,
+  geminiClient,
+  abortSignal
 ) => summarizeToolOutput(
- partToString(result.llmContent),
- geminiClient,
- abortSignal,
+  partToString(result.llmContent),
+  geminiClient,
+  abortSignal,
 );`;
 
  const summaryPromptCode = `// 摘要 Prompt 模板
@@ -178,20 +178,20 @@ The summarization should be done based on the content that is provided.
 Here are the basic rules to follow:
 
 1. If the text is a directory listing or any output that is structural,
- use the history of the conversation to understand the context.
- Using this context try to understand what information we need from
- the tool output and return that as a response.
+  use the history of the conversation to understand the context.
+  Using this context try to understand what information we need from
+  the tool output and return that as a response.
 
 2. If the text is text content and there is nothing structural that we need,
- summarize the text.
+  summarize the text.
 
 3. If the text is the output of a shell command, use the history of the
- conversation to understand the context. Using this context try to
- understand what information we need from the tool output and return
- a summarization along with the stack trace of any error within the
- <error></error> tags. The stack trace should be complete and not truncated.
- If there are warnings, you should include them in the summary within
- <warning></warning> tags.
+  conversation to understand the context. Using this context try to
+  understand what information we need from the tool output and return
+  a summarization along with the stack trace of any error within the
+  <error></error> tags. The stack trace should be complete and not truncated.
+  If there are warnings, you should include them in the summary within
+  <warning></warning> tags.
 
 Text to summarize:
 "{textToSummarize}"
@@ -203,45 +203,45 @@ of text followed by the full stack trace of errors and warnings in the tool outp
  const summarizeToolOutputCode = `import { DEFAULT_GEMINI_FLASH_LITE_MODEL } from '../config/models.js';
 
 export async function summarizeToolOutput(
- textToSummarize: string,
- geminiClient: GeminiClient,
- abortSignal: AbortSignal,
- maxOutputTokens: number = 2000, // 默认 Token 预算
+  textToSummarize: string,
+  geminiClient: GeminiClient,
+  abortSignal: AbortSignal,
+  maxOutputTokens: number = 2000, // 默认 Token 预算
 ): Promise<string> {
- // 短文本直接返回，无需摘要
- // 注意：这里比较的是字符长度，作为 Token 数的近似估算
- if (!textToSummarize || textToSummarize.length < maxOutputTokens) {
- return textToSummarize;
- }
+  // 短文本直接返回，无需摘要
+  // 注意：这里比较的是字符长度，作为 Token 数的近似估算
+  if (!textToSummarize || textToSummarize.length < maxOutputTokens) {
+  return textToSummarize;
+  }
 
- // 构建摘要 Prompt
- const prompt = SUMMARIZE_TOOL_OUTPUT_PROMPT
- .replace('{maxOutputTokens}', String(maxOutputTokens))
- .replace('{textToSummarize}', textToSummarize);
+  // 构建摘要 Prompt
+  const prompt = SUMMARIZE_TOOL_OUTPUT_PROMPT
+  .replace('{maxOutputTokens}', String(maxOutputTokens))
+  .replace('{textToSummarize}', textToSummarize);
 
- const contents: Content[] = [
- { role: 'user', parts: [{ text: prompt }] }
- ];
+  const contents: Content[] = [
+  { role: 'user', parts: [{ text: prompt }] }
+  ];
 
- const toolOutputSummarizerConfig: GenerateContentConfig = {
- maxOutputTokens,
- };
+  const toolOutputSummarizerConfig: GenerateContentConfig = {
+  maxOutputTokens,
+  };
 
- try {
- // 使用 Flash-Lite 模型进行摘要
- const parsedResponse = await geminiClient.generateContent(
- contents,
- toolOutputSummarizerConfig,
- abortSignal,
- DEFAULT_GEMINI_FLASH_LITE_MODEL, // 轻量级模型
- );
+  try {
+  // 使用 Flash-Lite 模型进行摘要
+  const parsedResponse = await geminiClient.generateContent(
+  contents,
+  toolOutputSummarizerConfig,
+  abortSignal,
+  DEFAULT_GEMINI_FLASH_LITE_MODEL, // 轻量级模型
+  );
 
- return getResponseText(parsedResponse) || textToSummarize;
- } catch (error) {
- // 摘要失败时回退到原文
- console.error('Failed to summarize tool output.', error);
- return textToSummarize;
- }
+  return getResponseText(parsedResponse) || textToSummarize;
+  } catch (error) {
+  // 摘要失败时回退到原文
+  console.error('Failed to summarize tool output.', error);
+  return textToSummarize;
+  }
 }`;
 
  return (
@@ -264,17 +264,17 @@ export async function summarizeToolOutput(
  <div className="bg-surface p-4 rounded-lg border border-edge">
  <div className="text-heading font-bold mb-2">📊 触发条件</div>
  <ul className="text-sm text-body space-y-1">
- <li>• 输出长度 &gt; maxOutputTokens (默认 2000)</li>
- <li>• 使用字符长度作为 Token 近似</li>
- <li>• 短文本直接跳过摘要</li>
+ <li>输出长度 &gt; maxOutputTokens (默认 2000)</li>
+ <li>使用字符长度作为 Token 近似</li>
+ <li>短文本直接跳过摘要</li>
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge">
  <div className="text-heading font-bold mb-2">🔧 摘要模型</div>
  <ul className="text-sm text-body space-y-1">
- <li>• 使用 Flash-Lite 轻量级模型</li>
- <li>• 低延迟、低成本</li>
- <li>• 专门用于摘要任务</li>
+ <li>使用 Flash-Lite 轻量级模型</li>
+ <li>低延迟、低成本</li>
+ <li>专门用于摘要任务</li>
  </ul>
  </div>
  </div>
@@ -286,18 +286,18 @@ export async function summarizeToolOutput(
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="defaultSummarizer" color="orange">
  <ul className="text-sm text-body space-y-1">
- <li>• 不调用 LLM</li>
- <li>• 直接 JSON.stringify</li>
- <li>• 零延迟、零成本</li>
- <li>• 适合短输出</li>
+ <li>不调用 LLM</li>
+ <li>直接 JSON.stringify</li>
+ <li>零延迟、零成本</li>
+ <li>适合短输出</li>
  </ul>
  </HighlightBox>
  <HighlightBox title="llmSummarizer" color="green">
  <ul className="text-sm text-body space-y-1">
- <li>• 调用 Flash-Lite</li>
- <li>• 智能内容压缩</li>
- <li>• 保留关键信息</li>
- <li>• 适合长输出</li>
+ <li>调用 Flash-Lite</li>
+ <li>智能内容压缩</li>
+ <li>保留关键信息</li>
+ <li>适合长输出</li>
  </ul>
  </HighlightBox>
  </div>
@@ -325,7 +325,7 @@ export async function summarizeToolOutput(
  </div>
  </div>
  <div className="flex items-start gap-2">
- <span className="text-amber-500">3.</span>
+ <span className="text-heading">3.</span>
  <div>
  <span className="text-heading">Shell 命令输出：</span>
  <span className="text-dim">保留完整错误堆栈 (&lt;error&gt;) 和警告 (&lt;warning&gt;)</span>
@@ -355,7 +355,7 @@ export async function summarizeToolOutput(
  </p>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge">
- <div className="text-amber-500 font-bold mb-2">💻 Shell 输出</div>
+ <div className="text-heading font-bold mb-2">💻 Shell 输出</div>
  <p className="text-sm text-body">
  npm install 等长输出，摘要结果但保留错误堆栈
  </p>

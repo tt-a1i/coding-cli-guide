@@ -236,11 +236,11 @@ export default function InjectionParserAnimation() {
 
  let className = 'transition-all duration-100 ';
  if (isCurrent) {
- className += 'bg-yellow-500 text-heading';
+ className += 'bg-[var(--color-warning)] text-heading';
  } else if (isHighlighted) {
  className += ' bg-elevated/70 text-heading';
  } else if (isInParsed) {
- className += 'bg-green-900/50 text-green-300';
+ className += 'bg-elevated text-heading';
  } else {
  className += 'text-body';
  }
@@ -334,8 +334,8 @@ export default function InjectionParserAnimation() {
  <div className="p-3 bg-base rounded-lg border border-edge">
  <div className="text-xs text-dim">当前阶段</div>
  <div className={`text-sm font-medium ${
- phase === 'complete' ? 'text-green-400' :
- phase === 'parsing-brace' ? 'text-yellow-400' :
+ phase === 'complete' ? 'text-heading' :
+ phase === 'parsing-brace' ? 'text-heading' :
  phase === 'found-marker' ? 'text-heading' :
  'text-body'
  }`}>
@@ -390,7 +390,7 @@ export default function InjectionParserAnimation() {
  {/* Legend */}
  <div className="mt-3 flex flex-wrap gap-3 text-xs">
  <div className="flex items-center gap-1">
- <span className="w-3 h-3 rounded bg-yellow-500" />
+ <span className="w-3 h-3 rounded bg-[var(--color-warning)]" />
  <span className="text-body">当前字符</span>
  </div>
  <div className="flex items-center gap-1">
@@ -398,7 +398,7 @@ export default function InjectionParserAnimation() {
  <span className="text-body">扫描范围</span>
  </div>
  <div className="flex items-center gap-1">
- <span className="w-3 h-3 rounded bg-green-900/50" />
+ <span className="w-3 h-3 rounded bg-elevated" />
  <span className="text-body">已解析</span>
  </div>
  </div>
@@ -415,7 +415,7 @@ export default function InjectionParserAnimation() {
  {/* Logs */}
  <div className="p-4 bg-base rounded-lg border border-edge">
  <h3 className="text-sm font-semibold text-body mb-3 flex items-center gap-2">
- <span className="w-2 h-2 rounded-full bg-green-500" />
+ <span className="w-2 h-2 rounded-full bg-[var(--color-success)]" />
  解析日志
  </h3>
  <div className="h-40 overflow-y-auto font-mono text-xs space-y-1">
@@ -430,8 +430,8 @@ export default function InjectionParserAnimation() {
 
  {/* Parsed Results */}
  {parsedInjections.length > 0 && (
- <div className="mt-6 p-4 bg-green-900/20 border border-green-700/50 rounded-lg">
- <h3 className="text-sm font-semibold text-green-400 mb-3">
+ <div className="mt-6 p-4 bg-elevated border-l-2 border-l-edge-hover/40 rounded-lg">
+ <h3 className="text-sm font-semibold text-heading mb-3">
  已解析的注入 ({parsedInjections.length})
  </h3>
  <div className="space-y-2">
@@ -445,7 +445,7 @@ export default function InjectionParserAnimation() {
  位置: {inj.startIndex} - {inj.endIndex}
  </span>
  </div>
- <code className="text-xs text-green-300 block overflow-x-auto">
+ <code className="text-xs text-heading block overflow-x-auto">
  {inj.content}
  </code>
  </div>

@@ -5,6 +5,9 @@ import { JsonBlock } from '../components/JsonBlock';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 interface ToolCardProps {
  icon: string;
@@ -185,7 +188,7 @@ export function ToolDetails() {
  activeStep === i
  ? 'bg-accent text-heading'
  : i < activeStep
- ? 'bg-green-500 text-heading'
+ ? 'bg-[var(--color-success)] text-heading'
  : ' bg-elevated/10 text-heading'
  }
  `}
@@ -197,7 +200,7 @@ export function ToolDetails() {
 
  {/* Step content */}
  <div className="animate-fadeIn">
- <h3 className="text-orange-500 mb-4 text-lg">
+ <h3 className="text-heading mb-4 text-lg">
  步骤 {activeStep + 1}：{step.title}
  </h3>
  {step.isJson ? (
@@ -230,21 +233,21 @@ export function ToolDetails() {
  name="读取类"
  tools={['read_file - 读取文件', 'glob - 文件模式匹配', 'search_file_content - 内容搜索']}
  status="✅ 安全，不修改文件"
- statusColor="text-green-500"
+ statusColor="text-heading"
  />
  <ToolCard
  icon="✏️"
  name="写入类"
  tools={['write_file - 写入文件', 'replace - 编辑文件']}
  status="⚠️ 需要用户确认"
- statusColor="text-orange-500"
+ statusColor="text-heading"
  />
  <ToolCard
  icon="💻"
  name="执行类"
  tools={['run_shell_command - 执行命令']}
  status="🔒 危险，可能需要沙箱"
- statusColor="text-red-500"
+ statusColor="text-heading"
  />
  <ToolCard
  icon="🌐"
@@ -311,9 +314,9 @@ flowchart LR
  V --> V3
  V --> V4
 
- style V fill:#eab30820,stroke:#eab308
- style E fill:#22c55e20,stroke:#22c55e
- style R fill:#ef444420,stroke:#ef4444
+ style V fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},stroke:${getThemeColor("--color-warning", "#b45309")}
+ style E fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},stroke:${getThemeColor("--color-success", "#15803d")}
+ style R fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},stroke:${getThemeColor("--color-danger", "#b91c1c")}
 `} />
 
  <div className="mt-6 space-y-4">
@@ -329,7 +332,7 @@ flowchart LR
  <th className="px-4 py-2 text-left text-body">示例</th>
  </tr>
  </thead>
- <tbody className="divide-y divide-gray-700">
+ <tbody className="divide-y divide-edge">
  <tr className="bg-surface">
  <td className="px-4 py-2 text-heading font-semibold">类型检查</td>
  <td className="px-4 py-2 text-body">参数类型是否正确</td>
@@ -337,13 +340,13 @@ flowchart LR
  <td className="px-4 py-2 text-dim">path 必须是 string，不能是 number</td>
  </tr>
  <tr className="bg-base/30">
- <td className="px-4 py-2 text-green-400 font-semibold">边界检查</td>
+ <td className="px-4 py-2 text-heading font-semibold">边界检查</td>
  <td className="px-4 py-2 text-body">参数值是否在合理范围</td>
  <td className="px-4 py-2 text-body">防止资源耗尽</td>
  <td className="px-4 py-2 text-dim">limit 最大 10000 行</td>
  </tr>
  <tr className="bg-surface">
- <td className="px-4 py-2 text-yellow-400 font-semibold">安全检查</td>
+ <td className="px-4 py-2 text-heading font-semibold">安全检查</td>
  <td className="px-4 py-2 text-body">参数是否包含危险内容</td>
  <td className="px-4 py-2 text-body">防止注入攻击</td>
  <td className="px-4 py-2 text-dim">命令不能包含 ; rm -rf /</td>
@@ -363,22 +366,22 @@ flowchart LR
  <p className="mb-3">以下是 AI 可能生成的有问题参数，验证层必须拦截：</p>
  <div className="grid md:grid-cols-2 gap-4">
  <div className="bg-surface rounded p-3">
- <p className="text-red-400 font-semibold text-sm mb-1">路径遍历攻击</p>
+ <p className="text-heading font-semibold text-sm mb-1">路径遍历攻击</p>
  <code className="text-xs text-body block">{"{ \"file_path\": \"../../etc/passwd\" }"}</code>
  <p className="text-xs text-dim mt-1">试图读取系统敏感文件</p>
  </div>
  <div className="bg-surface rounded p-3">
- <p className="text-red-400 font-semibold text-sm mb-1">命令注入</p>
+ <p className="text-heading font-semibold text-sm mb-1">命令注入</p>
  <code className="text-xs text-body block">{"{ \"command\": \"ls; rm -rf /\" }"}</code>
  <p className="text-xs text-dim mt-1">在命令中注入危险操作</p>
  </div>
  <div className="bg-surface rounded p-3">
- <p className="text-red-400 font-semibold text-sm mb-1">资源耗尽</p>
+ <p className="text-heading font-semibold text-sm mb-1">资源耗尽</p>
  <code className="text-xs text-body block">{"{ \"limit\": 999999999 }"}</code>
  <p className="text-xs text-dim mt-1">请求过大导致内存溢出</p>
  </div>
  <div className="bg-surface rounded p-3">
- <p className="text-red-400 font-semibold text-sm mb-1">无效 JSON</p>
+ <p className="text-heading font-semibold text-sm mb-1">无效 JSON</p>
  <code className="text-xs text-body block">{"{ file_path: /home/user }"}</code>
  <p className="text-xs text-dim mt-1">格式错误导致解析失败</p>
  </div>
@@ -408,7 +411,7 @@ flowchart LR
  <th className="px-3 py-2 text-left text-body">返回给 AI</th>
  </tr>
  </thead>
- <tbody className="divide-y divide-gray-700/50">
+ <tbody className="divide-y divide-edge/60">
  <tr>
  <td className="px-3 py-2 text-body">文件不存在</td>
  <td className="px-3 py-2 text-body">返回错误</td>
@@ -445,10 +448,10 @@ flowchart LR
  </div>
 
  {/* write_file 边界情况 */}
- <div className="bg-surface rounded-lg p-5 border border-green-500/30">
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/30">
  <div className="flex items-center gap-3 mb-3">
  <span className="text-2xl">✏️</span>
- <h4 className="text-lg font-semibold text-green-400">write_file 边界情况</h4>
+ <h4 className="text-lg font-semibold text-heading">write_file 边界情况</h4>
  </div>
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
@@ -459,7 +462,7 @@ flowchart LR
  <th className="px-3 py-2 text-left text-body">返回给 AI</th>
  </tr>
  </thead>
- <tbody className="divide-y divide-gray-700/50">
+ <tbody className="divide-y divide-edge/60">
  <tr>
  <td className="px-3 py-2 text-body">父目录不存在</td>
  <td className="px-3 py-2 text-body">自动创建目录</td>
@@ -491,10 +494,10 @@ flowchart LR
  </div>
 
  {/* run_shell_command 边界情况 */}
- <div className="bg-surface rounded-lg p-5 border border-red-500/30">
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/30">
  <div className="flex items-center gap-3 mb-3">
  <span className="text-2xl">💻</span>
- <h4 className="text-lg font-semibold text-red-400">run_shell_command 边界情况</h4>
+ <h4 className="text-lg font-semibold text-heading">run_shell_command 边界情况</h4>
  </div>
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
@@ -505,7 +508,7 @@ flowchart LR
  <th className="px-3 py-2 text-left text-body">返回给 AI</th>
  </tr>
  </thead>
- <tbody className="divide-y divide-gray-700/50">
+ <tbody className="divide-y divide-edge/60">
  <tr>
  <td className="px-3 py-2 text-body">命令不存在</td>
  <td className="px-3 py-2 text-body">返回错误</td>
@@ -587,9 +590,9 @@ graph TB
  T2 --> Moderate
  T3 --> High
 
- style Safe fill:#22c55e20,stroke:#22c55e
- style Moderate fill:#eab30820,stroke:#eab308
- style High fill:#ef444420,stroke:#ef4444
+ style Safe fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},stroke:${getThemeColor("--color-success", "#15803d")}
+ style Moderate fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},stroke:${getThemeColor("--color-warning", "#b45309")}
+ style High fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},stroke:${getThemeColor("--color-danger", "#b91c1c")}
 `} />
 
  <div className="mt-6 space-y-4">
@@ -606,9 +609,9 @@ graph TB
  <th className="px-4 py-2 text-left text-body">适用场景</th>
  </tr>
  </thead>
- <tbody className="divide-y divide-gray-700">
+ <tbody className="divide-y divide-edge">
  <tr className="bg-surface">
- <td className="px-4 py-2 text-amber-400 font-semibold">default</td>
+ <td className="px-4 py-2 text-heading font-semibold">default</td>
  <td className="px-4 py-2 text-body">自动</td>
  <td className="px-4 py-2 text-body">需确认</td>
  <td className="px-4 py-2 text-body">需确认</td>
@@ -622,7 +625,7 @@ graph TB
  <td className="px-4 py-2 text-dim">日常开发</td>
  </tr>
  <tr className="bg-base/30">
- <td className="px-4 py-2 text-red-400 font-semibold">yolo</td>
+ <td className="px-4 py-2 text-heading font-semibold">yolo</td>
  <td className="px-4 py-2 text-body">自动</td>
  <td className="px-4 py-2 text-body">自动</td>
  <td className="px-4 py-2 text-body">自动（仍建议沙箱）</td>
@@ -676,8 +679,8 @@ export GEMINI_SANDBOX=true # 或 docker, podman
 }`} />
  </div>
 
- <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-5">
- <h4 className="text-green-400 font-semibold mb-3">returnDisplay - 显示给用户</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-5">
+ <h4 className="text-heading font-semibold mb-3">returnDisplay - 显示给用户</h4>
  <ul className="pl-5 list-disc text-sm text-body space-y-1">
  <li>简洁、人类可读</li>
  <li>一两行概述</li>

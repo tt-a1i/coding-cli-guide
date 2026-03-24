@@ -4,6 +4,10 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
+
 
 const relatedPages: RelatedPage[] = [
  { id: 'hook-system', label: 'Hook 事件系统', description: '事件拦截机制' },
@@ -54,7 +58,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">关联 ID</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-amber-500">60s</div>
+ <div className="text-2xl font-bold text-heading">60s</div>
  <div className="text-xs text-dim">默认超时</div>
  </div>
  </div>
@@ -71,7 +75,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  MessageBus
  </span>
  <span className="text-dim">→</span>
- <span className="px-3 py-1.5 bg-amber-500/20 text-amber-500 rounded-lg border border-amber-500/30">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover/30">
  Policy Check
  </span>
  <span className="text-dim">→</span>
@@ -112,155 +116,155 @@ export function MessageBus() {
  ui -->|用户决策| sub
  bus -->|其他消息类型| sub
 
- style pub fill:#22d3ee,color:#000
- style bus fill:#a855f7,color:#fff
- style policy fill:#f59e0b,color:#000
- style sub fill:#22c55e,color:#000
- style ui fill:#6366f1,color:#fff`;
+ style pub fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style bus fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style policy fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style sub fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style ui fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  const messageTypesCode = `// packages/core/src/confirmation-bus/types.ts
 
 export enum MessageBusType {
- // 工具确认流程
- TOOL_CONFIRMATION_REQUEST = 'tool-confirmation-request',
- TOOL_CONFIRMATION_RESPONSE = 'tool-confirmation-response',
- TOOL_POLICY_REJECTION = 'tool-policy-rejection',
+  // 工具确认流程
+  TOOL_CONFIRMATION_REQUEST = 'tool-confirmation-request',
+  TOOL_CONFIRMATION_RESPONSE = 'tool-confirmation-response',
+  TOOL_POLICY_REJECTION = 'tool-policy-rejection',
 
- // 工具执行结果
- TOOL_EXECUTION_SUCCESS = 'tool-execution-success',
- TOOL_EXECUTION_FAILURE = 'tool-execution-failure',
+  // 工具执行结果
+  TOOL_EXECUTION_SUCCESS = 'tool-execution-success',
+  TOOL_EXECUTION_FAILURE = 'tool-execution-failure',
 
- // 策略更新
- UPDATE_POLICY = 'update-policy',
+  // 策略更新
+  UPDATE_POLICY = 'update-policy',
 
- // Hook 执行流程
- HOOK_EXECUTION_REQUEST = 'hook-execution-request',
- HOOK_EXECUTION_RESPONSE = 'hook-execution-response',
- HOOK_POLICY_DECISION = 'hook-policy-decision',
+  // Hook 执行流程
+  HOOK_EXECUTION_REQUEST = 'hook-execution-request',
+  HOOK_EXECUTION_RESPONSE = 'hook-execution-response',
+  HOOK_POLICY_DECISION = 'hook-policy-decision',
 }`;
 
  const messageStructuresCode = `// 工具确认请求
 export interface ToolConfirmationRequest {
- type: MessageBusType.TOOL_CONFIRMATION_REQUEST;
- toolCall: FunctionCall; // 工具调用信息
- correlationId: string; // 关联 ID
- serverName?: string; // MCP 服务器名称
+  type: MessageBusType.TOOL_CONFIRMATION_REQUEST;
+  toolCall: FunctionCall; // 工具调用信息
+  correlationId: string; // 关联 ID
+  serverName?: string; // MCP 服务器名称
 }
 
 // 工具确认响应
 export interface ToolConfirmationResponse {
- type: MessageBusType.TOOL_CONFIRMATION_RESPONSE;
- correlationId: string;
- confirmed: boolean;
- requiresUserConfirmation?: boolean; // ASK_USER 时为 true
+  type: MessageBusType.TOOL_CONFIRMATION_RESPONSE;
+  correlationId: string;
+  confirmed: boolean;
+  requiresUserConfirmation?: boolean; // ASK_USER 时为 true
 }
 
 // Hook 执行请求
 export interface HookExecutionRequest {
- type: MessageBusType.HOOK_EXECUTION_REQUEST;
- eventName: string;
- input: Record<string, unknown>;
- correlationId: string;
+  type: MessageBusType.HOOK_EXECUTION_REQUEST;
+  eventName: string;
+  input: Record<string, unknown>;
+  correlationId: string;
 }
 
 // 策略更新
 export interface UpdatePolicy {
- type: MessageBusType.UPDATE_POLICY;
- toolName: string;
- persist?: boolean; // 是否持久化
- argsPattern?: string; // 参数模式
- commandPrefix?: string | string[]; // Shell 命令前缀
- mcpName?: string; // MCP 服务器名称
+  type: MessageBusType.UPDATE_POLICY;
+  toolName: string;
+  persist?: boolean; // 是否持久化
+  argsPattern?: string; // 参数模式
+  commandPrefix?: string | string[]; // Shell 命令前缀
+  mcpName?: string; // MCP 服务器名称
 }`;
 
  const messageBusCode = `// packages/core/src/confirmation-bus/message-bus.ts
 
 export class MessageBus extends EventEmitter {
- constructor(
- private readonly policyEngine: PolicyEngine,
- private readonly debug = false,
- ) {
- super();
- }
+  constructor(
+  private readonly policyEngine: PolicyEngine,
+  private readonly debug = false,
+  ) {
+  super();
+  }
 
- // 发布消息（带完整错误处理）
- async publish(message: Message): Promise<void> {
- try {
- if (!this.isValidMessage(message)) {
- throw new Error(\`Invalid message structure: \${safeJsonStringify(message)}\`);
- }
+  // 发布消息（带完整错误处理）
+  async publish(message: Message): Promise<void> {
+  try {
+  if (!this.isValidMessage(message)) {
+  throw new Error(\`Invalid message structure: \${safeJsonStringify(message)}\`);
+  }
 
- if (message.type === MessageBusType.TOOL_CONFIRMATION_REQUEST) {
- // 工具确认请求：先经过 Policy 检查
- const { decision } = await this.policyEngine.check(
- message.toolCall,
- message.serverName,
- );
+  if (message.type === MessageBusType.TOOL_CONFIRMATION_REQUEST) {
+  // 工具确认请求：先经过 Policy 检查
+  const { decision } = await this.policyEngine.check(
+  message.toolCall,
+  message.serverName,
+  );
 
- switch (decision) {
- case PolicyDecision.ALLOW:
- this.emitMessage({
- type: MessageBusType.TOOL_CONFIRMATION_RESPONSE,
- correlationId: message.correlationId,
- confirmed: true,
- });
- break;
+  switch (decision) {
+  case PolicyDecision.ALLOW:
+  this.emitMessage({
+  type: MessageBusType.TOOL_CONFIRMATION_RESPONSE,
+  correlationId: message.correlationId,
+  confirmed: true,
+  });
+  break;
 
- case PolicyDecision.DENY:
- this.emitMessage({
- type: MessageBusType.TOOL_POLICY_REJECTION,
- toolCall: message.toolCall,
- });
- this.emitMessage({
- type: MessageBusType.TOOL_CONFIRMATION_RESPONSE,
- correlationId: message.correlationId,
- confirmed: false,
- });
- break;
+  case PolicyDecision.DENY:
+  this.emitMessage({
+  type: MessageBusType.TOOL_POLICY_REJECTION,
+  toolCall: message.toolCall,
+  });
+  this.emitMessage({
+  type: MessageBusType.TOOL_CONFIRMATION_RESPONSE,
+  correlationId: message.correlationId,
+  confirmed: false,
+  });
+  break;
 
- case PolicyDecision.ASK_USER:
- // 传递给 UI 层处理
- this.emitMessage(message);
- break;
+  case PolicyDecision.ASK_USER:
+  // 传递给 UI 层处理
+  this.emitMessage(message);
+  break;
 
- default:
- throw new Error(\`Unknown policy decision: \${decision}\`);
- }
- } else if (message.type === MessageBusType.HOOK_EXECUTION_REQUEST) {
- // Hook 执行请求：经过 Hook 策略检查
- const decision = await this.policyEngine.checkHook(message);
+  default:
+  throw new Error(\`Unknown policy decision: \${decision}\`);
+  }
+  } else if (message.type === MessageBusType.HOOK_EXECUTION_REQUEST) {
+  // Hook 执行请求：经过 Hook 策略检查
+  const decision = await this.policyEngine.checkHook(message);
 
- // 发送策略决策事件（用于可观测性）
- this.emitMessage({
- type: MessageBusType.HOOK_POLICY_DECISION,
- eventName: message.eventName,
- hookSource: getHookSource(message.input),
- decision: decision === PolicyDecision.ALLOW ? 'allow' : 'deny',
- reason: decision !== PolicyDecision.ALLOW
- ? 'Hook execution denied by policy'
- : undefined,
- });
+  // 发送策略决策事件（用于可观测性）
+  this.emitMessage({
+  type: MessageBusType.HOOK_POLICY_DECISION,
+  eventName: message.eventName,
+  hookSource: getHookSource(message.input),
+  decision: decision === PolicyDecision.ALLOW ? 'allow' : 'deny',
+  reason: decision !== PolicyDecision.ALLOW
+  ? 'Hook execution denied by policy'
+  : undefined,
+  });
 
- if (decision === PolicyDecision.ALLOW) {
- this.emitMessage(message);
- } else {
- // Hook 不支持交互式确认，直接返回错误
- this.emitMessage({
- type: MessageBusType.HOOK_EXECUTION_RESPONSE,
- correlationId: message.correlationId,
- success: false,
- error: new Error('Hook execution denied by policy'),
- });
- }
- } else {
- // 其他消息类型直接转发
- this.emitMessage(message);
- }
- } catch (error) {
- // 错误不抛出，而是通过 'error' 事件发送
- this.emit('error', error);
- }
- }
+  if (decision === PolicyDecision.ALLOW) {
+  this.emitMessage(message);
+  } else {
+  // Hook 不支持交互式确认，直接返回错误
+  this.emitMessage({
+  type: MessageBusType.HOOK_EXECUTION_RESPONSE,
+  correlationId: message.correlationId,
+  success: false,
+  error: new Error('Hook execution denied by policy'),
+  });
+  }
+  } else {
+  // 其他消息类型直接转发
+  this.emitMessage(message);
+  }
+  } catch (error) {
+  // 错误不抛出，而是通过 'error' 事件发送
+  this.emit('error', error);
+  }
+  }
 }`;
 
  // 错误处理机制代码
@@ -268,107 +272,107 @@ export class MessageBus extends EventEmitter {
 
 // 1. 订阅错误事件
 messageBus.on('error', (error: Error) => {
- console.error('[MessageBus Error]', error.message);
- // 可以发送到日志系统或监控平台
- telemetry.recordError('message_bus', error);
+  console.error('[MessageBus Error]', error.message);
+  // 可以发送到日志系统或监控平台
+  telemetry.recordError('message_bus', error);
 });
 
 // 2. ToolExecutionFailure 接口
 export interface ToolExecutionFailure<E = Error> {
- type: MessageBusType.TOOL_EXECUTION_FAILURE;
- correlationId: string;
- error: E;
+  type: MessageBusType.TOOL_EXECUTION_FAILURE;
+  correlationId: string;
+  error: E;
 }
 
 // 3. HookExecutionResponse 可包含错误
 export interface HookExecutionResponse {
- type: MessageBusType.HOOK_EXECUTION_RESPONSE;
- correlationId: string;
- success: boolean;
- error?: Error; // 失败时包含错误信息
+  type: MessageBusType.HOOK_EXECUTION_RESPONSE;
+  correlationId: string;
+  success: boolean;
+  error?: Error; // 失败时包含错误信息
 }
 
 // 4. 使用示例：处理工具执行失败
 messageBus.subscribe(
- MessageBusType.TOOL_EXECUTION_FAILURE,
- (message: ToolExecutionFailure) => {
- console.error(\`Tool execution failed: \${message.error.message}\`);
- // 可以触发重试逻辑或通知用户
- }
+  MessageBusType.TOOL_EXECUTION_FAILURE,
+  (message: ToolExecutionFailure) => {
+  console.error(\`Tool execution failed: \${message.error.message}\`);
+  // 可以触发重试逻辑或通知用户
+  }
 );`;
 
  const subscribePatternCode = `// 订阅消息
 subscribe<T extends Message>(
- type: T['type'],
- listener: (message: T) => void,
+  type: T['type'],
+  listener: (message: T) => void,
 ): void {
- this.on(type, listener);
+  this.on(type, listener);
 }
 
 // 取消订阅
 unsubscribe<T extends Message>(
- type: T['type'],
- listener: (message: T) => void,
+  type: T['type'],
+  listener: (message: T) => void,
 ): void {
- this.off(type, listener);
+  this.off(type, listener);
 }
 
 // 使用示例
 messageBus.subscribe(
- MessageBusType.TOOL_CONFIRMATION_REQUEST,
- (message: ToolConfirmationRequest) => {
- // 显示确认对话框
- showConfirmationDialog(message.toolCall);
- }
+  MessageBusType.TOOL_CONFIRMATION_REQUEST,
+  (message: ToolConfirmationRequest) => {
+  // 显示确认对话框
+  showConfirmationDialog(message.toolCall);
+  }
 );`;
 
  const requestResponseCode = `// 请求-响应模式
 async request<TRequest extends Message, TResponse extends Message>(
- request: Omit<TRequest, 'correlationId'>,
- responseType: TResponse['type'],
- timeoutMs: number = 60000,
+  request: Omit<TRequest, 'correlationId'>,
+  responseType: TResponse['type'],
+  timeoutMs: number = 60000,
 ): Promise<TResponse> {
- const correlationId = randomUUID();
+  const correlationId = randomUUID();
 
- return new Promise<TResponse>((resolve, reject) => {
- const timeoutId = setTimeout(() => {
- cleanup();
- reject(new Error(\`Request timed out waiting for \${responseType}\`));
- }, timeoutMs);
+  return new Promise<TResponse>((resolve, reject) => {
+  const timeoutId = setTimeout(() => {
+  cleanup();
+  reject(new Error(\`Request timed out waiting for \${responseType}\`));
+  }, timeoutMs);
 
- const cleanup = () => {
- clearTimeout(timeoutId);
- this.unsubscribe(responseType, responseHandler);
- };
+  const cleanup = () => {
+  clearTimeout(timeoutId);
+  this.unsubscribe(responseType, responseHandler);
+  };
 
- const responseHandler = (response: TResponse) => {
- // 检查关联 ID 匹配
- if ('correlationId' in response && response.correlationId === correlationId) {
- cleanup();
- resolve(response);
- }
- };
+  const responseHandler = (response: TResponse) => {
+  // 检查关联 ID 匹配
+  if ('correlationId' in response && response.correlationId === correlationId) {
+  cleanup();
+  resolve(response);
+  }
+  };
 
- this.subscribe<TResponse>(responseType, responseHandler);
- this.publish({ ...request, correlationId } as TRequest);
- });
+  this.subscribe<TResponse>(responseType, responseHandler);
+  this.publish({ ...request, correlationId } as TRequest);
+  });
 }
 
 // 使用示例
 const response = await messageBus.request<
- ToolConfirmationRequest,
- ToolConfirmationResponse
+  ToolConfirmationRequest,
+  ToolConfirmationResponse
 >(
- {
- type: MessageBusType.TOOL_CONFIRMATION_REQUEST,
- toolCall: { name: 'write_file', args: {...} },
- serverName: undefined,
- },
- MessageBusType.TOOL_CONFIRMATION_RESPONSE,
+  {
+  type: MessageBusType.TOOL_CONFIRMATION_REQUEST,
+  toolCall: { name: 'write_file', args: {...} },
+  serverName: undefined,
+  },
+  MessageBusType.TOOL_CONFIRMATION_RESPONSE,
 );
 
 if (response.confirmed) {
- // 执行工具
+  // 执行工具
 }`;
 
  return (
@@ -413,17 +417,17 @@ if (response.confirmed) {
  <td className="border border-edge p-3">用户确认结果</td>
  </tr>
  <tr>
- <td className="border border-edge p-3"><code className="text-red-300">TOOL_POLICY_REJECTION</code></td>
+ <td className="border border-edge p-3"><code className="text-heading">TOOL_POLICY_REJECTION</code></td>
  <td className="border border-edge p-3">Policy → UI</td>
  <td className="border border-edge p-3">策略拒绝通知</td>
  </tr>
  <tr className="bg-surface/30">
- <td className="border border-edge p-3"><code className="text-green-300">TOOL_EXECUTION_SUCCESS</code></td>
+ <td className="border border-edge p-3"><code className="text-heading">TOOL_EXECUTION_SUCCESS</code></td>
  <td className="border border-edge p-3">Executor → *</td>
  <td className="border border-edge p-3">工具执行成功</td>
  </tr>
  <tr>
- <td className="border border-edge p-3"><code className="text-red-300">TOOL_EXECUTION_FAILURE</code></td>
+ <td className="border border-edge p-3"><code className="text-heading">TOOL_EXECUTION_FAILURE</code></td>
  <td className="border border-edge p-3">Executor → *</td>
  <td className="border border-edge p-3">工具执行失败</td>
  </tr>
@@ -433,12 +437,12 @@ if (response.confirmed) {
  <td className="border border-edge p-3">更新策略规则</td>
  </tr>
  <tr>
- <td className="border border-edge p-3"><code className="text-amber-300">HOOK_EXECUTION_REQUEST</code></td>
+ <td className="border border-edge p-3"><code className="text-heading">HOOK_EXECUTION_REQUEST</code></td>
  <td className="border border-edge p-3">HookSystem → Policy</td>
  <td className="border border-edge p-3">Hook 执行请求</td>
  </tr>
  <tr className="bg-surface/30">
- <td className="border border-edge p-3"><code className="text-amber-300">HOOK_EXECUTION_RESPONSE</code></td>
+ <td className="border border-edge p-3"><code className="text-heading">HOOK_EXECUTION_RESPONSE</code></td>
  <td className="border border-edge p-3">Policy → HookSystem</td>
  <td className="border border-edge p-3">Hook 执行结果</td>
  </tr>
@@ -612,7 +616,7 @@ if (response.confirmed) {
  MessageBus 的 <code className="bg-base/30 px-1 rounded">publish()</code> 方法将整个逻辑包裹在 try-catch 中，
  错误不会抛出导致程序崩溃，而是通过 <code className="bg-base/30 px-1 rounded">'error'</code> 事件发送。
  </p>
- <p className="text-amber-400">
+ <p className="text-heading">
  这保证了消息总线的稳定性，即使某个消息处理失败，其他消息仍可正常处理。
  </p>
  </div>
@@ -624,10 +628,10 @@ if (response.confirmed) {
  <HighlightBox title="错误类型" variant="blue">
  <div className="text-sm space-y-2">
  <ul className="text-body space-y-1">
- <li>• <code className="text-red-300">Invalid message structure</code>: 消息格式错误</li>
- <li>• <code className="text-red-300">Unknown policy decision</code>: 未知策略决策</li>
- <li>• <code className="text-red-300">Request timed out</code>: 请求超时</li>
- <li>• <code className="text-red-300">Hook execution denied</code>: Hook 执行被拒绝</li>
+ <li><code className="text-heading">Invalid message structure</code>: 消息格式错误</li>
+ <li><code className="text-heading">Unknown policy decision</code>: 未知策略决策</li>
+ <li><code className="text-heading">Request timed out</code>: 请求超时</li>
+ <li><code className="text-heading">Hook execution denied</code>: Hook 执行被拒绝</li>
  </ul>
  </div>
  </HighlightBox>
@@ -635,10 +639,10 @@ if (response.confirmed) {
  <HighlightBox title="错误观测性" variant="green">
  <div className="text-sm space-y-2">
  <ul className="text-body space-y-1">
- <li>• 订阅 <code className="text-heading">'error'</code> 事件监控错误</li>
- <li>• 错误可发送到遥测系统</li>
- <li>• 支持自定义错误处理逻辑</li>
- <li>• 可结合日志系统记录</li>
+ <li>订阅 <code className="text-heading">'error'</code> 事件监控错误</li>
+ <li>错误可发送到遥测系统</li>
+ <li>支持自定义错误处理逻辑</li>
+ <li>可结合日志系统记录</li>
  </ul>
  </div>
  </HighlightBox>
@@ -738,7 +742,7 @@ messageBus.publish({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">为什么默认超时是 60 秒？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么默认超时是 60 秒？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策：</strong>request() 方法默认 60 秒超时。</p>
  <p><strong>原因：</strong></p>

@@ -44,17 +44,17 @@ ContentGenerator (interface)
  <div className="bg-elevated border border-edge rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">关键点（上游）</h4>
  <ul className="text-sm text-body space-y-2">
- <li>• <strong>结构化 functionCalls</strong>: <code>resp.functionCalls</code> 直接提供 <code>args</code> 对象</li>
- <li>• <strong>Finished 触发点</strong>: 仅当 <code>finishReason</code> 存在才发 <code>GeminiEventType.Finished</code></li>
- <li>• <strong>InvalidStream 重试</strong>: 无效流抛 <code>InvalidStreamError</code> → yield <code>Retry</code></li>
- <li>• <strong>Thought/Citation</strong>: Thought 单独事件；citations 暂存到 Finished 统一输出</li>
- <li>• <strong>fork-only 兼容层</strong>: OpenAI <code>tool_calls</code> / SSE / 格式转换不属于上游主线</li>
+ <li><strong>结构化 functionCalls</strong>: <code>resp.functionCalls</code> 直接提供 <code>args</code> 对象</li>
+ <li><strong>Finished 触发点</strong>: 仅当 <code>finishReason</code> 存在才发 <code>GeminiEventType.Finished</code></li>
+ <li><strong>InvalidStream 重试</strong>: 无效流抛 <code>InvalidStreamError</code> → yield <code>Retry</code></li>
+ <li><strong>Thought/Citation</strong>: Thought 单独事件；citations 暂存到 Finished 统一输出</li>
+ <li><strong>fork-only 兼容层</strong>: OpenAI <code>tool_calls</code> / SSE / 格式转换不属于上游主线</li>
  </ul>
  </div>
  </div>
 
- <div className="mt-4 bg-green-500/10 border border-green-500/30 rounded-lg p-4">
- <h4 className="text-green-400 font-bold mb-2">上游流式管道概览</h4>
+ <div className="mt-4 bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-bold mb-2">上游流式管道概览</h4>
  <MermaidDiagram
  chart={`flowchart LR
  A[@google/genai stream] --> B[GeminiChat.sendMessageStream]
@@ -402,15 +402,15 @@ export type ContentGeneratorConfig = {
  {/* 错误处理 */}
  <Layer title="错误处理" icon="⚠️">
  <div className="space-y-3">
- <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
- <h4 className="text-red-400 font-bold mb-2">429 Rate Limit</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-bold mb-2">429 Rate Limit</h4>
  <p className="text-sm text-body mb-2">请求过多，需要等待</p>
  <code className="text-xs text-body">
  处理：读取 Retry-After 头，等待后重试
  </code>
  </div>
 
- <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4">
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">401 Unauthorized</h4>
  <p className="text-sm text-body mb-2">认证失败</p>
  <code className="text-xs text-body">
@@ -418,8 +418,8 @@ export type ContentGeneratorConfig = {
  </code>
  </div>
 
- <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
- <h4 className="text-yellow-400 font-bold mb-2">500 Server Error</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-bold mb-2">500 Server Error</h4>
  <p className="text-sm text-body mb-2">服务器错误</p>
  <code className="text-xs text-body">
  处理：指数退避重试，最多 3 次
@@ -440,7 +440,7 @@ export type ContentGeneratorConfig = {
  <Layer title="流式处理管道" icon="🌊">
  <div className="bg-base/30 rounded-lg p-6">
  <div className="flex flex-col md:flex-row items-center justify-between gap-4">
- <div className="bg-blue-400/20 border border-edge rounded-lg px-4 py-2 text-center">
+ <div className="bg-accent/10 border border-edge rounded-lg px-4 py-2 text-center">
  <div className="text-sm text-heading">Raw API Stream</div>
  <div className="text-xs text-body">ChatCompletionChunk</div>
  </div>
@@ -450,17 +450,17 @@ export type ContentGeneratorConfig = {
  <div className="text-xs text-body">OpenAI → Gemini</div>
  </div>
  <div className="text-heading">→</div>
- <div className="bg-green-400/20 border border-green-400 rounded-lg px-4 py-2 text-center">
- <div className="text-sm text-green-400">标准化 Stream</div>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg px-4 py-2 text-center">
+ <div className="text-sm text-heading">标准化 Stream</div>
  <div className="text-xs text-body">GenerateContentResponse</div>
  </div>
  <div className="text-heading">→</div>
- <div className="bg-orange-400/20 border border-orange-400 rounded-lg px-4 py-2 text-center">
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg px-4 py-2 text-center">
  <div className="text-sm text-heading">GeminiChat</div>
  <div className="text-xs text-body">历史更新</div>
  </div>
  <div className="text-heading">→</div>
- <div className="bg-pink-400/20 border border-pink-400 rounded-lg px-4 py-2 text-center">
+ <div className="bg-[var(--purple-glow)] border border-[var(--purple)] rounded-lg px-4 py-2 text-center">
  <div className="text-sm text-heading">UI 渲染</div>
  <div className="text-xs text-body">实时显示</div>
  </div>
@@ -1159,21 +1159,21 @@ private async handleError(
  />
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
- <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
- <h4 className="text-red-400 font-bold mb-2">流处理特殊处理</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-bold mb-2">流处理特殊处理</h4>
  <ul className="text-sm text-body space-y-2">
- <li>• <strong>状态清理</strong>: 错误时重置 StreamingToolCallParser</li>
- <li>• <strong>部分响应</strong>: 已 yield 的响应不会撤回</li>
- <li>• <strong>日志完整性</strong>: 即使失败也记录已收集的 chunks</li>
+ <li><strong>状态清理</strong>: 错误时重置 StreamingToolCallParser</li>
+ <li><strong>部分响应</strong>: 已 yield 的响应不会撤回</li>
+ <li><strong>日志完整性</strong>: 即使失败也记录已收集的 chunks</li>
  </ul>
  </div>
- <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
- <h4 className="text-yellow-400 font-bold mb-2">常见错误类型</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-bold mb-2">常见错误类型</h4>
  <ul className="text-sm text-body space-y-2">
- <li>• <strong>网络中断</strong>: 流在中途断开</li>
- <li>• <strong>超时</strong>: 响应时间过长</li>
- <li>• <strong>格式错误</strong>: API 返回非预期格式</li>
- <li>• <strong>取消请求</strong>: 用户通过 AbortSignal 取消</li>
+ <li><strong>网络中断</strong>: 流在中途断开</li>
+ <li><strong>超时</strong>: 响应时间过长</li>
+ <li><strong>格式错误</strong>: API 返回非预期格式</li>
+ <li><strong>取消请求</strong>: 用户通过 AbortSignal 取消</li>
  </ul>
  </div>
  </div>

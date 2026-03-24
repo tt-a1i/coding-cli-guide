@@ -244,7 +244,7 @@ export default function OAuthDeviceFlowAnimation() {
  case 'idle':
  return 'var(--color-text-muted)';
  case 'decide_mode':
- return '#f59e0b';
+ return 'var(--color-warning)';
  case 'success':
  return 'var(--color-primary)';
  default:
@@ -277,7 +277,7 @@ export default function OAuthDeviceFlowAnimation() {
  onClick={() => (isPlaying ? reset() : start())}
  className={`px-4 py-2 rounded font-mono text-sm transition-all ${
  isPlaying
- ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+ ? 'bg-elevated text-heading border-l-2 border-l-edge-hover/30'
  : ' bg-elevated/20 text-heading border border-edge/30'
  }`}
  >
@@ -358,7 +358,7 @@ export default function OAuthDeviceFlowAnimation() {
  {mode === 'manual' && (
  <button
  onClick={simulatePasteCode}
- className="w-full mt-2 px-3 py-2 rounded-lg border border-amber-500/30 bg-amber-500/10 text-amber-500 font-mono text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+ className="w-full mt-2 px-3 py-2 rounded-lg border-l-2 border-l-edge-hover/30 bg-elevated text-heading font-mono text-sm disabled:opacity-50 disabled:cursor-not-allowed"
  disabled={!isPlaying || phase !== 'manual_wait_code'}
  >
  模拟粘贴授权码

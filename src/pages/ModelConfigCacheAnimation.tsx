@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { CodeBlock } from '../components/CodeBlock';
 
 interface ModelConfig {
  id: string;
@@ -133,9 +134,9 @@ export default function ModelConfigCacheAnimation() {
 
  const getTtlColor = (remaining: number) => {
  const percent = (remaining / CACHE_TTL) * 100;
- if (percent > 60) return 'bg-green-500';
- if (percent > 30) return 'bg-yellow-500';
- return 'bg-red-500';
+ if (percent > 60) return 'bg-[var(--color-success)]';
+ if (percent > 30) return 'bg-[var(--color-warning)]';
+ return 'bg-[var(--color-danger)]';
  };
 
  return (
@@ -167,7 +168,7 @@ export default function ModelConfigCacheAnimation() {
  </div>
  <div className="mt-2 flex justify-between text-xs text-dim">
  <span>TTL: {CACHE_TTL / 1000}s</span>
- <span className={stats.isExpired ? 'text-red-400' : 'text-green-400'}>
+ <span className={stats.isExpired ? 'text-heading' : 'text-heading'}>
  {stats.isExpired ? '⚠️ 需要刷新' : '✓ 缓存有效'}
  </span>
  </div>
@@ -189,8 +190,8 @@ export default function ModelConfigCacheAnimation() {
  </div>
  <div className="text-xs text-body">上次刷新</div>
  </div>
- <div className={`${stats.isExpired ? 'bg-red-500/10' : 'bg-green-500/10'} rounded-lg p-3`}>
- <div className={`text-2xl ${stats.isExpired ? 'text-red-400' : 'text-green-400'}`}>
+ <div className={`${stats.isExpired ? 'bg-elevated' : 'bg-elevated'} rounded-lg p-3`}>
+ <div className={`text-2xl ${stats.isExpired ? 'text-heading' : 'text-heading'}`}>
  {stats.isExpired ? '❌' : '✓'}
  </div>
  <div className="text-xs text-body">缓存状态</div>
@@ -199,8 +200,8 @@ export default function ModelConfigCacheAnimation() {
  </div>
 
  {/* Cache Content */}
- <div className="bg-base/40 border border-green-500/30 rounded-lg p-4">
- <h3 className="text-green-400 font-bold mb-3 flex items-center gap-2">
+ <div className="bg-base/40 border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h3 className="text-heading font-bold mb-3 flex items-center gap-2">
  <span className="text-xl">🗄️</span> 缓存内容
  </h3>
  {cache.size === 0 ? (
@@ -212,7 +213,7 @@ export default function ModelConfigCacheAnimation() {
  key={id}
  className={`p-3 rounded-lg border transition-all duration-300 ${
  highlightedModel === id
- ? 'border-yellow-400 bg-yellow-500/20 scale-105'
+ ? 'border-edge bg-elevated scale-105'
  : ' border-edge bg-surface'
  }`}
  >
@@ -233,7 +234,7 @@ export default function ModelConfigCacheAnimation() {
  {/* Right: Controls & Logs */}
  <div className="space-y-4">
  {/* Query Control */}
- <div className="bg-base/40 border border-orange-500/30 rounded-lg p-4">
+ <div className="bg-base/40 border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h3 className="text-heading font-bold mb-3 flex items-center gap-2">
  <span className="text-xl">🔍</span> 查询模型配置
  </h3>
@@ -267,8 +268,8 @@ export default function ModelConfigCacheAnimation() {
  </div>
 
  {queryResult && (
- <div className="mt-3 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
- <div className="text-xs text-green-400 mb-1">查询结果:</div>
+ <div className="mt-3 p-3 bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg">
+ <div className="text-xs text-heading mb-1">查询结果:</div>
  <pre className="text-xs text-body overflow-x-auto">
 {JSON.stringify(queryResult, null, 2)}
  </pre>
@@ -297,7 +298,7 @@ export default function ModelConfigCacheAnimation() {
  </button>
  <button
  onClick={clearCache}
- className="px-4 py-2 bg-red-500 text-heading rounded-lg font-medium hover:bg-red-600 transition-all"
+ className="px-4 py-2 bg-[var(--color-danger)] text-heading rounded-lg font-medium hover:bg-[var(--color-danger)] transition-all"
  >
  🗑️ 清空缓存
  </button>
@@ -317,17 +318,17 @@ export default function ModelConfigCacheAnimation() {
  <div
  key={index}
  className={`p-2 rounded-lg border text-sm ${
- log.type === 'success' ? 'border-green-500/30 bg-green-500/10' :
- log.type === 'warning' ? 'border-yellow-500/30 bg-yellow-500/10' :
- log.type === 'error' ? 'border-red-500/30 bg-red-500/10' :
+ log.type === 'success' ? 'border-edge/30 bg-elevated' :
+ log.type === 'warning' ? 'border-edge/30 bg-elevated' :
+ log.type === 'error' ? 'border-edge/30 bg-elevated' :
  ' border-edge bg-surface'
  }`}
  >
  <div className="flex justify-between items-start">
  <span className={`font-mono text-xs ${
- log.type === 'success' ? 'text-green-400' :
- log.type === 'warning' ? 'text-yellow-400' :
- log.type === 'error' ? 'text-red-400' :
+ log.type === 'success' ? 'text-heading' :
+ log.type === 'warning' ? 'text-heading' :
+ log.type === 'error' ? 'text-heading' :
  'text-heading'
  }`}>
  {log.action}
@@ -346,29 +347,24 @@ export default function ModelConfigCacheAnimation() {
  </div>
 
  {/* Code Reference */}
- <div className="mt-6 bg-base/40 border border-edge rounded-lg p-4">
- <h3 className="text-heading font-bold mb-3">📄 源码参考</h3>
- <pre className="text-xs text-body overflow-x-auto">
-{`// packages/core/src/gemini/modelConfigCache.ts
+      <CodeBlock title="modelConfigCache.ts — 源码参考" language="typescript" code={`// packages/core/src/gemini/modelConfigCache.ts
 
 export class ModelConfigCache {
- private cache: Map<string, { baseURL: string; apiKey: string }> = new Map();
- private lastFetchTime: number = 0;
- private readonly CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+  private cache: Map<string, { baseURL: string; apiKey: string }> = new Map();
+  private lastFetchTime: number = 0;
+  private readonly CACHE_TTL = 5 * 60 * 1000;  // 5 minutes
 
- async getModelConfig(modelId: string, forceRefresh: boolean = false) {
- const now = Date.now();
- const isCacheExpired = now - this.lastFetchTime > this.CACHE_TTL;
+  async getModelConfig(modelId: string, forceRefresh: boolean = false) {
+    const now = Date.now();
+    const isCacheExpired = now - this.lastFetchTime > this.CACHE_TTL;
 
- if (forceRefresh || isCacheExpired || this.cache.size === 0) {
- await this.refreshCache(); // 刷新缓存
- }
+    if (forceRefresh || isCacheExpired || this.cache.size === 0) {
+      await this.refreshCache();  // 刷新缓存
+    }
 
- return this.cache.get(modelId) || null;
- }
-}`}
- </pre>
- </div>
+    return this.cache.get(modelId) || null;
+  }
+}`} />
  </div>
  </div>
  );

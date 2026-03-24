@@ -12,23 +12,21 @@ interface TabsProps {
 
 export function Tabs({ tabs, activeTab, onTabChange }: TabsProps) {
   return (
-    <div className="flex justify-center gap-2 mb-8 flex-wrap">
+    <div className="mb-8 flex flex-wrap gap-0.5 border-b border-edge">
       {tabs.map((tab) => (
         <button
           key={tab.id}
           onClick={() => onTabChange(tab.id)}
-          className={`
-            px-6 py-3 rounded-lg text-sm font-medium transition-all cursor-pointer
-            ${
-              activeTab === tab.id
-                ? 'bg-cyan-400 text-gray-900'
-                : tab.highlight
-                  ? 'bg-orange-500 text-gray-900 hover:bg-orange-400'
-                  : 'bg-white/10 text-white hover:bg-cyan-400/20'
-            }
-          `}
+          className={`relative px-4 py-2.5 text-sm font-medium transition-colors duration-150 cursor-pointer ${
+            activeTab === tab.id
+              ? 'text-heading'
+              : 'text-dim hover:text-body'
+          }`}
         >
           {tab.label}
+          {activeTab === tab.id && (
+            <span className="absolute inset-x-0 -bottom-px h-[2px] bg-accent rounded-full" />
+          )}
         </button>
       ))}
     </div>

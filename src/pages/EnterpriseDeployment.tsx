@@ -4,6 +4,9 @@ import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
  return (
@@ -26,7 +29,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <p className="text-body text-sm">
  将面向公网设计的 AI CLI 适配到企业内网环境：
  <strong className="text-heading">网络受限</strong>、
- <strong className="text-amber-500">依赖可控</strong>、
+ <strong className="text-heading">依赖可控</strong>、
  <strong className="text-heading">版本可追溯</strong>、
  <strong className="text-heading">离线可用</strong>。
  </p>
@@ -38,7 +41,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">分发方式</div>
  </div>
  <div className="bg-surface p-3 rounded border border-edge">
- <div className="text-xl font-bold text-amber-500">~70MB</div>
+ <div className="text-xl font-bold text-heading">~70MB</div>
  <div className="text-xs text-dim">Portable 体积</div>
  </div>
  <div className="bg-surface p-3 rounded border border-edge">
@@ -100,8 +103,8 @@ export function EnterpriseDeployment() {
 
  style Build stroke:#22d3ee
  style Package stroke:#a855f7
- style Deploy stroke:#22c55e
- style Runtime stroke:#f59e0b`;
+ style Deploy stroke:${getThemeColor("--color-success", "#15803d")}
+ style Runtime stroke:${getThemeColor("--color-warning", "#b45309")}`;
 
  const offlineResourceChart = `flowchart LR
  subgraph Bundled["随包分发"]
@@ -129,8 +132,8 @@ export function EnterpriseDeployment() {
  node --> mirror_s
  vendor --> bundled_s
 
- style Bundled stroke:#22c55e
- style External stroke:#f59e0b
+ style Bundled stroke:${getThemeColor("--color-success", "#15803d")}
+ style External stroke:${getThemeColor("--color-warning", "#b45309")}
  style Strategy stroke:#a855f7`;
 
  return (
@@ -142,26 +145,26 @@ export function EnterpriseDeployment() {
  {/* 为什么需要企业化部署 */}
  <Layer title="为什么需要企业化部署" icon="💡">
  <div className="space-y-4">
- <div className="bg-surface rounded-xl p-5 border border-amber-500/30">
- <h4 className="text-amber-500 font-bold mb-3">🎯 核心问题</h4>
+ <div className="bg-surface rounded-xl p-5 border-l-2 border-l-edge-hover/30">
+ <h4 className="text-heading font-bold mb-3">🎯 核心问题</h4>
  <p className="text-body text-sm mb-3">
  上游 CLI 默认假设用户能访问公网，但企业内网环境通常：
  </p>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
- <div className="bg-surface rounded-lg p-3 border border-red-500/30">
- <div className="text-red-500 font-semibold text-sm mb-1">❌ 网络受限</div>
+ <div className="pl-4 border-l-2 border-l-edge-hover border-l-edge-hover/30">
+ <div className="text-heading font-semibold text-sm mb-1">❌ 网络受限</div>
  <ul className="text-xs text-dim space-y-1">
- <li>• 无法访问 npm registry</li>
- <li>• 无法访问 GitHub releases</li>
- <li>• 防火墙阻断外部请求</li>
+ <li>无法访问 npm registry</li>
+ <li>无法访问 GitHub releases</li>
+ <li>防火墙阻断外部请求</li>
  </ul>
  </div>
- <div className="bg-surface rounded-lg p-3 border border-red-500/30">
- <div className="text-red-500 font-semibold text-sm mb-1">❌ 依赖不可控</div>
+ <div className="pl-4 border-l-2 border-l-edge-hover border-l-edge-hover/30">
+ <div className="text-heading font-semibold text-sm mb-1">❌ 依赖不可控</div>
  <ul className="text-xs text-dim space-y-1">
- <li>• 版本更新需审批</li>
- <li>• 安全扫描要求</li>
- <li>• 可追溯性要求</li>
+ <li>版本更新需审批</li>
+ <li>安全扫描要求</li>
+ <li>可追溯性要求</li>
  </ul>
  </div>
  </div>
@@ -195,7 +198,7 @@ export function EnterpriseDeployment() {
  <th className="border border-edge p-3 text-left text-dim">方式</th>
  <th className="border border-edge p-3 text-left text-heading">npm 包</th>
  <th className="border border-edge p-3 text-left text-heading">Portable 便携版</th>
- <th className="border border-edge p-3 text-left text-amber-500">Standalone 单文件</th>
+ <th className="border border-edge p-3 text-left text-heading">Standalone 单文件</th>
  </tr>
  </thead>
  <tbody className="text-body">
@@ -203,7 +206,7 @@ export function EnterpriseDeployment() {
  <td className="border border-edge p-3 font-semibold">构建命令</td>
  <td className="border border-edge p-3"><code className="text-heading">npm run build</code></td>
  <td className="border border-edge p-3"><code className="text-heading">npm run build:portable</code></td>
- <td className="border border-edge p-3"><code className="text-amber-500">npm run build:standalone</code></td>
+ <td className="border border-edge p-3"><code className="text-heading">npm run build:standalone</code></td>
  </tr>
  <tr className="bg-surface/30">
  <td className="border border-edge p-3 font-semibold">产物体积</td>
@@ -300,10 +303,10 @@ const NODE_DIST_URL_MIRROR =
  <div className="space-y-4">
  <HighlightBox title="为什么需要私有 Registry" variant="blue">
  <ul className="text-sm space-y-1">
- <li>• <strong>版本可控</strong>：内部审批后才能发布新版本</li>
- <li>• <strong>可追溯</strong>：每个版本都有审计记录</li>
- <li>• <strong>可回滚</strong>：问题版本可快速撤回</li>
- <li>• <strong>离线可用</strong>：断网也能安装</li>
+ <li><strong>版本可控</strong>：内部审批后才能发布新版本</li>
+ <li><strong>可追溯</strong>：每个版本都有审计记录</li>
+ <li><strong>可回滚</strong>：问题版本可快速撤回</li>
+ <li><strong>离线可用</strong>：断网也能安装</li>
  </ul>
  </HighlightBox>
 
@@ -336,9 +339,9 @@ npm publish --registry=http://localhost:4873/`}
 
  <HighlightBox title="⚠️ CI/CD 注意事项" variant="yellow">
  <ul className="text-sm space-y-1">
- <li>• 使用 <code>NPM_TOKEN</code> 环境变量，不要硬编码</li>
- <li>• 配置 <code>publishConfig</code> 指定发布目标</li>
- <li>• 版本号遵循语义化，配合 CHANGELOG</li>
+ <li>使用 <code>NPM_TOKEN</code> 环境变量，不要硬编码</li>
+ <li>配置 <code>publishConfig</code> 指定发布目标</li>
+ <li>版本号遵循语义化，配合 CHANGELOG</li>
  </ul>
  </HighlightBox>
  </div>
@@ -348,11 +351,11 @@ npm publish --registry=http://localhost:4873/`}
  <Layer title="关闭自动更新" icon="🔒">
  <div className="space-y-4">
  <div className="bg-surface rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">为什么要关闭？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么要关闭？</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• 企业环境版本升级需要审批流程</li>
- <li>• 避免启动时的网络请求（内网可能超时）</li>
- <li>• 减少启动延迟，提升用户体验</li>
+ <li>企业环境版本升级需要审批流程</li>
+ <li>避免启动时的网络请求（内网可能超时）</li>
+ <li>减少启动延迟，提升用户体验</li>
  </ul>
  </div>
 
@@ -425,7 +428,7 @@ cp -r new-version/app/* portable-win-x64/app/`}
  <tr className="bg-surface/30">
  <td className="border border-edge p-3">tiktoken 编码器</td>
  <td className="border border-edge p-3"><code>node_modules/tiktoken/</code></td>
- <td className="border border-edge p-3 text-amber-500">npm install 时下载</td>
+ <td className="border border-edge p-3 text-heading">npm install 时下载</td>
  <td className="border border-edge p-3">Token 计数依赖</td>
  </tr>
  <tr>
@@ -458,11 +461,11 @@ cp -r new-version/app/* portable-win-x64/app/`}
  {/* 常见坑与解决方案 */}
  <Layer title="常见坑与解决方案" icon="⚠️">
  <div className="space-y-4">
- <div className="bg-surface rounded-lg p-4 border border-red-500/30">
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/30">
  <div className="flex items-start gap-3">
- <span className="text-red-500 text-xl">❌</span>
+ <span className="text-heading text-xl">❌</span>
  <div className="flex-1">
- <h5 className="text-red-500 font-semibold mb-1">构建时下载 Node.js 超时</h5>
+ <h5 className="text-heading font-semibold mb-1">构建时下载 Node.js 超时</h5>
  <p className="text-sm text-dim mb-2">
  即使使用 npmmirror，大文件下载仍可能失败。
  </p>
@@ -476,11 +479,11 @@ cp -r new-version/app/* portable-win-x64/app/`}
  </div>
  </div>
 
- <div className="bg-surface rounded-lg p-4 border border-red-500/30">
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/30">
  <div className="flex items-start gap-3">
- <span className="text-red-500 text-xl">❌</span>
+ <span className="text-heading text-xl">❌</span>
  <div className="flex-1">
- <h5 className="text-red-500 font-semibold mb-1">用户无 PATH 修改权限</h5>
+ <h5 className="text-heading font-semibold mb-1">用户无 PATH 修改权限</h5>
  <p className="text-sm text-dim mb-2">
  企业机器可能限制环境变量修改。
  </p>
@@ -494,11 +497,11 @@ cp -r new-version/app/* portable-win-x64/app/`}
  </div>
  </div>
 
- <div className="bg-surface rounded-lg p-4 border border-red-500/30">
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/30">
  <div className="flex items-start gap-3">
- <span className="text-red-500 text-xl">❌</span>
+ <span className="text-heading text-xl">❌</span>
  <div className="flex-1">
- <h5 className="text-red-500 font-semibold mb-1">多进程 Token 共享竞态</h5>
+ <h5 className="text-heading font-semibold mb-1">多进程 Token 共享竞态</h5>
  <p className="text-sm text-dim mb-2">
  多个终端同时刷新 Token 导致互相覆盖。
  </p>
@@ -510,11 +513,11 @@ cp -r new-version/app/* portable-win-x64/app/`}
  </div>
  </div>
 
- <div className="bg-surface rounded-lg p-4 border border-red-500/30">
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/30">
  <div className="flex items-start gap-3">
- <span className="text-red-500 text-xl">❌</span>
+ <span className="text-heading text-xl">❌</span>
  <div className="flex-1">
- <h5 className="text-red-500 font-semibold mb-1">Standalone (pkg) 构建失败</h5>
+ <h5 className="text-heading font-semibold mb-1">Standalone (pkg) 构建失败</h5>
  <p className="text-sm text-dim mb-2">
  pkg 需要从 GitHub 下载 Node.js 基础二进制，中国大陆网络不稳定。
  </p>
@@ -539,19 +542,19 @@ cp -r new-version/app/* portable-win-x64/app/`}
  <div>
  <div className="text-heading font-semibold">Portable 优势</div>
  <ul className="text-dim space-y-1 mt-1">
- <li>• 使用国内镜像，构建可靠</li>
- <li>• 无需 pkg 工具链</li>
- <li>• 更新时只替换 app/</li>
- <li>• 调试方便，结构透明</li>
+ <li>使用国内镜像，构建可靠</li>
+ <li>无需 pkg 工具链</li>
+ <li>更新时只替换 app/</li>
+ <li>调试方便，结构透明</li>
  </ul>
  </div>
  <div>
- <div className="text-red-500 font-semibold">pkg 劣势</div>
+ <div className="text-heading font-semibold">pkg 劣势</div>
  <ul className="text-dim space-y-1 mt-1">
- <li>• 依赖 GitHub 下载</li>
- <li>• 黑盒打包，调试困难</li>
- <li>• 原生模块兼容问题</li>
- <li>• 构建经常失败</li>
+ <li>依赖 GitHub 下载</li>
+ <li>黑盒打包，调试困难</li>
+ <li>原生模块兼容问题</li>
+ <li>构建经常失败</li>
  </ul>
  </div>
  </div>
@@ -563,7 +566,7 @@ cp -r new-version/app/* portable-win-x64/app/`}
  <tr className="border- border-edge">
  <th className="text-left py-2 text-dim">决策点</th>
  <th className="text-left py-2 text-heading">选择</th>
- <th className="text-left py-2 text-amber-500">代价</th>
+ <th className="text-left py-2 text-heading">代价</th>
  <th className="text-left py-2 text-heading">收益</th>
  </tr>
  </thead>
@@ -571,25 +574,25 @@ cp -r new-version/app/* portable-win-x64/app/`}
  <tr className="border- border-edge/50">
  <td className="py-2">分发格式</td>
  <td className="py-2 text-heading">目录而非单文件</td>
- <td className="py-2 text-amber-500">体积稍大</td>
+ <td className="py-2 text-heading">体积稍大</td>
  <td className="py-2 text-heading">增量更新、调试方便</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="py-2">运行时下载</td>
  <td className="py-2 text-heading">构建时内嵌</td>
- <td className="py-2 text-amber-500">首次构建慢</td>
+ <td className="py-2 text-heading">首次构建慢</td>
  <td className="py-2 text-heading">运行时零网络依赖</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="py-2">版本检查</td>
  <td className="py-2 text-heading">完全禁用</td>
- <td className="py-2 text-amber-500">手动更新</td>
+ <td className="py-2 text-heading">手动更新</td>
  <td className="py-2 text-heading">启动快、内网友好</td>
  </tr>
  <tr>
  <td className="py-2">镜像策略</td>
  <td className="py-2 text-heading">npmmirror 优先</td>
- <td className="py-2 text-amber-500">镜像同步延迟</td>
+ <td className="py-2 text-heading">镜像同步延迟</td>
  <td className="py-2 text-heading">中国大陆可用</td>
  </tr>
  </tbody>
@@ -618,8 +621,8 @@ cp -r new-version/app/* portable-win-x64/app/`}
  <div className="space-y-2">
  <h4 className="text-heading font-semibold">文档</h4>
  <div className="space-y-1">
- <code className="block text-amber-500">docs/build-portable-windows.md</code>
- <code className="block text-amber-500">devdocs/DISABLE-AUTO-UPDATE.md</code>
+ <code className="block text-heading">docs/build-portable-windows.md</code>
+ <code className="block text-heading">devdocs/DISABLE-AUTO-UPDATE.md</code>
  </div>
  </div>
  <div className="space-y-2">

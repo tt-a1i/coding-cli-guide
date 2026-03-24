@@ -2,6 +2,10 @@ import { HighlightBox } from '../components/HighlightBox';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { RelatedPages } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
+
 
 export function ExtensionSystem() {
  const extensionFlow = `flowchart TD
@@ -22,10 +26,10 @@ export function ExtensionSystem() {
  enabled -->|No| inactive --> done
  enabled -->|Yes| active --> done
 
- style start fill:#22d3ee,color:#000
- style active fill:#22c55e,color:#000
- style inactive fill:var(--color-text-muted),color:#fff
- style enabled fill:#f59e0b,color:#000`;
+ style start fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style active fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style inactive fill:${getThemeColor("--mermaid-muted-fill", "#f4f4f2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style enabled fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  const extensionLifecycleFlow = `stateDiagram-v2
  [*] --> Installed: install / link
@@ -46,62 +50,62 @@ export function ExtensionSystem() {
 // gemini-extension.json
 
 {
- "name": "my-first-extension",
- "version": "1.0.0",
+  "name": "my-first-extension",
+  "version": "1.0.0",
 
- // 1) MCP Servers：通过 MCP 暴露新工具（进程在 CLI 外部运行）
- "mcpServers": {
- "nodeServer": {
- "command": "node",
- "args": ["\${extensionPath}\${/}dist\${/}example.js"],
- "cwd": "\${extensionPath}"
- }
- },
+  // 1) MCP Servers：通过 MCP 暴露新工具（进程在 CLI 外部运行）
+  "mcpServers": {
+  "nodeServer": {
+  "command": "node",
+  "args": ["\${extensionPath}\${/}dist\${/}example.js"],
+  "cwd": "\${extensionPath}"
+  }
+  },
 
- // 2) Context：扩展可携带一个或多个 context 文件（默认会尝试 GEMINI.md）
- "contextFileName": ["GEMINI.md"],
+  // 2) Context：扩展可携带一个或多个 context 文件（默认会尝试 GEMINI.md）
+  "contextFileName": ["GEMINI.md"],
 
- // 3) Exclude Tools：限制模型可用的核心工具（支持 run_shell_command(...) 形式的细粒度限制）
- "excludeTools": ["run_shell_command", "run_shell_command(rm -rf)"],
+  // 3) Exclude Tools：限制模型可用的核心工具（支持 run_shell_command(...) 形式的细粒度限制）
+  "excludeTools": ["run_shell_command", "run_shell_command(rm -rf)"],
 
- // 4) Settings：声明需要的环境变量；CLI 会提示用户填写并写入扩展目录的 .env
- "settings": [
- {
- "name": "my-first-extension.apiKey",
- "description": "API key for this extension",
- "envVar": "MY_FIRST_EXTENSION_API_KEY",
- "sensitive": true
- }
- ]
+  // 4) Settings：声明需要的环境变量；CLI 会提示用户填写并写入扩展目录的 .env
+  "settings": [
+  {
+  "name": "my-first-extension.apiKey",
+  "description": "API key for this extension",
+  "envVar": "MY_FIRST_EXTENSION_API_KEY",
+  "sensitive": true
+  }
+  ]
 }`;
 
  const extensionTypesCode = `// packages/cli/src/config/extension.ts
 export interface ExtensionConfig {
- name: string;
- version: string;
- mcpServers?: Record<string, MCPServerConfig>;
- contextFileName?: string | string[];
- excludeTools?: string[];
- settings?: ExtensionSetting[];
+  name: string;
+  version: string;
+  mcpServers?: Record<string, MCPServerConfig>;
+  contextFileName?: string | string[];
+  excludeTools?: string[];
+  settings?: ExtensionSetting[];
 }
 
 // packages/core/src/config/config.ts
 export interface GeminiCLIExtension {
- name: string;
- version: string;
- isActive: boolean;
- path: string;
- id: string;
+  name: string;
+  version: string;
+  isActive: boolean;
+  path: string;
+  id: string;
 
- mcpServers?: Record<string, MCPServerConfig>;
- contextFiles: string[];
- excludeTools?: string[];
+  mcpServers?: Record<string, MCPServerConfig>;
+  contextFiles: string[];
+  excludeTools?: string[];
 
- hooks?: { [K in HookEventName]?: HookDefinition[] };
- skills?: SkillDefinition[];
+  hooks?: { [K in HookEventName]?: HookDefinition[] };
+  skills?: SkillDefinition[];
 
- settings?: ExtensionSetting[];
- resolvedSettings?: ResolvedExtensionSetting[];
+  settings?: ExtensionSetting[];
+  resolvedSettings?: ResolvedExtensionSetting[];
 }`;
 
  const extensionLoadingCode = `// packages/cli/src/config/extension-manager.ts（节选）
@@ -110,83 +114,83 @@ export interface GeminiCLIExtension {
 const configFilePath = path.join(extensionDir, 'gemini-extension.json');
 const rawConfig = JSON.parse(await fs.promises.readFile(configFilePath, 'utf-8'));
 const config = recursivelyHydrateStrings(rawConfig, {
- extensionPath: extensionDir,
- workspacePath: this.workspaceDir,
- '/': path.sep,
- pathSeparator: path.sep,
+  extensionPath: extensionDir,
+  workspacePath: this.workspaceDir,
+  '/': path.sep,
+  pathSeparator: path.sep,
 });
 
 // 2) 加载可选能力：context / hooks / skills
 const contextFiles = getContextFileNames(config)
- .map((name) => path.join(effectiveExtensionPath, name))
- .filter((p) => fs.existsSync(p));
+  .map((name) => path.join(effectiveExtensionPath, name))
+  .filter((p) => fs.existsSync(p));
 
 const hooks = this.settings.tools?.enableHooks
- ? await this.loadExtensionHooks(effectiveExtensionPath, { extensionPath: effectiveExtensionPath, workspacePath: this.workspaceDir })
- : undefined;
+  ? await this.loadExtensionHooks(effectiveExtensionPath, { extensionPath: effectiveExtensionPath, workspacePath: this.workspaceDir })
+  : undefined;
 
 const skills = await loadSkillsFromDir(path.join(effectiveExtensionPath, 'skills'));
 
 // 3) 构建 GeminiCLIExtension 并按 enablement 决定 isActive
 const extension: GeminiCLIExtension = {
- name: config.name,
- version: config.version,
- path: effectiveExtensionPath,
- contextFiles,
- mcpServers: config.mcpServers,
- excludeTools: config.excludeTools,
- hooks,
- skills,
- isActive: this.extensionEnablementManager.isEnabled(config.name, this.workspaceDir),
- id: getExtensionId(config, installMetadata),
+  name: config.name,
+  version: config.version,
+  path: effectiveExtensionPath,
+  contextFiles,
+  mcpServers: config.mcpServers,
+  excludeTools: config.excludeTools,
+  hooks,
+  skills,
+  isActive: this.extensionEnablementManager.isEnabled(config.name, this.workspaceDir),
+  id: getExtensionId(config, installMetadata),
 };
 
 await this.maybeStartExtension(extension);`;
 
  const extensionEnablementCode = `// ~/.gemini/extensions/extension-enablement.json（示例）
 {
- "my-first-extension": {
- "overrides": [
- "!/Users/me/work/secret-project/*",
- "/Users/me/work/*"
- ]
- }
+  "my-first-extension": {
+  "overrides": [
+  "!/Users/me/work/secret-project/*",
+  "/Users/me/work/*"
+  ]
+  }
 }
 
 // packages/cli/src/config/extensions/extensionEnablement.ts（节选）
 // 最后一个匹配规则生效；默认 enabled=true
 isEnabled(extensionName: string, currentPath: string): boolean {
- const config = this.readConfig();
- const overrides = config[extensionName]?.overrides ?? [];
- let enabled = true;
- for (const rule of overrides) {
- const override = Override.fromFileRule(rule);
- if (override.matchesPath(ensureLeadingAndTrailingSlash(currentPath))) {
- enabled = !override.isDisable;
- }
- }
- return enabled;
+  const config = this.readConfig();
+  const overrides = config[extensionName]?.overrides ?? [];
+  let enabled = true;
+  for (const rule of overrides) {
+  const override = Override.fromFileRule(rule);
+  if (override.matchesPath(ensureLeadingAndTrailingSlash(currentPath))) {
+  enabled = !override.isDisable;
+  }
+  }
+  return enabled;
 }`;
 
  const mcpServerConfigCode = `// MCP 服务器配置来自 settings.json 的 mcpServers（以及扩展的 gemini-extension.json）
 
 // ~/.gemini/settings.json（节选）
 {
- "mcp": {
- "allowed": ["my-trusted-server"],
- "excluded": ["experimental-server"]
- },
- "mcpServers": {
- "my-trusted-server": {
- "command": "node",
- "args": ["./mcp-server.js"],
- "cwd": "/path/to/server"
- },
- "remote-sse": {
- "url": "https://example.com/sse",
- "type": "sse"
- }
- }
+  "mcp": {
+  "allowed": ["my-trusted-server"],
+  "excluded": ["experimental-server"]
+  },
+  "mcpServers": {
+  "my-trusted-server": {
+  "command": "node",
+  "args": ["./mcp-server.js"],
+  "cwd": "/path/to/server"
+  },
+  "remote-sse": {
+  "url": "https://example.com/sse",
+  "type": "sse"
+  }
+  }
 }`;
 
  const cliCommandsCode = `# 扩展管理（非交互命令行）
@@ -220,29 +224,29 @@ gemini extensions link <path>
 // packages/cli/src/config/extensions/consent.ts（节选）
 
 export const INSTALL_WARNING_MESSAGE = chalk.yellow(
- 'The extension you are about to install may have been created by a third-party developer...'
+  'The extension you are about to install may have been created by a third-party developer...'
 );
 
 export const SKILLS_WARNING_MESSAGE = chalk.yellow(
- "Agent skills inject specialized instructions and domain-specific knowledge into the agent's system prompt..."
+  "Agent skills inject specialized instructions and domain-specific knowledge into the agent's system prompt..."
 );
 
 async function extensionConsentString(extensionConfig, hasHooks, skills = []) {
- output.push(\`Installing extension "\${extensionConfig.name}".\`);
- output.push(INSTALL_WARNING_MESSAGE);
+  output.push(\`Installing extension "\${extensionConfig.name}".\`);
+  output.push(INSTALL_WARNING_MESSAGE);
 
- if (hasHooks) {
- output.push('⚠️ This extension contains Hooks which can automatically execute commands.');
- }
+  if (hasHooks) {
+  output.push('⚠️ This extension contains Hooks which can automatically execute commands.');
+  }
 
- if (skills.length > 0) {
- output.push('Agent Skills:');
- output.push(SKILLS_WARNING_MESSAGE);
- for (const skill of skills) {
- output.push(\` * \${skill.name}: \${skill.description}\`);
- output.push(\` (Location: \${skill.location})\`);
- }
- }
+  if (skills.length > 0) {
+  output.push('Agent Skills:');
+  output.push(SKILLS_WARNING_MESSAGE);
+  for (const skill of skills) {
+  output.push(\` * \${skill.name}: \${skill.description}\`);
+  output.push(\` (Location: \${skill.location})\`);
+  }
+  }
 }`;
 
  return (
@@ -264,12 +268,12 @@ async function extensionConsentString(extensionConfig, hasHooks, skills = []) {
 
  <HighlightBox title="MCP Tools" color="green">
  <p className="text-sm">通过 MCP server 暴露工具</p>
- <code className="text-xs text-green-400">mcpServers</code>
+ <code className="text-xs text-heading">mcpServers</code>
  </HighlightBox>
 
  <HighlightBox title="Context Files" color="yellow">
  <p className="text-sm">注入扩展上下文</p>
- <code className="text-xs text-yellow-400">GEMINI.md</code>
+ <code className="text-xs text-heading">GEMINI.md</code>
  </HighlightBox>
 
  <HighlightBox title="Governance" color="purple">
@@ -307,9 +311,9 @@ async function extensionConsentString(extensionConfig, hasHooks, skills = []) {
 
  <HighlightBox title="关键点" color="blue" className="mt-4">
  <ul className="text-sm space-y-1">
- <li>• 扩展不是“在 CLI 进程里运行的插件代码”，而是<strong>声明式配置</strong> + 外部进程（MCP server）</li>
- <li>• 安装目录固定在 <code>~/.gemini/extensions/&lt;name&gt;</code>，启动时扫描加载</li>
- <li>• 作用域启用/禁用由 <code>extension-enablement.json</code> 按路径规则控制</li>
+ <li>扩展不是“在 CLI 进程里运行的插件代码”，而是<strong>声明式配置</strong> + 外部进程（MCP server）</li>
+ <li>安装目录固定在 <code>~/.gemini/extensions/&lt;name&gt;</code>，启动时扫描加载</li>
+ <li>作用域启用/禁用由 <code>extension-enablement.json</code> 按路径规则控制</li>
  </ul>
  </HighlightBox>
  </section>
@@ -413,8 +417,8 @@ async function extensionConsentString(extensionConfig, hasHooks, skills = []) {
  <li>发布与安装：推送到 GitHub → <code>gemini extensions install &lt;repo-url&gt;</code></li>
  </ol>
  </div>
- <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
- <h4 className="text-green-400 font-semibold mb-2">最佳实践</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">最佳实践</h4>
  <ul className="text-sm text-body space-y-1">
  <li>✓ 扩展名与目录名保持一致（小写+短横线）</li>
  <li>
@@ -507,8 +511,8 @@ async function extensionConsentString(extensionConfig, hasHooks, skills = []) {
  </ul>
  </div>
 
- <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4">
- <div className="text-amber-400 font-semibold mb-2">重启提示</div>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <div className="text-heading font-semibold mb-2">重启提示</div>
  <p className="text-sm text-body">
  官方文档建议：扩展的 install/update/enable/disable 一般需要<strong>重启当前 CLI 会话</strong>才会完整生效。
  </p>
@@ -558,8 +562,8 @@ async function extensionConsentString(extensionConfig, hasHooks, skills = []) {
  </li>
  </ul>
  </div>
- <div className="bg-amber-900/20 border border-amber-500/30 rounded-lg p-4">
- <h4 className="text-amber-400 font-semibold mb-2">实践建议</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">实践建议</h4>
  <ul className="text-sm text-body space-y-1 list-disc list-inside">
  <li>只安装可审阅来源（固定 tag/release，避免跟随 main 漂移）</li>
  <li>优先使用 <code>extensions link</code> 做本地开发，发布前再走 install/update 流程</li>
@@ -636,25 +640,25 @@ async function extensionConsentString(extensionConfig, hasHooks, skills = []) {
  </thead>
  <tbody className="text-body">
  <tr className="border- border-edge">
- <td className="py-2 px-2 text-red-400">MissingConfig</td>
+ <td className="py-2 px-2 text-heading">MissingConfig</td>
  <td className="py-2 px-2 text-xs">缺少 gemini-extension.json</td>
  <td className="py-2 px-2 text-xs">跳过该扩展目录</td>
  <td className="py-2 px-2 text-xs">Warning: Skipping extension…</td>
  </tr>
  <tr className="border- border-edge">
- <td className="py-2 px-2 text-red-400">InvalidConfig</td>
+ <td className="py-2 px-2 text-heading">InvalidConfig</td>
  <td className="py-2 px-2 text-xs">JSON 解析失败 / 缺少 name/version</td>
  <td className="py-2 px-2 text-xs">跳过该扩展目录</td>
  <td className="py-2 px-2 text-xs">Warning: Skipping extension…</td>
  </tr>
  <tr className="border- border-edge">
- <td className="py-2 px-2 text-amber-400">InvalidName</td>
+ <td className="py-2 px-2 text-heading">InvalidName</td>
  <td className="py-2 px-2 text-xs">扩展名不合法（非字母/数字/-）</td>
  <td className="py-2 px-2 text-xs">跳过该扩展目录</td>
  <td className="py-2 px-2 text-xs">Warning: Skipping extension…</td>
  </tr>
  <tr className="border- border-edge">
- <td className="py-2 px-2 text-amber-400">HooksConfigInvalid</td>
+ <td className="py-2 px-2 text-heading">HooksConfigInvalid</td>
  <td className="py-2 px-2 text-xs">hooks/hooks.json 非法或 hydrate 失败</td>
  <td className="py-2 px-2 text-xs">忽略 hooks，继续加载</td>
  <td className="py-2 px-2 text-xs">warn（不影响其他能力）</td>
@@ -669,8 +673,8 @@ async function extensionConsentString(extensionConfig, hasHooks, skills = []) {
  </table>
  </div>
 
- <div className="mt-4 bg-green-900/20 border border-green-500/30 rounded-lg p-4">
- <h4 className="text-green-400 font-semibold mb-2">错误隔离设计</h4>
+ <div className="mt-4 bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">错误隔离设计</h4>
  <p className="text-sm text-body">
  单个扩展的错误<strong className="text-heading">不会影响其他扩展或 CLI 核心功能</strong>。
  每个扩展在独立的 try-catch 中加载，失败的扩展会被禁用，但 CLI 继续正常运行。

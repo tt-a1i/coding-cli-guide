@@ -323,14 +323,14 @@ export default function GeminiChatFlowAnimation() {
  <h1 className="text-4xl font-bold text-heading bg-surface mb-2">
  GeminiChat 流程
  </h1>
- <p className="text-emerald-300/70">sendMessageStream - 流式对话管理</p>
+ <p className="text-heading/70">sendMessageStream - 流式对话管理</p>
  <p className="text-sm text-body mt-2">
  源码: packages/core/src/core/geminiChat.ts
  </p>
  </div>
 
  {/* Phase Progress */}
- <div className="bg-surface/50 rounded-lg p-4 mb-6 border border-emerald-500/20">
+ <div className="bg-surface/50 rounded-lg p-4 mb-6 border-l-2 border-l-edge-hover/20">
  <div className="flex items-center justify-between flex-wrap gap-2">
  {[
  { id: 'wait_previous', label: '等待前消息' },
@@ -345,9 +345,9 @@ export default function GeminiChatFlowAnimation() {
  <div key={step.id} className="flex items-center gap-1">
  <div className={`px-2 py-1 rounded text-xs ${
  phase === step.id
- ? 'bg-emerald-500 text-heading'
+ ? 'bg-[var(--color-success)] text-heading'
  : phase === 'complete' || arr.findIndex(s => s.id === phase) > idx
- ? 'bg-emerald-500/30 text-emerald-300'
+ ? 'bg-elevated text-heading'
  : ' bg-elevated text-body'
  }`}>
  {step.label}
@@ -361,8 +361,8 @@ export default function GeminiChatFlowAnimation() {
  {/* Main Grid */}
  <div className="grid grid-cols-3 gap-6">
  {/* Left: History Management */}
- <div className="bg-surface/50 rounded-lg p-6 border border-emerald-500/20">
- <h2 className="text-lg font-semibold text-emerald-300 mb-4">📚 History 管理</h2>
+ <div className="bg-surface/50 rounded-lg p-6 border-l-2 border-l-edge-hover/20">
+ <h2 className="text-lg font-semibold text-heading mb-4">📚 History 管理</h2>
 
  <div className="space-y-4">
  {/* Comprehensive History */}
@@ -378,16 +378,16 @@ export default function GeminiChatFlowAnimation() {
  className={`p-2 rounded text-sm ${
  item.role === 'user'
  ? ' bg-elevated/20' : item.isValid
- ? 'bg-emerald-500/20 border-l-2 border-emerald-400'
- : 'bg-red-500/20 border-l-2 border-red-400'
+ ? 'bg-elevated border-l-2 border-edge'
+ : 'bg-elevated border-l-2 border-edge'
  }`}
  >
  <div className="flex items-center gap-2 mb-1">
  <span className={`text-xs font-mono ${
- item.role === 'user' ? 'text-heading' : 'text-emerald-400'
+ item.role === 'user' ? 'text-heading' : 'text-heading'
  }`}>{item.role}</span>
- {!item.isValid && <span className="text-xs text-red-400">INVALID</span>}
- {item.hasFunctionCall && <span className="text-xs text-yellow-400">FC</span>}
+ {!item.isValid && <span className="text-xs text-heading">INVALID</span>}
+ {item.hasFunctionCall && <span className="text-xs text-heading">FC</span>}
  </div>
  <div className="text-heading truncate">{item.text.slice(0, 50)}...</div>
  </div>
@@ -405,7 +405,7 @@ export default function GeminiChatFlowAnimation() {
  ) : (
  curatedHistory.map((item) => (
  <div key={item.id} className="flex items-center gap-2 text-xs py-1">
- <span className={item.role === 'user' ? 'text-heading' : 'text-emerald-400'}>
+ <span className={item.role === 'user' ? 'text-heading' : 'text-heading'}>
  {item.role}
  </span>
  <span className="text-body truncate">{item.text.slice(0, 30)}...</span>
@@ -418,7 +418,7 @@ export default function GeminiChatFlowAnimation() {
  {/* extractCuratedHistory code */}
  <div className="bg-base/80 rounded p-3">
  <div className="text-xs text-dim mb-1">extractCuratedHistory()</div>
- <pre className="text-[10px] text-emerald-400/70 overflow-x-auto">
+ <pre className="text-[10px] text-heading/70 overflow-x-auto">
 {`// 过滤无效的 model 输出
 while (i < history.length) {
  if (role === 'user') {
@@ -434,8 +434,8 @@ while (i < history.length) {
  </div>
 
  {/* Middle: Stream Processing */}
- <div className="bg-surface/50 rounded-lg p-6 border border-emerald-500/20">
- <h2 className="text-lg font-semibold text-emerald-300 mb-4">📡 Stream 处理</h2>
+ <div className="bg-surface/50 rounded-lg p-6 border-l-2 border-l-edge-hover/20">
+ <h2 className="text-lg font-semibold text-heading mb-4">📡 Stream 处理</h2>
 
  {/* Stream chunks */}
  <div className="bg-base/50 rounded-lg p-3 mb-4">
@@ -446,19 +446,19 @@ while (i < history.length) {
  key={chunk.id}
  className={`flex items-center gap-2 p-2 rounded text-sm transition-all ${
  currentChunkIdx === idx
- ? 'bg-yellow-500/30 ring-1 ring-yellow-400'
+ ? 'bg-elevated ring-1 ring-[var(--color-warning)]'
  : currentChunkIdx > idx
- ? 'bg-emerald-500/10'
+ ? 'bg-elevated'
  : ' bg-surface/50'
  }`}
  >
  <span className={`w-6 h-6 rounded flex items-center justify-center text-xs ${
  chunk.type === 'retry'
- ? 'bg-red-500/30 text-red-400'
+ ? 'bg-elevated text-heading'
  : chunk.finishReason
- ? 'bg-green-500/30 text-green-400'
+ ? 'bg-elevated text-heading'
  : chunk.toolName
- ? 'bg-yellow-500/30 text-yellow-400'
+ ? 'bg-elevated text-heading'
  : chunk.text
  ? ' bg-elevated/30 text-heading'
  : ' bg-elevated text-heading'
@@ -501,22 +501,22 @@ while (i < history.length) {
 
  {/* Validation state */}
  <div className="grid grid-cols-2 gap-3">
- <div className={`p-3 rounded-lg ${hasToolCall ? 'bg-yellow-500/20' : ' bg-elevated/50'}`}>
+ <div className={`p-3 rounded-lg ${hasToolCall ? 'bg-elevated' : ' bg-elevated/50'}`}>
  <div className="text-xs text-body">hasToolCall</div>
- <div className={`text-lg font-bold ${hasToolCall ? 'text-yellow-400' : 'text-dim'}`}>
+ <div className={`text-lg font-bold ${hasToolCall ? 'text-heading' : 'text-dim'}`}>
  {hasToolCall.toString()}
  </div>
  </div>
- <div className={`p-3 rounded-lg ${hasFinishReason ? 'bg-green-500/20' : ' bg-elevated/50'}`}>
+ <div className={`p-3 rounded-lg ${hasFinishReason ? 'bg-elevated' : ' bg-elevated/50'}`}>
  <div className="text-xs text-body">hasFinishReason</div>
- <div className={`text-lg font-bold ${hasFinishReason ? 'text-green-400' : 'text-dim'}`}>
+ <div className={`text-lg font-bold ${hasFinishReason ? 'text-heading' : 'text-dim'}`}>
  {hasFinishReason.toString()}
  </div>
  </div>
  </div>
 
  {retryCount > 0 && (
- <div className="mt-3 p-2 bg-red-500/20 rounded text-xs text-red-400">
+ <div className="mt-3 p-2 bg-elevated rounded text-xs text-heading">
  重试次数: {retryCount} (InvalidStreamError)
  </div>
  )}
@@ -525,8 +525,8 @@ while (i < history.length) {
  {/* Right: Code & Logs */}
  <div className="space-y-6">
  {/* Input */}
- <div className="bg-surface/50 rounded-lg p-6 border border-emerald-500/20">
- <h2 className="text-lg font-semibold text-emerald-300 mb-4">💬 用户消息</h2>
+ <div className="bg-surface/50 rounded-lg p-6 border-l-2 border-l-edge-hover/20">
+ <h2 className="text-lg font-semibold text-heading mb-4">💬 用户消息</h2>
  <textarea
  value={userMessage}
  onChange={(e) => setUserMessage(e.target.value)}
@@ -539,7 +539,7 @@ while (i < history.length) {
  {/* Key Code */}
  <div className="bg-base/80 rounded-lg p-4 border border-edge-hover/30">
  <div className="text-xs text-body mb-2">sendMessageStream() 核心流程</div>
- <pre className="text-[10px] text-emerald-400/80 overflow-x-auto">
+ <pre className="text-[10px] text-heading/80 overflow-x-auto">
 {`// packages/core/src/core/geminiChat.ts（简化）
 async sendMessageStream(modelConfigKey, message, prompt_id, signal) {
  await this.sendPromise; // 串行化：等待上一条消息处理完成
@@ -570,7 +570,7 @@ async sendMessageStream(modelConfigKey, message, prompt_id, signal) {
  {/* processStreamResponse */}
  <div className="bg-base/80 rounded-lg p-4 border border-edge-hover/30">
  <div className="text-xs text-body mb-2">processStreamResponse() 验证</div>
- <pre className="text-[10px] text-emerald-400/80 overflow-x-auto">
+ <pre className="text-[10px] text-heading/80 overflow-x-auto">
 {`// packages/core/src/core/geminiChat.ts（关键逻辑）
 // A stream is successful if:
 // 1) hasToolCall, OR
@@ -626,22 +626,22 @@ this.history.push({ role: 'model', parts: consolidatedParts });`}
  </div>
 
  {/* InvalidStreamError + RETRY */}
- <div className="mt-8 bg-surface/50 rounded-lg p-6 border border-emerald-500/20">
- <h3 className="text-lg font-semibold text-emerald-300 mb-4">🔁 InvalidStreamError 重试语义</h3>
+ <div className="mt-8 bg-surface/50 rounded-lg p-6 border-l-2 border-l-edge-hover/20">
+ <h3 className="text-lg font-semibold text-heading mb-4">🔁 InvalidStreamError 重试语义</h3>
  <div className="grid grid-cols-2 gap-6">
  <div>
  <div className="text-sm text-body mb-2">作用</div>
  <p className="text-sm text-heading">
  当模型返回的流内容不符合“可继续对话”的最小条件时，
- <code className="text-emerald-200">processStreamResponse()</code> 会抛出
- <code className="text-emerald-200">InvalidStreamError</code>。
+ <code className="text-heading">processStreamResponse()</code> 会抛出
+ <code className="text-heading">InvalidStreamError</code>。
  在符合条件时（如 Gemini 2 模型的内容错误），
- <code className="text-emerald-200">sendMessageStream()</code> 会触发一次重试，
- 并先 yield 一个 <code className="text-emerald-200">RETRY</code> 事件，提示 UI 丢弃上一轮 partial content。
+ <code className="text-heading">sendMessageStream()</code> 会触发一次重试，
+ 并先 yield 一个 <code className="text-heading">RETRY</code> 事件，提示 UI 丢弃上一轮 partial content。
  </p>
  </div>
  <div className="bg-base/50 rounded-lg p-4">
- <pre className="text-xs text-emerald-400/80">
+ <pre className="text-xs text-heading/80">
 {`// packages/core/src/core/geminiChat.ts（简化）
 for (let attempt = 0; attempt < maxAttempts; attempt++) {
  if (attempt > 0) yield { type: StreamEventType.RETRY };

@@ -3,6 +3,9 @@ import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 export function ShellExecutionServiceDeep() {
  const executionArchitecture = `
@@ -57,9 +60,9 @@ flowchart TB
  AbortSignal -.->|中断| NodePty
  AbortSignal -.->|中断| ChildProcess
 
- style NodePty fill:#22d3ee,color:#000
- style ChildProcess fill:#f59e0b,color:#000
- style Result fill:#4ade80,color:#000
+ style NodePty fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style ChildProcess fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Result fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
 `;
 
  const ptyLifecycle = `
@@ -108,7 +111,7 @@ sequenceDiagram
  return (
  <div className="space-y-8">
  {/* 页面头部 */}
- <div className="bg-surface rounded-lg p-6 border border-orange-500/30">
+ <div className="bg-surface rounded-lg p-6 border-l-2 border-l-edge-hover/30">
  <div className="flex items-center gap-3 mb-4">
  <span className="text-4xl">🐚</span>
  <h1 className="text-3xl font-bold text-heading">ShellExecutionService 深度解析</h1>
@@ -117,9 +120,9 @@ sequenceDiagram
  Shell 命令执行的核心服务，支持 PTY 和 child_process 双模式
  </p>
  <div className="mt-4 flex flex-wrap gap-2">
- <span className="px-3 py-1 bg-orange-500/30 rounded-full text-sm text-heading">node-pty</span>
- <span className="px-3 py-1 bg-red-500/30 rounded-full text-sm text-[var(--color-danger)]">child_process</span>
- <span className="px-3 py-1 bg-yellow-500/30 rounded-full text-sm text-[var(--color-warning)]">xterm/headless</span>
+ <span className="px-3 py-1 bg-elevated rounded-full text-sm text-heading">node-pty</span>
+ <span className="px-3 py-1 bg-elevated rounded-full text-sm text-heading">child_process</span>
+ <span className="px-3 py-1 bg-elevated rounded-full text-sm text-heading">xterm/headless</span>
  </div>
  </div>
 
@@ -158,28 +161,28 @@ sequenceDiagram
  <tbody>
  <tr className="border- border-edge">
  <td className="py-2 px-3">ANSI 颜色</td>
- <td className="py-2 px-3 text-[var(--color-success)]">✓ 完整支持</td>
- <td className="py-2 px-3 text-[var(--color-warning)]">△ 需要设置 TERM</td>
+ <td className="py-2 px-3 text-heading">✓ 完整支持</td>
+ <td className="py-2 px-3 text-heading">△ 需要设置 TERM</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">交互式程序</td>
- <td className="py-2 px-3 text-[var(--color-success)]">✓ 支持</td>
- <td className="py-2 px-3 text-[var(--color-danger)]">✗ 不支持</td>
+ <td className="py-2 px-3 text-heading">✓ 支持</td>
+ <td className="py-2 px-3 text-heading">✗ 不支持</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">进度条渲染</td>
- <td className="py-2 px-3 text-[var(--color-success)]">✓ 实时更新</td>
- <td className="py-2 px-3 text-[var(--color-danger)]">✗ 乱码</td>
+ <td className="py-2 px-3 text-heading">✓ 实时更新</td>
+ <td className="py-2 px-3 text-heading">✗ 乱码</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">跨平台</td>
- <td className="py-2 px-3 text-[var(--color-warning)]">△ 需要编译</td>
- <td className="py-2 px-3 text-[var(--color-success)]">✓ 内置</td>
+ <td className="py-2 px-3 text-heading">△ 需要编译</td>
+ <td className="py-2 px-3 text-heading">✓ 内置</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">依赖复杂度</td>
- <td className="py-2 px-3 text-[var(--color-warning)]">△ 需要原生模块</td>
- <td className="py-2 px-3 text-[var(--color-success)]">✓ 无依赖</td>
+ <td className="py-2 px-3 text-heading">△ 需要原生模块</td>
+ <td className="py-2 px-3 text-heading">✓ 无依赖</td>
  </tr>
  <tr>
  <td className="py-2 px-3">执行方法标记</td>
@@ -447,25 +450,25 @@ clearTimeout(timeoutId);
  <tbody>
  <tr className="border- border-edge">
  <td className="py-2 px-3">npm install</td>
- <td className="py-2 px-3 text-[var(--color-success)]">安全终止</td>
+ <td className="py-2 px-3 text-heading">安全终止</td>
  <td className="py-2 px-3">node_modules 不完整</td>
  <td className="py-2 px-3">重新运行即可</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">git push</td>
- <td className="py-2 px-3 text-[var(--color-warning)]">可能不一致</td>
+ <td className="py-2 px-3 text-heading">可能不一致</td>
  <td className="py-2 px-3">部分推送</td>
  <td className="py-2 px-3">检查远程状态</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">数据库迁移</td>
- <td className="py-2 px-3 text-[var(--color-danger)]">危险</td>
+ <td className="py-2 px-3 text-heading">危险</td>
  <td className="py-2 px-3">数据不一致</td>
  <td className="py-2 px-3">避免中断</td>
  </tr>
  <tr>
  <td className="py-2 px-3">编译任务</td>
- <td className="py-2 px-3 text-[var(--color-success)]">安全终止</td>
+ <td className="py-2 px-3 text-heading">安全终止</td>
  <td className="py-2 px-3">输出不完整</td>
  <td className="py-2 px-3">清理后重试</td>
  </tr>
@@ -498,31 +501,31 @@ clearTimeout(timeoutId);
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono text-heading">命令注入检测</td>
  <td className="py-2 px-3">BashTool / ToolScheduler</td>
- <td className="py-2 px-3 text-[var(--color-danger)]">✗ 不处理</td>
+ <td className="py-2 px-3 text-heading">✗ 不处理</td>
  <td className="py-2 px-3 text-heading">→ tool-detail</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono text-heading">只读模式策略</td>
  <td className="py-2 px-3">Sandbox / Permission</td>
- <td className="py-2 px-3 text-[var(--color-danger)]">✗ 不处理</td>
+ <td className="py-2 px-3 text-heading">✗ 不处理</td>
  <td className="py-2 px-3 text-heading">→ sandbox</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono text-heading">危险命令拦截</td>
  <td className="py-2 px-3">BashTool / Blocklist</td>
- <td className="py-2 px-3 text-[var(--color-danger)]">✗ 不处理</td>
+ <td className="py-2 px-3 text-heading">✗ 不处理</td>
  <td className="py-2 px-3 text-heading">→ permission</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono text-heading">工作目录限制</td>
  <td className="py-2 px-3">Sandbox / Container</td>
- <td className="py-2 px-3 text-[var(--color-danger)]">✗ 不处理</td>
+ <td className="py-2 px-3 text-heading">✗ 不处理</td>
  <td className="py-2 px-3 text-heading">→ sandbox</td>
  </tr>
  <tr>
- <td className="py-2 px-3 font-mono text-[var(--color-success)]">进程终止</td>
+ <td className="py-2 px-3 font-mono text-heading">进程终止</td>
  <td className="py-2 px-3">ShellExecutionService</td>
- <td className="py-2 px-3 text-[var(--color-success)]">✓ 处理</td>
+ <td className="py-2 px-3 text-heading">✓ 处理</td>
  <td className="py-2 px-3">本页</td>
  </tr>
  </tbody>
@@ -590,10 +593,10 @@ const result = await ShellExecutionService.execute(
  <tbody>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono">PTY 可用</td>
- <td className="py-2 px-3 text-[var(--color-success)]">✓ 默认</td>
- <td className="py-2 px-3 text-[var(--color-success)]">✓ 默认</td>
- <td className="py-2 px-3 text-[var(--color-warning)]">△ 需 VC++</td>
- <td className="py-2 px-3 text-[var(--color-warning)]">△ 需依赖</td>
+ <td className="py-2 px-3 text-heading">✓ 默认</td>
+ <td className="py-2 px-3 text-heading">✓ 默认</td>
+ <td className="py-2 px-3 text-heading">△ 需 VC++</td>
+ <td className="py-2 px-3 text-heading">△ 需依赖</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono">node-pty 模块</td>
@@ -604,17 +607,17 @@ const result = await ShellExecutionService.execute(
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono">进程组终止</td>
- <td className="py-2 px-3 text-[var(--color-success)]">kill(-pgid)</td>
- <td className="py-2 px-3 text-[var(--color-success)]">kill(-pgid)</td>
+ <td className="py-2 px-3 text-heading">kill(-pgid)</td>
+ <td className="py-2 px-3 text-heading">kill(-pgid)</td>
  <td className="py-2 px-3 text-heading">taskkill /t</td>
- <td className="py-2 px-3 text-[var(--color-success)]">kill(-pgid)</td>
+ <td className="py-2 px-3 text-heading">kill(-pgid)</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono">SIGTERM 支持</td>
- <td className="py-2 px-3 text-[var(--color-success)]">✓</td>
- <td className="py-2 px-3 text-[var(--color-success)]">✓</td>
- <td className="py-2 px-3 text-[var(--color-danger)]">✗ 不支持</td>
- <td className="py-2 px-3 text-[var(--color-success)]">✓</td>
+ <td className="py-2 px-3 text-heading">✓</td>
+ <td className="py-2 px-3 text-heading">✓</td>
+ <td className="py-2 px-3 text-heading">✗ 不支持</td>
+ <td className="py-2 px-3 text-heading">✓</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono">默认 Shell</td>
@@ -625,10 +628,10 @@ const result = await ShellExecutionService.execute(
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono">颜色支持</td>
- <td className="py-2 px-3 text-[var(--color-success)]">✓ 完整</td>
- <td className="py-2 px-3 text-[var(--color-success)]">✓ 完整</td>
- <td className="py-2 px-3 text-[var(--color-warning)]">△ 需设置</td>
- <td className="py-2 px-3 text-[var(--color-success)]">✓ 完整</td>
+ <td className="py-2 px-3 text-heading">✓ 完整</td>
+ <td className="py-2 px-3 text-heading">✓ 完整</td>
+ <td className="py-2 px-3 text-heading">△ 需设置</td>
+ <td className="py-2 px-3 text-heading">✓ 完整</td>
  </tr>
  <tr>
  <td className="py-2 px-3 font-mono">Fallback 行为</td>

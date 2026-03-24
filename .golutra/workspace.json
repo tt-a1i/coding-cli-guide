@@ -1,0 +1,223 @@
+{
+  "dispatchMessagePrefixRules": {
+    "assistant": [
+      {
+        "channelIds": [],
+        "collaborationMode": "collaboration",
+        "id": "dispatch-prefix-default-assistant-collaboration-supervisor",
+        "prefix": "完成supervisor的要求，[[cmd key=\"use_roadmap_skill\"]] 查看未完成任务，指挥工作频道全部空闲的member继续完成；若已完成，仅允许向supervisor汇报。仅允许[[cmd key=\"use_chat_skill\"]]进行回复。",
+        "prefixByLanguage": {
+          "en": "Complete the supervisor's request. [[cmd key=\"use_roadmap_skill\"]] Inspect unfinished tasks and direct all idle members in the working channel to continue. If the task is finished, you may only report to the supervisor. You may only reply with [[cmd key=\"use_chat_skill\"]].",
+          "zh": "完成supervisor的要求，[[cmd key=\"use_roadmap_skill\"]] 查看未完成任务，指挥工作频道全部空闲的member继续完成；若已完成，仅允许向supervisor汇报。仅允许[[cmd key=\"use_chat_skill\"]]进行回复。"
+        },
+        "senderMemberIds": [],
+        "senderRoles": [
+          "supervisor"
+        ],
+        "skillPaths": []
+      },
+      {
+        "channelIds": [],
+        "collaborationMode": "collaboration",
+        "id": "dispatch-prefix-default-assistant-collaboration-owner",
+        "prefix": "完成owner的要求，[[cmd key=\"use_roadmap_skill\"]] 查看未完成任务，指挥工作频道全部空闲的member继续完成；若已完成，仅允许向owner汇报。仅允许[[cmd key=\"use_chat_skill\"]]进行回复。",
+        "prefixByLanguage": {
+          "en": "Complete the owner's request. [[cmd key=\"use_roadmap_skill\"]] Inspect unfinished tasks and direct all idle members in the working channel to continue. If the task is finished, you may only report to the owner. You may only reply with [[cmd key=\"use_chat_skill\"]].",
+          "zh": "完成owner的要求，[[cmd key=\"use_roadmap_skill\"]] 查看未完成任务，指挥工作频道全部空闲的member继续完成；若已完成，仅允许向owner汇报。仅允许[[cmd key=\"use_chat_skill\"]]进行回复。"
+        },
+        "senderMemberIds": [],
+        "senderRoles": [
+          "owner"
+        ],
+        "skillPaths": []
+      },
+      {
+        "channelIds": [],
+        "collaborationMode": "collaboration",
+        "id": "dispatch-prefix-default-assistant-collaboration-admin",
+        "prefix": "完成admin的要求，[[cmd key=\"use_roadmap_skill\"]] 查看未完成任务，指挥工作频道全部空闲的member继续完成；若已完成，仅允许向admin汇报。仅允许[[cmd key=\"use_chat_skill\"]]进行回复。",
+        "prefixByLanguage": {
+          "en": "Complete the admin's request. [[cmd key=\"use_roadmap_skill\"]] Inspect unfinished tasks and direct all idle members in the working channel to continue. If the task is finished, you may only report to the admin. You may only reply with [[cmd key=\"use_chat_skill\"]].",
+          "zh": "完成admin的要求，[[cmd key=\"use_roadmap_skill\"]] 查看未完成任务，指挥工作频道全部空闲的member继续完成；若已完成，仅允许向admin汇报。仅允许[[cmd key=\"use_chat_skill\"]]进行回复。"
+        },
+        "senderMemberIds": [],
+        "senderRoles": [
+          "admin"
+        ],
+        "skillPaths": []
+      },
+      {
+        "channelIds": [],
+        "collaborationMode": "collaboration",
+        "id": "dispatch-prefix-default-assistant-collaboration-assistant",
+        "prefix": "完成assistant的要求，[[cmd key=\"use_roadmap_skill\"]] 查看未完成任务，指挥工作频道全部空闲的member继续完成；若已完成，仅允许向assistant汇报。仅允许[[cmd key=\"use_chat_skill\"]]进行回复。",
+        "prefixByLanguage": {
+          "en": "Complete the assistant's request. [[cmd key=\"use_roadmap_skill\"]] Inspect unfinished tasks and direct all idle members in the working channel to continue. If the task is finished, you may only report to the assistant. You may only reply with [[cmd key=\"use_chat_skill\"]].",
+          "zh": "完成assistant的要求，[[cmd key=\"use_roadmap_skill\"]] 查看未完成任务，指挥工作频道全部空闲的member继续完成；若已完成，仅允许向assistant汇报。仅允许[[cmd key=\"use_chat_skill\"]]进行回复。"
+        },
+        "senderMemberIds": [],
+        "senderRoles": [
+          "assistant"
+        ],
+        "skillPaths": []
+      },
+      {
+        "channelIds": [],
+        "collaborationMode": "collaboration",
+        "id": "dispatch-prefix-default-assistant-collaboration-member",
+        "prefix": "先审核当前任务完成情况；若未完成，[[cmd key=\"use_roadmap_skill\"]] 查看未完成任务，指挥当前汇报的member继续完成；若已完成，仅允许向supervisor或者owner汇报。仅允许[[cmd key=\"use_chat_skill\"]]进行回复。",
+        "prefixByLanguage": {
+          "en": "Review the current task status first. If it is unfinished, use [[cmd key=\"use_roadmap_skill\"]] to inspect unfinished tasks and direct all idle members in the working channel to continue. If it is finished, you may only report to the supervisor or owner. You may only reply with [[cmd key=\"use_chat_skill\"]].",
+          "zh": "先审核当前任务完成情况；若未完成，[[cmd key=\"use_roadmap_skill\"]] 查看未完成任务，指挥当前汇报的member继续完成；若已完成，仅允许向supervisor或者owner汇报。仅允许[[cmd key=\"use_chat_skill\"]]进行回复。"
+        },
+        "senderMemberIds": [],
+        "senderRoles": [
+          "member"
+        ],
+        "skillPaths": []
+      }
+    ],
+    "member": [
+      {
+        "channelIds": [],
+        "collaborationMode": "collaboration",
+        "id": "dispatch-prefix-default-member-collaboration-all",
+        "prefix": "仅允许[[cmd key=\"use_chat_skill\"]]向发送者进行回复。",
+        "prefixByLanguage": {
+          "en": "You may only reply to the sender with [[cmd key=\"use_chat_skill\"]].",
+          "zh": "仅允许[[cmd key=\"use_chat_skill\"]]向发送者进行回复。"
+        },
+        "senderMemberIds": [],
+        "senderRoles": [
+          "owner",
+          "admin",
+          "assistant",
+          "supervisor",
+          "member"
+        ],
+        "skillPaths": []
+      }
+    ],
+    "supervisor": [
+      {
+        "channelIds": [],
+        "collaborationMode": "collaboration",
+        "id": "dispatch-prefix-default-supervisor-collaboration-owner",
+        "prefix": "完成owner的要求，[[cmd key=\"use_roadmap_skill\"]] 查看未完成任务，优先指挥全部空闲的assistant完成任务，若当前频道没有assistant，指挥全部空闲的member完成任务；若已完成，仅允许向owner汇报。仅允许[[cmd key=\"use_chat_skill\"]]进行回复。",
+        "prefixByLanguage": {
+          "en": "Complete the owner's request. [[cmd key=\"use_roadmap_skill\"]] Inspect unfinished tasks and prioritize directing all idle assistants to continue. If there is no assistant in the current channel, direct all idle members instead. If the task is finished, you may only report to the owner. You may only reply with [[cmd key=\"use_chat_skill\"]].",
+          "zh": "完成owner的要求，[[cmd key=\"use_roadmap_skill\"]] 查看未完成任务，优先指挥全部空闲的assistant完成任务，若当前频道没有assistant，指挥全部空闲的member完成任务；若已完成，仅允许向owner汇报。仅允许[[cmd key=\"use_chat_skill\"]]进行回复。"
+        },
+        "senderMemberIds": [],
+        "senderRoles": [
+          "owner"
+        ],
+        "skillPaths": []
+      },
+      {
+        "channelIds": [],
+        "collaborationMode": "collaboration",
+        "id": "dispatch-prefix-default-supervisor-collaboration-admin",
+        "prefix": "完成admin的要求，[[cmd key=\"use_roadmap_skill\"]] 查看未完成任务，优先指挥全部空闲的assistant完成任务，若当前频道没有assistant，指挥全部空闲的member完成任务；若已完成，仅允许向admin汇报。仅允许[[cmd key=\"use_chat_skill\"]]进行回复。",
+        "prefixByLanguage": {
+          "en": "Complete the admin's request. [[cmd key=\"use_roadmap_skill\"]] Inspect unfinished tasks and prioritize directing all idle assistants to continue. If there is no assistant in the current channel, direct all idle members instead. If the task is finished, you may only report to the admin. You may only reply with [[cmd key=\"use_chat_skill\"]].",
+          "zh": "完成admin的要求，[[cmd key=\"use_roadmap_skill\"]] 查看未完成任务，优先指挥全部空闲的assistant完成任务，若当前频道没有assistant，指挥全部空闲的member完成任务；若已完成，仅允许向admin汇报。仅允许[[cmd key=\"use_chat_skill\"]]进行回复。"
+        },
+        "senderMemberIds": [],
+        "senderRoles": [
+          "admin"
+        ],
+        "skillPaths": []
+      },
+      {
+        "channelIds": [],
+        "collaborationMode": "collaboration",
+        "id": "dispatch-prefix-default-supervisor-collaboration-supervisor",
+        "prefix": "协调supervisor的要求，[[cmd key=\"use_roadmap_skill\"]] 查看未完成任务，优先指挥全部空闲的assistant完成任务，若当前频道没有assistant，指挥全部空闲的member完成任务；若已完成，仅允许向owner汇报。仅允许[[cmd key=\"use_chat_skill\"]]进行回复。",
+        "prefixByLanguage": {
+          "en": "Coordinate the supervisor's request. [[cmd key=\"use_roadmap_skill\"]] Inspect unfinished tasks and prioritize directing all idle assistants to continue. If there is no assistant in the current channel, direct all idle members instead. If the task is finished, you may only report to the owner. You may only reply with [[cmd key=\"use_chat_skill\"]].",
+          "zh": "协调supervisor的要求，[[cmd key=\"use_roadmap_skill\"]] 查看未完成任务，优先指挥全部空闲的assistant完成任务，若当前频道没有assistant，指挥全部空闲的member完成任务；若已完成，仅允许向owner汇报。仅允许[[cmd key=\"use_chat_skill\"]]进行回复。"
+        },
+        "senderMemberIds": [],
+        "senderRoles": [
+          "supervisor"
+        ],
+        "skillPaths": []
+      },
+      {
+        "channelIds": [],
+        "collaborationMode": "collaboration",
+        "id": "dispatch-prefix-default-supervisor-collaboration-assistant",
+        "prefix": "先审核当前任务完成情况；若未完成，[[cmd key=\"use_roadmap_skill\"]] 查看未完成任务，指导assistant继续完成；若已完成，仅允许向owner汇报。仅允许[[cmd key=\"use_chat_skill\"]]进行回复。",
+        "prefixByLanguage": {
+          "en": "Review the current task status first. If it is unfinished, use [[cmd key=\"use_roadmap_skill\"]] to inspect unfinished tasks and guide the assistant to continue. If the task is finished, you may only report to the owner. You may only reply with [[cmd key=\"use_chat_skill\"]].",
+          "zh": "先审核当前任务完成情况；若未完成，[[cmd key=\"use_roadmap_skill\"]] 查看未完成任务，指导assistant继续完成；若已完成，仅允许向owner汇报。仅允许[[cmd key=\"use_chat_skill\"]]进行回复。"
+        },
+        "senderMemberIds": [],
+        "senderRoles": [
+          "assistant"
+        ],
+        "skillPaths": []
+      },
+      {
+        "channelIds": [],
+        "collaborationMode": "collaboration",
+        "id": "dispatch-prefix-default-supervisor-collaboration-member",
+        "prefix": "先审核当前任务完成情况；若未完成，[[cmd key=\"use_roadmap_skill\"]] 查看未完成任务，指导空闲的member继续完成；若已完成，仅允许向owner汇报。仅允许[[cmd key=\"use_chat_skill\"]]进行回复。",
+        "prefixByLanguage": {
+          "en": "Review the current task status first. If it is unfinished, use [[cmd key=\"use_roadmap_skill\"]] to inspect unfinished tasks and guide an idle member to continue. If the task is finished, you may only report to the owner. You may only reply with [[cmd key=\"use_chat_skill\"]].",
+          "zh": "先审核当前任务完成情况；若未完成，[[cmd key=\"use_roadmap_skill\"]] 查看未完成任务，指导空闲的member继续完成；若已完成，仅允许向owner汇报。仅允许[[cmd key=\"use_chat_skill\"]]进行回复。"
+        },
+        "senderMemberIds": [],
+        "senderRoles": [
+          "member"
+        ],
+        "skillPaths": []
+      }
+    ]
+  },
+  "inviteOnboardingPromptTemplates": {},
+  "inviteSkillSelections": {
+    "assistant": [],
+    "member": [],
+    "supervisor": []
+  },
+  "memberSequence": {},
+  "members": [
+    {
+      "autoStartTerminal": false,
+      "avatar": "css:orbit",
+      "id": "01J00000000000000000000000",
+      "name": "Owner",
+      "role": "",
+      "roleKey": "members.roles.owner",
+      "roleType": "owner",
+      "status": "online"
+    },
+    {
+      "autoStartTerminal": true,
+      "avatar": "css:realistic-1",
+      "collaborationMode": true,
+      "id": "01KMDKJ9A5PDG6FNF4HH48QHMM",
+      "name": "白栖桥",
+      "role": "",
+      "roleKey": "members.roles.aiAssistant",
+      "roleType": "assistant",
+      "sandboxed": false,
+      "status": "online",
+      "terminalCommand": "claude",
+      "terminalType": "claude",
+      "unlimitedAccess": true
+    }
+  ],
+  "projectId": "9b961b006a77166c98ebf615e7f8a1b19d84fc58b0aa954edf06828e173c7270",
+  "terminal": {
+    "recentClosedTabs": [
+      {
+        "closedAt": 1774314222822,
+        "memberId": "01KMDKJ9A5PDG6FNF4HH48QHMM"
+      }
+    ]
+  },
+  "version": 1
+}

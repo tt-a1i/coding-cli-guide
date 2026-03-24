@@ -28,10 +28,10 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">🏗️ 四层配置</h4>
+ <h4 className="text-heading font-bold mb-2">🏗️ 四层配置</h4>
  <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-2">
- <div className="bg-surface p-3 rounded border border-green-500/30">
- <div className="text-green-400 font-semibold text-sm">项目级</div>
+ <div className="bg-surface p-3 rounded border-l-2 border-l-edge-hover/30">
+ <div className="text-heading font-semibold text-sm">项目级</div>
  <div className="text-xs text-dim mt-1">
  .gemini/settings.json<br/>
  当前项目专用
@@ -51,7 +51,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  管理员级覆盖
  </div>
  </div>
- <div className="bg-surface p-3 rounded border border-orange-500/30">
+ <div className="bg-surface p-3 rounded border-l-2 border-l-edge-hover/30">
  <div className="text-heading font-semibold text-sm">扩展 (Extensions)</div>
  <div className="text-xs text-dim mt-1">
  extension 内置 hooks<br/>
@@ -70,8 +70,8 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="bg-surface p-2 rounded text-center text-heading">AfterAgent</div>
  <div className="bg-surface p-2 rounded text-center text-heading">BeforeModel</div>
  <div className="bg-surface p-2 rounded text-center text-heading">AfterModel</div>
- <div className="bg-surface p-2 rounded text-center text-amber-500">SessionStart</div>
- <div className="bg-surface p-2 rounded text-center text-amber-500">SessionEnd</div>
+ <div className="bg-surface p-2 rounded text-center text-heading">SessionStart</div>
+ <div className="bg-surface p-2 rounded text-center text-heading">SessionEnd</div>
  <div className="bg-surface p-2 rounded text-center text-heading">PreCompress</div>
  <div className="bg-surface p-2 rounded text-center text-heading">BeforeToolSelection</div>
  <div className="bg-surface p-2 rounded text-center text-heading">Notification</div>
@@ -440,9 +440,9 @@ if (beforeOutput instanceof BeforeToolHookOutput) {
 
 // 阶段组颜色
 const groupColors: Record<PhaseGroup, string> = {
- trigger: '#22c55e', // green
- config: '#3b82f6', // blue
- planner: '#f59e0b', // amber
+ trigger: 'var(--color-success)', // green
+ config: 'var(--color-info)', // blue
+ planner: 'var(--color-warning)', // amber
  runner: '#8b5cf6', // purple
  aggregator: '#ec4899', // pink
  result: '#10b981', // emerald
@@ -463,24 +463,24 @@ function ConfigSourcesVisualizer({ sources }: { sources?: Array<{ level: string;
  if (!sources) return null;
 
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" className="bg-surface">
  <div className="text-xs text-dim mb-3 font-mono">配置来源</div>
  <div className="space-y-2">
  {sources.map((source, i) => (
  <div
  key={i}
  className={`flex items-center justify-between p-3 rounded border ${
- source.found ? 'border-green-500/30 bg-green-500/10' : ' border-edge bg-surface'
+ source.found ? 'border-edge/30 bg-elevated' : ' border-edge bg-surface'
  }`}
  >
  <div className="flex items-center gap-3">
- <div className={`w-2 h-2 rounded-full ${source.found ? 'bg-green-500' : ' bg-elevated'}`} />
+ <div className={`w-2 h-2 rounded-full ${source.found ? 'bg-[var(--color-success)]' : ' bg-elevated'}`} />
  <div>
  <div className="text-sm text-heading">{source.level}</div>
  <div className="text-xs text-dim font-mono">{source.path}</div>
  </div>
  </div>
- <div className={`text-sm font-bold ${source.count > 0 ? 'text-green-400' : 'text-dim'}`}>
+ <div className={`text-sm font-bold ${source.count > 0 ? 'text-heading' : 'text-dim'}`}>
  {source.count} hooks
  </div>
  </div>
@@ -495,7 +495,7 @@ function HookMatchVisualizer({ input, matched }: { input?: Array<{ id: string; e
  if (!input) return null;
 
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" className="bg-surface">
  <div className="text-xs text-dim mb-3 font-mono">Hook 匹配过滤</div>
  <div className="space-y-2">
  {input.map((hook, i) => (
@@ -503,12 +503,12 @@ function HookMatchVisualizer({ input, matched }: { input?: Array<{ id: string; e
  key={i}
  className={`flex items-center justify-between p-3 rounded border transition-all ${
  hook.match
- ? 'border-green-500/50 bg-green-500/10'
- : 'border-red-500/30 bg-red-500/10 opacity-60'
+ ? 'border-edge/40 bg-elevated'
+ : 'border-edge/30 bg-elevated opacity-60'
  }`}
  >
  <div className="flex items-center gap-3">
- <span className={`text-lg ${hook.match ? 'text-green-400' : 'text-red-400'}`}>
+ <span className={`text-lg ${hook.match ? 'text-heading' : 'text-heading'}`}>
  {hook.match ? '✓' : '✗'}
  </span>
  <div>
@@ -519,7 +519,7 @@ function HookMatchVisualizer({ input, matched }: { input?: Array<{ id: string; e
  </div>
  </div>
  <div className={`text-xs px-2 py-1 rounded ${
- hook.match ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+ hook.match ? 'bg-elevated text-heading' : 'bg-elevated text-heading'
  }`}>
  {hook.match ? 'MATCH' : 'SKIP'}
  </div>
@@ -527,7 +527,7 @@ function HookMatchVisualizer({ input, matched }: { input?: Array<{ id: string; e
  ))}
  </div>
  <div className="mt-3 text-right text-sm text-body">
- 匹配: <span className="text-green-400 font-bold">{matched}</span> / {input.length}
+ 匹配: <span className="text-heading font-bold">{matched}</span> / {input.length}
  </div>
  </div>
  );
@@ -538,7 +538,7 @@ function ParallelExecutionVisualizer({ parallel }: { parallel?: Array<{ id: stri
  if (!parallel) return null;
 
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" className="bg-surface">
  <div className="text-xs text-dim mb-3 font-mono">并行执行状态</div>
  <div className="space-y-3">
  {parallel.map((hook, i) => {
@@ -548,13 +548,13 @@ function ParallelExecutionVisualizer({ parallel }: { parallel?: Array<{ id: stri
  return (
  <div key={i} className="relative">
  <div className={`flex items-center gap-3 p-3 rounded border ${
- isCompleted ? 'border-green-500/50 bg-green-500/10' :
- isRunning ? 'border-amber-500/50 bg-amber-500/10' :
+ isCompleted ? 'border-edge/40 bg-elevated' :
+ isRunning ? 'border-edge/40 bg-elevated' :
  ' border-edge bg-surface'
  }`}>
  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
- isCompleted ? 'bg-green-500' :
- isRunning ? 'bg-amber-500 animate-pulse' :
+ isCompleted ? 'bg-[var(--color-success)]' :
+ isRunning ? 'bg-[var(--color-warning)] animate-pulse' :
  ' bg-elevated'
  }`}>
  {isCompleted ? '✓' : isRunning ? '⟳' : '○'}
@@ -568,8 +568,8 @@ function ParallelExecutionVisualizer({ parallel }: { parallel?: Array<{ id: stri
  <div className="text-xs text-dim">{hook.time}</div>
  </div>
  {isRunning && (
- <div className="absolute bottom-0 left-0 right-0 h-1 bg-amber-500/30 rounded-b overflow-hidden">
- <div className="h-full bg-amber-500 animate-progress" style={{ width: '60%' }} />
+ <div className="absolute bottom-0 left-0 right-0 h-1 bg-elevated rounded-b overflow-hidden">
+ <div className="h-full bg-[var(--color-warning)] animate-progress" style={{ width: '60%' }} />
  </div>
  )}
  </div>
@@ -585,21 +585,21 @@ function EnvVarsVisualizer({ env, timeout }: { env?: Record<string, string>; tim
  if (!env) return null;
 
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" className="bg-surface">
  <div className="text-xs text-dim mb-3 font-mono">注入的环境变量</div>
  <div className="space-y-2 font-mono text-sm">
  {Object.entries(env).map(([key, value]) => (
  <div key={key} className="flex">
  <span className="text-heading">{key}</span>
  <span className="text-dim">=</span>
- <span className="text-green-400 break-all">{value}</span>
+ <span className="text-heading break-all">{value}</span>
  </div>
  ))}
  </div>
  {timeout && (
  <div className="mt-3 pt-3 border-t border-edge">
  <span className="text-dim">Timeout: </span>
- <span className="text-amber-400">{timeout}ms</span>
+ <span className="text-heading">{timeout}ms</span>
  </div>
  )}
  </div>
@@ -726,7 +726,7 @@ export function HookEventAnimation() {
  className="rounded-lg p-6 border"
  style={{
  borderColor: `${groupColors[step.group]}50`,
- background: `linear-gradient(135deg, ${groupColors[step.group]}10, rgba(0,0,0,0.8))`
+ background: `linear-gradient(135deg, ${groupColors[step.group]}10, var(--color-bg))`
  }}
  >
  <div className="flex items-center gap-3 mb-4">
@@ -757,7 +757,7 @@ export function HookEventAnimation() {
 
  {/* 事件数据可视化 */}
  {step.visualData?.event && (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" className="bg-surface">
  <div className="text-xs text-dim mb-2 font-mono">触发事件</div>
  <pre className="text-sm text-heading overflow-x-auto">
  {JSON.stringify(step.visualData.event, null, 2)}
@@ -795,15 +795,15 @@ export function HookEventAnimation() {
  {step.visualData?.action && (
  <div className={`p-4 rounded-lg border-2 ${
  step.visualData.action === 'continue'
- ? 'border-green-500 bg-green-500/10'
+ ? 'border-edge bg-elevated'
  : step.visualData.action === 'block'
- ? 'border-red-500 bg-red-500/10'
- : 'border-amber-500 bg-amber-500/10'
+ ? 'border-edge bg-elevated'
+ : 'border-edge bg-elevated'
  }`}>
  <div className="flex items-center gap-2 mb-2">
  <span className={`text-lg ${
- step.visualData.action === 'continue' ? 'text-green-400' :
- step.visualData.action === 'block' ? 'text-red-400' : 'text-amber-400'
+ step.visualData.action === 'continue' ? 'text-heading' :
+ step.visualData.action === 'block' ? 'text-heading' : 'text-heading'
  }`}>
  {step.visualData.action === 'continue' ? '✓' : step.visualData.action === 'block' ? '✗' : '!'}
  </span>
@@ -822,21 +822,7 @@ export function HookEventAnimation() {
 
  {/* 右侧：代码 */}
  <div>
- <h3 className="text-sm font-bold text-body mb-3 font-mono">源码实现</h3>
- <div
- className="rounded-lg overflow-hidden border border-edge"
- style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
- >
- <div className="p-1 border- border-edge flex items-center gap-2">
- <div className="w-3 h-3 rounded-full bg-red-500/80" />
- <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
- <div className="w-3 h-3 rounded-full bg-green-500/80" />
- <span className="text-xs text-dim ml-2 font-mono">
- hookSystem.ts
- </span>
- </div>
- <JsonBlock code={step.codeSnippet} />
- </div>
+ <JsonBlock code={step.codeSnippet} title="hookSystem.ts — 源码实现" />
  </div>
  </div>
 
@@ -860,7 +846,7 @@ export function HookEventAnimation() {
  className={`
  px-6 py-2 rounded-lg font-medium transition-colors
  ${isPlaying
- ? 'bg-amber-600 text-heading hover:bg-amber-500'
+ ? 'bg-[var(--color-warning)] text-heading hover:bg-[var(--color-warning)]'
  : ' bg-elevated text-heading hover:opacity-90'
  }
  `}
@@ -880,7 +866,7 @@ export function HookEventAnimation() {
  <div className="max-w-6xl mx-auto mt-8">
  <div
  className="rounded-lg p-6 border border-edge"
- style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
+ className="bg-surface"
  >
  <h3 className="text-lg font-bold text-heading mb-4">Hook 事件流程总览</h3>
  <div className="flex items-center justify-between flex-wrap gap-2">

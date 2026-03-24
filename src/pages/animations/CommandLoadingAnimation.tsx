@@ -2,6 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { Layer } from '../../components/Layer';
 import { MermaidDiagram } from '../../components/MermaidDiagram';
 import { HighlightBox } from '../../components/HighlightBox';
+import { getThemeColor } from '../../utils/theme';
+
+
 
 interface Command {
  name: string;
@@ -340,10 +343,10 @@ export function CommandLoadingAnimation() {
 
  const getSourceColor = (source: string) => {
  switch (source) {
- case 'builtin': return 'bg-[var(--color-info-soft)] text-[var(--color-info)] border-[var(--color-info)]';
- case 'user': return 'bg-[var(--color-success-soft)] text-[var(--color-success)] border-[var(--color-success)]';
+ case 'builtin': return 'bg-elevated text-heading border-edge';
+ case 'user': return 'bg-elevated text-heading border-edge';
  case 'project': return 'bg-[var(--color-accent-soft)] text-accent border-accent';
- case 'extension': return 'bg-[var(--color-warning-soft)] text-[var(--color-warning)] border-[var(--color-warning)]';
+ case 'extension': return 'bg-elevated text-heading border-edge';
  default: return ' bg-elevated/20 text-body border-edge-hover/50';
  }
  };
@@ -398,9 +401,9 @@ flowchart TD
  I --> H
  H -->|否| J["commandMap.set(renamedName, cmd)"]
 
- style G fill:#f59e0b,color:#000
- style I fill:#ef4444,color:#fff
- style E fill:#22c55e,color:#000
+ style G fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:#000
+ style I fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:#fff
+ style E fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:#000
 `;
 
  return (
@@ -505,9 +508,9 @@ flowchart TD
  <div className="flex items-center justify-between mb-3">
  <span className="font-mono text-sm">{loader.name}</span>
  <span className={`px-2 py-1 rounded text-xs ${
- loader.status === 'fulfilled' ? 'bg-[var(--color-success-soft)] text-[var(--color-success)]' :
- loader.status === 'loading' ? 'bg-[var(--color-info-soft)] text-[var(--color-info)]' :
- loader.status === 'rejected' ? 'bg-[var(--color-danger-soft)] text-[var(--color-danger)]' :
+ loader.status === 'fulfilled' ? 'bg-elevated text-heading' :
+ loader.status === 'loading' ? 'bg-elevated text-heading' :
+ loader.status === 'rejected' ? 'bg-elevated text-heading' :
  ' bg-elevated/20 text-body'
  }`}>
  {getStatusIcon(loader.status)} {loader.status}
@@ -542,9 +545,9 @@ flowchart TD
  <div className="bg-base p-4 rounded-lg mb-4">
  <div className="text-sm text-body mb-2">当前阶段:</div>
  <div className={`font-bold ${
- step.phase === 'complete' ? 'text-[var(--color-success)]' :
+ step.phase === 'complete' ? 'text-heading' :
  step.phase === 'rename' ? 'text-heading' :
- step.phase === 'conflict-detect' ? 'text-[var(--color-warning)]' :
+ step.phase === 'conflict-detect' ? 'text-heading' :
  'text-heading'
  }`}>
  {step.phase.toUpperCase()}

@@ -3,6 +3,9 @@ import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { JsonBlock } from '../components/JsonBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { getThemeColor } from '../utils/theme';
+
+
 
 export function MemorySystemSplit() {
  // 记忆系统架构图
@@ -30,11 +33,11 @@ export function MemorySystemSplit() {
  user_confirm --> write_section
  write_section --> gemini_file
 
- classDef input fill:#22d3ee,color:#000
- classDef ai fill:#a855f7,color:#fff
- classDef file fill:#f59e0b,color:#000
- classDef output fill:#22c55e,color:#000
- classDef confirm fill:#f59e0b,color:#000
+ classDef input fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ classDef ai fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ classDef file fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ classDef output fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ classDef confirm fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
 
  class user_input,memory_cmd input
  class ai_trigger,save_memory ai
@@ -69,14 +72,14 @@ export function MemorySystemSplit() {
  process_import --> concatenate
  concatenate --> result
 
- style start fill:#22d3ee,color:#000
- style trust_check fill:#a855f7,color:#fff
- style stop_global fill:#ef4444,color:#fff
- style result fill:#22c55e,color:#000
- style global fill:#f59e0b,color:#000
- style project_root fill:#3b82f6,color:#fff
- style current fill:#3b82f6,color:#fff
- style bfs fill:#3b82f6,color:#fff`;
+ style start fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style trust_check fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style stop_global fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style result fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style global fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style project_root fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style current fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style bfs fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  // save_memory 工具流程
  const saveMemoryFlowChart = `flowchart TD
@@ -117,14 +120,14 @@ export function MemorySystemSplit() {
  user_confirm -->|No| cancel
  write_file --> success
 
- style start fill:#a855f7,color:#fff
- style has_scope fill:#a855f7,color:#fff
- style has_section fill:#a855f7,color:#fff
- style user_confirm fill:#f59e0b,color:#000
- style success fill:#22c55e,color:#000
- style cancel fill:#ef4444,color:#fff
- style show_selector fill:#22d3ee,color:#000
- style show_preview fill:#22d3ee,color:#000`;
+ style start fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style has_scope fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style has_section fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style user_confirm fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style success fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style cancel fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style show_selector fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style show_preview fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  return (
  <div className="space-y-8">
@@ -155,20 +158,20 @@ export function MemorySystemSplit() {
  <div>
  <h4 className="text-heading font-semibold mb-1">解决的问题</h4>
  <ul className="space-y-1 text-body">
- <li>• <strong>上下文持久化</strong> - 跨会话保留项目规范、编码风格、架构决策</li>
- <li>• <strong>层级化管理</strong> - 全局偏好、项目规范、目录特定指令分层生效</li>
- <li>• <strong>自动化记忆</strong> - AI 自动识别并保存用户偏好和重要信息</li>
- <li>• <strong>安全隔离</strong> - 通过 folderTrust 机制防止恶意项目注入指令</li>
+ <li><strong>上下文持久化</strong> - 跨会话保留项目规范、编码风格、架构决策</li>
+ <li><strong>层级化管理</strong> - 全局偏好、项目规范、目录特定指令分层生效</li>
+ <li><strong>自动化记忆</strong> - AI 自动识别并保存用户偏好和重要信息</li>
+ <li><strong>安全隔离</strong> - 通过 folderTrust 机制防止恶意项目注入指令</li>
  </ul>
  </div>
 
  <div>
  <h4 className="text-heading font-semibold mb-1">设计目标</h4>
  <ul className="space-y-1 text-body">
- <li>• 提供灵活的指令层级体系（全局 → 项目 → 目录）</li>
- <li>• 支持 AI 自动学习和记忆用户习惯</li>
- <li>• 确保记忆内容的可审查性和可编辑性</li>
- <li>• 避免上下文污染和安全风险</li>
+ <li>提供灵活的指令层级体系（全局 → 项目 → 目录）</li>
+ <li>支持 AI 自动学习和记忆用户习惯</li>
+ <li>确保记忆内容的可审查性和可编辑性</li>
+ <li>避免上下文污染和安全风险</li>
  </ul>
  </div>
  </div>
@@ -180,20 +183,20 @@ export function MemorySystemSplit() {
  <div>
  <h4 className="text-heading font-semibold mb-1">/memory 命令触发条件</h4>
  <ul className="space-y-1 text-body">
- <li>• 用户手动输入 <code className="text-heading">/memory add &lt;text&gt;</code></li>
- <li>• 用户输入 <code className="text-heading">/memory refresh</code> 刷新层级记忆</li>
- <li>• 用户输入 <code className="text-heading">/memory show</code> 查看当前上下文</li>
- <li>• CLI 启动时自动调用 <code>loadServerHierarchicalMemory()</code></li>
+ <li>用户手动输入 <code className="text-heading">/memory add &lt;text&gt;</code></li>
+ <li>用户输入 <code className="text-heading">/memory refresh</code> 刷新层级记忆</li>
+ <li>用户输入 <code className="text-heading">/memory show</code> 查看当前上下文</li>
+ <li>CLI 启动时自动调用 <code>loadServerHierarchicalMemory()</code></li>
  </ul>
  </div>
 
  <div>
  <h4 className="text-heading font-semibold mb-1">save_memory 工具触发条件</h4>
  <ul className="space-y-1 text-body">
- <li>• 用户明确表达"记住这个"、"下次使用..."等记忆意图</li>
- <li>• AI 识别到值得长期保存的用户偏好（如"我喜欢用 TypeScript"）</li>
- <li>• 用户提供项目特定的重要信息（如"这个项目使用 pnpm"）</li>
- <li>• AI 判断信息具有跨会话价值</li>
+ <li>用户明确表达"记住这个"、"下次使用..."等记忆意图</li>
+ <li>AI 识别到值得长期保存的用户偏好（如"我喜欢用 TypeScript"）</li>
+ <li>用户提供项目特定的重要信息（如"这个项目使用 pnpm"）</li>
+ <li>AI 判断信息具有跨会话价值</li>
  </ul>
  </div>
 
@@ -226,8 +229,8 @@ export function MemorySystemSplit() {
  <li>
  • <code>fileCount: number</code> - 加载的文件数量
  </li>
- <li>• System Prompt 注入 - 所有记忆内容被注入到 AI 的上下文中</li>
- <li>• 层级标记 - 每个文件的内容用 <code>--- Context from: ... ---</code> 包裹</li>
+ <li>System Prompt 注入 - 所有记忆内容被注入到 AI 的上下文中</li>
+ <li>层级标记 - 每个文件的内容用 <code>--- Context from: ... ---</code> 包裹</li>
  </ul>
  </div>
 
@@ -240,17 +243,17 @@ export function MemorySystemSplit() {
  <li>
  • <code>## Gemini Added Memories</code> 区段中的新列表项
  </li>
- <li>• 文件 diff 预览（用户确认前展示）</li>
- <li>• 成功/失败状态反馈</li>
+ <li>文件 diff 预览（用户确认前展示）</li>
+ <li>成功/失败状态反馈</li>
  </ul>
  </div>
 
  <div>
  <h4 className="text-body font-semibold mb-1">副作用</h4>
  <ul className="space-y-1 text-body">
- <li>• 文件系统修改 - <code>save_memory</code> 会修改磁盘上的 GEMINI.md 文件</li>
- <li>• System Prompt 更新 - <code>/memory refresh</code> 会重新加载并更新上下文</li>
- <li>• Token 消耗 - 所有记忆内容都会占用上下文 Token</li>
+ <li>文件系统修改 - <code>save_memory</code> 会修改磁盘上的 GEMINI.md 文件</li>
+ <li>System Prompt 更新 - <code>/memory refresh</code> 会重新加载并更新上下文</li>
+ <li>Token 消耗 - 所有记忆内容都会占用上下文 Token</li>
  </ul>
  </div>
  </div>
@@ -315,8 +318,8 @@ export function MemorySystemSplit() {
  <li>
  • <code>processImportDirectives()</code> - 解析和执行 @import
  </li>
- <li>• 支持相对路径和绝对路径导入</li>
- <li>• 循环导入检测</li>
+ <li>支持相对路径和绝对路径导入</li>
+ <li>循环导入检测</li>
  </ul>
  </div>
  </div>
@@ -328,7 +331,7 @@ export function MemorySystemSplit() {
  <div className="text-body">
  <p className="font-semibold">/memory 命令处理器（可能存在）</p>
  <ul className="mt-1 space-y-0.5 text-xs">
- <li>• 处理 <code>add</code>、<code>show</code>、<code>refresh</code> 子命令</li>
+ <li>处理 <code>add</code>、<code>show</code>、<code>refresh</code> 子命令</li>
  </ul>
  </div>
  </div>
@@ -362,18 +365,18 @@ export function MemorySystemSplit() {
  <h4 className="text-heading font-semibold mb-3">folderTrust 安全机制</h4>
  <div className="text-sm text-body space-y-2">
  <div>
- <span className="text-[var(--color-success)] font-semibold">folderTrust = true</span>
+ <span className="text-heading font-semibold">folderTrust = true</span>
  <ul className="mt-1 space-y-0.5 ml-4">
- <li>• 加载全局记忆 + 项目根记忆 + 当前目录记忆 + 子目录记忆</li>
- <li>• 完整的层级上下文可用</li>
+ <li>加载全局记忆 + 项目根记忆 + 当前目录记忆 + 子目录记忆</li>
+ <li>完整的层级上下文可用</li>
  </ul>
  </div>
  <div>
- <span className="text-[var(--color-danger)] font-semibold">folderTrust = false</span>
+ <span className="text-heading font-semibold">folderTrust = false</span>
  <ul className="mt-1 space-y-0.5 ml-4">
- <li>• <strong>只加载全局记忆</strong> (~/.gemini/GEMINI.md)</li>
- <li>• 跳过所有项目相关的 GEMINI.md 文件</li>
- <li>• 防止恶意项目注入指令</li>
+ <li><strong>只加载全局记忆</strong> (~/.gemini/GEMINI.md)</li>
+ <li>跳过所有项目相关的 GEMINI.md 文件</li>
+ <li>防止恶意项目注入指令</li>
  </ul>
  </div>
  </div>
@@ -386,25 +389,25 @@ export function MemorySystemSplit() {
  <span className="text-heading font-semibold">scope = "global"</span>
  <ul className="mt-1 space-y-0.5 ml-4">
  <li>
- • 目标文件：<code className="text-[var(--color-warning)]">~/.gemini/GEMINI.md</code>
+ • 目标文件：<code className="text-heading">~/.gemini/GEMINI.md</code>
  </li>
- <li>• 适用场景：用户全局偏好（如编码风格、工具选择）</li>
+ <li>适用场景：用户全局偏好（如编码风格、工具选择）</li>
  </ul>
  </div>
  <div>
  <span className="text-heading font-semibold">scope = "project"</span>
  <ul className="mt-1 space-y-0.5 ml-4">
  <li>
- • 目标文件：<code className="text-[var(--color-warning)]">&lt;project-root&gt;/GEMINI.md</code>
+ • 目标文件：<code className="text-heading">&lt;project-root&gt;/GEMINI.md</code>
  </li>
- <li>• 适用场景：项目特定信息（如技术栈、架构决策）</li>
+ <li>适用场景：项目特定信息（如技术栈、架构决策）</li>
  </ul>
  </div>
  <div>
  <span className="text-heading font-semibold">scope = undefined</span>
  <ul className="mt-1 space-y-0.5 ml-4">
- <li>• 显示选择对话框，由用户决定保存位置</li>
- <li>• 用户可在外部编辑器中修改 scope 参数</li>
+ <li>显示选择对话框，由用户决定保存位置</li>
+ <li>用户可在外部编辑器中修改 scope 参数</li>
  </ul>
  </div>
  </div>
@@ -414,17 +417,17 @@ export function MemorySystemSplit() {
  <h4 className="text-heading font-semibold mb-3">## Gemini Added Memories 区段处理</h4>
  <div className="text-sm text-body space-y-2">
  <div>
- <span className="text-[var(--color-success)] font-semibold">区段存在</span>
+ <span className="text-heading font-semibold">区段存在</span>
  <ul className="mt-1 space-y-0.5 ml-4">
- <li>• 在现有列表末尾追加新条目</li>
- <li>• 保留所有现有记忆</li>
+ <li>在现有列表末尾追加新条目</li>
+ <li>保留所有现有记忆</li>
  </ul>
  </div>
  <div>
- <span className="text-[var(--color-warning)] font-semibold">区段不存在</span>
+ <span className="text-heading font-semibold">区段不存在</span>
  <ul className="mt-1 space-y-0.5 ml-4">
- <li>• 在文件末尾创建新区段</li>
- <li>• 格式：<code className="text-heading">## Gemini Added Memories\n- &lt;fact&gt;</code></li>
+ <li>在文件末尾创建新区段</li>
+ <li>格式：<code className="text-heading">## Gemini Added Memories\n- &lt;fact&gt;</code></li>
  </ul>
  </div>
  </div>
@@ -436,8 +439,8 @@ export function MemorySystemSplit() {
  <li>
  • 最大搜索目录数：<code className="text-heading">maxDirs = 200</code>
  </li>
- <li>• 防止在大型项目中过度搜索</li>
- <li>• 广度优先搜索（BFS）确保优先发现浅层目录</li>
+ <li>防止在大型项目中过度搜索</li>
+ <li>广度优先搜索（BFS）确保优先发现浅层目录</li>
  </div>
  </div>
 
@@ -451,7 +454,7 @@ export function MemorySystemSplit() {
  • 可通过 <code>settings.json</code> 配置为数组，同时读取多个文件
  </li>
  <li>
- • 示例：<code className="text-[var(--color-warning)]">["GEMINI.md", "CLAUDE.md", "CURSOR.md"]</code>
+ • 示例：<code className="text-heading">["GEMINI.md", "CLAUDE.md", "CURSOR.md"]</code>
  </li>
  </div>
  </div>
@@ -461,8 +464,8 @@ export function MemorySystemSplit() {
  {/* 失败与恢复 */}
  <Layer title="失败与恢复" icon="🔧">
  <div className="space-y-4">
- <div className="bg-[var(--color-danger-soft)] border border-[var(--color-danger)] rounded-lg p-4">
- <h4 className="text-[var(--color-danger)] font-semibold mb-2">文件读取失败</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">文件读取失败</h4>
  <div className="text-sm text-body space-y-1">
  <li>
  <strong>原因</strong>：文件不存在、权限不足、文件损坏
@@ -476,8 +479,8 @@ export function MemorySystemSplit() {
  </div>
  </div>
 
- <div className="bg-[var(--color-danger-soft)] border border-[var(--color-danger)] rounded-lg p-4">
- <h4 className="text-[var(--color-danger)] font-semibold mb-2">@import 循环依赖</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">@import 循环依赖</h4>
  <div className="text-sm text-body space-y-1">
  <li>
  <strong>检测</strong>：<code>processImportDirectives()</code> 维护导入路径栈
@@ -491,8 +494,8 @@ export function MemorySystemSplit() {
  </div>
  </div>
 
- <div className="bg-[var(--color-danger-soft)] border border-[var(--color-danger)] rounded-lg p-4">
- <h4 className="text-[var(--color-danger)] font-semibold mb-2">save_memory 写入冲突</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">save_memory 写入冲突</h4>
  <div className="text-sm text-body space-y-1">
  <li>
  <strong>场景</strong>：文件在读取后被外部修改
@@ -506,8 +509,8 @@ export function MemorySystemSplit() {
  </div>
  </div>
 
- <div className="bg-[var(--color-danger-soft)] border border-[var(--color-danger)] rounded-lg p-4">
- <h4 className="text-[var(--color-danger)] font-semibold mb-2">用户取消 save_memory</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">用户取消 save_memory</h4>
  <div className="text-sm text-body space-y-1">
  <li>
  <strong>触发</strong>：用户在差异预览中拒绝确认
@@ -521,8 +524,8 @@ export function MemorySystemSplit() {
  </div>
  </div>
 
- <div className="bg-[var(--color-warning-soft)] border border-[var(--color-warning)] rounded-lg p-4">
- <h4 className="text-[var(--color-warning)] font-semibold mb-2">Token 超限警告</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">Token 超限警告</h4>
  <div className="text-sm text-body space-y-1">
  <li>
  <strong>问题</strong>：过多的层级记忆导致 System Prompt 超长
@@ -816,23 +819,23 @@ function computeNewContent(currentContent: string, fact: string): string {
  </div>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <div className="bg-[var(--color-success-soft)] border border-[var(--color-success)] rounded-lg p-4">
- <h5 className="text-[var(--color-success)] font-bold mb-2">适合使用 save_memory</h5>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h5 className="text-heading font-bold mb-2">适合使用 save_memory</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• "记住我喜欢用 TypeScript"</li>
- <li>• "我的猫叫 Whiskers"</li>
- <li>• "这个项目使用 pnpm"</li>
- <li>• "部署时需要设置环境变量 API_KEY"</li>
+ <li>"记住我喜欢用 TypeScript"</li>
+ <li>"我的猫叫 Whiskers"</li>
+ <li>"这个项目使用 pnpm"</li>
+ <li>"部署时需要设置环境变量 API_KEY"</li>
  </ul>
  </div>
 
- <div className="bg-[var(--color-danger-soft)] border border-[var(--color-danger)] rounded-lg p-4">
- <h5 className="text-[var(--color-danger)] font-bold mb-2">不适合使用 save_memory</h5>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h5 className="text-heading font-bold mb-2">不适合使用 save_memory</h5>
  <ul className="text-sm text-body space-y-1">
- <li>• 只对当前会话有用的信息</li>
- <li>• 长篇复杂的文本（应手动写入 GEMINI.md）</li>
- <li>• 不确定是否值得长期记住的信息</li>
- <li>• 频繁变化的临时数据</li>
+ <li>只对当前会话有用的信息</li>
+ <li>长篇复杂的文本（应手动写入 GEMINI.md）</li>
+ <li>不确定是否值得长期记住的信息</li>
+ <li>频繁变化的临时数据</li>
  </ul>
  </div>
  </div>
@@ -854,7 +857,7 @@ function computeNewContent(currentContent: string, fact: string): string {
  </div>
  <div className="text-heading">→</div>
  <div className="bg-elevated border border-edge-hover rounded-lg px-3 py-2 text-sm text-center flex-1">
- <code className="text-[var(--color-warning)]">GEMINI.md</code>
+ <code className="text-heading">GEMINI.md</code>
  <div className="text-xs text-body">## Gemini Added Memories 区段</div>
  </div>
  </div>
@@ -867,12 +870,12 @@ function computeNewContent(currentContent: string, fact: string): string {
  </div>
  <div className="text-heading">→</div>
  <div className="bg-elevated border border-edge-hover rounded-lg px-3 py-2 text-sm text-center flex-1">
- <code className="text-[var(--color-warning)]">GEMINI.md</code>
+ <code className="text-heading">GEMINI.md</code>
  <div className="text-xs text-body">整个文件（包括 Added Memories）</div>
  </div>
  <div className="text-heading">→</div>
- <div className="bg-[var(--color-success-soft)] border border-green-500 rounded-lg px-3 py-2 text-sm text-center">
- <div className="text-[var(--color-success)] font-bold">System Prompt</div>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg px-3 py-2 text-sm text-center">
+ <div className="text-heading font-bold">System Prompt</div>
  <div className="text-xs text-body">注入到上下文</div>
  </div>
  </div>

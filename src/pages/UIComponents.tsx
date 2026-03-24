@@ -4,6 +4,9 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 const relatedPages: RelatedPage[] = [
  { id: 'react-hooks', label: 'React Hooks', description: 'Hook 库' },
@@ -47,7 +50,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">终端渲染</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-amber-500">6</div>
+ <div className="text-2xl font-bold text-heading">6</div>
  <div className="text-xs text-dim">组件分类</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
@@ -65,7 +68,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <span className="px-3 py-1.5 bg-elevated/20 text-heading rounded-lg border border-edge/30">
  选择器
  </span>
- <span className="px-3 py-1.5 bg-amber-500/20 text-amber-500 rounded-lg border border-amber-500/30">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover/30">
  消息展示
  </span>
  <span className="px-3 py-1.5 bg-elevated/20 text-heading rounded-lg border border-edge/30">
@@ -134,226 +137,226 @@ export function UIComponents() {
 
  style Layout stroke:#00d4ff
  style Dialog stroke:#00ff88
- style Selection stroke:#f59e0b
+ style Selection stroke:${getThemeColor("--color-warning", "#b45309")}
  style Message stroke:#a855f7
  style Input stroke:#ec4899`;
 
  const baseSelectionCode = `// BaseSelectionList.tsx - 选择列表基础组件
 export interface BaseSelectionListProps<T> {
- items: SelectionListItem<T>[];
- initialIndex?: number;
- onSelect: (value: T) => void;
- onHighlight?: (value: T) => void;
- isFocused?: boolean;
- showNumbers?: boolean; // 显示数字快捷键
- showScrollArrows?: boolean; // 显示滚动箭头
- maxItemsToShow?: number; // 可见项数量
- renderItem: (item: T, context: RenderItemContext) => React.ReactNode;
+  items: SelectionListItem<T>[];
+  initialIndex?: number;
+  onSelect: (value: T) => void;
+  onHighlight?: (value: T) => void;
+  isFocused?: boolean;
+  showNumbers?: boolean; // 显示数字快捷键
+  showScrollArrows?: boolean; // 显示滚动箭头
+  maxItemsToShow?: number; // 可见项数量
+  renderItem: (item: T, context: RenderItemContext) => React.ReactNode;
 }
 
 export interface RenderItemContext {
- isSelected: boolean;
- titleColor: string;
- numberColor: string;
+  isSelected: boolean;
+  titleColor: string;
+  numberColor: string;
 }
 
 export function BaseSelectionList<T>({
- items,
- initialIndex = 0,
- onSelect,
- onHighlight,
- isFocused = true,
- showNumbers = true,
- maxItemsToShow = 10,
- renderItem,
+  items,
+  initialIndex = 0,
+  onSelect,
+  onHighlight,
+  isFocused = true,
+  showNumbers = true,
+  maxItemsToShow = 10,
+  renderItem,
 }: BaseSelectionListProps<T>) {
- const { activeIndex } = useSelectionList({
- items, initialIndex, onSelect, onHighlight, isFocused, showNumbers,
- });
+  const { activeIndex } = useSelectionList({
+  items, initialIndex, onSelect, onHighlight, isFocused, showNumbers,
+  });
 
- const [scrollOffset, setScrollOffset] = useState(0);
+  const [scrollOffset, setScrollOffset] = useState(0);
 
- // 处理滚动偏移
- useEffect(() => {
- const newOffset = Math.max(0,
- Math.min(activeIndex - maxItemsToShow + 1, items.length - maxItemsToShow)
- );
- setScrollOffset(newOffset);
- }, [activeIndex, items.length, maxItemsToShow]);
+  // 处理滚动偏移
+  useEffect(() => {
+  const newOffset = Math.max(0,
+  Math.min(activeIndex - maxItemsToShow + 1, items.length - maxItemsToShow)
+  );
+  setScrollOffset(newOffset);
+  }, [activeIndex, items.length, maxItemsToShow]);
 
- return (
- <Box flexDirection="column">
- {scrollOffset > 0 && <Text>▲</Text>}
- {visibleItems.map((item, index) => (
- <Box key={item.key}>
- <Text>{isSelected ? '●' : '○'}</Text>
- {showNumbers && <Text color={numberColor}>{index + 1}.</Text>}
- {renderItem(item, { isSelected, titleColor, numberColor })}
- </Box>
- ))}
- {hasMoreBelow && <Text>▼</Text>}
- </Box>
- );
+  return (
+  <Box flexDirection="column">
+  {scrollOffset > 0 && <Text>▲</Text>}
+  {visibleItems.map((item, index) => (
+  <Box key={item.key}>
+  <Text>{isSelected ? '●' : '○'}</Text>
+  {showNumbers && <Text color={numberColor}>{index + 1}.</Text>}
+  {renderItem(item, { isSelected, titleColor, numberColor })}
+  </Box>
+  ))}
+  {hasMoreBelow && <Text>▼</Text>}
+  </Box>
+  );
 }`;
 
  const suggestionsCode = `// SuggestionsDisplay.tsx - 补全建议展示
 export interface Suggestion {
- label: string;
- value: string;
- description?: string;
- matchedIndex?: number;
- commandKind?: CommandKind; // INTERNAL | MCP_PROMPT | ...
+  label: string;
+  value: string;
+  description?: string;
+  matchedIndex?: number;
+  commandKind?: CommandKind; // INTERNAL | MCP_PROMPT | ...
 }
 
 interface SuggestionsDisplayProps {
- suggestions: Suggestion[];
- activeIndex: number;
- isLoading: boolean;
- width: number;
- scrollOffset: number;
- userInput: string;
- mode: 'reverse' | 'slash'; // 反向搜索 或 斜杠命令
- expandedIndex?: number;
+  suggestions: Suggestion[];
+  activeIndex: number;
+  isLoading: boolean;
+  width: number;
+  scrollOffset: number;
+  userInput: string;
+  mode: 'reverse' | 'slash'; // 反向搜索 或 斜杠命令
+  expandedIndex?: number;
 }
 
 export const MAX_SUGGESTIONS_TO_SHOW = 8;
 
 export function SuggestionsDisplay({
- suggestions, activeIndex, isLoading, width, scrollOffset, mode,
+  suggestions, activeIndex, isLoading, width, scrollOffset, mode,
 }: SuggestionsDisplayProps) {
- if (isLoading) {
- return <Text color="gray">Loading suggestions...</Text>;
- }
+  if (isLoading) {
+  return <Text color="gray">Loading suggestions...</Text>;
+  }
 
- if (suggestions.length === 0) return null;
+  if (suggestions.length === 0) return null;
 
- const visibleSuggestions = suggestions.slice(
- scrollOffset,
- scrollOffset + MAX_SUGGESTIONS_TO_SHOW
- );
+  const visibleSuggestions = suggestions.slice(
+  scrollOffset,
+  scrollOffset + MAX_SUGGESTIONS_TO_SHOW
+  );
 
- return (
- <Box flexDirection="column" paddingX={1} width={width}>
- {scrollOffset > 0 && <Text>▲</Text>}
- {visibleSuggestions.map((suggestion, index) => {
- const isActive = startIndex + index === activeIndex;
- return (
- <Box key={suggestion.value}>
- <Text color={isActive ? theme.text.accent : theme.text.secondary}>
- {suggestion.label}
- </Text>
- {suggestion.description && (
- <Text color={theme.text.muted}> - {suggestion.description}</Text>
- )}
- </Box>
- );
- })}
- {hasMoreBelow && <Text>▼</Text>}
- </Box>
- );
+  return (
+  <Box flexDirection="column" paddingX={1} width={width}>
+  {scrollOffset > 0 && <Text>▲</Text>}
+  {visibleSuggestions.map((suggestion, index) => {
+  const isActive = startIndex + index === activeIndex;
+  return (
+  <Box key={suggestion.value}>
+  <Text color={isActive ? theme.text.accent : theme.text.secondary}>
+  {suggestion.label}
+  </Text>
+  {suggestion.description && (
+  <Text color={theme.text.muted}> - {suggestion.description}</Text>
+  )}
+  </Box>
+  );
+  })}
+  {hasMoreBelow && <Text>▼</Text>}
+  </Box>
+  );
 }`;
 
  const messageComponentsCode = `// 消息组件系统
 // messages/UserMessage.tsx
 export function UserMessage({ message }: { message: UIMessage }) {
- return (
- <Box>
- <Text color={theme.text.userLabel}>You: </Text>
- <Text>{message.content}</Text>
- </Box>
- );
+  return (
+  <Box>
+  <Text color={theme.text.userLabel}>You: </Text>
+  <Text>{message.content}</Text>
+  </Box>
+  );
 }
 
 // messages/GeminiMessage.tsx
 export function GeminiMessage({ message, isStreaming }: GeminiMessageProps) {
- return (
- <Box flexDirection="column">
- <Text color={theme.text.assistantLabel}>Gemini: </Text>
- <GeminiMessageContent content={message.content} />
- {isStreaming && <GeminiRespondingSpinner />}
- </Box>
- );
+  return (
+  <Box flexDirection="column">
+  <Text color={theme.text.assistantLabel}>Gemini: </Text>
+  <GeminiMessageContent content={message.content} />
+  {isStreaming && <GeminiRespondingSpinner />}
+  </Box>
+  );
 }
 
 // messages/ToolGroupMessage.tsx - 工具调用分组显示
 export function ToolGroupMessage({ tools }: { tools: ToolUse[] }) {
- return (
- <Box flexDirection="column" borderStyle="round" paddingX={1}>
- {tools.map((tool) => (
- <Box key={tool.id}>
- <Text color={theme.tool.name}>{tool.name}</Text>
- <Text color={theme.tool.status}>{tool.status}</Text>
- </Box>
- ))}
- </Box>
- );
+  return (
+  <Box flexDirection="column" borderStyle="round" paddingX={1}>
+  {tools.map((tool) => (
+  <Box key={tool.id}>
+  <Text color={theme.tool.name}>{tool.name}</Text>
+  <Text color={theme.tool.status}>{tool.status}</Text>
+  </Box>
+  ))}
+  </Box>
+  );
 }
 
 // messages/ErrorMessage.tsx
 export function ErrorMessage({ error }: { error: string }) {
- return (
- <Box>
- <Text color={theme.error.text}>✕ </Text>
- <Text color={theme.error.text}>{error}</Text>
- </Box>
- );
+  return (
+  <Box>
+  <Text color={theme.error.text}>✕ </Text>
+  <Text color={theme.error.text}>{error}</Text>
+  </Box>
+  );
 }`;
 
  const dialogCode = `// 对话框组件模式
 // SettingsDialog.tsx
 export function SettingsDialog({
- isOpen,
- onClose,
- settings,
- onSave,
+  isOpen,
+  onClose,
+  settings,
+  onSave,
 }: SettingsDialogProps) {
- const [localSettings, setLocalSettings] = useState(settings);
- const [activeSection, setActiveSection] = useState('general');
+  const [localSettings, setLocalSettings] = useState(settings);
+  const [activeSection, setActiveSection] = useState('general');
 
- useDialogClose({ isOpen, onClose }); // Esc 关闭
+  useDialogClose({ isOpen, onClose }); // Esc 关闭
 
- if (!isOpen) return null;
+  if (!isOpen) return null;
 
- return (
- <Box flexDirection="column" borderStyle="double" padding={1}>
- <Text bold>Settings</Text>
+  return (
+  <Box flexDirection="column" borderStyle="double" padding={1}>
+  <Text bold>Settings</Text>
 
- <Box marginTop={1}>
- <ScopeSelector
- currentScope={scope}
- onScopeChange={setScope}
- />
- </Box>
+  <Box marginTop={1}>
+  <ScopeSelector
+  currentScope={scope}
+  onScopeChange={setScope}
+  />
+  </Box>
 
- <Box marginTop={1}>
- <EnumSelector
- label="Theme"
- value={localSettings.theme}
- options={['dark', 'light', 'system']}
- onChange={(v) => setLocalSettings({ ...localSettings, theme: v })}
- />
- </Box>
+  <Box marginTop={1}>
+  <EnumSelector
+  label="Theme"
+  value={localSettings.theme}
+  options={['dark', 'light', 'system']}
+  onChange={(v) => setLocalSettings({ ...localSettings, theme: v })}
+  />
+  </Box>
 
- <Box marginTop={1}>
- <Text color="gray">Press Esc to close, Enter to save</Text>
- </Box>
- </Box>
- );
+  <Box marginTop={1}>
+  <Text color="gray">Press Esc to close, Enter to save</Text>
+  </Box>
+  </Box>
+  );
 }
 
 // ModelSwitchDialog.tsx
 export function ModelSwitchDialog({ models, currentModel, onSelect }) {
- return (
- <BaseSelectionList
- items={models.map(m => ({ key: m.id, value: m, disabled: !m.available }))}
- onSelect={onSelect}
- renderItem={(model, ctx) => (
- <Text color={ctx.isSelected ? 'cyan' : 'white'}>
- {model.name} {!model.available && '(unavailable)'}
- </Text>
- )}
- />
- );
+  return (
+  <BaseSelectionList
+  items={models.map(m => ({ key: m.id, value: m, disabled: !m.available }))}
+  onSelect={onSelect}
+  renderItem={(model, ctx) => (
+  <Text color={ctx.isSelected ? 'cyan' : 'white'}>
+  {model.name} {!model.available && '(unavailable)'}
+  </Text>
+  )}
+  />
+  );
 }`;
 
  const componentCategories = [
@@ -392,8 +395,8 @@ export function ModelSwitchDialog({ models, currentModel, onSelect }) {
  {
  category: '选择器',
  icon: '🔘',
- bgClass: 'bg-amber-500/10',
- textClass: 'text-amber-500',
+ bgClass: 'bg-elevated',
+ textClass: 'text-heading',
  components: [
  { name: 'BaseSelectionList', desc: '选择列表基础组件' },
  { name: 'RadioButtonSelect', desc: '单选按钮选择器' },
@@ -480,20 +483,20 @@ export function ModelSwitchDialog({ models, currentModel, onSelect }) {
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <div className="text-heading font-bold mb-2">🎨 设计原则</div>
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>Ink 渲染</strong>：所有组件渲染到终端</li>
- <li>• <strong>Box + Text</strong>：核心布局原语</li>
- <li>• <strong>组合优于继承</strong>：灵活的组件组合</li>
- <li>• <strong>Hook 驱动</strong>：状态逻辑抽象到 Hook</li>
+ <li><strong>Ink 渲染</strong>：所有组件渲染到终端</li>
+ <li><strong>Box + Text</strong>：核心布局原语</li>
+ <li><strong>组合优于继承</strong>：灵活的组件组合</li>
+ <li><strong>Hook 驱动</strong>：状态逻辑抽象到 Hook</li>
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <div className="text-heading font-bold mb-2">📁 目录结构</div>
  <ul className="text-sm text-body space-y-1">
- <li>• <code>components/</code> - 主组件目录</li>
- <li>• <code>components/shared/</code> - 共享基础组件</li>
- <li>• <code>components/messages/</code> - 消息类组件</li>
- <li>• <code>components/subagents/</code> - 子代理相关</li>
- <li>• <code>components/views/</code> - 视图组件</li>
+ <li><code>components/</code> - 主组件目录</li>
+ <li><code>components/shared/</code> - 共享基础组件</li>
+ <li><code>components/messages/</code> - 消息类组件</li>
+ <li><code>components/subagents/</code> - 子代理相关</li>
+ <li><code>components/views/</code> - 视图组件</li>
  </ul>
  </div>
  </div>
@@ -531,19 +534,19 @@ export function ModelSwitchDialog({ models, currentModel, onSelect }) {
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="核心功能" color="green">
  <ul className="text-sm text-body space-y-1">
- <li>• 单选按钮指示器 (● / ○)</li>
- <li>• 数字快捷键选择 (1-9)</li>
- <li>• 长列表滚动支持</li>
- <li>• 禁用项处理</li>
- <li>• 选中/高亮回调</li>
+ <li>单选按钮指示器 (● / ○)</li>
+ <li>数字快捷键选择 (1-9)</li>
+ <li>长列表滚动支持</li>
+ <li>禁用项处理</li>
+ <li>选中/高亮回调</li>
  </ul>
  </HighlightBox>
  <HighlightBox title="派生组件" color="blue">
  <ul className="text-sm text-body space-y-1">
- <li>• <code>RadioButtonSelect</code> - 简单单选</li>
- <li>• <code>DescriptiveRadioButtonSelect</code> - 带描述</li>
- <li>• <code>EnumSelector</code> - 枚举选择</li>
- <li>• <code>ScopeSelector</code> - Scope 选择</li>
+ <li><code>RadioButtonSelect</code> - 简单单选</li>
+ <li><code>DescriptiveRadioButtonSelect</code> - 带描述</li>
+ <li><code>EnumSelector</code> - 枚举选择</li>
+ <li><code>ScopeSelector</code> - Scope 选择</li>
  </ul>
  </HighlightBox>
  </div>
@@ -605,12 +608,12 @@ export function ModelSwitchDialog({ models, currentModel, onSelect }) {
  </div>
  <div>
  <p className="text-dim mb-1">工具调用</p>
- <code className="text-amber-500">ToolGroupMessage</code>
+ <code className="text-heading">ToolGroupMessage</code>
  <code className="text-dim"> → UIMessageType.TOOL</code>
  </div>
  <div>
  <p className="text-dim mb-1">错误信息</p>
- <code className="text-red-500">ErrorMessage</code>
+ <code className="text-heading">ErrorMessage</code>
  <code className="text-dim"> → UIMessageType.ERROR</code>
  </div>
  </div>
@@ -623,18 +626,18 @@ export function ModelSwitchDialog({ models, currentModel, onSelect }) {
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="对话框设计模式" color="blue">
  <ul className="text-sm text-body space-y-1">
- <li>• <code>isOpen</code> 控制显示/隐藏</li>
- <li>• <code>useDialogClose</code> 处理 Esc 关闭</li>
- <li>• 本地状态 → onSave 提交</li>
- <li>• borderStyle="double" 视觉区分</li>
+ <li><code>isOpen</code> 控制显示/隐藏</li>
+ <li><code>useDialogClose</code> 处理 Esc 关闭</li>
+ <li>本地状态 → onSave 提交</li>
+ <li>borderStyle="double" 视觉区分</li>
  </ul>
  </HighlightBox>
  <HighlightBox title="键盘交互" color="green">
  <ul className="text-sm text-body space-y-1">
- <li>• <code>Esc</code> - 关闭对话框</li>
- <li>• <code>Enter</code> - 确认/保存</li>
- <li>• <code>↑/↓</code> - 导航选项</li>
- <li>• <code>1-9</code> - 快捷选择</li>
+ <li><code>Esc</code> - 关闭对话框</li>
+ <li><code>Enter</code> - 确认/保存</li>
+ <li><code>↑/↓</code> - 导航选项</li>
+ <li><code>1-9</code> - 快捷选择</li>
  </ul>
  </HighlightBox>
  </div>

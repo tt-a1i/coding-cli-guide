@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { CodeBlock } from '../components/CodeBlock';
 
 /**
  * AtFileProcessor 动画
@@ -357,9 +358,9 @@ export default function AtFileProcessorAnimation() {
  switch (status) {
  case 'pending': return 'text-body';
  case 'loading': return 'text-heading';
- case 'loaded': return 'text-green-400';
- case 'ignored': return 'text-yellow-400';
- case 'error': return 'text-red-400';
+ case 'loaded': return 'text-heading';
+ case 'ignored': return 'text-heading';
+ case 'error': return 'text-heading';
  }
  };
 
@@ -414,15 +415,15 @@ export default function AtFileProcessorAnimation() {
  step.status === 'active'
  ? ' bg-elevated/30 border-2 border-edge'
  : step.status === 'done'
- ? 'bg-green-600/20 border border-green-600'
+ ? 'bg-elevated border-l-2 border-l-edge-hover/60'
  : step.status === 'error'
- ? 'bg-red-600/20 border border-red-600'
+ ? 'bg-elevated border-l-2 border-l-edge-hover/60'
  : ' bg-surface border border-edge'
  }`}>
  <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mb-1 ${
  step.status === 'active' ? ' bg-elevated text-heading' :
- step.status === 'done' ? 'bg-green-500 text-heading' :
- step.status === 'error' ? 'bg-red-500 text-heading' :
+ step.status === 'done' ? 'bg-[var(--color-success)] text-heading' :
+ step.status === 'error' ? 'bg-[var(--color-danger)] text-heading' :
  ' bg-elevated text-body'
  }`}>{i + 1}</span>
  <span className="text-xs text-heading text-center">{step.label}</span>
@@ -447,7 +448,7 @@ export default function AtFileProcessorAnimation() {
  <div className="space-y-4">
  <div className="bg-surface rounded-lg p-4 border border-edge">
  <h3 className="text-heading font-semibold mb-3 flex items-center gap-2">
- <span className="w-2 h-2 rounded-full bg-yellow-400"></span>
+ <span className="w-2 h-2 rounded-full bg-[var(--color-warning)]"></span>
  原始 Prompt
  </h3>
  <pre className="text-sm bg-surface p-3 rounded overflow-x-auto whitespace-pre-wrap">
@@ -475,11 +476,11 @@ export default function AtFileProcessorAnimation() {
  inj.status === 'loading'
  ? ' border-edge bg-elevated/20'
  : inj.status === 'loaded'
- ? 'border-green-600 bg-green-900/20'
+ ? 'border-edge/60 bg-elevated'
  : inj.status === 'ignored'
- ? 'border-yellow-600 bg-yellow-900/20'
+ ? 'border-edge/60 bg-elevated'
  : inj.status === 'error'
- ? 'border-red-600 bg-red-900/20'
+ ? 'border-edge/60 bg-elevated'
  : ' border-edge bg-surface'
  }`}
  >
@@ -513,7 +514,7 @@ export default function AtFileProcessorAnimation() {
  {state.finalPrompt && (
  <div className="bg-surface rounded-lg p-4 border border-edge">
  <h3 className="text-heading font-semibold mb-3 flex items-center gap-2">
- <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+ <span className="w-2 h-2 rounded-full bg-[var(--color-success)]"></span>
  最终 Prompt
  </h3>
  <pre className="text-sm bg-surface p-3 rounded overflow-x-auto text-body whitespace-pre-wrap max-h-96 overflow-y-auto">
@@ -525,7 +526,7 @@ export default function AtFileProcessorAnimation() {
  {/* 模拟文件系统 */}
  <div className="bg-surface rounded-lg p-4 border border-edge">
  <h3 className="text-heading font-semibold mb-3 flex items-center gap-2">
- <span className="w-2 h-2 rounded-full bg-blue-400"></span>
+ <span className="w-2 h-2 rounded-full bg-accent"></span>
  模拟文件系统
  </h3>
  <div className="space-y-1 text-sm font-mono">
@@ -538,7 +539,7 @@ export default function AtFileProcessorAnimation() {
  {path}
  </span>
  {file.ignored && (
- <span className="text-xs text-yellow-500">({file.ignoreReason})</span>
+ <span className="text-xs text-heading">({file.ignoreReason})</span>
  )}
  </div>
  ))}
@@ -568,11 +569,11 @@ export default function AtFileProcessorAnimation() {
  <h3 className="text-heading font-semibold mb-3">忽略规则</h3>
  <div className="space-y-2 text-sm">
  <div className="flex items-center gap-2">
- <span className="text-yellow-400">⚠️</span>
+ <span className="text-heading">⚠️</span>
  <span className="text-body">.gitignore 匹配的文件会被跳过</span>
  </div>
  <div className="flex items-center gap-2">
- <span className="text-yellow-400">⚠️</span>
+ <span className="text-heading">⚠️</span>
  <span className="text-body">.geminiignore 匹配的文件会被跳过</span>
  </div>
  <div className="flex items-center gap-2">
@@ -586,40 +587,42 @@ export default function AtFileProcessorAnimation() {
  {/* 核心代码 */}
  <div className="bg-surface rounded-lg p-4 border border-edge">
  <h3 className="text-heading font-semibold mb-3">核心处理逻辑</h3>
- <pre className="text-xs text-body overflow-x-auto bg-surface p-3 rounded">
-{`async process(input, context) {
- return flatMapTextParts(input, async (text) => {
- // 检查是否包含触发器
- if (!text.includes(AT_FILE_INJECTION_TRIGGER)) {
- return [{ text }];
- }
+ <CodeBlock
+   language="typescript"
+   title="atFileProcessor.ts"
+   code={`async process(input, context) {
+  return flatMapTextParts(input, async (text) => {
+    // 检查是否包含触发器
+    if (!text.includes(AT_FILE_INJECTION_TRIGGER)) {
+      return [{ text }];
+    }
 
- // 提取注入点
- const injections = extractInjections(text, AT_FILE_INJECTION_TRIGGER);
+    // 提取注入点
+    const injections = extractInjections(text, AT_FILE_INJECTION_TRIGGER);
 
- const output = [];
- for (const injection of injections) {
- try {
- // 读取文件内容 (遵循忽略规则)
- const fileContentParts = await readPathFromWorkspace(pathStr, config);
+    const output = [];
+    for (const injection of injections) {
+      try {
+        // 读取文件内容 (遵循忽略规则)
+        const fileContentParts = await readPathFromWorkspace(pathStr, config);
 
- if (fileContentParts.length === 0) {
- // 文件被忽略
- context.ui.addItem({ type: MessageType.INFO, text: uiMessage });
- }
+        if (fileContentParts.length === 0) {
+          // 文件被忽略
+          context.ui.addItem({ type: MessageType.INFO, text: uiMessage });
+        }
 
- output.push(...fileContentParts);
- } catch (error) {
- // 读取失败
- context.ui.addItem({ type: MessageType.ERROR, text: errorMessage });
- output.push({ text: placeholder });
- }
- }
+        output.push(...fileContentParts);
+      } catch (error) {
+        // 读取失败
+        context.ui.addItem({ type: MessageType.ERROR, text: errorMessage });
+        output.push({ text: placeholder });
+      }
+    }
 
- return output;
- });
+    return output;
+  });
 }`}
- </pre>
+ />
  </div>
  </div>
  );

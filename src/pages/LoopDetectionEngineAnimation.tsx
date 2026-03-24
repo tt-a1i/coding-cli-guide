@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { useState, useEffect, useCallback } from 'react';
+import { CodeBlock } from '../components/CodeBlock';
 
 /**
  * 循环检测引擎动画
@@ -282,7 +283,7 @@ export default function LoopDetectionEngineAnimation() {
 
  const getLayerColor = (status: string) => {
  switch (status) {
- case 'detected': return '#ef4444';
+ case 'detected': return 'var(--color-danger)';
  case 'active': return 'var(--color-primary)';
  case 'passed': return 'var(--color-primary)';
  default: return 'var(--color-text-muted)';
@@ -305,7 +306,7 @@ export default function LoopDetectionEngineAnimation() {
  onClick={() => isPlaying ? resetAnimation() : (resetAnimation(), setTimeout(() => { setActiveLayer('tool'); setIsPlaying(true); }, 100))}
  className={`px-4 py-2 rounded font-mono text-sm transition-all ${
  isPlaying
- ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+ ? 'bg-elevated text-heading border-l-2 border-l-edge-hover/30'
  : ' bg-elevated/20 text-heading border border-edge/30'
  }`}
  >
@@ -383,8 +384,8 @@ export default function LoopDetectionEngineAnimation() {
  )}
  </div>
  {consecutiveCount > 0 && (
- <div className="mt-3 p-2 rounded bg-amber-500/10 border border-amber-500/30">
- <div className="text-xs font-mono text-amber-500">
+ <div className="mt-3 p-2 rounded bg-elevated border-l-2 border-l-edge-hover/30">
+ <div className="text-xs font-mono text-heading">
  Consecutive: {consecutiveCount}/5
  </div>
  <div className="mt-1 h-2 bg-elevated rounded overflow-hidden">
@@ -392,7 +393,7 @@ export default function LoopDetectionEngineAnimation() {
  className="h-full transition-all"
  style={{
  width: `${(consecutiveCount / 5) * 100}%`,
- backgroundColor: consecutiveCount >= 5 ? '#ef4444' : '#f59e0b',
+ backgroundColor: consecutiveCount >= 5 ? 'var(--color-danger)' : 'var(--color-warning)',
  }}
  />
  </div>
@@ -404,7 +405,7 @@ export default function LoopDetectionEngineAnimation() {
  {/* Layer 2: Content Detection */}
  <div className="col-span-4">
  <div className="bg-surface rounded-lg p-4 border border-edge-hover">
- <h3 className="text-sm font-semibold text-amber-500 mb-3 font-mono">
+ <h3 className="text-sm font-semibold text-heading mb-3 font-mono">
  📝 Content Chunk Analysis
  </h3>
  <div className="space-y-2 max-h-64 overflow-y-auto">
@@ -418,15 +419,15 @@ export default function LoopDetectionEngineAnimation() {
  key={chunk.id}
  className={`p-2 rounded border text-xs font-mono transition-all ${
  chunk.occurrences.length >= 5
- ? 'bg-red-500/10 border-red-500/30'
+ ? 'bg-elevated border-edge/30'
  : chunk.occurrences.length >= 3
- ? 'bg-amber-500/10 border-amber-500/30'
+ ? 'bg-elevated border-edge/30'
  : ' bg-elevated border-edge-hover'
  }`}
  >
  <div className="flex items-center justify-between mb-1">
  <span className="text-dim">{chunk.hash.slice(0, 8)}</span>
- <span className={chunk.occurrences.length >= 5 ? 'text-red-400' : 'text-body'}>
+ <span className={chunk.occurrences.length >= 5 ? 'text-heading' : 'text-body'}>
  ×{chunk.occurrences.length}
  </span>
  </div>
@@ -467,7 +468,7 @@ export default function LoopDetectionEngineAnimation() {
  </div>
  <div className="flex justify-between text-xs text-dim mt-1">
  <span>0</span>
- <span className="text-amber-500">30 (LLM starts)</span>
+ <span className="text-heading">30 (LLM starts)</span>
  <span>50</span>
  </div>
  </div>
@@ -490,7 +491,7 @@ export default function LoopDetectionEngineAnimation() {
  key={i}
  className={`p-2 rounded border text-xs ${
  check.isLoop
- ? 'bg-red-500/10 border-red-500/30'
+ ? 'bg-elevated border-edge/30'
  : ' bg-elevated/10 border-edge/30'
  }`}
  >
@@ -498,7 +499,7 @@ export default function LoopDetectionEngineAnimation() {
  <span className="font-mono">Turn {check.turn}</span>
  <span
  className="font-bold"
- style={{ color: check.confidence > 0.9 ? '#ef4444' : check.confidence > 0.5 ? '#f59e0b' : 'var(--color-primary)' }}
+ style={{ color: check.confidence > 0.9 ? 'var(--color-danger)' : check.confidence > 0.5 ? 'var(--color-warning)' : 'var(--color-primary)' }}
  >
  {(check.confidence * 100).toFixed(0)}%
  </span>
@@ -526,9 +527,9 @@ export default function LoopDetectionEngineAnimation() {
  <div
  key={i}
  className={`${
- log.includes('🚨') ? 'text-red-400' :
+ log.includes('🚨') ? 'text-heading' :
  log.includes('✅') ? 'text-heading' :
- log.includes('⚠️') ? 'text-amber-500' :
+ log.includes('⚠️') ? 'text-heading' :
  log.includes('🧠') ? 'text-heading' :
  'text-dim'
  }`}
@@ -545,32 +546,34 @@ export default function LoopDetectionEngineAnimation() {
  <h3 className="text-sm font-semibold text-heading mb-3">
  源码: loopDetectionService.ts
  </h3>
- <pre className="text-xs font-mono text-body bg-base/30 p-3 rounded overflow-x-auto">
-{`class LoopDetectionService {
- // Layer 1: Tool Call Loop Detection
- private checkToolCallLoop(toolCall): boolean {
- const key = createHash('sha256').update(\`\${name}:\${args}\`).digest('hex');
- if (this.lastToolCallKey === key) {
- this.toolCallRepetitionCount++;
- }
- return this.toolCallRepetitionCount >= 5; // TOOL_CALL_LOOP_THRESHOLD
- }
+ <CodeBlock
+   language="typescript"
+   title="loopDetectionService.ts"
+   code={`class LoopDetectionService {
+  // Layer 1: Tool Call Loop Detection
+  private checkToolCallLoop(toolCall): boolean {
+    const key = createHash('sha256').update(\`\${name}:\${args}\`).digest('hex');
+    if (this.lastToolCallKey === key) {
+      this.toolCallRepetitionCount++;
+    }
+    return this.toolCallRepetitionCount >= 5; // TOOL_CALL_LOOP_THRESHOLD
+  }
 
- // Layer 2: Content Chanting Detection (sliding window)
- private analyzeContentChunksForLoop(): boolean {
- // 50-char chunks, SHA256 hash, detect 10+ occurrences within 75 chars
- const avgDistance = totalDistance / (CONTENT_LOOP_THRESHOLD - 1);
- return avgDistance <= CONTENT_CHUNK_SIZE * 1.5;
- }
+  // Layer 2: Content Chanting Detection (sliding window)
+  private analyzeContentChunksForLoop(): boolean {
+    // 50-char chunks, SHA256 hash, detect 10+ occurrences within 75 chars
+    const avgDistance = totalDistance / (CONTENT_LOOP_THRESHOLD - 1);
+    return avgDistance <= CONTENT_CHUNK_SIZE * 1.5;
+  }
 
- // Layer 3: LLM-based Loop Detection (adaptive interval)
- private async checkForLoopWithLLM(signal): Promise<boolean> {
- // Runs after turn 30, interval adjusts based on confidence (5-15)
- if (result.confidence > 0.9) return true; // Loop detected
- this.llmCheckInterval = 5 + (15 - 5) * (1 - confidence);
- }
+  // Layer 3: LLM-based Loop Detection (adaptive interval)
+  private async checkForLoopWithLLM(signal): Promise<boolean> {
+    // Runs after turn 30, interval adjusts based on confidence (5-15)
+    if (result.confidence > 0.9) return true; // Loop detected
+    this.llmCheckInterval = 5 + (15 - 5) * (1 - confidence);
+  }
 }`}
- </pre>
+ />
  </div>
  </div>
  );

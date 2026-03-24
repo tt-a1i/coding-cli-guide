@@ -47,7 +47,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">Context API</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-amber-500">140+</div>
+ <div className="text-2xl font-bold text-heading">140+</div>
  <div className="text-xs text-dim">UIState 字段</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
@@ -65,7 +65,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <span className="px-3 py-1.5 bg-elevated/20 text-heading rounded-lg border border-edge/30">
  SessionContext
  </span>
- <span className="px-3 py-1.5 bg-amber-500/20 text-amber-500 rounded-lg border border-amber-500/30">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover/30">
  ConfigContext
  </span>
  <span className="px-3 py-1.5 bg-elevated/20 text-heading rounded-lg border border-edge/30">
@@ -148,148 +148,148 @@ export function ContextSystem() {
 
  const uiStateCode = `// UIState - 主 UI 状态接口 (140+ 字段)
 export interface UIState {
- // === 历史记录 ===
- history: HistoryItem[];
- historyManager: UseHistoryManagerReturn;
- pendingHistoryItems: HistoryItemWithoutId[];
- pendingGeminiHistoryItems: HistoryItemWithoutId[];
- pendingSlashCommandHistoryItems: HistoryItemWithoutId[];
- historyRemountKey: number;
+  // === 历史记录 ===
+  history: HistoryItem[];
+  historyManager: UseHistoryManagerReturn;
+  pendingHistoryItems: HistoryItemWithoutId[];
+  pendingGeminiHistoryItems: HistoryItemWithoutId[];
+  pendingSlashCommandHistoryItems: HistoryItemWithoutId[];
+  historyRemountKey: number;
 
- // === 对话框状态 ===
- isThemeDialogOpen: boolean;
- isAuthDialogOpen: boolean;
- isSettingsDialogOpen: boolean;
- isSessionBrowserOpen: boolean;
- isModelDialogOpen: boolean;
- isPermissionsDialogOpen: boolean;
- isFolderTrustDialogOpen: boolean;
- isEditorDialogOpen: boolean;
- dialogsVisible: boolean;
- customDialog: React.ReactNode | null;
+  // === 对话框状态 ===
+  isThemeDialogOpen: boolean;
+  isAuthDialogOpen: boolean;
+  isSettingsDialogOpen: boolean;
+  isSessionBrowserOpen: boolean;
+  isModelDialogOpen: boolean;
+  isPermissionsDialogOpen: boolean;
+  isFolderTrustDialogOpen: boolean;
+  isEditorDialogOpen: boolean;
+  dialogsVisible: boolean;
+  customDialog: React.ReactNode | null;
 
- // === 认证状态 ===
- isAuthenticating: boolean;
- isConfigInitialized: boolean;
- authError: string | null;
- isAwaitingApiKeyInput: boolean;
- apiKeyDefaultValue?: string;
+  // === 认证状态 ===
+  isAuthenticating: boolean;
+  isConfigInitialized: boolean;
+  authError: string | null;
+  isAwaitingApiKeyInput: boolean;
+  apiKeyDefaultValue?: string;
 
- // === 流式状态 ===
- streamingState: StreamingState;
- thought: ThoughtSummary | null;
- elapsedTime: number;
- currentLoadingPhrase: string;
+  // === 流式状态 ===
+  streamingState: StreamingState;
+  thought: ThoughtSummary | null;
+  elapsedTime: number;
+  currentLoadingPhrase: string;
 
- // === 输入状态 ===
- buffer: TextBuffer;
- inputWidth: number;
- suggestionsWidth: number;
- isInputActive: boolean;
- shellModeActive: boolean;
- userMessages: string[];
- messageQueue: string[];
- queueErrorMessage: string | null;
+  // === 输入状态 ===
+  buffer: TextBuffer;
+  inputWidth: number;
+  suggestionsWidth: number;
+  isInputActive: boolean;
+  shellModeActive: boolean;
+  userMessages: string[];
+  messageQueue: string[];
+  queueErrorMessage: string | null;
 
- // === 确认请求 ===
- confirmationRequest: ConfirmationRequest | null;
- shellConfirmationRequest: ShellConfirmationRequest | null;
- confirmUpdateExtensionRequests: ConfirmationRequest[];
- loopDetectionConfirmationRequest: LoopDetectionConfirmationRequest | null;
+  // === 确认请求 ===
+  confirmationRequest: ConfirmationRequest | null;
+  shellConfirmationRequest: ShellConfirmationRequest | null;
+  confirmUpdateExtensionRequests: ConfirmationRequest[];
+  loopDetectionConfirmationRequest: LoopDetectionConfirmationRequest | null;
 
- // === 终端尺寸 ===
- terminalWidth: number;
- terminalHeight: number;
- availableTerminalHeight: number | undefined;
- mainAreaWidth: number;
- staticAreaMaxItemHeight: number;
- staticExtraHeight: number;
+  // === 终端尺寸 ===
+  terminalWidth: number;
+  terminalHeight: number;
+  availableTerminalHeight: number | undefined;
+  mainAreaWidth: number;
+  staticAreaMaxItemHeight: number;
+  staticExtraHeight: number;
 
- // === IDE 集成 ===
- currentIDE: IdeInfo | null;
- ideContextState: IdeContext | undefined;
- shouldShowIdePrompt: boolean;
- showIdeRestartPrompt: boolean;
- ideTrustRestartReason: RestartReason;
+  // === IDE 集成 ===
+  currentIDE: IdeInfo | null;
+  ideContextState: IdeContext | undefined;
+  shouldShowIdePrompt: boolean;
+  showIdeRestartPrompt: boolean;
+  ideTrustRestartReason: RestartReason;
 
- // === Shell 集成 ===
- activePtyId: number | undefined;
- embeddedShellFocused: boolean;
+  // === Shell 集成 ===
+  activePtyId: number | undefined;
+  embeddedShellFocused: boolean;
 
- // === 模式标志 ===
- corgiMode: boolean;
- renderMarkdown: boolean;
- constrainHeight: boolean;
- showErrorDetails: boolean;
- copyModeEnabled: boolean;
- showDebugProfiler: boolean;
- showFullTodos: boolean;
- nightly: boolean;
+  // === 模式标志 ===
+  corgiMode: boolean;
+  renderMarkdown: boolean;
+  constrainHeight: boolean;
+  showErrorDetails: boolean;
+  copyModeEnabled: boolean;
+  showDebugProfiler: boolean;
+  showFullTodos: boolean;
+  nightly: boolean;
 
- // === 命令系统 ===
- slashCommands: readonly SlashCommand[] | undefined;
- commandContext: CommandContext;
- geminiMdFileCount: number;
- contextFileNames: string[];
+  // === 命令系统 ===
+  slashCommands: readonly SlashCommand[] | undefined;
+  commandContext: CommandContext;
+  geminiMdFileCount: number;
+  contextFileNames: string[];
 
- // === 会话统计 ===
- sessionStats: SessionStatsState;
- showAutoAcceptIndicator: ApprovalMode;
- userTier: UserTierId | undefined;
- currentModel: string;
- errorCount: number;
+  // === 会话统计 ===
+  sessionStats: SessionStatsState;
+  showAutoAcceptIndicator: ApprovalMode;
+  userTier: UserTierId | undefined;
+  currentModel: string;
+  errorCount: number;
 
- // ... 更多字段
+  // ... 更多字段
 }`;
 
  const sessionContextCode = `// SessionContext - 会话指标管理
 export interface SessionStatsState {
- sessionId: string;
- sessionStartTime: Date;
- metrics: SessionMetrics;
- lastPromptTokenCount: number;
- promptCount: number;
+  sessionId: string;
+  sessionStartTime: Date;
+  metrics: SessionMetrics;
+  lastPromptTokenCount: number;
+  promptCount: number;
 }
 
 export interface SessionMetrics {
- files: {
- totalLinesAdded: number;
- totalLinesRemoved: number;
- };
- tools: {
- totalCalls: number;
- totalSuccess: number;
- totalFail: number;
- totalDurationMs: number;
- totalDecisions: Record<ToolCallDecision, number>;
- byName: Record<string, ToolCallStats>;
- };
- models: Record<string, ModelMetrics>;
+  files: {
+  totalLinesAdded: number;
+  totalLinesRemoved: number;
+  };
+  tools: {
+  totalCalls: number;
+  totalSuccess: number;
+  totalFail: number;
+  totalDurationMs: number;
+  totalDecisions: Record<ToolCallDecision, number>;
+  byName: Record<string, ToolCallStats>;
+  };
+  models: Record<string, ModelMetrics>;
 }
 
 export interface ModelMetrics {
- api: {
- totalRequests: number;
- totalErrors: number;
- totalLatencyMs: number;
- };
- tokens: {
- input: number;
- prompt: number;
- candidates: number;
- total: number;
- cached: number;
- thoughts: number;
- tool: number;
- };
+  api: {
+  totalRequests: number;
+  totalErrors: number;
+  totalLatencyMs: number;
+  };
+  tokens: {
+  input: number;
+  prompt: number;
+  candidates: number;
+  total: number;
+  cached: number;
+  thoughts: number;
+  tool: number;
+  };
 }
 
 // 工具调用决策类型
 export enum ToolCallDecision {
- ACCEPT = 'accept',
- REJECT = 'reject',
- MODIFY = 'modify',
- AUTO_ACCEPT = 'auto_accept',
+  ACCEPT = 'accept',
+  REJECT = 'reject',
+  MODIFY = 'modify',
+  AUTO_ACCEPT = 'auto_accept',
 }`;
 
  const configContextCode = `// ConfigContext - 配置上下文
@@ -301,23 +301,23 @@ export const ConfigContext = React.createContext<Config | undefined>(undefined);
 
 // 访问 Hook
 export const useConfig = () => {
- const context = useContext(ConfigContext);
- if (context === undefined) {
- throw new Error('useConfig must be used within a ConfigProvider');
- }
- return context;
+  const context = useContext(ConfigContext);
+  if (context === undefined) {
+  throw new Error('useConfig must be used within a ConfigProvider');
+  }
+  return context;
 };
 
 // 使用示例
 function MyComponent() {
- const config = useConfig();
+  const config = useConfig();
 
- // 访问配置
- const model = config.getModel();
- const sandbox = config.getSandboxMode();
- const approvalMode = config.getApprovalMode();
+  // 访问配置
+  const model = config.getModel();
+  const sandbox = config.getSandboxMode();
+  const approvalMode = config.getApprovalMode();
 
- return <Text>{model}</Text>;
+  return <Text>{model}</Text>;
 }`;
 
  const streamingContextCode = `// StreamingContext - 流式状态上下文
@@ -326,77 +326,77 @@ import type { StreamingState } from '../types.js';
 
 // 流式状态枚举
 export enum StreamingState {
- Idle = 'idle', // 空闲
- Responding = 'responding', // 响应中
- WaitingForConfirmation = 'waiting_for_confirmation', // 等待确认
+  Idle = 'idle', // 空闲
+  Responding = 'responding', // 响应中
+  WaitingForConfirmation = 'waiting_for_confirmation', // 等待确认
 }
 
 // 创建 Context
 export const StreamingContext = createContext<StreamingState | undefined>(
- undefined,
+  undefined,
 );
 
 // 访问 Hook
 export const useStreamingContext = (): StreamingState => {
- const context = React.useContext(StreamingContext);
- if (context === undefined) {
- throw new Error(
- 'useStreamingContext must be used within a StreamingContextProvider',
- );
- }
- return context;
+  const context = React.useContext(StreamingContext);
+  if (context === undefined) {
+  throw new Error(
+  'useStreamingContext must be used within a StreamingContextProvider',
+  );
+  }
+  return context;
 };
 
 // 使用示例
 function ResponseIndicator() {
- const streamingState = useStreamingContext();
+  const streamingState = useStreamingContext();
 
- if (streamingState === StreamingState.Responding) {
- return <Spinner type="dots" />;
- }
+  if (streamingState === StreamingState.Responding) {
+  return <Spinner type="dots" />;
+  }
 
- if (streamingState === StreamingState.WaitingForConfirmation) {
- return <Text color="yellow">Waiting for confirmation...</Text>;
- }
+  if (streamingState === StreamingState.WaitingForConfirmation) {
+  return <Text color="yellow">Waiting for confirmation...</Text>;
+  }
 
- return null;
+  return null;
 }`;
 
  const keypressContextCode = `// KeypressContext - 键盘输入上下文
 export interface KeypressContextValue {
- useInput: (
- callback: (input: string, key: Key) => void,
- options?: UseInputOptions,
- ) => void;
- registerHandler: (id: string, handler: KeyHandler, priority?: number) => void;
- unregisterHandler: (id: string) => void;
+  useInput: (
+  callback: (input: string, key: Key) => void,
+  options?: UseInputOptions,
+  ) => void;
+  registerHandler: (id: string, handler: KeyHandler, priority?: number) => void;
+  unregisterHandler: (id: string) => void;
 }
 
 export const KeypressContext = createContext<KeypressContextValue | null>(null);
 
 export const useKeypress = () => {
- const context = useContext(KeypressContext);
- if (!context) {
- throw new Error('useKeypress must be used within KeypressProvider');
- }
- return context;
+  const context = useContext(KeypressContext);
+  if (!context) {
+  throw new Error('useKeypress must be used within KeypressProvider');
+  }
+  return context;
 };
 
 // 使用示例
 function Composer() {
- const { useInput } = useKeypress();
+  const { useInput } = useKeypress();
 
- useInput((input, key) => {
- if (key.ctrl && input === 'c') {
- handleInterrupt();
- } else if (key.return) {
- submitMessage();
- } else {
- buffer.insert(input);
- }
- });
+  useInput((input, key) => {
+  if (key.ctrl && input === 'c') {
+  handleInterrupt();
+  } else if (key.return) {
+  submitMessage();
+  } else {
+  buffer.insert(input);
+  }
+  });
 
- return <TextInput ... />;
+  return <TextInput ... />;
 }`;
 
  const contextTableData = [
@@ -434,25 +434,25 @@ function Composer() {
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <div className="text-heading font-bold mb-2">🔗 Provider 嵌套</div>
  <ul className="text-sm text-body space-y-1">
- <li>• 从外到内依次嵌套</li>
- <li>• 内层可访问外层</li>
- <li>• 依赖关系明确</li>
+ <li>从外到内依次嵌套</li>
+ <li>内层可访问外层</li>
+ <li>依赖关系明确</li>
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <div className="text-heading font-bold mb-2">🪝 Hook 封装</div>
  <ul className="text-sm text-body space-y-1">
- <li>• 每个 Context 对应一个 Hook</li>
- <li>• 自动错误检查</li>
- <li>• 类型安全访问</li>
+ <li>每个 Context 对应一个 Hook</li>
+ <li>自动错误检查</li>
+ <li>类型安全访问</li>
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <div className="text-heading font-bold mb-2">🧩 组件消费</div>
  <ul className="text-sm text-body space-y-1">
- <li>• 组件通过 Hook 访问</li>
- <li>• 解耦状态和 UI</li>
- <li>• 支持选择性订阅</li>
+ <li>组件通过 Hook 访问</li>
+ <li>解耦状态和 UI</li>
+ <li>支持选择性订阅</li>
  </ul>
  </div>
  </div>
@@ -487,12 +487,12 @@ function Composer() {
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="状态分类" color="blue">
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>历史记录</strong>：消息历史、待处理项</li>
- <li>• <strong>对话框</strong>：各种对话框开关</li>
- <li>• <strong>认证</strong>：认证状态、错误</li>
- <li>• <strong>流式</strong>：响应状态、加载提示</li>
- <li>• <strong>输入</strong>：TextBuffer、Shell 模式</li>
- <li>• <strong>终端</strong>：尺寸、布局信息</li>
+ <li><strong>历史记录</strong>：消息历史、待处理项</li>
+ <li><strong>对话框</strong>：各种对话框开关</li>
+ <li><strong>认证</strong>：认证状态、错误</li>
+ <li><strong>流式</strong>：响应状态、加载提示</li>
+ <li><strong>输入</strong>：TextBuffer、Shell 模式</li>
+ <li><strong>终端</strong>：尺寸、布局信息</li>
  </ul>
  </HighlightBox>
  <HighlightBox title="为什么这么大？" color="orange">
@@ -500,10 +500,10 @@ function Composer() {
  UIStateContext 包含 140+ 字段是因为：
  </p>
  <ul className="text-sm text-body space-y-1 mt-2">
- <li>• 单一数据源原则</li>
- <li>• 避免过度拆分导致的复杂性</li>
- <li>• 方便组件间共享状态</li>
- <li>• 配合 memo 优化渲染</li>
+ <li>单一数据源原则</li>
+ <li>避免过度拆分导致的复杂性</li>
+ <li>方便组件间共享状态</li>
+ <li>配合 memo 优化渲染</li>
  </ul>
  </HighlightBox>
  </div>
@@ -515,10 +515,10 @@ function Composer() {
  <div className="mt-4 bg-base p-4 rounded-lg">
  <h4 className="text-heading font-bold mb-2">指标追踪</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>文件变更</strong>：添加/删除的行数</li>
- <li>• <strong>工具调用</strong>：总数、成功/失败、耗时、按名称分组</li>
- <li>• <strong>模型指标</strong>：请求数、错误、Token 使用</li>
- <li>• <strong>决策统计</strong>：Accept/Reject/Modify/AutoAccept</li>
+ <li><strong>文件变更</strong>：添加/删除的行数</li>
+ <li><strong>工具调用</strong>：总数、成功/失败、耗时、按名称分组</li>
+ <li><strong>模型指标</strong>：请求数、错误、Token 使用</li>
+ <li><strong>决策统计</strong>：Accept/Reject/Modify/AutoAccept</li>
  </ul>
  </div>
  </Layer>
@@ -555,21 +555,21 @@ function Composer() {
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <h4 className="text-heading font-bold mb-2">✅ 推荐做法</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• 使用 Hook 访问 Context</li>
- <li>• 只订阅需要的状态</li>
- <li>• 使用 useMemo/useCallback 优化</li>
- <li>• 在顶层提供 Provider</li>
- <li>• 处理 undefined 情况</li>
+ <li>使用 Hook 访问 Context</li>
+ <li>只订阅需要的状态</li>
+ <li>使用 useMemo/useCallback 优化</li>
+ <li>在顶层提供 Provider</li>
+ <li>处理 undefined 情况</li>
  </ul>
  </div>
- <div className="bg-surface p-4 rounded-lg border border-red-500/30">
- <h4 className="text-red-500 font-bold mb-2">❌ 避免做法</h4>
+ <div className="bg-surface p-4 rounded-lg border-l-2 border-l-edge-hover/30">
+ <h4 className="text-heading font-bold mb-2">❌ 避免做法</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• 直接使用 useContext</li>
- <li>• 在 Provider 外使用 Hook</li>
- <li>• 过度拆分 Context</li>
- <li>• 在渲染中修改 Context</li>
- <li>• 忽略性能优化</li>
+ <li>直接使用 useContext</li>
+ <li>在 Provider 外使用 Hook</li>
+ <li>过度拆分 Context</li>
+ <li>在渲染中修改 Context</li>
+ <li>忽略性能优化</li>
  </ul>
  </div>
  </div>

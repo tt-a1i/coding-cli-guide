@@ -50,10 +50,10 @@ export function AuthenticationFlow() {
 
  <HighlightBox title="⏱️ 30秒速览" icon="🎯" variant="blue">
  <ul className="space-y-2 text-sm">
- <li>• <strong>默认方式</strong>：Login with Google（OAuth 浏览器登录）60 req/min &amp; 1000 req/day</li>
- <li>• <strong>无浏览器回退</strong>：NO_BROWSER/CI/SSH 等环境触发“手动粘贴授权码”（带 PKCE）</li>
- <li>• <strong>其他方式</strong>：Gemini API Key（<code>GEMINI_API_KEY</code>）/ Vertex AI（<code>GOOGLE_CLOUD_PROJECT</code> 等）</li>
- <li>• <strong>凭据持久化</strong>：优先安全存储（HybridTokenStorage/Keychain），并兼容 <code>~/.gemini/oauth_creds.json</code> 迁移</li>
+ <li><strong>默认方式</strong>：Login with Google（OAuth 浏览器登录）60 req/min &amp; 1000 req/day</li>
+ <li><strong>无浏览器回退</strong>：NO_BROWSER/CI/SSH 等环境触发“手动粘贴授权码”（带 PKCE）</li>
+ <li><strong>其他方式</strong>：Gemini API Key（<code>GEMINI_API_KEY</code>）/ Vertex AI（<code>GOOGLE_CLOUD_PROJECT</code> 等）</li>
+ <li><strong>凭据持久化</strong>：优先安全存储（HybridTokenStorage/Keychain），并兼容 <code>~/.gemini/oauth_creds.json</code> 迁移</li>
  </ul>
  </HighlightBox>
 
@@ -63,39 +63,39 @@ export function AuthenticationFlow() {
  <h4 className="text-heading font-bold mb-2">🌟 Login with Google（默认）</h4>
  <p className="text-sm text-body mb-2">个人账号免费：60 req/min &amp; 1000 req/day</p>
  <ul className="text-sm text-body space-y-1">
- <li>• 浏览器登录：Loopback 回调（本地 HTTP server）</li>
- <li>• 无浏览器：手动授权码（PKCE）</li>
- <li>• 自动刷新并持久化 tokens</li>
+ <li>浏览器登录：Loopback 回调（本地 HTTP server）</li>
+ <li>无浏览器：手动授权码（PKCE）</li>
+ <li>自动刷新并持久化 tokens</li>
  </ul>
  <code className="text-xs block mt-2 text-heading">AuthType: &quot;oauth-personal&quot;</code>
  </div>
 
- <div className="bg-green-500/10 border-2 border-green-500/30 rounded-lg p-4">
- <h4 className="text-green-400 font-bold mb-2">🔑 Gemini API Key</h4>
+ <div className="bg-elevated border-2 border-edge/30 rounded-lg p-4">
+ <h4 className="text-heading font-bold mb-2">🔑 Gemini API Key</h4>
  <p className="text-sm text-body mb-2">适合需要精确控制模型/计费的场景</p>
  <ul className="text-sm text-body space-y-1">
- <li>• 通过 <code>GEMINI_API_KEY</code> 提供密钥</li>
- <li>• 可配合 <code>GEMINI_MODEL</code> 指定默认模型</li>
+ <li>通过 <code>GEMINI_API_KEY</code> 提供密钥</li>
+ <li>可配合 <code>GEMINI_MODEL</code> 指定默认模型</li>
  </ul>
- <code className="text-xs block mt-2 text-green-300">AuthType: &quot;gemini-api-key&quot;</code>
+ <code className="text-xs block mt-2 text-heading">AuthType: &quot;gemini-api-key&quot;</code>
  </div>
 
  <div className="bg-elevated/10 border-2 border-edge rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">🏢 Vertex AI</h4>
  <p className="text-sm text-body mb-2">企业/生产环境：项目 + 区域 + 计费</p>
  <ul className="text-sm text-body space-y-1">
- <li>• <code>GOOGLE_CLOUD_PROJECT</code> + <code>GOOGLE_CLOUD_LOCATION</code></li>
- <li>• 或 <code>GOOGLE_API_KEY</code></li>
+ <li><code>GOOGLE_CLOUD_PROJECT</code> + <code>GOOGLE_CLOUD_LOCATION</code></li>
+ <li>或 <code>GOOGLE_API_KEY</code></li>
  </ul>
  <code className="text-xs block mt-2 text-heading">AuthType: &quot;vertex-ai&quot;</code>
  </div>
 
- <div className="bg-orange-500/10 border-2 border-orange-500/30 rounded-lg p-4">
+ <div className="bg-elevated border-2 border-edge/30 rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">☁️ Compute ADC / Cloud Shell</h4>
  <p className="text-sm text-body mb-2">在支持的 GCP 环境中可非交互使用</p>
  <ul className="text-sm text-body space-y-1">
- <li>• 通过 metadata server 获取 token</li>
- <li>• 常见于 Cloud Shell / GCE</li>
+ <li>通过 metadata server 获取 token</li>
+ <li>常见于 Cloud Shell / GCE</li>
  </ul>
  <code className="text-xs block mt-2 text-heading">AuthType: &quot;compute-default-credentials&quot;</code>
  </div>

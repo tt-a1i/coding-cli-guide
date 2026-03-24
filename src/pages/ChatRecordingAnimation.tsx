@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { CodeBlock } from '../components/CodeBlock';
 
 interface ThoughtSummary {
  id: string;
@@ -221,10 +222,10 @@ export default function ChatRecordingAnimation() {
  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
  {/* Queue State */}
  <div className="space-y-4">
- <div className="bg-base/40 border border-[var(--color-warning)] rounded-lg p-4">
- <h3 className="text-[var(--color-warning)] font-bold mb-3 flex items-center gap-2">
+ <div className="bg-base/40 border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h3 className="text-heading font-bold mb-3 flex items-center gap-2">
  <span className="text-xl">💭</span> 思考队列
- <span className="text-xs bg-[var(--color-warning-soft)] px-2 py-0.5 rounded-full">
+ <span className="text-xs bg-elevated px-2 py-0.5 rounded-full">
  {queuedThoughts.length}
  </span>
  </h3>
@@ -237,9 +238,9 @@ export default function ChatRecordingAnimation() {
  {queuedThoughts.map((thought, index) => (
  <div
  key={thought.id}
- className="p-2 bg-[var(--color-warning-soft)] border border-[var(--color-warning)] rounded-lg text-sm"
+ className="p-2 bg-elevated border-l-2 border-l-edge-hover rounded-lg text-sm"
  >
- <div className="text-[var(--color-warning)] text-xs">思考 #{index + 1}</div>
+ <div className="text-heading text-xs">思考 #{index + 1}</div>
  <div className="text-body truncate">{thought.content}</div>
  </div>
  ))}
@@ -301,14 +302,14 @@ export default function ChatRecordingAnimation() {
  <button
  onClick={() => recordThought('这是一个测试思考')}
  disabled={isSimulating}
- className="px-3 py-2 bg-[var(--color-warning-soft)] text-[var(--color-warning)] border border-[var(--color-warning)] rounded-lg text-sm hover:bg-yellow-500/30 disabled:opacity-50"
+ className="px-3 py-2 bg-elevated text-heading border-l-2 border-l-edge-hover rounded-lg text-sm hover:bg-elevated disabled:opacity-50"
  >
  💭 添加思考
  </button>
  <button
  onClick={() => recordToolCalls([{ id: 'call_' + generateId(), name: 'read_file', status: 'completed' }])}
  disabled={isSimulating}
- className="px-3 py-2 bg-[var(--color-success-soft)] text-[var(--color-success)] border border-[var(--color-success)] rounded-lg text-sm hover:bg-green-500/30 disabled:opacity-50"
+ className="px-3 py-2 bg-elevated text-heading border-l-2 border-l-edge-hover rounded-lg text-sm hover:bg-elevated disabled:opacity-50"
  >
  🔧 工具调用
  </button>
@@ -322,7 +323,7 @@ export default function ChatRecordingAnimation() {
  </div>
  <button
  onClick={clearAll}
- className="w-full px-4 py-2 bg-[var(--color-danger-soft)] text-[var(--color-danger)] border border-[var(--color-danger)] rounded-lg hover:bg-red-500/30"
+ className="w-full px-4 py-2 bg-elevated text-heading border-l-2 border-l-edge-hover rounded-lg hover:bg-elevated"
  >
  🗑️ 清空全部
  </button>
@@ -371,8 +372,8 @@ export default function ChatRecordingAnimation() {
  )}
 
  {msg.thoughts && msg.thoughts.length > 0 && (
- <div className="mb-2 p-2 bg-[var(--color-warning-soft)] rounded border border-yellow-500/20">
- <div className="text-xs text-[var(--color-warning)] mb-1">💭 思考 ({msg.thoughts.length})</div>
+ <div className="mb-2 p-2 bg-elevated rounded border-l-2 border-l-edge-hover/20">
+ <div className="text-xs text-heading mb-1">💭 思考 ({msg.thoughts.length})</div>
  {msg.thoughts.map((t, i) => (
  <div key={i} className="text-xs text-body truncate">• {t.content}</div>
  ))}
@@ -380,8 +381,8 @@ export default function ChatRecordingAnimation() {
  )}
 
  {msg.toolCalls && msg.toolCalls.length > 0 && (
- <div className="mb-2 p-2 bg-[var(--color-success-soft)] rounded border border-[var(--color-success)]">
- <div className="text-xs text-[var(--color-success)] mb-1">🔧 工具 ({msg.toolCalls.length})</div>
+ <div className="mb-2 p-2 bg-elevated rounded border-l-2 border-l-edge-hover">
+ <div className="text-xs text-heading mb-1">🔧 工具 ({msg.toolCalls.length})</div>
  {msg.toolCalls.map((tc, i) => (
  <div key={i} className="text-xs text-body">• {tc.name} ({tc.status})</div>
  ))}
@@ -392,7 +393,7 @@ export default function ChatRecordingAnimation() {
  <div className="flex gap-2 text-xs">
  <span className="text-dim">Token:</span>
  <span className="text-heading">in:{msg.tokens.input}</span>
- <span className="text-[var(--color-success)]">out:{msg.tokens.output}</span>
+ <span className="text-heading">out:{msg.tokens.output}</span>
  <span className="text-heading">total:{msg.tokens.total}</span>
  </div>
  )}
@@ -417,8 +418,8 @@ export default function ChatRecordingAnimation() {
  className={`p-2 rounded ${
  log.includes('recordMessage(user)') ? ' bg-elevated/10 text-heading' :
  log.includes('recordMessage(gemini)') ? ' bg-elevated text-heading' :
- log.includes('recordThought') ? 'bg-[var(--color-warning-soft)] text-[var(--color-warning)]' :
- log.includes('recordToolCalls') ? 'bg-[var(--color-success-soft)] text-[var(--color-success)]' :
+ log.includes('recordThought') ? 'bg-elevated text-heading' :
+ log.includes('recordToolCalls') ? 'bg-elevated text-heading' :
  log.includes('recordTokens') ? ' bg-elevated/10 text-heading' :
  ' bg-surface text-body'
  }`}
@@ -435,8 +436,8 @@ export default function ChatRecordingAnimation() {
  <div className="mt-6 bg-base/40 border border-edge rounded-lg p-4">
  <h3 className="text-heading font-bold mb-3">🔄 队列流程</h3>
  <div className="flex flex-wrap justify-center items-center gap-3 text-sm">
- <div className="p-3 bg-[var(--color-warning-soft)] border border-[var(--color-warning)] rounded-lg text-center">
- <div className="text-[var(--color-warning)] font-bold">recordThought()</div>
+ <div className="p-3 bg-elevated border-l-2 border-l-edge-hover rounded-lg text-center">
+ <div className="text-heading font-bold">recordThought()</div>
  <div className="text-xs text-body">→ queuedThoughts[]</div>
  </div>
  <div className="text-dim text-2xl">+</div>
@@ -450,50 +451,51 @@ export default function ChatRecordingAnimation() {
  <div className="text-xs text-body">合并队列到消息</div>
  </div>
  <div className="text-dim text-2xl">→</div>
- <div className="p-3 bg-[var(--color-success-soft)] border border-[var(--color-success)] rounded-lg text-center">
- <div className="text-[var(--color-success)] font-bold">写入文件</div>
+ <div className="p-3 bg-elevated border-l-2 border-l-edge-hover rounded-lg text-center">
+ <div className="text-heading font-bold">写入文件</div>
  <div className="text-xs text-body">session-*.json</div>
  </div>
  </div>
  </div>
 
  {/* Code Reference */}
- <div className="mt-6 bg-base/40 border border-edge rounded-lg p-4">
- <h3 className="text-heading font-bold mb-3">📄 源码参考</h3>
- <pre className="text-xs text-body overflow-x-auto">
-{`// packages/core/src/services/chatRecordingService.ts
+ <div className="mt-6">
+ <CodeBlock
+ title="chatRecordingService.ts — 源码参考"
+ language="typescript"
+ code={`// packages/core/src/services/chatRecordingService.ts
 
 export class ChatRecordingService {
- private queuedThoughts: Array<ThoughtSummary & { timestamp: string }> = [];
- private queuedTokens: TokensSummary | null = null;
+  private queuedThoughts: Array<ThoughtSummary & { timestamp: string }> = [];
+  private queuedTokens: TokensSummary | null = null;
 
- recordThought(thought: ThoughtSummary): void {
- this.queuedThoughts.push({
- ...thought,
- timestamp: new Date().toISOString(),
- });
- }
+  recordThought(thought: ThoughtSummary): void {
+    this.queuedThoughts.push({
+      ...thought,
+      timestamp: new Date().toISOString(),
+    });
+  }
 
- recordMessage(message: { type: 'user' | 'gemini'; content: string; model: string }): void {
- this.updateConversation((conversation) => {
- const msg = this.newMessage(message.type, message.content);
- if (msg.type === 'gemini') {
- // 合并排队的思考和 Token 到新消息
- conversation.messages.push({
- ...msg,
- thoughts: this.queuedThoughts,
- tokens: this.queuedTokens,
- model: message.model,
- });
- this.queuedThoughts = []; // 清空队列
- this.queuedTokens = null;
- } else {
- conversation.messages.push(msg);
- }
- });
- }
+  recordMessage(message: { type: 'user' | 'gemini'; content: string; model: string }): void {
+    this.updateConversation((conversation) => {
+      const msg = this.newMessage(message.type, message.content);
+      if (msg.type === 'gemini') {
+        // 合并排队的思考和 Token 到新消息
+        conversation.messages.push({
+          ...msg,
+          thoughts: this.queuedThoughts,
+          tokens: this.queuedTokens,
+          model: message.model,
+        });
+        this.queuedThoughts = []; // 清空队列
+        this.queuedTokens = null;
+      } else {
+        conversation.messages.push(msg);
+      }
+    });
+  }
 }`}
- </pre>
+ />
  </div>
  </div>
  </div>

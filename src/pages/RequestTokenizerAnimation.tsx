@@ -144,7 +144,7 @@ export function RequestTokenizerAnimation() {
  {isIntroExpanded ? (
  <div className="px-6 pb-6 space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">🎯 上游为什么不用 tiktoken？</h4>
+ <h4 className="text-heading font-bold mb-2">🎯 上游为什么不用 tiktoken？</h4>
  <p className="text-body text-sm">
  上游 gemini-cli 不依赖 OpenAI 的 tokenizer。它用 ASCII/CJK 启发式对文本做 token 预估；遇到媒体（图片/文件）时优先调用{' '}
  <code>countTokens</code> API，失败再回退本地预估。

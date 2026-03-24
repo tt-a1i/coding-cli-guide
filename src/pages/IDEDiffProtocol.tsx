@@ -2,6 +2,9 @@ import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
+import { getThemeColor } from '../utils/theme';
+
+
 
 export function IDEDiffProtocol() {
  // IDE 连接建立流程
@@ -32,11 +35,11 @@ export function IDEDiffProtocol() {
  mcp_connect --> discover
  discover --> connected
 
- style start fill:#22d3ee,color:#000
- style connected fill:#22c55e,color:#000
- style failed fill:#ef4444,color:#fff
- style validate fill:#f59e0b,color:#000
- style compat_ok fill:#f59e0b,color:#000`;
+ style start fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style connected fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style failed fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style validate fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style compat_ok fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  // Diff View 完整交互流程
  const diffFlowChart = `flowchart TD
@@ -59,16 +62,16 @@ export function IDEDiffProtocol() {
  send_open --> vscode_diff
  vscode_diff --> user_action
  user_action -->|Accept| accept
- user_action -->|Cancel/Close| reject
+ user_action -->|"Cancel/Close"| reject
  accept --> write
  reject --> cancel
 
- style tool fill:#22d3ee,color:#000
- style write fill:#22c55e,color:#000
- style cancel fill:#ef4444,color:#fff
- style direct fill:#6b7280,color:#fff
- style check_ide fill:#f59e0b,color:#000
- style user_action fill:#f59e0b,color:#000`;
+ style tool fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style write fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style cancel fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style direct fill:${getThemeColor("--mermaid-muted-fill", "#f4f4f2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style check_ide fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style user_action fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  const architectureCode = `// IDE 集成架构图
 // 来源: packages/vscode-ide-companion/ + packages/core/src/ide/
@@ -97,9 +100,9 @@ export function IDEDiffProtocol() {
 │ │ HTTP SSE (:随机端口) │
 │ │ Auth: Bearer Token │
 └──────────────────────────────┼──────────────────────────────────────────────┘
- │
- │ MCP Protocol (JSON-RPC 2.0)
- │
+  │
+  │ MCP Protocol (JSON-RPC 2.0)
+  │
 ┌──────────────────────────────┼──────────────────────────────────────────────┐
 │ ▼ CLI │
 │ (packages/core/src/ide/) │
@@ -134,172 +137,172 @@ export const DIFF_SCHEME = 'gemini-diff';
 
 // 在 activate() 中注册
 context.subscriptions.push(
- vscode.workspace.registerTextDocumentContentProvider(
- DIFF_SCHEME,
- diffContentProvider
- )
+  vscode.workspace.registerTextDocumentContentProvider(
+  DIFF_SCHEME,
+  diffContentProvider
+  )
 );
 
 // DiffContentProvider 实现
 // 来源: packages/vscode-ide-companion/src/diff-manager.ts:16-40
 
 export class DiffContentProvider
- implements vscode.TextDocumentContentProvider {
- private content = new Map<string, string>();
+  implements vscode.TextDocumentContentProvider {
+  private content = new Map<string, string>();
 
- provideTextDocumentContent(uri: vscode.Uri): string {
- // 返回 AI 生成的新内容
- return this.content.get(uri.toString()) ?? '';
- }
+  provideTextDocumentContent(uri: vscode.Uri): string {
+  // 返回 AI 生成的新内容
+  return this.content.get(uri.toString()) ?? '';
+  }
 
- setContent(uri: vscode.Uri, content: string): void {
- this.content.set(uri.toString(), content);
- this.onDidChangeEmitter.fire(uri); // 触发更新
- }
+  setContent(uri: vscode.Uri, content: string): void {
+  this.content.set(uri.toString(), content);
+  this.onDidChangeEmitter.fire(uri); // 触发更新
+  }
 }`;
 
  const showDiffCode = `// showDiff 实现 - 打开 VS Code 原生 Diff View
 // 来源: packages/vscode-ide-companion/src/diff-manager.ts:80-130
 
 async showDiff(filePath: string, newContent: string) {
- const fileUri = vscode.Uri.file(filePath);
+  const fileUri = vscode.Uri.file(filePath);
 
- // 1. 创建 gemini-diff:// URI (右侧 - 新内容)
- const rightDocUri = vscode.Uri.from({
- scheme: DIFF_SCHEME, // 'gemini-diff'
- path: filePath,
- query: \`rand=\${Math.random()}\`, // cache busting
- });
+  // 1. 创建 gemini-diff:// URI (右侧 - 新内容)
+  const rightDocUri = vscode.Uri.from({
+  scheme: DIFF_SCHEME, // 'gemini-diff'
+  path: filePath,
+  query: \`rand=\${Math.random()}\`, // cache busting
+  });
 
- // 2. 设置新内容到 Provider
- this.diffContentProvider.setContent(rightDocUri, newContent);
+  // 2. 设置新内容到 Provider
+  this.diffContentProvider.setContent(rightDocUri, newContent);
 
- // 3. 处理左侧文档 (原始内容)
- let leftDocUri;
- try {
- await vscode.workspace.fs.stat(fileUri);
- leftDocUri = fileUri; // 文件存在，用原文件
- } catch {
- // 文件不存在，用空的 untitled 文档
- leftDocUri = vscode.Uri.from({
- scheme: 'untitled',
- path: filePath,
- });
- }
+  // 3. 处理左侧文档 (原始内容)
+  let leftDocUri;
+  try {
+  await vscode.workspace.fs.stat(fileUri);
+  leftDocUri = fileUri; // 文件存在，用原文件
+  } catch {
+  // 文件不存在，用空的 untitled 文档
+  leftDocUri = vscode.Uri.from({
+  scheme: 'untitled',
+  path: filePath,
+  });
+  }
 
- // 4. 调用 VS Code 原生 Diff 命令
- await vscode.commands.executeCommand(
- 'vscode.diff',
- leftDocUri, // 左侧: 原始文件 (file://)
- rightDocUri, // 右侧: AI 修改 (gemini-diff://)
- \`\${path.basename(filePath)} ↔ Modified\`, // 标题
- { preview: false, preserveFocus: true }
- );
+  // 4. 调用 VS Code 原生 Diff 命令
+  await vscode.commands.executeCommand(
+  'vscode.diff',
+  leftDocUri, // 左侧: 原始文件 (file://)
+  rightDocUri, // 右侧: AI 修改 (gemini-diff://)
+  \`\${path.basename(filePath)} ↔ Modified\`, // 标题
+  { preview: false, preserveFocus: true }
+  );
 
- // 5. 允许编辑右侧内容
- await vscode.commands.executeCommand(
- 'workbench.action.files.setActiveEditorWriteableInSession'
- );
+  // 5. 允许编辑右侧内容
+  await vscode.commands.executeCommand(
+  'workbench.action.files.setActiveEditorWriteableInSession'
+  );
 }`;
 
  const mcpServerCode = `// MCP Server 注册 Diff 工具
 // 来源: packages/vscode-ide-companion/src/ide-server.ts:424-470
 
 const createMcpServer = (diffManager: DiffManager) => {
- const server = new McpServer({
- name: 'gemini-cli-companion-mcp-server',
- version: '1.0.0',
- }, { capabilities: { logging: {} } });
+  const server = new McpServer({
+  name: 'gemini-cli-companion-mcp-server',
+  version: '1.0.0',
+  }, { capabilities: { logging: {} } });
 
- // openDiff 工具 - CLI 调用以打开 Diff View
- server.registerTool(
- 'openDiff',
- {
- description: '(IDE Tool) Open a diff view to create or modify a file.',
- inputSchema: OpenDiffRequestSchema.shape,
- },
- async ({ filePath, newContent }) => {
- await diffManager.showDiff(filePath, newContent);
- return { content: [] }; // 结果通过 notification 异步返回
- },
- );
+  // openDiff 工具 - CLI 调用以打开 Diff View
+  server.registerTool(
+  'openDiff',
+  {
+  description: '(IDE Tool) Open a diff view to create or modify a file.',
+  inputSchema: OpenDiffRequestSchema.shape,
+  },
+  async ({ filePath, newContent }) => {
+  await diffManager.showDiff(filePath, newContent);
+  return { content: [] }; // 结果通过 notification 异步返回
+  },
+  );
 
- // closeDiff 工具 - CLI 调用以关闭 Diff View
- server.registerTool(
- 'closeDiff',
- {
- description: '(IDE Tool) Close an open diff view for a specific file.',
- inputSchema: CloseDiffRequestSchema.shape,
- },
- async ({ filePath, suppressNotification }) => {
- const content = await diffManager.closeDiff(filePath, suppressNotification);
- return {
- content: [{ type: 'text', text: JSON.stringify({ content }) }],
- };
- },
- );
+  // closeDiff 工具 - CLI 调用以关闭 Diff View
+  server.registerTool(
+  'closeDiff',
+  {
+  description: '(IDE Tool) Close an open diff view for a specific file.',
+  inputSchema: CloseDiffRequestSchema.shape,
+  },
+  async ({ filePath, suppressNotification }) => {
+  const content = await diffManager.closeDiff(filePath, suppressNotification);
+  return {
+  content: [{ type: 'text', text: JSON.stringify({ content }) }],
+  };
+  },
+  );
 
- return server;
+  return server;
 };`;
 
  const clientDiffCode = `// CLI 侧 Diff 调用 (带 Mutex 锁)
 // 来源: packages/core/src/ide/ide-client.ts:229-282
 
 async openDiff(
- filePath: string,
- newContent: string,
+  filePath: string,
+  newContent: string,
 ): Promise<DiffUpdateResult> {
- // 1. 获取互斥锁 - 确保同时只有一个 Diff 打开
- const release = await this.acquireMutex();
+  // 1. 获取互斥锁 - 确保同时只有一个 Diff 打开
+  const release = await this.acquireMutex();
 
- const promise = new Promise<DiffUpdateResult>((resolve, reject) => {
- // 2. 注册 resolver 等待通知
- this.diffResponses.set(filePath, resolve);
+  const promise = new Promise<DiffUpdateResult>((resolve, reject) => {
+  // 2. 注册 resolver 等待通知
+  this.diffResponses.set(filePath, resolve);
 
- // 3. 发送 MCP 请求
- this.client.request({
- method: 'tools/call',
- params: {
- name: 'openDiff',
- arguments: { filePath, newContent },
- },
- }, CallToolResultSchema, { timeout: IDE_REQUEST_TIMEOUT_MS })
- .catch((err) => {
- this.diffResponses.delete(filePath);
- reject(err);
- });
- });
+  // 3. 发送 MCP 请求
+  this.client.request({
+  method: 'tools/call',
+  params: {
+  name: 'openDiff',
+  arguments: { filePath, newContent },
+  },
+  }, CallToolResultSchema, { timeout: IDE_REQUEST_TIMEOUT_MS })
+  .catch((err) => {
+  this.diffResponses.delete(filePath);
+  reject(err);
+  });
+  });
 
- // 4. 完成后释放锁
- promise.finally(release);
- return promise;
+  // 4. 完成后释放锁
+  promise.finally(release);
+  return promise;
 }
 
 // 通知处理器
 // 来源: packages/core/src/ide/ide-client.ts:730-756
 
 this.client.setNotificationHandler(
- IdeDiffAcceptedNotificationSchema,
- (notification) => {
- const { filePath, content } = notification.params;
- const resolver = this.diffResponses.get(filePath);
- if (resolver) {
- resolver({ status: 'accepted', content }); // 用户接受
- this.diffResponses.delete(filePath);
- }
- },
+  IdeDiffAcceptedNotificationSchema,
+  (notification) => {
+  const { filePath, content } = notification.params;
+  const resolver = this.diffResponses.get(filePath);
+  if (resolver) {
+  resolver({ status: 'accepted', content }); // 用户接受
+  this.diffResponses.delete(filePath);
+  }
+  },
 );
 
 this.client.setNotificationHandler(
- IdeDiffClosedNotificationSchema,
- (notification) => {
- const { filePath } = notification.params;
- const resolver = this.diffResponses.get(filePath);
- if (resolver) {
- resolver({ status: 'rejected', content: undefined }); // 用户取消
- this.diffResponses.delete(filePath);
- }
- },
+  IdeDiffClosedNotificationSchema,
+  (notification) => {
+  const { filePath } = notification.params;
+  const resolver = this.diffResponses.get(filePath);
+  if (resolver) {
+  resolver({ status: 'rejected', content: undefined }); // 用户取消
+  this.diffResponses.delete(filePath);
+  }
+  },
 );`;
 
  const portFileCode = `// 端口发现机制（上游 gemini-cli）
@@ -313,19 +316,19 @@ const portDir = path.join(os.tmpdir(), 'gemini', 'ide');
 await fs.mkdir(portDir, { recursive: true });
 
 const portFile = path.join(
- portDir,
- \`gemini-ide-server-\${process.ppid}-\${port}.json\`,
+  portDir,
+  \`gemini-ide-server-\${process.ppid}-\${port}.json\`,
 );
 
 await fs.writeFile(
- portFile,
- JSON.stringify({
- port,
- workspacePath,
- ppid: process.ppid,
- authToken,
- }),
- { mode: 0o600 },
+  portFile,
+  JSON.stringify({
+  port,
+  workspacePath,
+  ppid: process.ppid,
+  authToken,
+  }),
+  { mode: 0o600 },
 );
 
 // CLI 侧：gemini-cli/packages/core/src/ide/ide-client.ts
@@ -339,41 +342,41 @@ await fs.writeFile(
 // 来源: packages/vscode-ide-companion/src/ide-server.ts:97-118
 
 function sendIdeContextUpdateNotification(
- transport: StreamableHTTPServerTransport,
- openFilesManager: OpenFilesManager,
+  transport: StreamableHTTPServerTransport,
+  openFilesManager: OpenFilesManager,
 ) {
- const ideContext = openFilesManager.state;
+  const ideContext = openFilesManager.state;
 
- // 发送 ide/contextUpdate 通知
- transport.send(IdeContextNotificationSchema.parse({
- jsonrpc: '2.0',
- method: 'ide/contextUpdate',
- params: ideContext,
- // {
- // openFiles: ['/path/to/file.ts', ...],
- // activeFile: '/path/to/file.ts',
- // selection: { start: { line: 10, character: 0 }, end: { ... } },
- // workspaceState: { isTrusted: true }
- // }
- }));
+  // 发送 ide/contextUpdate 通知
+  transport.send(IdeContextNotificationSchema.parse({
+  jsonrpc: '2.0',
+  method: 'ide/contextUpdate',
+  params: ideContext,
+  // {
+  // openFiles: ['/path/to/file.ts', ...],
+  // activeFile: '/path/to/file.ts',
+  // selection: { start: { line: 10, character: 0 }, end: { ... } },
+  // workspaceState: { isTrusted: true }
+  // }
+  }));
 }
 
 // CLI 侧接收并存储上下文
 // 来源: packages/core/src/ide/ide-client.ts:703-714
 
 this.client.setNotificationHandler(
- IdeContextNotificationSchema,
- (notification) => {
- ideContextStore.set(notification.params);
+  IdeContextNotificationSchema,
+  (notification) => {
+  ideContextStore.set(notification.params);
 
- // 同步工作区信任状态
- const isTrusted = notification.params.workspaceState?.isTrusted;
- if (isTrusted !== undefined) {
- for (const listener of this.trustChangeListeners) {
- listener(isTrusted);
- }
- }
- },
+  // 同步工作区信任状态
+  const isTrusted = notification.params.workspaceState?.isTrusted;
+  if (isTrusted !== undefined) {
+  for (const listener of this.trustChangeListeners) {
+  listener(isTrusted);
+  }
+  }
+  },
 );`;
 
  return (
@@ -389,10 +392,10 @@ this.client.setNotificationHandler(
  并通过原生 Diff View 进行审查和编辑，而非盲目接受 AI 的修改。
  </p>
  <ul className="space-y-1 text-body">
- <li>• <strong>用户控制权</strong>：AI 不直接覆写文件，用户通过 IDE 批准后才写入</li>
- <li>• <strong>可视化对比</strong>：使用 VS Code 原生 Diff View 高亮显示变更</li>
- <li>• <strong>可编辑性</strong>：用户可在接受前修改 AI 生成的内容</li>
- <li>• <strong>无缝集成</strong>：CLI 与 IDE 双向通信，无需切换上下文</li>
+ <li><strong>用户控制权</strong>：AI 不直接覆写文件，用户通过 IDE 批准后才写入</li>
+ <li><strong>可视化对比</strong>：使用 VS Code 原生 Diff View 高亮显示变更</li>
+ <li><strong>可编辑性</strong>：用户可在接受前修改 AI 生成的内容</li>
+ <li><strong>无缝集成</strong>：CLI 与 IDE 双向通信，无需切换上下文</li>
  </ul>
  </div>
  </HighlightBox>
@@ -414,8 +417,8 @@ this.client.setNotificationHandler(
  </p>
  </div>
 
- <div className="bg-green-500/10 border-2 border-green-500/30 rounded-lg p-4">
- <h4 className="text-green-400 font-bold mb-2">⌨️ CLI (IdeClient)</h4>
+ <div className="bg-elevated border-2 border-edge/30 rounded-lg p-4">
+ <h4 className="text-heading font-bold mb-2">⌨️ CLI (IdeClient)</h4>
  <p className="text-sm text-body">
  MCP Client + Mutex 锁<br/>
  发起 Diff 请求，等待用户确认
@@ -430,29 +433,29 @@ this.client.setNotificationHandler(
  <div className="bg-surface rounded-lg p-4">
  <h4 className="font-semibold text-heading mb-3">触发条件</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• AI 调用 <code className="text-heading">write_file</code> 或 <code className="text-heading">replace</code> 工具</li>
- <li>• IDE 集成已启用（<code className="text-heading">/ide enable</code>）</li>
- <li>• VS Code 插件已安装并连接成功</li>
- <li>• 工作区路径匹配 CLI 运行目录</li>
+ <li>AI 调用 <code className="text-heading">write_file</code> 或 <code className="text-heading">replace</code> 工具</li>
+ <li>IDE 集成已启用（<code className="text-heading">/ide enable</code>）</li>
+ <li>VS Code 插件已安装并连接成功</li>
+ <li>工作区路径匹配 CLI 运行目录</li>
  </ul>
  </div>
 
  <div className="bg-surface rounded-lg p-4">
  <h4 className="font-semibold text-heading mb-3">输入参数</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• <code className="text-heading">filePath</code>: 要修改的文件绝对路径</li>
- <li>• <code className="text-heading">newContent</code>: AI 生成的新文件内容</li>
- <li>• <code className="text-heading">callId</code>: 工具调用唯一标识符</li>
+ <li><code className="text-heading">filePath</code>: 要修改的文件绝对路径</li>
+ <li><code className="text-heading">newContent</code>: AI 生成的新文件内容</li>
+ <li><code className="text-heading">callId</code>: 工具调用唯一标识符</li>
  </ul>
  </div>
  </div>
 
  <HighlightBox title="前置依赖" icon="⚠️" variant="orange">
  <ul className="text-sm text-body space-y-1">
- <li>• VS Code 已打开当前项目工作区</li>
- <li>• VS Code 插件已启动 MCP Server（端口文件存在）</li>
- <li>• CLI 通过进程树检测到 IDE 进程</li>
- <li>• MCP 连接已建立（HTTP SSE 握手成功）</li>
+ <li>VS Code 已打开当前项目工作区</li>
+ <li>VS Code 插件已启动 MCP Server（端口文件存在）</li>
+ <li>CLI 通过进程树检测到 IDE 进程</li>
+ <li>MCP 连接已建立（HTTP SSE 握手成功）</li>
  </ul>
  </HighlightBox>
  </Layer>
@@ -461,32 +464,32 @@ this.client.setNotificationHandler(
  <Layer title="输出" icon="📤">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface rounded-lg p-4">
- <h4 className="font-semibold text-green-400 mb-3">成功输出（用户接受）</h4>
+ <h4 className="font-semibold text-heading mb-3">成功输出（用户接受）</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• <code className="text-green-300">DiffUpdateResult</code>: <code>{`{ status: 'accepted', content: string }`}</code></li>
- <li>• 文件内容写入磁盘（可能包含用户编辑）</li>
- <li>• Diff View 自动关闭</li>
- <li>• 释放 <code className="text-heading">diffMutex</code> 锁</li>
+ <li><code className="text-heading">DiffUpdateResult</code>: <code>{`{ status: 'accepted', content: string }`}</code></li>
+ <li>文件内容写入磁盘（可能包含用户编辑）</li>
+ <li>Diff View 自动关闭</li>
+ <li>释放 <code className="text-heading">diffMutex</code> 锁</li>
  </ul>
  </div>
 
  <div className="bg-surface rounded-lg p-4">
- <h4 className="font-semibold text-red-400 mb-3">失败输出（用户取消）</h4>
+ <h4 className="font-semibold text-heading mb-3">失败输出（用户取消）</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• <code className="text-red-300">DiffUpdateResult</code>: <code>{`{ status: 'rejected', content: undefined }`}</code></li>
- <li>• 文件不被修改，保持原状</li>
- <li>• Diff View 关闭</li>
- <li>• 释放 <code className="text-heading">diffMutex</code> 锁</li>
+ <li><code className="text-heading">DiffUpdateResult</code>: <code>{`{ status: 'rejected', content: undefined }`}</code></li>
+ <li>文件不被修改，保持原状</li>
+ <li>Diff View 关闭</li>
+ <li>释放 <code className="text-heading">diffMutex</code> 锁</li>
  </ul>
  </div>
  </div>
 
  <HighlightBox title="副作用" icon="🔄" variant="purple">
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>MCP 通知</strong>：发送 <code>ide/diffAccepted</code> 或 <code>ide/diffClosed</code></li>
- <li>• <strong>VS Code UI</strong>：打开 Diff Editor Tab，占用编辑器空间</li>
- <li>• <strong>临时 URI</strong>：创建 <code>gemini-diff://</code> scheme 的虚拟文档</li>
- <li>• <strong>工作区状态</strong>：文件可能被修改（如果用户接受）</li>
+ <li><strong>MCP 通知</strong>：发送 <code>ide/diffAccepted</code> 或 <code>ide/diffClosed</code></li>
+ <li><strong>VS Code UI</strong>：打开 Diff Editor Tab，占用编辑器空间</li>
+ <li><strong>临时 URI</strong>：创建 <code>gemini-diff://</code> scheme 的虚拟文档</li>
+ <li><strong>工作区状态</strong>：文件可能被修改（如果用户接受）</li>
  </ul>
  </HighlightBox>
  </Layer>
@@ -581,9 +584,9 @@ this.client.setNotificationHandler(
  路径验证确保安全性，防止跨项目的意外修改。
  </p>
  <ul className="space-y-1 text-body">
- <li>• <strong>匹配条件</strong>：CLI 当前目录是 VS Code 工作区的子目录</li>
- <li>• <strong>验证位置</strong>：<code>packages/core/src/ide/ide-client.ts:571-667</code></li>
- <li>• <strong>失败行为</strong>：返回 "Directory mismatch" 错误，提示安装插件</li>
+ <li><strong>匹配条件</strong>：CLI 当前目录是 VS Code 工作区的子目录</li>
+ <li><strong>验证位置</strong>：<code>packages/core/src/ide/ide-client.ts:571-667</code></li>
+ <li><strong>失败行为</strong>：返回 "Directory mismatch" 错误，提示安装插件</li>
  </ul>
  </div>
  </HighlightBox>
@@ -594,10 +597,10 @@ this.client.setNotificationHandler(
  <code>diffMutex</code> 确保同时只有一个 Diff View 打开，避免 UI 竞态和用户混淆。
  </p>
  <ul className="space-y-1 text-body">
- <li>• <strong>获取锁</strong>：<code>await this.acquireMutex()</code> 在发送 MCP 请求前</li>
- <li>• <strong>释放锁</strong>：<code>promise.finally(release)</code> 在用户确认后</li>
- <li>• <strong>阻塞行为</strong>：后续请求必须等待前一个 Diff 完成</li>
- <li>• <strong>实现位置</strong>：<code>packages/core/src/ide/ide-client.ts:229-282</code></li>
+ <li><strong>获取锁</strong>：<code>await this.acquireMutex()</code> 在发送 MCP 请求前</li>
+ <li><strong>释放锁</strong>：<code>promise.finally(release)</code> 在用户确认后</li>
+ <li><strong>阻塞行为</strong>：后续请求必须等待前一个 Diff 完成</li>
+ <li><strong>实现位置</strong>：<code>packages/core/src/ide/ide-client.ts:229-282</code></li>
  </ul>
  </div>
  </HighlightBox>
@@ -608,10 +611,10 @@ this.client.setNotificationHandler(
  当目标文件不存在时，左侧使用 <code>untitled:</code> URI 创建空文档。
  </p>
  <ul className="space-y-1 text-body">
- <li>• <strong>检测逻辑</strong>：<code>await vscode.workspace.fs.stat(fileUri)</code> 抛出异常</li>
- <li>• <strong>Fallback</strong>：创建 <code>untitled:</code> scheme 的临时文档</li>
- <li>• <strong>用户体验</strong>：Diff View 左侧显示空白，右侧显示完整新内容</li>
- <li>• <strong>实现位置</strong>：<code>packages/vscode-ide-companion/src/diff-manager.ts:80-130</code></li>
+ <li><strong>检测逻辑</strong>：<code>await vscode.workspace.fs.stat(fileUri)</code> 抛出异常</li>
+ <li><strong>Fallback</strong>：创建 <code>untitled:</code> scheme 的临时文档</li>
+ <li><strong>用户体验</strong>：Diff View 左侧显示空白，右侧显示完整新内容</li>
+ <li><strong>实现位置</strong>：<code>packages/vscode-ide-companion/src/diff-manager.ts:80-130</code></li>
  </ul>
  </div>
  </HighlightBox>
@@ -622,10 +625,10 @@ this.client.setNotificationHandler(
  Diff View 右侧（AI 生成内容）是可编辑的，用户可在接受前修改。
  </p>
  <ul className="space-y-1 text-body">
- <li>• <strong>启用编辑</strong>：<code>workbench.action.files.setActiveEditorWriteableInSession</code></li>
- <li>• <strong>内容追踪</strong>：DiffContentProvider 通过 <code>onDidChange</code> 监听变化</li>
- <li>• <strong>最终内容</strong>：<code>ide/diffAccepted</code> 通知携带用户编辑后的内容</li>
- <li>• <strong>实现位置</strong>：<code>packages/vscode-ide-companion/src/diff-manager.ts:189-193</code></li>
+ <li><strong>启用编辑</strong>：<code>workbench.action.files.setActiveEditorWriteableInSession</code></li>
+ <li><strong>内容追踪</strong>：DiffContentProvider 通过 <code>onDidChange</code> 监听变化</li>
+ <li><strong>最终内容</strong>：<code>ide/diffAccepted</code> 通知携带用户编辑后的内容</li>
+ <li><strong>实现位置</strong>：<code>packages/vscode-ide-companion/src/diff-manager.ts:189-193</code></li>
  </ul>
  </div>
  </HighlightBox>
@@ -636,7 +639,7 @@ this.client.setNotificationHandler(
  <Layer title="失败与恢复" icon="🔧">
  <div className="space-y-4">
  <div className="bg-surface rounded-lg p-4">
- <h4 className="font-semibold text-red-400 mb-3">连接失败场景</h4>
+ <h4 className="font-semibold text-heading mb-3">连接失败场景</h4>
  <table className="w-full text-sm">
  <thead>
  <tr className="border- border-edge text-body">
@@ -671,7 +674,7 @@ this.client.setNotificationHandler(
  </div>
 
  <div className="bg-surface rounded-lg p-4">
- <h4 className="font-semibold text-yellow-400 mb-3">Diff 操作失败场景</h4>
+ <h4 className="font-semibold text-heading mb-3">Diff 操作失败场景</h4>
  <table className="w-full text-sm">
  <thead>
  <tr className="border- border-edge text-body">
@@ -711,10 +714,10 @@ this.client.setNotificationHandler(
  当 IDE 集成不可用时，CLI 会自动降级到 <strong>直接文件写入模式</strong>：
  </p>
  <ul className="space-y-1 text-body">
- <li>• <strong>检测逻辑</strong>：<code>isDiffingEnabled()</code> 返回 false</li>
- <li>• <strong>Fallback 路径</strong>：直接调用 <code>fs.writeFile()</code> 写入内容</li>
- <li>• <strong>用户体验</strong>：失去可视化预览，但不影响核心功能</li>
- <li>• <strong>通知用户</strong>：在首次降级时提示 IDE 集成不可用</li>
+ <li><strong>检测逻辑</strong>：<code>isDiffingEnabled()</code> 返回 false</li>
+ <li><strong>Fallback 路径</strong>：直接调用 <code>fs.writeFile()</code> 写入内容</li>
+ <li><strong>用户体验</strong>：失去可视化预览，但不影响核心功能</li>
+ <li><strong>通知用户</strong>：在首次降级时提示 IDE 集成不可用</li>
  </ul>
  </div>
  </HighlightBox>
@@ -772,19 +775,19 @@ this.client.setNotificationHandler(
  <div className="bg-surface rounded-lg p-4">
  <h4 className="font-semibold text-heading mb-3">CLI 命令</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <div className="bg-elevated/5 rounded-lg p-3 border border-white/10">
+ <div className="bg-elevated/5 rounded-lg p-3 border border-edge/40">
  <code className="text-heading">/ide enable</code>
  <p className="text-sm text-body mt-1">启用 IDE 集成，建立 MCP 连接</p>
  </div>
- <div className="bg-elevated/5 rounded-lg p-3 border border-white/10">
+ <div className="bg-elevated/5 rounded-lg p-3 border border-edge/40">
  <code className="text-heading">/ide disable</code>
  <p className="text-sm text-body mt-1">禁用 IDE 集成，断开连接</p>
  </div>
- <div className="bg-elevated/5 rounded-lg p-3 border border-white/10">
+ <div className="bg-elevated/5 rounded-lg p-3 border border-edge/40">
  <code className="text-heading">/ide install</code>
  <p className="text-sm text-body mt-1">打开 VS Code Marketplace 安装插件</p>
  </div>
- <div className="bg-elevated/5 rounded-lg p-3 border border-white/10">
+ <div className="bg-elevated/5 rounded-lg p-3 border border-edge/40">
  <code className="text-heading">/ide status</code>
  <p className="text-sm text-body mt-1">显示当前 IDE 连接状态</p>
  </div>
@@ -840,7 +843,7 @@ this.client.setNotificationHandler(
  <div className="space-y-2 text-sm font-mono">
  <div className="flex items-start gap-2">
  <span className="text-body">左侧 (原始):</span>
- <code className="text-green-400">file:///Users/dev/project/src/app.ts</code>
+ <code className="text-heading">file:///Users/dev/project/src/app.ts</code>
  </div>
  <div className="flex items-start gap-2">
  <span className="text-body">右侧 (修改):</span>
@@ -863,12 +866,12 @@ this.client.setNotificationHandler(
  </thead>
  <tbody className="text-body">
  <tr className="border- border-edge">
- <td className="py-2"><code className="text-green-400">ide/diffAccepted</code></td>
+ <td className="py-2"><code className="text-heading">ide/diffAccepted</code></td>
  <td>用户点击 Accept</td>
  <td><code>{`{filePath, content}`}</code></td>
  </tr>
  <tr className="border- border-edge">
- <td className="py-2"><code className="text-red-400">ide/diffClosed</code></td>
+ <td className="py-2"><code className="text-heading">ide/diffClosed</code></td>
  <td>用户关闭 Diff View</td>
  <td><code>{`{filePath, content}`}</code></td>
  </tr>

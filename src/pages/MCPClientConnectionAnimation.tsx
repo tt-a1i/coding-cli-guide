@@ -184,7 +184,7 @@ export default function MCPClientConnectionAnimation() {
  const getStatusColor = (status: MCPServerStatus) => {
  switch (status) {
  case 'DISCONNECTED': return 'var(--color-text-muted)';
- case 'CONNECTING': return '#f59e0b';
+ case 'CONNECTING': return 'var(--color-warning)';
  case 'CONNECTED': return 'var(--color-primary)';
  }
  };
@@ -217,7 +217,7 @@ export default function MCPClientConnectionAnimation() {
  discoveryState === 'NOT_STARTED'
  ? ' bg-elevated/20 text-dim'
  : discoveryState === 'IN_PROGRESS'
- ? 'bg-amber-500/20 text-amber-500 animate-pulse'
+ ? 'bg-elevated text-heading animate-pulse'
  : ' bg-elevated/20 text-heading'
  }`}
  >
@@ -228,7 +228,7 @@ export default function MCPClientConnectionAnimation() {
  onClick={() => isPlaying ? resetAnimation() : (resetAnimation(), setTimeout(() => setIsPlaying(true), 100))}
  className={`px-4 py-2 rounded font-mono text-sm transition-all ${
  isPlaying
- ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+ ? 'bg-elevated text-heading border-l-2 border-l-edge-hover/30'
  : ' bg-elevated/20 text-heading border border-edge/30'
  }`}
  >
@@ -255,7 +255,7 @@ export default function MCPClientConnectionAnimation() {
  key={server.name}
  className={`p-4 rounded-lg border transition-all ${
  index === currentServerIndex && isPlaying
- ? 'bg-amber-500/10 border-amber-500/50'
+ ? 'bg-elevated border-edge/40'
  : server.status === 'CONNECTED'
  ? ' bg-elevated/10 border-edge/30'
  : 'bg-base/20 border-edge-hover'
@@ -332,7 +332,7 @@ export default function MCPClientConnectionAnimation() {
  {/* 中间: 连接阶段 */}
  <div className="col-span-5">
  <div className="bg-surface rounded-lg p-4 border border-edge-hover h-full">
- <h3 className="text-sm font-semibold text-amber-500 mb-4 font-mono">
+ <h3 className="text-sm font-semibold text-heading mb-4 font-mono">
  Connection Pipeline
  </h3>
 
@@ -342,7 +342,7 @@ export default function MCPClientConnectionAnimation() {
  key={phase.name}
  className={`flex items-center gap-4 p-3 rounded-lg border transition-all ${
  phase.status === 'active'
- ? 'bg-amber-500/10 border-amber-500/50 animate-pulse'
+ ? 'bg-elevated border-edge/40 animate-pulse'
  : phase.status === 'complete'
  ? ' bg-elevated/10 border-edge/30'
  : 'bg-base/20 border-edge-hover'
@@ -350,7 +350,7 @@ export default function MCPClientConnectionAnimation() {
  >
  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-mono ${
  phase.status === 'active'
- ? 'bg-amber-500/20 text-amber-500'
+ ? 'bg-elevated text-heading'
  : phase.status === 'complete'
  ? ' bg-elevated/20 text-heading'
  : ' bg-elevated/20 text-dim'
@@ -360,7 +360,7 @@ export default function MCPClientConnectionAnimation() {
 
  <div className="flex-1">
  <div className={`text-sm font-mono ${
- phase.status === 'active' ? 'text-amber-500' :
+ phase.status === 'active' ? 'text-heading' :
  phase.status === 'complete' ? 'text-heading' :
  'text-body'
  }`}>
@@ -405,9 +405,9 @@ export default function MCPClientConnectionAnimation() {
  key={i}
  className={`${
  log.includes('✓') || log.includes('✅') ? 'text-heading' :
- log.includes('❌') ? 'text-red-400' :
+ log.includes('❌') ? 'text-heading' :
  log.includes('🔗') || log.includes('🔌') ? 'text-heading' :
- log.includes('→') ? 'text-amber-500' :
+ log.includes('→') ? 'text-heading' :
  log.includes('📋') ? 'text-heading' :
  'text-body'
  }`}

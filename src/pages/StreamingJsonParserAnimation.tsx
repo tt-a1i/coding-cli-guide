@@ -47,9 +47,9 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-body"># AI 决定调用工具</div>
  <div className="text-heading">AI: 我需要读取文件...</div>
  <div className="text-body"># 流式返回 tool_call</div>
- <div className="text-yellow-400">chunk1: {'{"file":'}</div>
- <div className="text-yellow-400">chunk2: {'"src/in'}</div>
- <div className="text-yellow-400">chunk3: {'dex.ts"}'}</div>
+ <div className="text-heading">chunk1: {'{"file":'}</div>
+ <div className="text-heading">chunk2: {'"src/in'}</div>
+ <div className="text-heading">chunk3: {'dex.ts"}'}</div>
  <div className="text-body"># 解析器逐字符跟踪深度</div>
  </div>
  </div>
@@ -59,19 +59,19 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <h3 className="text-heading font-semibold mb-2">🔧 关键算法</h3>
  <div className="grid grid-cols-2 gap-2 text-xs">
  <div className="bg-base p-2 rounded">
- <div className="text-yellow-400">深度计数</div>
+ <div className="text-heading">深度计数</div>
  <div className="text-body">{'{ [ → depth++, } ] → depth--'}</div>
  </div>
  <div className="bg-base p-2 rounded">
- <div className="text-yellow-400">字符串状态</div>
+ <div className="text-heading">字符串状态</div>
  <div className="text-body">" 翻转 inString（除非转义）</div>
  </div>
  <div className="bg-base p-2 rounded">
- <div className="text-yellow-400">完成检测</div>
+ <div className="text-heading">完成检测</div>
  <div className="text-body">depth == 0 且 buffer 非空</div>
  </div>
  <div className="bg-base p-2 rounded">
- <div className="text-yellow-400">碰撞处理</div>
+ <div className="text-heading">碰撞处理</div>
  <div className="text-body">同索引不同ID → 分配新索引</div>
  </div>
  </div>
@@ -91,7 +91,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="flex flex-wrap gap-2">
  <span className="px-2 py-1 bg-elevated/50 text-heading rounded text-xs">OpenAI 管道</span>
  <span className="px-2 py-1 bg-elevated text-heading rounded text-xs">工具调度器</span>
- <span className="px-2 py-1 bg-green-900/50 text-green-300 rounded text-xs">流式响应</span>
+ <span className="px-2 py-1 bg-elevated text-heading rounded text-xs">流式响应</span>
  </div>
  </div>
  </div>
@@ -340,7 +340,7 @@ export default function StreamingJsonParserAnimation() {
  }, [isPlaying, reset, scenario.chunks, processChunk]);
 
  const getDepthColor = (depth: number) => {
- const colors = ['text-red-400', 'text-yellow-400', 'text-green-400', 'text-heading', 'text-heading'];
+ const colors = ['text-heading', 'text-heading', 'text-heading', 'text-heading', 'text-heading'];
  return colors[Math.min(depth, colors.length - 1)];
  };
 
@@ -389,9 +389,9 @@ export default function StreamingJsonParserAnimation() {
  <span className={`px-3 py-1 rounded ${
  parseState === 'idle' ? ' bg-elevated' :
  parseState === 'parsing' ? ' bg-elevated animate-pulse' :
- parseState === 'complete' ? 'bg-green-600' :
- parseState === 'repaired' ? 'bg-yellow-600' :
- 'bg-red-600'
+ parseState === 'complete' ? 'bg-[var(--color-success)]' :
+ parseState === 'repaired' ? 'bg-[var(--color-warning)]' :
+ 'bg-[var(--color-danger)]'
  }`}>
  {parseState === 'idle' ? '空闲' :
  parseState === 'parsing' ? '解析中' :
@@ -409,9 +409,9 @@ export default function StreamingJsonParserAnimation() {
  key={i}
  className={`px-3 py-2 rounded font-mono text-sm ${
  i === currentChunkIndex
- ? ' bg-elevated ring-2 ring-blue-400'
+ ? ' bg-elevated ring-2 ring-accent'
  : i < currentChunkIndex
- ? 'bg-green-700'
+ ? 'bg-[var(--color-success)]'
  : ' bg-elevated'
  }`}
  >
@@ -436,8 +436,8 @@ export default function StreamingJsonParserAnimation() {
  className={` bg-surface rounded p-4 ${
  buffer.complete
  ? buffer.repaired
- ? 'ring-2 ring-yellow-500'
- : 'ring-2 ring-green-500'
+ ? 'ring-2 ring-[var(--color-warning)]'
+ : 'ring-2 ring-[var(--color-success)]'
  : ''
  }`}
  >
@@ -453,13 +453,13 @@ export default function StreamingJsonParserAnimation() {
  key={i}
  className={
  highlightChar?.index === buffer.index && highlightChar?.pos === i
- ? 'bg-yellow-500 text-heading'
+ ? 'bg-[var(--color-warning)] text-heading'
  : char === '{' || char === '['
  ? 'text-heading'
  : char === '}' || char === ']'
  ? 'text-heading'
  : char === '"'
- ? 'text-green-400'
+ ? 'text-heading'
  : ''
  }
  >
@@ -477,7 +477,7 @@ export default function StreamingJsonParserAnimation() {
  </div>
  <div>
  <span className="text-body">字符串内: </span>
- <span className={buffer.inString ? 'text-yellow-400' : 'text-dim'}>
+ <span className={buffer.inString ? 'text-heading' : 'text-dim'}>
  {buffer.inString ? '是' : '否'}
  </span>
  </div>
@@ -492,8 +492,8 @@ export default function StreamingJsonParserAnimation() {
  <span className={
  buffer.complete
  ? buffer.repaired
- ? 'text-yellow-400'
- : 'text-green-400'
+ ? 'text-heading'
+ : 'text-heading'
  : 'text-heading'
  }>
  {buffer.complete ? (buffer.repaired ? '已修复' : '完成') : '进行中'}
@@ -515,7 +515,7 @@ export default function StreamingJsonParserAnimation() {
  <div key={id}>
  <span className="text-heading">{id}</span>
  <span className="text-dim"> → </span>
- <span className="text-yellow-400">{idx}</span>
+ <span className="text-heading">{idx}</span>
  </div>
  ))
  )}
@@ -533,9 +533,9 @@ export default function StreamingJsonParserAnimation() {
  <div
  key={i}
  className={
- entry.includes('⚠️') ? 'text-yellow-400' :
- entry.includes('✓') ? 'text-green-400' :
- entry.includes('✗') ? 'text-red-400' :
+ entry.includes('⚠️') ? 'text-heading' :
+ entry.includes('✓') ? 'text-heading' :
+ entry.includes('✗') ? 'text-heading' :
  entry.includes('🔧') ? 'text-heading' :
  'text-body'
  }
@@ -552,14 +552,14 @@ export default function StreamingJsonParserAnimation() {
  <div>
  <div className="text-heading font-semibold">深度跟踪</div>
  <div className="text-body">
- 遇到 <code className="text-green-400">{'{['}</code> depth++，
- 遇到 <code className="text-green-400">{'}]'}</code> depth--
+ 遇到 <code className="text-heading">{'{['}</code> depth++，
+ 遇到 <code className="text-heading">{'}]'}</code> depth--
  </div>
  </div>
  <div>
  <div className="text-heading font-semibold">字符串状态</div>
  <div className="text-body">
- 遇到 <code className="text-green-400">"</code> 且非转义，翻转 inString
+ 遇到 <code className="text-heading">"</code> 且非转义，翻转 inString
  </div>
  </div>
  <div>
@@ -585,7 +585,7 @@ export default function StreamingJsonParserAnimation() {
  {/* 下一可用索引 */}
  <div className="mt-4 p-3 bg-surface rounded">
  <span className="text-body">nextAvailableIndex: </span>
- <span className="text-yellow-400 font-mono">{nextAvailableIndex}</span>
+ <span className="text-heading font-mono">{nextAvailableIndex}</span>
  </div>
  </div>
  </div>

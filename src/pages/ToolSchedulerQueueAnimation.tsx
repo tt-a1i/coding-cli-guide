@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { useState, useEffect, useCallback } from 'react';
+import { CodeBlock } from '../components/CodeBlock';
 
 /**
  * 工具调用队列动画
@@ -172,10 +173,10 @@ export default function ToolSchedulerQueueAnimation() {
  switch (status) {
  case 'validating': return 'var(--color-text-muted)';
  case 'scheduled': return 'var(--color-primary)';
- case 'awaiting_approval': return '#f59e0b';
+ case 'awaiting_approval': return 'var(--color-warning)';
  case 'executing': return 'var(--color-primary)';
  case 'success': return 'var(--color-primary)';
- case 'error': return '#ef4444';
+ case 'error': return 'var(--color-danger)';
  case 'cancelled': return '#6b7280';
  }
  };
@@ -208,7 +209,7 @@ export default function ToolSchedulerQueueAnimation() {
  onClick={() => isPlaying ? resetAnimation() : (resetAnimation(), setTimeout(() => setIsPlaying(true), 100))}
  className={`px-4 py-2 rounded font-mono text-sm transition-all ${
  isPlaying
- ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+ ? 'bg-elevated text-heading border-l-2 border-l-edge-hover/30'
  : ' bg-elevated/20 text-heading border border-edge/30'
  }`}
  >
@@ -347,13 +348,13 @@ export default function ToolSchedulerQueueAnimation() {
  <div className="col-span-4 space-y-4">
  {/* 阶段指示 */}
  <div className="bg-surface rounded-lg p-4 border border-edge-hover">
- <h3 className="text-sm font-semibold text-amber-500 mb-3 font-mono">
+ <h3 className="text-sm font-semibold text-heading mb-3 font-mono">
  🎯 Current Phase
  </h3>
  <div className="text-center">
  <span
  className="text-lg font-mono font-bold"
- style={{ color: phase === 'complete' ? 'var(--color-primary)' : '#f59e0b' }}
+ style={{ color: phase === 'complete' ? 'var(--color-primary)' : 'var(--color-warning)' }}
  >
  {phase.toUpperCase()}
  </span>
@@ -389,8 +390,8 @@ export default function ToolSchedulerQueueAnimation() {
  key={i}
  className={`${
  log.includes('✓') || log.includes('✅') ? 'text-heading' :
- log.includes('✗') || log.includes('❌') ? 'text-red-400' :
- log.includes('⚠️') || log.includes('⏳') ? 'text-amber-500' :
+ log.includes('✗') || log.includes('❌') ? 'text-heading' :
+ log.includes('⚠️') || log.includes('⏳') ? 'text-heading' :
  log.includes('📋') || log.includes('🔍') ? 'text-heading' :
  log.includes('⚡') ? 'text-heading' :
  'text-dim'
@@ -410,31 +411,33 @@ export default function ToolSchedulerQueueAnimation() {
  <h3 className="text-sm font-semibold text-heading mb-3">
  源码: coreToolScheduler.ts
  </h3>
- <pre className="text-xs font-mono text-body bg-base/30 p-3 rounded overflow-x-auto">
-{`class Scheduler {
- private toolCalls: ToolCall[] = [];
- private requestQueue: Array<{request, signal, resolve, reject}> = [];
+ <CodeBlock
+   language="typescript"
+   title="coreToolScheduler.ts"
+   code={`class Scheduler {
+  private toolCalls: ToolCall[] = [];
+  private requestQueue: Array<{request, signal, resolve, reject}> = [];
 
- // 主调度入口
- schedule(request: ToolCallRequestInfo[], signal: AbortSignal): Promise<void> {
- // 1. 检查是否有正在运行的调用
- // 2. 初始化 toolCalls 为 'validating' 状态
- // 3. 对每个调用执行 shouldConfirmExecute()
- // 4. 根据结果设置 'scheduled' 或 'awaiting_approval'
- // 5. 调用 attemptExecutionOfScheduledCalls()
- }
+  // 主调度入口
+  schedule(request: ToolCallRequestInfo[], signal: AbortSignal): Promise<void> {
+    // 1. 检查是否有正在运行的调用
+    // 2. 初始化 toolCalls 为 'validating' 状态
+    // 3. 对每个调用执行 shouldConfirmExecute()
+    // 4. 根据结果设置 'scheduled' 或 'awaiting_approval'
+    // 5. 调用 attemptExecutionOfScheduledCalls()
+  }
 
- // 并行执行所有 scheduled 的工具
- private attemptExecutionOfScheduledCalls(signal: AbortSignal): void {
- const callsToExecute = this.toolCalls.filter(c => c.status === 'scheduled');
- callsToExecute.forEach(call => {
- call.invocation.execute(signal, liveOutputCallback)
- .then(result => this.setStatusInternal(callId, 'success', response))
- .catch(error => this.setStatusInternal(callId, 'error', errorResponse));
- });
- }
+  // 并行执行所有 scheduled 的工具
+  private attemptExecutionOfScheduledCalls(signal: AbortSignal): void {
+    const callsToExecute = this.toolCalls.filter(c => c.status === 'scheduled');
+    callsToExecute.forEach(call => {
+      call.invocation.execute(signal, liveOutputCallback)
+        .then(result => this.setStatusInternal(callId, 'success', response))
+        .catch(error => this.setStatusInternal(callId, 'error', errorResponse));
+    });
+  }
 }`}
- </pre>
+ />
  </div>
  </div>
  );

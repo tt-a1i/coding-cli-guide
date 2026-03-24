@@ -20,7 +20,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  {isExpanded && (
  <div className="px-6 pb-6 space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-[var(--color-warning)] font-bold mb-2">🎯 核心概念</h4>
+ <h4 className="text-heading font-bold mb-2">🎯 核心概念</h4>
  <p className="text-body text-sm">
  Policy 策略引擎是 Gemini CLI 的安全决策中枢。
  在工具执行前，根据配置的规则决定是否允许、拒绝或询问用户。
@@ -30,22 +30,22 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="bg-base/50 rounded-lg p-4 ">
  <h4 className="text-heading font-bold mb-2">🔐 三种决策</h4>
  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
- <div className="bg-surface p-3 rounded border border-[var(--color-success)]">
- <div className="text-[var(--color-success)] font-semibold text-sm">ALLOW</div>
+ <div className="bg-surface p-3 rounded border-l-2 border-l-edge-hover">
+ <div className="text-heading font-semibold text-sm">ALLOW</div>
  <div className="text-xs text-dim mt-1">
  直接允许执行<br/>
  无需用户确认
  </div>
  </div>
- <div className="bg-surface p-3 rounded border border-[var(--color-danger)]">
- <div className="text-[var(--color-danger)] font-semibold text-sm">DENY</div>
+ <div className="bg-surface p-3 rounded border-l-2 border-l-edge-hover">
+ <div className="text-heading font-semibold text-sm">DENY</div>
  <div className="text-xs text-dim mt-1">
  直接拒绝执行<br/>
  返回拒绝原因
  </div>
  </div>
- <div className="bg-surface p-3 rounded border border-[var(--color-warning)]">
- <div className="text-amber-400 font-semibold text-sm">ASK_USER</div>
+ <div className="bg-surface p-3 rounded border-l-2 border-l-edge-hover">
+ <div className="text-heading font-semibold text-sm">ASK_USER</div>
  <div className="text-xs text-dim mt-1">
  询问用户确认<br/>
  等待用户响应
@@ -58,7 +58,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <h4 className="text-heading font-bold mb-2">🏗️ 三种审批模式</h4>
  <div className="grid grid-cols-3 gap-2 mt-2 text-xs">
  <div className="bg-surface p-2 rounded text-center">
- <div className="text-amber-400">DEFAULT</div>
+ <div className="text-heading">DEFAULT</div>
  <div className="text-dim">默认模式</div>
  </div>
  <div className="bg-surface p-2 rounded text-center">
@@ -66,7 +66,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-dim">自动编辑</div>
  </div>
  <div className="bg-surface p-2 rounded text-center">
- <div className="text-[var(--color-success)]">YOLO</div>
+ <div className="text-heading">YOLO</div>
  <div className="text-dim">全自动</div>
  </div>
  </div>
@@ -389,11 +389,11 @@ if (decision === 'ASK_USER') {
 
 // 阶段组颜色
 const groupColors: Record<PhaseGroup, string> = {
- request: '#3b82f6', // blue
+ request: 'var(--color-info)', // blue
  rules: '#8b5cf6', // purple
- safety: '#ef4444', // red
- decision: '#f59e0b', // amber
- user: '#22c55e', // green
+ safety: 'var(--color-danger)', // red
+ decision: 'var(--color-warning)', // amber
+ user: 'var(--color-success)', // green
  result: '#10b981', // emerald
 };
 
@@ -409,9 +409,9 @@ const groupNames: Record<PhaseGroup, string> = {
 
 // 决策颜色
 const decisionColors: Record<string, string> = {
- ALLOW: '#22c55e',
- DENY: '#ef4444',
- ASK_USER: '#f59e0b',
+ ALLOW: 'var(--color-success)',
+ DENY: 'var(--color-danger)',
+ ASK_USER: 'var(--color-warning)',
 };
 
 // 规则匹配可视化
@@ -419,7 +419,7 @@ function RuleMatchVisualizer({ rules, matched }: { rules?: Array<{ tool: string;
  if (!rules) return null;
 
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" className="bg-surface">
  <div className="text-xs text-dim mb-3 font-mono">规则匹配</div>
  <div className="space-y-2">
  {rules.map((rule, i) => (
@@ -427,12 +427,12 @@ function RuleMatchVisualizer({ rules, matched }: { rules?: Array<{ tool: string;
  key={i}
  className={`flex items-center justify-between p-3 rounded border transition-all ${
  rule.match
- ? 'border-green-500/50 bg-[var(--color-success-soft)]'
+ ? 'border-edge/40 bg-elevated'
  : ' border-edge bg-surface opacity-60'
  }`}
  >
  <div className="flex items-center gap-3">
- <span className={`text-lg ${rule.match ? 'text-[var(--color-success)]' : 'text-dim'}`}>
+ <span className={`text-lg ${rule.match ? 'text-heading' : 'text-dim'}`}>
  {rule.match ? '✓' : '✗'}
  </span>
  <code className="text-sm text-heading font-mono">{rule.tool}</code>
@@ -444,7 +444,7 @@ function RuleMatchVisualizer({ rules, matched }: { rules?: Array<{ tool: string;
  ))}
  </div>
  <div className="mt-3 text-right text-sm text-body">
- 匹配: <span className="text-[var(--color-success)] font-bold">{matched}</span> / {rules.length}
+ 匹配: <span className="text-heading font-bold">{matched}</span> / {rules.length}
  </div>
  </div>
  );
@@ -455,7 +455,7 @@ function SafetyCheckVisualizer({ checks, overallPassed }: { checks?: Array<{ typ
  if (!checks) return null;
 
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" className="bg-surface">
  <div className="text-xs text-dim mb-3 font-mono">安全检查</div>
  <div className="space-y-2">
  {checks.map((check, i) => (
@@ -463,20 +463,20 @@ function SafetyCheckVisualizer({ checks, overallPassed }: { checks?: Array<{ typ
  key={i}
  className={`flex items-center justify-between p-3 rounded border ${
  check.passed
- ? 'border-[var(--color-success)] bg-[var(--color-success-soft)]'
- : 'border-red-500/50 bg-[var(--color-danger-soft)]'
+ ? 'border-edge bg-elevated'
+ : 'border-edge/40 bg-elevated'
  }`}
  >
  <div className="flex items-center gap-3">
- <span className={check.passed ? 'text-[var(--color-success)]' : 'text-[var(--color-danger)]'}>
+ <span className={check.passed ? 'text-heading' : 'text-heading'}>
  {check.passed ? '✓' : '✗'}
  </span>
  <span className="text-sm text-heading">{check.type}</span>
  </div>
  <span className={`text-xs px-2 py-1 rounded ${
- check.severity === 'high' ? 'bg-[var(--color-danger-soft)] text-[var(--color-danger)]' :
- check.severity === 'medium' ? 'bg-[var(--color-warning-soft)] text-amber-400' :
- 'bg-[var(--color-success-soft)] text-[var(--color-success)]'
+ check.severity === 'high' ? 'bg-elevated text-heading' :
+ check.severity === 'medium' ? 'bg-elevated text-heading' :
+ 'bg-elevated text-heading'
  }`}>
  {check.severity}
  </span>
@@ -484,7 +484,7 @@ function SafetyCheckVisualizer({ checks, overallPassed }: { checks?: Array<{ typ
  ))}
  </div>
  <div className={`mt-3 p-2 rounded text-center text-sm font-bold ${
- overallPassed ? 'bg-[var(--color-success-soft)] text-[var(--color-success)]' : 'bg-[var(--color-danger-soft)] text-[var(--color-danger)]'
+ overallPassed ? 'bg-elevated text-heading' : 'bg-elevated text-heading'
  }`}>
  {overallPassed ? '安全检查通过' : '安全检查未通过'}
  </div>
@@ -520,16 +520,16 @@ function ConfirmDialogVisualizer({ dialog }: { dialog?: { tool: string; command:
  const getOptionClassName = (opt: string) => {
  switch (opt) {
  case 'proceed_once':
- return 'bg-green-600 text-heading';
+ return 'bg-[var(--color-success)] text-heading';
  case 'proceed_always':
  case 'proceed_always_and_save':
- return 'bg-emerald-600 text-heading';
+ return 'bg-[var(--color-success)] text-heading';
  case 'proceed_always_server':
  return ' bg-elevated text-heading';
  case 'proceed_always_tool':
  return ' bg-elevated text-heading';
  case 'modify_with_editor':
- return 'bg-amber-500 text-heading';
+ return 'bg-[var(--color-warning)] text-heading';
  case 'cancel':
  return ' bg-elevated text-heading';
  default:
@@ -538,9 +538,9 @@ function ConfirmDialogVisualizer({ dialog }: { dialog?: { tool: string; command:
  };
 
  return (
- <div className="mb-6 p-4 rounded-lg border-2 border-amber-500/50" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}>
+ <div className="mb-6 p-4 rounded-lg border-2 border-edge/40" className="bg-elevated">
  <div className="flex items-center gap-2 mb-4">
- <span className="text-amber-400 text-xl">⚠️</span>
+ <span className="text-heading text-xl">⚠️</span>
  <span className="text-heading font-bold">Tool requires confirmation</span>
  </div>
  <div className="space-y-2 mb-4">
@@ -550,11 +550,11 @@ function ConfirmDialogVisualizer({ dialog }: { dialog?: { tool: string; command:
  </div>
  <div className="flex">
  <span className="text-body w-20">Command:</span>
- <code className="text-amber-400 font-mono">{dialog.command}</code>
+ <code className="text-heading font-mono">{dialog.command}</code>
  </div>
  <div className="flex">
  <span className="text-body w-20">Reason:</span>
- <span className="text-[var(--color-danger)]">{dialog.reason}</span>
+ <span className="text-heading">{dialog.reason}</span>
  </div>
  </div>
  <div className="flex gap-2">
@@ -586,7 +586,7 @@ function DecisionVisualizer({ decision, reason, severity }: { decision?: string;
  <span className="text-sm text-body">决策结果</span>
  {severity && (
  <span className={`text-xs px-2 py-1 rounded ${
- severity === 'warning' ? 'bg-[var(--color-warning-soft)] text-amber-400' : ' bg-elevated/20 text-body'
+ severity === 'warning' ? 'bg-elevated text-heading' : ' bg-elevated/20 text-body'
  }`}>
  {severity}
  </span>
@@ -645,7 +645,7 @@ export function PolicyDecisionAnimation() {
 
  {/* 标题 */}
  <div className="max-w-6xl mx-auto mb-8">
- <h1 className="text-3xl font-bold text-[var(--color-warning)] mb-2 font-mono">
+ <h1 className="text-3xl font-bold text-heading mb-2 font-mono">
  Policy 决策流程
  </h1>
  <p className="text-body">
@@ -723,7 +723,7 @@ export function PolicyDecisionAnimation() {
  className="rounded-lg p-6 border"
  style={{
  borderColor: `${groupColors[step.group]}50`,
- background: `linear-gradient(135deg, ${groupColors[step.group]}10, rgba(0,0,0,0.8))`
+ background: `linear-gradient(135deg, ${groupColors[step.group]}10, var(--color-bg))`
  }}
  >
  <div className="flex items-center gap-3 mb-4">
@@ -754,7 +754,7 @@ export function PolicyDecisionAnimation() {
 
  {/* 请求数据 */}
  {step.visualData?.request && (
- <div className="p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="p-4 rounded-lg" className="bg-surface">
  <div className="text-xs text-dim mb-2 font-mono">请求数据</div>
  <pre className="text-sm text-heading overflow-x-auto">
  {JSON.stringify(step.visualData.request, null, 2)}
@@ -764,7 +764,7 @@ export function PolicyDecisionAnimation() {
 
  {/* 规则来源 */}
  {step.visualData?.sources && (
- <div className="p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="p-4 rounded-lg" className="bg-surface">
  <div className="text-xs text-dim mb-3 font-mono">规则来源</div>
  <div className="space-y-2">
  {(step.visualData.sources as Array<{ level: string; path: string; count: number }>).map((source, i) => (
@@ -818,12 +818,12 @@ export function PolicyDecisionAnimation() {
 
  {/* 用户响应 */}
  {step.visualData?.response && (
- <div className="p-4 rounded-lg border-2 border-green-500/50 bg-[var(--color-success-soft)]">
+ <div className="p-4 rounded-lg border-2 border-edge/40 bg-elevated">
  <div className="flex items-center gap-3">
- <span className="text-[var(--color-success)] text-2xl">✓</span>
+ <span className="text-heading text-2xl">✓</span>
  <div>
  <div className="text-heading font-bold">用户响应: {step.visualData.response as string}</div>
- <div className="text-[var(--color-success)] text-sm">
+ <div className="text-heading text-sm">
  最终决策: {step.visualData.finalDecision as string}
  </div>
  </div>
@@ -833,9 +833,9 @@ export function PolicyDecisionAnimation() {
 
  {/* 最终执行 */}
  {step.visualData?.toolExecuted && (
- <div className="p-4 rounded-lg border-2 border-green-500 bg-[var(--color-success-soft)]">
+ <div className="p-4 rounded-lg border-2 border-edge bg-elevated">
  <div className="flex items-center gap-2 mb-2">
- <span className="text-[var(--color-success)] text-lg">✓</span>
+ <span className="text-heading text-lg">✓</span>
  <span className="font-bold text-heading">工具执行中</span>
  </div>
  <code className="text-sm text-heading">
@@ -847,21 +847,7 @@ export function PolicyDecisionAnimation() {
 
  {/* 右侧：代码 */}
  <div>
- <h3 className="text-sm font-bold text-body mb-3 font-mono">源码实现</h3>
- <div
- className="rounded-lg overflow-hidden border border-edge"
- style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
- >
- <div className="p-1 border- border-edge flex items-center gap-2">
- <div className="w-3 h-3 rounded-full bg-red-500/80" />
- <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
- <div className="w-3 h-3 rounded-full bg-green-500/80" />
- <span className="text-xs text-dim ml-2 font-mono">
- policy-engine.ts
- </span>
- </div>
- <JsonBlock code={step.codeSnippet} />
- </div>
+ <JsonBlock code={step.codeSnippet} title="policy-engine.ts" />
  </div>
  </div>
 
@@ -885,8 +871,8 @@ export function PolicyDecisionAnimation() {
  className={`
  px-6 py-2 rounded-lg font-medium transition-colors
  ${isPlaying
- ? 'bg-amber-600 text-heading hover:bg-amber-500'
- : 'bg-amber-500 text-heading hover:opacity-90'
+ ? 'bg-[var(--color-warning)] text-heading hover:bg-[var(--color-warning)]'
+ : 'bg-[var(--color-warning)] text-heading hover:opacity-90'
  }
  `}
  >
@@ -905,23 +891,23 @@ export function PolicyDecisionAnimation() {
  <div className="max-w-6xl mx-auto mt-8">
  <div
  className="rounded-lg p-6 border border-edge"
- style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
+ className="bg-surface"
  >
  <h3 className="text-lg font-bold text-heading mb-4">决策优先级</h3>
  <div className="flex items-center justify-center gap-4 flex-wrap">
  <div className="flex items-center gap-2">
- <div className="w-8 h-8 rounded bg-red-500 flex items-center justify-center text-heading font-bold">1</div>
- <span className="text-[var(--color-danger)]">DENY</span>
+ <div className="w-8 h-8 rounded bg-[var(--color-danger)] flex items-center justify-center text-heading font-bold">1</div>
+ <span className="text-heading">DENY</span>
  </div>
  <span className="text-dim">{'>'}</span>
  <div className="flex items-center gap-2">
- <div className="w-8 h-8 rounded bg-amber-500 flex items-center justify-center text-heading font-bold">2</div>
- <span className="text-amber-400">ASK_USER</span>
+ <div className="w-8 h-8 rounded bg-[var(--color-warning)] flex items-center justify-center text-heading font-bold">2</div>
+ <span className="text-heading">ASK_USER</span>
  </div>
  <span className="text-dim">{'>'}</span>
  <div className="flex items-center gap-2">
- <div className="w-8 h-8 rounded bg-green-500 flex items-center justify-center text-heading font-bold">3</div>
- <span className="text-[var(--color-success)]">ALLOW</span>
+ <div className="w-8 h-8 rounded bg-[var(--color-success)] flex items-center justify-center text-heading font-bold">3</div>
+ <span className="text-heading">ALLOW</span>
  </div>
  </div>
  </div>

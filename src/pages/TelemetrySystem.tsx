@@ -55,25 +55,25 @@ export function TelemetrySystem() {
 
  const resolveSettingsCode = `// gemini-cli/packages/core/src/telemetry/config.ts
 export async function resolveTelemetrySettings({ argv, env, settings }) {
- // argv > env > settings
- const enabled =
- argv.telemetry ??
- parseBooleanEnvFlag(env['GEMINI_TELEMETRY_ENABLED']) ??
- settings.enabled;
+  // argv > env > settings
+  const enabled =
+  argv.telemetry ??
+  parseBooleanEnvFlag(env['GEMINI_TELEMETRY_ENABLED']) ??
+  settings.enabled;
 
- const rawTarget =
- argv.telemetryTarget ??
- env['GEMINI_TELEMETRY_TARGET'] ??
- settings.target;
- const target = parseTelemetryTargetValue(rawTarget); // 'local' | 'gcp'
+  const rawTarget =
+  argv.telemetryTarget ??
+  env['GEMINI_TELEMETRY_TARGET'] ??
+  settings.target;
+  const target = parseTelemetryTargetValue(rawTarget); // 'local' | 'gcp'
 
- const otlpEndpoint =
- argv.telemetryOtlpEndpoint ??
- env['GEMINI_TELEMETRY_OTLP_ENDPOINT'] ??
- env['OTEL_EXPORTER_OTLP_ENDPOINT'] ??
- settings.otlpEndpoint;
+  const otlpEndpoint =
+  argv.telemetryOtlpEndpoint ??
+  env['GEMINI_TELEMETRY_OTLP_ENDPOINT'] ??
+  env['OTEL_EXPORTER_OTLP_ENDPOINT'] ??
+  settings.otlpEndpoint;
 
- return { enabled, target, otlpEndpoint, ... };
+  return { enabled, target, otlpEndpoint, ... };
 }`;
 
  const clearcutCode = `// gemini-cli/packages/core/src/telemetry/clearcut-logger/clearcut-logger.ts
@@ -83,8 +83,8 @@ const MAX_EVENTS = 1000;
 const MAX_RETRY_EVENTS = 100;
 
 static getInstance(config?: Config): ClearcutLogger | undefined {
- if (config === undefined || !config.getUsageStatisticsEnabled()) return undefined;
- return ClearcutLogger.instance ?? new ClearcutLogger(config);
+  if (config === undefined || !config.getUsageStatisticsEnabled()) return undefined;
+  return ClearcutLogger.instance ?? new ClearcutLogger(config);
 }`;
 
  const sdkInitChart = `flowchart TD
@@ -108,59 +108,59 @@ static getInstance(config?: Config): ClearcutLogger | undefined {
 
  const sdkInitCode = `// gemini-cli/packages/core/src/telemetry/sdk.ts
 export async function initializeTelemetry(config: Config, credentials?: JWTInput) {
- if (!config.getTelemetryEnabled()) return;
+  if (!config.getTelemetryEnabled()) return;
 
- // useCliAuth + no credentials -> defer init, wait for oauth post_auth
- if (config.getTelemetryUseCliAuth() && !credentials) {
- authEvents.on('post_auth', (creds) => initializeTelemetry(config, creds));
- return;
- }
+  // useCliAuth + no credentials -> defer init, wait for oauth post_auth
+  if (config.getTelemetryUseCliAuth() && !credentials) {
+  authEvents.on('post_auth', (creds) => initializeTelemetry(config, creds));
+  return;
+  }
 
- const resource = resourceFromAttributes({
- [SemanticResourceAttributes.SERVICE_NAME]: SERVICE_NAME, // 'gemini-cli'
- [SemanticResourceAttributes.SERVICE_VERSION]: process.version,
- 'session.id': config.getSessionId(),
- });
+  const resource = resourceFromAttributes({
+  [SemanticResourceAttributes.SERVICE_NAME]: SERVICE_NAME, // 'gemini-cli'
+  [SemanticResourceAttributes.SERVICE_VERSION]: process.version,
+  'session.id': config.getSessionId(),
+  });
 
- // choose exporters based on:
- // - GEMINI_TELEMETRY_TARGET (local/gcp)
- // - GEMINI_TELEMETRY_OTLP_ENDPOINT / outfile / useCollector
- const sdk = new NodeSDK({
- resource,
- instrumentations: [new HttpInstrumentation()],
- // ... span/log/metric exporters
- });
+  // choose exporters based on:
+  // - GEMINI_TELEMETRY_TARGET (local/gcp)
+  // - GEMINI_TELEMETRY_OTLP_ENDPOINT / outfile / useCollector
+  const sdk = new NodeSDK({
+  resource,
+  instrumentations: [new HttpInstrumentation()],
+  // ... span/log/metric exporters
+  });
 
- await sdk.start();
- initializeMetrics(config);
+  await sdk.start();
+  initializeMetrics(config);
 }`;
 
  const loggerCode = `// gemini-cli/packages/core/src/telemetry/loggers.ts
 export function logToolCall(config: Config, event: ToolCallEvent): void {
- // 1) UI 内存事件（用于 UI/调试）
- uiTelemetryService.addEvent({
- ...event,
- 'event.name': EVENT_TOOL_CALL,
- 'event.timestamp': new Date().toISOString(),
- });
+  // 1) UI 内存事件（用于 UI/调试）
+  uiTelemetryService.addEvent({
+  ...event,
+  'event.name': EVENT_TOOL_CALL,
+  'event.timestamp': new Date().toISOString(),
+  });
 
- // 2) Usage Statistics（Clearcut）
- ClearcutLogger.getInstance(config)?.logToolCallEvent(event);
+  // 2) Usage Statistics（Clearcut）
+  ClearcutLogger.getInstance(config)?.logToolCallEvent(event);
 
- // 3) Telemetry（OpenTelemetry Logs + Metrics）
- bufferTelemetryEvent(() => {
- const logger = logs.getLogger(SERVICE_NAME);
- logger.emit({
- body: event.toLogBody(),
- attributes: event.toOpenTelemetryAttributes(config),
- });
- });
+  // 3) Telemetry（OpenTelemetry Logs + Metrics）
+  bufferTelemetryEvent(() => {
+  const logger = logs.getLogger(SERVICE_NAME);
+  logger.emit({
+  body: event.toLogBody(),
+  attributes: event.toOpenTelemetryAttributes(config),
+  });
+  });
 
- recordToolCallMetrics(config, event.duration_ms, {
- function_name: event.function_name,
- success: event.success,
- tool_type: event.tool_type,
- });
+  recordToolCallMetrics(config, event.duration_ms, {
+  function_name: event.function_name,
+  success: event.success,
+  tool_type: event.tool_type,
+  });
 }`;
 
  const eventAndMetricNames = `// gemini-cli/packages/core/src/telemetry/types.ts
@@ -182,8 +182,8 @@ export GEMINI_TELEMETRY_ENABLED=false
 
 # 关闭 Usage Statistics（Clearcut）：~/.gemini/settings.json
 {
- "privacy": { "usageStatisticsEnabled": false },
- "telemetry": { "enabled": false }
+  "privacy": { "usageStatisticsEnabled": false },
+  "telemetry": { "enabled": false }
 }`;
 
  return (
@@ -205,12 +205,12 @@ export GEMINI_TELEMETRY_ENABLED=false
  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
  <HighlightBox title="Usage Statistics" variant="yellow">
  <p className="text-sm">Clearcut 批量上报</p>
- <code className="text-xs text-yellow-400">privacy.usageStatisticsEnabled</code>
+ <code className="text-xs text-heading">privacy.usageStatisticsEnabled</code>
  </HighlightBox>
 
  <HighlightBox title="Telemetry" variant="green">
  <p className="text-sm">OTel Logs/Metrics/Traces</p>
- <code className="text-xs text-green-400">GEMINI_TELEMETRY_ENABLED</code>
+ <code className="text-xs text-heading">GEMINI_TELEMETRY_ENABLED</code>
  </HighlightBox>
 
  <HighlightBox title="统一采集点" variant="blue">
@@ -349,27 +349,27 @@ export GEMINI_TELEMETRY_ENABLED=false
  </thead>
  <tbody className="text-body">
  <tr>
- <td className="border border-edge p-2 font-mono text-green-400">gemini_cli.tool.call.count</td>
+ <td className="border border-edge p-2 font-mono text-heading">gemini_cli.tool.call.count</td>
  <td className="border border-edge p-2">Counter</td>
  <td className="border border-edge p-2">工具调用总数（按 function_name / success 等打 tag）</td>
  </tr>
  <tr className="bg-surface/30">
- <td className="border border-edge p-2 font-mono text-green-400">gemini_cli.api.request.latency</td>
+ <td className="border border-edge p-2 font-mono text-heading">gemini_cli.api.request.latency</td>
  <td className="border border-edge p-2">Histogram</td>
  <td className="border border-edge p-2">API 请求延迟分布（按 model 打 tag）</td>
  </tr>
  <tr>
- <td className="border border-edge p-2 font-mono text-green-400">gemini_cli.token.usage</td>
+ <td className="border border-edge p-2 font-mono text-heading">gemini_cli.token.usage</td>
  <td className="border border-edge p-2">Counter</td>
  <td className="border border-edge p-2">Token 统计（input/output/cache/thought/tool）</td>
  </tr>
  <tr className="bg-surface/30">
- <td className="border border-edge p-2 font-mono text-green-400">gemini_cli.startup.duration</td>
+ <td className="border border-edge p-2 font-mono text-heading">gemini_cli.startup.duration</td>
  <td className="border border-edge p-2">Histogram</td>
  <td className="border border-edge p-2">启动阶段耗时（用于性能回归）</td>
  </tr>
  <tr>
- <td className="border border-edge p-2 font-mono text-green-400">gen_ai.client.token.usage</td>
+ <td className="border border-edge p-2 font-mono text-heading">gen_ai.client.token.usage</td>
  <td className="border border-edge p-2">Counter</td>
  <td className="border border-edge p-2">OTel GenAI 语义约定（跨产品对齐）</td>
  </tr>
@@ -384,11 +384,11 @@ export GEMINI_TELEMETRY_ENABLED=false
 
  <HighlightBox title="建议" variant="purple" className="mt-4">
  <ul className="text-sm text-body space-y-1">
- <li>• 只在需要调试/性能诊断时开启 Telemetry（OTel），并优先写到本地文件。</li>
+ <li>只在需要调试/性能诊断时开启 Telemetry（OTel），并优先写到本地文件。</li>
  <li>
  • 如果要记录 prompt 内容，务必显式开启 <code>GEMINI_TELEMETRY_LOG_PROMPTS</code>，并理解其隐私影响。
  </li>
- <li>• 企业内网/合规场景可统一下发 system settings / system-defaults.json 来关闭 Usage Statistics。</li>
+ <li>企业内网/合规场景可统一下发 system settings / system-defaults.json 来关闭 Usage Statistics。</li>
  </ul>
  </HighlightBox>
  </section>
@@ -396,8 +396,8 @@ export GEMINI_TELEMETRY_ENABLED=false
  <section>
  <h3 className="text-xl font-semibold text-heading mb-4">最佳实践</h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
- <h4 className="text-green-400 font-semibold mb-2">事件设计</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">事件设计</h4>
  <ul className="text-sm text-body space-y-1">
  <li>✓ 统一入口：只在 loggers.ts 发事件</li>
  <li>✓ 统一命名：events/metrics 用 gemini_cli.* 前缀</li>

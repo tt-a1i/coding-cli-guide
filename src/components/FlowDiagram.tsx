@@ -17,17 +17,33 @@ interface FlowDiagramProps {
 }
 
 const nodeStyles = {
-  start: 'bg-green-500/20 border-green-500 rounded-full',
-  process: 'bg-blue-500/20 border-blue-500 rounded-lg',
-  decision: 'bg-yellow-500/20 border-yellow-500 rotate-45',
-  end: 'bg-red-500/20 border-red-500 rounded-full',
+  start: 'rounded-full',
+  process: 'rounded-lg',
+  decision: 'rotate-45',
+  end: 'rounded-full',
 };
 
-const nodeTextColors = {
-  start: 'text-green-400',
-  process: 'text-blue-400',
-  decision: 'text-yellow-400',
-  end: 'text-red-400',
+const nodeColors = {
+  start: {
+    backgroundColor: 'var(--color-bg-elevated)',
+    borderColor: 'var(--color-border-hover)',
+    color: 'var(--color-text)',
+  },
+  process: {
+    backgroundColor: 'var(--color-bg-surface)',
+    borderColor: 'var(--color-border)',
+    color: 'var(--color-text)',
+  },
+  decision: {
+    backgroundColor: 'var(--color-bg-elevated)',
+    borderColor: 'var(--color-border-hover)',
+    color: 'var(--color-text-secondary)',
+  },
+  end: {
+    backgroundColor: 'var(--color-bg-elevated)',
+    borderColor: 'var(--color-border-hover)',
+    color: 'var(--color-text)',
+  },
 };
 
 export function FlowDiagram({ title, nodes, edges }: FlowDiagramProps) {
@@ -90,8 +106,8 @@ export function FlowDiagram({ title, nodes, edges }: FlowDiagramProps) {
   const edgeMap = new Map(edges.map(e => [`${e.from}->${e.to}`, e]));
 
   return (
-    <div className="bg-gray-800/50 rounded-lg p-4 my-4">
-      <h4 className="text-lg font-semibold text-cyan-400 mb-4">{title}</h4>
+    <div className="bg-surface/50 rounded-xl border border-edge p-4 my-4">
+      <h4 className="text-sm font-semibold text-heading mb-4">{title}</h4>
 
       <div className="overflow-x-auto">
         <div className="flex flex-col items-center gap-2 min-w-fit">
@@ -113,13 +129,16 @@ export function FlowDiagram({ title, nodes, edges }: FlowDiagramProps) {
                           ${nodeStyles[node.type]}
                           ${isDecision ? 'w-[100px] h-[100px] flex items-center justify-center' : ''}
                         `}
+                        style={{
+                          ...nodeColors[node.type],
+                        }}
                       >
                         <span
                           className={`
                             text-sm font-medium whitespace-pre-line
-                            ${nodeTextColors[node.type]}
                             ${isDecision ? '-rotate-45 block' : ''}
                           `}
+                          style={{ color: nodeColors[node.type].color }}
                         >
                           {node.label}
                         </span>
@@ -132,13 +151,13 @@ export function FlowDiagram({ title, nodes, edges }: FlowDiagramProps) {
                             const edge = edgeMap.get(`${nodeId}->${targetId}`);
                             return (
                               <div key={targetId} className="flex flex-col items-center">
-                                <div className="w-0.5 h-4 bg-gray-500" />
+                                <div className="w-0.5 h-4 bg-edge-hover" />
                                 {edge?.label && (
-                                  <span className="text-xs text-gray-400 px-1 bg-gray-800 rounded">
+                                  <span className="text-xs text-body px-1.5 py-0.5 bg-base border border-edge/60 rounded-full">
                                     {edge.label}
                                   </span>
                                 )}
-                                <div className="text-gray-500">▼</div>
+                                <div className="text-body">▼</div>
                               </div>
                             );
                           })}
@@ -154,22 +173,22 @@ export function FlowDiagram({ title, nodes, edges }: FlowDiagramProps) {
       </div>
 
       {/* Legend */}
-      <div className="flex justify-center gap-4 mt-4 pt-4 border-t border-gray-700">
+      <div className="flex justify-center gap-4 mt-4 pt-4 border-t border-edge">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full bg-green-500/20 border border-green-500" />
-          <span className="text-xs text-gray-400">开始</span>
+          <div className="w-4 h-4 rounded-full border" style={nodeColors.start} />
+          <span className="text-xs text-dim">开始</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-lg bg-blue-500/20 border border-blue-500" />
-          <span className="text-xs text-gray-400">处理</span>
+          <div className="w-4 h-4 rounded-lg border" style={nodeColors.process} />
+          <span className="text-xs text-dim">处理</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rotate-45 bg-yellow-500/20 border border-yellow-500" />
-          <span className="text-xs text-gray-400">判断</span>
+          <div className="w-4 h-4 rotate-45 border" style={nodeColors.decision} />
+          <span className="text-xs text-dim">判断</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full bg-red-500/20 border border-red-500" />
-          <span className="text-xs text-gray-400">结束</span>
+          <div className="w-4 h-4 rounded-full border" style={nodeColors.end} />
+          <span className="text-xs text-dim">结束</span>
         </div>
       </div>
     </div>

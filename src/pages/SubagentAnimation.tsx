@@ -68,7 +68,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="flex flex-wrap gap-2">
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">工具调度</span>
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">Token 管理</span>
- <span className="px-2 py-1 bg-[var(--color-warning-soft)] text-[var(--color-warning)] rounded text-xs">配置系统</span>
+ <span className="px-2 py-1 bg-elevated text-heading rounded text-xs">配置系统</span>
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">进程隔离</span>
  </div>
  </div>
@@ -131,7 +131,7 @@ const subagentDefinitions: Omit<Subagent, 'status' | 'task' | 'result' | 'tokens
 const typeConfig = {
  builtin: {
  color: 'var(--color-info)',
- bgColor: 'var(--color-info-soft)',
+ bgColor: 'var(--color-bg-elevated)',
  label: '内置',
  icon: '📦',
  },
@@ -143,7 +143,7 @@ const typeConfig = {
  },
  project: {
  color: 'var(--color-warning)',
- bgColor: 'var(--color-warning-soft)',
+ bgColor: 'var(--color-bg-elevated)',
  label: '项目',
  icon: '📁',
  },
@@ -215,7 +215,7 @@ function SubagentCard({
  {/* Task */}
  {agent.task && (
  <div className="text-xs font-mono p-2 bg-base rounded mb-2">
- <span className="text-[var(--color-warning)]">任务: </span>
+ <span className="text-heading">任务: </span>
  <span className="text-body">{agent.task}</span>
  </div>
  )}
@@ -629,7 +629,7 @@ export function SubagentAnimation() {
  </button>
  <button
  onClick={reset}
- className="px-5 py-2.5 bg-elevated text-[var(--color-warning)] rounded-md font-mono font-bold border border-edge hover:border-[var(--color-warning)] transition-all cursor-pointer"
+ className="px-5 py-2.5 bg-elevated text-heading rounded-md font-mono font-bold border border-edge hover:border-edge transition-all cursor-pointer"
  >
  ↺ 重置
  </button>
@@ -693,7 +693,7 @@ export function SubagentAnimation() {
  /{phases.length}
  </span>
  {isPlaying && (
- <span className="text-[var(--color-warning)] font-mono text-sm animate-pulse">
+ <span className="text-heading font-mono text-sm animate-pulse">
  ● 执行中...
  </span>
  )}
@@ -731,10 +731,10 @@ export function SubagentAnimation() {
  每个子代理有独立的 token 限制和超时设置
  </p>
  </div>
- <div className="p-4 bg-base rounded-lg border border-[var(--color-warning)]">
+ <div className="p-4 bg-base rounded-lg border-l-2 border-l-edge-hover">
  <div className="flex items-center gap-2 mb-2">
- <span className="text-[var(--color-warning)]">🎯</span>
- <span className="text-sm font-mono font-bold text-[var(--color-warning)]">层级覆盖</span>
+ <span className="text-heading">🎯</span>
+ <span className="text-sm font-mono font-bold text-heading">层级覆盖</span>
  </div>
  <p className="text-xs font-mono text-dim">
  项目级定义可覆盖用户级和内置定义

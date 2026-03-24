@@ -54,7 +54,7 @@ function Introduction({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">
+ <h4 className="text-heading font-bold mb-2">
  核心特性
  </h4>
  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
@@ -67,7 +67,7 @@ function Introduction({
  <div className="text-[10px] text-dim">依赖深度分析</div>
  </div>
  <div className="bg-surface p-2 rounded text-center">
- <div className="text-xs text-amber-500">注释反馈</div>
+ <div className="text-xs text-heading">注释反馈</div>
  <div className="text-[10px] text-dim">迭代优化方案</div>
  </div>
  <div className="bg-surface p-2 rounded text-center">
@@ -468,7 +468,7 @@ chatCompression.onCompress((context) => {
 
  <div className="space-y-4">
  <div className="bg-surface rounded-lg p-5 border border-edge">
- <h4 className="text-amber-500 font-bold mb-2">为什么是只读环境？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么是只读环境？</h4>
  <p className="text-body text-sm">
  Plan Mode 的分析阶段运行在只读环境中。这是一个刻意的设计选择：
  分析阶段不应该对代码库产生任何副作用。这样用户可以放心地让 AI
@@ -478,7 +478,7 @@ chatCompression.onCompress((context) => {
  </div>
 
  <div className="bg-surface rounded-lg p-5 border border-edge">
- <h4 className="text-amber-500 font-bold mb-2">为什么集成 Research Subagent？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么集成 Research Subagent？</h4>
  <p className="text-body text-sm">
  复杂的重构任务需要对代码库进行深入理解。单纯依赖 LLM 的上下文窗口
  无法容纳大型项目的全部信息。Research Subagent 可以按需加载和分析文件，
@@ -487,7 +487,7 @@ chatCompression.onCompress((context) => {
  </div>
 
  <div className="bg-surface rounded-lg p-5 border border-edge">
- <h4 className="text-amber-500 font-bold mb-2">注释系统的价值</h4>
+ <h4 className="text-heading font-bold mb-2">注释系统的价值</h4>
  <p className="text-body text-sm">
  注释系统是人机协作的关键接口。用户可以针对每个步骤提供反馈，
  而不是简单地接受或拒绝整个计划。这种粒度的反馈机制使得
@@ -535,7 +535,7 @@ chatCompression.onCompress((context) => {
  </div>
 
  <div className="flex items-start gap-3 p-3 bg-surface rounded-lg border border-edge">
- <span className="text-amber-500 mt-0.5">!</span>
+ <span className="text-heading mt-0.5">!</span>
  <div>
  <div className="text-sm text-heading font-medium">避免在简单任务中使用 Plan Mode</div>
  <div className="text-xs text-body mt-1">

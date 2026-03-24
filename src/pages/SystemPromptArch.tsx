@@ -22,26 +22,26 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </button>
 
  {isExpanded && (
- <div className="px-6 pb-6 space-y-4 border-t border-white/10 mt-2 pt-4">
+ <div className="px-6 pb-6 space-y-4 border-t border-edge/40 mt-2 pt-4">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-base/30 rounded-lg p-4 border border-edge">
  <h4 className="font-semibold text-heading mb-2">🎯 核心概念</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>System Prompt</strong>: AI 的行为指令和人格定义</li>
- <li>• <strong>动态注入</strong>: 根据环境实时组装 Prompt 内容</li>
- <li>• <strong>Context Injection</strong>: Git/Sandbox/Memory 上下文</li>
- <li>• <strong>Tool Examples</strong>: 模型特定的工具调用示例</li>
- <li>• <strong>System Reminder</strong>: 运行时状态提醒注入</li>
+ <li><strong>System Prompt</strong>: AI 的行为指令和人格定义</li>
+ <li><strong>动态注入</strong>: 根据环境实时组装 Prompt 内容</li>
+ <li><strong>Context Injection</strong>: Git/Sandbox/Memory 上下文</li>
+ <li><strong>Tool Examples</strong>: 模型特定的工具调用示例</li>
+ <li><strong>System Reminder</strong>: 运行时状态提醒注入</li>
  </ul>
  </div>
  <div className="bg-base/30 rounded-lg p-4 border border-edge">
  <h4 className="font-semibold text-heading mb-2">📁 关键文件</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• <code>packages/core/src/core/prompts.ts</code></li>
+ <li><code>packages/core/src/core/prompts.ts</code></li>
  <li className="text-xs text-dim ml-4">getCoreSystemPrompt, getCompressionPrompt</li>
- <li>• <code>packages/core/src/tools/tool-names.ts</code></li>
+ <li><code>packages/core/src/tools/tool-names.ts</code></li>
  <li className="text-xs text-dim ml-4">工具名称常量定义</li>
- <li>• <code>.gemini/system.md</code></li>
+ <li><code>.gemini/system.md</code></li>
  <li className="text-xs text-dim ml-4">用户自定义 System Prompt 覆盖</li>
  </ul>
  </div>
@@ -96,8 +96,8 @@ export function SystemPromptArch() {
  </div>
 
  <div className="flex items-center gap-4">
- <div className="flex-shrink-0 w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center text-heading font-bold">2</div>
- <div className="flex-1 bg-orange-500/10 rounded-lg p-3 border-l-2 border-orange-500">
+ <div className="flex-shrink-0 w-8 h-8 rounded-full bg-elevated flex items-center justify-center text-heading font-bold">2</div>
+ <div className="flex-1 bg-elevated rounded-lg p-3 border-l-2 border-edge">
  <div className="font-semibold text-heading">环境上下文注入 (Environment Injection)</div>
  <p className="text-sm text-body">检测 Sandbox 模式、Git 仓库状态，注入相应的行为指令</p>
  </div>
@@ -112,9 +112,9 @@ export function SystemPromptArch() {
  </div>
 
  <div className="flex items-center gap-4">
- <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center text-green-400 font-bold">4</div>
- <div className="flex-1 bg-green-500/10 rounded-lg p-3 border-l-2 border-green-500">
- <div className="font-semibold text-green-300">用户记忆追加 (User Memory)</div>
+ <div className="flex-shrink-0 w-8 h-8 rounded-full bg-elevated flex items-center justify-center text-heading font-bold">4</div>
+ <div className="flex-1 bg-elevated rounded-lg p-3 border-l-2 border-edge">
+ <div className="font-semibold text-heading">用户记忆追加 (User Memory)</div>
  <p className="text-sm text-body">将 GEMINI.md 中的用户偏好和知识追加到 Prompt 末尾</p>
  </div>
  </div>
@@ -159,8 +159,8 @@ export function SystemPromptArch() {
 }`}
  />
 
- <div className="mt-3 bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 text-sm text-body">
- <strong className="text-amber-400">补充：</strong>本页默认以 <code>gemini-cli</code> 上游实现为准（<code>GEMINI_*</code> 环境变量）。
+ <div className="mt-3 bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-3 text-sm text-body">
+ <strong className="text-heading">补充：</strong>本页默认以 <code>gemini-cli</code> 上游实现为准（<code>GEMINI_*</code> 环境变量）。
  若你阅读的是 Innies/Qwen fork，可能会看到以 <code>QWEN_*</code> 为前缀的同类开关，语义相同但命名不同。
  </div>
 
@@ -189,33 +189,33 @@ export function SystemPromptArch() {
  </div>
 
  <div className="bg-surface rounded-lg p-4 border border-edge">
- <h4 className="font-semibold text-yellow-400 mb-2">📜 Core Mandates</h4>
+ <h4 className="font-semibold text-heading mb-2">📜 Core Mandates</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• 遵循项目现有代码规范</li>
- <li>• 验证库/框架的使用是否合理</li>
- <li>• 模仿现有代码风格和结构</li>
- <li>• 注释只说"为什么"不说"什么"</li>
- <li>• 使用绝对路径访问文件</li>
+ <li>遵循项目现有代码规范</li>
+ <li>验证库/框架的使用是否合理</li>
+ <li>模仿现有代码风格和结构</li>
+ <li>注释只说"为什么"不说"什么"</li>
+ <li>使用绝对路径访问文件</li>
  </ul>
  </div>
 
  <div className="bg-surface rounded-lg p-4 border border-edge">
- <h4 className="font-semibold text-green-400 mb-2">✅ Task Management</h4>
+ <h4 className="font-semibold text-heading mb-2">✅ Task Management</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• 强制使用 write_todos 工具</li>
- <li>• 计划阶段分解任务</li>
- <li>• 完成即标记 completed</li>
- <li>• 防止 AI "迷路"</li>
+ <li>强制使用 write_todos 工具</li>
+ <li>计划阶段分解任务</li>
+ <li>完成即标记 completed</li>
+ <li>防止 AI "迷路"</li>
  </ul>
  </div>
 
  <div className="bg-surface rounded-lg p-4 border border-edge">
  <h4 className="font-semibold text-heading mb-2">🔧 Primary Workflows</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• Plan → Implement → Adapt → Verify</li>
- <li>• 软件工程任务流程</li>
- <li>• 新应用开发流程</li>
- <li>• 测试和验证规范</li>
+ <li>Plan → Implement → Adapt → Verify</li>
+ <li>软件工程任务流程</li>
+ <li>新应用开发流程</li>
+ <li>测试和验证规范</li>
  </ul>
  </div>
  </div>
@@ -250,7 +250,7 @@ tasks - and that is unacceptable.
  </p>
 
  <div className="space-y-4">
- <div className="bg-orange-900/20 border border-orange-500/30 rounded-lg p-4">
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h4 className="font-semibold text-heading mb-2">🛡️ Sandbox 模式检测</h4>
  <CodeBlock
  title="Sandbox Injection Logic"
@@ -333,8 +333,8 @@ enabling sandboxing.
  <p className="text-xs text-dim mt-2">适用于大多数模型</p>
  </div>
 
- <div className="bg-surface rounded-lg p-4 border border-green-500/30">
- <h4 className="font-semibold text-green-400 mb-2">Gemini 格式</h4>
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/30">
+ <h4 className="font-semibold text-heading mb-2">Gemini 格式</h4>
  <div className="text-xs font-mono bg-base/40 p-2 rounded text-body">
  {'<tool_call>'}<br/>
  {'<function=run_shell_command>'}<br/>
@@ -566,15 +566,15 @@ To activate a skill, call \`activate_skill\` with the skill's name.
  </div>
  <div className="pl-4 text-body">│</div>
  <div className="pl-4 flex items-center gap-2">
- <span className="text-yellow-400">├──</span>
+ <span className="text-heading">├──</span>
  <span className="text-body">检查 GEMINI_SYSTEM_MD 环境变量</span>
  </div>
  <div className="pl-4 flex items-center gap-2">
- <span className="text-yellow-400">│ ├──</span>
+ <span className="text-heading">│ ├──</span>
  <span className="text-dim">true/path → 从文件加载 basePrompt</span>
  </div>
  <div className="pl-4 flex items-center gap-2">
- <span className="text-yellow-400">│ └──</span>
+ <span className="text-heading">│ └──</span>
  <span className="text-dim">false/undefined → 使用内置默认</span>
  </div>
  <div className="pl-4 flex items-center gap-2">
@@ -594,7 +594,7 @@ To activate a skill, call \`activate_skill\` with the skill's name.
  <span className="text-dim">getToolCallExamples(model) 注入</span>
  </div>
  <div className="pl-4 flex items-center gap-2">
- <span className="text-green-400">├──</span>
+ <span className="text-heading">├──</span>
  <span className="text-body">可选: 写入 GEMINI_WRITE_SYSTEM_MD</span>
  </div>
  <div className="pl-4 flex items-center gap-2">

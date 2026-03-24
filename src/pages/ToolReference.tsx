@@ -3,6 +3,9 @@ import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 const relatedPages: RelatedPage[] = [
  { id: 'tool-arch', label: '工具架构', description: '工具系统设计详解' },
@@ -43,10 +46,10 @@ export function ToolReference() {
  build_schema --> gemini_tools
  gemini_tools --> available
 
- style start fill:#22d3ee,color:#000
- style available fill:#22c55e,color:#000
- style create_registry fill:#a855f7,color:#fff
- style build_schema fill:#f59e0b,color:#000`;
+ style start fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style available fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style create_registry fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style build_schema fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  // 工具 Kind 分类系统
  const toolKindClassification = `flowchart LR
@@ -85,13 +88,13 @@ export function ToolReference() {
  skill[activate_skill]
  end
 
- style Read fill:#3b82f6,color:#fff
- style Search fill:#22c55e,color:#000
- style Edit fill:#f59e0b,color:#000
- style Execute fill:#f97316,color:#fff
- style Think fill:#6366f1,color:#fff
- style Fetch fill:#06b6d4,color:#fff
- style Other fill:#6b7280,color:#fff`;
+ style Read fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Search fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Edit fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Execute fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Think fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Fetch fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Other fill:${getThemeColor("--mermaid-muted-fill", "#f4f4f2")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  // 工具调用生命周期
  const toolInvocationLifecycle = `sequenceDiagram
@@ -184,7 +187,7 @@ export function ToolReference() {
  <div className="text-body">• <code className="text-heading">WriteTodosTool</code> - write_todos†</div>
  <div className="text-body">• <code className="text-heading">DelegateToAgentTool</code> - delegate_to_agent‡</div>
  </div>
- <p className="text-[var(--color-warning)] text-xs mt-2">
+ <p className="text-heading text-xs mt-2">
  * RipGrepTool/GrepTool 在运行时二选一（tool name 同为 <code>search_file_content</code>）。† 仅在 useWriteTodos 开启时注册。‡ 仅在 agents 启用且 <code>tools.allowed</code>/<code>--allowed-tools</code> 允许时注册。
  </p>
  <p className="text-body text-xs mt-2">
@@ -216,7 +219,7 @@ export function ToolReference() {
  <div className="text-body">• <code className="text-heading">activate_skill</code></div>
  <div className="text-body">• <code className="text-heading">delegate_to_agent</code></div>
  </div>
- <p className="text-[var(--color-warning)] text-xs mt-2">
+ <p className="text-heading text-xs mt-2">
  共 14 个内置工具 (packages/core/src/tools/tool-names.ts)
  </p>
  </div>
@@ -229,8 +232,8 @@ export function ToolReference() {
  通过 MCP 协议和扩展系统动态注册的工具
  </p>
  <ul className="space-y-1 text-body text-xs">
- <li>• <strong>MCP 工具</strong> - 通过 Model Context Protocol 动态注册</li>
- <li>• <strong>Discovered 工具</strong> - 运行时发现的扩展工具</li>
+ <li><strong>MCP 工具</strong> - 通过 Model Context Protocol 动态注册</li>
+ <li><strong>Discovered 工具</strong> - 运行时发现的扩展工具</li>
  </ul>
  <p className="text-heading text-xs mt-2">
  这些工具在运行时根据配置和环境动态加载
@@ -247,7 +250,7 @@ export function ToolReference() {
  <span>→ tool-names.ts 定义的核心工具 (编译时确定)</span>
  </div>
  <div className="flex items-center space-x-2">
- <span className="text-[var(--color-success)]">🔧 Built-in</span>
+ <span className="text-heading">🔧 Built-in</span>
  <span>→ 其他内建工具 (运行时注册, 非 tool-names.ts 常量)</span>
  </div>
  <div className="flex items-center space-x-2">
@@ -257,8 +260,8 @@ export function ToolReference() {
  </div>
  </div>
 
- <div className="bg-[var(--color-warning-soft)] border border-[var(--color-warning)] rounded-lg p-3">
- <p className="text-sm text-[var(--color-warning)]">
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-3">
+ <p className="text-sm text-heading">
  <strong>重要提示：</strong> <code>tool-names.ts</code> 定义的是核心工具常量,
  但不是工具系统的唯一来源。实际可用工具还包括内建工具和动态加载的 MCP 工具。
  </p>
@@ -273,9 +276,9 @@ export function ToolReference() {
  <div className="text-sm space-y-2">
  <p className="text-body">来自 AI Model 的工具调用：</p>
  <ul className="space-y-1 text-body">
- <li>• <code className="text-heading">name</code> - 工具名称（必须匹配 ToolRegistry 已注册的工具名）</li>
- <li>• <code className="text-heading">callId</code> - 唯一调用标识符</li>
- <li>• <code className="text-heading">args</code> - JSON 参数对象</li>
+ <li><code className="text-heading">name</code> - 工具名称（必须匹配 ToolRegistry 已注册的工具名）</li>
+ <li><code className="text-heading">callId</code> - 唯一调用标识符</li>
+ <li><code className="text-heading">args</code> - JSON 参数对象</li>
  </ul>
  </div>
  </HighlightBox>
@@ -284,9 +287,9 @@ export function ToolReference() {
  <div className="text-sm space-y-2">
  <p className="text-body">工具系统初始化依赖：</p>
  <ul className="space-y-1 text-body">
- <li>• <code className="text-heading">Config</code> - 配置对象（工作目录、临时目录等）</li>
- <li>• <code className="text-heading">allowedTools</code> - 白名单工具列表</li>
- <li>• <code className="text-heading">ApprovalMode</code> - 审批模式设置</li>
+ <li><code className="text-heading">Config</code> - 配置对象（工作目录、临时目录等）</li>
+ <li><code className="text-heading">allowedTools</code> - 白名单工具列表</li>
+ <li><code className="text-heading">ApprovalMode</code> - 审批模式设置</li>
  </ul>
  </div>
  </HighlightBox>
@@ -327,8 +330,8 @@ export function ToolReference() {
  </HighlightBox>
  </div>
 
- <div className="bg-[var(--color-warning-soft)] border border-[var(--color-warning)] rounded-lg p-3 mt-4">
- <p className="text-sm text-[var(--color-warning)]">
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-3 mt-4">
+ <p className="text-sm text-heading">
  <strong>重要：</strong> 上游 Gemini CLI 内部统一使用 Gemini 格式（<code>functionCall</code>/<code>functionResponse</code>）。
  OpenAI 的 <code>role=tool</code>/<code>tool_calls</code> 属于某些 fork 的额外兼容层，不是上游核心链路。
  </p>
@@ -354,7 +357,7 @@ export function ToolReference() {
  <span className="text-heading">注册表 + 发现机制</span>
  </div>
  </div>
- <div className="mt-2 text-xs text-[var(--color-warning)]">
+ <div className="mt-2 text-xs text-heading">
  注: tool-names.ts 定义核心工具,另有内建工具和 MCP 动态工具
  </div>
  </div>
@@ -385,11 +388,11 @@ export function ToolReference() {
  <div className="text-xs font-mono space-y-1 text-body">
  <div className="flex justify-between">
  <code>packages/core/src/config/config.ts#createToolRegistry()</code>
- <span className="text-[var(--color-success)]">组装 ToolRegistry</span>
+ <span className="text-heading">组装 ToolRegistry</span>
  </div>
  <div className="flex justify-between">
  <code>packages/core/src/core/coreToolScheduler.ts</code>
- <span className="text-[var(--color-success)]">工具调度器</span>
+ <span className="text-heading">工具调度器</span>
  </div>
  </div>
  </div>
@@ -442,24 +445,24 @@ export function ToolReference() {
  </tr>
  </thead>
  <tbody className="text-body font-mono">
- <tr className="border- border-edge bg-red-900/10">
- <td className="py-1 px-2 text-[var(--color-danger)] line-through">'bash'</td>
- <td className="py-1 px-2 text-[var(--color-success)]">'run_shell_command'</td>
+ <tr className="border- border-edge bg-elevated">
+ <td className="py-1 px-2 text-heading line-through">'bash'</td>
+ <td className="py-1 px-2 text-heading">'run_shell_command'</td>
  <td className="py-1 px-2 font-sans text-body">Shell 工具正确名称</td>
  </tr>
- <tr className="border- border-edge bg-red-900/10">
- <td className="py-1 px-2 text-[var(--color-danger)] line-through">'grep'</td>
- <td className="py-1 px-2 text-[var(--color-success)]">'search_file_content'</td>
+ <tr className="border- border-edge bg-elevated">
+ <td className="py-1 px-2 text-heading line-through">'grep'</td>
+ <td className="py-1 px-2 text-heading">'search_file_content'</td>
  <td className="py-1 px-2 font-sans text-body">内容搜索工具的 <code>name</code>（旧称 Grep/RipGrep）</td>
  </tr>
- <tr className="border- border-edge bg-red-900/10">
- <td className="py-1 px-2 text-[var(--color-danger)] line-through">'memory'</td>
- <td className="py-1 px-2 text-[var(--color-success)]">'save_memory'</td>
+ <tr className="border- border-edge bg-elevated">
+ <td className="py-1 px-2 text-heading line-through">'memory'</td>
+ <td className="py-1 px-2 text-heading">'save_memory'</td>
  <td className="py-1 px-2 font-sans text-body">Memory 工具正确名称</td>
  </tr>
- <tr className="bg-red-900/10">
- <td className="py-1 px-2 text-[var(--color-danger)] line-through">'read'</td>
- <td className="py-1 px-2 text-[var(--color-success)]">'read_file'</td>
+ <tr className="bg-elevated">
+ <td className="py-1 px-2 text-heading line-through">'read'</td>
+ <td className="py-1 px-2 text-heading">'read_file'</td>
  <td className="py-1 px-2 font-sans text-body">读取文件工具的 <code>name</code></td>
  </tr>
  </tbody>
@@ -475,21 +478,21 @@ export function ToolReference() {
  </p>
  <div className="grid grid-cols-2 gap-3">
  <div className="bg-surface rounded p-2">
- <h5 className="font-semibold text-[var(--color-success)] mb-1">常见默认更“容易放行”</h5>
+ <h5 className="font-semibold text-heading mb-1">常见默认更“容易放行”</h5>
  <ul className="space-y-1 text-body text-xs">
- <li>• <code className="text-heading">Kind.Read</code> - 只读操作</li>
- <li>• <code className="text-[var(--color-success)]">Kind.Search</code> - 搜索操作</li>
- <li>• <code className="text-teal-300">Kind.Fetch</code> - 抓取类工具</li>
- <li>• <code className="text-heading">Kind.Think</code> - 代理/记忆等</li>
+ <li><code className="text-heading">Kind.Read</code> - 只读操作</li>
+ <li><code className="text-heading">Kind.Search</code> - 搜索操作</li>
+ <li><code className="text-heading font-medium">Kind.Fetch</code> - 抓取类工具</li>
+ <li><code className="text-heading">Kind.Think</code> - 代理/记忆等</li>
  </ul>
  </div>
  <div className="bg-surface rounded p-2">
- <h5 className="font-semibold text-[var(--color-warning)] mb-1">常见默认更“需要确认”</h5>
+ <h5 className="font-semibold text-heading mb-1">常见默认更“需要确认”</h5>
  <ul className="space-y-1 text-body text-xs">
- <li>• <code className="text-[var(--color-warning)]">Kind.Edit</code> - 修改文件</li>
- <li>• <code className="text-heading">Kind.Execute</code> - 执行命令</li>
- <li>• <code className="text-[var(--color-danger)]">Kind.Delete/Kind.Move</code> - 破坏性操作</li>
- <li>• <code className="text-body">Kind.Other</code> - 注入/扩展类操作</li>
+ <li><code className="text-heading">Kind.Edit</code> - 修改文件</li>
+ <li><code className="text-heading">Kind.Execute</code> - 执行命令</li>
+ <li><code className="text-heading">Kind.Delete/Kind.Move</code> - 破坏性操作</li>
+ <li><code className="text-body">Kind.Other</code> - 注入/扩展类操作</li>
  </ul>
  </div>
  </div>
@@ -501,34 +504,34 @@ export function ToolReference() {
  每个工具都有严格的参数 Schema，违反规范会导致执行失败：
  </p>
  <ul className="text-xs text-body space-y-1">
- <li>• 必需参数缺失 → <code className="text-[var(--color-danger)]">error: Missing required parameter</code></li>
- <li>• 类型不匹配 → <code className="text-[var(--color-danger)]">error: Invalid parameter type</code></li>
- <li>• 路径/目录不在工作区 → <code className="text-[var(--color-danger)]">error: Path is not within workspace</code></li>
+ <li>必需参数缺失 → <code className="text-heading">error: Missing required parameter</code></li>
+ <li>类型不匹配 → <code className="text-heading">error: Invalid parameter type</code></li>
+ <li>路径/目录不在工作区 → <code className="text-heading">error: Path is not within workspace</code></li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="📌 Edit 工具命名说明" variant="blue">
  <div className="text-sm space-y-2">
- <p className="text-blue-200">
+ <p className="text-heading font-medium">
  <strong>命名约定：</strong> 文件编辑工具的 API 名称是 <code className="text-heading">replace</code>，
  常量名是 <code className="text-heading">EDIT_TOOL_NAME</code>。
  </p>
  <div>
  <h5 className="font-semibold text-heading mb-1">EDIT_TOOL_NAMES 集合</h5>
  <ul className="space-y-1 text-body">
- <li>• <code className="text-heading">replace</code> - 文件内容替换工具</li>
- <li>• <code className="text-heading">write_file</code> - 文件写入工具</li>
+ <li><code className="text-heading">replace</code> - 文件内容替换工具</li>
+ <li><code className="text-heading">write_file</code> - 文件写入工具</li>
  </ul>
  </div>
  <div>
  <h5 className="font-semibold text-heading mb-1">用途</h5>
  <ul className="space-y-1 text-body">
- <li>• <strong>AUTO_EDIT 模式：</strong> 自动批准 EDIT_TOOL_NAMES 集合中的工具</li>
- <li>• <strong>Checkpointing：</strong> 在执行 EDIT_TOOL_NAMES 工具前创建检查点</li>
+ <li><strong>AUTO_EDIT 模式：</strong> 自动批准 EDIT_TOOL_NAMES 集合中的工具</li>
+ <li><strong>Checkpointing：</strong> 在执行 EDIT_TOOL_NAMES 工具前创建检查点</li>
  </ul>
  </div>
  <div className="bg-elevated/20 border border-edge rounded p-2 mt-2">
- <p className="text-xs text-blue-200">
+ <p className="text-xs text-body">
  <strong>源码：</strong> packages/core/src/tools/tool-names.ts
  </p>
  </div>
@@ -651,7 +654,7 @@ export function ToolReference() {
  <Layer title="tool-names.ts 常量表（14 个内置工具名）" icon="🏷️">
  <p className="text-body mb-4">
  来源: <code className="text-heading">packages/core/src/tools/tool-names.ts</code>
- <span className="text-[var(--color-warning)] ml-2">(工具名常量表 ≠ 实际会话可用工具)</span>
+ <span className="text-heading ml-2">(工具名常量表 ≠ 实际会话可用工具)</span>
  </p>
 
  <div className="overflow-x-auto">
@@ -669,13 +672,13 @@ export function ToolReference() {
  <td className="py-2 px-3 text-heading">EDIT</td>
  <td className="py-2 px-3 text-heading">'replace'</td>
  <td className="py-2 px-3">SmartEditTool / EditTool</td>
- <td className="py-2 px-3 text-[var(--color-warning)]">Edit</td>
+ <td className="py-2 px-3 text-heading">Edit</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 text-heading">WRITE_FILE</td>
  <td className="py-2 px-3 text-heading">'write_file'</td>
  <td className="py-2 px-3">WriteFileTool</td>
- <td className="py-2 px-3 text-[var(--color-warning)]">Edit</td>
+ <td className="py-2 px-3 text-heading">Edit</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 text-heading">READ_FILE</td>
@@ -693,13 +696,13 @@ export function ToolReference() {
  <td className="py-2 px-3 text-heading">GREP</td>
  <td className="py-2 px-3 text-heading">'search_file_content'</td>
  <td className="py-2 px-3">GrepTool / RipGrepTool</td>
- <td className="py-2 px-3 text-[var(--color-success)]">Search</td>
+ <td className="py-2 px-3 text-heading">Search</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 text-heading">GLOB</td>
  <td className="py-2 px-3 text-heading">'glob'</td>
  <td className="py-2 px-3">GlobTool</td>
- <td className="py-2 px-3 text-[var(--color-success)]">Search</td>
+ <td className="py-2 px-3 text-heading">Search</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 text-heading">SHELL</td>
@@ -723,19 +726,19 @@ export function ToolReference() {
  <td className="py-2 px-3 text-heading">LS</td>
  <td className="py-2 px-3 text-heading">'list_directory'</td>
  <td className="py-2 px-3">LSTool</td>
- <td className="py-2 px-3 text-[var(--color-success)]">Search</td>
+ <td className="py-2 px-3 text-heading">Search</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 text-heading">WEB_SEARCH</td>
  <td className="py-2 px-3 text-heading">'google_web_search'</td>
  <td className="py-2 px-3">WebSearchTool</td>
- <td className="py-2 px-3 text-[var(--color-success)]">Search</td>
+ <td className="py-2 px-3 text-heading">Search</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 text-heading">WEB_FETCH</td>
  <td className="py-2 px-3 text-heading">'web_fetch'</td>
  <td className="py-2 px-3">WebFetchTool</td>
- <td className="py-2 px-3 text-teal-400">Fetch</td>
+ <td className="py-2 px-3 text-accent">Fetch</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 text-heading">ACTIVATE_SKILL</td>
@@ -779,9 +782,9 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  <strong>补充说明：</strong> 上述表格包含 ALL_BUILTIN_TOOL_NAMES 中的全部 14 个内置工具。此外还有：
  </p>
  <ul className="text-xs text-body mt-2 space-y-1 ml-4">
- <li>• MCP 工具 - 通过 Model Context Protocol 动态注册的外部工具</li>
- <li>• Extension 工具 - 运行时发现的扩展工具</li>
- <li>• Agent 内部工具 - 如 <code className="text-heading">get_internal_docs</code>（仅限内部使用）</li>
+ <li>MCP 工具 - 通过 Model Context Protocol 动态注册的外部工具</li>
+ <li>Extension 工具 - 运行时发现的扩展工具</li>
+ <li>Agent 内部工具 - 如 <code className="text-heading">get_internal_docs</code>（仅限内部使用）</li>
  </ul>
  </div>
  </Layer>
@@ -791,7 +794,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  {/* replace */}
  <HighlightBox title="replace - 文件编辑" icon="✏️" variant="yellow">
  <p className="text-sm text-body mb-2">
- 来源: <code>packages/core/src/tools/edit.ts</code> | Kind: <span className="text-[var(--color-warning)]">Edit</span>
+ 来源: <code>packages/core/src/tools/edit.ts</code> | Kind: <span className="text-heading">Edit</span>
  </p>
  <div className="overflow-x-auto">
  <table className="w-full text-xs">
@@ -807,19 +810,19 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  <tr className="border- border-edge">
  <td className="py-1 px-2 text-heading">file_path</td>
  <td className="py-1 px-2">string</td>
- <td className="py-1 px-2 text-[var(--color-success)]">Yes</td>
+ <td className="py-1 px-2 text-heading">Yes</td>
  <td className="py-1 px-2 font-sans">文件路径（会 resolve 到 targetDir；建议使用相对路径）</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-1 px-2 text-heading">old_string</td>
  <td className="py-1 px-2">string</td>
- <td className="py-1 px-2 text-[var(--color-success)]">Yes</td>
+ <td className="py-1 px-2 text-heading">Yes</td>
  <td className="py-1 px-2 font-sans">要替换的文本</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-1 px-2 text-heading">new_string</td>
  <td className="py-1 px-2">string</td>
- <td className="py-1 px-2 text-[var(--color-success)]">Yes</td>
+ <td className="py-1 px-2 text-heading">Yes</td>
  <td className="py-1 px-2 font-sans">替换后的文本</td>
  </tr>
  <tr>
@@ -854,7 +857,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  {/* write_file */}
  <HighlightBox title="write_file - 文件写入" icon="📝" variant="yellow">
  <p className="text-sm text-body mb-2">
- 来源: <code>packages/core/src/tools/write-file.ts</code> | Kind: <span className="text-[var(--color-warning)]">Edit</span>
+ 来源: <code>packages/core/src/tools/write-file.ts</code> | Kind: <span className="text-heading">Edit</span>
  </p>
  <div className="overflow-x-auto">
  <table className="w-full text-xs">
@@ -870,13 +873,13 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  <tr className="border- border-edge">
  <td className="py-1 px-2 text-heading">file_path</td>
  <td className="py-1 px-2">string</td>
- <td className="py-1 px-2 text-[var(--color-success)]">Yes</td>
+ <td className="py-1 px-2 text-heading">Yes</td>
  <td className="py-1 px-2 font-sans">文件路径（会 resolve 到 targetDir；建议使用相对路径）</td>
  </tr>
  <tr>
  <td className="py-1 px-2 text-heading">content</td>
  <td className="py-1 px-2">string</td>
- <td className="py-1 px-2 text-[var(--color-success)]">Yes</td>
+ <td className="py-1 px-2 text-heading">Yes</td>
  <td className="py-1 px-2 font-sans">文件内容</td>
  </tr>
  </tbody>
@@ -903,7 +906,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  <tr className="border- border-edge">
  <td className="py-1 px-2 text-heading">file_path</td>
  <td className="py-1 px-2">string</td>
- <td className="py-1 px-2 text-[var(--color-success)]">Yes</td>
+ <td className="py-1 px-2 text-heading">Yes</td>
  <td className="py-1 px-2 font-sans">文件路径（会 resolve 到 targetDir；offset 为 0-based 行号）</td>
  </tr>
  <tr className="border- border-edge">
@@ -926,7 +929,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  {/* search_file_content */}
  <HighlightBox title="search_file_content - 内容搜索" icon="🔍" variant="green">
  <p className="text-sm text-body mb-2">
- 来源: <code>packages/core/src/tools/grep.ts</code> | Kind: <span className="text-[var(--color-success)]">Search</span>
+ 来源: <code>packages/core/src/tools/grep.ts</code> | Kind: <span className="text-heading">Search</span>
  </p>
  <div className="overflow-x-auto">
  <table className="w-full text-xs">
@@ -942,7 +945,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  <tr className="border- border-edge">
  <td className="py-1 px-2 text-heading">pattern</td>
  <td className="py-1 px-2">string</td>
- <td className="py-1 px-2 text-[var(--color-success)]">Yes</td>
+ <td className="py-1 px-2 text-heading">Yes</td>
  <td className="py-1 px-2 font-sans">正则表达式</td>
  </tr>
  <tr className="border- border-edge">
@@ -965,7 +968,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  {/* glob */}
  <HighlightBox title="glob - 文件查找" icon="📁" variant="green">
  <p className="text-sm text-body mb-2">
- 来源: <code>packages/core/src/tools/glob.ts</code> | Kind: <span className="text-[var(--color-success)]">Search</span>
+ 来源: <code>packages/core/src/tools/glob.ts</code> | Kind: <span className="text-heading">Search</span>
  </p>
  <div className="overflow-x-auto">
  <table className="w-full text-xs">
@@ -981,7 +984,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  <tr className="border- border-edge">
  <td className="py-1 px-2 text-heading">pattern</td>
  <td className="py-1 px-2">string</td>
- <td className="py-1 px-2 text-[var(--color-success)]">Yes</td>
+ <td className="py-1 px-2 text-heading">Yes</td>
  <td className="py-1 px-2 font-sans">Glob 模式 (如 "**/*.ts")</td>
  </tr>
  <tr className="border- border-edge">
@@ -1032,7 +1035,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  <tr className="border- border-edge">
  <td className="py-1 px-2 text-heading">command</td>
  <td className="py-1 px-2">string</td>
- <td className="py-1 px-2 text-[var(--color-success)]">Yes</td>
+ <td className="py-1 px-2 text-heading">Yes</td>
  <td className="py-1 px-2 font-sans">要执行的命令</td>
  </tr>
  <tr className="border- border-edge">
@@ -1071,7 +1074,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  <tr className="border- border-edge">
  <td className="py-1 px-2 text-heading">fact</td>
  <td className="py-1 px-2">string</td>
- <td className="py-1 px-2 text-[var(--color-success)]">Yes</td>
+ <td className="py-1 px-2 text-heading">Yes</td>
  <td className="py-1 px-2 font-sans">要记住的事实</td>
  </tr>
  </tbody>
@@ -1098,7 +1101,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  <tr>
  <td className="py-1 px-2 text-heading">todos</td>
  <td className="py-1 px-2">TodoItem[]</td>
- <td className="py-1 px-2 text-[var(--color-success)]">Yes</td>
+ <td className="py-1 px-2 text-heading">Yes</td>
  <td className="py-1 px-2 font-sans">任务列表</td>
  </tr>
  </tbody>
@@ -1133,7 +1136,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  <tr>
  <td className="py-1 px-2 text-heading">name</td>
  <td className="py-1 px-2">string</td>
- <td className="py-1 px-2 text-[var(--color-success)]">Yes</td>
+ <td className="py-1 px-2 text-heading">Yes</td>
  <td className="py-1 px-2 font-sans">要激活的 skill 名称（启用 skills 后会被收敛为枚举）</td>
  </tr>
  </tbody>
@@ -1164,7 +1167,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  <tr className="border- border-edge">
  <td className="py-1 px-2 text-heading">agent_name</td>
  <td className="py-1 px-2">string (enum)</td>
- <td className="py-1 px-2 text-[var(--color-success)]">Yes</td>
+ <td className="py-1 px-2 text-heading">Yes</td>
  <td className="py-1 px-2 font-sans">要委托的 agent 名称（由 AgentRegistry 动态生成）</td>
  </tr>
  <tr>
@@ -1191,8 +1194,8 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  </p>
  </div>
 
- <div className="bg-surface rounded-lg p-5 border border-[var(--color-warning)]">
- <h4 className="text-[var(--color-warning)] font-bold font-mono mb-3">统一的参数规范</h4>
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover">
+ <h4 className="text-heading font-bold font-mono mb-3">统一的参数规范</h4>
  <p className="text-body text-sm leading-relaxed">
  所有工具通过 <code>parametersJsonSchema</code> 描述参数结构，CLI 用 SchemaValidator 做统一校验。
  常见字段名（如 <code>file_path</code>/<code>dir_path</code>/<code>prompt</code>）在工具间保持一致；

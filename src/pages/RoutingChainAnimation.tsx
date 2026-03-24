@@ -23,17 +23,17 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
             <h4 className="text-[var(--terminal-green)] font-bold mb-2">⛓️ 策略链执行顺序</h4>
             <div className="flex items-center gap-2 mt-2 text-xs flex-wrap">
-              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-purple-400 border border-purple-500/30">Composite</div>
-              <span className="text-gray-500">→</span>
-              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-cyan-400 border border-cyan-500/30">Fallback</div>
-              <span className="text-gray-500">→</span>
-              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-red-400 border border-red-500/30">Override</div>
-              <span className="text-gray-500">→</span>
-              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-amber-400 border border-amber-500/30">Classifier</div>
-              <span className="text-gray-500">→</span>
-              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-gray-400 border border-gray-500/30">Default</div>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-accent border border-accent/30">Composite</div>
+              <span className="text-dim">→</span>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-accent border border-accent/30">Fallback</div>
+              <span className="text-dim">→</span>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-heading border-l-2 border-l-edge-hover/30">Override</div>
+              <span className="text-dim">→</span>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-heading border-l-2 border-l-edge-hover/30">Classifier</div>
+              <span className="text-dim">→</span>
+              <div className="bg-[var(--bg-card)] p-2 rounded text-center text-dim border border-edge/60">Default</div>
             </div>
-            <p className="text-xs text-gray-500 mt-2">Chain of Responsibility 模式：每个策略返回 null 则继续下一个</p>
+            <p className="text-xs text-dim mt-2">Chain of Responsibility 模式：每个策略返回 null 则继续下一个</p>
           </div>
         </div>
       )}
@@ -296,10 +296,10 @@ export class ModelRouterService {
 ];
 
 const groupColors: Record<PhaseGroup, string> = {
-  input: '#3b82f6',
-  override: '#ef4444',
-  classifier: '#f59e0b',
-  fallback: '#22c55e',
+  input: 'var(--color-info)',
+  override: 'var(--color-danger)',
+  classifier: 'var(--color-warning)',
+  fallback: 'var(--color-success)',
   output: '#8b5cf6',
 };
 
@@ -342,7 +342,7 @@ export function RoutingChainAnimation() {
 
       <div className="max-w-6xl mx-auto mb-8">
         <h1 className="text-3xl font-bold text-[var(--purple)] mb-2 font-mono">路由策略链</h1>
-        <p className="text-gray-400">责任链模式的智能模型选择</p>
+        <p className="text-dim">责任链模式的智能模型选择</p>
       </div>
 
       <div className="max-w-6xl mx-auto mb-6">
@@ -367,12 +367,12 @@ export function RoutingChainAnimation() {
 
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-6">
-          <div className="rounded-xl p-6 border" style={{ borderColor: `${groupColors[step.group]}50`, background: `linear-gradient(135deg, ${groupColors[step.group]}10, rgba(0,0,0,0.8))` }}>
+          <div className="rounded-xl p-6 border" style={{ borderColor: `${groupColors[step.group]}50`, background: `linear-gradient(135deg, ${groupColors[step.group]}10, var(--color-bg))` }}>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-lg flex items-center justify-center text-lg font-bold" style={{ backgroundColor: groupColors[step.group], color: 'white' }}>{currentStep + 1}</div>
               <div>
-                <h2 className="text-xl font-bold text-white">{step.title}</h2>
-                <p className="text-sm text-gray-400">{step.description}</p>
+                <h2 className="text-xl font-bold text-heading">{step.title}</h2>
+                <p className="text-sm text-dim">{step.description}</p>
               </div>
             </div>
             {step.highlight && (
@@ -381,55 +381,46 @@ export function RoutingChainAnimation() {
           </div>
 
           {step.visualData?.complexity && (
-            <div className="p-4 rounded-lg border-2" style={{ borderColor: step.visualData.complexity === 'high' ? '#f59e0b' : '#22c55e', backgroundColor: 'rgba(0,0,0,0.4)' }}>
+            <div className="p-4 rounded-lg border-2 bg-surface" style={{ borderColor: step.visualData.complexity === 'high' ? 'var(--color-warning)' : 'var(--color-success)' }}>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-gray-400">复杂度分析</span>
-                <span className={`px-3 py-1 rounded-full text-sm font-bold ${step.visualData.complexity === 'high' ? 'bg-amber-500/20 text-amber-400' : 'bg-green-500/20 text-green-400'}`}>
+                <span className="text-dim">复杂度分析</span>
+                <span className={`px-3 py-1 rounded-full text-sm font-bold ${step.visualData.complexity === 'high' ? 'bg-elevated text-heading' : 'bg-elevated text-heading'}`}>
                   {step.visualData.complexity as string}
                 </span>
               </div>
-              <div className="text-sm text-gray-300 mt-2">{step.visualData.reasoning as string}</div>
+              <div className="text-sm text-body mt-2">{step.visualData.reasoning as string}</div>
               <div className="mt-3 flex items-center gap-2">
-                <span className="text-gray-500 text-xs">置信度:</span>
-                <div className="flex-1 h-2 rounded-full bg-gray-700">
-                  <div className="h-full rounded-full bg-amber-500" style={{ width: `${(step.visualData.confidence as number) * 100}%` }} />
+                <span className="text-dim text-xs">置信度:</span>
+                <div className="flex-1 h-2 rounded-full bg-elevated">
+                  <div className="h-full rounded-full bg-[var(--color-warning)]" style={{ width: `${(step.visualData.confidence as number) * 100}%` }} />
                 </div>
-                <span className="text-amber-400 text-xs">{Math.round((step.visualData.confidence as number) * 100)}%</span>
+                <span className="text-heading text-xs">{Math.round((step.visualData.confidence as number) * 100)}%</span>
               </div>
             </div>
           )}
 
           {step.visualData?.finalChoice && (
-            <div className="p-4 rounded-lg border-2 border-purple-500 bg-purple-500/10">
+            <div className="p-4 rounded-lg border-2 border-accent bg-accent-light">
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-purple-400 text-lg">🎯</span>
-                <span className="font-bold text-white">最终选择</span>
+                <span className="text-accent text-lg">🎯</span>
+                <span className="font-bold text-heading">最终选择</span>
               </div>
-              <code className="text-lg text-purple-400">{(step.visualData.finalChoice as { model: string }).model}</code>
-              <div className="text-xs text-gray-400 mt-1">Strategy: {(step.visualData.finalChoice as { strategy: string }).strategy}</div>
+              <code className="text-lg text-accent">{(step.visualData.finalChoice as { model: string }).model}</code>
+              <div className="text-xs text-dim mt-1">Strategy: {(step.visualData.finalChoice as { strategy: string }).strategy}</div>
             </div>
           )}
         </div>
 
         <div>
-          <h3 className="text-sm font-bold text-gray-400 mb-3 font-mono">源码实现</h3>
-          <div className="rounded-xl overflow-hidden border border-gray-800" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}>
-            <div className="p-1 border-b border-gray-800 flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-red-500/80" />
-              <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
-              <div className="w-3 h-3 rounded-full bg-green-500/80" />
-              <span className="text-xs text-gray-500 ml-2 font-mono">modelRouterService.ts</span>
-            </div>
-            <JsonBlock code={step.codeSnippet} />
-          </div>
+          <JsonBlock code={step.codeSnippet} title="modelRouterService.ts" />
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto mt-8 flex items-center justify-center gap-4">
-        <button onClick={handleReset} className="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700">重置</button>
-        <button onClick={handlePrev} disabled={currentStep === 0} className="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 disabled:opacity-50">上一步</button>
-        <button onClick={() => setIsPlaying(!isPlaying)} className={`px-6 py-2 rounded-lg font-medium ${isPlaying ? 'bg-amber-600 text-white' : 'bg-[var(--purple)] text-white'}`}>{isPlaying ? '暂停' : '自动播放'}</button>
-        <button onClick={handleNext} disabled={currentStep === routingSequence.length - 1} className="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 disabled:opacity-50">下一步</button>
+        <button onClick={handleReset} className="px-4 py-2 rounded-lg bg-surface text-body hover:bg-elevated">重置</button>
+        <button onClick={handlePrev} disabled={currentStep === 0} className="px-4 py-2 rounded-lg bg-surface text-body disabled:opacity-50">上一步</button>
+        <button onClick={() => setIsPlaying(!isPlaying)} className={`px-6 py-2 rounded-lg font-medium ${isPlaying ? 'bg-[var(--color-warning)] text-heading' : 'bg-[var(--purple)] text-heading'}`}>{isPlaying ? '暂停' : '自动播放'}</button>
+        <button onClick={handleNext} disabled={currentStep === routingSequence.length - 1} className="px-4 py-2 rounded-lg bg-surface text-body disabled:opacity-50">下一步</button>
       </div>
     </div>
   );

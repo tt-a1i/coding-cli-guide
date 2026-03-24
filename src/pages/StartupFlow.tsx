@@ -3,6 +3,8 @@ import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
 
 interface FlowStepProps {
  step: number;
@@ -15,7 +17,7 @@ interface FlowStepProps {
 function FlowStep({ step, title, description, code, file }: FlowStepProps) {
  return (
  <div className="relative pl-8 pb-8 last:border-l-0">
- <div className="absolute -left-3 top-0 w-6 h-6 bg-cyan-400 rounded-full flex items-center justify-center text-gray-900 font-bold text-sm">
+ <div className="absolute -left-3 top-0 w-6 h-6 bg-accent rounded-full flex items-center justify-center text-heading font-bold text-sm">
  {step}
  </div>
  <div className="bg-elevated/5 rounded-lg p-4 ml-4">
@@ -57,6 +59,8 @@ export function StartupFlow() {
  title="packages/cli/index.ts"
  code={`#!/usr/bin/env node
 import { main } from './src/gemini.tsx';
+
+
 
 // 启动主程序
 main();`}
@@ -194,7 +198,7 @@ if (!authResult.valid) {
  {/* 配置文件 */}
  <Layer title="配置文件结构" icon="⚙️">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <div className="bg-elevated/5 rounded-lg p-4 border border-white/10">
+ <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40">
  <h4 className="text-heading font-bold mb-2">全局配置</h4>
  <code className="text-sm text-body">~/.gemini/</code>
  <ul className="mt-2 text-sm space-y-1">
@@ -205,7 +209,7 @@ if (!authResult.valid) {
  </ul>
  </div>
 
- <div className="bg-elevated/5 rounded-lg p-4 border border-white/10">
+ <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40">
  <h4 className="text-heading font-bold mb-2">项目配置</h4>
  <code className="text-sm text-body">.gemini/</code>
  <ul className="mt-2 text-sm space-y-1">
@@ -684,9 +688,9 @@ flowchart TD
  V -->|无效| ERR[显示错误<br/>使用默认值]
  ERR --> F
 
- style C fill:#22d3ee,color:#000
- style F fill:#22c55e,color:#000
- style ERR fill:#ef4444,color:#fff
+ style C fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style F fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style ERR fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
  `} />
  </Layer>
 
@@ -1072,9 +1076,9 @@ function registerCleanupHandlers(): void {
  <Layer title="问题1: CLI 无法启动" depth={2} defaultOpen={true}>
  <HighlightBox title="常见症状" color="red">
  <ul className="text-sm space-y-1">
- <li>• 执行 <code>gemini</code> 命令无响应或立即退出</li>
- <li>• 显示 "command not found" 错误</li>
- <li>• Node.js 版本错误</li>
+ <li>执行 <code>gemini</code> 命令无响应或立即退出</li>
+ <li>显示 "command not found" 错误</li>
+ <li>Node.js 版本错误</li>
  </ul>
  </HighlightBox>
 
@@ -1130,9 +1134,9 @@ npm install -g @google/gemini-cli`}
  <Layer title="问题2: 认证失败" depth={2} defaultOpen={true}>
  <HighlightBox title="常见症状" color="red">
  <ul className="text-sm space-y-1">
- <li>• "API Key 无效" 错误</li>
- <li>• "未配置认证方式" 提示</li>
- <li>• OAuth 登录失败</li>
+ <li>"API Key 无效" 错误</li>
+ <li>"未配置认证方式" 提示</li>
+ <li>OAuth 登录失败</li>
  </ul>
  </HighlightBox>
 
@@ -1189,9 +1193,9 @@ gemini auth login`}
  <Layer title="问题3: 配置加载问题" depth={2} defaultOpen={true}>
  <HighlightBox title="常见症状" color="red">
  <ul className="text-sm space-y-1">
- <li>• 设置未生效</li>
- <li>• JSON 解析错误</li>
- <li>• 配置文件被忽略</li>
+ <li>设置未生效</li>
+ <li>JSON 解析错误</li>
+ <li>配置文件被忽略</li>
  </ul>
  </HighlightBox>
 
@@ -1251,9 +1255,9 @@ gemini config reset`}
  <Layer title="问题4: 内存相关问题" depth={2} defaultOpen={true}>
  <HighlightBox title="常见症状" color="red">
  <ul className="text-sm space-y-1">
- <li>• "JavaScript heap out of memory" 错误</li>
- <li>• CLI 响应变慢</li>
- <li>• 频繁崩溃</li>
+ <li>"JavaScript heap out of memory" 错误</li>
+ <li>CLI 响应变慢</li>
+ <li>频繁崩溃</li>
  </ul>
  </HighlightBox>
 
@@ -2043,10 +2047,10 @@ flowchart TD
  INK --> APP
  APP --> CHAT
 
- style E fill:#22d3ee,color:#000
- style CHAT fill:#22c55e,color:#000
- style A fill:#f59e0b,color:#000
- style MCP fill:#a855f7,color:#fff
+ style E fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style CHAT fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style A fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style MCP fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
  `} />
 
  <div className="mt-4 bg-surface rounded-lg p-4">
@@ -2057,11 +2061,11 @@ flowchart TD
  认证方式由配置决定
  </li>
  <li>
- <strong className="text-green-400">认证 → 遥测：</strong>
+ <strong className="text-heading">认证 → 遥测：</strong>
  遥测需要知道用户身份
  </li>
  <li>
- <strong className="text-yellow-400">主题 → UI：</strong>
+ <strong className="text-heading">主题 → UI：</strong>
  UI 渲染依赖主题设置
  </li>
  <li>
@@ -2330,11 +2334,11 @@ stateDiagram-v2
  <h5 className="text-heading font-semibold mb-2">状态转换说明</h5>
  <div className="grid grid-cols-2 gap-4 text-sm text-body">
  <div>
- <h6 className="text-green-400 font-semibold mb-1">正常路径</h6>
+ <h6 className="text-heading font-semibold mb-1">正常路径</h6>
  <p>Initializing → MemoryCheck → ConfigLoading → Authenticating → ServicesInit → UIStarting → Ready</p>
  </div>
  <div>
- <h6 className="text-yellow-400 font-semibold mb-1">降级路径</h6>
+ <h6 className="text-heading font-semibold mb-1">降级路径</h6>
  <p>任何阶段失败都尝试恢复或降级，最大程度保证可用性</p>
  </div>
  </div>
@@ -2377,7 +2381,7 @@ stateDiagram-v2
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">🛡️ 为什么沙箱检测在主逻辑前？</h4>
+ <h4 className="text-heading font-bold mb-2">🛡️ 为什么沙箱检测在主逻辑前？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：沙箱环境检测和初始化在认证和服务加载之前完成。</p>
  <p><strong>原因</strong>：</p>
@@ -2405,7 +2409,7 @@ stateDiagram-v2
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-red-500 font-bold mb-2">🔀 为什么分离 Interactive 和 Non-Interactive 入口？</h4>
+ <h4 className="text-heading font-bold mb-2">🔀 为什么分离 Interactive 和 Non-Interactive 入口？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：交互模式和非交互模式（--print 或管道输入）使用不同的代码路径。</p>
  <p><strong>原因</strong>：</p>

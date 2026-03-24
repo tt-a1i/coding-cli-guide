@@ -3,6 +3,9 @@ import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 export function GitServiceDeep() {
  const shadowGitArchitecture = `
@@ -28,9 +31,9 @@ flowchart TB
 
  UserGit -.->|"独立，不干扰"| ShadowGit
 
- style GitService fill:#22d3ee,color:#000
- style ShadowGit fill:#4ade80,color:#000
- style UserGit fill:#f59e0b,color:#000
+ style GitService fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style ShadowGit fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style UserGit fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
 `;
 
  const checkpointFlow = `
@@ -90,7 +93,7 @@ stateDiagram-v2
  return (
  <div className="space-y-8">
  {/* 页面头部 */}
- <div className="bg-surface rounded-lg p-6 border border-green-500/30">
+ <div className="bg-surface rounded-lg p-6 border-l-2 border-l-edge-hover/30">
  <div className="flex items-center gap-3 mb-4">
  <span className="text-4xl">📦</span>
  <h1 className="text-3xl font-bold text-heading">GitService 深度解析</h1>
@@ -99,7 +102,7 @@ stateDiagram-v2
  影子 Git 仓库管理、文件检查点创建与恢复的核心服务实现
  </p>
  <div className="mt-4 flex flex-wrap gap-2">
- <span className="px-3 py-1 bg-green-500/30 rounded-full text-sm text-green-300">Shadow Git</span>
+ <span className="px-3 py-1 bg-elevated rounded-full text-sm text-heading">Shadow Git</span>
  <span className="px-3 py-1 bg-elevated/30 rounded-full text-sm text-heading">Checkpointing</span>
  <span className="px-3 py-1 bg-elevated rounded-full text-sm text-heading">simple-git</span>
  </div>
@@ -345,44 +348,44 @@ export class GitService {
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono text-heading">git --version</td>
  <td className="py-2 px-3">verifyGitAvailability()</td>
- <td className="py-2 px-3 text-red-400">禁用检查点功能</td>
- <td className="py-2 px-3 text-red-400">✗ 环境问题</td>
+ <td className="py-2 px-3 text-heading">禁用检查点功能</td>
+ <td className="py-2 px-3 text-heading">✗ 环境问题</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono text-heading">git init</td>
  <td className="py-2 px-3">setupShadowGitRepository()</td>
- <td className="py-2 px-3 text-red-400">初始化失败，抛错</td>
- <td className="py-2 px-3 text-yellow-400">△ 清理后重试</td>
+ <td className="py-2 px-3 text-heading">初始化失败，抛错</td>
+ <td className="py-2 px-3 text-heading">△ 清理后重试</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono text-heading">git checkIsRepo</td>
  <td className="py-2 px-3">检查仓库是否已初始化</td>
  <td className="py-2 px-3">返回 false，触发 init</td>
- <td className="py-2 px-3 text-green-400">✓ 幂等</td>
+ <td className="py-2 px-3 text-heading">✓ 幂等</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono text-heading">git add .</td>
  <td className="py-2 px-3">createFileSnapshot()</td>
  <td className="py-2 px-3 text-heading">快照创建失败</td>
- <td className="py-2 px-3 text-green-400">✓ 幂等</td>
+ <td className="py-2 px-3 text-heading">✓ 幂等</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono text-heading">git commit</td>
  <td className="py-2 px-3">createFileSnapshot()</td>
  <td className="py-2 px-3 text-heading">快照创建失败</td>
- <td className="py-2 px-3 text-yellow-400">△ 无变更时失败</td>
+ <td className="py-2 px-3 text-heading">△ 无变更时失败</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono text-heading">git restore --source</td>
  <td className="py-2 px-3">restoreProjectFromSnapshot()</td>
- <td className="py-2 px-3 text-red-400">恢复失败，状态不一致</td>
- <td className="py-2 px-3 text-green-400">✓ 幂等</td>
+ <td className="py-2 px-3 text-heading">恢复失败，状态不一致</td>
+ <td className="py-2 px-3 text-heading">✓ 幂等</td>
  </tr>
  <tr>
  <td className="py-2 px-3 font-mono text-heading">git clean -fd</td>
  <td className="py-2 px-3">restoreProjectFromSnapshot()</td>
  <td className="py-2 px-3 text-heading">残留未跟踪文件</td>
- <td className="py-2 px-3 text-green-400">✓ 幂等</td>
+ <td className="py-2 px-3 text-heading">✓ 幂等</td>
  </tr>
  </tbody>
  </table>
@@ -390,9 +393,9 @@ export class GitService {
 
  <HighlightBox title="重试策略说明" icon="🔄" variant="blue">
  <ul className="space-y-2 text-sm">
- <li><span className="text-green-400">✓ 幂等</span>：安全重试，多次执行结果一致</li>
- <li><span className="text-yellow-400">△ 条件重试</span>：需要检查前置条件或清理状态后重试</li>
- <li><span className="text-red-400">✗ 不可重试</span>：环境问题或需要用户介入</li>
+ <li><span className="text-heading">✓ 幂等</span>：安全重试，多次执行结果一致</li>
+ <li><span className="text-heading">△ 条件重试</span>：需要检查前置条件或清理状态后重试</li>
+ <li><span className="text-heading">✗ 不可重试</span>：环境问题或需要用户介入</li>
  </ul>
  </HighlightBox>
 
@@ -440,7 +443,7 @@ async createFileSnapshot(message: string): Promise<string> {
  </thead>
  <tbody>
  <tr className="border- border-edge">
- <td className="py-2 px-3 font-mono text-red-400">Merge Conflict</td>
+ <td className="py-2 px-3 font-mono text-heading">Merge Conflict</td>
  <td className="py-2 px-3">git merge/rebase 操作</td>
  <td className="py-2 px-3">用户的 Git 工作流</td>
  <td className="py-2 px-3">GitService <strong>不处理</strong></td>
@@ -745,13 +748,13 @@ sequenceDiagram
  <td className="py-2 px-3">保存回滚点</td>
  </tr>
  <tr className="border- border-edge">
- <td className="py-2 px-3 text-green-400">工具执行后</td>
+ <td className="py-2 px-3 text-heading">工具执行后</td>
  <td className="py-2 px-3">ToolScheduler</td>
  <td className="py-2 px-3 font-mono text-heading">createFileSnapshot()</td>
  <td className="py-2 px-3">记录变更历史</td>
  </tr>
  <tr>
- <td className="py-2 px-3 text-red-400">/undo 触发</td>
+ <td className="py-2 px-3 text-heading">/undo 触发</td>
  <td className="py-2 px-3">UndoCommand</td>
  <td className="py-2 px-3 font-mono text-heading">restoreProjectFromSnapshot()</td>
  <td className="py-2 px-3">恢复到执行前</td>
@@ -832,7 +835,7 @@ flowchart LR
  UndoCmd --> GitService
  SessionMgr --> GitService
 
- style GitService fill:#22d3ee,color:#000
+ style GitService fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
 `}
  />
 

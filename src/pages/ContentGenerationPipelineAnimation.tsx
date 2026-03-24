@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { useState, useEffect, useCallback } from 'react';
+import { CodeBlock } from '../components/CodeBlock';
 
 /**
  * 内容生成管道动画
@@ -248,7 +249,7 @@ export default function ContentGenerationPipelineAnimation() {
  const getChunkColor = (type: string) => {
  switch (type) {
  case 'content': return 'var(--color-primary)';
- case 'tool_call': return '#f59e0b';
+ case 'tool_call': return 'var(--color-warning)';
  case 'finish': return 'var(--color-primary)';
  case 'usage': return '#a855f7';
  default: return 'var(--color-text-muted)';
@@ -282,7 +283,7 @@ export default function ContentGenerationPipelineAnimation() {
  onClick={() => isPlaying ? resetAnimation() : (resetAnimation(), setTimeout(() => setIsPlaying(true), 100))}
  className={`px-4 py-2 rounded font-mono text-sm transition-all ${
  isPlaying
- ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+ ? 'bg-elevated text-heading border-l-2 border-l-edge-hover/30'
  : ' bg-elevated/20 text-heading border border-edge/30'
  }`}
  >
@@ -291,8 +292,8 @@ export default function ContentGenerationPipelineAnimation() {
  </div>
  </div>
 
- <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 text-sm text-body">
- <strong className="text-amber-400">注意：</strong>本页展示的是 Innies/Qwen CLI 为了对接 OpenAI 兼容 API 而引入的内容生成管道；
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4 text-sm text-body">
+ <strong className="text-heading">注意：</strong>本页展示的是 Innies/Qwen CLI 为了对接 OpenAI 兼容 API 而引入的内容生成管道；
  上游 Gemini CLI 的核心链路不需要进行 Gemini ↔ OpenAI 的消息/工具格式互转。
  </div>
 
@@ -366,7 +367,7 @@ export default function ContentGenerationPipelineAnimation() {
  {/* 流式块 */}
  <div className="col-span-4">
  <div className="bg-base/60 rounded-lg p-4 border border-edge-hover">
- <h3 className="text-sm font-semibold text-amber-500 mb-3 font-mono">
+ <h3 className="text-sm font-semibold text-heading mb-3 font-mono">
  📡 Stream Chunks
  </h3>
  <div className="space-y-2 min-h-[200px]">
@@ -433,7 +434,7 @@ export default function ContentGenerationPipelineAnimation() {
  {mergedResponse.toolCalls.map((tool, i) => (
  <span
  key={i}
- className="px-2 py-1 rounded text-xs font-mono bg-amber-500/20 text-amber-500"
+ className="px-2 py-1 rounded text-xs font-mono bg-elevated text-heading"
  >
  {tool}
  </span>
@@ -478,7 +479,7 @@ export default function ContentGenerationPipelineAnimation() {
  className={`${
  log.includes('✅') ? 'text-heading' :
  log.includes('🚀') ? 'text-heading' :
- log.includes('📡') ? 'text-amber-500' :
+ log.includes('📡') ? 'text-heading' :
  log.includes('→') ? 'text-body' :
  'text-dim'
  }`}
@@ -495,29 +496,31 @@ export default function ContentGenerationPipelineAnimation() {
  <h3 className="text-sm font-semibold text-heading mb-3">
  源码: pipeline.ts
  </h3>
- <pre className="text-xs font-mono text-body bg-base/30 p-3 rounded overflow-x-auto">
-{`class ContentGenerationPipeline {
- async executeStream(request: GenerateContentParameters): AsyncGenerator<GenerateContentResponse> {
- // Stage 1: Convert Gemini → OpenAI
- const openaiRequest = await this.buildRequest(request, userPromptId, true);
+ <CodeBlock
+   language="typescript"
+   title="pipeline.ts"
+   code={`class ContentGenerationPipeline {
+  async executeStream(request: GenerateContentParameters): AsyncGenerator<GenerateContentResponse> {
+    // Stage 1: Convert Gemini → OpenAI
+    const openaiRequest = await this.buildRequest(request, userPromptId, true);
 
- // Stage 2: Call OpenAI API
- const stream = await this.client.chat.completions.create(openaiRequest);
+    // Stage 2: Call OpenAI API
+    const stream = await this.client.chat.completions.create(openaiRequest);
 
- // Stage 3: Process stream with conversion
- for await (const chunk of stream) {
- const response = this.converter.convertOpenAIChunkToGemini(chunk);
+    // Stage 3: Process stream with conversion
+    for await (const chunk of stream) {
+      const response = this.converter.convertOpenAIChunkToGemini(chunk);
 
- // Stage 4: Handle chunk merging (finishReason + usageMetadata)
- const shouldYield = this.handleChunkMerging(response, collected, setPending);
- if (shouldYield) yield response;
- }
+      // Stage 4: Handle chunk merging (finishReason + usageMetadata)
+      const shouldYield = this.handleChunkMerging(response, collected, setPending);
+      if (shouldYield) yield response;
+    }
 
- // Stage 5: Telemetry logging
- await this.config.telemetryService.logStreamingSuccess(context, responses);
- }
+    // Stage 5: Telemetry logging
+    await this.config.telemetryService.logStreamingSuccess(context, responses);
+  }
 }`}
- </pre>
+ />
  </div>
  </div>
  );

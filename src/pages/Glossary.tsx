@@ -487,17 +487,22 @@ export default function Glossary({ onNavigate }: GlossaryProps) {
  return matchesCategory && matchesSearch;
  });
 
- const getCategoryColor = (category: string) => {
+ const getCategoryClasses = (category: string) => {
  switch (category) {
- case 'core': return 'sky-400';
- case 'tool': return 'amber-500';
- case 'security': return 'red-400';
- case 'extension': return 'sky-400';
- case 'command': return 'sky-400';
- case 'state': return 'orange-400';
- case 'ui': return 'pink-400';
- case 'prompt': return 'cyan-400';
- default: return 'slate-500';
+ case 'core':
+ case 'extension':
+ case 'command':
+ case 'prompt':
+ return 'bg-accent-light text-accent';
+ case 'tool':
+ case 'state':
+ return 'bg-elevated text-heading';
+ case 'security':
+ return 'bg-elevated text-heading';
+ case 'ui':
+ return 'bg-[var(--purple-glow)] text-[var(--purple-dim)]';
+ default:
+ return 'bg-elevated text-body';
  }
  };
 
@@ -506,7 +511,7 @@ export default function Glossary({ onNavigate }: GlossaryProps) {
  {/* Header */}
  <section className="text-center py-6">
  <h1 className="text-3xl font-bold font-mono mb-3">
- <span className="text-amber-500">📖</span>
+ <span className="text-heading">📖</span>
  <span className="text-heading ml-3">术语表</span>
  </h1>
  <p className="text-body font-mono text-sm">
@@ -565,7 +570,7 @@ export default function Glossary({ onNavigate }: GlossaryProps) {
  >
  <div className="flex-1">
  <div className="flex items-center gap-3 mb-2">
- <code className={`px-2 py-1 bg-${getCategoryColor(item.category)}/10 text-${getCategoryColor(item.category)} rounded text-sm font-mono font-bold`}>
+ <code className={`px-2 py-1 rounded text-sm font-mono font-bold ${getCategoryClasses(item.category)}`}>
  {item.term}
  </code>
  <span className="text-xs text-dim bg-base px-2 py-0.5 rounded">
@@ -584,8 +589,8 @@ export default function Glossary({ onNavigate }: GlossaryProps) {
  {expandedTerm === item.term && (
  <div className="px-5 pb-4 space-y-3 animate-fadeIn">
  {item.example && (
- <div className="bg-base rounded-lg p-3 border-l-2 border-amber-500">
- <span className="text-xs text-amber-500 font-mono">示例：</span>
+ <div className="bg-base rounded-lg p-3 border-l-2 border-edge">
+ <span className="text-xs text-heading font-mono">示例：</span>
  <p className="text-sm text-body mt-1">{item.example}</p>
  </div>
  )}
@@ -635,8 +640,8 @@ export default function Glossary({ onNavigate }: GlossaryProps) {
  </p>
  </div>
 
- <div className="bg-surface rounded-lg p-5 border border-amber-500/30">
- <h4 className="text-amber-500 font-bold font-mono mb-3">分类组织</h4>
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/30">
+ <h4 className="text-heading font-bold font-mono mb-3">分类组织</h4>
  <p className="text-body text-sm leading-relaxed">
  按功能领域分类（核心概念、工具系统、安全机制等）而非字母排序，
  帮助读者建立概念间的关联。相关术语聚集在一起，更容易形成系统性理解。

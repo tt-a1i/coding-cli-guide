@@ -444,7 +444,7 @@ function LevelHierarchy({
  return (
  <div className="bg-base rounded-lg p-4 border border-edge">
  <div className="flex items-center gap-2 mb-4">
- <span className="text-amber-500">📁</span>
+ <span className="text-heading">📁</span>
  <span className="text-sm font-mono font-bold text-heading">层级结构</span>
  </div>
 
@@ -503,7 +503,7 @@ function LevelHierarchy({
  {/* 遮蔽说明 */}
  <div className="mt-4 pt-4 border-t border-edge">
  <div className="text-xs text-dim">
- <span className="text-amber-500">⚠</span> 同名 Agent 遵循遮蔽规则: Project &gt; User &gt; Builtin
+ <span className="text-heading">⚠</span> 同名 Agent 遵循遮蔽规则: Project &gt; User &gt; Builtin
  </div>
  </div>
  </div>
@@ -559,7 +559,7 @@ You are a specialized agent...`;
  </div>
  <div>
  <span className="text-dim">tools: </span>
- <span className="text-amber-500">[{agent.tools.join(', ')}]</span>
+ <span className="text-heading">[{agent.tools.join(', ')}]</span>
  </div>
  <div>
  <span className="text-dim">level: </span>
@@ -673,7 +673,7 @@ export function SubagentConfigAnimation() {
  onClick={() => setIsPlaying(!isPlaying)}
  className={`px-4 py-1.5 rounded text-sm font-medium ${
  isPlaying
- ? 'bg-amber-500/20 text-amber-500 border border-amber-500/50'
+ ? 'bg-elevated text-heading border-l-2 border-l-edge-hover/40'
  : ' bg-elevated/20 text-heading border border-edge-hover'
  }`}
  >
@@ -693,7 +693,7 @@ export function SubagentConfigAnimation() {
  className={`
  px-3 py-1.5 rounded text-xs font-mono
  ${parseState.cacheStatus === 'empty' ? 'bg-base text-dim' : ''}
- ${parseState.cacheStatus === 'building' ? 'bg-amber-500/20 text-amber-500' : ''}
+ ${parseState.cacheStatus === 'building' ? 'bg-elevated text-heading' : ''}
  ${parseState.cacheStatus === 'ready' ? ' bg-elevated/20 text-heading' : ''}
  `}
  >

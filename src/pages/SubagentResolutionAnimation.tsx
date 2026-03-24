@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { CodeBlock } from '../components/CodeBlock';
 
 type SubagentLevel = 'project' | 'user' | 'builtin';
 
@@ -137,7 +138,7 @@ export default function SubagentResolutionAnimation() {
  key={`${agent.level}-${agent.name}`}
  className={`p-3 rounded-lg border transition-all duration-300 ${
  highlighted
- ? 'border-yellow-400 bg-yellow-500/20 scale-105 shadow-lg shadow-yellow-500/20'
+ ? 'border-edge bg-elevated scale-105 shadow-lg shadow-black/5'
  : `border-${LEVEL_CONFIG[agent.level].color}-500/30 bg-${LEVEL_CONFIG[agent.level].color}-500/10`
  }`}
  >
@@ -145,7 +146,7 @@ export default function SubagentResolutionAnimation() {
  <div>
  <div className="font-mono text-sm text-heading flex items-center gap-2">
  <span>{agent.name}</span>
- {agent.isBuiltin && <span className="text-xs bg-green-500/30 px-1 rounded">内置</span>}
+ {agent.isBuiltin && <span className="text-xs bg-elevated px-1 rounded">内置</span>}
  </div>
  <div className="text-xs text-body mt-1">{agent.description}</div>
  </div>
@@ -189,7 +190,7 @@ export default function SubagentResolutionAnimation() {
  }`}
  style={{
  borderColor: isCurrentStep ?
- (level === 'project' ? '#22d3ee' : level === 'user' ? '#a855f7' : '#22c55e') :
+ (level === 'project' ? '#22d3ee' : level === 'user' ? '#a855f7' : 'var(--color-success)') :
  undefined,
  boxShadow: isCurrentStep ?
  `0 0 20px ${level === 'project' ? '#22d3ee33' : level === 'user' ? '#a855f733' : '#22c55e33'}` :
@@ -197,7 +198,7 @@ export default function SubagentResolutionAnimation() {
  }}
  >
  <h3 className={`font-bold mb-3 flex items-center gap-2`}
- style={{ color: level === 'project' ? '#22d3ee' : level === 'user' ? '#a855f7' : '#22c55e' }}>
+ style={{ color: level === 'project' ? '#22d3ee' : level === 'user' ? '#a855f7' : 'var(--color-success)' }}>
  <span className="text-xl">{config.icon}</span>
  <span>{config.label}</span>
  {isCurrentStep && <span className="animate-pulse">🔍</span>}
@@ -245,7 +246,7 @@ export default function SubagentResolutionAnimation() {
  </div>
 
  {/* Resolution Control */}
- <div className="mt-6 bg-base/40 border border-orange-500/30 rounded-lg p-4">
+ <div className="mt-6 bg-base/40 border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h3 className="text-heading font-bold mb-3 flex items-center gap-2">
  <span className="text-xl">🔍</span> 解析 Subagent
  </h3>
@@ -298,12 +299,12 @@ export default function SubagentResolutionAnimation() {
  key={index}
  className={`p-3 rounded-lg border ${
  step.found
- ? 'border-green-500/30 bg-green-500/10'
+ ? 'border-edge/30 bg-elevated'
  : ' border-edge bg-surface'
  }`}
  >
  <div className="flex items-center gap-2">
- <span className={step.found ? 'text-green-400' : 'text-dim'}>
+ <span className={step.found ? 'text-heading' : 'text-dim'}>
  {step.found ? '✓' : '✗'}
  </span>
  <span className="text-sm">{step.message}</span>
@@ -328,8 +329,8 @@ export default function SubagentResolutionAnimation() {
 
  {/* Result */}
  {result && (
- <div className="mt-6 bg-base/40 border border-green-500/30 rounded-lg p-4">
- <h3 className="text-green-400 font-bold mb-3 flex items-center gap-2">
+ <div className="mt-6 bg-base/40 border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h3 className="text-heading font-bold mb-3 flex items-center gap-2">
  <span className="text-xl">✅</span> 解析结果
  </h3>
  <pre className="text-sm text-body overflow-x-auto">
@@ -339,34 +340,29 @@ export default function SubagentResolutionAnimation() {
  )}
 
  {/* Code Reference */}
- <div className="mt-6 bg-base/40 border border-edge rounded-lg p-4">
- <h3 className="text-heading font-bold mb-3">📄 源码参考</h3>
- <pre className="text-xs text-body overflow-x-auto">
-{`// packages/core/src/agents/registry.ts
+      <CodeBlock title="registry.ts — 源码参考" language="typescript" code={`// packages/core/src/agents/registry.ts
 
 // 通过注册顺序实现优先级覆盖
 async initialize(): Promise<void> {
- // 1. 加载内置 Agent (最低优先级)
- this.loadBuiltInAgents();
+  // 1. 加载内置 Agent (最低优先级)
+  this.loadBuiltInAgents();
 
- // 2. 加载用户级 Agent (覆盖同名 builtin)
- const userAgents = await loadAgentsFromDirectory(
- Storage.getUserAgentsDir()
- );
- for (const agent of userAgents.agents) {
- this.registerAgent(agent); // 覆盖同名
- }
+  // 2. 加载用户级 Agent (覆盖同名 builtin)
+  const userAgents = await loadAgentsFromDirectory(
+    Storage.getUserAgentsDir()
+  );
+  for (const agent of userAgents.agents) {
+    this.registerAgent(agent);  // 覆盖同名
+  }
 
- // 3. 加载项目级 Agent (最高优先级)
- const projectAgents = await loadAgentsFromDirectory(
- this.config.storage.getProjectAgentsDir()
- );
- for (const agent of projectAgents.agents) {
- this.registerAgent(agent); // 覆盖同名
- }
-}`}
- </pre>
- </div>
+  // 3. 加载项目级 Agent (最高优先级)
+  const projectAgents = await loadAgentsFromDirectory(
+    this.config.storage.getProjectAgentsDir()
+  );
+  for (const agent of projectAgents.agents) {
+    this.registerAgent(agent);  // 覆盖同名
+  }
+}`} />
  </div>
  </div>
  );

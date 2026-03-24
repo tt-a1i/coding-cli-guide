@@ -4,6 +4,9 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 const relatedPages: RelatedPage[] = [
  { id: 'subagent', label: '子代理系统', description: 'Subagent 概述' },
@@ -49,7 +52,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">终止模式</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-amber-500">3</div>
+ <div className="text-2xl font-bold text-heading">3</div>
  <div className="text-xs text-dim">配置层级</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
@@ -74,7 +77,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  Executor 执行
  </span>
  <span className="text-dim">→</span>
- <span className="px-3 py-1.5 bg-amber-500/20 text-amber-500 rounded-lg border border-amber-500/30">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover/30">
  complete_task
  </span>
  </div>
@@ -152,139 +155,139 @@ export function AgentFramework() {
  end
 
  style GOAL stroke:#4ade80,stroke-width:2px
- style FAIL stroke:#ef4444,stroke-width:2px
+ style FAIL stroke:${getThemeColor("--color-danger", "#b91c1c")},stroke-width:2px
  style TURN stroke:#00d4ff,stroke-width:2px`;
 
  const agentTypesCode = `// Agent 终止模式
 // packages/core/src/agents/types.ts
 export enum AgentTerminateMode {
- ERROR = 'ERROR', // 执行错误
- TIMEOUT = 'TIMEOUT', // 超时
- GOAL = 'GOAL', // 成功完成
- MAX_TURNS = 'MAX_TURNS', // 达到轮次上限
- ABORTED = 'ABORTED', // 外部中止信号
- ERROR_NO_COMPLETE_TASK_CALL = 'ERROR_NO_COMPLETE_TASK_CALL', // 未调用 complete_task
+  ERROR = 'ERROR', // 执行错误
+  TIMEOUT = 'TIMEOUT', // 超时
+  GOAL = 'GOAL', // 成功完成
+  MAX_TURNS = 'MAX_TURNS', // 达到轮次上限
+  ABORTED = 'ABORTED', // 外部中止信号
+  ERROR_NO_COMPLETE_TASK_CALL = 'ERROR_NO_COMPLETE_TASK_CALL', // 未调用 complete_task
 }
 
 // 基础 Agent 定义
 export interface BaseAgentDefinition<TOutput> {
- name: string; // 唯一标识符
- displayName?: string; // 显示名称
- description: string; // 描述
- inputConfig: InputConfig; // 输入参数配置
- outputConfig?: OutputConfig<TOutput>; // 输出配置 (Zod schema)
+  name: string; // 唯一标识符
+  displayName?: string; // 显示名称
+  description: string; // 描述
+  inputConfig: InputConfig; // 输入参数配置
+  outputConfig?: OutputConfig<TOutput>; // 输出配置 (Zod schema)
 }
 
 // 本地 Agent 定义
 export interface LocalAgentDefinition<TOutput> extends BaseAgentDefinition<TOutput> {
- kind: 'local';
- promptConfig: PromptConfig; // 提示词配置
- modelConfig: ModelConfig; // 模型配置
- runConfig: RunConfig; // 运行配置
- toolConfig?: ToolConfig; // 工具配置
- processOutput?: (output: TOutput) => string; // 输出处理函数
+  kind: 'local';
+  promptConfig: PromptConfig; // 提示词配置
+  modelConfig: ModelConfig; // 模型配置
+  runConfig: RunConfig; // 运行配置
+  toolConfig?: ToolConfig; // 工具配置
+  processOutput?: (output: TOutput) => string; // 输出处理函数
 }
 
 // 远程 Agent 定义 (A2A)
 export interface RemoteAgentDefinition<TOutput> extends BaseAgentDefinition<TOutput> {
- kind: 'remote';
- agentCardUrl: string; // A2A Agent Card URL
+  kind: 'remote';
+  agentCardUrl: string; // A2A Agent Card URL
 }`;
 
  const configTypesCode = `// 提示词配置
 export interface PromptConfig {
- systemPrompt?: string; // 系统提示词，支持 \${input_name} 模板
- initialMessages?: Content[]; // Few-shot 示例
- query?: string; // 初始查询，触发执行循环
+  systemPrompt?: string; // 系统提示词，支持 \${input_name} 模板
+  initialMessages?: Content[]; // Few-shot 示例
+  query?: string; // 初始查询，触发执行循环
 }
 
 // 工具配置
 export interface ToolConfig {
- tools: Array<string | FunctionDeclaration | AnyDeclarativeTool>;
+  tools: Array<string | FunctionDeclaration | AnyDeclarativeTool>;
 }
 
 // 输入配置
 export interface InputConfig {
- inputs: Record<string, {
- description: string;
- type: 'string' | 'number' | 'boolean' | 'integer' | 'string[]' | 'number[]';
- required: boolean;
- }>;
+  inputs: Record<string, {
+  description: string;
+  type: 'string' | 'number' | 'boolean' | 'integer' | 'string[]' | 'number[]';
+  required: boolean;
+  }>;
 }
 
 // 模型配置
 export interface ModelConfig {
- model: string; // 模型名称，'inherit' 表示继承父级
- temp: number; // 温度
- top_p: number; // Top-P 采样
- thinkingBudget?: number; // 思考预算
+  model: string; // 模型名称，'inherit' 表示继承父级
+  temp: number; // 温度
+  top_p: number; // Top-P 采样
+  thinkingBudget?: number; // 思考预算
 }
 
 // 运行配置
 export interface RunConfig {
- max_time_minutes: number; // 最大执行时间（分钟）
- max_turns?: number; // 最大对话轮次
+  max_time_minutes: number; // 最大执行时间（分钟）
+  max_turns?: number; // 最大对话轮次
 }`;
 
  const registryCode = `// AgentRegistry - 管理 Agent 的发现、加载和注册
 export class AgentRegistry {
- private readonly agents = new Map<string, AgentDefinition>();
+  private readonly agents = new Map<string, AgentDefinition>();
 
- async initialize(): Promise<void> {
- // 1. 加载内置 Agent
- this.loadBuiltInAgents();
+  async initialize(): Promise<void> {
+  // 1. 加载内置 Agent
+  this.loadBuiltInAgents();
 
- // 2. 加载用户级 Agent (~/.gemini/agents/)
- const userAgentsDir = Storage.getUserAgentsDir();
- const userAgents = await loadAgentsFromDirectory(userAgentsDir);
- for (const agent of userAgents.agents) {
- await this.registerAgent(agent);
- }
+  // 2. 加载用户级 Agent (~/.gemini/agents/)
+  const userAgentsDir = Storage.getUserAgentsDir();
+  const userAgents = await loadAgentsFromDirectory(userAgentsDir);
+  for (const agent of userAgents.agents) {
+  await this.registerAgent(agent);
+  }
 
- // 3. 加载项目级 Agent (.gemini/agents/)
- if (this.config.isTrustedFolder()) {
- const projectAgentsDir = this.config.storage.getProjectAgentsDir();
- const projectAgents = await loadAgentsFromDirectory(projectAgentsDir);
- for (const agent of projectAgents.agents) {
- await this.registerAgent(agent);
- }
- }
- }
+  // 3. 加载项目级 Agent (.gemini/agents/)
+  if (this.config.isTrustedFolder()) {
+  const projectAgentsDir = this.config.storage.getProjectAgentsDir();
+  const projectAgents = await loadAgentsFromDirectory(projectAgentsDir);
+  for (const agent of projectAgents.agents) {
+  await this.registerAgent(agent);
+  }
+  }
+  }
 
- private loadBuiltInAgents(): void {
- const investigatorSettings = this.config.getCodebaseInvestigatorSettings();
- const cliHelpSettings = this.config.getCliHelpAgentSettings();
- const agentsOverrides = this.config.getAgentsSettings().overrides ?? {};
+  private loadBuiltInAgents(): void {
+  const investigatorSettings = this.config.getCodebaseInvestigatorSettings();
+  const cliHelpSettings = this.config.getCliHelpAgentSettings();
+  const agentsOverrides = this.config.getAgentsSettings().overrides ?? {};
 
- // CodebaseInvestigator - 代码库探索
- if (
- investigatorSettings?.enabled &&
- agentsOverrides[CodebaseInvestigatorAgent.name]?.enabled !== false
- ) {
- this.registerLocalAgent(CodebaseInvestigatorAgent);
- }
+  // CodebaseInvestigator - 代码库探索
+  if (
+  investigatorSettings?.enabled &&
+  agentsOverrides[CodebaseInvestigatorAgent.name]?.enabled !== false
+  ) {
+  this.registerLocalAgent(CodebaseInvestigatorAgent);
+  }
 
- // CLI Help - 文档问答
- if (
- cliHelpSettings.enabled &&
- agentsOverrides[CliHelpAgent.name]?.enabled !== false
- ) {
- this.registerLocalAgent(CliHelpAgent(this.config));
- }
+  // CLI Help - 文档问答
+  if (
+  cliHelpSettings.enabled &&
+  agentsOverrides[CliHelpAgent.name]?.enabled !== false
+  ) {
+  this.registerLocalAgent(CliHelpAgent(this.config));
+  }
 
- // Generalist - 通用代理（实验特性）
- this.registerLocalAgent(GeneralistAgent(this.config));
- }
+  // Generalist - 通用代理（实验特性）
+  this.registerLocalAgent(GeneralistAgent(this.config));
+  }
 
- // 获取 Agent 目录上下文（注入到系统提示词）
- getDirectoryContext(): string {
- let context = '## Available Sub-Agents\\n';
- context += 'Use \`delegate_to_agent\` for complex tasks.\\n\\n';
- for (const [name, def] of this.agents) {
- context += \`- **\${name}**: \${def.description}\\n\`;
- }
- return context;
- }
+  // 获取 Agent 目录上下文（注入到系统提示词）
+  getDirectoryContext(): string {
+  let context = '## Available Sub-Agents\\n';
+  context += 'Use \`delegate_to_agent\` for complex tasks.\\n\\n';
+  for (const [name, def] of this.agents) {
+  context += \`- **\${name}**: \${def.description}\\n\`;
+  }
+  return context;
+  }
 }`;
 
  const markdownConfigCode = `---
@@ -293,10 +296,10 @@ name: code-reviewer
 description: 专业代码审查，检查最佳实践和潜在问题
 display_name: Code Reviewer
 tools:
- - read_file
- - search_file_content
- - glob
- - list_directory
+  - read_file
+  - search_file_content
+  - glob
+  - list_directory
 # 说明：内置工具使用 tool name（如 read_file）；MCP 工具用 server__tool 格式
 model: gemini-2.5-flash
 temperature: 0.3
@@ -320,242 +323,242 @@ When asked to review code, focus on actionable feedback.`;
 
  const executorCode = `// LocalAgentExecutor - 执行本地 Agent 的循环逻辑
 export class LocalAgentExecutor<TOutput> {
- // 创建执行器（工厂方法）
- static async create<TOutput>(
- definition: LocalAgentDefinition<TOutput>,
- runtimeContext: Config,
- onActivity?: ActivityCallback,
- ): Promise<LocalAgentExecutor<TOutput>> {
- // 创建隔离的工具注册表
- const agentToolRegistry = new ToolRegistry(
- runtimeContext,
- runtimeContext.getMessageBus(),
- );
- // ... 注册 Agent 可用的工具
- return new LocalAgentExecutor(definition, runtimeContext, agentToolRegistry);
- }
+  // 创建执行器（工厂方法）
+  static async create<TOutput>(
+  definition: LocalAgentDefinition<TOutput>,
+  runtimeContext: Config,
+  onActivity?: ActivityCallback,
+  ): Promise<LocalAgentExecutor<TOutput>> {
+  // 创建隔离的工具注册表
+  const agentToolRegistry = new ToolRegistry(
+  runtimeContext,
+  runtimeContext.getMessageBus(),
+  );
+  // ... 注册 Agent 可用的工具
+  return new LocalAgentExecutor(definition, runtimeContext, agentToolRegistry);
+  }
 
- // 执行 Agent
- async run(inputs: AgentInputs, signal: AbortSignal): Promise<OutputObject> {
- const { max_time_minutes } = this.definition.runConfig;
+  // 执行 Agent
+  async run(inputs: AgentInputs, signal: AbortSignal): Promise<OutputObject> {
+  const { max_time_minutes } = this.definition.runConfig;
 
- // 设置超时
- const timeoutController = new AbortController();
- setTimeout(() => timeoutController.abort(), max_time_minutes * 60 * 1000);
+  // 设置超时
+  const timeoutController = new AbortController();
+  setTimeout(() => timeoutController.abort(), max_time_minutes * 60 * 1000);
 
- // 创建 Chat 对象
- const chat = await this.createChatObject(inputs, tools);
- let currentMessage = { role: 'user', parts: [{ text: query }] };
+  // 创建 Chat 对象
+  const chat = await this.createChatObject(inputs, tools);
+  let currentMessage = { role: 'user', parts: [{ text: query }] };
 
- // 主执行循环
- while (true) {
- // 检查终止条件
- const reason = this.checkTermination(startTime, turnCounter);
- if (reason) break;
+  // 主执行循环
+  while (true) {
+  // 检查终止条件
+  const reason = this.checkTermination(startTime, turnCounter);
+  if (reason) break;
 
- // 执行一轮
- const turnResult = await this.executeTurn(chat, currentMessage, turnCounter++);
+  // 执行一轮
+  const turnResult = await this.executeTurn(chat, currentMessage, turnCounter++);
 
- if (turnResult.status === 'stop') {
- if (turnResult.terminateReason === AgentTerminateMode.GOAL) {
- return { result: turnResult.finalResult, terminate_reason: 'GOAL' };
- }
- break;
- }
+  if (turnResult.status === 'stop') {
+  if (turnResult.terminateReason === AgentTerminateMode.GOAL) {
+  return { result: turnResult.finalResult, terminate_reason: 'GOAL' };
+  }
+  break;
+  }
 
- currentMessage = turnResult.nextMessage;
- }
+  currentMessage = turnResult.nextMessage;
+  }
 
- // 尝试恢复（给 Agent 最后机会）
- const recoveryResult = await this.executeFinalWarningTurn(chat, turnCounter);
- // ...
- }
+  // 尝试恢复（给 Agent 最后机会）
+  const recoveryResult = await this.executeFinalWarningTurn(chat, turnCounter);
+  // ...
+  }
 }`;
 
  const completeTaskCode = `// complete_task 工具 - Agent 必须调用此工具来完成任务
 const completeTool: FunctionDeclaration = {
- name: 'complete_task',
- description: outputConfig
- ? 'Call this tool to submit your final answer. This is the ONLY way to finish.'
- : 'Call this tool to submit your findings. This is the ONLY way to finish.',
- parameters: {
- type: 'OBJECT',
- properties: outputConfig
- ? { [outputConfig.outputName]: zodToJsonSchema(outputConfig.schema) }
- : { result: { type: 'STRING', description: 'Your final findings.' } },
- required: [outputConfig?.outputName ?? 'result'],
- },
+  name: 'complete_task',
+  description: outputConfig
+  ? 'Call this tool to submit your final answer. This is the ONLY way to finish.'
+  : 'Call this tool to submit your findings. This is the ONLY way to finish.',
+  parameters: {
+  type: 'OBJECT',
+  properties: outputConfig
+  ? { [outputConfig.outputName]: zodToJsonSchema(outputConfig.schema) }
+  : { result: { type: 'STRING', description: 'Your final findings.' } },
+  required: [outputConfig?.outputName ?? 'result'],
+  },
 };
 
 // 处理 complete_task 调用
 if (functionCall.name === 'complete_task') {
- const { outputConfig } = this.definition;
+  const { outputConfig } = this.definition;
 
- if (outputConfig) {
- // 有输出配置 - 验证 Zod schema
- const validationResult = outputConfig.schema.safeParse(args[outputConfig.outputName]);
- if (!validationResult.success) {
- // 验证失败，要求重试
- return { error: 'Output validation failed: ...' };
- }
- submittedOutput = this.definition.processOutput?.(validationResult.data)
- ?? JSON.stringify(validationResult.data);
- } else {
- // 无输出配置 - 使用默认 result 参数
- submittedOutput = args['result'];
- }
+  if (outputConfig) {
+  // 有输出配置 - 验证 Zod schema
+  const validationResult = outputConfig.schema.safeParse(args[outputConfig.outputName]);
+  if (!validationResult.success) {
+  // 验证失败，要求重试
+  return { error: 'Output validation failed: ...' };
+  }
+  submittedOutput = this.definition.processOutput?.(validationResult.data)
+  ?? JSON.stringify(validationResult.data);
+  } else {
+  // 无输出配置 - 使用默认 result 参数
+  submittedOutput = args['result'];
+  }
 
- taskCompleted = true;
+  taskCompleted = true;
 }`;
 
  const builtInAgentsCode = `// CodebaseInvestigatorAgent - 使用 Zod schema 定义结构化输出
 const CodebaseInvestigationReportSchema = z.object({
- SummaryOfFindings: z.string()
- .describe("Investigation conclusions and insights for the main agent."),
- ExplorationTrace: z.array(z.string())
- .describe("Step-by-step list of actions and tools used."),
- RelevantLocations: z.array(z.object({
- FilePath: z.string(),
- Reasoning: z.string(),
- KeySymbols: z.array(z.string()),
- })).describe("Relevant files and key symbols within them."),
+  SummaryOfFindings: z.string()
+  .describe("Investigation conclusions and insights for the main agent."),
+  ExplorationTrace: z.array(z.string())
+  .describe("Step-by-step list of actions and tools used."),
+  RelevantLocations: z.array(z.object({
+  FilePath: z.string(),
+  Reasoning: z.string(),
+  KeySymbols: z.array(z.string()),
+  })).describe("Relevant files and key symbols within them."),
 });
 
 export const CodebaseInvestigatorAgent: LocalAgentDefinition<
- typeof CodebaseInvestigationReportSchema
+  typeof CodebaseInvestigationReportSchema
 > = {
- kind: 'local',
- name: 'codebase_investigator',
- displayName: 'Codebase Investigator Agent',
- description: \`The specialized tool for codebase analysis, architectural mapping,
- and understanding system-wide dependencies. Invoke for vague requests,
- bug root-cause analysis, or comprehensive feature implementation.\`,
+  kind: 'local',
+  name: 'codebase_investigator',
+  displayName: 'Codebase Investigator Agent',
+  description: \`The specialized tool for codebase analysis, architectural mapping,
+  and understanding system-wide dependencies. Invoke for vague requests,
+  bug root-cause analysis, or comprehensive feature implementation.\`,
 
- // 输入配置
- inputConfig: {
- inputs: {
- objective: {
- description: "Comprehensive description of user's goal with context.",
- type: 'string',
- required: true,
- },
- },
- },
+  // 输入配置
+  inputConfig: {
+  inputs: {
+  objective: {
+  description: "Comprehensive description of user's goal with context.",
+  type: 'string',
+  required: true,
+  },
+  },
+  },
 
- // 结构化输出配置（使用 Zod schema）
- outputConfig: {
- outputName: 'report',
- description: 'The final investigation report as a JSON object.',
- schema: CodebaseInvestigationReportSchema,
- },
+  // 结构化输出配置（使用 Zod schema）
+  outputConfig: {
+  outputName: 'report',
+  description: 'The final investigation report as a JSON object.',
+  schema: CodebaseInvestigationReportSchema,
+  },
 
- // 输出处理函数
- processOutput: (output) => JSON.stringify(output, null, 2),
+  // 输出处理函数
+  processOutput: (output) => JSON.stringify(output, null, 2),
 
- // 模型配置
- modelConfig: {
- model: DEFAULT_GEMINI_MODEL, // 根据主模型选择 Flash/Pro
- temp: 0.1, // 低温度，更精确
- top_p: 0.95,
- thinkingBudget: -1, // 无限制
- },
+  // 模型配置
+  modelConfig: {
+  model: DEFAULT_GEMINI_MODEL, // 根据主模型选择 Flash/Pro
+  temp: 0.1, // 低温度，更精确
+  top_p: 0.95,
+  thinkingBudget: -1, // 无限制
+  },
 
- // 运行配置
- runConfig: {
- max_time_minutes: 5,
- max_turns: 15,
- },
+  // 运行配置
+  runConfig: {
+  max_time_minutes: 5,
+  max_turns: 15,
+  },
 
- // 工具配置 - 仅只读工具
- toolConfig: {
- tools: [LS_TOOL_NAME, READ_FILE_TOOL_NAME, GLOB_TOOL_NAME, GREP_TOOL_NAME],
- },
+  // 工具配置 - 仅只读工具
+  toolConfig: {
+  tools: [LS_TOOL_NAME, READ_FILE_TOOL_NAME, GLOB_TOOL_NAME, GREP_TOOL_NAME],
+  },
 
- // 提示词配置
- promptConfig: {
- query: \`Your task is to do a deep investigation of the codebase...
+  // 提示词配置
+  promptConfig: {
+  query: \`Your task is to do a deep investigation of the codebase...
 <objective>\${objective}</objective>\`,
- systemPrompt: \`You are **Codebase Investigator**, a hyper-specialized AI agent...
+  systemPrompt: \`You are **Codebase Investigator**, a hyper-specialized AI agent...
 Your **SOLE PURPOSE** is to build a complete mental model of the code.
 - **DO:** Find key modules, classes, and functions
 - **DO:** Understand *why* the code is written the way it is
 - **DO NOT:** Write the final implementation code yourself
 When finished, call \\\`complete_task\\\` with your structured report.\`,
- },
+  },
 };`;
 
  const delegateToolCode = `// DelegateToAgentTool - 父 Agent 委托任务给子 Agent
 export class DelegateToAgentTool extends BaseDeclarativeTool<DelegateParams, ToolResult> {
- constructor(
- private readonly registry: AgentRegistry,
- private readonly config: Config,
- messageBus: MessageBus,
- ) {
- const definitions = registry.getAllDefinitions();
+  constructor(
+  private readonly registry: AgentRegistry,
+  private readonly config: Config,
+  messageBus: MessageBus,
+  ) {
+  const definitions = registry.getAllDefinitions();
 
- // 动态生成 discriminated union schema
- const agentSchemas = definitions.map((def) => {
- const inputShape: Record<string, z.ZodTypeAny> = {
- agent_name: z.literal(def.name).describe(def.description),
- };
- // 添加 Agent 定义的输入参数
- for (const [key, inputDef] of Object.entries(def.inputConfig.inputs)) {
- inputShape[key] = mapTypeToZod(inputDef.type);
- }
- return z.object(inputShape);
- });
+  // 动态生成 discriminated union schema
+  const agentSchemas = definitions.map((def) => {
+  const inputShape: Record<string, z.ZodTypeAny> = {
+  agent_name: z.literal(def.name).describe(def.description),
+  };
+  // 添加 Agent 定义的输入参数
+  for (const [key, inputDef] of Object.entries(def.inputConfig.inputs)) {
+  inputShape[key] = mapTypeToZod(inputDef.type);
+  }
+  return z.object(inputShape);
+  });
 
- const schema = z.discriminatedUnion('agent_name', agentSchemas);
+  const schema = z.discriminatedUnion('agent_name', agentSchemas);
 
- super(
- 'delegate_to_agent',
- 'Delegate to Agent',
- registry.getToolDescription(), // 动态描述包含所有可用 Agent
- Kind.Think,
- zodToJsonSchema(schema),
- messageBus,
- true, // isOutputMarkdown
- true, // canUpdateOutput（子代理执行过程可流式输出）
- );
- }
+  super(
+  'delegate_to_agent',
+  'Delegate to Agent',
+  registry.getToolDescription(), // 动态描述包含所有可用 Agent
+  Kind.Think,
+  zodToJsonSchema(schema),
+  messageBus,
+  true, // isOutputMarkdown
+  true, // canUpdateOutput（子代理执行过程可流式输出）
+  );
+  }
 }
 
 // 执行委托
 class DelegateInvocation extends BaseToolInvocation<DelegateParams, ToolResult> {
- async execute(signal: AbortSignal): Promise<ToolResult> {
- const definition = this.registry.getDefinition(this.params.agent_name);
+  async execute(signal: AbortSignal): Promise<ToolResult> {
+  const definition = this.registry.getDefinition(this.params.agent_name);
 
- // 使用 SubagentToolWrapper 创建实际执行
- const wrapper = new SubagentToolWrapper(definition, this.config, this.messageBus);
- const { agent_name, ...agentArgs } = this.params;
- const invocation = wrapper.build(agentArgs);
+  // 使用 SubagentToolWrapper 创建实际执行
+  const wrapper = new SubagentToolWrapper(definition, this.config, this.messageBus);
+  const { agent_name, ...agentArgs } = this.params;
+  const invocation = wrapper.build(agentArgs);
 
- return invocation.execute(signal);
- }
+  return invocation.execute(signal);
+  }
 }`;
 
  const activityEventCode = `// SubagentActivityEvent - Agent 执行过程中的活动事件
 export interface SubagentActivityEvent {
- isSubagentActivityEvent: true;
- agentName: string;
- type: 'TOOL_CALL_START' | 'TOOL_CALL_END' | 'THOUGHT_CHUNK' | 'ERROR';
- data: Record<string, unknown>;
+  isSubagentActivityEvent: true;
+  agentName: string;
+  type: 'TOOL_CALL_START' | 'TOOL_CALL_END' | 'THOUGHT_CHUNK' | 'ERROR';
+  data: Record<string, unknown>;
 }
 
 // 在 LocalAgentExecutor 中发射事件
 private emitActivity(
- type: SubagentActivityEvent['type'],
- data: Record<string, unknown>,
+  type: SubagentActivityEvent['type'],
+  data: Record<string, unknown>,
 ): void {
- if (this.onActivity) {
- const event: SubagentActivityEvent = {
- isSubagentActivityEvent: true,
- agentName: this.definition.name,
- type,
- data,
- };
- this.onActivity(event);
- }
+  if (this.onActivity) {
+  const event: SubagentActivityEvent = {
+  isSubagentActivityEvent: true,
+  agentName: this.definition.name,
+  type,
+  data,
+  };
+  this.onActivity(event);
+  }
 }
 
 // 使用示例
@@ -599,21 +602,21 @@ this.emitActivity('ERROR', { error: errorMessage, context: 'tool_call' });`;
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
  <HighlightBox title="Local Agent" variant="blue">
  <ul className="text-sm space-y-1">
- <li>• <strong>kind</strong>: 'local'</li>
- <li>• 在本地 CLI 进程中执行</li>
- <li>• 完整的配置控制 (prompt, model, run, tools)</li>
- <li>• 支持 Zod schema 输出验证</li>
- <li>• 使用 LocalAgentExecutor 执行</li>
+ <li><strong>kind</strong>: 'local'</li>
+ <li>在本地 CLI 进程中执行</li>
+ <li>完整的配置控制 (prompt, model, run, tools)</li>
+ <li>支持 Zod schema 输出验证</li>
+ <li>使用 LocalAgentExecutor 执行</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="Remote Agent (A2A)" variant="purple">
  <ul className="text-sm space-y-1">
- <li>• <strong>kind</strong>: 'remote'</li>
- <li>• 通过 HTTP 调用外部 Agent 服务</li>
- <li>• 使用 Agent Card URL 发现能力</li>
- <li>• 符合 A2A (Agent-) 协议</li>
- <li>• 使用 A2AClientManager 管理</li>
+ <li><strong>kind</strong>: 'remote'</li>
+ <li>通过 HTTP 调用外部 Agent 服务</li>
+ <li>使用 Agent Card URL 发现能力</li>
+ <li>符合 A2A (Agent-) 协议</li>
+ <li>使用 A2AClientManager 管理</li>
  </ul>
  </HighlightBox>
  </div>
@@ -655,7 +658,7 @@ this.emitActivity('ERROR', { error: errorMessage, context: 'tool_call' });`;
  <td className="py-2 px-3 text-dim">max_time_minutes, max_turns</td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 text-amber-500">ToolConfig</td>
+ <td className="py-2 px-3 text-heading">ToolConfig</td>
  <td className="py-2 px-3 text-body">可用工具</td>
  <td className="py-2 px-3 text-dim">tools[] (字符串名称或声明)</td>
  </tr>
@@ -673,19 +676,19 @@ this.emitActivity('ERROR', { error: errorMessage, context: 'tool_call' });`;
 
  <CodeBlock code={markdownConfigCode} language="markdown" title="本地 Agent 配置示例" />
 
- <div className="mt-6 bg-amber-500/10 rounded-lg p-4 border border-amber-500/30">
- <h4 className="text-amber-500 font-bold mb-2">关于远程 Agent</h4>
+ <div className="mt-6 pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/30">
+ <h4 className="text-heading font-bold mb-2">关于远程 Agent</h4>
  <p className="text-sm text-body">{remoteAgentNote}</p>
  </div>
 
  <HighlightBox title="模板变量" variant="blue" className="mt-4">
  <p className="text-sm mb-2">系统提示词和查询支持以下模板变量：</p>
  <ul className="text-sm space-y-1">
- <li>• <code>${'${query}'}</code> - 用户输入的查询</li>
- <li>• <code>${'${activeModel}'}</code> - 当前活动模型</li>
- <li>• <code>${'${today}'}</code> - 今天的日期</li>
- <li>• <code>${'${cliVersion}'}</code> - CLI 版本</li>
- <li>• 自定义 inputs 中定义的参数</li>
+ <li><code>${'${query}'}</code> - 用户输入的查询</li>
+ <li><code>${'${activeModel}'}</code> - 当前活动模型</li>
+ <li><code>${'${today}'}</code> - 今天的日期</li>
+ <li><code>${'${cliVersion}'}</code> - CLI 版本</li>
+ <li>自定义 inputs 中定义的参数</li>
  </ul>
  </HighlightBox>
  </Layer>
@@ -702,25 +705,25 @@ this.emitActivity('ERROR', { error: errorMessage, context: 'tool_call' });`;
  <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
  <HighlightBox title="内置 Agent (3个)" variant="blue">
  <ul className="text-sm space-y-1">
- <li>• <strong>codebase_investigator</strong> - 代码库探索</li>
- <li>• <strong>cli_help</strong> - CLI 文档问答</li>
- <li>• <strong>generalist</strong> - 通用代理（实验）</li>
+ <li><strong>codebase_investigator</strong> - 代码库探索</li>
+ <li><strong>cli_help</strong> - CLI 文档问答</li>
+ <li><strong>generalist</strong> - 通用代理（实验）</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="用户级 Agent" variant="purple">
  <ul className="text-sm space-y-1">
- <li>• 位置: ~/.gemini/agents/</li>
- <li>• 全局可用</li>
- <li>• 优先级高于内置</li>
+ <li>位置: ~/.gemini/agents/</li>
+ <li>全局可用</li>
+ <li>优先级高于内置</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="项目级 Agent" variant="green">
  <ul className="text-sm space-y-1">
- <li>• 位置: .gemini/agents/</li>
- <li>• 需要信任文件夹</li>
- <li>• 优先级最高</li>
+ <li>位置: .gemini/agents/</li>
+ <li>需要信任文件夹</li>
+ <li>优先级最高</li>
  </ul>
  </HighlightBox>
  </div>
@@ -751,10 +754,10 @@ this.emitActivity('ERROR', { error: errorMessage, context: 'tool_call' });`;
 
  <HighlightBox title="关键规则" variant="yellow" className="mt-4">
  <ul className="text-sm space-y-1">
- <li>• Agent <strong>必须</strong> 调用 complete_task 来完成任务</li>
- <li>• 如果停止调用工具但未调用 complete_task → ERROR_NO_COMPLETE_TASK_CALL</li>
- <li>• 超时或达到轮次上限时，会给 Agent 一次恢复机会 (grace period)</li>
- <li>• 有 outputConfig 时，输出会经过 Zod schema 验证</li>
+ <li>Agent <strong>必须</strong> 调用 complete_task 来完成任务</li>
+ <li>如果停止调用工具但未调用 complete_task → ERROR_NO_COMPLETE_TASK_CALL</li>
+ <li>超时或达到轮次上限时，会给 Agent 一次恢复机会 (grace period)</li>
+ <li>有 outputConfig 时，输出会经过 Zod schema 验证</li>
  </ul>
  </HighlightBox>
  </Layer>
@@ -772,19 +775,19 @@ this.emitActivity('ERROR', { error: errorMessage, context: 'tool_call' });`;
  <HighlightBox title="CodebaseInvestigator" variant="blue">
  <p className="text-sm mb-2">代码库探索和分析 Agent</p>
  <ul className="text-sm space-y-1 text-dim">
- <li>• <strong>结构化输出</strong>: Zod schema 验证</li>
- <li>• <strong>只读/搜索工具</strong>: list_directory, read_file, glob, search_file_content</li>
- <li>• <strong>Scratchpad</strong>: 系统化探索方法</li>
- <li>• 最多 15 轮，5 分钟超时</li>
+ <li><strong>结构化输出</strong>: Zod schema 验证</li>
+ <li><strong>只读/搜索工具</strong>: list_directory, read_file, glob, search_file_content</li>
+ <li><strong>Scratchpad</strong>: 系统化探索方法</li>
+ <li>最多 15 轮，5 分钟超时</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="IntrospectionAgent" variant="purple">
  <p className="text-sm mb-2">自省和反思分析 Agent</p>
  <ul className="text-sm space-y-1 text-dim">
- <li>• 分析对话历史</li>
- <li>• 提供改进建议</li>
- <li>• 需要显式启用</li>
+ <li>分析对话历史</li>
+ <li>提供改进建议</li>
+ <li>需要显式启用</li>
  </ul>
  </HighlightBox>
  </div>
@@ -829,8 +832,8 @@ this.emitActivity('ERROR', { error: errorMessage, context: 'tool_call' });`;
  <div className="text-lg font-bold text-heading">THOUGHT_CHUNK</div>
  <div className="text-xs text-dim">思考片段</div>
  </div>
- <div className="bg-surface rounded-lg p-3 text-center border border-red-500/30">
- <div className="text-lg font-bold text-red-400">ERROR</div>
+ <div className="bg-surface rounded-lg p-3 text-center border-l-2 border-l-edge-hover/30">
+ <div className="text-lg font-bold text-heading">ERROR</div>
  <div className="text-xs text-dim">错误事件</div>
  </div>
  </div>
@@ -860,29 +863,29 @@ this.emitActivity('ERROR', { error: errorMessage, context: 'tool_call' });`;
  <td className="py-2 px-3 text-dim">-</td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 text-amber-500 font-bold">TIMEOUT</td>
+ <td className="py-2 px-3 text-heading font-bold">TIMEOUT</td>
  <td className="py-2 px-3 text-body">超过 max_time_minutes</td>
  <td className="py-2 px-3 text-heading">✓ 60秒恢复期</td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 text-amber-500 font-bold">MAX_TURNS</td>
+ <td className="py-2 px-3 text-heading font-bold">MAX_TURNS</td>
  <td className="py-2 px-3 text-body">达到 max_turns 限制</td>
  <td className="py-2 px-3 text-heading">✓ 60秒恢复期</td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 text-red-400 font-bold">ERROR</td>
+ <td className="py-2 px-3 text-heading font-bold">ERROR</td>
  <td className="py-2 px-3 text-body">执行过程中出错</td>
- <td className="py-2 px-3 text-red-400">✗</td>
+ <td className="py-2 px-3 text-heading">✗</td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 text-red-400 font-bold">ABORTED</td>
+ <td className="py-2 px-3 text-heading font-bold">ABORTED</td>
  <td className="py-2 px-3 text-body">外部中止信号 (AbortSignal)</td>
- <td className="py-2 px-3 text-red-400">✗</td>
+ <td className="py-2 px-3 text-heading">✗</td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 text-red-400 font-bold">ERROR_NO_COMPLETE_TASK_CALL</td>
+ <td className="py-2 px-3 text-heading font-bold">ERROR_NO_COMPLETE_TASK_CALL</td>
  <td className="py-2 px-3 text-body">停止调用工具但未调用 complete_task</td>
- <td className="py-2 px-3 text-red-400">✗</td>
+ <td className="py-2 px-3 text-heading">✗</td>
  </tr>
  </tbody>
  </table>

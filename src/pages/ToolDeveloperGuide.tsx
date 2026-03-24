@@ -22,14 +22,14 @@ function CollapsibleSection({
  const [isOpen, setIsOpen] = useState(defaultOpen);
 
  return (
- <div className={`mb-6 rounded-xl border ${highlight ? 'border-amber-500/50 bg-amber-900/10' : ' border-edge/50 bg-surface/30'}`}>
+ <div className={`mb-6 rounded-xl border ${highlight ? 'border-edge/50 bg-elevated' : ' border-edge/50 bg-surface/30'}`}>
  <button
  onClick={() => setIsOpen(!isOpen)}
  className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-elevated/20 transition-colors rounded-xl"
  >
  <div className="flex items-center gap-3">
  <span className="text-2xl">{icon}</span>
- <span className={`text-lg font-semibold ${highlight ? 'text-amber-300' : 'text-heading'}`}>{title}</span>
+ <span className={`text-lg font-semibold ${highlight ? 'text-heading' : 'text-heading'}`}>{title}</span>
  </div>
  <span className={`text-xl transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
  ▼
@@ -68,11 +68,11 @@ function DesignRationaleCard({ title, why, how, benefit }: {
  benefit: string;
 }) {
  return (
- <div className="my-4 p-5 rounded-xl bg-surface border border-amber-500/30">
- <h4 className="text-lg font-semibold text-amber-300 mb-3">💡 {title}</h4>
+ <div className="my-4 p-5 rounded-xl bg-surface border-l-2 border-l-edge-hover/30">
+ <h4 className="text-lg font-semibold text-heading mb-3">💡 {title}</h4>
  <div className="space-y-3 text-sm">
  <div>
- <span className="text-yellow-400 font-medium">为什么：</span>
+ <span className="text-heading font-medium">为什么：</span>
  <span className="text-body ml-2">{why}</span>
  </div>
  <div>
@@ -80,7 +80,7 @@ function DesignRationaleCard({ title, why, how, benefit }: {
  <span className="text-body ml-2">{how}</span>
  </div>
  <div>
- <span className="text-green-400 font-medium">带来的好处：</span>
+ <span className="text-heading font-medium">带来的好处：</span>
  <span className="text-body ml-2">{benefit}</span>
  </div>
  </div>
@@ -105,8 +105,8 @@ function ToolArchitectureDiagram() {
  <div className="text-xs text-dim">声明式基类</div>
  </div>
  <span className="text-dim">→</span>
- <div className="p-3 bg-green-900/30 rounded-lg border border-green-700/50 text-center">
- <div className="text-green-400 font-semibold">ToolInvocation</div>
+ <div className="p-3 bg-elevated rounded-lg border-l-2 border-l-edge-hover/50 text-center">
+ <div className="text-heading font-semibold">ToolInvocation</div>
  <div className="text-xs text-dim">执行实例</div>
  </div>
  </div>
@@ -119,7 +119,7 @@ function ToolArchitectureDiagram() {
  <div className="text-xs text-dim">内部名称</div>
  </div>
  <div className="p-2 bg-surface rounded-lg">
- <div className="text-yellow-400">schema</div>
+ <div className="text-heading">schema</div>
  <div className="text-xs text-dim">JSON Schema</div>
  </div>
  <div className="p-2 bg-surface rounded-lg">
@@ -127,7 +127,7 @@ function ToolArchitectureDiagram() {
  <div className="text-xs text-dim">验证 & 构建</div>
  </div>
  <div className="p-2 bg-surface rounded-lg">
- <div className="text-green-400">execute()</div>
+ <div className="text-heading">execute()</div>
  <div className="text-xs text-dim">执行逻辑</div>
  </div>
  </div>
@@ -155,7 +155,7 @@ function ToolKindTable() {
  <table className="w-full text-sm border-collapse">
  <thead>
  <tr className="border- border-edge">
- <th className="text-left p-3 text-amber-400">Kind</th>
+ <th className="text-left p-3 text-heading">Kind</th>
  <th className="text-left p-3 text-body">描述</th>
  <th className="text-left p-3 text-body">示例工具</th>
  <th className="text-left p-3 text-body">审批需求</th>
@@ -168,7 +168,7 @@ function ToolKindTable() {
  <td className="p-3 text-body">{k.desc}</td>
  <td className="p-3 text-body">{k.examples}</td>
  <td className="p-3">
- <span className={`px-2 py-1 rounded text-xs ${k.approval === '无需审批' ? 'bg-green-900/50 text-green-400' : k.approval === '需要审批' ? 'bg-red-900/50 text-red-400' : 'bg-yellow-900/50 text-yellow-400'}`}>
+ <span className={`px-2 py-1 rounded text-xs ${k.approval === '无需审批' ? 'bg-elevated text-heading' : k.approval === '需要审批' ? 'bg-elevated text-heading' : 'bg-elevated text-heading'}`}>
  {k.approval}
  </span>
  </td>
@@ -191,14 +191,14 @@ function ToolLifecycleFlow() {
  ];
 
  return (
- <div className="my-6 p-6 bg-surface rounded-xl border border-amber-700/50">
- <h4 className="text-lg font-semibold text-amber-300 mb-4">🔄 工具生命周期</h4>
+ <div className="my-6 p-6 bg-surface rounded-xl border-l-2 border-l-edge-hover/50">
+ <h4 className="text-lg font-semibold text-heading mb-4">🔄 工具生命周期</h4>
  <div className="grid grid-cols-5 gap-4">
  {steps.map((step, i) => (
  <div key={i} className="relative">
  <div className="text-center mb-3">
  <div className="text-2xl mb-1">{step.icon}</div>
- <div className="text-amber-400 font-semibold">{step.phase}</div>
+ <div className="text-heading font-semibold">{step.phase}</div>
  </div>
  <div className="space-y-1">
  {step.steps.map((s, j) => (
@@ -234,14 +234,14 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  {isExpanded && (
  <div className="space-y-4 text-body animate-fadeIn">
  <p className="text-lg">
- Gemini CLI 的工具系统采用<strong className="text-amber-300">声明式架构</strong>，
+ Gemini CLI 的工具系统采用<strong className="text-heading">声明式架构</strong>，
  将工具定义、参数验证和执行逻辑分离。本指南将教你如何开发自定义工具。
  </p>
 
  <div className="grid grid-cols-3 gap-4 mt-6">
- <div className="p-4 bg-amber-900/30 rounded-xl border border-amber-600/30">
+ <div className="p-4 bg-elevated rounded-xl border-l-2 border-l-edge-hover/30">
  <div className="text-3xl mb-2">📋</div>
- <h3 className="font-semibold text-amber-300">声明式定义</h3>
+ <h3 className="font-semibold text-heading">声明式定义</h3>
  <p className="text-sm text-body mt-1">使用 JSON Schema 定义参数结构</p>
  </div>
  <div className="p-4 bg-elevated/30 rounded-xl border border-edge">
@@ -249,9 +249,9 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <h3 className="font-semibold text-heading">安全第一</h3>
  <p className="text-sm text-body mt-1">内置路径验证和审批机制</p>
  </div>
- <div className="p-4 bg-green-900/30 rounded-xl border border-green-600/30">
+ <div className="p-4 bg-elevated rounded-xl border-l-2 border-l-edge-hover/30">
  <div className="text-3xl mb-2">🔌</div>
- <h3 className="font-semibold text-green-300">易于扩展</h3>
+ <h3 className="font-semibold text-heading">易于扩展</h3>
  <p className="text-sm text-body mt-1">继承基类快速实现新工具</p>
  </div>
  </div>
@@ -266,9 +266,9 @@ function CoreConceptsSection() {
  return (
  <div className="pt-6 space-y-4">
  <p className="text-body">
- 工具系统的核心由三个层次组成：<code className="text-amber-400">ToolBuilder</code>（接口）、
+ 工具系统的核心由三个层次组成：<code className="text-heading">ToolBuilder</code>（接口）、
  <code className="text-heading">DeclarativeTool</code>（基类）、
- <code className="text-green-400">ToolInvocation</code>（执行实例）。
+ <code className="text-heading">ToolInvocation</code>（执行实例）。
  </p>
 
  <ToolArchitectureDiagram />
@@ -328,7 +328,7 @@ function ImplementationSection() {
  <div className="pt-6 space-y-4">
  <p className="text-body">
  下面通过一个完整示例展示如何实现自定义工具。我们将创建一个简单的
- <code className="text-amber-400">WordCount</code> 工具。
+ <code className="text-heading">WordCount</code> 工具。
  </p>
 
  <h4 className="text-lg font-semibold text-heading mt-6">1. 定义参数接口</h4>
@@ -597,26 +597,26 @@ function BestPracticesSection() {
  return (
  <div className="pt-6 space-y-4">
  <div className="grid grid-cols-2 gap-4">
- <div className="p-4 bg-green-900/20 rounded-xl border border-green-700/50">
- <h4 className="text-green-400 font-semibold mb-2">✓ 推荐做法</h4>
+ <div className="p-4 bg-elevated rounded-xl border-l-2 border-l-edge-hover/50">
+ <h4 className="text-heading font-semibold mb-2">✓ 推荐做法</h4>
  <ul className="text-sm text-body space-y-2">
- <li>• 总是验证路径在工作区内</li>
- <li>• 使用 AbortSignal 支持取消</li>
- <li>• 对危险操作请求用户确认</li>
- <li>• 使用 Config 获取服务而非直接导入</li>
- <li>• 编写完整的 JSDoc 注释</li>
- <li>• 使用明确的 Kind 类型</li>
+ <li>总是验证路径在工作区内</li>
+ <li>使用 AbortSignal 支持取消</li>
+ <li>对危险操作请求用户确认</li>
+ <li>使用 Config 获取服务而非直接导入</li>
+ <li>编写完整的 JSDoc 注释</li>
+ <li>使用明确的 Kind 类型</li>
  </ul>
  </div>
- <div className="p-4 bg-red-900/20 rounded-xl border border-red-700/50">
- <h4 className="text-red-400 font-semibold mb-2">✗ 避免做法</h4>
+ <div className="p-4 bg-elevated rounded-xl border-l-2 border-l-edge-hover/50">
+ <h4 className="text-heading font-semibold mb-2">✗ 避免做法</h4>
  <ul className="text-sm text-body space-y-2">
- <li>• 直接使用 fs 模块（使用 FileSystemService）</li>
- <li>• 忽略取消信号</li>
- <li>• 在 build() 中执行 I/O 操作</li>
- <li>• 使用相对路径而非绝对路径</li>
- <li>• 硬编码配置值</li>
- <li>• 忽略错误处理</li>
+ <li>直接使用 fs 模块（使用 FileSystemService）</li>
+ <li>忽略取消信号</li>
+ <li>在 build() 中执行 I/O 操作</li>
+ <li>使用相对路径而非绝对路径</li>
+ <li>硬编码配置值</li>
+ <li>忽略错误处理</li>
  </ul>
  </div>
  </div>

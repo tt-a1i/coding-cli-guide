@@ -4,6 +4,9 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 const relatedPages: RelatedPage[] = [
  { id: 'settings-manager', label: '设置管理器', description: '配置系统详解' },
@@ -47,7 +50,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">修饰键类型</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-amber-500">5</div>
+ <div className="text-2xl font-bold text-heading">5</div>
  <div className="text-xs text-dim">功能分组</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
@@ -71,7 +74,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  Command 派发
  </span>
  <span className="text-dim">→</span>
- <span className="px-3 py-1.5 bg-amber-500/20 text-amber-500 rounded-lg border border-amber-500/30">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover/30">
  Handler 执行
  </span>
  </div>
@@ -122,127 +125,127 @@ export function KeyBindings() {
  style KP stroke:#00d4ff
  style CMD stroke:#00ff88
  style MATCH stroke:#a855f7
- style HANDLER stroke:#f59e0b`;
+ style HANDLER stroke:${getThemeColor("--color-warning", "#b45309")}`;
 
  const commandEnumCode = `// Command 枚举定义所有可用的键盘快捷键命令
 export enum Command {
- // 基础操作
- RETURN = 'return',
- ESCAPE = 'escape',
+  // 基础操作
+  RETURN = 'return',
+  ESCAPE = 'escape',
 
- // 光标移动
- HOME = 'home', // Ctrl+A → 行首
- END = 'end', // Ctrl+E → 行尾
+  // 光标移动
+  HOME = 'home', // Ctrl+A → 行首
+  END = 'end', // Ctrl+E → 行尾
 
- // 文本删除
- KILL_LINE_RIGHT = 'killLineRight', // Ctrl+K → 删除到行尾
- KILL_LINE_LEFT = 'killLineLeft', // Ctrl+U → 删除到行首
- CLEAR_INPUT = 'clearInput', // Ctrl+C → 清空输入
- DELETE_WORD_BACKWARD = 'deleteWordBackward', // Ctrl+Backspace
+  // 文本删除
+  KILL_LINE_RIGHT = 'killLineRight', // Ctrl+K → 删除到行尾
+  KILL_LINE_LEFT = 'killLineLeft', // Ctrl+U → 删除到行首
+  CLEAR_INPUT = 'clearInput', // Ctrl+C → 清空输入
+  DELETE_WORD_BACKWARD = 'deleteWordBackward', // Ctrl+Backspace
 
- // 屏幕控制
- CLEAR_SCREEN = 'clearScreen', // Ctrl+L → 清屏
+  // 屏幕控制
+  CLEAR_SCREEN = 'clearScreen', // Ctrl+L → 清屏
 
- // 历史导航
- HISTORY_UP = 'historyUp', // Ctrl+P → 上一条
- HISTORY_DOWN = 'historyDown', // Ctrl+N → 下一条
- NAVIGATION_UP = 'navigationUp', // ↑ 方向键
- NAVIGATION_DOWN = 'navigationDown', // ↓ 方向键
+  // 历史导航
+  HISTORY_UP = 'historyUp', // Ctrl+P → 上一条
+  HISTORY_DOWN = 'historyDown', // Ctrl+N → 下一条
+  NAVIGATION_UP = 'navigationUp', // ↑ 方向键
+  NAVIGATION_DOWN = 'navigationDown', // ↓ 方向键
 
- // 自动补全
- ACCEPT_SUGGESTION = 'acceptSuggestion', // Tab/Enter
- COMPLETION_UP = 'completionUp',
- COMPLETION_DOWN = 'completionDown',
+  // 自动补全
+  ACCEPT_SUGGESTION = 'acceptSuggestion', // Tab/Enter
+  COMPLETION_UP = 'completionUp',
+  COMPLETION_DOWN = 'completionDown',
 
- // 文本输入
- SUBMIT = 'submit', // Enter (无修饰键)
- NEWLINE = 'newline', // Ctrl+Enter / Shift+Enter
+  // 文本输入
+  SUBMIT = 'submit', // Enter (无修饰键)
+  NEWLINE = 'newline', // Ctrl+Enter / Shift+Enter
 
- // 外部工具
- OPEN_EXTERNAL_EDITOR = 'openExternalEditor', // Ctrl+X
- PASTE_CLIPBOARD_IMAGE = 'pasteClipboardImage', // Ctrl+V
+  // 外部工具
+  OPEN_EXTERNAL_EDITOR = 'openExternalEditor', // Ctrl+X
+  PASTE_CLIPBOARD_IMAGE = 'pasteClipboardImage', // Ctrl+V
 
- // 应用级绑定
- SHOW_ERROR_DETAILS = 'showErrorDetails', // Ctrl+O
- TOGGLE_TOOL_DESCRIPTIONS = 'toggleToolDescriptions', // Ctrl+T
- QUIT = 'quit', // Ctrl+C
- EXIT = 'exit', // Ctrl+D
+  // 应用级绑定
+  SHOW_ERROR_DETAILS = 'showErrorDetails', // Ctrl+O
+  TOGGLE_TOOL_DESCRIPTIONS = 'toggleToolDescriptions', // Ctrl+T
+  QUIT = 'quit', // Ctrl+C
+  EXIT = 'exit', // Ctrl+D
 
- // Shell 命令
- REVERSE_SEARCH = 'reverseSearch', // Ctrl+R
- TOGGLE_SHELL_INPUT_FOCUS = 'toggleShellInputFocus', // Ctrl+F
+  // Shell 命令
+  REVERSE_SEARCH = 'reverseSearch', // Ctrl+R
+  TOGGLE_SHELL_INPUT_FOCUS = 'toggleShellInputFocus', // Ctrl+F
 }`;
 
  const keyBindingInterfaceCode = `// KeyBinding 接口定义单个按键绑定规则
 export interface KeyBinding {
- /** 按键名称 (e.g., 'a', 'return', 'tab', 'escape') */
- key?: string;
+  /** 按键名称 (e.g., 'a', 'return', 'tab', 'escape') */
+  key?: string;
 
- /** 按键序列 (e.g., '\\x18' for Ctrl+X) */
- sequence?: string;
+  /** 按键序列 (e.g., '\\x18' for Ctrl+X) */
+  sequence?: string;
 
- /** Ctrl 键要求: true=必须按下, false=必须未按下, undefined=忽略 */
- ctrl?: boolean;
+  /** Ctrl 键要求: true=必须按下, false=必须未按下, undefined=忽略 */
+  ctrl?: boolean;
 
- /** Shift 键要求 */
- shift?: boolean;
+  /** Shift 键要求 */
+  shift?: boolean;
 
- /** Command/Meta 键要求 */
- command?: boolean;
+  /** Command/Meta 键要求 */
+  command?: boolean;
 
- /** 粘贴操作要求 */
- paste?: boolean;
+  /** 粘贴操作要求 */
+  paste?: boolean;
 }
 
 // 配置类型：Command → KeyBinding[] 映射
 export type KeyBindingConfig = {
- readonly [C in Command]: readonly KeyBinding[];
+  readonly [C in Command]: readonly KeyBinding[];
 };`;
 
  const defaultBindingsCode = `// 默认键盘绑定配置（部分示例）
 export const defaultKeyBindings: KeyBindingConfig = {
- // 基础绑定
- [Command.RETURN]: [{ key: 'return' }],
- [Command.ESCAPE]: [{ key: 'escape' }],
+  // 基础绑定
+  [Command.RETURN]: [{ key: 'return' }],
+  [Command.ESCAPE]: [{ key: 'escape' }],
 
- // 光标移动 - Emacs 风格
- [Command.HOME]: [{ key: 'a', ctrl: true }],
- [Command.END]: [{ key: 'e', ctrl: true }],
+  // 光标移动 - Emacs 风格
+  [Command.HOME]: [{ key: 'a', ctrl: true }],
+  [Command.END]: [{ key: 'e', ctrl: true }],
 
- // 文本删除
- [Command.KILL_LINE_RIGHT]: [{ key: 'k', ctrl: true }],
- [Command.KILL_LINE_LEFT]: [{ key: 'u', ctrl: true }],
- [Command.DELETE_WORD_BACKWARD]: [
- { key: 'backspace', ctrl: true },
- { key: 'backspace', command: true }, // macOS 兼容
- ],
+  // 文本删除
+  [Command.KILL_LINE_RIGHT]: [{ key: 'k', ctrl: true }],
+  [Command.KILL_LINE_LEFT]: [{ key: 'u', ctrl: true }],
+  [Command.DELETE_WORD_BACKWARD]: [
+  { key: 'backspace', ctrl: true },
+  { key: 'backspace', command: true }, // macOS 兼容
+  ],
 
- // 提交 - 排除所有修饰键和粘贴
- [Command.SUBMIT]: [{
- key: 'return',
- ctrl: false,
- command: false,
- paste: false,
- shift: false,
- }],
+  // 提交 - 排除所有修饰键和粘贴
+  [Command.SUBMIT]: [{
+  key: 'return',
+  ctrl: false,
+  command: false,
+  paste: false,
+  shift: false,
+  }],
 
- // 换行 - 多种方式支持
- [Command.NEWLINE]: [
- { key: 'return', ctrl: true },
- { key: 'return', command: true },
- { key: 'return', paste: true },
- { key: 'return', shift: true },
- { key: 'j', ctrl: true },
- ],
+  // 换行 - 多种方式支持
+  [Command.NEWLINE]: [
+  { key: 'return', ctrl: true },
+  { key: 'return', command: true },
+  { key: 'return', paste: true },
+  { key: 'return', shift: true },
+  { key: 'j', ctrl: true },
+  ],
 
- // Shell 反向搜索
- [Command.REVERSE_SEARCH]: [{ key: 'r', ctrl: true }],
+  // Shell 反向搜索
+  [Command.REVERSE_SEARCH]: [{ key: 'r', ctrl: true }],
 
- // 外部编辑器
- [Command.OPEN_EXTERNAL_EDITOR]: [
- { key: 'x', ctrl: true },
- { sequence: '\\x18', ctrl: true },
- ],
+  // 外部编辑器
+  [Command.OPEN_EXTERNAL_EDITOR]: [
+  { key: 'x', ctrl: true },
+  { sequence: '\\x18', ctrl: true },
+  ],
 };`;
 
  return (
@@ -265,25 +268,25 @@ export const defaultKeyBindings: KeyBindingConfig = {
  <div className="bg-surface p-4 rounded-lg border border-edge">
  <div className="text-heading font-bold mb-2">🎹 Input 层</div>
  <ul className="text-sm text-body space-y-1">
- <li>• 捕获 keypress 事件</li>
- <li>• 识别修饰键状态</li>
- <li>• 处理特殊序列</li>
+ <li>捕获 keypress 事件</li>
+ <li>识别修饰键状态</li>
+ <li>处理特殊序列</li>
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge">
  <div className="text-heading font-bold mb-2">🔍 Matching 层</div>
  <ul className="text-sm text-body space-y-1">
- <li>• 遍历 KeyBindingConfig</li>
- <li>• 检查 KeyBinding 规则</li>
- <li>• 支持多绑定映射</li>
+ <li>遍历 KeyBindingConfig</li>
+ <li>检查 KeyBinding 规则</li>
+ <li>支持多绑定映射</li>
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge">
  <div className="text-heading font-bold mb-2">⚡ Dispatch 层</div>
  <ul className="text-sm text-body space-y-1">
- <li>• 解析 Command 枚举</li>
- <li>• 检查上下文条件</li>
- <li>• 调用对应 Handler</li>
+ <li>解析 Command 枚举</li>
+ <li>检查上下文条件</li>
+ <li>调用对应 Handler</li>
  </ul>
  </div>
  </div>
@@ -334,7 +337,7 @@ export const defaultKeyBindings: KeyBindingConfig = {
  <td>行尾</td>
  </tr>
  <tr className="border- border-edge/30">
- <td className="py-2 font-medium text-amber-500">编辑</td>
+ <td className="py-2 font-medium text-heading">编辑</td>
  <td><code>KILL_LINE_RIGHT</code></td>
  <td><kbd className="px-1 bg-base rounded">Ctrl+K</kbd></td>
  <td>删除到行尾</td>
@@ -373,10 +376,10 @@ export const defaultKeyBindings: KeyBindingConfig = {
 
  <HighlightBox title="修饰键逻辑" color="purple" className="mt-4">
  <ul className="text-sm text-body space-y-2">
- <li>• <code className="text-heading">ctrl: true</code> → 必须按下 Ctrl 键</li>
- <li>• <code className="text-red-500">ctrl: false</code> → 必须未按下 Ctrl 键</li>
- <li>• <code className="text-dim">ctrl: undefined</code> → 忽略 Ctrl 键状态</li>
- <li>• 同一 Command 可有多个绑定，任一匹配即触发</li>
+ <li><code className="text-heading">ctrl: true</code> → 必须按下 Ctrl 键</li>
+ <li><code className="text-heading">ctrl: false</code> → 必须未按下 Ctrl 键</li>
+ <li><code className="text-dim">ctrl: undefined</code> → 忽略 Ctrl 键状态</li>
+ <li>同一 Command 可有多个绑定，任一匹配即触发</li>
  </ul>
  </HighlightBox>
  </Layer>
@@ -428,9 +431,9 @@ export const defaultKeyBindings: KeyBindingConfig = {
  <div className="text-sm text-dim">
  <strong className="text-heading">💡 扩展思路：</strong>
  <ul className="mt-2 space-y-1">
- <li>• 合并用户配置与默认配置</li>
- <li>• 支持完全覆盖或追加模式</li>
- <li>• 验证绑定冲突</li>
+ <li>合并用户配置与默认配置</li>
+ <li>支持完全覆盖或追加模式</li>
+ <li>验证绑定冲突</li>
  </ul>
  </div>
  </div>

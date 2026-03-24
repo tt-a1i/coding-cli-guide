@@ -1,0 +1,42 @@
+{
+  "_roadmapMeta": {
+    "updatedAt": 1774313480093
+  },
+  "roadmap": {
+    "objective": "第六轮：代码高亮增强 + 字体排版优化 + 细节修复 — 全部完成",
+    "tasks": [
+      {
+        "id": 1,
+        "number": "01",
+        "pinned": false,
+        "sortOrder": 1,
+        "status": "done",
+        "title": "[R1-R5已完成] 五轮颜色主题优化"
+      },
+      {
+        "id": 2,
+        "number": "02",
+        "pinned": true,
+        "sortOrder": 2,
+        "status": "done",
+        "title": "Prism语法高亮增强：新增13种语言+修复text高亮bug+扩展语言推断"
+      },
+      {
+        "id": 3,
+        "number": "03",
+        "pinned": true,
+        "sortOrder": 3,
+        "status": "done",
+        "title": "字体排版优化：h3/h4间距+代码块字体+line-height统一+列表样式+inline code圆角"
+      },
+      {
+        "id": 4,
+        "number": "04",
+        "pinned": true,
+        "sortOrder": 4,
+        "status": "done",
+        "title": "JsonBlock复制按钮+theme-color动态设置+CodeBlock折叠信息增强"
+      }
+    ]
+  }
+}

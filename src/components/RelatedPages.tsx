@@ -11,27 +11,26 @@ interface RelatedPagesProps {
   pages: RelatedPage[];
 }
 
-export function RelatedPages({ title = '🔗 相关阅读', pages }: RelatedPagesProps) {
+export function RelatedPages({ title = '相关阅读', pages }: RelatedPagesProps) {
   const { navigate } = useNavigation();
 
   return (
-    <div className="mt-8 p-5 bg-[var(--bg-panel)] rounded-xl border border-[var(--border-subtle)]">
-      <h3 className="text-sm font-bold font-mono text-[var(--text-muted)] mb-4 flex items-center gap-2">
+    <div className="mt-8 rounded-xl border border-edge bg-surface/50 p-5">
+      <h3 className="text-sm font-semibold text-body mb-4">
         {title}
       </h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="flex flex-wrap gap-2.5">
         {pages.map((page) => (
           <button
             key={page.id}
             onClick={() => navigate(page.id)}
-            className="text-left p-3 bg-[var(--bg-card)] rounded-lg border border-[var(--border-subtle)] hover:border-[var(--terminal-green)] hover:bg-[var(--terminal-green)]/5 transition-all group"
+            className="text-left group rounded-lg border border-edge bg-base px-3 py-2 transition-all duration-150 hover:border-edge-hover hover:bg-surface"
           >
-            <div className="font-mono text-sm text-[var(--text-primary)] group-hover:text-[var(--terminal-green)] flex items-center gap-2">
-              <span className="text-[var(--text-muted)] group-hover:text-[var(--terminal-green)]">→</span>
+            <span className="text-sm text-heading group-hover:text-accent transition-colors duration-150">
               {page.label}
-            </div>
+            </span>
             {page.description && (
-              <div className="text-xs text-[var(--text-muted)] mt-1">{page.description}</div>
+              <span className="block text-xs text-dim mt-0.5">{page.description}</span>
             )}
           </button>
         ))}

@@ -4,6 +4,10 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
+
 
 const relatedPages: RelatedPage[] = [
  { id: 'retry', label: '重试回退', description: '错误重试机制' },
@@ -34,7 +38,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  {/* 一句话总结 */}
  <div className="bg-base/50 rounded-lg p-4 ">
  <p className="text-heading font-medium">
- <span className="text-amber-500 font-bold">一句话：</span>
+ <span className="text-heading font-bold">一句话：</span>
  模型调用失败时的智能降级机制，自动从 Pro 模型回退到 Flash 模型，保证服务可用性
  </p>
  </div>
@@ -42,7 +46,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  {/* 关键数字 */}
  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-amber-500">3</div>
+ <div className="text-2xl font-bold text-heading">3</div>
  <div className="text-xs text-dim">决策类型</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
@@ -63,11 +67,11 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div>
  <h4 className="text-sm font-semibold text-dim mb-2">Fallback 决策流程</h4>
  <div className="flex items-center gap-2 flex-wrap text-sm">
- <span className="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-lg border border-red-500/30">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover/30">
  模型调用失败
  </span>
  <span className="text-dim">→</span>
- <span className="px-3 py-1.5 bg-amber-500/20 text-amber-500 rounded-lg border border-amber-500/30">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover/30">
  UI Handler 询问
  </span>
  <span className="text-dim">→</span>
@@ -111,98 +115,98 @@ export function FallbackSystem() {
  activate --> done
  auth --> done
 
- style fail fill:#ef4444,color:#fff
- style handler fill:#a855f7,color:#fff
- style retry fill:#22c55e,color:#000
- style stop fill:#22c55e,color:#000
- style activate fill:#3b82f6,color:#fff
- style done fill:#6366f1,color:#fff`;
+ style fail fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style handler fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style retry fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style stop fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style activate fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style done fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  const fallbackTypesCode = `// packages/core/src/fallback/types.ts
 
 /**
- * Fallback 决策类型
- */
+  * Fallback 决策类型
+  */
 export type FallbackIntent =
- | 'retry' // 立即用回退模型重试当前请求
- | 'stop' // 切换到回退模型，但停止当前请求
- | 'auth'; // 停止当前请求，用户需要更换认证方式
+  | 'retry' // 立即用回退模型重试当前请求
+  | 'stop' // 切换到回退模型，但停止当前请求
+  | 'auth'; // 停止当前请求，用户需要更换认证方式
 
 /**
- * UI 层提供的 Fallback Handler 接口
- */
+  * UI 层提供的 Fallback Handler 接口
+  */
 export type FallbackModelHandler = (
- failedModel: string, // 失败的模型名
- fallbackModel: string, // 建议的回退模型
- error?: unknown, // 原始错误
+  failedModel: string, // 失败的模型名
+  fallbackModel: string, // 建议的回退模型
+  error?: unknown, // 原始错误
 ) => Promise<FallbackIntent | null>;`;
 
  const handleFallbackCode = `// packages/core/src/fallback/handler.ts
 
 export async function handleFallback(
- config: Config,
- failedModel: string,
- authType?: string,
- error?: unknown,
+  config: Config,
+  failedModel: string,
+  authType?: string,
+  error?: unknown,
 ): Promise<string | boolean | null> {
- // 处理不同认证类型
- if (authType === AuthType.GOOGLE_OAUTH) {
- return handleGoogleOAuthError(error);
- }
+  // 处理不同认证类型
+  if (authType === AuthType.GOOGLE_OAUTH) {
+  return handleGoogleOAuthError(error);
+  }
 
- // 仅 Google 认证支持模型回退
- if (authType !== AuthType.LOGIN_WITH_GOOGLE) return null;
+  // 仅 Google 认证支持模型回退
+  if (authType !== AuthType.LOGIN_WITH_GOOGLE) return null;
 
- const fallbackModel = DEFAULT_GEMINI_FLASH_MODEL;
- if (failedModel === fallbackModel) return null; // 已是回退模型
+  const fallbackModel = DEFAULT_GEMINI_FLASH_MODEL;
+  if (failedModel === fallbackModel) return null; // 已是回退模型
 
- // 咨询 UI Handler 获取用户意图
- const fallbackModelHandler = config.fallbackModelHandler;
- if (typeof fallbackModelHandler !== 'function') return null;
+  // 咨询 UI Handler 获取用户意图
+  const fallbackModelHandler = config.fallbackModelHandler;
+  if (typeof fallbackModelHandler !== 'function') return null;
 
- const intent = await fallbackModelHandler(
- failedModel,
- fallbackModel,
- error,
- );
+  const intent = await fallbackModelHandler(
+  failedModel,
+  fallbackModel,
+  error,
+  );
 
- // 根据用户决策处理
- switch (intent) {
- case 'retry':
- activateFallbackMode(config, authType);
- return true; // 信号 retryWithBackoff 继续
+  // 根据用户决策处理
+  switch (intent) {
+  case 'retry':
+  activateFallbackMode(config, authType);
+  return true; // 信号 retryWithBackoff 继续
 
- case 'stop':
- activateFallbackMode(config, authType);
- return false; // 停止当前请求
+  case 'stop':
+  activateFallbackMode(config, authType);
+  return false; // 停止当前请求
 
- case 'auth':
- return false; // 用户要更换认证
+  case 'auth':
+  return false; // 用户要更换认证
 
- default:
- throw new Error(\`Unexpected fallback intent: "\${intent}"\`);
- }
+  default:
+  throw new Error(\`Unexpected fallback intent: "\${intent}"\`);
+  }
 }`;
 
  const activateFallbackCode = `// 激活回退模式
 
 function activateFallbackMode(config: Config, authType: string | undefined) {
- if (!config.isInFallbackMode()) {
- config.setFallbackMode(true);
+  if (!config.isInFallbackMode()) {
+  config.setFallbackMode(true);
 
- // 记录遥测事件
- if (authType) {
- logFlashFallback(config, new FlashFallbackEvent(authType));
- }
- }
+  // 记录遥测事件
+  if (authType) {
+  logFlashFallback(config, new FlashFallbackEvent(authType));
+  }
+  }
 }
 
 // Config 接口
 interface Config {
- isInFallbackMode(): boolean;
- setFallbackMode(enabled: boolean): void;
- fallbackModelHandler?: FallbackModelHandler;
- // ...
+  isInFallbackMode(): boolean;
+  setFallbackMode(enabled: boolean): void;
+  fallbackModelHandler?: FallbackModelHandler;
+  // ...
 }`;
 
  return (
@@ -231,9 +235,9 @@ interface Config {
  <div className="text-sm space-y-2">
  <p className="text-body">立即重试当前请求</p>
  <ul className="text-body space-y-1">
- <li>• 激活回退模式</li>
- <li>• 使用 Flash 模型重试</li>
- <li>• 返回 true 继续 backoff</li>
+ <li>激活回退模式</li>
+ <li>使用 Flash 模型重试</li>
+ <li>返回 true 继续 backoff</li>
  </ul>
  </div>
  </HighlightBox>
@@ -242,9 +246,9 @@ interface Config {
  <div className="text-sm space-y-2">
  <p className="text-body">切换模型但停止当前请求</p>
  <ul className="text-body space-y-1">
- <li>• 激活回退模式</li>
- <li>• 后续请求使用 Flash</li>
- <li>• 返回 false 停止当前</li>
+ <li>激活回退模式</li>
+ <li>后续请求使用 Flash</li>
+ <li>返回 false 停止当前</li>
  </ul>
  </div>
  </HighlightBox>
@@ -253,9 +257,9 @@ interface Config {
  <div className="text-sm space-y-2">
  <p className="text-body">用户选择更换认证</p>
  <ul className="text-body space-y-1">
- <li>• 不激活回退模式</li>
- <li>• 返回 false 停止</li>
- <li>• 引导用户重新认证</li>
+ <li>不激活回退模式</li>
+ <li>返回 false 停止</li>
+ <li>引导用户重新认证</li>
  </ul>
  </div>
  </HighlightBox>
@@ -280,15 +284,15 @@ interface Config {
  <div className="text-sm space-y-2 text-body">
  <p><strong>状态管理：</strong></p>
  <ul className="text-body space-y-1">
- <li>• <code className="bg-base/30 px-1 rounded">isInFallbackMode()</code> 检查当前是否处于回退模式</li>
- <li>• <code className="bg-base/30 px-1 rounded">setFallbackMode(true)</code> 激活回退模式</li>
- <li>• 一旦激活，整个会话期间保持</li>
+ <li><code className="bg-base/30 px-1 rounded">isInFallbackMode()</code> 检查当前是否处于回退模式</li>
+ <li><code className="bg-base/30 px-1 rounded">setFallbackMode(true)</code> 激活回退模式</li>
+ <li>一旦激活，整个会话期间保持</li>
  </ul>
  <p className="mt-2"><strong>遥测记录：</strong></p>
  <ul className="text-body space-y-1">
- <li>• 记录 FlashFallbackEvent</li>
- <li>• 包含认证类型信息</li>
- <li>• 用于分析回退频率</li>
+ <li>记录 FlashFallbackEvent</li>
+ <li>包含认证类型信息</li>
+ <li>用于分析回退频率</li>
  </ul>
  </div>
  </HighlightBox>
@@ -333,7 +337,7 @@ interface Config {
  <Layer title="设计决策" icon="💡">
  <div className="space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">为什么需要用户确认？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么需要用户确认？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策：</strong>回退到 Flash 模型需要用户明确确认。</p>
  <p><strong>原因：</strong></p>

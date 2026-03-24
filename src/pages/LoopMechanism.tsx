@@ -75,7 +75,7 @@ function Introduction({
  </div>
 
  <div className="space-y-4">
- <h3 className="font-semibold text-amber-500">
+ <h3 className="font-semibold text-heading">
  📂 核心文件
  </h3>
  <ul className="text-sm text-body space-y-2">
@@ -132,10 +132,10 @@ interface LoopNodeProps {
 
 function LoopNode({ icon, title, description, variant = 'default' }: LoopNodeProps) {
  const baseClass = variant === 'success'
- ? 'bg-green-500/20 border-green-500'
+ ? 'bg-elevated border-edge'
  : variant === 'warning'
- ? 'bg-amber-500/20 border-amber-500'
- : 'bg-cyan-400/10 border-edge'
+ ? 'bg-elevated border-edge'
+ : 'bg-accent-light border-edge'
 
  return (
  <div
@@ -205,11 +205,11 @@ export function LoopMechanism() {
 
  <div className="flex justify-center items-center gap-5 flex-wrap p-4">
  <div className="flex flex-col items-center gap-2">
- <div className="text-amber-400 font-bold">有工具调用</div>
- <div className="text-3xl text-amber-400">↓</div>
+ <div className="text-heading font-bold">有工具调用</div>
+ <div className="text-3xl text-heading">↓</div>
  </div>
  <LoopNode icon="🔧" title="执行工具" description="调度器并行执行" variant="warning" />
- <div className="text-3xl text-amber-400">→</div>
+ <div className="text-3xl text-heading">→</div>
  <LoopNode icon="📝" title="收集结果" description="工具响应加入历史" variant="warning" />
  <div className="text-3xl text-heading">↩️</div>
  </div>
@@ -337,16 +337,16 @@ private async *processTurn(
  <h4 className="font-bold text-heading mb-2">📤 Content 事件</h4>
  <p className="text-sm text-body">AI 输出的文本内容，流式传输给 UI</p>
  </div>
- <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg">
- <h4 className="font-bold text-amber-400 mb-2">🔧 ToolCallRequest 事件</h4>
+ <div className="p-4 bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg">
+ <h4 className="font-bold text-heading mb-2">🔧 ToolCallRequest 事件</h4>
  <p className="text-sm text-body">AI 请求调用工具，加入 pendingToolCalls</p>
  </div>
  <div className="p-4 bg-elevated border border-edge rounded-lg">
  <h4 className="font-bold text-heading mb-2">💭 Thought 事件</h4>
  <p className="text-sm text-body">AI 的内部思考过程（如果模型支持）</p>
  </div>
- <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
- <h4 className="font-bold text-green-400 mb-2">✅ Finished 事件</h4>
+ <div className="p-4 bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg">
+ <h4 className="font-bold text-heading mb-2">✅ Finished 事件</h4>
  <p className="text-sm text-body">Turn 完成，包含 finishReason 和 usage</p>
  </div>
  </div>
@@ -424,20 +424,20 @@ enum GeminiEventType {
  </p>
 
  <div className="space-y-4">
- <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
- <h4 className="font-bold text-red-400 mb-2">1. 工具调用循环检测</h4>
+ <div className="p-4 bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg">
+ <h4 className="font-bold text-heading mb-2">1. 工具调用循环检测</h4>
  <p className="text-sm text-body">
  同一工具以相同参数连续调用 5 次以上触发警告
  </p>
  </div>
- <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
- <h4 className="font-bold text-red-400 mb-2">2. 内容重复检测</h4>
+ <div className="p-4 bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg">
+ <h4 className="font-bold text-heading mb-2">2. 内容重复检测</h4>
  <p className="text-sm text-body">
  相同内容连续出现 10 次以上触发警告
  </p>
  </div>
- <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg">
- <h4 className="font-bold text-red-400 mb-2">3. LLM 辅助检测</h4>
+ <div className="p-4 bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg">
+ <h4 className="font-bold text-heading mb-2">3. LLM 辅助检测</h4>
  <p className="text-sm text-body">
  30 轮后使用 LLM 分析对话是否陷入认知循环
  </p>

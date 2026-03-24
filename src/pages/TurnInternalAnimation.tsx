@@ -44,7 +44,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-dim">流式响应开始</div>
  </div>
  <div className="bg-base p-2 rounded border border-edge">
- <div className="text-amber-500">tool_call_detected</div>
+ <div className="text-heading">tool_call_detected</div>
  <div className="text-dim">检测到工具调用</div>
  </div>
  <div className="bg-base p-2 rounded border border-edge">
@@ -72,7 +72,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="flex flex-wrap gap-2">
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">流式解析</span>
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">工具调度</span>
- <span className="px-2 py-1 bg-amber-500/20 text-amber-500 rounded text-xs">Continuation</span>
+ <span className="px-2 py-1 bg-elevated text-heading rounded text-xs">Continuation</span>
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">主循环</span>
  </div>
  </div>
@@ -464,12 +464,12 @@ function EventStream({ currentIndex }: { currentIndex: number }) {
  const eventColors: Record<TurnEventType, string> = {
  stream_start: 'var(--color-primary)',
  chunk_received: 'var(--color-primary)',
- thought_extracted: '#f59e0b',
+ thought_extracted: 'var(--color-warning)',
  content_emitted: 'var(--color-primary)',
- tool_call_detected: '#f59e0b',
+ tool_call_detected: 'var(--color-warning)',
  tool_call_stored: 'var(--color-primary)',
  citation_collected: 'var(--color-primary)',
- finish_reason_set: '#f59e0b',
+ finish_reason_set: 'var(--color-warning)',
  turn_complete: 'var(--color-primary)',
  };
 
@@ -507,7 +507,7 @@ function TurnStateVisual({ state }: { state: TurnState }) {
  return (
  <div className="bg-base rounded-lg p-4 border border-edge">
  <div className="flex items-center gap-2 mb-3">
- <span className="text-amber-500">📦</span>
+ <span className="text-heading">📦</span>
  <span className="text-sm font-mono font-bold text-heading">Turn 内部状态</span>
  </div>
 
@@ -536,7 +536,7 @@ function TurnStateVisual({ state }: { state: TurnState }) {
  {state.pendingToolCalls.length > 0 ? (
  <div className="space-y-1">
  {state.pendingToolCalls.map((tc, i) => (
- <div key={i} className="p-1.5 bg-amber-500/10 rounded text-amber-500">
+ <div key={i} className="p-1.5 bg-elevated rounded text-heading">
  {tc.name}({JSON.stringify(tc.args)})
  </div>
  ))}
@@ -693,7 +693,7 @@ export function TurnInternalAnimation() {
  </button>
  <button
  onClick={reset}
- className="px-5 py-2.5 bg-elevated text-amber-500 rounded-md font-mono font-bold border border-edge hover:border-amber-600 transition-all cursor-pointer"
+ className="px-5 py-2.5 bg-elevated text-heading rounded-md font-mono font-bold border border-edge hover:border-edge/60 transition-all cursor-pointer"
  >
  ↺ 重置
  </button>
@@ -729,7 +729,7 @@ export function TurnInternalAnimation() {
  事件：<span className="text-heading font-bold">{currentStep + 1}</span>/{eventSequence.length}
  </span>
  {isPlaying && (
- <span className="text-amber-500 font-mono text-sm animate-pulse">● 执行中</span>
+ <span className="text-heading font-mono text-sm animate-pulse">● 执行中</span>
  )}
  </div>
  <div className="font-mono text-sm text-heading pl-6">
@@ -757,8 +757,8 @@ export function TurnInternalAnimation() {
  流式响应分多个 chunk，需累积处理
  </div>
  </div>
- <div className="p-3 bg-base rounded-lg border border-amber-600">
- <div className="text-xs font-mono text-amber-500 font-bold mb-1">pendingToolCalls</div>
+ <div className="p-3 bg-base rounded-lg border-l-2 border-l-edge-hover/60">
+ <div className="text-xs font-mono text-heading font-bold mb-1">pendingToolCalls</div>
  <div className="text-xs font-mono text-dim">
  工具调用先存储，等待外部确认执行
  </div>

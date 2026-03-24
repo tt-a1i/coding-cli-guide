@@ -363,10 +363,10 @@ const scriptColors: Record<UnicodeScript, string> = {
  Han: 'var(--color-primary)',
  Hiragana: 'var(--color-primary)',
  Katakana: 'var(--color-primary)',
- Arabic: '#f59e0b',
- Cyrillic: '#ff6b6b',
- Thai: '#4ecdc4',
- Hangul: '#f7dc6f',
+ Arabic: 'var(--color-warning)',
+ Cyrillic: 'var(--color-danger)',
+ Thai: 'var(--color-primary)',
+ Hangul: 'var(--color-warning)',
  Whitespace: 'var(--color-text-secondary)',
  Punctuation: 'var(--color-text-muted)',
  Other: 'var(--color-text-muted)'
@@ -405,10 +405,10 @@ function TextVisualizer({
  className={`
  relative px-0.5 transition-all duration-300
  ${isCursor ? ' bg-elevated text-heading' : ''}
- ${isHighlighted ? 'bg-[var(--color-warning-soft)]' : ''}
+ ${isHighlighted ? 'bg-elevated' : ''}
  ${isNavigationFrom ? 'ring-2 ring-[var(--color-danger)]' : ''}
  ${isNavigationTo ? 'ring-2 ring-[var(--color-success)]' : ''}
- ${charInfo.isScriptBoundary ? 'border-l-2 border-[var(--color-warning)]' : ''}
+ ${charInfo.isScriptBoundary ? 'border-l-2 border-edge' : ''}
  `}
  style={{
  color: isCursor ? 'black' : scriptColors[charInfo.script]
@@ -416,7 +416,7 @@ function TextVisualizer({
  >
  {charInfo.char === ' ' ? '␣' : charInfo.char}
  {charInfo.isScriptBoundary && (
- <span className="absolute -top-3 left-0 text-[8px] text-[var(--color-warning)]">
+ <span className="absolute -top-3 left-0 text-[8px] text-heading">
  ▼
  </span>
  )}
@@ -511,7 +511,7 @@ function CharacterTable({ chars, cursor }: { chars: CharInfo[]; cursor: number }
  key={actualIdx}
  className={`
  ${isCursor ? ' bg-elevated/20' : ''}
- border-t border-white/5
+ border-t border-edge/30
  `}
  >
  <td className="p-1 text-dim">
@@ -532,7 +532,7 @@ function CharacterTable({ chars, cursor }: { chars: CharInfo[]; cursor: number }
  </td>
  <td className="p-1">
  {char.isScriptBoundary && (
- <span className="text-[var(--color-warning)]">脚本</span>
+ <span className="text-heading">脚本</span>
  )}
  {char.isWordBoundary && !char.isScriptBoundary && (
  <span className="text-heading">词</span>
@@ -659,9 +659,9 @@ export function VimBufferAnimation() {
  onClick={togglePlay}
  className="px-4 py-2 rounded text-sm font-medium transition-colors"
  style={{
- backgroundColor: isPlaying ? 'rgba(239, 68, 68, 0.2)' : 'rgba(34, 197, 94, 0.2)',
- color: isPlaying ? '#ef4444' : '#22c55e',
- border: `1px solid ${isPlaying ? '#ef4444' : '#22c55e'}`
+ backgroundColor: isPlaying ? 'var(--color-bg-elevated)' : 'var(--color-bg-elevated)',
+ color: isPlaying ? 'var(--color-danger)' : 'var(--color-success)',
+ border: `1px solid ${isPlaying ? 'var(--color-danger)' : 'var(--color-success)'}`
  }}
  >
  {isPlaying ? '⏸ 暂停' : '▶ 播放'}
@@ -670,7 +670,7 @@ export function VimBufferAnimation() {
  onClick={() => handleStepChange(Math.max(0, currentStep - 1))}
  disabled={currentStep === 0}
  className="px-3 py-2 rounded text-sm disabled:opacity-30"
- style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: '#fff' }}
+ style={{ backgroundColor: 'var(--color-bg-elevated)', color: 'var(--color-text)' }}
  >
  ← 上一步
  </button>
@@ -678,14 +678,14 @@ export function VimBufferAnimation() {
  onClick={() => handleStepChange(Math.min(animationSteps.length - 1, currentStep + 1))}
  disabled={currentStep === animationSteps.length - 1}
  className="px-3 py-2 rounded text-sm disabled:opacity-30"
- style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: '#fff' }}
+ style={{ backgroundColor: 'var(--color-bg-elevated)', color: 'var(--color-text)' }}
  >
  下一步 →
  </button>
  <button
  onClick={() => { handleStepChange(0); setAnimatedCursor(0); }}
  className="px-3 py-2 rounded text-sm"
- style={{ backgroundColor: 'rgba(255,255,255,0.05)', color: '#888' }}
+ style={{ backgroundColor: 'var(--color-bg-surface)', color: 'var(--color-text-muted)' }}
  >
  ↺ 重置
  </button>
@@ -695,7 +695,7 @@ export function VimBufferAnimation() {
  </div>
 
  {/* 当前步骤标题 */}
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)' }}>
+ <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)' }}>
  <h2 className="text-lg font-semibold mb-2" style={{ color: 'var(--color-text)' }}>
  {step.title}
  </h2>

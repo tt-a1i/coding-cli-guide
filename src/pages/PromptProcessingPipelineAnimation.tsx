@@ -41,7 +41,7 @@ function Introduction({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-[var(--color-warning)] font-bold mb-2">
+ <h4 className="text-heading font-bold mb-2">
  🔧 处理顺序（安全优先）
  </h4>
  <div className="flex items-center gap-2 mt-2 text-sm">
@@ -53,7 +53,7 @@ function Introduction({
  !Shell
  </div>
  <span className="text-dim">→</span>
- <div className="bg-surface px-3 py-1 rounded text-[var(--color-warning)]">
+ <div className="bg-surface px-3 py-1 rounded text-heading">
  &#123;&#123;args&#125;&#125;
  </div>
  <span className="text-dim">→</span>
@@ -82,7 +82,7 @@ function Introduction({
  <div className="text-xs text-dim">占位符语法</div>
  </div>
  <div className="text-center">
- <div className="text-xl font-bold text-[var(--color-warning)]">安全</div>
+ <div className="text-xl font-bold text-heading">安全</div>
  <div className="text-xs text-dim">优先设计</div>
  </div>
  <div className="text-center">
@@ -411,7 +411,7 @@ function ProcessorCards() {
 function SecurityDesign() {
  return (
  <div className="bg-surface rounded-lg p-6 border border-[color:var(--color-warning-soft)]">
- <h3 className="text-lg font-bold text-[var(--color-warning)] mb-4 flex items-center gap-2">
+ <h3 className="text-lg font-bold text-heading mb-4 flex items-center gap-2">
  <span>🔒</span> 安全设计
  </h3>
 
@@ -436,7 +436,7 @@ function SecurityDesign() {
  </div>
 
  <div className="bg-base rounded-lg p-4">
- <div className="text-[var(--color-danger)] font-bold mb-2">✗ 危险顺序</div>
+ <div className="text-heading font-bold mb-2">✗ 危险顺序</div>
  <div className="text-sm text-body space-y-2">
  <div>
  1. <code className="text-heading">!Shell</code>{' '}
@@ -446,14 +446,14 @@ function SecurityDesign() {
  2. <code className="text-heading">@File</code>{' '}
  后处理
  </div>
- <div className="text-xs text-[var(--color-danger)] mt-2">
+ <div className="text-xs text-heading mt-2">
  用户可能注入恶意命令: @&#123;; rm -rf /&#125;
  </div>
  </div>
  </div>
  </div>
 
- <div className="mt-4 p-3 bg-[var(--color-warning-soft)] rounded-lg text-sm text-[var(--color-warning)]">
+ <div className="mt-4 p-3 bg-elevated rounded-lg text-sm text-heading">
  <strong>关键原则</strong>：用户可控的输入（@File 路径、{'{{args}}'}）
  必须在不可信的操作（Shell 执行）之前处理，防止注入攻击。
  </div>

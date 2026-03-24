@@ -4,6 +4,9 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 const relatedPages: RelatedPage[] = [
  { id: 'config', label: '配置系统', description: '配置加载基础' },
@@ -47,7 +50,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">迁移字段</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-amber-500">V2</div>
+ <div className="text-2xl font-bold text-heading">V2</div>
  <div className="text-xs text-dim">当前版本</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
@@ -71,7 +74,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  Workspace
  </span>
  <span className="text-dim">→</span>
- <span className="px-3 py-1.5 bg-red-500/20 text-red-500 rounded-lg border border-red-500/30">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover/30">
  System (强制)
  </span>
  </div>
@@ -133,7 +136,7 @@ export function SettingsManager() {
  style SD stroke:#666
  style USER stroke:#00d4ff
  style WS stroke:#00ff88
- style SYS stroke:#ef4444
+ style SYS stroke:${getThemeColor("--color-danger", "#b91c1c")}
  style RESULT stroke:#a855f7`;
 
  const scopeEnum = `// 配置作用域枚举
@@ -165,24 +168,24 @@ function getSystemSettingsPath(): string {
 
  const migrationMapCode = `// V1 → V2 设置迁移映射（部分）
 const MIGRATION_MAP: Record<string, string> = {
- // 旧路径 → 新路径
- 'accessibility': 'ui.accessibility',
- 'allowedTools': 'tools.allowed',
- 'allowMCPServers': 'mcp.allowed',
- 'autoAccept': 'tools.autoAccept',
- 'chatCompression': 'model.compressionThreshold',
- 'checkpointing': 'general.checkpointing',
- 'customThemes': 'ui.customThemes',
- 'enforcedAuthType': 'security.auth.enforcedType',
- 'excludeTools': 'tools.exclude',
- 'folderTrust': 'security.folderTrust.enabled',
- 'hideFooter': 'ui.hideFooter',
- 'mcpServers': 'mcpServers', // 保持顶层
- 'model': 'model.name',
- 'sandbox': 'tools.sandbox',
- 'theme': 'ui.theme',
- 'vimMode': 'general.vimMode',
- // ... 50+ 更多字段
+  // 旧路径 → 新路径
+  'accessibility': 'ui.accessibility',
+  'allowedTools': 'tools.allowed',
+  'allowMCPServers': 'mcp.allowed',
+  'autoAccept': 'tools.autoAccept',
+  'chatCompression': 'model.compressionThreshold',
+  'checkpointing': 'general.checkpointing',
+  'customThemes': 'ui.customThemes',
+  'enforcedAuthType': 'security.auth.enforcedType',
+  'excludeTools': 'tools.exclude',
+  'folderTrust': 'security.folderTrust.enabled',
+  'hideFooter': 'ui.hideFooter',
+  'mcpServers': 'mcpServers', // 保持顶层
+  'model': 'model.name',
+  'sandbox': 'tools.sandbox',
+  'theme': 'ui.theme',
+  'vimMode': 'general.vimMode',
+  // ... 50+ 更多字段
 };
 
 // 说明：Gemini CLI 不依赖 "$version" 字段判断版本，
@@ -190,93 +193,93 @@ const MIGRATION_MAP: Record<string, string> = {
 
  const loadedSettingsCode = `// LoadedSettings 类管理运行时配置
 export class LoadedSettings {
- constructor(
- system: SettingsFile,
- systemDefaults: SettingsFile,
- user: SettingsFile,
- workspace: SettingsFile,
- isTrusted: boolean,
- migratedInMemoryScopes: Set<SettingScope>,
- errors: SettingsError[] = [],
- ) {
- this.system = system;
- this.systemDefaults = systemDefaults;
- this.user = user;
- this.workspace = workspace;
- this.isTrusted = isTrusted;
- this.migratedInMemoryScopes = migratedInMemoryScopes;
- this.errors = errors;
- this._merged = this.computeMergedSettings();
- }
+  constructor(
+  system: SettingsFile,
+  systemDefaults: SettingsFile,
+  user: SettingsFile,
+  workspace: SettingsFile,
+  isTrusted: boolean,
+  migratedInMemoryScopes: Set<SettingScope>,
+  errors: SettingsError[] = [],
+  ) {
+  this.system = system;
+  this.systemDefaults = systemDefaults;
+  this.user = user;
+  this.workspace = workspace;
+  this.isTrusted = isTrusted;
+  this.migratedInMemoryScopes = migratedInMemoryScopes;
+  this.errors = errors;
+  this._merged = this.computeMergedSettings();
+  }
 
- readonly system: SettingsFile;
- readonly systemDefaults: SettingsFile;
- readonly user: SettingsFile;
- readonly workspace: SettingsFile;
- readonly isTrusted: boolean;
- readonly migratedInMemoryScopes: Set<SettingScope>;
- readonly errors: SettingsError[];
+  readonly system: SettingsFile;
+  readonly systemDefaults: SettingsFile;
+  readonly user: SettingsFile;
+  readonly workspace: SettingsFile;
+  readonly isTrusted: boolean;
+  readonly migratedInMemoryScopes: Set<SettingScope>;
+  readonly errors: SettingsError[];
 
- // 合并后的最终配置
- get merged(): Settings {
- return this._merged;
- }
+  // 合并后的最终配置
+  get merged(): Settings {
+  return this._merged;
+  }
 
- // 按作用域获取配置
- forScope(scope: LoadableSettingScope): SettingsFile {
- switch (scope) {
- case SettingScope.User: return this.user;
- case SettingScope.Workspace: return this.workspace;
- case SettingScope.System: return this.system;
- case SettingScope.SystemDefaults: return this.systemDefaults;
- default: throw new Error(\`Invalid scope: \${scope}\`);
- }
- }
+  // 按作用域获取配置
+  forScope(scope: LoadableSettingScope): SettingsFile {
+  switch (scope) {
+  case SettingScope.User: return this.user;
+  case SettingScope.Workspace: return this.workspace;
+  case SettingScope.System: return this.system;
+  case SettingScope.SystemDefaults: return this.systemDefaults;
+  default: throw new Error(\`Invalid scope: \${scope}\`);
+  }
+  }
 
- // 设置值并保存
- setValue(scope: LoadableSettingScope, key: string, value: unknown): void {
- const settingsFile = this.forScope(scope);
- setNestedProperty(settingsFile.settings, key, value);
- setNestedProperty(settingsFile.originalSettings, key, value);
- this._merged = this.computeMergedSettings();
- saveSettings(settingsFile);
- }
+  // 设置值并保存
+  setValue(scope: LoadableSettingScope, key: string, value: unknown): void {
+  const settingsFile = this.forScope(scope);
+  setNestedProperty(settingsFile.settings, key, value);
+  setNestedProperty(settingsFile.originalSettings, key, value);
+  this._merged = this.computeMergedSettings();
+  saveSettings(settingsFile);
+  }
 
- private computeMergedSettings(): Settings {
- return mergeSettings(
- this.system.settings,
- this.systemDefaults.settings,
- this.user.settings,
- this.workspace.settings,
- this.isTrusted,
- );
- }
+  private computeMergedSettings(): Settings {
+  return mergeSettings(
+  this.system.settings,
+  this.systemDefaults.settings,
+  this.user.settings,
+  this.workspace.settings,
+  this.isTrusted,
+  );
+  }
 }`;
 
  const mergeSettingsCode = `// 配置合并函数 - 优先级从低到高
 function mergeSettings(
- system: Settings,
- systemDefaults: Settings,
- user: Settings,
- workspace: Settings,
- isTrusted: boolean,
+  system: Settings,
+  systemDefaults: Settings,
+  user: Settings,
+  workspace: Settings,
+  isTrusted: boolean,
 ): Settings {
- // 不信任的工作区配置被忽略
- const safeWorkspace = isTrusted ? workspace : ({} as Settings);
+  // 不信任的工作区配置被忽略
+  const safeWorkspace = isTrusted ? workspace : ({} as Settings);
 
- // 合并优先级 (后者覆盖前者):
- // 1. System Defaults (最低)
- // 2. User Settings
- // 3. Workspace Settings
- // 4. System Settings (最高 - 强制覆盖)
- return customDeepMerge(
- getMergeStrategyForPath,
- {},
- systemDefaults,
- user,
- safeWorkspace,
- system, // System 作为最后覆盖
- ) as Settings;
+  // 合并优先级 (后者覆盖前者):
+  // 1. System Defaults (最低)
+  // 2. User Settings
+  // 3. Workspace Settings
+  // 4. System Settings (最高 - 强制覆盖)
+  return customDeepMerge(
+  getMergeStrategyForPath,
+  {},
+  systemDefaults,
+  user,
+  safeWorkspace,
+  system, // System 作为最后覆盖
+  ) as Settings;
 }
 
 // 合并策略类型
@@ -284,10 +287,10 @@ type MergeStrategy = 'replace' | 'append' | 'merge';
 
 // 根据路径获取合并策略
 function getMergeStrategyForPath(path: string[]): MergeStrategy | undefined {
- // 例如: tools.allowed 使用 append
- // model.name 使用 replace
- // mcpServers 使用 merge
- ...
+  // 例如: tools.allowed 使用 append
+  // model.name 使用 replace
+  // mcpServers 使用 merge
+  ...
 }`;
 
  return (
@@ -319,7 +322,7 @@ function getMergeStrategyForPath(path: string[]): MergeStrategy | undefined {
  <code className="text-xs">.gemini/settings.json</code>
  </li>
  <li className="flex items-start gap-2">
- <span className="text-red-500">System:</span>
+ <span className="text-heading">System:</span>
  <code className="text-xs">/etc/gemini-cli/settings.json</code>
  </li>
  </ul>
@@ -327,10 +330,10 @@ function getMergeStrategyForPath(path: string[]): MergeStrategy | undefined {
  <div className="bg-surface p-4 rounded-lg border border-edge">
  <div className="text-heading font-bold mb-2">🔒 信任机制</div>
  <ul className="text-sm text-body space-y-1">
- <li>• 工作区配置需要信任才生效</li>
- <li>• 不信任时跳过 Workspace 配置</li>
- <li>• System 配置始终强制应用</li>
- <li>• 环境变量在信任后才加载</li>
+ <li>工作区配置需要信任才生效</li>
+ <li>不信任时跳过 Workspace 配置</li>
+ <li>System 配置始终强制应用</li>
+ <li>环境变量在信任后才加载</li>
  </ul>
  </div>
  </div>
@@ -369,7 +372,7 @@ function getMergeStrategyForPath(path: string[]): MergeStrategy | undefined {
  <td>项目特定配置</td>
  </tr>
  <tr className="border- border-edge/30">
- <td className="py-2 text-red-500">System</td>
+ <td className="py-2 text-heading">System</td>
  <td><code className="text-xs">/etc/gemini-cli/settings.json</code></td>
  <td>最高</td>
  <td>企业强制覆盖</td>
@@ -417,9 +420,9 @@ function getMergeStrategyForPath(path: string[]): MergeStrategy | undefined {
  <div className="text-sm">
  <strong className="text-heading">💡 迁移行为：</strong>
  <ul className="mt-2 text-body space-y-1">
- <li>• 自动备份原文件为 <code>.orig</code></li>
- <li>• 写入迁移后的 V2 格式</li>
- <li>• 注：迁移写回会丢失 JSON 注释（读取时 strip-json-comments）</li>
+ <li>自动备份原文件为 <code>.orig</code></li>
+ <li>写入迁移后的 V2 格式</li>
+ <li>注：迁移写回会丢失 JSON 注释（读取时 strip-json-comments）</li>
  </ul>
  </div>
  </div>
@@ -444,7 +447,7 @@ function getMergeStrategyForPath(path: string[]): MergeStrategy | undefined {
  <p className="text-dim">追加数组，如 tools.allowed</p>
  </div>
  <div>
- <div className="font-bold text-amber-500">merge</div>
+ <div className="font-bold text-heading">merge</div>
  <p className="text-dim">深度合并，如 mcpServers</p>
  </div>
  </div>

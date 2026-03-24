@@ -3,6 +3,9 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 const relatedPages: RelatedPage[] = [
  { id: 'retry', label: '重试回退', description: '循环与重试机制的关系' },
@@ -38,13 +41,13 @@ flowchart TD
  is_loop -->|Yes| report_loop
  is_loop -->|No| continue
 
- style start fill:#22d3ee,color:#000
- style check_tool fill:#f59e0b,color:#000
- style check_content fill:#f59e0b,color:#000
- style check_turns fill:#f59e0b,color:#000
- style is_loop fill:#f59e0b,color:#000
- style report_loop fill:#ef4444,color:#fff
- style continue fill:#22c55e,color:#000
+ style start fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style check_tool fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style check_content fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style check_turns fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style is_loop fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style report_loop fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style continue fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
 `;
 
  const thresholdsCode = `// packages/core/src/services/loopDetectionService.ts
@@ -56,81 +59,81 @@ const LLM_CHECK_AFTER_TURNS = 30; // 触发 LLM 检测的轮数
 
 // 循环检测服务类
 export class LoopDetectionService {
- private toolCallHistory: Map<string, number> = new Map();
- private contentHashHistory: Map<string, number> = new Map();
- private turnCount: number = 0;
+  private toolCallHistory: Map<string, number> = new Map();
+  private contentHashHistory: Map<string, number> = new Map();
+  private turnCount: number = 0;
 
- // 检查是否处于循环状态
- async checkForLoop(
- response: AIResponse,
- conversationHistory: Message[]
- ): Promise<LoopDetectionResult> {
- this.turnCount++;
+  // 检查是否处于循环状态
+  async checkForLoop(
+  response: AIResponse,
+  conversationHistory: Message[]
+  ): Promise<LoopDetectionResult> {
+  this.turnCount++;
 
- // 阶段1: 检测工具调用循环
- const toolLoopResult = this.checkToolCallLoop(response);
- if (toolLoopResult.isLoop) {
- return toolLoopResult;
- }
+  // 阶段1: 检测工具调用循环
+  const toolLoopResult = this.checkToolCallLoop(response);
+  if (toolLoopResult.isLoop) {
+  return toolLoopResult;
+  }
 
- // 阶段2: 检测内容重复循环
- const contentLoopResult = this.checkContentLoop(response);
- if (contentLoopResult.isLoop) {
- return contentLoopResult;
- }
+  // 阶段2: 检测内容重复循环
+  const contentLoopResult = this.checkContentLoop(response);
+  if (contentLoopResult.isLoop) {
+  return contentLoopResult;
+  }
 
- // 阶段3: 长对话的 LLM 智能检测
- if (this.turnCount >= LLM_CHECK_AFTER_TURNS) {
- return await this.performLLMLoopCheck(conversationHistory);
- }
+  // 阶段3: 长对话的 LLM 智能检测
+  if (this.turnCount >= LLM_CHECK_AFTER_TURNS) {
+  return await this.performLLMLoopCheck(conversationHistory);
+  }
 
- return { isLoop: false };
- }
+  return { isLoop: false };
+  }
 }`;
 
  const toolCallLoopCode = `// 工具调用循环检测
 // 基于工具名称和参数的哈希值跟踪重复调用
 
 interface ToolCallHash {
- toolName: string;
- argsHash: string; // 参数的 MD5 哈希
- timestamp: number;
+  toolName: string;
+  argsHash: string; // 参数的 MD5 哈希
+  timestamp: number;
 }
 
 private checkToolCallLoop(response: AIResponse): LoopDetectionResult {
- const toolCalls = response.toolCalls || [];
+  const toolCalls = response.toolCalls || [];
 
- for (const call of toolCalls) {
- // 生成工具调用的唯一哈希
- const hash = this.generateToolCallHash(call);
- const count = (this.toolCallHistory.get(hash) || 0) + 1;
- this.toolCallHistory.set(hash, count);
+  for (const call of toolCalls) {
+  // 生成工具调用的唯一哈希
+  const hash = this.generateToolCallHash(call);
+  const count = (this.toolCallHistory.get(hash) || 0) + 1;
+  this.toolCallHistory.set(hash, count);
 
- // 检查是否超过阈值
- if (count >= TOOL_CALL_LOOP_THRESHOLD) {
- return {
- isLoop: true,
- type: 'tool_call',
- message: \`检测到工具调用循环: \${call.name} 已被调用 \${count} 次，参数相同\`,
- details: {
- toolName: call.name,
- repeatCount: count,
- args: call.args
- }
- };
- }
- }
+  // 检查是否超过阈值
+  if (count >= TOOL_CALL_LOOP_THRESHOLD) {
+  return {
+  isLoop: true,
+  type: 'tool_call',
+  message: \`检测到工具调用循环: \${call.name} 已被调用 \${count} 次，参数相同\`,
+  details: {
+  toolName: call.name,
+  repeatCount: count,
+  args: call.args
+  }
+  };
+  }
+  }
 
- return { isLoop: false };
+  return { isLoop: false };
 }
 
 // 生成工具调用哈希
 private generateToolCallHash(call: ToolCall): string {
- const hashInput = JSON.stringify({
- name: call.name,
- args: call.args
- });
- return crypto.createHash('md5').update(hashInput).digest('hex');
+  const hashInput = JSON.stringify({
+  name: call.name,
+  args: call.args
+  });
+  return crypto.createHash('md5').update(hashInput).digest('hex');
 }
 
 /*
@@ -147,64 +150,64 @@ Turn 5: Read("config.json") -> hash: abc123 (count: 5) 🚨 触发循环检测!
 // 基于 AI 响应内容的句子级哈希
 
 private checkContentLoop(response: AIResponse): LoopDetectionResult {
- const content = response.text || '';
+  const content = response.text || '';
 
- // 提取句子并生成哈希
- const sentences = this.extractSentences(content);
+  // 提取句子并生成哈希
+  const sentences = this.extractSentences(content);
 
- for (const sentence of sentences) {
- // 跳过太短的句子
- if (sentence.length < 20) continue;
+  for (const sentence of sentences) {
+  // 跳过太短的句子
+  if (sentence.length < 20) continue;
 
- const hash = this.generateContentHash(sentence);
- const count = (this.contentHashHistory.get(hash) || 0) + 1;
- this.contentHashHistory.set(hash, count);
+  const hash = this.generateContentHash(sentence);
+  const count = (this.contentHashHistory.get(hash) || 0) + 1;
+  this.contentHashHistory.set(hash, count);
 
- // 检查是否超过阈值
- if (count >= CONTENT_LOOP_THRESHOLD) {
- return {
- isLoop: true,
- type: 'content',
- message: \`检测到内容重复循环: 相同内容已出现 \${count} 次\`,
- details: {
- repeatedContent: sentence.substring(0, 100) + '...',
- repeatCount: count
- }
- };
- }
- }
+  // 检查是否超过阈值
+  if (count >= CONTENT_LOOP_THRESHOLD) {
+  return {
+  isLoop: true,
+  type: 'content',
+  message: \`检测到内容重复循环: 相同内容已出现 \${count} 次\`,
+  details: {
+  repeatedContent: sentence.substring(0, 100) + '...',
+  repeatCount: count
+  }
+  };
+  }
+  }
 
- return { isLoop: false };
+  return { isLoop: false };
 }
 
 // 提取句子
 private extractSentences(content: string): string[] {
- // 使用标点符号和换行符分割
- return content
- .split(/[.!?\\n]+/)
- .map(s => s.trim().toLowerCase())
- .filter(s => s.length > 0);
+  // 使用标点符号和换行符分割
+  return content
+  .split(/[.!?\\n]+/)
+  .map(s => s.trim().toLowerCase())
+  .filter(s => s.length > 0);
 }
 
 // 生成内容哈希 (忽略空格和大小写)
 private generateContentHash(sentence: string): string {
- const normalized = sentence
- .toLowerCase()
- .replace(/\\s+/g, ' ')
- .trim();
- return crypto.createHash('md5').update(normalized).digest('hex');
+  const normalized = sentence
+  .toLowerCase()
+  .replace(/\\s+/g, ' ')
+  .trim();
+  return crypto.createHash('md5').update(normalized).digest('hex');
 }`;
 
  const llmCheckCode = `// LLM 智能循环检测
 // 使用 AI 模型分析对话模式，检测复杂的循环行为
 
 private async performLLMLoopCheck(
- conversationHistory: Message[]
+  conversationHistory: Message[]
 ): Promise<LoopDetectionResult> {
- // 提取最近的对话轮次用于分析
- const recentTurns = conversationHistory.slice(-20);
+  // 提取最近的对话轮次用于分析
+  const recentTurns = conversationHistory.slice(-20);
 
- const analysisPrompt = \`
+  const analysisPrompt = \`
 分析以下对话历史，判断 AI 是否陷入了循环行为。
 
 循环行为的特征包括：
@@ -219,126 +222,126 @@ private async performLLMLoopCheck(
 
 请以 JSON 格式回复:
 {
- "isLoop": boolean,
- "confidence": number (0-1),
- "reasoning": "解释为什么认为是/不是循环",
- "pattern": "如果是循环，描述检测到的模式",
- "suggestion": "如何打破循环的建议"
+  "isLoop": boolean,
+  "confidence": number (0-1),
+  "reasoning": "解释为什么认为是/不是循环",
+  "pattern": "如果是循环，描述检测到的模式",
+  "suggestion": "如何打破循环的建议"
 }
 \`;
 
- const response = await this.llmClient.generate(analysisPrompt);
- const analysis = JSON.parse(response.text);
+  const response = await this.llmClient.generate(analysisPrompt);
+  const analysis = JSON.parse(response.text);
 
- if (analysis.isLoop && analysis.confidence > 0.7) {
- return {
- isLoop: true,
- type: 'llm_detected',
- message: \`AI 检测到循环模式: \${analysis.pattern}\`,
- details: {
- confidence: analysis.confidence,
- reasoning: analysis.reasoning,
- suggestion: analysis.suggestion
- }
- };
- }
+  if (analysis.isLoop && analysis.confidence > 0.7) {
+  return {
+  isLoop: true,
+  type: 'llm_detected',
+  message: \`AI 检测到循环模式: \${analysis.pattern}\`,
+  details: {
+  confidence: analysis.confidence,
+  reasoning: analysis.reasoning,
+  suggestion: analysis.suggestion
+  }
+  };
+  }
 
- return { isLoop: false };
+  return { isLoop: false };
 }`;
 
  const loopTypesCode = `// 循环类型定义
 interface LoopDetectionResult {
- isLoop: boolean;
- type?: 'tool_call' | 'content' | 'llm_detected';
- message?: string;
- details?: {
- toolName?: string;
- repeatCount?: number;
- args?: any;
- repeatedContent?: string;
- confidence?: number;
- reasoning?: string;
- suggestion?: string;
- pattern?: string;
- };
+  isLoop: boolean;
+  type?: 'tool_call' | 'content' | 'llm_detected';
+  message?: string;
+  details?: {
+  toolName?: string;
+  repeatCount?: number;
+  args?: any;
+  repeatedContent?: string;
+  confidence?: number;
+  reasoning?: string;
+  suggestion?: string;
+  pattern?: string;
+  };
 }
 
 // 循环处理策略
 enum LoopHandlingStrategy {
- WARN = 'warn', // 警告但继续
- PAUSE = 'pause', // 暂停等待用户确认
- INTERRUPT = 'interrupt', // 中断当前操作
- RESET = 'reset', // 重置对话状态
+  WARN = 'warn', // 警告但继续
+  PAUSE = 'pause', // 暂停等待用户确认
+  INTERRUPT = 'interrupt', // 中断当前操作
+  RESET = 'reset', // 重置对话状态
 }
 
 // 循环检测配置
 interface LoopDetectionConfig {
- toolCallThreshold: number; // 默认: 5
- contentThreshold: number; // 默认: 10
- llmCheckTurnThreshold: number; // 默认: 30
- handlingStrategy: LoopHandlingStrategy;
- enableLLMCheck: boolean; // 是否启用 LLM 检测
+  toolCallThreshold: number; // 默认: 5
+  contentThreshold: number; // 默认: 10
+  llmCheckTurnThreshold: number; // 默认: 30
+  handlingStrategy: LoopHandlingStrategy;
+  enableLLMCheck: boolean; // 是否启用 LLM 检测
 }`;
 
  const integrationCode = `// 与核心循环的集成
 // packages/core/src/core/geminiChat.ts
 
 export class GeminiChat {
- private loopDetector: LoopDetectionService;
+  private loopDetector: LoopDetectionService;
 
- async processConversation() {
- while (!this.shouldStop) {
- // 生成 AI 响应
- const response = await this.generateResponse();
+  async processConversation() {
+  while (!this.shouldStop) {
+  // 生成 AI 响应
+  const response = await this.generateResponse();
 
- // 执行循环检测
- const loopResult = await this.loopDetector.checkForLoop(
- response,
- this.conversationHistory
- );
+  // 执行循环检测
+  const loopResult = await this.loopDetector.checkForLoop(
+  response,
+  this.conversationHistory
+  );
 
- if (loopResult.isLoop) {
- // 处理检测到的循环
- await this.handleLoopDetected(loopResult);
- continue;
- }
+  if (loopResult.isLoop) {
+  // 处理检测到的循环
+  await this.handleLoopDetected(loopResult);
+  continue;
+  }
 
- // 继续正常处理...
- await this.processResponse(response);
- }
- }
+  // 继续正常处理...
+  await this.processResponse(response);
+  }
+  }
 
- private async handleLoopDetected(result: LoopDetectionResult) {
- // 记录循环事件
- this.telemetry.recordLoopDetected(result);
+  private async handleLoopDetected(result: LoopDetectionResult) {
+  // 记录循环事件
+  this.telemetry.recordLoopDetected(result);
 
- // 根据策略处理
- switch (this.config.loopHandlingStrategy) {
- case LoopHandlingStrategy.WARN:
- this.ui.showWarning(\`循环警告: \${result.message}\`);
- break;
+  // 根据策略处理
+  switch (this.config.loopHandlingStrategy) {
+  case LoopHandlingStrategy.WARN:
+  this.ui.showWarning(\`循环警告: \${result.message}\`);
+  break;
 
- case LoopHandlingStrategy.PAUSE:
- await this.ui.showConfirmation(
- \`检测到循环行为: \${result.message}\\n是否继续?\`
- );
- break;
+  case LoopHandlingStrategy.PAUSE:
+  await this.ui.showConfirmation(
+  \`检测到循环行为: \${result.message}\\n是否继续?\`
+  );
+  break;
 
- case LoopHandlingStrategy.INTERRUPT:
- throw new LoopInterruptError(result);
+  case LoopHandlingStrategy.INTERRUPT:
+  throw new LoopInterruptError(result);
 
- case LoopHandlingStrategy.RESET:
- this.resetConversationState();
- break;
- }
+  case LoopHandlingStrategy.RESET:
+  this.resetConversationState();
+  break;
+  }
 
- // 尝试打破循环：向 AI 注入循环检测信息
- this.injectLoopBreakingContext(result);
- }
+  // 尝试打破循环：向 AI 注入循环检测信息
+  this.injectLoopBreakingContext(result);
+  }
 
- private injectLoopBreakingContext(result: LoopDetectionResult) {
- // 向对话中注入系统消息，帮助 AI 意识到循环
- const breakingMessage = \`
+  private injectLoopBreakingContext(result: LoopDetectionResult) {
+  // 向对话中注入系统消息，帮助 AI 意识到循环
+  const breakingMessage = \`
 [系统提示] 检测到可能的循环行为:
 \${result.message}
 
@@ -349,11 +352,11 @@ export class GeminiChat {
 3. 向用户请求更多信息或确认
 \`;
 
- this.conversationHistory.push({
- role: 'system',
- content: breakingMessage
- });
- }
+  this.conversationHistory.push({
+  role: 'system',
+  content: breakingMessage
+  });
+  }
 }`;
 
  return (
@@ -379,7 +382,7 @@ export class GeminiChat {
 
  <HighlightBox title="内容重复检测" color="green">
  <div className="text-center">
- <div className="text-4xl font-bold text-green-400">10</div>
+ <div className="text-4xl font-bold text-heading">10</div>
  <div className="text-sm text-body">内容重复阈值</div>
  </div>
  <p className="text-sm mt-2">
@@ -419,19 +422,19 @@ export class GeminiChat {
  <HighlightBox title="常见的工具调用循环场景" color="yellow" className="mt-4">
  <div className="grid grid-cols-2 gap-4 text-sm">
  <div>
- <h5 className="font-semibold text-yellow-300 mb-1">文件读取循环</h5>
+ <h5 className="font-semibold text-heading mb-1">文件读取循环</h5>
  <p className="text-body">反复读取同一文件寻找不存在的内容</p>
  </div>
  <div>
- <h5 className="font-semibold text-yellow-300 mb-1">命令执行循环</h5>
+ <h5 className="font-semibold text-heading mb-1">命令执行循环</h5>
  <p className="text-body">重复执行失败的命令期望不同结果</p>
  </div>
  <div>
- <h5 className="font-semibold text-yellow-300 mb-1">搜索循环</h5>
+ <h5 className="font-semibold text-heading mb-1">搜索循环</h5>
  <p className="text-body">用相同关键词反复搜索无结果</p>
  </div>
  <div>
- <h5 className="font-semibold text-yellow-300 mb-1">编辑循环</h5>
+ <h5 className="font-semibold text-heading mb-1">编辑循环</h5>
  <p className="text-body">反复做相同的文件修改</p>
  </div>
  </div>
@@ -464,10 +467,10 @@ export class GeminiChat {
 
  <HighlightBox title="LLM 检测的优势" color="purple" className="mt-4">
  <ul className="text-sm space-y-1">
- <li>• <strong>语义理解</strong>：理解上下文，识别逻辑循环</li>
- <li>• <strong>模式识别</strong>：检测复杂的、非字面重复的循环模式</li>
- <li>• <strong>建议提供</strong>：给出如何打破循环的具体建议</li>
- <li>• <strong>置信度评估</strong>：提供检测结果的可信度</li>
+ <li><strong>语义理解</strong>：理解上下文，识别逻辑循环</li>
+ <li><strong>模式识别</strong>：检测复杂的、非字面重复的循环模式</li>
+ <li><strong>建议提供</strong>：给出如何打破循环的具体建议</li>
+ <li><strong>置信度评估</strong>：提供检测结果的可信度</li>
  </ul>
  </HighlightBox>
  </section>
@@ -487,7 +490,7 @@ export class GeminiChat {
  <td className="py-2">工具调用重复</td>
  </tr>
  <tr className="border- border-edge">
- <td className="py-2"><code className="text-green-400">content</code></td>
+ <td className="py-2"><code className="text-heading">content</code></td>
  <td className="py-2">内容重复</td>
  </tr>
  <tr>
@@ -503,7 +506,7 @@ export class GeminiChat {
  <table className="w-full text-sm">
  <tbody className="text-body">
  <tr className="border- border-edge">
- <td className="py-2"><code className="text-yellow-400">WARN</code></td>
+ <td className="py-2"><code className="text-heading">WARN</code></td>
  <td className="py-2">警告但继续</td>
  </tr>
  <tr className="border- border-edge">
@@ -511,7 +514,7 @@ export class GeminiChat {
  <td className="py-2">暂停等待确认</td>
  </tr>
  <tr className="border- border-edge">
- <td className="py-2"><code className="text-red-400">INTERRUPT</code></td>
+ <td className="py-2"><code className="text-heading">INTERRUPT</code></td>
  <td className="py-2">中断操作</td>
  </tr>
  <tr>
@@ -596,8 +599,8 @@ export class GeminiChat {
  <section>
  <h3 className="text-xl font-semibold text-heading mb-4">循环预防最佳实践</h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
- <h4 className="text-green-400 font-semibold mb-2">预防措施</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">预防措施</h4>
  <ul className="text-sm text-body space-y-1">
  <li>✓ 为工具调用添加重试限制</li>
  <li>✓ 在失败时提供替代方案</li>
@@ -733,9 +736,9 @@ Turn 4: Tool B -> abc123[1], count: 2
  <table className="w-full text-sm">
  <thead>
  <tr className="border- border-edge">
- <th className="text-left py-2 text-yellow-400">误判类型</th>
- <th className="text-left py-2 text-yellow-400">原因</th>
- <th className="text-left py-2 text-yellow-400">解决方案</th>
+ <th className="text-left py-2 text-heading">误判类型</th>
+ <th className="text-left py-2 text-heading">原因</th>
+ <th className="text-left py-2 text-heading">解决方案</th>
  </tr>
  </thead>
  <tbody className="text-body">
@@ -859,11 +862,11 @@ graph LR
  D -->|"超出窗口"| E[T+30min<br/>权重:0<br/>删除]
  end
 
- style A fill:#22c55e,color:#000
- style B fill:#84cc16,color:#000
- style C fill:#facc15,color:#000
- style D fill:#f97316,color:#000
- style E fill:#6b7280,color:#fff
+ style A fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style B fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style C fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style D fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style E fill:${getThemeColor("--mermaid-muted-fill", "#f4f4f2")},color:${getThemeColor("--color-text", "#1c1917")}
  `} />
  </Layer>
 
@@ -1329,9 +1332,9 @@ class LoopDetectionStateManager {
  <Layer title="问题1: 循环检测误触发" depth={2} defaultOpen={true}>
  <HighlightBox title="症状" color="red">
  <ul className="text-sm space-y-1">
- <li>• AI 执行合理的重复操作时被中断</li>
- <li>• 批量处理文件时频繁触发警告</li>
- <li>• 用户报告"AI 太早放弃了"</li>
+ <li>AI 执行合理的重复操作时被中断</li>
+ <li>批量处理文件时频繁触发警告</li>
+ <li>用户报告"AI 太早放弃了"</li>
  </ul>
  </HighlightBox>
 
@@ -1428,19 +1431,19 @@ console.log('False positive analysis:', analysis);
  <HighlightBox title="解决方案" color="green" className="mt-4">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
  <div>
- <h5 className="font-semibold text-green-400 mb-2">调整阈值</h5>
+ <h5 className="font-semibold text-heading mb-2">调整阈值</h5>
  <ul className="space-y-1 text-body">
- <li>• 提高工具调用阈值 (5 → 8)</li>
- <li>• 启用时间衰减</li>
- <li>• 添加上下文感知例外</li>
+ <li>提高工具调用阈值 (5 → 8)</li>
+ <li>启用时间衰减</li>
+ <li>添加上下文感知例外</li>
  </ul>
  </div>
  <div>
- <h5 className="font-semibold text-green-400 mb-2">白名单机制</h5>
+ <h5 className="font-semibold text-heading mb-2">白名单机制</h5>
  <ul className="space-y-1 text-body">
- <li>• 批处理任务临时禁用</li>
- <li>• 特定工具组合豁免</li>
- <li>• 用户确认后继续</li>
+ <li>批处理任务临时禁用</li>
+ <li>特定工具组合豁免</li>
+ <li>用户确认后继续</li>
  </ul>
  </div>
  </div>
@@ -1451,9 +1454,9 @@ console.log('False positive analysis:', analysis);
  <Layer title="问题2: 真实循环未被检测" depth={2} defaultOpen={true}>
  <HighlightBox title="症状" color="red">
  <ul className="text-sm space-y-1">
- <li>• AI 长时间执行但无进展</li>
- <li>• Token 消耗异常高</li>
- <li>• 对话轮数持续增长但任务未完成</li>
+ <li>AI 长时间执行但无进展</li>
+ <li>Token 消耗异常高</li>
+ <li>对话轮数持续增长但任务未完成</li>
  </ul>
  </HighlightBox>
 
@@ -1618,9 +1621,9 @@ Turn 5: Grep("error message", "src/") -> 无结果 (加词)
  <Layer title="问题3: LLM 智能检测结果不稳定" depth={2} defaultOpen={true}>
  <HighlightBox title="症状" color="red">
  <ul className="text-sm space-y-1">
- <li>• 同样的对话模式，检测结果不一致</li>
- <li>• LLM 检测的置信度波动大</li>
- <li>• 检测耗时长，影响响应速度</li>
+ <li>同样的对话模式，检测结果不一致</li>
+ <li>LLM 检测的置信度波动大</li>
+ <li>检测耗时长，影响响应速度</li>
  </ul>
  </HighlightBox>
 
@@ -2078,15 +2081,15 @@ class TwoStageHashDetector {
  </tr>
  <tr className="border- border-edge">
  <td className="py-2">两阶段哈希</td>
- <td className="text-right py-2 text-green-400">0.033ms</td>
- <td className="text-right py-2 text-green-400">0.18ms</td>
- <td className="text-right py-2 text-green-400">3.2MB</td>
+ <td className="text-right py-2 text-heading">0.033ms</td>
+ <td className="text-right py-2 text-heading">0.18ms</td>
+ <td className="text-right py-2 text-heading">3.2MB</td>
  </tr>
  <tr>
  <td className="py-2">提升比例</td>
- <td className="text-right py-2 text-green-400">4.5x</td>
- <td className="text-right py-2 text-green-400">2.5x</td>
- <td className="text-right py-2 text-green-400">60%↓</td>
+ <td className="text-right py-2 text-heading">4.5x</td>
+ <td className="text-right py-2 text-heading">2.5x</td>
+ <td className="text-right py-2 text-heading">60%↓</td>
  </tr>
  </tbody>
  </table>
@@ -2557,10 +2560,10 @@ graph TD
  AG -->|"检测率提升"| B
  end
 
- style B fill:#22c55e,color:#000
- style P fill:#3b82f6,color:#fff
- style A fill:#f59e0b,color:#000
- style AG fill:#ef4444,color:#fff
+ style B fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style P fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style A fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style AG fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
  `} />
  </Layer>
  </Layer>
@@ -2615,9 +2618,9 @@ flowchart TB
  CFG -->|"阈值配置"| LD
  TS -->|"工具调用信息"| LD
 
- style LD fill:#22d3ee,color:#000
- style GC fill:#a855f7,color:#fff
- style TL fill:#22c55e,color:#000
+ style LD fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style GC fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style TL fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
  `} />
  </Layer>
 
@@ -2876,11 +2879,11 @@ sequenceDiagram
  每次 AI 响应完成后触发，包含工具调用列表和文本内容
  </li>
  <li>
- <strong className="text-green-400">2. 检测 → 遥测：</strong>
+ <strong className="text-heading">2. 检测 → 遥测：</strong>
  所有检测事件都记录到遥测系统，用于分析和优化
  </li>
  <li>
- <strong className="text-yellow-400">3. 检测 → UI：</strong>
+ <strong className="text-heading">3. 检测 → UI：</strong>
  警告和确认请求通过 UI 层呈现给用户
  </li>
  <li>
@@ -3314,25 +3317,25 @@ loopDetectionService.setHashAlgorithm({
  <div>
  <h5 className="font-semibold text-heading mb-2">自定义检测器</h5>
  <ul className="text-body space-y-1">
- <li>• 添加新的循环检测逻辑</li>
- <li>• 设置检测优先级</li>
- <li>• 通过配置启用/禁用</li>
+ <li>添加新的循环检测逻辑</li>
+ <li>设置检测优先级</li>
+ <li>通过配置启用/禁用</li>
  </ul>
  </div>
  <div>
- <h5 className="font-semibold text-green-400 mb-2">自定义处理器</h5>
+ <h5 className="font-semibold text-heading mb-2">自定义处理器</h5>
  <ul className="text-body space-y-1">
- <li>• 针对特定循环类型</li>
- <li>• 自定义恢复策略</li>
- <li>• 智能重试逻辑</li>
+ <li>针对特定循环类型</li>
+ <li>自定义恢复策略</li>
+ <li>智能重试逻辑</li>
  </ul>
  </div>
  <div>
  <h5 className="font-semibold text-heading mb-2">哈希算法</h5>
  <ul className="text-body space-y-1">
- <li>• 替换默认哈希算法</li>
- <li>• 自定义归一化规则</li>
- <li>• 语义感知哈希</li>
+ <li>替换默认哈希算法</li>
+ <li>自定义归一化规则</li>
+ <li>语义感知哈希</li>
  </ul>
  </div>
  </div>
@@ -3372,7 +3375,7 @@ loopDetectionService.setHashAlgorithm({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">🔗 为什么用哈希而非精确匹配？</h4>
+ <h4 className="text-heading font-bold mb-2">🔗 为什么用哈希而非精确匹配？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：使用内容哈希（MD5）比较而非逐字符精确匹配。</p>
  <p><strong>原因</strong>：</p>
@@ -3400,7 +3403,7 @@ loopDetectionService.setHashAlgorithm({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-red-500 font-bold mb-2">🔄 为什么需要多层检测机制？</h4>
+ <h4 className="text-heading font-bold mb-2">🔄 为什么需要多层检测机制？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：工具调用 → 内容哈希 → LLM 智能检测，三层递进。</p>
  <p><strong>原因</strong>：</p>
@@ -3441,7 +3444,7 @@ loopDetectionService.setHashAlgorithm({
  <td className="py-2 px-3">AI 反复说相同的话、相似的建议</td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 font-mono text-amber-500">LLM 智能检测</td>
+ <td className="py-2 px-3 font-mono text-heading">LLM 智能检测</td>
  <td className="py-2 px-3">≥ 30 轮</td>
  <td className="py-2 px-3">对话历史语义</td>
  <td className="py-2 px-3">变换方法但持续失败、无进展的尝试</td>

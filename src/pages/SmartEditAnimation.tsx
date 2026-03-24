@@ -348,7 +348,7 @@ function StrategyPipelineVisualizer({
  strategies: Array<{ name: string; key: ReplacementStrategy; status: 'pending' | 'trying' | 'failed' | 'success' }>;
 }) {
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
  <div className="text-xs text-dim mb-3">策略降级链</div>
  <div className="flex items-center gap-2">
  {strategies.map((strategy, i) => (
@@ -356,18 +356,18 @@ function StrategyPipelineVisualizer({
  <div
  className={`px-3 py-2 rounded text-xs font-mono transition-all duration-300 ${
  strategy.status === 'trying'
- ? 'bg-amber-500/30 border border-amber-500 text-amber-400 animate-pulse'
+ ? 'bg-elevated border-l-2 border-l-edge-hover text-heading animate-pulse'
  : strategy.status === 'success'
- ? 'bg-green-500/30 border border-green-500 text-green-400'
+ ? 'bg-elevated border-l-2 border-l-edge-hover text-heading'
  : strategy.status === 'failed'
- ? 'bg-red-500/20 border border-red-500/50 text-red-400'
+ ? 'bg-elevated border-l-2 border-l-edge-hover/40 text-heading'
  : ' bg-surface border border-edge text-dim'
  }`}
  >
  {strategy.name}
  </div>
  {i < strategies.length - 1 && (
- <div className={`mx-1 text-lg ${strategy.status === 'failed' ? 'text-red-400' : 'text-dim'}`}>
+ <div className={`mx-1 text-lg ${strategy.status === 'failed' ? 'text-heading' : 'text-dim'}`}>
  →
  </div>
  )}
@@ -389,18 +389,18 @@ function DiffVisualizer({
  indentation: string;
 }) {
  return (
- <div className="mb-6 p-4 rounded-lg font-mono text-sm" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg font-mono text-sm" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
  <div className="text-xs text-dim mb-3">Diff 预览</div>
  <div className="space-y-1">
  <div className="flex">
- <span className="text-red-400 mr-2">-</span>
+ <span className="text-heading mr-2">-</span>
  <span className="text-dim">{indentation}</span>
- <span className="text-red-400 bg-red-500/10 px-1">{before}</span>
+ <span className="text-heading bg-elevated px-1">{before}</span>
  </div>
  <div className="flex">
- <span className="text-green-400 mr-2">+</span>
+ <span className="text-heading mr-2">+</span>
  <span className="text-dim">{indentation}</span>
- <span className="text-green-400 bg-green-500/10 px-1">{after}</span>
+ <span className="text-heading bg-elevated px-1">{after}</span>
  </div>
  </div>
  </div>
@@ -421,15 +421,15 @@ function MatchResultVisualizer({
  <div
  className={`mb-4 p-3 rounded-lg border ${
  status === 'success'
- ? 'bg-green-500/10 border-green-500/30'
- : 'bg-red-500/10 border-red-500/30'
+ ? 'bg-elevated border-edge/30'
+ : 'bg-elevated border-edge/30'
  }`}
  >
  <div className="flex items-center justify-between">
- <span className={`font-mono text-sm ${status === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+ <span className={`font-mono text-sm ${status === 'success' ? 'text-heading' : 'text-heading'}`}>
  {strategy}
  </span>
- <span className={`text-xs ${status === 'success' ? 'text-green-500' : 'text-red-500'}`}>
+ <span className={`text-xs ${status === 'success' ? 'text-heading' : 'text-heading'}`}>
  {status === 'success' ? '✓ 匹配成功' : '✗ 匹配失败'}
  </span>
  </div>
@@ -441,7 +441,7 @@ function MatchResultVisualizer({
 // 参数可视化
 function ParamsVisualizer({ params }: { params: Record<string, unknown> }) {
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
  <div className="text-xs text-dim mb-3">编辑参数</div>
  <div className="space-y-2 font-mono text-xs">
  {Object.entries(params).map(([key, value]) => (
@@ -553,9 +553,9 @@ export function SmartEditAnimation() {
  onClick={() => setIsPlaying(!isPlaying)}
  className="px-4 py-2 rounded text-sm font-medium transition-colors"
  style={{
- backgroundColor: isPlaying ? 'rgba(239, 68, 68, 0.2)' : 'rgba(34, 197, 94, 0.2)',
- color: isPlaying ? '#ef4444' : '#22c55e',
- border: `1px solid ${isPlaying ? '#ef4444' : '#22c55e'}`
+ backgroundColor: isPlaying ? 'var(--color-bg-elevated)' : 'var(--color-bg-elevated)',
+ color: isPlaying ? 'var(--color-danger)' : 'var(--color-success)',
+ border: `1px solid ${isPlaying ? 'var(--color-danger)' : 'var(--color-success)'}`
  }}
  >
  {isPlaying ? '⏸ 暂停' : '▶ 播放'}
@@ -564,7 +564,7 @@ export function SmartEditAnimation() {
  onClick={handlePrev}
  disabled={currentStepIndex === 0}
  className="px-3 py-2 rounded text-sm disabled:opacity-30"
- style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: '#fff' }}
+ style={{ backgroundColor: 'var(--color-bg-elevated)', color: 'var(--color-text)' }}
  >
  ← 上一步
  </button>
@@ -572,14 +572,14 @@ export function SmartEditAnimation() {
  onClick={handleNext}
  disabled={currentStepIndex === editStepSequence.length - 1}
  className="px-3 py-2 rounded text-sm disabled:opacity-30"
- style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: '#fff' }}
+ style={{ backgroundColor: 'var(--color-bg-elevated)', color: 'var(--color-text)' }}
  >
  下一步 →
  </button>
  <button
  onClick={handleReset}
  className="px-3 py-2 rounded text-sm"
- style={{ backgroundColor: 'rgba(255,255,255,0.05)', color: '#888' }}
+ style={{ backgroundColor: 'var(--color-bg-surface)', color: 'var(--color-text-muted)' }}
  >
  ↺ 重置
  </button>
@@ -596,7 +596,7 @@ export function SmartEditAnimation() {
  {/* 左侧：步骤信息 */}
  <div
  className="p-6 rounded-lg"
- style={{ backgroundColor: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)' }}
+ style={{ backgroundColor: 'var(--color-bg-elevated)', border: '1px solid var(--color-border)' }}
  >
  {/* 步骤标题 */}
  <div className="flex items-center justify-between mb-4">
@@ -643,19 +643,19 @@ export function SmartEditAnimation() {
 
  {/* 执行统计 */}
  {step.phase === 'complete' && step.visualData && (
- <div className="mt-4 p-4 rounded-lg bg-green-500/10 border border-green-500/30">
- <div className="text-green-400 font-medium mb-2">编辑完成</div>
+ <div className="mt-4 p-4 rounded-lg bg-elevated border-l-2 border-l-edge-hover/30">
+ <div className="text-heading font-medium mb-2">编辑完成</div>
  <div className="grid grid-cols-3 gap-4 text-center">
  <div>
  <div className="text-2xl font-bold text-heading">{String(step.visualData.totalStrategiesAttempted)}</div>
  <div className="text-xs text-body">尝试策略数</div>
  </div>
  <div>
- <div className="text-2xl font-bold text-green-400">{String(step.visualData.successfulStrategy)}</div>
+ <div className="text-2xl font-bold text-heading">{String(step.visualData.successfulStrategy)}</div>
  <div className="text-xs text-body">成功策略</div>
  </div>
  <div>
- <div className="text-2xl font-bold text-amber-400">{String(step.visualData.executionTime)}</div>
+ <div className="text-2xl font-bold text-heading">{String(step.visualData.executionTime)}</div>
  <div className="text-xs text-body">执行时间</div>
  </div>
  </div>
@@ -666,7 +666,7 @@ export function SmartEditAnimation() {
  {/* 右侧：代码片段 */}
  <div
  className="p-6 rounded-lg"
- style={{ backgroundColor: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.1)' }}
+ style={{ backgroundColor: 'var(--color-bg-elevated)', border: '1px solid var(--color-border)' }}
  >
  <h3 className="text-sm font-medium text-body mb-4">源码实现</h3>
  <JsonBlock code={step.codeSnippet} />

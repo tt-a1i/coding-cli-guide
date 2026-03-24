@@ -10,6 +10,9 @@ import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { Layer } from '../components/Layer';
 import { HighlightBox } from '../components/HighlightBox';
+import { getThemeColor } from '../utils/theme';
+
+
 
 export function ZedIntegration() {
  const [activeTab, setActiveTab] = useState<'overview' | 'protocol' | 'classes' | 'permission' | 'fs'>('overview');
@@ -164,7 +167,7 @@ sequenceDiagram
  <div className="overflow-x-auto mb-6">
  <table className="w-full border-collapse">
  <thead>
- <tr className="border-b border-white/10">
+ <tr className="border-b border-edge/40">
  <th className="text-left p-3 text-body">类型</th>
  <th className="text-left p-3 text-body">用途</th>
  <th className="text-left p-3 text-body">负载</th>
@@ -178,7 +181,7 @@ sequenceDiagram
  { type: 'tool_call_update', desc: '工具执行结果', payload: 'ToolCall (status: completed/failed)' },
  { type: 'plan', desc: '计划条目列表', payload: 'PlanEntry[]' },
  ].map(row => (
- <tr key={row.type} className="border-b border-white/5">
+ <tr key={row.type} className="border-b border-edge/30">
  <td className="p-3">
  <code className="text-heading">{row.type}</code>
  </td>
@@ -367,9 +370,9 @@ flowchart LR
  RS --> |cancel| CN[取消]
  end
 
- style TC fill:#4a5568
- style UI fill:#553c9a
- style EX fill:#276749
+ style TC fill:${getThemeColor("--mermaid-muted-fill", "#f4f4f2")}
+ style UI fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")}
+ style EX fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")}
 `} />
 
  <h3>权限选项类型</h3>
@@ -423,7 +426,7 @@ flowchart LR
  { code: -32000, msg: 'Auth required' },
  ].map(err => (
  <div key={err.code} className="bg-elevated p-3 rounded-md flex justify-between items-center">
- <code className="text-red-500">{err.code}</code>
+ <code className="text-heading">{err.code}</code>
  <span className="text-body">{err.msg}</span>
  </div>
  ))}
@@ -510,9 +513,9 @@ class AcpFileSystemService implements FileSystemService {
  {[
  { type: 'text', desc: '纯文本内容', color: 'var(--color-text)' },
  { type: 'image', desc: 'Base64 图像', color: 'var(--color-text)' },
- { type: 'audio', desc: 'Base64 音频', color: '#f59e0b' },
+ { type: 'audio', desc: 'Base64 音频', color: 'var(--color-warning)' },
  { type: 'resource_link', desc: '文件 URI 引用', color: 'var(--color-text)' },
- { type: 'resource', desc: '嵌入的文件内容', color: '#f59e0b' },
+ { type: 'resource', desc: '嵌入的文件内容', color: 'var(--color-warning)' },
  ].map(item => (
  <div key={item.type} className="bg-elevated px-3 py-2 rounded-md">
  <code style={{ color: item.color }}>{item.type}</code>

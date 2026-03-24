@@ -3,6 +3,9 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 export function NonInteractiveMode() {
  const relatedPages: RelatedPage[] = [
@@ -32,7 +35,7 @@ flowchart TD
 
  start --> parse_args
  parse_args --> check_stdin
- check_stdin -->|No (piped)| read_stdin
+ check_stdin -->|"No (piped)"| read_stdin
  check_stdin -->|Yes| process_at
  read_stdin --> process_at
  process_at --> run_cli
@@ -45,35 +48,35 @@ flowchart TD
  has_tools -->|No| output
  output --> exit
 
- style start fill:#22d3ee,color:#000
- style exit fill:#22c55e,color:#000
- style check_stdin fill:#f59e0b,color:#000
- style has_tools fill:#f59e0b,color:#000
+ style start fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style exit fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style check_stdin fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style has_tools fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
 `;
 
  const cliOptionsCode = `// packages/cli/src/config/config.ts - CliArgs (节选)
 
 export interface CliArgs {
- // prompt 输入（positional prompt 会被路由到 --prompt / --prompt-interactive）
- query: string | undefined; // positional prompt (query..)
- prompt: string | undefined; // -p/--prompt（deprecated）
- promptInteractive: string | undefined; // -i/--prompt-interactive（先执行后进入交互 UI）
+  // prompt 输入（positional prompt 会被路由到 --prompt / --prompt-interactive）
+  query: string | undefined; // positional prompt (query..)
+  prompt: string | undefined; // -p/--prompt（deprecated）
+  promptInteractive: string | undefined; // -i/--prompt-interactive（先执行后进入交互 UI）
 
- // 输出
- outputFormat: string | undefined; // -o/--output-format: text|json|stream-json
+  // 输出
+  outputFormat: string | undefined; // -o/--output-format: text|json|stream-json
 
- // 审批与自动化
- approvalMode: string | undefined; // --approval-mode: default|auto_edit|yolo
- yolo: boolean | undefined; // -y/--yolo（= approval-mode yolo）
- allowedTools: string[] | undefined; // --allowed-tools（也会写入 tools.allowed）
- allowedMcpServerNames: string[] | undefined; // --allowed-mcp-server-names
+  // 审批与自动化
+  approvalMode: string | undefined; // --approval-mode: default|auto_edit|yolo
+  yolo: boolean | undefined; // -y/--yolo（= approval-mode yolo）
+  allowedTools: string[] | undefined; // --allowed-tools（也会写入 tools.allowed）
+  allowedMcpServerNames: string[] | undefined; // --allowed-mcp-server-names
 
- // 运行环境
- includeDirectories: string[] | undefined; // --include-directories
- extensions: string[] | undefined; // -e/--extensions
- resume: string | "latest" | undefined; // -r/--resume
- sandbox: boolean | string | undefined; // -s/--sandbox
- debug: boolean | undefined; // -d/--debug
+  // 运行环境
+  includeDirectories: string[] | undefined; // --include-directories
+  extensions: string[] | undefined; // -e/--extensions
+  resume: string | "latest" | undefined; // -r/--resume
+  sandbox: boolean | string | undefined; // -s/--sandbox
+  debug: boolean | undefined; // -d/--debug
 }`;
 
  const usageExamplesCode = `# 非交互模式使用示例
@@ -115,64 +118,64 @@ gemini "运行测试" --sandbox
 
 # 管道链式调用
 gemini "提取函数列表" @src/*.ts --output-format json | \\
- jq '.functions[]' | \\
- gemini "为每个函数生成测试"`;
+  jq '.functions[]' | \\
+  gemini "为每个函数生成测试"`;
 
  const implementationCode = `// packages/cli/src/gemini.tsx - 进入非交互模式（节选）
 let input = config.getQuestion();
 
 // stdin 被 pipe 进来时：把 stdin 内容前置到 input
 if (!process.stdin.isTTY) {
- const stdinData = await readStdin();
- if (stdinData) {
- input = stdinData + \"\\n\\n\" + input;
- }
+  const stdinData = await readStdin();
+  if (stdinData) {
+  input = stdinData + \"\\n\\n\" + input;
+  }
 }
 
 if (!input) {
- process.exit(ExitCodes.FATAL_INPUT_ERROR);
+  process.exit(ExitCodes.FATAL_INPUT_ERROR);
 }
 
 const prompt_id = Math.random().toString(16).slice(2);
 
 await runNonInteractive({
- config,
- settings,
- input,
- prompt_id,
- hasDeprecatedPromptArg,
- resumedSessionData,
+  config,
+  settings,
+  input,
+  prompt_id,
+  hasDeprecatedPromptArg,
+  resumedSessionData,
 });`;
 
  const outputHandlingCode = `// packages/core/src/output/types.ts
 export enum OutputFormat {
- TEXT = 'text',
- JSON = 'json',
- STREAM_JSON = 'stream-json',
+  TEXT = 'text',
+  JSON = 'json',
+  STREAM_JSON = 'stream-json',
 }
 
 export enum JsonStreamEventType {
- INIT = 'init',
- MESSAGE = 'message',
- TOOL_USE = 'tool_use',
- TOOL_RESULT = 'tool_result',
- ERROR = 'error',
- RESULT = 'result',
+  INIT = 'init',
+  MESSAGE = 'message',
+  TOOL_USE = 'tool_use',
+  TOOL_RESULT = 'tool_result',
+  ERROR = 'error',
+  RESULT = 'result',
 }
 
 // packages/cli/src/nonInteractiveCli.ts - 输出分支（节选）
 const streamFormatter =
- config.getOutputFormat() === OutputFormat.STREAM_JSON
- ? new StreamJsonFormatter()
- : null;
+  config.getOutputFormat() === OutputFormat.STREAM_JSON
+  ? new StreamJsonFormatter()
+  : null;
 
 // JSON 模式：累积 responseText，最后一次性输出结构化 JSON
 if (config.getOutputFormat() === OutputFormat.JSON) {
- const formatter = new JsonFormatter();
- const stats = uiTelemetryService.getMetrics();
- textOutput.write(
- formatter.format(config.getSessionId(), responseText, stats),
- );
+  const formatter = new JsonFormatter();
+  const stats = uiTelemetryService.getMetrics();
+  textOutput.write(
+  formatter.format(config.getSessionId(), responseText, stats),
+  );
 }`;
 
  const multiTurnCode = `// packages/cli/src/nonInteractiveCli.ts - Continuation Tool Loop（节选）
@@ -180,59 +183,59 @@ let currentMessages: Content[] = [{ role: 'user', parts: query }];
 let turnCount = 0;
 
 while (true) {
- turnCount++;
+  turnCount++;
 
- // 安全阈值：防止无限 tool loop（由配置控制）
- if (
- config.getMaxSessionTurns() >= 0 &&
- turnCount > config.getMaxSessionTurns()
- ) {
- handleMaxTurnsExceededError(config);
- }
+  // 安全阈值：防止无限 tool loop（由配置控制）
+  if (
+  config.getMaxSessionTurns() >= 0 &&
+  turnCount > config.getMaxSessionTurns()
+  ) {
+  handleMaxTurnsExceededError(config);
+  }
 
- const toolCallRequests: ToolCallRequestInfo[] = [];
+  const toolCallRequests: ToolCallRequestInfo[] = [];
 
- const responseStream = geminiClient.sendMessageStream(
- currentMessages[0]?.parts || [],
- abortController.signal,
- prompt_id,
- );
+  const responseStream = geminiClient.sendMessageStream(
+  currentMessages[0]?.parts || [],
+  abortController.signal,
+  prompt_id,
+  );
 
- for await (const event of responseStream) {
- if (event.type === GeminiEventType.ToolCallRequest) {
- toolCallRequests.push(event.value);
- }
- // Content / LoopDetected / MaxSessionTurns / Error ...
- }
+  for await (const event of responseStream) {
+  if (event.type === GeminiEventType.ToolCallRequest) {
+  toolCallRequests.push(event.value);
+  }
+  // Content / LoopDetected / MaxSessionTurns / Error ...
+  }
 
- if (toolCallRequests.length === 0) {
- break; // 无工具 → 生成结束
- }
+  if (toolCallRequests.length === 0) {
+  break; // 无工具 → 生成结束
+  }
 
- const toolResponseParts: Part[] = [];
- for (const requestInfo of toolCallRequests) {
- const completedToolCall = await executeToolCall(
- config,
- requestInfo,
- abortController.signal,
- );
+  const toolResponseParts: Part[] = [];
+  for (const requestInfo of toolCallRequests) {
+  const completedToolCall = await executeToolCall(
+  config,
+  requestInfo,
+  abortController.signal,
+  );
 
- if (completedToolCall.response.responseParts) {
- toolResponseParts.push(...completedToolCall.response.responseParts);
- }
- }
+  if (completedToolCall.response.responseParts) {
+  toolResponseParts.push(...completedToolCall.response.responseParts);
+  }
+  }
 
- // 把工具结果作为下一轮 user message（Continuation）
- currentMessages = [{ role: 'user', parts: toolResponseParts }];
+  // 把工具结果作为下一轮 user message（Continuation）
+  currentMessages = [{ role: 'user', parts: toolResponseParts }];
 }`;
 
  const exitCodesCode = `// packages/core/src/utils/exitCodes.ts
 export const ExitCodes = {
- SUCCESS: 0,
- FATAL_AUTHENTICATION_ERROR: 41,
- FATAL_INPUT_ERROR: 42,
- FATAL_CONFIG_ERROR: 52,
- FATAL_CANCELLATION_ERROR: 130,
+  SUCCESS: 0,
+  FATAL_AUTHENTICATION_ERROR: 41,
+  FATAL_INPUT_ERROR: 42,
+  FATAL_CONFIG_ERROR: 52,
+  FATAL_CANCELLATION_ERROR: 130,
 } as const;
 
 // 在脚本/CI 中使用退出码
@@ -245,41 +248,41 @@ export const ExitCodes = {
 name: Code Review
 on: [pull_request]
 jobs:
- review:
- runs-on: ubuntu-latest
- steps:
- - uses: actions/checkout@v4
+  review:
+  runs-on: ubuntu-latest
+  steps:
+  - uses: actions/checkout@v4
 
- - name: AI Code Review (JSON)
- run: |
- git diff origin/main...HEAD | \\
- gemini "审查这些代码更改，指出潜在问题" \\
- --output-format json > review.json
+  - name: AI Code Review (JSON)
+  run: |
+  git diff origin/main...HEAD | \\
+  gemini "审查这些代码更改，指出潜在问题" \\
+  --output-format json > review.json
 
- - name: Check Review Result
- run: |
- jq -e '.error? | not' review.json >/dev/null
- # 根据你的 schema 自定义判定逻辑（例如 issues 是否为空）
+  - name: Check Review Result
+  run: |
+  jq -e '.error? | not' review.json >/dev/null
+  # 根据你的 schema 自定义判定逻辑（例如 issues 是否为空）
 
 # GitLab CI
 code-review:
- script:
- - |
- git diff origin/main...HEAD | \\
- gemini "总结变更并指出风险点" --output-format text
+  script:
+  - |
+  git diff origin/main...HEAD | \\
+  gemini "总结变更并指出风险点" --output-format text
 
 # Jenkins Pipeline（写入文件用重定向）
 pipeline {
- stages {
- stage('AI Analysis') {
- steps {
- sh '''
- cat coverage/lcov.info | \\
- gemini "分析测试覆盖率并建议改进" > reports/ai-analysis.md
- '''
- }
- }
- }
+  stages {
+  stage('AI Analysis') {
+  steps {
+  sh '''
+  cat coverage/lcov.info | \\
+  gemini "分析测试覆盖率并建议改进" > reports/ai-analysis.md
+  '''
+  }
+  }
+  }
 }
 
 # 本地 Git Hook (pre-commit)
@@ -288,7 +291,7 @@ pipeline {
 
 staged_files=$(git diff --cached --name-only --diff-filter=ACM)
 if [ -n "$staged_files" ]; then
- printf "%s\\n" "$staged_files" | gemini "快速检查这些文件列表，并提示潜在问题"
+  printf "%s\\n" "$staged_files" | gemini "快速检查这些文件列表，并提示潜在问题"
 fi`;
 
  return (
@@ -454,15 +457,15 @@ fi`;
  <table className="w-full">
  <tbody className="text-body">
  <tr>
- <td className="py-1"><code className="text-green-400">0</code></td>
+ <td className="py-1"><code className="text-heading">0</code></td>
  <td className="py-1">成功</td>
  </tr>
  <tr>
- <td className="py-1"><code className="text-red-400">41</code></td>
+ <td className="py-1"><code className="text-heading">41</code></td>
  <td className="py-1">认证错误</td>
  </tr>
  <tr>
- <td className="py-1"><code className="text-red-400">42</code></td>
+ <td className="py-1"><code className="text-heading">42</code></td>
  <td className="py-1">输入错误</td>
  </tr>
  </tbody>
@@ -472,11 +475,11 @@ fi`;
  <table className="w-full">
  <tbody className="text-body">
  <tr>
- <td className="py-1"><code className="text-red-400">52</code></td>
+ <td className="py-1"><code className="text-heading">52</code></td>
  <td className="py-1">配置错误</td>
  </tr>
  <tr>
- <td className="py-1"><code className="text-yellow-400">130</code></td>
+ <td className="py-1"><code className="text-heading">130</code></td>
  <td className="py-1">取消 (Ctrl+C)</td>
  </tr>
  </tbody>
@@ -534,8 +537,8 @@ fi`;
  <section>
  <h3 className="text-xl font-semibold text-heading mb-4">最佳实践</h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
- <h4 className="text-green-400 font-semibold mb-2">推荐做法</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">推荐做法</h4>
  <ul className="text-sm text-body space-y-1">
  <li>✓ 用 <code>--output-format json</code> / <code>--output-format stream-json</code> 做自动化消费</li>
  <li>✓ 需要自动改动时优先用 <code>--approval-mode auto_edit</code>（而非全量 yolo）</li>
@@ -544,8 +547,8 @@ fi`;
  <li>✓ 敏感操作配合 <code>--sandbox</code> 隔离执行</li>
  </ul>
  </div>
- <div className="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-4">
- <h4 className="text-yellow-400 font-semibold mb-2">注意事项</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">注意事项</h4>
  <ul className="text-sm text-body space-y-1">
  <li>⚠ 确保 API 密钥在环境变量中</li>
  <li>⚠ 大文件通过 <code>@path</code> 传递</li>

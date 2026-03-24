@@ -4,6 +4,9 @@ import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
  return (
@@ -46,7 +49,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">运行模式</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-[var(--color-warning)]">7</div>
+ <div className="text-2xl font-bold text-heading">7</div>
  <div className="text-xs text-dim">关键入口</div>
  </div>
  </div>
@@ -63,7 +66,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  loadSettings
  </span>
  <span className="text-dim">→</span>
- <span className="px-3 py-1.5 bg-[var(--color-warning-soft)] text-[var(--color-warning)] rounded-lg border border-[var(--color-warning)]">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover">
  沙箱检测
  </span>
  <span className="text-dim">→</span>
@@ -71,7 +74,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  initializeApp
  </span>
  <span className="text-dim">→</span>
- <span className="px-3 py-1.5 bg-[var(--color-success-soft)] text-[var(--color-success)] rounded-lg border border-[var(--color-success)]">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover">
  模式分流
  </span>
  </div>
@@ -81,11 +84,11 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div>
  <h4 className="text-sm font-semibold text-dim mb-2">配置优先级（从高到低）</h4>
  <div className="flex items-center gap-2 flex-wrap text-xs">
- <span className="px-2 py-1 bg-[var(--color-danger-soft)] text-[var(--color-danger)] rounded border border-[var(--color-danger)]">CLI 参数</span>
+ <span className="px-2 py-1 bg-elevated text-heading rounded border-l-2 border-l-edge-hover">CLI 参数</span>
  <span className="text-dim">&gt;</span>
- <span className="px-2 py-1 bg-[var(--color-warning-soft)] text-[var(--color-warning)] rounded border border-[var(--color-warning)]">/etc/gemini-cli/</span>
+ <span className="px-2 py-1 bg-elevated text-heading rounded border-l-2 border-l-edge-hover">/etc/gemini-cli/</span>
  <span className="text-dim">&gt;</span>
- <span className="px-2 py-1 bg-[var(--color-success-soft)] text-[var(--color-success)] rounded border border-[var(--color-success)]">.gemini/</span>
+ <span className="px-2 py-1 bg-elevated text-heading rounded border-l-2 border-l-edge-hover">.gemini/</span>
  <span className="text-dim">&gt;</span>
 <span className="px-2 py-1 bg-elevated/20 text-heading rounded border border-edge">~/.gemini/</span>
   <span className="text-dim">&gt;</span>
@@ -137,22 +140,22 @@ export function StartupChain() {
  main_entry --> load_settings
  load_settings --> parse_args
  parse_args --> sandbox_check
- sandbox_check -->|Yes + 未在沙箱内| sandbox_launch
+ sandbox_check -->|"Yes + 未在沙箱内"| sandbox_launch
  sandbox_launch --> sandbox_exit
- sandbox_check -->|No 或已在沙箱内| load_config
+ sandbox_check -->|"No 或已在沙箱内"| load_config
  load_config --> init_app
  init_app --> mode_check
- mode_check -->|TTY + 无 query| interactive
- mode_check -->|--prompt 或 stdin| non_interactive
+ mode_check -->|"TTY + 无 query"| interactive
+ mode_check -->|"--prompt 或 stdin"| non_interactive
  mode_check -->|--experimental-acp| zed
 
- style start fill:#22d3ee,color:#000
- style interactive fill:#22c55e,color:#000
- style non_interactive fill:#3b82f6,color:#fff
- style zed fill:#a855f7,color:#fff
- style sandbox_exit fill:#ef4444,color:#fff
- style sandbox_check fill:#f59e0b,color:#000
- style mode_check fill:#f59e0b,color:#000`;
+ style start fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style interactive fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style non_interactive fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style zed fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style sandbox_exit fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style sandbox_check fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style mode_check fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  const sandboxDetectionDiagram = `flowchart TD
  start([沙箱检测开始])
@@ -185,12 +188,12 @@ export function StartupChain() {
  check_settings -->|配置| use_docker
  check_settings -->|无配置| no_sandbox
 
- style start fill:#22d3ee,color:#000
- style already_in fill:#22c55e,color:#000
- style no_sandbox fill:#6b7280,color:#fff
- style use_seatbelt fill:#3b82f6,color:#fff
- style use_docker fill:#10b981,color:#000
- style use_podman fill:#8b5cf6,color:#fff`;
+ style start fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style already_in fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style no_sandbox fill:${getThemeColor("--mermaid-muted-fill", "#f4f4f2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style use_seatbelt fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style use_docker fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style use_podman fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  const configMergeSequence = `sequenceDiagram
  participant Main as main()
@@ -260,18 +263,18 @@ export function StartupChain() {
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="触发条件" icon="🚀" variant="blue">
  <ul className="text-sm space-y-1">
- <li>• 用户在终端执行 <code>gemini</code> 命令</li>
- <li>• 可选的 CLI 参数（--model, --prompt, --sandbox 等）</li>
- <li>• 可选的 stdin 输入（管道或重定向）</li>
+ <li>用户在终端执行 <code>gemini</code> 命令</li>
+ <li>可选的 CLI 参数（--model, --prompt, --sandbox 等）</li>
+ <li>可选的 stdin 输入（管道或重定向）</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="环境依赖" icon="🌍" variant="green">
  <ul className="text-sm space-y-1">
- <li>• Node.js &gt;= 20 运行时</li>
- <li>• 配置文件（可选）：~/.gemini/settings.json</li>
- <li>• 环境变量（可选）：GEMINI_API_KEY / GEMINI_MODEL / GEMINI_SANDBOX / NO_BROWSER 等</li>
- <li>• Git 可用（如启用 checkpointing）</li>
+ <li>Node.js &gt;= 20 运行时</li>
+ <li>配置文件（可选）：~/.gemini/settings.json</li>
+ <li>环境变量（可选）：GEMINI_API_KEY / GEMINI_MODEL / GEMINI_SANDBOX / NO_BROWSER 等</li>
+ <li>Git 可用（如启用 checkpointing）</li>
  </ul>
  </HighlightBox>
  </div>
@@ -305,14 +308,14 @@ export function StartupChain() {
  {/* 输出 */}
  <Layer title="输出" icon="📤">
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
- <div className="bg-[var(--color-success-soft)] border border-[var(--color-success)] rounded-lg p-4">
- <h4 className="text-[var(--color-success)] font-bold mb-2">Interactive Mode</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-bold mb-2">Interactive Mode</h4>
  <p className="text-sm text-body mb-2">React/Ink 渲染的终端 UI</p>
  <ul className="text-xs space-y-1 text-body">
- <li>• 完整的对话界面</li>
- <li>• 实时工具执行反馈</li>
- <li>• 键盘交互支持</li>
- <li>• Kitty Protocol 支持</li>
+ <li>完整的对话界面</li>
+ <li>实时工具执行反馈</li>
+ <li>键盘交互支持</li>
+ <li>Kitty Protocol 支持</li>
  </ul>
  </div>
 
@@ -320,10 +323,10 @@ export function StartupChain() {
  <h4 className="text-heading font-bold mb-2">Non-Interactive Mode</h4>
  <p className="text-sm text-body mb-2">单次查询执行后退出</p>
  <ul className="text-xs space-y-1 text-body">
- <li>• 执行单个 prompt</li>
- <li>• 输出结果到 stdout</li>
- <li>• 适合脚本集成</li>
- <li>• 自动退出</li>
+ <li>执行单个 prompt</li>
+ <li>输出结果到 stdout</li>
+ <li>适合脚本集成</li>
+ <li>自动退出</li>
  </ul>
  </div>
 
@@ -331,9 +334,9 @@ export function StartupChain() {
  <h4 className="text-heading font-bold mb-2">Zed Integration</h4>
  <p className="text-sm text-body mb-2">ACP 协议通信</p>
  <ul className="text-xs space-y-1 text-body">
- <li>• IDE 深度集成</li>
- <li>• 特殊通信协议</li>
- <li>• 实时编辑器交互</li>
+ <li>IDE 深度集成</li>
+ <li>特殊通信协议</li>
+ <li>实时编辑器交互</li>
  </ul>
  </div>
  </div>
@@ -359,23 +362,23 @@ export function StartupChain() {
  <h4 className="text-heading font-bold mb-3">核心启动文件</h4>
  <div className="text-xs font-mono space-y-2 text-body">
  <div>
- <code className="text-[var(--color-success)]">packages/cli/index.ts:14</code>
+ <code className="text-heading">packages/cli/index.ts:14</code>
  <p className="text-dim ml-4">main() 全局入口 + 错误处理</p>
  </div>
  <div>
- <code className="text-[var(--color-success)]">packages/cli/src/gemini.tsx:131</code>
+ <code className="text-heading">packages/cli/src/gemini.tsx:131</code>
  <p className="text-dim ml-4">主启动逻辑 + 模式分流</p>
  </div>
  <div>
- <code className="text-[var(--color-success)]">packages/cli/src/config/settings.ts:583</code>
+ <code className="text-heading">packages/cli/src/config/settings.ts:583</code>
  <p className="text-dim ml-4">loadSettings() 配置加载</p>
  </div>
  <div>
- <code className="text-[var(--color-success)]">packages/cli/src/config/config.ts:130</code>
+ <code className="text-heading">packages/cli/src/config/config.ts:130</code>
  <p className="text-dim ml-4">parseArguments() 参数解析</p>
  </div>
  <div>
- <code className="text-[var(--color-success)]">packages/cli/src/config/config.ts:522</code>
+ <code className="text-heading">packages/cli/src/config/config.ts:522</code>
  <p className="text-dim ml-4">loadCliConfig() 完整初始化</p>
  </div>
  </div>
@@ -661,22 +664,22 @@ main().catch((error) => {
  </table>
  </div>
 
- <div className="mt-3 bg-[var(--color-warning-soft)] border border-[var(--color-warning)] rounded-lg p-3 text-sm text-body">
- <strong className="text-amber-400">Fork-only：</strong>
+ <div className="mt-3 bg-elevated border-l-2 border-l-edge-hover rounded-lg p-3 text-sm text-body">
+ <strong className="text-heading">Fork-only：</strong>
  某些衍生实现会加入 <code>OPENAI_API_KEY</code> / <code>OPENAI_BASE_URL</code> 等 OpenAI 兼容环境变量；上游 <code>gemini-cli</code> 不包含该认证分支。
  </div>
 
  <h4 className="text-lg font-semibold text-heading mt-6">配置文件路径</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-base rounded-lg p-4 border border-edge">
- <h5 className="font-semibold text-[var(--color-success)] mb-2">系统级配置</h5>
+ <h5 className="font-semibold text-heading mb-2">系统级配置</h5>
  <ul className="text-sm space-y-1 text-body">
  <li>
- <code className="text-[var(--color-warning)]">/etc/gemini-cli/settings.json</code>
+ <code className="text-heading">/etc/gemini-cli/settings.json</code>
  <span className="text-dim ml-2">(最高优先级)</span>
  </li>
  <li>
- <code className="text-[var(--color-warning)]">system-defaults.json</code>
+ <code className="text-heading">system-defaults.json</code>
  <span className="text-dim ml-2">(同目录, 最低优先级)</span>
  </li>
  </ul>
@@ -690,7 +693,7 @@ main().catch((error) => {
  <span className="text-dim ml-2">(用户)</span>
  </li>
  <li>
- <code className="text-[var(--color-success)]">.gemini/settings.json</code>
+ <code className="text-heading">.gemini/settings.json</code>
  <span className="text-dim ml-2">(项目, 需信任)</span>
  </li>
  </ul>
@@ -774,10 +777,10 @@ render(<AppWrapper />, {
  <div className="bg-base rounded-lg p-4">
  <h5 className="text-heading font-semibold mb-2">Context Providers</h5>
  <ul className="text-sm space-y-1 text-body">
- <li><code className="text-[var(--color-success)]">SettingsContext</code> - 全局设置共享</li>
- <li><code className="text-[var(--color-success)]">KeypressProvider</code> - 键盘输入处理</li>
- <li><code className="text-[var(--color-success)]">SessionStatsProvider</code> - 会话统计</li>
- <li><code className="text-[var(--color-success)]">VimModeProvider</code> - Vim 模式支持</li>
+ <li><code className="text-heading">SettingsContext</code> - 全局设置共享</li>
+ <li><code className="text-heading">KeypressProvider</code> - 键盘输入处理</li>
+ <li><code className="text-heading">SessionStatsProvider</code> - 会话统计</li>
+ <li><code className="text-heading">VimModeProvider</code> - Vim 模式支持</li>
  </ul>
  </div>
 
@@ -808,9 +811,9 @@ render(<AppWrapper />, {
  设置文件包含<strong>默认值和环境变量</strong>，参数解析需要这些作为 fallback。
  </p>
  <ul className="text-xs text-dim space-y-1">
- <li>• <strong>原因</strong>: 参数优先级高于配置文件</li>
- <li>• <strong>好处</strong>: 统一的配置覆盖逻辑</li>
- <li>• <strong>权衡</strong>: 两步加载略增复杂度</li>
+ <li><strong>原因</strong>: 参数优先级高于配置文件</li>
+ <li><strong>好处</strong>: 统一的配置覆盖逻辑</li>
+ <li><strong>权衡</strong>: 两步加载略增复杂度</li>
  </ul>
  </div>
 
@@ -820,21 +823,21 @@ render(<AppWrapper />, {
  沙箱内运行的是<strong>独立的 CLI 实例</strong>，父进程无需保持。
  </p>
  <ul className="text-xs text-dim space-y-1">
- <li>• <strong>原因</strong>: 沙箱是完整隔离环境</li>
- <li>• <strong>好处</strong>: 避免资源浪费和信号传递问题</li>
- <li>• <strong>权衡</strong>: 无法从外部直接控制沙箱</li>
+ <li><strong>原因</strong>: 沙箱是完整隔离环境</li>
+ <li><strong>好处</strong>: 避免资源浪费和信号传递问题</li>
+ <li><strong>权衡</strong>: 无法从外部直接控制沙箱</li>
  </ul>
  </div>
 
  <div className="bg-surface p-4 rounded-lg border border-edge">
- <h4 className="text-[var(--color-warning)] font-bold mb-2">3. 为什么使用 React/Ink 而非传统 readline？</h4>
+ <h4 className="text-heading font-bold mb-2">3. 为什么使用 React/Ink 而非传统 readline？</h4>
  <p className="text-sm text-body mb-2">
  Ink 提供<strong>声明式 UI 和状态管理</strong>，适合复杂交互界面。
  </p>
  <ul className="text-xs text-dim space-y-1">
- <li>• <strong>原因</strong>: CLI 需要实时更新、多区域显示</li>
- <li>• <strong>好处</strong>: 组件化、可复用、易测试</li>
- <li>• <strong>权衡</strong>: 引入 React 运行时开销</li>
+ <li><strong>原因</strong>: CLI 需要实时更新、多区域显示</li>
+ <li><strong>好处</strong>: 组件化、可复用、易测试</li>
+ <li><strong>权衡</strong>: 引入 React 运行时开销</li>
  </ul>
  </div>
 
@@ -844,9 +847,9 @@ render(<AppWrapper />, {
  两种模式的<strong>输入输出特性完全不同</strong>。
  </p>
  <ul className="text-xs text-dim space-y-1">
- <li>• <strong>原因</strong>: 交互模式需要 UI，非交互模式需要管道</li>
- <li>• <strong>好处</strong>: 各自优化，不互相干扰</li>
- <li>• <strong>权衡</strong>: 代码路径分叉</li>
+ <li><strong>原因</strong>: 交互模式需要 UI，非交互模式需要管道</li>
+ <li><strong>好处</strong>: 各自优化，不互相干扰</li>
+ <li><strong>权衡</strong>: 代码路径分叉</li>
  </ul>
  </div>
 
@@ -856,9 +859,9 @@ render(<AppWrapper />, {
  React Context 提供<strong>跨组件状态共享</strong>，避免 prop drilling。
  </p>
  <ul className="text-xs text-dim space-y-1">
- <li>• <strong>原因</strong>: 设置、会话状态需要全局访问</li>
- <li>• <strong>好处</strong>: 解耦组件依赖，支持动态更新</li>
- <li>• <strong>权衡</strong>: Provider 嵌套层次深</li>
+ <li><strong>原因</strong>: 设置、会话状态需要全局访问</li>
+ <li><strong>好处</strong>: 解耦组件依赖，支持动态更新</li>
+ <li><strong>权衡</strong>: Provider 嵌套层次深</li>
  </ul>
  </div>
  </div>
@@ -890,7 +893,7 @@ render(<AppWrapper />, {
  <td className="py-2 px-3">显示帮助并退出</td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 font-mono text-[var(--color-warning)]">sandbox launch</td>
+ <td className="py-2 px-3 font-mono text-heading">sandbox launch</td>
  <td className="py-2 px-3">100-500ms</td>
  <td className="py-2 px-3">异步等待</td>
  <td className="py-2 px-3">回退到无沙箱</td>

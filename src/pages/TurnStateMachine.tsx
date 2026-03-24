@@ -77,7 +77,7 @@ function Introduction({
  </div>
 
  <div className="bg-surface rounded-lg p-4 ">
- <h4 className="text-green-400 font-bold mb-2">📊 关键数字</h4>
+ <h4 className="text-heading font-bold mb-2">📊 关键数字</h4>
  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
  <div className="text-center">
  <div className="text-xl font-bold text-heading">17</div>
@@ -88,11 +88,11 @@ function Introduction({
  <div className="text-xs text-dim">最大轮次</div>
  </div>
  <div className="text-center">
- <div className="text-xl font-bold text-green-400">5</div>
+ <div className="text-xl font-bold text-heading">5</div>
  <div className="text-xs text-dim">压缩状态</div>
  </div>
  <div className="text-center">
- <div className="text-xl font-bold text-amber-400">∞</div>
+ <div className="text-xl font-bold text-heading">∞</div>
  <div className="text-xs text-dim">工具调用数</div>
  </div>
  </div>
@@ -239,17 +239,17 @@ function EventTypesSection() {
  ];
 
  const colorMap: Record<string, string> = {
- green: 'bg-green-500/20 border-green-500 text-green-400',
+ green: 'bg-elevated border-edge text-heading',
  blue: ' bg-elevated/20 border-edge text-heading',
  cyan: ' bg-elevated/20 border-edge text-heading',
- amber: 'bg-amber-500/20 border-amber-500 text-amber-400',
+ amber: 'bg-elevated border-edge text-heading',
  purple: ' bg-elevated border-edge text-heading',
- red: 'bg-red-500/20 border-red-500 text-red-400',
+ red: 'bg-elevated border-edge text-heading',
  gray: ' bg-elevated/20 border-edge-hover text-body',
- orange: 'bg-orange-500/20 border-orange-500 text-heading',
- pink: 'bg-pink-500/20 border-pink-500 text-heading',
- yellow: 'bg-yellow-500/20 border-yellow-500 text-yellow-400',
- teal: 'bg-teal-500/20 border-teal-500 text-teal-400',
+ orange: 'bg-elevated border-edge text-heading',
+ pink: 'bg-[var(--purple-glow)] border-[var(--purple)] text-heading',
+ yellow: 'bg-elevated border-edge text-heading',
+ teal: 'bg-accent/10 border-accent text-accent',
  };
 
  return (
@@ -334,11 +334,11 @@ function StateMachineVisualization() {
  const colorMap: Record<string, string> = {
  gray: ' bg-elevated',
  blue: ' bg-elevated',
- amber: 'bg-amber-500',
- orange: 'bg-orange-500',
+ amber: 'bg-[var(--color-warning)]',
+ orange: 'bg-[var(--color-warning)]',
  cyan: ' bg-elevated',
- green: 'bg-green-500',
- red: 'bg-red-500',
+ green: 'bg-[var(--color-success)]',
+ red: 'bg-[var(--color-danger)]',
  };
 
  return (
@@ -433,8 +433,8 @@ function DesignRationaleSection() {
  </ul>
  </div>
 
- <div className="bg-surface rounded-lg p-4 border border-green-700/50">
- <h3 className="text-green-400 font-bold mb-2">
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/50">
+ <h3 className="text-heading font-bold mb-2">
  为什么 pendingToolCalls 是数组？
  </h3>
  <p className="text-body text-sm mb-3">
@@ -457,8 +457,8 @@ function DesignRationaleSection() {
  </p>
  </div>
 
- <div className="bg-surface rounded-lg p-4 border border-amber-700/50">
- <h3 className="text-amber-400 font-bold mb-2">
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/50">
+ <h3 className="text-heading font-bold mb-2">
  为什么区分 finishReason？
  </h3>
  <p className="text-body text-sm mb-3">
@@ -466,7 +466,7 @@ function DesignRationaleSection() {
  </p>
  <div className="grid grid-cols-2 gap-2 text-sm">
  <div className="bg-base rounded p-2">
- <div className="text-green-400 font-mono">STOP</div>
+ <div className="text-heading font-mono">STOP</div>
  <div className="text-body">正常完成</div>
  </div>
  <div className="bg-base rounded p-2">
@@ -474,7 +474,7 @@ function DesignRationaleSection() {
  <div className="text-body">达到输出限制</div>
  </div>
  <div className="bg-base rounded p-2">
- <div className="text-amber-400 font-mono">SAFETY</div>
+ <div className="text-heading font-mono">SAFETY</div>
  <div className="text-body">安全过滤</div>
  </div>
  <div className="bg-base rounded p-2">
@@ -484,8 +484,8 @@ function DesignRationaleSection() {
  </div>
  </div>
 
- <div className="bg-surface rounded-lg p-4 border border-red-700/50">
- <h3 className="text-red-400 font-bold mb-2">
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/50">
+ <h3 className="text-heading font-bold mb-2">
  错误处理策略
  </h3>
  <p className="text-body text-sm mb-3">

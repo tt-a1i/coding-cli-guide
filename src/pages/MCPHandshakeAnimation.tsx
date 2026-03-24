@@ -452,7 +452,7 @@ function MessageExchange({ phase }: { phase: HandshakePhase }) {
  return (
  <div className="bg-base rounded-lg p-4 border border-edge">
  <div className="flex items-center gap-2 mb-3">
- <span className="text-[var(--color-warning)]">💬</span>
+ <span className="text-heading">💬</span>
  <span className="text-sm font-mono font-bold text-heading">消息交换</span>
  </div>
  <div className="space-y-2">
@@ -506,7 +506,7 @@ function StatePanel({ state }: { state: HandshakeState }) {
  state.capabilities.map((cap) => (
  <span
  key={cap}
- className="px-2 py-0.5 rounded bg-[var(--color-warning-soft)] text-[var(--color-warning)]"
+ className="px-2 py-0.5 rounded bg-elevated text-heading"
  >
  {cap}
  </span>
@@ -529,7 +529,7 @@ function StatePanel({ state }: { state: HandshakeState }) {
 
  {/* Error */}
  {state.error && (
- <div className="p-2 rounded bg-[var(--color-danger-soft)] text-[var(--color-danger)]">
+ <div className="p-2 rounded bg-elevated text-heading">
  {state.error}
  </div>
  )}
@@ -660,7 +660,7 @@ export function MCPHandshakeAnimation() {
  onClick={() => setIsPlaying(!isPlaying)}
  className={`px-4 py-1.5 rounded text-sm font-medium ${
  isPlaying
- ? 'bg-[var(--color-warning-soft)] text-[var(--color-warning)] border border-[var(--color-warning)]'
+ ? 'bg-elevated text-heading border-l-2 border-l-edge-hover'
  : ' bg-elevated/20 text-heading border border-edge-hover'
  }`}
  >

@@ -4,6 +4,9 @@ import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 // 快速摘要组件
 function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle: () => void }) {
@@ -36,7 +39,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">核心阶段</div>
  </div>
  <div className="text-center p-3 bg-base rounded-lg">
- <div className="text-2xl font-bold text-[var(--color-warning)]">N</div>
+ <div className="text-2xl font-bold text-heading">N</div>
  <div className="text-xs text-dim">多轮交互</div>
  </div>
  <div className="text-center p-3 bg-base rounded-lg">
@@ -59,7 +62,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <span className="text-dim">→</span>
  <span className="px-3 py-1.5 bg-elevated/20 text-heading rounded-full">API请求</span>
  <span className="text-dim">→</span>
- <span className="px-3 py-1.5 bg-[var(--color-warning-soft)] text-[var(--color-warning)] rounded-full">工具调用?</span>
+ <span className="px-3 py-1.5 bg-elevated text-heading rounded-full">工具调用?</span>
  <span className="text-dim">→</span>
  <span className="px-3 py-1.5 bg-elevated/20 text-heading rounded-full">完成/继续</span>
  </div>
@@ -73,12 +76,12 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-heading font-medium">Finished: finishReason=STOP</div>
  <div className="text-dim">AI 完成回答</div>
  </div>
- <div className="p-2 bg-base rounded border border-[var(--color-warning)]">
- <div className="text-[var(--color-warning)] font-medium">用户取消</div>
+ <div className="p-2 bg-base rounded border-l-2 border-l-edge-hover">
+ <div className="text-heading font-medium">用户取消</div>
  <div className="text-dim">Ctrl+C 中断</div>
  </div>
- <div className="p-2 bg-base rounded border border-[var(--color-danger)]">
- <div className="text-red-500 font-medium">错误发生</div>
+ <div className="p-2 bg-base rounded border-l-2 border-l-edge-hover">
+ <div className="text-heading font-medium">错误发生</div>
  <div className="text-dim">API/工具失败</div>
  </div>
  </div>
@@ -142,8 +145,8 @@ export function RequestLifecycle() {
  classDef startClass fill:#00d4ff,color:#000;
  classDef endClass fill:#00ff41,color:#000;
  classDef decisionClass fill:#a855f7,color:#fff;
- classDef toolSchedClass fill:#f59e0b,color:#000;
- classDef toolExecClass fill:#3b82f6,color:#fff;
+ classDef toolSchedClass fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:#000;
+ classDef toolExecClass fill:${getThemeColor("--color-info", "#2457a6")},color:#fff;
  classDef finalClass fill:#00ff41,color:#000;
 
  class node_start startClass
@@ -222,218 +225,218 @@ export function RequestLifecycle() {
 // 消息预处理器处理 @ 引用
 
 /**
- * 处理用户输入中的 @ 命令
- * @file - 读取文件内容并注入
- * @memory - 获取记忆内容
- * @url - 获取网页内容
- */
+  * 处理用户输入中的 @ 命令
+  * @file - 读取文件内容并注入
+  * @memory - 获取记忆内容
+  * @url - 获取网页内容
+  */
 async function processAtCommands(input: string): Promise<Content> {
- const parts: Part[] = [];
+  const parts: Part[] = [];
 
- // 解析 @file 引用
- const fileMatches = input.matchAll(/@([\\w\\/.-]+)/g);
- for (const match of fileMatches) {
- const filePath = match[1];
- const content = await readFile(filePath);
- parts.push({
- text: \`File: \${filePath}\\n\${content}\`
- });
- }
+  // 解析 @file 引用
+  const fileMatches = input.matchAll(/@([\\w\\/.-]+)/g);
+  for (const match of fileMatches) {
+  const filePath = match[1];
+  const content = await readFile(filePath);
+  parts.push({
+  text: \`File: \${filePath}\\n\${content}\`
+  });
+  }
 
- // 解析 @memory 引用
- if (input.includes('@memory')) {
- const memories = await memoryService.getRelevantMemories(input);
- parts.push({
- text: \`Memories:\\n\${memories.join('\\n')}\`
- });
- }
+  // 解析 @memory 引用
+  if (input.includes('@memory')) {
+  const memories = await memoryService.getRelevantMemories(input);
+  parts.push({
+  text: \`Memories:\\n\${memories.join('\\n')}\`
+  });
+  }
 
- // 解析 @url 引用
- const urlMatches = input.matchAll(/@(https?:\\/\\/[^\\s]+)/g);
- for (const match of urlMatches) {
- const url = match[1];
- const content = await fetchUrl(url);
- parts.push({
- text: \`URL: \${url}\\n\${content}\`
- });
- }
+  // 解析 @url 引用
+  const urlMatches = input.matchAll(/@(https?:\\/\\/[^\\s]+)/g);
+  for (const match of urlMatches) {
+  const url = match[1];
+  const content = await fetchUrl(url);
+  parts.push({
+  text: \`URL: \${url}\\n\${content}\`
+  });
+  }
 
- // 添加用户原始输入
- parts.push({ text: input });
+  // 添加用户原始输入
+  parts.push({ text: input });
 
- return {
- role: 'user',
- parts
- };
+  return {
+  role: 'user',
+  parts
+  };
 }`;
 
  const apiRequestCode = `// 源码: packages/core/src/core/contentGenerator.ts:145
 
 /**
- * 发送流式 API 请求
- */
+  * 发送流式 API 请求
+  */
 async *generateContentStream(
- request: GenerateContentRequest
+  request: GenerateContentRequest
 ): AsyncGenerator<ContentChunk> {
- const response = await fetch(API_ENDPOINT, {
- method: 'POST',
- headers: {
- 'Content-Type': 'application/json',
- 'Authorization': \`Bearer \${apiKey}\`
- },
- body: JSON.stringify({
- model: request.model || 'gemini-1.5-pro',
- contents: request.contents, // 完整历史
- tools: request.tools, // 工具定义
- generationConfig: request.generationConfig
- })
- });
+  const response = await fetch(API_ENDPOINT, {
+  method: 'POST',
+  headers: {
+  'Content-Type': 'application/json',
+  'Authorization': \`Bearer \${apiKey}\`
+  },
+  body: JSON.stringify({
+  model: request.model || 'gemini-1.5-pro',
+  contents: request.contents, // 完整历史
+  tools: request.tools, // 工具定义
+  generationConfig: request.generationConfig
+  })
+  });
 
- // 处理流式响应
- const reader = response.body.getReader();
- const decoder = new TextDecoder();
+  // 处理流式响应
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
 
- while (true) {
- const { done, value } = await reader.read();
- if (done) break;
+  while (true) {
+  const { done, value } = await reader.read();
+  if (done) break;
 
- const chunk = decoder.decode(value);
- const lines = chunk.split('\\n');
+  const chunk = decoder.decode(value);
+  const lines = chunk.split('\\n');
 
- for (const line of lines) {
- if (line.startsWith('data: ')) {
- const data = JSON.parse(line.slice(6));
+  for (const line of lines) {
+  if (line.startsWith('data: ')) {
+  const data = JSON.parse(line.slice(6));
 
- // 文本内容
- if (data.candidates[0].content.parts[0].text) {
- yield {
- type: 'text',
- content: data.candidates[0].content.parts[0].text
- };
- }
+  // 文本内容
+  if (data.candidates[0].content.parts[0].text) {
+  yield {
+  type: 'text',
+  content: data.candidates[0].content.parts[0].text
+  };
+  }
 
- // 工具调用
- if (data.candidates[0].content.parts[0].functionCall) {
- yield {
- type: 'tool_call',
- call: data.candidates[0].content.parts[0].functionCall
- };
- }
+  // 工具调用
+  if (data.candidates[0].content.parts[0].functionCall) {
+  yield {
+  type: 'tool_call',
+  call: data.candidates[0].content.parts[0].functionCall
+  };
+  }
 
- // 完成原因
- if (data.candidates[0].finishReason) {
- yield {
- type: 'finish',
- reason: data.candidates[0].finishReason
- };
- }
- }
- }
- }
+  // 完成原因
+  if (data.candidates[0].finishReason) {
+  yield {
+  type: 'finish',
+  reason: data.candidates[0].finishReason
+  };
+  }
+  }
+  }
+  }
 }`;
 
  const parallelToolCallsCode = `// 源码: packages/core/src/core/coreToolScheduler.ts:625
 
 /**
- * 并行工具调用处理
- */
+  * 并行工具调用处理
+  */
 async schedule(
- request: ToolCallRequestInfo | ToolCallRequestInfo[],
- signal: AbortSignal
+  request: ToolCallRequestInfo | ToolCallRequestInfo[],
+  signal: AbortSignal
 ): Promise<void> {
- const requests = Array.isArray(request) ? request : [request];
+  const requests = Array.isArray(request) ? request : [request];
 
- // 并行验证所有工具调用
- const validationPromises = requests.map(async (req) => {
- const tool = toolRegistry.getTool(req.name);
- const invocation = await tool.build(req.args);
- return { req, tool, invocation };
- });
+  // 并行验证所有工具调用
+  const validationPromises = requests.map(async (req) => {
+  const tool = toolRegistry.getTool(req.name);
+  const invocation = await tool.build(req.args);
+  return { req, tool, invocation };
+  });
 
- const validated = await Promise.all(validationPromises);
+  const validated = await Promise.all(validationPromises);
 
- // 并行执行所有工具（如果都自动批准）
- const autoApproved = validated.filter(v =>
- !v.invocation.shouldConfirmExecute()
- );
+  // 并行执行所有工具（如果都自动批准）
+  const autoApproved = validated.filter(v =>
+  !v.invocation.shouldConfirmExecute()
+  );
 
- if (autoApproved.length > 0) {
- await Promise.all(
- autoApproved.map(v => v.invocation.execute())
- );
- }
+  if (autoApproved.length > 0) {
+  await Promise.all(
+  autoApproved.map(v => v.invocation.execute())
+  );
+  }
 
- // 等待用户批准的工具
- const needApproval = validated.filter(v =>
- v.invocation.shouldConfirmExecute()
- );
+  // 等待用户批准的工具
+  const needApproval = validated.filter(v =>
+  v.invocation.shouldConfirmExecute()
+  );
 
- for (const { invocation } of needApproval) {
- await waitForUserApproval(invocation);
- await invocation.execute();
- }
+  for (const { invocation } of needApproval) {
+  await waitForUserApproval(invocation);
+  await invocation.execute();
+  }
 }`;
 
  const errorHandlingCode = `// 错误处理机制
 
 /**
- * 工具执行失败处理
- */
+  * 工具执行失败处理
+  */
 async handleToolError(
- error: Error,
- toolCall: ToolCallRequestInfo
+  error: Error,
+  toolCall: ToolCallRequestInfo
 ): Promise<Content> {
- // 将错误作为 functionResponse 发送给 AI
- return {
- role: 'user',
- parts: [{
- functionResponse: {
- name: toolCall.name,
- response: {
- error: error.message,
- stack: error.stack
- }
- }
- }]
- };
+  // 将错误作为 functionResponse 发送给 AI
+  return {
+  role: 'user',
+  parts: [{
+  functionResponse: {
+  name: toolCall.name,
+  response: {
+  error: error.message,
+  stack: error.stack
+  }
+  }
+  }]
+  };
 }
 
 /**
- * API 调用失败重试
- */
+  * API 调用失败重试
+  */
 async retryApiCall(
- request: GenerateContentRequest,
- maxRetries = 3
+  request: GenerateContentRequest,
+  maxRetries = 3
 ): Promise<Response> {
- let lastError: Error;
+  let lastError: Error;
 
- for (let i = 0; i < maxRetries; i++) {
- try {
- return await fetch(API_ENDPOINT, requestOptions);
- } catch (error) {
- lastError = error;
+  for (let i = 0; i < maxRetries; i++) {
+  try {
+  return await fetch(API_ENDPOINT, requestOptions);
+  } catch (error) {
+  lastError = error;
 
- // 指数退避
- const delay = Math.pow(2, i) * 1000;
- await sleep(delay);
- }
- }
+  // 指数退避
+  const delay = Math.pow(2, i) * 1000;
+  await sleep(delay);
+  }
+  }
 
- throw lastError;
+  throw lastError;
 }
 
 /**
- * 用户取消处理
- */
+  * 用户取消处理
+  */
 function setupAbortController(): AbortController {
- const controller = new AbortController();
+  const controller = new AbortController();
 
- // Ctrl+C 触发取消
- process.on('SIGINT', () => {
- controller.abort();
- });
+  // Ctrl+C 触发取消
+  process.on('SIGINT', () => {
+  controller.abort();
+  });
 
- return controller;
+  return controller;
 }`;
 
  return (
@@ -449,11 +452,11 @@ function setupAbortController(): AbortController {
  管理从用户输入到 AI 响应的完整流程，包括：
  </p>
  <ul className="text-sm text-body space-y-1">
- <li>• 预处理用户输入（@file、@memory、@url 等引用）</li>
- <li>• 维护完整的对话历史记录</li>
- <li>• 处理流式 API 响应和工具调用</li>
- <li>• 协调多轮交互（工具调用 → 结果 → 下一轮）</li>
- <li>• 持久化聊天记录和统计信息</li>
+ <li>预处理用户输入（@file、@memory、@url 等引用）</li>
+ <li>维护完整的对话历史记录</li>
+ <li>处理流式 API 响应和工具调用</li>
+ <li>协调多轮交互（工具调用 → 结果 → 下一轮）</li>
+ <li>持久化聊天记录和统计信息</li>
  </ul>
  </HighlightBox>
  </Layer>
@@ -465,21 +468,21 @@ function setupAbortController(): AbortController {
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="用户输入" variant="green">
  <ul className="text-sm text-body space-y-1">
- <li>• 纯文本请求</li>
- <li>• @file 文件引用</li>
- <li>• @memory 记忆引用</li>
- <li>• @url 网页引用</li>
- <li>• 斜杠命令（/help、/clear 等）</li>
+ <li>纯文本请求</li>
+ <li>@file 文件引用</li>
+ <li>@memory 记忆引用</li>
+ <li>@url 网页引用</li>
+ <li>斜杠命令（/help、/clear 等）</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="上下文依赖" variant="purple">
  <ul className="text-sm text-body space-y-1">
- <li>• 完整对话历史（history 数组）</li>
- <li>• 工具定义列表（tools）</li>
- <li>• 系统提示词配置</li>
- <li>• 模型配置参数</li>
- <li>• AbortSignal 取消信号</li>
+ <li>完整对话历史（history 数组）</li>
+ <li>工具定义列表（tools）</li>
+ <li>系统提示词配置</li>
+ <li>模型配置参数</li>
+ <li>AbortSignal 取消信号</li>
  </ul>
  </HighlightBox>
  </div>
@@ -492,28 +495,28 @@ function setupAbortController(): AbortController {
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
  <HighlightBox title="AI 响应" variant="blue">
  <ul className="text-sm text-body space-y-1">
- <li>• 流式文本内容</li>
- <li>• 工具调用请求</li>
- <li>• Finished/finishReason 标记</li>
- <li>• 错误信息</li>
+ <li>流式文本内容</li>
+ <li>工具调用请求</li>
+ <li>Finished/finishReason 标记</li>
+ <li>错误信息</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="状态变化" variant="yellow">
  <ul className="text-sm text-body space-y-1">
- <li>• 历史记录更新</li>
- <li>• 工具调用状态转换</li>
- <li>• UI 渲染更新</li>
- <li>• Token 统计累计</li>
+ <li>历史记录更新</li>
+ <li>工具调用状态转换</li>
+ <li>UI 渲染更新</li>
+ <li>Token 统计累计</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="副作用" variant="green">
  <ul className="text-sm text-body space-y-1">
- <li>• 聊天日志文件写入</li>
- <li>• 工具执行（文件修改等）</li>
- <li>• 遥测数据上报</li>
- <li>• 检查点创建</li>
+ <li>聊天日志文件写入</li>
+ <li>工具执行（文件修改等）</li>
+ <li>遥测数据上报</li>
+ <li>检查点创建</li>
  </ul>
  </HighlightBox>
  </div>
@@ -579,7 +582,7 @@ function setupAbortController(): AbortController {
  <HighlightBox title="Continuation 判断" variant="purple">
  <div className="text-sm space-y-2">
  <p className="text-body">
- <strong className="text-[var(--color-warning)]">parts[].functionCall</strong>: 需要执行工具，执行后继续下一轮
+ <strong className="text-heading">parts[].functionCall</strong>: 需要执行工具，执行后继续下一轮
  </p>
  <p className="text-body">
  <strong className="text-heading">无 functionCall 且有文本</strong>: 结束当前轮次
@@ -588,7 +591,7 @@ function setupAbortController(): AbortController {
  <strong className="text-heading">finishReason=MAX_TOKENS</strong>: 达到 token 上限，可能需要续写
  </p>
  <p className="text-body">
- <strong className="text-[var(--color-danger)]">finishReason=SAFETY</strong>: 内容安全拦截，终止响应
+ <strong className="text-heading">finishReason=SAFETY</strong>: 内容安全拦截，终止响应
  </p>
  </div>
  </HighlightBox>
@@ -596,20 +599,20 @@ function setupAbortController(): AbortController {
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="工具调用分支" variant="blue">
  <ul className="text-sm text-body space-y-1">
- <li>• 单个工具 vs 多个工具（并行执行）</li>
- <li>• 自动批准 vs 需要用户确认</li>
- <li>• 只读工具 vs 修改类工具</li>
- <li>• 工具执行成功 vs 失败</li>
+ <li>单个工具 vs 多个工具（并行执行）</li>
+ <li>自动批准 vs 需要用户确认</li>
+ <li>只读工具 vs 修改类工具</li>
+ <li>工具执行成功 vs 失败</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="边界条件" variant="yellow">
  <ul className="text-sm text-body space-y-1">
- <li>• 空输入：拒绝或提示</li>
- <li>• 超长输入：截断或分段处理</li>
- <li>• 网络中断：重试机制</li>
- <li>• 用户取消：AbortController</li>
- <li>• API 限流：退避重试</li>
+ <li>空输入：拒绝或提示</li>
+ <li>超长输入：截断或分段处理</li>
+ <li>网络中断：重试机制</li>
+ <li>用户取消：AbortController</li>
+ <li>API 限流：退避重试</li>
  </ul>
  </HighlightBox>
  </div>
@@ -660,8 +663,8 @@ if (input.length > MAX_INPUT_LENGTH) {
  <Layer title="失败与恢复" icon="🔧">
  <div className="space-y-4">
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
- <div className="bg-[var(--color-danger-soft)] border border-[var(--color-danger)] rounded-lg p-4">
- <h4 className="text-[var(--color-danger)] font-bold font-mono mb-2">工具执行失败</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-bold font-mono mb-2">工具执行失败</h4>
  <p className="text-sm text-body mb-2">
  工具返回错误时，错误信息作为 functionResponse 发送给 AI
  </p>
@@ -670,8 +673,8 @@ if (input.length > MAX_INPUT_LENGTH) {
  </code>
  </div>
 
- <div className="bg-[var(--color-warning-soft)] border border-[var(--color-warning)] rounded-lg p-4">
- <h4 className="text-[var(--color-warning)] font-bold font-mono mb-2">API 调用失败</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-bold font-mono mb-2">API 调用失败</h4>
  <p className="text-sm text-body mb-2">
  网络错误或 API 错误触发重试机制
  </p>
@@ -680,8 +683,8 @@ if (input.length > MAX_INPUT_LENGTH) {
  </code>
  </div>
 
- <div className="bg-[var(--color-warning-soft)] border border-[var(--color-warning)] rounded-lg p-4">
- <h4 className="text-[var(--color-warning)] font-bold font-mono mb-2">用户取消</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
+ <h4 className="text-heading font-bold font-mono mb-2">用户取消</h4>
  <p className="text-sm text-body mb-2">
  Ctrl+C 触发 AbortController，优雅终止当前操作
  </p>
@@ -722,19 +725,19 @@ if (input.length > MAX_INPUT_LENGTH) {
  <h4 className="font-semibold font-mono text-heading mb-3">模型配置</h4>
  <div className="grid grid-cols-2 gap-4 text-sm">
  <div>
- <code className="text-[var(--color-warning)]">OPENAI_MODEL</code>
+ <code className="text-heading">OPENAI_MODEL</code>
  <p className="text-dim">使用的 AI 模型名称</p>
  </div>
  <div>
- <code className="text-[var(--color-warning)]">OPENAI_API_KEY</code>
+ <code className="text-heading">OPENAI_API_KEY</code>
  <p className="text-dim">API 认证密钥</p>
  </div>
  <div>
- <code className="text-[var(--color-warning)]">OPENAI_BASE_URL</code>
+ <code className="text-heading">OPENAI_BASE_URL</code>
  <p className="text-dim">API 端点地址</p>
  </div>
  <div>
- <code className="text-[var(--color-warning)]">temperature</code>
+ <code className="text-heading">temperature</code>
  <p className="text-dim">生成随机性（0.0-1.0）</p>
  </div>
  </div>
@@ -744,19 +747,19 @@ if (input.length > MAX_INPUT_LENGTH) {
  <h4 className="font-semibold font-mono text-heading mb-3">工具配置</h4>
  <div className="grid grid-cols-2 gap-4 text-sm">
  <div>
- <code className="text-[var(--color-warning)]">approvalMode</code>
+ <code className="text-heading">approvalMode</code>
  <p className="text-dim">工具批准模式（YOLO/DEFAULT/AUTO_EDIT）</p>
  </div>
  <div>
- <code className="text-[var(--color-warning)]">allowedTools</code>
+ <code className="text-heading">allowedTools</code>
  <p className="text-dim">白名单工具列表</p>
  </div>
  <div>
- <code className="text-[var(--color-warning)]">checkpointing</code>
+ <code className="text-heading">checkpointing</code>
  <p className="text-dim">是否启用检查点</p>
  </div>
  <div>
- <code className="text-[var(--color-warning)]">maxToolOutputLength</code>
+ <code className="text-heading">maxToolOutputLength</code>
  <p className="text-dim">工具输出截断阈值</p>
  </div>
  </div>
@@ -766,19 +769,19 @@ if (input.length > MAX_INPUT_LENGTH) {
  <h4 className="font-semibold font-mono text-heading mb-3">流式响应配置</h4>
  <div className="grid grid-cols-2 gap-4 text-sm">
  <div>
- <code className="text-[var(--color-warning)]">maxOutputTokens</code>
+ <code className="text-heading">maxOutputTokens</code>
  <p className="text-dim">单次响应最大 token 数</p>
  </div>
  <div>
- <code className="text-[var(--color-warning)]">streamTimeout</code>
+ <code className="text-heading">streamTimeout</code>
  <p className="text-dim">流式响应超时时间</p>
  </div>
  <div>
- <code className="text-[var(--color-warning)]">retryAttempts</code>
+ <code className="text-heading">retryAttempts</code>
  <p className="text-dim">API 重试次数</p>
  </div>
  <div>
- <code className="text-[var(--color-warning)]">retryDelay</code>
+ <code className="text-heading">retryDelay</code>
  <p className="text-dim">重试延迟（指数退避）</p>
  </div>
  </div>
@@ -895,33 +898,33 @@ await Promise.all([
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="流式响应优化" variant="blue">
  <ul className="text-sm text-body space-y-1">
- <li>• 实时渲染文本，不等完整响应</li>
- <li>• 使用 ReadableStream 降低内存占用</li>
- <li>• 分块处理，避免阻塞 UI</li>
+ <li>实时渲染文本，不等完整响应</li>
+ <li>使用 ReadableStream 降低内存占用</li>
+ <li>分块处理，避免阻塞 UI</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="工具调用优化" variant="green">
  <ul className="text-sm text-body space-y-1">
- <li>• 并行执行独立工具调用</li>
- <li>• 缓存工具验证结果</li>
- <li>• 截断大输出，保存到文件</li>
+ <li>并行执行独立工具调用</li>
+ <li>缓存工具验证结果</li>
+ <li>截断大输出，保存到文件</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="历史记录优化" variant="purple">
  <ul className="text-sm text-body space-y-1">
- <li>• 定期压缩旧消息</li>
- <li>• 移除重复的系统提示</li>
- <li>• 限制历史长度（token 预算）</li>
+ <li>定期压缩旧消息</li>
+ <li>移除重复的系统提示</li>
+ <li>限制历史长度（token 预算）</li>
  </ul>
  </HighlightBox>
 
  <HighlightBox title="网络优化" variant="yellow">
  <ul className="text-sm text-body space-y-1">
- <li>• 复用 HTTP 连接</li>
- <li>• 启用压缩（gzip）</li>
- <li>• 智能重试（指数退避）</li>
+ <li>复用 HTTP 连接</li>
+ <li>启用压缩（gzip）</li>
+ <li>智能重试（指数退避）</li>
  </ul>
  </HighlightBox>
  </div>
@@ -945,9 +948,9 @@ await Promise.all([
  AI 响应使用 <code>generateContentStream</code> 而非一次性返回。
  </p>
  <ul className="text-xs text-dim space-y-1">
- <li>• <strong>原因</strong>: 用户可以实时看到生成过程</li>
- <li>• <strong>好处</strong>: 更好的交互体验，可提前取消</li>
- <li>• <strong>权衡</strong>: 处理逻辑更复杂</li>
+ <li><strong>原因</strong>: 用户可以实时看到生成过程</li>
+ <li><strong>好处</strong>: 更好的交互体验，可提前取消</li>
+ <li><strong>权衡</strong>: 处理逻辑更复杂</li>
  </ul>
  </div>
 
@@ -957,21 +960,21 @@ await Promise.all([
  <code>@file</code>、<code>@url</code> 等指令在发送 API 请求前处理。
  </p>
  <ul className="text-xs text-dim space-y-1">
- <li>• <strong>原因</strong>: 内容需要嵌入到请求消息中</li>
- <li>• <strong>好处</strong>: AI 可以看到完整上下文</li>
- <li>• <strong>权衡</strong>: 大文件会增加请求延迟</li>
+ <li><strong>原因</strong>: 内容需要嵌入到请求消息中</li>
+ <li><strong>好处</strong>: AI 可以看到完整上下文</li>
+ <li><strong>权衡</strong>: 大文件会增加请求延迟</li>
  </ul>
  </div>
 
  <div className="bg-surface p-4 rounded-lg border border-edge">
- <h4 className="text-[var(--color-warning)] font-bold mb-2">3. 为什么工具调用后继续循环？</h4>
+ <h4 className="text-heading font-bold mb-2">3. 为什么工具调用后继续循环？</h4>
  <p className="text-sm text-body mb-2">
  工具结果返回后，<strong>再次调用 AI</strong> 继续处理。
  </p>
  <ul className="text-xs text-dim space-y-1">
- <li>• <strong>原因</strong>: AI 需要根据工具结果决定下一步</li>
- <li>• <strong>好处</strong>: 支持多步骤复杂任务</li>
- <li>• <strong>权衡</strong>: 可能产生循环，需要检测</li>
+ <li><strong>原因</strong>: AI 需要根据工具结果决定下一步</li>
+ <li><strong>好处</strong>: 支持多步骤复杂任务</li>
+ <li><strong>权衡</strong>: 可能产生循环，需要检测</li>
  </ul>
  </div>
 
@@ -981,9 +984,9 @@ await Promise.all([
  消息历史由独立的 <code>MessageHistory</code> 管理。
  </p>
  <ul className="text-xs text-dim space-y-1">
- <li>• <strong>原因</strong>: 历史需要持久化和压缩</li>
- <li>• <strong>好处</strong>: 解耦请求处理与状态管理</li>
- <li>• <strong>权衡</strong>: 需要同步状态</li>
+ <li><strong>原因</strong>: 历史需要持久化和压缩</li>
+ <li><strong>好处</strong>: 解耦请求处理与状态管理</li>
+ <li><strong>权衡</strong>: 需要同步状态</li>
  </ul>
  </div>
 
@@ -993,9 +996,9 @@ await Promise.all([
  网络错误时使用 <code>1s → 2s → 4s → 8s</code> 递增间隔重试。
  </p>
  <ul className="text-xs text-dim space-y-1">
- <li>• <strong>原因</strong>: 避免对服务器造成压力，同时提高成功率</li>
- <li>• <strong>好处</strong>: 平衡可靠性与效率</li>
- <li>• <strong>权衡</strong>: 最坏情况下等待时间较长</li>
+ <li><strong>原因</strong>: 避免对服务器造成压力，同时提高成功率</li>
+ <li><strong>好处</strong>: 平衡可靠性与效率</li>
+ <li><strong>权衡</strong>: 最坏情况下等待时间较长</li>
  </ul>
  </div>
  </div>
@@ -1027,7 +1030,7 @@ await Promise.all([
  <td className="py-2 px-3">60s 超时取消</td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 font-mono text-[var(--color-warning)]">STREAMING</td>
+ <td className="py-2 px-3 font-mono text-heading">STREAMING</td>
  <td className="py-2 px-3">收到首个 chunk</td>
  <td className="py-2 px-3">TOOL_CALL / COMPLETE</td>
  <td className="py-2 px-3">30s 无响应取消</td>

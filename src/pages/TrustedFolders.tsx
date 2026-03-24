@@ -2,6 +2,9 @@ import { HighlightBox } from '../components/HighlightBox';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 export function TrustedFolders() {
  const relatedPages: RelatedPage[] = [
@@ -39,24 +42,24 @@ export function TrustedFolders() {
  user_choice -->|信任| trusted
  user_choice -->|不信任| untrusted
 
- style start fill:#22d3ee,color:#000
- style trusted fill:#22c55e,color:#000
- style untrusted fill:#ef4444,color:#fff
- style skip fill:#22c55e,color:#000
- style check_enabled fill:#f59e0b,color:#000
- style ide_trusted fill:#f59e0b,color:#000
- style file_has_rule fill:#f59e0b,color:#000
- style user_choice fill:#f59e0b,color:#000`;
+ style start fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style trusted fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style untrusted fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style skip fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style check_enabled fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style ide_trusted fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style file_has_rule fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style user_choice fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  const enableConfigCode = `// ~/.gemini/settings.json
 // 启用 Trusted Folders 功能
 
 {
- "security": {
- "folderTrust": {
- "enabled": true
- }
- }
+  "security": {
+  "folderTrust": {
+  "enabled": true
+  }
+  }
 }
 
 // 注意：此功能默认关闭
@@ -67,9 +70,9 @@ export function TrustedFolders() {
 // 格式: Record<string, TrustLevel> - 简单的 { 路径: 信任级别 } 对象
 
 {
- "/Users/dev/my-project": "TRUST_FOLDER", // 直接信任该目录
- "/Users/dev/projects": "TRUST_PARENT", // 信任父目录 (即 /Users/dev)
- "/Users/dev/downloaded-repo": "DO_NOT_TRUST" // 明确不信任
+  "/Users/dev/my-project": "TRUST_FOLDER", // 直接信任该目录
+  "/Users/dev/projects": "TRUST_PARENT", // 信任父目录 (即 /Users/dev)
+  "/Users/dev/downloaded-repo": "DO_NOT_TRUST" // 明确不信任
 }
 
 // TrustLevel 枚举值:
@@ -86,45 +89,45 @@ export function TrustedFolders() {
 
 // 1. 工作区设置被忽略
 function loadProjectSettings(): Settings {
- if (!this.isTrustedFolder()) {
- // 不加载 .gemini/settings.json
- return {};
- }
- return loadFromFile('.gemini/settings.json');
+  if (!this.isTrustedFolder()) {
+  // 不加载 .gemini/settings.json
+  return {};
+  }
+  return loadFromFile('.gemini/settings.json');
 }
 
 // 2. 环境变量被忽略
 function loadEnvFiles(): void {
- if (!this.isTrustedFolder()) {
- // 不加载项目 .env 文件
- return;
- }
- dotenv.config({ path: '.env' });
+  if (!this.isTrustedFolder()) {
+  // 不加载项目 .env 文件
+  return;
+  }
+  dotenv.config({ path: '.env' });
 }
 
 // 3. 审批模式限制
 setApprovalMode(mode: ApprovalMode): void {
- if (!this.isTrustedFolder() &&
- mode !== ApprovalMode.DEFAULT) {
- throw new Error(
- 'Cannot enable privileged approval modes in an untrusted folder.'
- );
- }
+  if (!this.isTrustedFolder() &&
+  mode !== ApprovalMode.DEFAULT) {
+  throw new Error(
+  'Cannot enable privileged approval modes in an untrusted folder.'
+  );
+  }
 }
 
 // 4. 扩展管理受限
 async installExtension(name: string): Promise<void> {
- if (!this.isTrustedFolder()) {
- throw new Error('Extension management is disabled in untrusted folders.');
- }
+  if (!this.isTrustedFolder()) {
+  throw new Error('Extension management is disabled in untrusted folders.');
+  }
 }
 
 // 5. 自动内存加载禁用
 function loadAutoMemory(): void {
- if (!this.isTrustedFolder()) {
- // 不自动加载 settings 指定的文件
- return;
- }
+  if (!this.isTrustedFolder()) {
+  // 不自动加载 settings 指定的文件
+  return;
+  }
 }`;
 
  const permissionsCommandCode = `// /permissions 命令
@@ -152,17 +155,17 @@ function loadAutoMemory(): void {
 // CLI 会询问 IDE 当前工作区是否被信任
 
 interface IDETrustResponse {
- isTrusted: boolean;
- workspacePath: string;
+  isTrusted: boolean;
+  workspacePath: string;
 }
 
 async function checkIDETrust(): Promise<boolean | null> {
- if (!isIDEConnected()) {
- return null; // 无 IDE 连接，使用本地规则
- }
+  if (!isIDEConnected()) {
+  return null; // 无 IDE 连接，使用本地规则
+  }
 
- const response = await ide.send('workspace/isTrusted');
- return response.isTrusted;
+  const response = await ide.send('workspace/isTrusted');
+  return response.isTrusted;
 }
 
 // IDE 信任优先级最高
@@ -181,7 +184,7 @@ async function checkIDETrust(): Promise<boolean | null> {
  <HighlightBox title="为什么需要信任机制？" variant="red">
  <p className="text-sm text-body">
  当你打开一个不熟悉的项目（如从网上下载的代码）时，该项目可能包含恶意的
- <code className="text-yellow-300">.gemini/settings.json</code> 配置，
+ <code className="text-heading">.gemini/settings.json</code> 配置，
  例如自动执行危险命令、加载恶意扩展，或窃取敏感信息。
  信任机制确保这些配置在用户明确信任之前不会生效。
  </p>
@@ -212,7 +215,7 @@ async function checkIDETrust(): Promise<boolean | null> {
  <li className="flex items-start gap-2">
  <span className="text-heading font-bold">1.</span>
  <div>
- <strong className="text-green-400">IDE 信任信号</strong>
+ <strong className="text-heading">IDE 信任信号</strong>
  <span className="text-body"> - 如果连接到 IDE，优先使用 IDE 的信任状态</span>
  </div>
  </li>
@@ -226,7 +229,7 @@ async function checkIDETrust(): Promise<boolean | null> {
  <li className="flex items-start gap-2">
  <span className="text-heading font-bold">3.</span>
  <div>
- <strong className="text-yellow-400">用户对话框</strong>
+ <strong className="text-heading">用户对话框</strong>
  <span className="text-body"> - 首次访问时弹出信任选择对话框</span>
  </div>
  </li>
@@ -249,10 +252,10 @@ async function checkIDETrust(): Promise<boolean | null> {
  </div>
 
  <div className="space-y-3 max-w-md mx-auto">
- <div className="flex items-center gap-3 p-3 bg-green-900/20 border border-green-500/30 rounded-lg cursor-pointer hover:bg-green-900/30">
- <div className="w-4 h-4 rounded-full border-2 border-green-500"></div>
+ <div className="flex items-center gap-3 p-3 bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg cursor-pointer hover:bg-elevated">
+ <div className="w-4 h-4 rounded-full border-2 border-edge"></div>
  <div>
- <p className="text-green-400 font-medium">Trust folder</p>
+ <p className="text-heading font-medium">Trust folder</p>
  <p className="text-body text-xs">Grant full trust to this folder</p>
  </div>
  </div>
@@ -265,10 +268,10 @@ async function checkIDETrust(): Promise<boolean | null> {
  </div>
  </div>
 
- <div className="flex items-center gap-3 p-3 bg-red-900/20 border border-red-500/30 rounded-lg cursor-pointer hover:bg-red-900/30">
- <div className="w-4 h-4 rounded-full border-2 border-red-500"></div>
+ <div className="flex items-center gap-3 p-3 bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg cursor-pointer hover:bg-elevated">
+ <div className="w-4 h-4 rounded-full border-2 border-edge"></div>
  <div>
- <p className="text-red-400 font-medium">Don't trust</p>
+ <p className="text-heading font-medium">Don't trust</p>
  <p className="text-body text-xs">Run in restricted safe mode</p>
  </div>
  </div>
@@ -336,10 +339,10 @@ async function checkIDETrust(): Promise<boolean | null> {
 
  <HighlightBox title="TrustLevel 语义" variant="blue">
  <ul className="text-sm text-body space-y-1">
- <li>• <code className="text-green-300">TRUST_FOLDER</code>: 信任该路径及其所有子目录</li>
- <li>• <code className="text-heading">TRUST_PARENT</code>: 信任该路径的<strong>父目录</strong>，
+ <li><code className="text-heading">TRUST_FOLDER</code>: 信任该路径及其所有子目录</li>
+ <li><code className="text-heading">TRUST_PARENT</code>: 信任该路径的<strong>父目录</strong>，
  例如对 <code>/dev/projects</code> 设置 TRUST_PARENT 会信任 <code>/dev</code></li>
- <li>• <code className="text-red-300">DO_NOT_TRUST</code>: 精确匹配该路径，标记为不信任</li>
+ <li><code className="text-heading">DO_NOT_TRUST</code>: 精确匹配该路径，标记为不信任</li>
  </ul>
  </HighlightBox>
  </section>
@@ -448,8 +451,8 @@ async function checkIDETrust(): Promise<boolean | null> {
  <section>
  <h3 className="text-xl font-semibold text-heading mb-4">最佳实践</h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <div className="bg-green-900/20 border border-green-500/30 rounded-lg p-4">
- <h4 className="text-green-400 font-semibold mb-2">推荐做法</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">推荐做法</h4>
  <ul className="text-sm text-body space-y-1">
  <li>✓ 启用 folderTrust 功能</li>
  <li>✓ 信任包含所有项目的父目录</li>
@@ -458,8 +461,8 @@ async function checkIDETrust(): Promise<boolean | null> {
  <li>✓ 定期审查 trustedFolders.json</li>
  </ul>
  </div>
- <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
- <h4 className="text-red-400 font-semibold mb-2">避免做法</h4>
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
+ <h4 className="text-heading font-semibold mb-2">避免做法</h4>
  <ul className="text-sm text-body space-y-1">
  <li>✗ 信任 /tmp 或下载目录</li>
  <li>✗ 信任包含不熟悉代码的仓库</li>

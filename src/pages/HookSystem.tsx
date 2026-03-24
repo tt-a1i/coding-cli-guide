@@ -4,6 +4,10 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
+
 
 const relatedPages: RelatedPage[] = [
  {
@@ -71,7 +75,7 @@ function QuickSummary({
  <div className="text-xs text-dim">配置层级</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-amber-500">5</div>
+ <div className="text-2xl font-bold text-heading">5</div>
  <div className="text-xs text-dim">决策类型</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
@@ -98,7 +102,7 @@ function QuickSummary({
  Runner 执行
  </span>
  <span className="text-dim">→</span>
- <span className="px-3 py-1.5 bg-amber-500/20 text-amber-500 rounded-lg border border-amber-500/30">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover/30">
  Aggregator 聚合
  </span>
  </div>
@@ -138,130 +142,130 @@ export function HookSystem() {
  runner --> aggregator
  aggregator --> output
 
- style trigger fill:#22d3ee,color:#000
- style planner fill:#a855f7,color:#fff
- style registry fill:#6366f1,color:#fff
- style policy fill:#f59e0b,color:#000
- style runner fill:#22c55e,color:#000
- style aggregator fill:#ec4899,color:#fff
- style output fill:#8b5cf6,color:#fff`;
+ style trigger fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style planner fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style registry fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style policy fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style runner fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style aggregator fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style output fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  const hookEventTypesCode = `// gemini-cli/packages/core/src/hooks/types.ts
 
 export enum HookEventName {
- BeforeTool = 'BeforeTool', // 工具执行前
- AfterTool = 'AfterTool', // 工具执行后
- BeforeAgent = 'BeforeAgent', // Agent 执行前
- AfterAgent = 'AfterAgent', // Agent 执行后
- Notification = 'Notification', // 通知事件
- SessionStart = 'SessionStart', // 会话开始
- SessionEnd = 'SessionEnd', // 会话结束
- PreCompress = 'PreCompress', // 上下文压缩前
- BeforeModel = 'BeforeModel', // 模型调用前
- AfterModel = 'AfterModel', // 模型调用后
- BeforeToolSelection = 'BeforeToolSelection', // 工具选择前
+  BeforeTool = 'BeforeTool', // 工具执行前
+  AfterTool = 'AfterTool', // 工具执行后
+  BeforeAgent = 'BeforeAgent', // Agent 执行前
+  AfterAgent = 'AfterAgent', // Agent 执行后
+  Notification = 'Notification', // 通知事件
+  SessionStart = 'SessionStart', // 会话开始
+  SessionEnd = 'SessionEnd', // 会话结束
+  PreCompress = 'PreCompress', // 上下文压缩前
+  BeforeModel = 'BeforeModel', // 模型调用前
+  AfterModel = 'AfterModel', // 模型调用后
+  BeforeToolSelection = 'BeforeToolSelection', // 工具选择前
 }
 
 // 配置来源优先级（从高到低）
 export enum ConfigSource {
- Project = 'project', // 项目级 .gemini/settings.json
- User = 'user', // 用户级 ~/.config/gemini/
- System = 'system', // 系统级
- Extensions = 'extensions', // 扩展提供
+  Project = 'project', // 项目级 .gemini/settings.json
+  User = 'user', // 用户级 ~/.config/gemini/
+  System = 'system', // 系统级
+  Extensions = 'extensions', // 扩展提供
 }`;
 
  const hookDecisionCode = `// Hook 决策类型
 export type HookDecision =
- | 'ask' // 询问用户
- | 'block' // 阻止执行
- | 'deny' // 拒绝操作
- | 'approve' // 批准执行
- | 'allow' // 允许继续
- | undefined; // 无决策，继续默认流程
+  | 'ask' // 询问用户
+  | 'block' // 阻止执行
+  | 'deny' // 拒绝操作
+  | 'approve' // 批准执行
+  | 'allow' // 允许继续
+  | undefined; // 无决策，继续默认流程
 
 // Hook 输出结构
 export interface HookOutput {
- continue?: boolean; // 是否继续执行
- stopReason?: string; // 停止原因
- suppressOutput?: boolean; // 抑制输出
- systemMessage?: string; // 注入系统消息
- decision?: HookDecision; // 决策类型
- reason?: string; // 决策原因
- hookSpecificOutput?: Record<string, unknown>; // 特定输出
+  continue?: boolean; // 是否继续执行
+  stopReason?: string; // 停止原因
+  suppressOutput?: boolean; // 抑制输出
+  systemMessage?: string; // 注入系统消息
+  decision?: HookDecision; // 决策类型
+  reason?: string; // 决策原因
+  hookSpecificOutput?: Record<string, unknown>; // 特定输出
 }`;
 
  const hookConfigCode = `// .gemini/settings.yaml - Hook 配置示例
 
 hooks:
- BeforeTool:
- - matcher: "run_shell_command" # 匹配特定工具
- sequential: true # 顺序执行
- hooks:
- - type: command
- name: "security-check"
- command: "python scripts/check_command.py"
- timeout: 5000
+  BeforeTool:
+  - matcher: "run_shell_command" # 匹配特定工具
+  sequential: true # 顺序执行
+  hooks:
+  - type: command
+  name: "security-check"
+  command: "python scripts/check_command.py"
+  timeout: 5000
 
- SessionStart:
- - hooks:
- - type: command
- name: "init-env"
- command: "./scripts/init.sh"
+  SessionStart:
+  - hooks:
+  - type: command
+  name: "init-env"
+  command: "./scripts/init.sh"
 
- BeforeModel:
- - hooks:
- - type: command
- name: "token-budget"
- command: "node scripts/check-tokens.js"`;
+  BeforeModel:
+  - hooks:
+  - type: command
+  name: "token-budget"
+  command: "node scripts/check-tokens.js"`;
 
  const hookSystemCode = `// gemini-cli/packages/core/src/hooks/hookSystem.ts
 
 export class HookSystem {
- private readonly hookRegistry: HookRegistry;
- private readonly hookRunner: HookRunner;
- private readonly hookAggregator: HookAggregator;
- private readonly hookPlanner: HookPlanner;
- private readonly hookEventHandler: HookEventHandler;
+  private readonly hookRegistry: HookRegistry;
+  private readonly hookRunner: HookRunner;
+  private readonly hookAggregator: HookAggregator;
+  private readonly hookPlanner: HookPlanner;
+  private readonly hookEventHandler: HookEventHandler;
 
- constructor(config: Config) {
- const logger = logs.getLogger(SERVICE_NAME);
- const messageBus = config.getMessageBus();
+  constructor(config: Config) {
+  const logger = logs.getLogger(SERVICE_NAME);
+  const messageBus = config.getMessageBus();
 
- // 初始化各组件
- this.hookRegistry = new HookRegistry(config);
- this.hookRunner = new HookRunner(config);
- this.hookAggregator = new HookAggregator();
- this.hookPlanner = new HookPlanner(this.hookRegistry);
- this.hookEventHandler = new HookEventHandler(
- config, logger,
- this.hookPlanner, this.hookRunner, this.hookAggregator,
- messageBus, // 通过 MessageBus 进行权限检查
- );
- }
+  // 初始化各组件
+  this.hookRegistry = new HookRegistry(config);
+  this.hookRunner = new HookRunner(config);
+  this.hookAggregator = new HookAggregator();
+  this.hookPlanner = new HookPlanner(this.hookRegistry);
+  this.hookEventHandler = new HookEventHandler(
+  config, logger,
+  this.hookPlanner, this.hookRunner, this.hookAggregator,
+  messageBus, // 通过 MessageBus 进行权限检查
+  );
+  }
 
- async initialize(): Promise<void> {
- await this.hookRegistry.initialize();
- }
+  async initialize(): Promise<void> {
+  await this.hookRegistry.initialize();
+  }
 
- getEventHandler(): HookEventHandler {
- return this.hookEventHandler;
- }
+  getEventHandler(): HookEventHandler {
+  return this.hookEventHandler;
+  }
 }`;
 
  const beforeToolHookCode = `// BeforeTool Hook 输入
 export interface BeforeToolInput extends HookInput {
- tool_name: string;
- tool_input: Record<string, unknown>;
+  tool_name: string;
+  tool_input: Record<string, unknown>;
 }
 
 // Hook 可以修改工具输入
 export class BeforeToolHookOutput extends DefaultHookOutput {
- getModifiedToolInput(): Record<string, unknown> | undefined {
- if (this.hookSpecificOutput?.['tool_input']) {
- return this.hookSpecificOutput['tool_input'] as Record<string, unknown>;
- }
- return undefined;
- }
+  getModifiedToolInput(): Record<string, unknown> | undefined {
+  if (this.hookSpecificOutput?.['tool_input']) {
+  return this.hookSpecificOutput['tool_input'] as Record<string, unknown>;
+  }
+  return undefined;
+  }
 }
 
 // 使用示例：Hook 脚本输出 JSON
@@ -269,30 +273,30 @@ export class BeforeToolHookOutput extends DefaultHookOutput {
 
  const beforeModelHookCode = `// BeforeModel Hook 可以拦截和修改 LLM 请求
 export interface BeforeModelInput extends HookInput {
- llm_request: LLMRequest; // 包含 messages, tools, config 等
+  llm_request: LLMRequest; // 包含 messages, tools, config 等
 }
 
 export class BeforeModelHookOutput extends DefaultHookOutput {
- // 获取合成响应（绕过实际 LLM 调用）
- getSyntheticResponse(): GenerateContentResponse | undefined {
- if (this.hookSpecificOutput?.['llm_response']) {
- return defaultHookTranslator.fromHookLLMResponse(
- this.hookSpecificOutput['llm_response'] as LLMResponse
- );
- }
- return undefined;
- }
+  // 获取合成响应（绕过实际 LLM 调用）
+  getSyntheticResponse(): GenerateContentResponse | undefined {
+  if (this.hookSpecificOutput?.['llm_response']) {
+  return defaultHookTranslator.fromHookLLMResponse(
+  this.hookSpecificOutput['llm_response'] as LLMResponse
+  );
+  }
+  return undefined;
+  }
 
- // 修改 LLM 请求参数
- applyLLMRequestModifications(
- target: GenerateContentParameters
- ): GenerateContentParameters {
- if (this.hookSpecificOutput?.['llm_request']) {
- const hookRequest = this.hookSpecificOutput['llm_request'];
- return { ...target, ...sdkRequest };
- }
- return target;
- }
+  // 修改 LLM 请求参数
+  applyLLMRequestModifications(
+  target: GenerateContentParameters
+  ): GenerateContentParameters {
+  if (this.hookSpecificOutput?.['llm_request']) {
+  const hookRequest = this.hookSpecificOutput['llm_request'];
+  return { ...target, ...sdkRequest };
+  }
+  return target;
+  }
 }`;
 
  // 完整的 HookOutput 类层次结构
@@ -300,83 +304,83 @@ export class BeforeModelHookOutput extends DefaultHookOutput {
 
 // 基类：DefaultHookOutput（注意：shouldStopExecution 只看 continue===false）
 export class DefaultHookOutput implements HookOutput {
- continue?: boolean;
- stopReason?: string;
- suppressOutput?: boolean;
- systemMessage?: string;
- decision?: HookDecision;
- reason?: string;
- hookSpecificOutput?: Record<string, unknown>;
+  continue?: boolean;
+  stopReason?: string;
+  suppressOutput?: boolean;
+  systemMessage?: string;
+  decision?: HookDecision;
+  reason?: string;
+  hookSpecificOutput?: Record<string, unknown>;
 
- constructor(data: Partial<HookOutput> = {}) {
- this.continue = data.continue;
- this.stopReason = data.stopReason;
- this.suppressOutput = data.suppressOutput;
- this.systemMessage = data.systemMessage;
- this.decision = data.decision;
- this.reason = data.reason;
- this.hookSpecificOutput = data.hookSpecificOutput;
- }
+  constructor(data: Partial<HookOutput> = {}) {
+  this.continue = data.continue;
+  this.stopReason = data.stopReason;
+  this.suppressOutput = data.suppressOutput;
+  this.systemMessage = data.systemMessage;
+  this.decision = data.decision;
+  this.reason = data.reason;
+  this.hookSpecificOutput = data.hookSpecificOutput;
+  }
 
- isBlockingDecision(): boolean {
- return this.decision === 'block' || this.decision === 'deny';
- }
+  isBlockingDecision(): boolean {
+  return this.decision === 'block' || this.decision === 'deny';
+  }
 
- shouldStopExecution(): boolean {
- return this.continue === false;
- }
+  shouldStopExecution(): boolean {
+  return this.continue === false;
+  }
 
- getEffectiveReason(): string {
- return this.stopReason || this.reason || 'No reason provided';
- }
+  getEffectiveReason(): string {
+  return this.stopReason || this.reason || 'No reason provided';
+  }
 
- getBlockingError(): { blocked: boolean; reason: string } {
- return this.isBlockingDecision()
- ? { blocked: true, reason: this.getEffectiveReason() }
- : { blocked: false, reason: '' };
- }
+  getBlockingError(): { blocked: boolean; reason: string } {
+  return this.isBlockingDecision()
+  ? { blocked: true, reason: this.getEffectiveReason() }
+  : { blocked: false, reason: '' };
+  }
 }
 
 // BeforeTool：允许 hook 修改 tool_input（coreToolHookTriggers 会 tool.build() 重建 invocation）
 export class BeforeToolHookOutput extends DefaultHookOutput {
- getModifiedToolInput(): Record<string, unknown> | undefined {
- if (this.hookSpecificOutput && 'tool_input' in this.hookSpecificOutput) {
- const input = this.hookSpecificOutput['tool_input'];
- return typeof input === 'object' && input !== null && !Array.isArray(input)
- ? (input as Record<string, unknown>)
- : undefined;
- }
- return undefined;
- }
+  getModifiedToolInput(): Record<string, unknown> | undefined {
+  if (this.hookSpecificOutput && 'tool_input' in this.hookSpecificOutput) {
+  const input = this.hookSpecificOutput['tool_input'];
+  return typeof input === 'object' && input !== null && !Array.isArray(input)
+  ? (input as Record<string, unknown>)
+  : undefined;
+  }
+  return undefined;
+  }
 }
 
 // BeforeToolSelection：可修改 toolConfig（比如并行/禁止某些工具）
 export class BeforeToolSelectionHookOutput extends DefaultHookOutput {
- override applyToolConfigModifications(target: {
- toolConfig?: GenAIToolConfig;
- tools?: ToolListUnion;
- }) {
- /* ...translator: HookToolConfig -> SDK ToolConfig... */
- return target;
- }
+  override applyToolConfigModifications(target: {
+  toolConfig?: GenAIToolConfig;
+  tools?: ToolListUnion;
+  }) {
+  /* ...translator: HookToolConfig -> SDK ToolConfig... */
+  return target;
+  }
 }
 
 // AfterModel：可修改响应；如果 continue=false，会合成一个 finishReason=STOP 的响应
 export class AfterModelHookOutput extends DefaultHookOutput {
- getModifiedResponse(): GenerateContentResponse | undefined {
- /* ... */
- return undefined;
- }
+  getModifiedResponse(): GenerateContentResponse | undefined {
+  /* ... */
+  return undefined;
+  }
 }
 
 export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
- switch (eventName) {
- case 'BeforeModel': return new BeforeModelHookOutput(data);
- case 'AfterModel': return new AfterModelHookOutput(data);
- case 'BeforeToolSelection': return new BeforeToolSelectionHookOutput(data);
- case 'BeforeTool': return new BeforeToolHookOutput(data);
- default: return new DefaultHookOutput(data);
- }
+  switch (eventName) {
+  case 'BeforeModel': return new BeforeModelHookOutput(data);
+  case 'AfterModel': return new AfterModelHookOutput(data);
+  case 'BeforeToolSelection': return new BeforeToolSelectionHookOutput(data);
+  case 'BeforeTool': return new BeforeToolHookOutput(data);
+  default: return new DefaultHookOutput(data);
+  }
 }`;
 
  return (
@@ -407,9 +411,9 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
  Hook 配置注册表，管理所有 Hook 定义
  </p>
  <ul className="text-body space-y-1">
- <li>• 从多层级配置加载 Hook</li>
- <li>• 按优先级合并配置</li>
- <li>• 支持启用/禁用单个 Hook</li>
+ <li>从多层级配置加载 Hook</li>
+ <li>按优先级合并配置</li>
+ <li>支持启用/禁用单个 Hook</li>
  </ul>
  </div>
  </HighlightBox>
@@ -418,9 +422,9 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
  <div className="text-sm space-y-2">
  <p className="text-body">执行计划规划器</p>
  <ul className="text-body space-y-1">
- <li>• 根据事件类型匹配 Hook</li>
- <li>• 生成 HookExecutionPlan</li>
- <li>• 处理 matcher 模式匹配</li>
+ <li>根据事件类型匹配 Hook</li>
+ <li>生成 HookExecutionPlan</li>
+ <li>处理 matcher 模式匹配</li>
  </ul>
  </div>
  </HighlightBox>
@@ -429,9 +433,9 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
  <div className="text-sm space-y-2">
  <p className="text-body">Shell 命令执行器</p>
  <ul className="text-body space-y-1">
- <li>• 执行 command 类型 Hook</li>
- <li>• 处理超时和错误</li>
- <li>• 解析 JSON 输出</li>
+ <li>执行 command 类型 Hook</li>
+ <li>处理超时和错误</li>
+ <li>解析 JSON 输出</li>
  </ul>
  </div>
  </HighlightBox>
@@ -440,9 +444,9 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
  <div className="text-sm space-y-2">
  <p className="text-body">结果聚合器</p>
  <ul className="text-body space-y-1">
- <li>• 合并多个 Hook 输出</li>
- <li>• 处理冲突决策</li>
- <li>• 生成最终 HookOutput</li>
+ <li>合并多个 Hook 输出</li>
+ <li>处理冲突决策</li>
+ <li>生成最终 HookOutput</li>
  </ul>
  </div>
  </HighlightBox>
@@ -453,9 +457,9 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
  <div className="text-sm space-y-2">
  <p className="text-body">事件处理器（协调中心）</p>
  <ul className="text-body space-y-1">
- <li>• 接收事件触发请求</li>
- <li>• 协调 Planner/Runner/Aggregator</li>
- <li>• 通过 MessageBus 进行权限检查</li>
+ <li>接收事件触发请求</li>
+ <li>协调 Planner/Runner/Aggregator</li>
+ <li>通过 MessageBus 进行权限检查</li>
  </ul>
  </div>
  </HighlightBox>
@@ -464,9 +468,9 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
  <div className="text-sm space-y-2">
  <p className="text-body">格式转换器</p>
  <ul className="text-body space-y-1">
- <li>• Hook 格式 ↔ SDK 格式</li>
- <li>• LLMRequest/Response 转换</li>
- <li>• ToolConfig 转换</li>
+ <li>Hook 格式 ↔ SDK 格式</li>
+ <li>LLMRequest/Response 转换</li>
+ <li>ToolConfig 转换</li>
  </ul>
  </div>
  </HighlightBox>
@@ -537,7 +541,7 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
  </tr>
  <tr>
  <td className="border border-edge p-3">
- <code className="text-green-300">BeforeAgent</code>
+ <code className="text-heading">BeforeAgent</code>
  </td>
  <td className="border border-edge p-3">Agent 执行前</td>
  <td className="border border-edge p-3">
@@ -546,7 +550,7 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
  </tr>
  <tr className="bg-surface/30">
  <td className="border border-edge p-3">
- <code className="text-green-300">AfterAgent</code>
+ <code className="text-heading">AfterAgent</code>
  </td>
  <td className="border border-edge p-3">Agent 执行后</td>
  <td className="border border-edge p-3">
@@ -555,7 +559,7 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
  </tr>
  <tr>
  <td className="border border-edge p-3">
- <code className="text-amber-300">SessionStart</code>
+ <code className="text-heading">SessionStart</code>
  </td>
  <td className="border border-edge p-3">会话开始</td>
  <td className="border border-edge p-3">
@@ -564,7 +568,7 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
  </tr>
  <tr className="bg-surface/30">
  <td className="border border-edge p-3">
- <code className="text-amber-300">SessionEnd</code>
+ <code className="text-heading">SessionEnd</code>
  </td>
  <td className="border border-edge p-3">会话结束</td>
  <td className="border border-edge p-3">
@@ -624,11 +628,11 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
  配置层级（优先级从高到低）
  </h4>
  <div className="flex items-center gap-2 flex-wrap text-sm">
- <span className="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-lg border border-red-500/30">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover/30">
  Project 项目级
  </span>
  <span className="text-dim">{'>'}</span>
- <span className="px-3 py-1.5 bg-amber-500/20 text-amber-400 rounded-lg border border-amber-500/30">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover/30">
  User 用户级
  </span>
  <span className="text-dim">{'>'}</span>
@@ -700,24 +704,24 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
  />
 
  <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
- <div className="bg-green-500/20 rounded-lg p-3 text-center border border-green-500/30">
- <div className="text-lg font-bold text-green-400">allow</div>
+ <div className="bg-elevated rounded-lg p-3 text-center border-l-2 border-l-edge-hover/30">
+ <div className="text-lg font-bold text-heading">allow</div>
  <div className="text-xs text-body">允许继续</div>
  </div>
- <div className="bg-green-500/20 rounded-lg p-3 text-center border border-green-500/30">
- <div className="text-lg font-bold text-green-400">approve</div>
+ <div className="bg-elevated rounded-lg p-3 text-center border-l-2 border-l-edge-hover/30">
+ <div className="text-lg font-bold text-heading">approve</div>
  <div className="text-xs text-body">批准执行</div>
  </div>
- <div className="bg-amber-500/20 rounded-lg p-3 text-center border border-amber-500/30">
- <div className="text-lg font-bold text-amber-400">ask</div>
+ <div className="bg-elevated rounded-lg p-3 text-center border-l-2 border-l-edge-hover/30">
+ <div className="text-lg font-bold text-heading">ask</div>
  <div className="text-xs text-body">询问用户</div>
  </div>
- <div className="bg-red-500/20 rounded-lg p-3 text-center border border-red-500/30">
- <div className="text-lg font-bold text-red-400">block</div>
+ <div className="bg-elevated rounded-lg p-3 text-center border-l-2 border-l-edge-hover/30">
+ <div className="text-lg font-bold text-heading">block</div>
  <div className="text-xs text-body">阻止执行</div>
  </div>
- <div className="bg-red-500/20 rounded-lg p-3 text-center border border-red-500/30">
- <div className="text-lg font-bold text-red-400">deny</div>
+ <div className="bg-elevated rounded-lg p-3 text-center border-l-2 border-l-edge-hover/30">
+ <div className="text-lg font-bold text-heading">deny</div>
  <div className="text-xs text-body">拒绝操作</div>
  </div>
  </div>
@@ -803,13 +807,13 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
  </p>
  </div>
  <div className="bg-base/30 p-2 rounded">
- <code className="text-green-300">AfterModelHookOutput</code>
+ <code className="text-heading">AfterModelHookOutput</code>
  <p className="text-xs text-body mt-1">
  getModifiedResponse() - 修改模型响应
  </p>
  </div>
  <div className="bg-base/30 p-2 rounded">
- <code className="text-amber-300">
+ <code className="text-heading">
  BeforeToolSelectionHookOutput
  </code>
  <p className="text-xs text-body mt-1">

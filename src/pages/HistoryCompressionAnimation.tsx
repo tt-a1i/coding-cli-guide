@@ -290,7 +290,7 @@ function TokenUsageBar({
  <div className="bg-base rounded-lg p-4 border border-edge">
  <div className="flex items-center justify-between mb-3">
  <div className="flex items-center gap-2">
- <span className="text-amber-500">📊</span>
+ <span className="text-heading">📊</span>
  <span className="text-sm font-mono font-bold text-heading">Token 使用量</span>
  </div>
  <div className="text-xs font-mono text-dim">
@@ -302,7 +302,7 @@ function TokenUsageBar({
  <div className="relative h-8 bg-base/30 rounded-lg overflow-hidden">
  {/* 阈值线 */}
  <div
- className="absolute top-0 bottom-0 w-0.5 bg-amber-500 z-10"
+ className="absolute top-0 bottom-0 w-0.5 bg-[var(--color-warning)] z-10"
  style={{ left: `${thresholdPercent}%` }}
  />
 
@@ -310,7 +310,7 @@ function TokenUsageBar({
  <div
  className={`absolute top-0 bottom-0 left-0 transition-all duration-500 ${
  currentPercent > thresholdPercent
- ? 'bg-red-500/60'
+ ? 'bg-[var(--color-danger)]'
  : ' bg-elevated/60'
  }`}
  style={{ width: `${currentPercent}%` }}
@@ -340,7 +340,7 @@ function TokenUsageBar({
  {/* 图例 */}
  <div className="flex gap-4 mt-2 text-xs">
  <div className="flex items-center gap-1">
- <div className="w-3 h-3 rounded bg-amber-500" />
+ <div className="w-3 h-3 rounded bg-[var(--color-warning)]" />
  <span className="text-dim">阈值 ({thresholdPercent}%)</span>
  </div>
  {newPercent !== null && (
@@ -406,11 +406,11 @@ function HistoryVisual({
  className={`p-2 rounded border ${
  msg.role === 'user'
  ? ' bg-elevated/10 border-edge/30'
- : 'bg-amber-500/10 border-amber-500/30'
+ : 'bg-elevated border-edge/30'
  }`}
  >
  <div className="text-[10px] mb-1" style={{
- color: msg.role === 'user' ? 'var(--color-primary)' : '#f59e0b'
+ color: msg.role === 'user' ? 'var(--color-primary)' : 'var(--color-warning)'
  }}>
  {msg.role.toUpperCase()}
  </div>
@@ -431,7 +431,7 @@ function HistoryVisual({
  key={msg.id}
  className={`p-2 rounded border transition-all duration-300 ${
  isToCompress
- ? 'bg-red-500/10 border-red-500/30 opacity-60'
+ ? 'bg-elevated border-edge/30 opacity-60'
  : isToKeep
  ? ' bg-elevated/10 border-edge/30'
  : msg.role === 'user'
@@ -441,7 +441,7 @@ function HistoryVisual({
  >
  <div className="flex items-center justify-between mb-1">
  <div className="text-[10px]" style={{
- color: isToCompress ? '#ef4444' :
+ color: isToCompress ? 'var(--color-danger)' :
  isToKeep ? 'var(--color-primary)' :
  msg.role === 'user' ? 'var(--color-primary)' : 'var(--color-primary)'
  }}>
@@ -456,7 +456,7 @@ function HistoryVisual({
  {msg.content}
  </div>
  {showSplit && i === splitPoint && (
- <div className="mt-2 pt-2 border-t border-dashed border-amber-500 text-[10px] text-amber-500">
+ <div className="mt-2 pt-2 border-t border-dashed border-edge text-[10px] text-heading">
  ↑ 压缩 | ↓ 保留
  </div>
  )}
@@ -470,7 +470,7 @@ function HistoryVisual({
  {showSplit && (
  <div className="flex gap-4 mt-3 pt-3 border-t border-edge text-xs">
  <div className="flex items-center gap-1">
- <div className="w-3 h-3 rounded bg-red-500/30" />
+ <div className="w-3 h-3 rounded bg-elevated" />
  <span className="text-dim">待压缩 ({historyToCompress.length})</span>
  </div>
  <div className="flex items-center gap-1">
@@ -615,7 +615,7 @@ export function HistoryCompressionAnimation() {
  onClick={() => setIsPlaying(!isPlaying)}
  className={`px-4 py-1.5 rounded text-sm font-medium ${
  isPlaying
- ? 'bg-amber-500/20 text-amber-500 border border-amber-500/50'
+ ? 'bg-elevated text-heading border-l-2 border-l-edge-hover/40'
  : ' bg-elevated/20 text-heading border border-edge-hover'
  }`}
  >
@@ -682,8 +682,8 @@ export function HistoryCompressionAnimation() {
  <div className="bg-elevated rounded-lg p-4 border border-edge">
  <h3 className="text-sm font-bold text-heading mb-3">算法要点</h3>
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
- <div className="p-3 rounded bg-amber-500/10 border border-amber-500/30">
- <div className="font-bold text-amber-500 mb-1">分割点选择</div>
+ <div className="p-3 rounded bg-elevated border-l-2 border-l-edge-hover/30">
+ <div className="font-bold text-heading mb-1">分割点选择</div>
  <div className="text-body">
  只在 user 消息边界分割，避免在工具响应中间截断
  </div>

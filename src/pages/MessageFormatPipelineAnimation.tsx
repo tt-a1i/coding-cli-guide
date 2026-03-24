@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { useState, useEffect, useCallback } from 'react';
+import { CodeBlock } from '../components/CodeBlock';
 
 /**
  * 消息格式转换管道动画
@@ -284,7 +285,7 @@ export default function MessageFormatPipelineAnimation() {
  onClick={() => isPlaying ? resetAnimation() : (resetAnimation(), setTimeout(() => setIsPlaying(true), 100))}
  className={`px-4 py-2 rounded font-mono text-sm transition-all ${
  isPlaying
- ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+ ? 'bg-elevated text-heading border-l-2 border-l-edge-hover/30'
  : ' bg-elevated/20 text-heading border border-edge/30'
  }`}
  >
@@ -293,7 +294,7 @@ export default function MessageFormatPipelineAnimation() {
  </div>
  </div>
 
- <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 text-sm text-amber-200">
+ <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-3 text-sm text-heading">
  注意：此转换管道属于 Innies/Qwen CLI 的多厂商兼容层；上游 Gemini CLI 不需要进行 Gemini ↔ OpenAI 的消息/工具格式互转。
  </div>
 
@@ -382,9 +383,9 @@ export default function MessageFormatPipelineAnimation() {
 
  {/* 内容转换 */}
  <div className={`p-3 rounded border transition-all ${
- phase === 'content-convert' ? 'bg-amber-500/10 border-amber-500/30' : ' bg-elevated border-edge-hover'
+ phase === 'content-convert' ? 'bg-elevated border-edge/30' : ' bg-elevated border-edge-hover'
  }`}>
- <div className="text-xs font-mono text-amber-500 mb-2">Content Parts</div>
+ <div className="text-xs font-mono text-heading mb-2">Content Parts</div>
  <div className="text-xs font-mono text-dim space-y-1">
  <div>• text → content.text</div>
  <div>• inline_data → image_url</div>
@@ -467,7 +468,7 @@ export default function MessageFormatPipelineAnimation() {
  className={`${
  log.includes('✓') || log.includes('✅') ? 'text-heading' :
  log.includes('📥') || log.includes('📤') ? 'text-heading' :
- log.includes('🔄') ? 'text-amber-500' :
+ log.includes('🔄') ? 'text-heading' :
  log.includes('🔧') ? 'text-heading' :
  'text-dim'
  }`}
@@ -485,28 +486,32 @@ export default function MessageFormatPipelineAnimation() {
  源码: openaiContentGenerator/converter.ts
  </h3>
  <div className="grid grid-cols-2 gap-4 text-xs font-mono">
- <pre className="text-body bg-base/30 p-2 rounded overflow-x-auto">
-{`class OpenAIContentConverter {
- // Gemini → OpenAI
- convertGeminiRequestToOpenAI(
- request: GenerateContentParameters
- ): ChatCompletionMessageParam[]
+ <CodeBlock
+   language="typescript"
+   title="OpenAIContentConverter"
+   code={`class OpenAIContentConverter {
+  // Gemini → OpenAI
+  convertGeminiRequestToOpenAI(
+    request: GenerateContentParameters
+  ): ChatCompletionMessageParam[]
 
- // OpenAI → Gemini
- convertOpenAIResponseToGemini(
- response: ChatCompletion
- ): GenerateContentResponse
+  // OpenAI → Gemini
+  convertOpenAIResponseToGemini(
+    response: ChatCompletion
+  ): GenerateContentResponse
 }`}
- </pre>
- <pre className="text-body bg-base/30 p-2 rounded overflow-x-auto">
-{`// 内容部件映射
+ />
+ <CodeBlock
+   language="typescript"
+   title="内容部件映射"
+   code={`// 内容部件映射
 Gemini → OpenAI
 ─────────────────────────────
-text → content
+text       → content
 inline_data → image_url
 functionCall → tool_calls[]
 functionResponse→ tool message`}
- </pre>
+ />
  </div>
  </div>
  </div>

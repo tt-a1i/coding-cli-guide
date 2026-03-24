@@ -45,7 +45,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-dim">验证工具参数格式</div>
  </div>
  <div className="bg-base p-2 rounded border border-edge">
- <div className="text-amber-500">awaiting_approval</div>
+ <div className="text-heading">awaiting_approval</div>
  <div className="text-dim">等待用户审批执行</div>
  </div>
  <div className="bg-base p-2 rounded border border-edge">
@@ -71,7 +71,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div>
  <h3 className="text-heading font-semibold mb-2">🔗 相关机制</h3>
  <div className="flex flex-wrap gap-2">
- <span className="px-2 py-1 bg-amber-500/20 text-amber-500 rounded text-xs">权限审批</span>
+ <span className="px-2 py-1 bg-elevated text-heading rounded text-xs">权限审批</span>
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">工具执行</span>
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">错误处理</span>
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">重试机制</span>
@@ -500,7 +500,7 @@ export function ToolSchedulerAnimation() {
 
  {/* Header */}
  <div className="flex items-center gap-3 mb-6">
- <span className="text-amber-500">⚙️</span>
+ <span className="text-heading">⚙️</span>
  <h2 className="text-2xl font-mono font-bold text-heading">
  Scheduler 状态机
  </h2>
@@ -533,7 +533,7 @@ export function ToolSchedulerAnimation() {
  </button>
  <button
  onClick={reset}
- className="px-5 py-2.5 bg-elevated text-amber-500 rounded-md font-mono font-bold border border-edge hover:border-amber-600 transition-all cursor-pointer"
+ className="px-5 py-2.5 bg-elevated text-heading rounded-md font-mono font-bold border border-edge hover:border-edge/60 transition-all cursor-pointer"
  >
  ↺ 重置
  </button>
@@ -542,8 +542,8 @@ export function ToolSchedulerAnimation() {
  onClick={toggleError}
  className={`px-4 py-2 rounded-md font-mono text-sm border transition-all cursor-pointer ${
  showError
- ? 'bg-red-500/20 border-red-500 text-red-500'
- : ' bg-elevated border-edge text-dim hover:border-red-600'
+ ? 'bg-elevated border-edge text-heading'
+ : ' bg-elevated border-edge text-dim hover:border-edge/60'
  }`}
  >
  {showError ? '✓ 错误路径' : '○ 错误路径'}
@@ -593,7 +593,7 @@ export function ToolSchedulerAnimation() {
  refY="3.5"
  orient="auto"
  >
- <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444" />
+ <polygon points="0 0, 10 3.5, 0 7" fill="var(--color-danger)" />
  </marker>
  <marker
  id="arrow-cancel"
@@ -620,7 +620,7 @@ export function ToolSchedulerAnimation() {
  to={nodes.awaiting_approval}
  label="需审批"
  isActive={currentState === 'awaiting_approval'}
- color="#f59e0b"
+ color="var(--color-warning)"
  curved="up"
  />
  <TransitionArrow
@@ -660,7 +660,7 @@ export function ToolSchedulerAnimation() {
  to={nodes.error}
  label="失败"
  isActive={currentState === 'error'}
- color="#ef4444"
+ color="var(--color-danger)"
  curved="down"
  />
 
@@ -699,7 +699,7 @@ export function ToolSchedulerAnimation() {
  currentState={currentState}
  label="AWAITING"
  description="等待审批"
- color="#f59e0b"
+ color="var(--color-warning)"
  glowColor="rgba(245, 158, 11, 0.25)"
  {...nodes.awaiting_approval}
  />
@@ -735,7 +735,7 @@ export function ToolSchedulerAnimation() {
  currentState={currentState}
  label="ERROR"
  description="失败"
- color="#ef4444"
+ color="var(--color-danger)"
  glowColor="#ef4444"
  {...nodes.error}
  />
@@ -760,10 +760,10 @@ export function ToolSchedulerAnimation() {
  <div className="flex items-center gap-2 mb-4">
  <span className={`w-3 h-3 rounded-full ${
  currentState === 'success' ? ' bg-elevated' :
- currentState === 'error' ? 'bg-red-500' :
+ currentState === 'error' ? 'bg-[var(--color-danger)]' :
  currentState === 'cancelled' ? ' bg-elevated' :
  currentState === 'executing' ? ' bg-elevated animate-pulse' :
- currentState === 'awaiting_approval' ? 'bg-amber-500 animate-pulse' :
+ currentState === 'awaiting_approval' ? 'bg-[var(--color-warning)] animate-pulse' :
  ' bg-elevated'
  }`} />
  <h3 className="text-lg font-mono font-bold text-heading">
@@ -781,7 +781,7 @@ export function ToolSchedulerAnimation() {
  <span>/</span>
  <span>{allSteps.length}</span>
  {isPlaying && (
- <span className="ml-2 text-amber-500 animate-pulse">● 播放中</span>
+ <span className="ml-2 text-heading animate-pulse">● 播放中</span>
  )}
  </div>
 
@@ -818,7 +818,7 @@ export function ToolSchedulerAnimation() {
  <span className="text-dim">处理中</span>
  </div>
  <div className="flex items-center gap-2">
- <span className="w-3 h-3 rounded-full bg-amber-500" />
+ <span className="w-3 h-3 rounded-full bg-[var(--color-warning)]" />
  <span className="text-dim">需审批</span>
  </div>
  <div className="flex items-center gap-2">
@@ -826,7 +826,7 @@ export function ToolSchedulerAnimation() {
  <span className="text-dim">成功</span>
  </div>
  <div className="flex items-center gap-2">
- <span className="w-3 h-3 rounded-full bg-red-500" />
+ <span className="w-3 h-3 rounded-full bg-[var(--color-danger)]" />
  <span className="text-dim">错误</span>
  </div>
  <div className="flex items-center gap-2">

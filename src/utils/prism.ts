@@ -26,6 +26,19 @@ export async function loadPrism(): Promise<PrismType> {
     await safe(import('prismjs/components/prism-diff'));
     await safe(import('prismjs/components/prism-markdown'));
     await safe(import('prismjs/components/prism-rust'));
+    await safe(import('prismjs/components/prism-python'));
+    await safe(import('prismjs/components/prism-go'));
+    await safe(import('prismjs/components/prism-css'));
+    await safe(import('prismjs/components/prism-sql'));
+    await safe(import('prismjs/components/prism-c'));
+    await safe(import('prismjs/components/prism-cpp'));
+    await safe(import('prismjs/components/prism-graphql'));
+    await safe(import('prismjs/components/prism-docker'));
+    await safe(import('prismjs/components/prism-java'));
+    await safe(import('prismjs/components/prism-swift'));
+    await safe(import('prismjs/components/prism-kotlin'));
+    await safe(import('prismjs/components/prism-ruby'));
+    await safe(import('prismjs/components/prism-regex'));
 
     return Prism;
   })();
@@ -45,6 +58,18 @@ export type CodeLanguage =
   | 'tsx'
   | 'typescript'
   | 'yaml'
+  | 'python'
+  | 'go'
+  | 'css'
+  | 'sql'
+  | 'c'
+  | 'cpp'
+  | 'graphql'
+  | 'docker'
+  | 'java'
+  | 'swift'
+  | 'kotlin'
+  | 'ruby'
   | 'text';
 
 export function normalizeLanguage(
@@ -80,6 +105,18 @@ function mapLanguage(raw: string): CodeLanguage | null {
   if (raw === 'yaml' || raw === 'yml') return 'yaml';
   if (raw === 'toml') return 'toml';
   if (raw === 'rs' || raw === 'rust') return 'rust';
+  if (raw === 'py' || raw === 'python') return 'python';
+  if (raw === 'go' || raw === 'golang') return 'go';
+  if (raw === 'css' || raw === 'scss' || raw === 'sass') return 'css';
+  if (raw === 'sql' || raw === 'mysql' || raw === 'postgres' || raw === 'postgresql') return 'sql';
+  if (raw === 'c') return 'c';
+  if (raw === 'cpp' || raw === 'c++' || raw === 'cxx') return 'cpp';
+  if (raw === 'graphql' || raw === 'gql') return 'graphql';
+  if (raw === 'docker' || raw === 'dockerfile') return 'docker';
+  if (raw === 'java') return 'java';
+  if (raw === 'swift') return 'swift';
+  if (raw === 'kotlin' || raw === 'kt') return 'kotlin';
+  if (raw === 'ruby' || raw === 'rb') return 'ruby';
   if (raw === 'text' || raw === 'plain' || raw === 'plaintext') return 'text';
   return null;
 }
@@ -88,7 +125,7 @@ function inferFromTitle(title?: string): CodeLanguage | null {
   if (!title) return null;
   const t = title.toLowerCase();
 
-  const fileMatch = t.match(/\b[\w./-]+\.(ts|tsx|js|jsx|json|sh|bash|zsh|md|yaml|yml|toml|rs)\b/);
+  const fileMatch = t.match(/\b[\w./-]+\.(ts|tsx|js|jsx|json|sh|bash|zsh|md|yaml|yml|toml|rs|py|go|css|sql|c|cpp|java|swift|kt|rb|graphql|dockerfile)\b/);
   if (fileMatch) {
     return mapLanguage(fileMatch[1]) ?? null;
   }
@@ -160,6 +197,15 @@ export function inferLanguageFromCode(code: string): CodeLanguage | null {
   if (c.includes('function ') || c.includes('const ') || c.includes('let ')) {
     return 'typescript';
   }
+
+  // Python
+  if (c.includes('def ') && (c.includes('self') || c.includes('print(') || c.includes('import '))) return 'python';
+
+  // Go
+  if (c.includes('func ') && c.includes('package ')) return 'go';
+
+  // SQL
+  if (/^(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP)\b/i.test(c)) return 'sql';
 
   return null;
 }

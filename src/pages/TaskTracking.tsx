@@ -5,6 +5,10 @@ import { CodeBlock } from '../components/CodeBlock';
 import { JsonBlock } from '../components/JsonBlock';
 import { Layer } from '../components/Layer';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
+
 
 const relatedPages: RelatedPage[] = [
  { id: 'tool-system', label: '工具系统架构', description: 'CRUD 工具注册' },
@@ -44,7 +48,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  { val: '4', label: 'CRUD 工具', color: 'var(--color-text)' },
  { val: '4', label: '任务状态', color: 'var(--color-text)' },
  { val: '3', label: '核心组件', color: 'var(--color-text)' },
- { val: 'JSON', label: '持久化格式', color: '#f59e0b' },
+ { val: 'JSON', label: '持久化格式', color: 'var(--color-warning)' },
  ].map(({ val, label, color }) => (
  <div key={label} className="bg-surface rounded-lg p-3 text-center border border-edge">
  <div className="text-2xl font-bold" style={{ color }}>{val}</div>
@@ -58,7 +62,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="flex items-center gap-2 flex-wrap text-sm">
  {[
  { text: 'createTask', color: 'var(--color-text)' },
- { text: 'pending', color: '#f59e0b' },
+ { text: 'pending', color: 'var(--color-warning)' },
  { text: 'in_progress', color: 'var(--color-text)' },
  { text: 'completed', color: 'var(--color-text)' },
  ].flatMap(({ text, color }, i) => [
@@ -101,12 +105,12 @@ export function TaskTracking() {
  Strategy -->|注入任务上下文| Tracker
  PlanMode -->|步骤转任务| Tracker
 
- style User fill:#22d3ee,color:#000
- style Tracker fill:#a855f7,color:#fff
- style Store fill:#f59e0b,color:#000
- style Viz fill:#22c55e,color:#000
- style Strategy fill:#ec4899,color:#fff
- style FS fill:#6b7280,color:#fff`;
+ style User fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Tracker fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Store fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Viz fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Strategy fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style FS fill:${getThemeColor("--mermaid-muted-fill", "#f4f4f2")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  const stateMachineChart = `stateDiagram-v2
  [*] --> pending: createTask
@@ -123,107 +127,107 @@ export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'blocked';
 export type TaskPriority = 'low' | 'medium' | 'high' | 'critical';
 
 export interface Task {
- id: string; // UUID 唯一标识
- title: string; // 任务标题
- description?: string; // 详细描述
- status: TaskStatus; // 当前状态
- priority: TaskPriority; // 优先级
- dependencies: string[]; // 依赖的任务 ID 列表
- parentId?: string; // 父任务 ID（子任务）
- tags: string[]; // 标签分类
- createdAt: string; // ISO 8601 创建时间
- updatedAt: string; // 最后更新时间
- completedAt?: string; // 完成时间
- metadata?: Record<string, unknown>;
+  id: string; // UUID 唯一标识
+  title: string; // 任务标题
+  description?: string; // 详细描述
+  status: TaskStatus; // 当前状态
+  priority: TaskPriority; // 优先级
+  dependencies: string[]; // 依赖的任务 ID 列表
+  parentId?: string; // 父任务 ID（子任务）
+  tags: string[]; // 标签分类
+  createdAt: string; // ISO 8601 创建时间
+  updatedAt: string; // 最后更新时间
+  completedAt?: string; // 完成时间
+  metadata?: Record<string, unknown>;
 }
 
 export interface TaskCollection {
- version: string; projectId: string;
- tasks: Task[]; lastModified: string;
+  version: string; projectId: string;
+  tasks: Task[]; lastModified: string;
 }`;
 
  const taskStoreCode = `export class TaskStore {
- private tasks: Map<string, Task> = new Map();
- private filePath: string;
- private dirty = false;
+  private tasks: Map<string, Task> = new Map();
+  private filePath: string;
+  private dirty = false;
 
- constructor(projectRoot: string, storage: Storage) {
- this.filePath = path.join(storage.getProjectTempDir(), 'tasks', 'tasks.json');
- }
+  constructor(projectRoot: string, storage: Storage) {
+  this.filePath = path.join(storage.getProjectTempDir(), 'tasks', 'tasks.json');
+  }
 
- async load(): Promise<void> {
- try {
- const collection: TaskCollection = JSON.parse(
- await fs.readFile(this.filePath, 'utf-8')
- );
- for (const task of collection.tasks) this.tasks.set(task.id, task);
- } catch { this.tasks.clear(); }
- }
+  async load(): Promise<void> {
+  try {
+  const collection: TaskCollection = JSON.parse(
+  await fs.readFile(this.filePath, 'utf-8')
+  );
+  for (const task of collection.tasks) this.tasks.set(task.id, task);
+  } catch { this.tasks.clear(); }
+  }
 
- async save(): Promise<void> {
- if (!this.dirty) return;
- await fs.mkdir(path.dirname(this.filePath), { recursive: true });
- await fs.writeFile(this.filePath, JSON.stringify({
- version: '1.0', tasks: Array.from(this.tasks.values()),
- lastModified: new Date().toISOString(),
- }, null, 2));
- this.dirty = false;
- }
+  async save(): Promise<void> {
+  if (!this.dirty) return;
+  await fs.mkdir(path.dirname(this.filePath), { recursive: true });
+  await fs.writeFile(this.filePath, JSON.stringify({
+  version: '1.0', tasks: Array.from(this.tasks.values()),
+  lastModified: new Date().toISOString(),
+  }, null, 2));
+  this.dirty = false;
+  }
 
- add(task: Task): void { this.tasks.set(task.id, task); this.dirty = true; }
- get(id: string) { return this.tasks.get(id); }
- delete(id: string) { const r = this.tasks.delete(id); if (r) this.dirty = true; return r; }
- getAll(): Task[] { return Array.from(this.tasks.values()); }
- getByStatus(s: TaskStatus) { return this.getAll().filter(t => t.status === s); }
+  add(task: Task): void { this.tasks.set(task.id, task); this.dirty = true; }
+  get(id: string) { return this.tasks.get(id); }
+  delete(id: string) { const r = this.tasks.delete(id); if (r) this.dirty = true; return r; }
+  getAll(): Task[] { return Array.from(this.tasks.values()); }
+  getByStatus(s: TaskStatus) { return this.getAll().filter(t => t.status === s); }
 }`;
 
  const createTaskToolCode = `export const createTaskTool: ToolDefinition = {
- name: 'create_task',
- displayName: 'Create Task',
- description: '创建新的可追踪任务',
- parameters: {
- type: 'object',
- properties: {
- title: { type: 'string', description: '任务标题' },
- description: { type: 'string', description: '任务详细描述' },
- priority: { type: 'string', enum: ['low','medium','high','critical'] },
- dependencies: { type: 'array', items: { type: 'string' }, description: '依赖任务 ID' },
- parentId: { type: 'string', description: '父任务 ID' },
- tags: { type: 'array', items: { type: 'string' } },
- },
- required: ['title'],
- },
- async execute(args, context) {
- const tracker = context.getService<TaskTracker>('taskTracker');
- const task = tracker.createTask({ ...args, priority: args.priority ?? 'medium' });
- return { status: 'success', output: \`Task created: \${task.id} - \${task.title}\` };
- },
+  name: 'create_task',
+  displayName: 'Create Task',
+  description: '创建新的可追踪任务',
+  parameters: {
+  type: 'object',
+  properties: {
+  title: { type: 'string', description: '任务标题' },
+  description: { type: 'string', description: '任务详细描述' },
+  priority: { type: 'string', enum: ['low','medium','high','critical'] },
+  dependencies: { type: 'array', items: { type: 'string' }, description: '依赖任务 ID' },
+  parentId: { type: 'string', description: '父任务 ID' },
+  tags: { type: 'array', items: { type: 'string' } },
+  },
+  required: ['title'],
+  },
+  async execute(args, context) {
+  const tracker = context.getService<TaskTracker>('taskTracker');
+  const task = tracker.createTask({ ...args, priority: args.priority ?? 'medium' });
+  return { status: 'success', output: \`Task created: \${task.id} - \${task.title}\` };
+  },
 };`;
 
  const updateTaskToolCode = `export const updateTaskTool: ToolDefinition = {
- name: 'update_task',
- displayName: 'Update Task',
- parameters: {
- type: 'object',
- properties: {
- taskId: { type: 'string', description: '任务 ID' },
- status: { type: 'string', enum: ['pending','in_progress','completed','blocked'] },
- title: { type: 'string' },
- priority: { type: 'string', enum: ['low','medium','high','critical'] },
- },
- required: ['taskId'],
- },
- async execute(args, context) {
- const tracker = context.getService<TaskTracker>('taskTracker');
- // 状态转换验证：防止非法跳转
- if (args.status) {
- const v = tracker.validateTransition(args.taskId, args.status);
- if (!v.allowed) return { status: 'error', output: v.reason };
- }
- const updated = tracker.updateTask(args.taskId, args);
- if (!updated) return { status: 'error', output: 'Task not found' };
- return { status: 'success', output: \`\${updated.title} → \${updated.status}\` };
- },
+  name: 'update_task',
+  displayName: 'Update Task',
+  parameters: {
+  type: 'object',
+  properties: {
+  taskId: { type: 'string', description: '任务 ID' },
+  status: { type: 'string', enum: ['pending','in_progress','completed','blocked'] },
+  title: { type: 'string' },
+  priority: { type: 'string', enum: ['low','medium','high','critical'] },
+  },
+  required: ['taskId'],
+  },
+  async execute(args, context) {
+  const tracker = context.getService<TaskTracker>('taskTracker');
+  // 状态转换验证：防止非法跳转
+  if (args.status) {
+  const v = tracker.validateTransition(args.taskId, args.status);
+  if (!v.allowed) return { status: 'error', output: v.reason };
+  }
+  const updated = tracker.updateTask(args.taskId, args);
+  if (!updated) return { status: 'error', output: 'Task not found' };
+  return { status: 'success', output: \`\${updated.title} → \${updated.status}\` };
+  },
 };`;
 
  const listTasksResponse = `{
@@ -241,55 +245,55 @@ export interface TaskCollection {
 }`;
 
  const strategyCode = `export class TaskTrackerStrategy implements Strategy {
- name = 'task_tracker';
+  name = 'task_tracker';
 
- /** 在系统提示中注入当前任务进度摘要 */
- getSystemPromptAddition(context: StrategyContext): string {
- const tasks = context.getService<TaskTracker>('taskTracker').getAllTasks();
- if (tasks.length === 0) return '';
+  /** 在系统提示中注入当前任务进度摘要 */
+  getSystemPromptAddition(context: StrategyContext): string {
+  const tasks = context.getService<TaskTracker>('taskTracker').getAllTasks();
+  if (tasks.length === 0) return '';
 
- const count = (s: TaskStatus) => tasks.filter(t => t.status === s).length;
- let prompt = \`\\n## Tasks: \${count('completed')}/\${tasks.length} done, \`;
- prompt += \`\${count('in_progress')} active, \${count('blocked')} blocked\\n\`;
+  const count = (s: TaskStatus) => tasks.filter(t => t.status === s).length;
+  let prompt = \`\\n## Tasks: \${count('completed')}/\${tasks.length} done, \`;
+  prompt += \`\${count('in_progress')} active, \${count('blocked')} blocked\\n\`;
 
- // 列出进行中和 critical 任务
- for (const t of tasks.filter(t => t.status === 'in_progress' || t.priority === 'critical')) {
- prompt += \`- [\${t.status}] \${t.title}\\n\`;
- }
- return prompt;
- }
+  // 列出进行中和 critical 任务
+  for (const t of tasks.filter(t => t.status === 'in_progress' || t.priority === 'critical')) {
+  prompt += \`- [\${t.status}] \${t.title}\\n\`;
+  }
+  return prompt;
+  }
 
- /** 文件编辑成功后建议更新关联任务 */
- shouldAutoUpdate(result: ToolResult): boolean {
- return ['write_file', 'replace'].includes(result.toolName) && result.status === 'success';
- }
+  /** 文件编辑成功后建议更新关联任务 */
+  shouldAutoUpdate(result: ToolResult): boolean {
+  return ['write_file', 'replace'].includes(result.toolName) && result.status === 'success';
+  }
 }`;
 
  const planModeCode = `export class PlanModeIntegration {
- /** 将计划步骤转化为可追踪任务，保留依赖关系 */
- async convertPlanToTasks(plan: PlanStep[], tracker: TaskTracker) {
- const stepToId = new Map<number, string>();
+  /** 将计划步骤转化为可追踪任务，保留依赖关系 */
+  async convertPlanToTasks(plan: PlanStep[], tracker: TaskTracker) {
+  const stepToId = new Map<number, string>();
 
- return plan.map((step, i) => {
- const deps = step.dependsOn
- ?.map(idx => stepToId.get(idx))
- .filter((id): id is string => !!id) ?? [];
- const task = tracker.createTask({
- title: step.title, priority: step.critical ? 'critical' : 'medium',
- dependencies: deps, tags: ['plan-generated', \`step-\${i + 1}\`],
- });
- stepToId.set(i, task.id);
- return task;
- });
- }
+  return plan.map((step, i) => {
+  const deps = step.dependsOn
+  ?.map(idx => stepToId.get(idx))
+  .filter((id): id is string => !!id) ?? [];
+  const task = tracker.createTask({
+  title: step.title, priority: step.critical ? 'critical' : 'medium',
+  dependencies: deps, tags: ['plan-generated', \`step-\${i + 1}\`],
+  });
+  stepToId.set(i, task.id);
+  return task;
+  });
+  }
 
- /** 返回所有依赖已满足的 pending 任务 ID */
- advancePlan(tracker: TaskTracker): string[] {
- return tracker.getAllTasks()
- .filter(t => t.status === 'pending'
- && t.dependencies.every(d => tracker.getTask(d)?.status === 'completed'))
- .map(t => t.id);
- }
+  /** 返回所有依赖已满足的 pending 任务 ID */
+  advancePlan(tracker: TaskTracker): string[] {
+  return tracker.getAllTasks()
+  .filter(t => t.status === 'pending'
+  && t.dependencies.every(d => tracker.getTask(d)?.status === 'completed'))
+  .map(t => t.id);
+  }
 }`;
 
  const persistenceCode = `// 存储路径: ~/.gemini/tmp/<project_hash>/tasks/
@@ -298,21 +302,21 @@ export interface TaskCollection {
 // └── history/ # 变更历史快照
 
 export class TaskPersistence {
- private timer: NodeJS.Timer | null = null;
+  private timer: NodeJS.Timer | null = null;
 
- startAutoSave(store: TaskStore, ms = 30_000) {
- this.timer = setInterval(() => store.save(), ms);
- }
- stopAutoSave() { if (this.timer) clearInterval(this.timer); }
+  startAutoSave(store: TaskStore, ms = 30_000) {
+  this.timer = setInterval(() => store.save(), ms);
+  }
+  stopAutoSave() { if (this.timer) clearInterval(this.timer); }
 
- async backup(store: TaskStore) {
- await fs.copyFile(store.filePath, store.filePath + '.backup');
- }
- async restore(store: TaskStore): Promise<boolean> {
- try { await fs.copyFile(store.filePath + '.backup', store.filePath);
- await store.load(); return true;
- } catch { return false; }
- }
+  async backup(store: TaskStore) {
+  await fs.copyFile(store.filePath, store.filePath + '.backup');
+  }
+  async restore(store: TaskStore): Promise<boolean> {
+  try { await fs.copyFile(store.filePath + '.backup', store.filePath);
+  await store.load(); return true;
+  } catch { return false; }
+  }
 }`;
 
  const dependencyFlowChart = `flowchart LR
@@ -322,11 +326,11 @@ export class TaskPersistence {
  C --> D
  D --> E[Task E<br/>集成测试]
 
- style A fill:#22c55e,color:#000
- style B fill:#a855f7,color:#fff
- style C fill:#22c55e,color:#000
- style D fill:#f59e0b,color:#000
- style E fill:#6b7280,color:#fff`;
+ style A fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style B fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style C fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style D fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style E fill:${getThemeColor("--mermaid-muted-fill", "#f4f4f2")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  return (
  <div className="space-y-8">
@@ -378,7 +382,7 @@ export class TaskPersistence {
  <p>核心协调器，管理任务生命周期，处理状态转换验证和依赖关系检查。</p>
  </div>
  <div>
- <p className="font-semibold text-amber-500 mb-2">TaskStore</p>
+ <p className="font-semibold text-heading mb-2">TaskStore</p>
  <p>基于 Map 的内存存储加 JSON 文件持久化，提供高效的 CRUD 操作。</p>
  </div>
  <div>
@@ -396,10 +400,10 @@ export class TaskPersistence {
 
  <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
  {[
- { icon: '○', name: 'pending', desc: '等待开始', color: '#f59e0b' },
+ { icon: '○', name: 'pending', desc: '等待开始', color: 'var(--color-warning)' },
  { icon: '◐', name: 'in_progress', desc: '执行中', color: 'var(--color-text)' },
  { icon: '●', name: 'completed', desc: '已完成', color: 'var(--color-text)' },
- { icon: '✕', name: 'blocked', desc: '被依赖阻塞', color: '#f87171' },
+ { icon: '✕', name: 'blocked', desc: '被依赖阻塞', color: 'var(--color-danger)' },
  ].map(({ icon, name, desc, color }) => (
  <div key={name} className="bg-surface rounded-lg p-3 border" style={{ borderColor: `color-mix(in srgb, ${color} 30%, transparent)` }}>
  <div className="flex items-center gap-2 mb-1">
@@ -542,19 +546,19 @@ Progress: [████████████████░░░░░░░
  ~/.gemini/tmp/&lt;project_hash&gt;/tasks/
  </code>
  <ul className="mt-2 space-y-1 text-xs">
- <li>• <code>tasks.json</code> - 主任务数据</li>
- <li>• <code>tasks.json.backup</code> - 自动备份</li>
- <li>• <code>history/</code> - 变更快照历史</li>
+ <li><code>tasks.json</code> - 主任务数据</li>
+ <li><code>tasks.json.backup</code> - 自动备份</li>
+ <li><code>history/</code> - 变更快照历史</li>
  </ul>
  </div>
  </HighlightBox>
  <HighlightBox title="自动保存策略" variant="green">
  <div className="text-sm space-y-2 text-body">
  <ul className="space-y-1">
- <li>• <strong>脏标记</strong>：仅在数据变化时写入磁盘</li>
- <li>• <strong>定时保存</strong>：每 30 秒自动检查并保存</li>
- <li>• <strong>即时保存</strong>：CRUD 操作后立即持久化</li>
- <li>• <strong>备份恢复</strong>：支持从 .backup 文件恢复</li>
+ <li><strong>脏标记</strong>：仅在数据变化时写入磁盘</li>
+ <li><strong>定时保存</strong>：每 30 秒自动检查并保存</li>
+ <li><strong>即时保存</strong>：CRUD 操作后立即持久化</li>
+ <li><strong>备份恢复</strong>：支持从 .backup 文件恢复</li>
  </ul>
  </div>
  </HighlightBox>
@@ -577,7 +581,7 @@ Progress: [████████████████░░░░░░░
  'AI 每轮对话都能看到最新任务进度',
  '与核心 Agent Loop 松耦合，可选启用',
  ] },
- { color: '#f59e0b', q: '为什么不让 AI 直接管理状态？',
+ { color: 'var(--color-warning)', q: '为什么不让 AI 直接管理状态？',
  a: '状态转换必须通过工具调用。', points: [
  '工具层强制执行状态转换规则，保证一致性',
  '所有变更通过工具调用记录，可追溯',

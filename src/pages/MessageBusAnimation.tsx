@@ -24,11 +24,11 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="bg-base/50 rounded-lg p-4 ">
  <h4 className="text-heading font-bold mb-2">📨 9 种消息类型</h4>
  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2 text-xs">
- <div className="bg-surface p-2 rounded text-center text-amber-400">TOOL_CONFIRMATION_REQUEST</div>
- <div className="bg-surface p-2 rounded text-center text-green-400">TOOL_CONFIRMATION_RESPONSE</div>
- <div className="bg-surface p-2 rounded text-center text-red-400">TOOL_POLICY_REJECTION</div>
- <div className="bg-surface p-2 rounded text-center text-emerald-400">TOOL_EXECUTION_SUCCESS</div>
- <div className="bg-surface p-2 rounded text-center text-rose-400">TOOL_EXECUTION_FAILURE</div>
+ <div className="bg-surface p-2 rounded text-center text-heading">TOOL_CONFIRMATION_REQUEST</div>
+ <div className="bg-surface p-2 rounded text-center text-heading">TOOL_CONFIRMATION_RESPONSE</div>
+ <div className="bg-surface p-2 rounded text-center text-heading">TOOL_POLICY_REJECTION</div>
+ <div className="bg-surface p-2 rounded text-center text-heading">TOOL_EXECUTION_SUCCESS</div>
+ <div className="bg-surface p-2 rounded text-center text-heading">TOOL_EXECUTION_FAILURE</div>
  <div className="bg-surface p-2 rounded text-center text-heading">HOOK_EXECUTION_REQUEST</div>
  <div className="bg-surface p-2 rounded text-center text-heading">HOOK_EXECUTION_RESPONSE</div>
  <div className="bg-surface p-2 rounded text-center text-heading">UPDATE_POLICY</div>
@@ -213,10 +213,10 @@ messageBus.subscribe(MessageBusType.UPDATE_POLICY, async (update) => {
 ];
 
 const groupColors: Record<PhaseGroup, string> = {
- sender: '#3b82f6',
+ sender: 'var(--color-info)',
  bus: '#8b5cf6',
- receiver: '#22c55e',
- response: '#f59e0b',
+ receiver: 'var(--color-success)',
+ response: 'var(--color-warning)',
 };
 
 const groupNames: Record<PhaseGroup, string> = {
@@ -286,7 +286,7 @@ export function MessageBusAnimation() {
 
  <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
  <div className="space-y-6">
- <div className="rounded-lg p-6 border" style={{ borderColor: `${groupColors[step.group]}50`, background: `linear-gradient(135deg, ${groupColors[step.group]}10, rgba(0,0,0,0.8))` }}>
+ <div className="rounded-lg p-6 border" style={{ borderColor: `${groupColors[step.group]}50`, background: `linear-gradient(135deg, ${groupColors[step.group]}10, var(--color-bg))` }}>
  <div className="flex items-center gap-3 mb-4">
  <div className="w-10 h-10 rounded-lg flex items-center justify-center text-lg font-bold" style={{ backgroundColor: groupColors[step.group], color: 'white' }}>{currentStep + 1}</div>
  <div>
@@ -300,21 +300,21 @@ export function MessageBusAnimation() {
  </div>
 
  {step.visualData?.message && (
- <div className="p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="p-4 rounded-lg" className="bg-surface">
  <div className="text-xs text-dim mb-2 font-mono">发布消息</div>
  <pre className="text-sm text-heading">{JSON.stringify(step.visualData.message, null, 2)}</pre>
  </div>
  )}
 
  {step.visualData?.routing && (
- <div className="p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="p-4 rounded-lg" className="bg-surface">
  <div className="text-xs text-dim mb-3 font-mono">消息路由</div>
  <div className="flex items-center gap-4">
  <div className="px-3 py-2 rounded bg-elevated/20 text-heading text-sm">{(step.visualData.routing as { type: string }).type}</div>
  <span className="text-dim">→</span>
  <div className="flex-1 space-y-1">
  {((step.visualData.routing as { subscribers: string[] }).subscribers).map((s: string, i: number) => (
- <div key={i} className="px-2 py-1 rounded bg-green-500/20 text-green-400 text-xs">{s}</div>
+ <div key={i} className="px-2 py-1 rounded bg-elevated text-heading text-xs">{s}</div>
  ))}
  </div>
  </div>
@@ -322,34 +322,25 @@ export function MessageBusAnimation() {
  )}
 
  {step.visualData?.completed && (
- <div className="p-4 rounded-lg border-2 border-green-500 bg-green-500/10">
+ <div className="p-4 rounded-lg border-2 border-edge bg-elevated">
  <div className="flex items-center gap-2">
- <span className="text-green-400 text-lg">✓</span>
+ <span className="text-heading text-lg">✓</span>
  <span className="font-bold text-heading">消息循环完成</span>
  </div>
- <div className="text-green-400 text-sm mt-1">决策: {step.visualData.decision as string}</div>
+ <div className="text-heading text-sm mt-1">决策: {step.visualData.decision as string}</div>
  </div>
  )}
  </div>
 
  <div>
- <h3 className="text-sm font-bold text-body mb-3 font-mono">源码实现</h3>
- <div className="rounded-lg overflow-hidden border border-edge" style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}>
- <div className="p-1 border- border-edge flex items-center gap-2">
- <div className="w-3 h-3 rounded-full bg-red-500/80" />
- <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
- <div className="w-3 h-3 rounded-full bg-green-500/80" />
- <span className="text-xs text-dim ml-2 font-mono">message-bus.ts</span>
- </div>
- <JsonBlock code={step.codeSnippet} />
- </div>
+ <JsonBlock code={step.codeSnippet} title="message-bus.ts" />
  </div>
  </div>
 
  <div className="max-w-6xl mx-auto mt-8 flex items-center justify-center gap-4">
  <button onClick={handleReset} className="px-4 py-2 rounded-lg bg-surface text-body hover:bg-elevated transition-colors">重置</button>
  <button onClick={handlePrev} disabled={currentStep === 0} className="px-4 py-2 rounded-lg bg-surface text-body hover:bg-elevated transition-colors disabled:opacity-50">上一步</button>
- <button onClick={() => setIsPlaying(!isPlaying)} className={`px-6 py-2 rounded-lg font-medium transition-colors ${isPlaying ? 'bg-amber-600 text-heading' : ' bg-elevated text-heading'}`}>{isPlaying ? '暂停' : '自动播放'}</button>
+ <button onClick={() => setIsPlaying(!isPlaying)} className={`px-6 py-2 rounded-lg font-medium transition-colors ${isPlaying ? 'bg-[var(--color-warning)] text-heading' : ' bg-elevated text-heading'}`}>{isPlaying ? '暂停' : '自动播放'}</button>
  <button onClick={handleNext} disabled={currentStep === busSequence.length - 1} className="px-4 py-2 rounded-lg bg-surface text-body hover:bg-elevated transition-colors disabled:opacity-50">下一步</button>
  </div>
  </div>

@@ -20,7 +20,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  {isExpanded && (
  <div className="px-6 pb-6 space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-red-400 font-bold mb-2">🎯 核心概念</h4>
+ <h4 className="text-heading font-bold mb-2">🎯 核心概念</h4>
  <p className="text-body text-sm">
  循环检测服务 (LoopDetectionService) 是防止 AI 陷入无限循环的安全机制。
  当 AI 重复执行相同操作或产生重复内容时，系统会自动检测并中断。
@@ -28,7 +28,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">🛡️ 为什么需要</h4>
+ <h4 className="text-heading font-bold mb-2">🛡️ 为什么需要</h4>
  <p className="text-body text-sm">
  AI 可能陷入循环模式：反复调用相同工具、生成重复内容、或进入认知死循环。
  三层检测机制在不同粒度上捕获这些问题，确保系统稳定性。
@@ -38,8 +38,8 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="bg-base/50 rounded-lg p-4 ">
  <h4 className="text-heading font-bold mb-2">🏗️ 三层检测策略</h4>
  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
- <div className="bg-surface p-3 rounded border border-green-500/30">
- <div className="text-green-400 font-semibold text-sm">Layer 1: 工具调用</div>
+ <div className="bg-surface p-3 rounded border-l-2 border-l-edge-hover/30">
+ <div className="text-heading font-semibold text-sm">Layer 1: 工具调用</div>
  <div className="text-xs text-dim mt-1">
  SHA256 哈希检测相同工具调用<br/>
  阈值: 连续 5 次触发
@@ -576,7 +576,7 @@ function LayerVisualizer({
  <div className="grid grid-cols-3 gap-4 mb-6">
  {layers.map((layer, i) => {
  const isActive = layerMap[layer.name] === activeLayer;
- const colors = ['#10b981', '#3b82f6', '#8b5cf6'];
+ const colors = ['var(--color-success)', 'var(--color-primary)', 'var(--purple)'];
  const color = colors[i];
 
  return (
@@ -588,8 +588,13 @@ function LayerVisualizer({
  `}
  style={{
  borderColor: isActive ? color : 'transparent',
- backgroundColor: `${color}10`,
- boxShadow: isActive ? `0 0 20px ${color}40` : 'none'
+ backgroundColor:
+ color === 'var(--color-success)'
+ ? 'var(--color-bg-elevated)'
+ : color === 'var(--color-primary)'
+ ? 'var(--color-bg-elevated)'
+ : 'var(--purple-glow)',
+ boxShadow: isActive ? `0 0 20px ${color}` : 'none'
  }}
  >
  <div className="flex items-center gap-2 mb-2">
@@ -618,7 +623,7 @@ function HashVisualizer({ data }: { data?: { toolCall?: unknown; hash?: string }
  if (!data?.toolCall) return null;
 
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
  <div className="text-xs text-dim mb-2 font-mono">Tool Call → Hash</div>
  <div className="flex items-center gap-4">
  <div className="flex-1 p-3 rounded bg-base/30 font-mono text-sm">
@@ -650,7 +655,7 @@ function RepeatVisualizer({
  if (!sequence) return null;
 
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
  <div className="text-xs text-dim mb-3 font-mono">重复计数追踪</div>
  <div className="flex items-end gap-2 h-24">
  {sequence.map((item, i) => (
@@ -664,9 +669,9 @@ function RepeatVisualizer({
  height: `${(item.count / (threshold || 5)) * 80}px`,
  backgroundColor: item.current
  ? item.count >= (threshold || 5)
- ? '#ef4444'
- : '#f59e0b'
- : '#10b981',
+ ? 'var(--color-danger)'
+ : 'var(--color-warning)'
+ : 'var(--color-success)',
  minHeight: '20px'
  }}
  />
@@ -675,13 +680,13 @@ function RepeatVisualizer({
  ))}
  {/* 阈值线 */}
  <div
- className="absolute left-0 right-0 border-t-2 border-dashed border-red-500/50"
+ className="absolute left-0 right-0 border-t-2 border-dashed border-edge/40"
  style={{ bottom: `${80}px` }}
  />
  </div>
  <div className="flex justify-between mt-2 text-xs">
  <span className="text-dim">调用序列</span>
- <span className="text-red-400">阈值: {threshold}</span>
+ <span className="text-heading">阈值: {threshold}</span>
  </div>
  </div>
  );
@@ -697,7 +702,7 @@ function WindowVisualizer({ data }: { data?: { content: string; windowSize: numb
  const after = content.substring(currentPosition + windowSize);
 
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
  <div className="text-xs text-dim mb-2 font-mono">滑动窗口 (size: {windowSize})</div>
  <div className="font-mono text-sm p-3 rounded bg-base/30 overflow-x-auto whitespace-nowrap">
  <span className="text-dim">{before}</span>
@@ -722,7 +727,7 @@ function DistanceVisualizer({
  if (!data) return null;
 
  return (
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}>
+ <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'var(--color-bg-surface)' }}>
  <div className="text-xs text-dim mb-3 font-mono">位置距离分析</div>
  <div className="flex items-center gap-1 overflow-x-auto pb-2">
  {data.positions.map((pos, i) => (
@@ -732,7 +737,7 @@ function DistanceVisualizer({
  className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
  style={{
  backgroundColor: 'var(--color-primary)',
- color: 'black'
+ color: 'var(--color-bg)'
  }}
  >
  {i + 1}
@@ -742,10 +747,10 @@ function DistanceVisualizer({
  {i < data.positions.length - 1 && (
  <div className="flex flex-col items-center mx-1">
  <div
- className={`h-0.5 w-8 ${data.distances[i] <= data.threshold ? 'bg-red-500' : ' bg-elevated'}`}
+ className={`h-0.5 w-8 ${data.distances[i] <= data.threshold ? 'bg-[var(--color-danger)]' : ' bg-elevated'}`}
  />
  <span
- className={`text-xs mt-1 ${data.distances[i] <= data.threshold ? 'text-red-400' : 'text-dim'}`}
+ className={`text-xs mt-1 ${data.distances[i] <= data.threshold ? 'text-heading' : 'text-dim'}`}
  >
  {data.distances[i]}
  </span>
@@ -756,7 +761,7 @@ function DistanceVisualizer({
  </div>
  <div className="mt-2 flex justify-between text-xs">
  <span className="text-dim">距离阈值: {data.threshold}</span>
- <span className={data.allNear ? 'text-red-400' : 'text-green-400'}>
+ <span className={data.allNear ? 'text-heading' : 'text-heading'}>
  {data.allNear ? '全部过近 - 检测循环' : '距离正常'}
  </span>
  </div>
@@ -773,15 +778,18 @@ function LLMAnalysisVisualizer({
  if (!result) return null;
 
  const confidenceColor =
- result.confidence > 0.7 ? '#ef4444' :
- result.confidence > 0.4 ? '#f59e0b' : '#10b981';
+ result.confidence > 0.7 ? 'var(--color-danger)' :
+ result.confidence > 0.4 ? 'var(--color-warning)' : 'var(--color-success)';
+ const confidenceBg =
+ result.confidence > 0.7 ? 'var(--color-bg-elevated)' :
+ result.confidence > 0.4 ? 'var(--color-bg-elevated)' : 'var(--color-bg-elevated)';
 
  return (
  <div
  className="mb-6 p-4 rounded-lg border-2"
  style={{
  borderColor: confidenceColor,
- backgroundColor: `${confidenceColor}10`
+ backgroundColor: confidenceBg
  }}
  >
  <div className="flex items-center justify-between mb-3">
@@ -790,7 +798,7 @@ function LLMAnalysisVisualizer({
  <span className="text-xs text-body">置信度</span>
  <div
  className="px-3 py-1 rounded-full text-sm font-bold"
- style={{ backgroundColor: confidenceColor, color: 'white' }}
+ style={{ backgroundColor: confidenceColor, color: 'var(--color-bg)' }}
  >
  {Math.round(result.confidence * 100)}%
  </div>
@@ -835,10 +843,25 @@ export function LoopDetectionAnimation() {
  setIsPlaying(false);
  }, []);
 
- const layerColors: Record<DetectionLayer, string> = {
- tool_call: '#10b981',
- content_stream: '#3b82f6',
- llm_analysis: '#8b5cf6'
+ const layerColors: Record<DetectionLayer, { color: string; soft: string; dim: string; gradient: string }> = {
+ tool_call: {
+ color: 'var(--color-success)',
+ soft: 'var(--color-bg-elevated)',
+ dim: 'color-mix(in srgb, var(--color-success) 50%, var(--color-bg-elevated))',
+ gradient: 'linear-gradient(135deg, var(--color-success-soft), var(--color-bg-surface))',
+ },
+ content_stream: {
+ color: 'var(--color-primary)',
+ soft: 'var(--color-bg-elevated)',
+ dim: 'color-mix(in srgb, var(--color-primary) 50%, var(--color-bg-elevated))',
+ gradient: 'linear-gradient(135deg, var(--color-info-soft), var(--color-bg-surface))',
+ },
+ llm_analysis: {
+ color: 'var(--purple)',
+ soft: 'var(--purple-glow)',
+ dim: 'color-mix(in srgb, var(--purple) 50%, var(--color-bg-elevated))',
+ gradient: 'linear-gradient(135deg, var(--purple-glow), var(--color-bg-surface))',
+ }
  };
 
  return (
@@ -871,10 +894,10 @@ export function LoopDetectionAnimation() {
  style={{
  backgroundColor:
  i === currentStep
- ? layerColors[s.layer]
+ ? layerColors[s.layer].color
  : i < currentStep
- ? `${layerColors[s.layer]}80`
- : '#374151'
+ ? layerColors[s.layer].dim
+ : 'var(--color-bg-elevated)'
  }}
  title={s.title}
  />
@@ -885,8 +908,8 @@ export function LoopDetectionAnimation() {
  <span
  className="px-2 py-0.5 rounded"
  style={{
- backgroundColor: `${layerColors[step.layer]}20`,
- color: layerColors[step.layer]
+ backgroundColor: layerColors[step.layer].soft,
+ color: layerColors[step.layer].color
  }}
  >
  {step.layer.replace('_', ' ')}
@@ -902,14 +925,14 @@ export function LoopDetectionAnimation() {
  <div
  className="rounded-lg p-6 border"
  style={{
- borderColor: `${layerColors[step.layer]}50`,
- background: `linear-gradient(135deg, ${layerColors[step.layer]}10, rgba(0,0,0,0.8))`
+ borderColor: layerColors[step.layer].color,
+ background: layerColors[step.layer].gradient
  }}
  >
  <div className="flex items-center gap-3 mb-4">
  <div
  className="w-10 h-10 rounded-lg flex items-center justify-center text-lg font-bold"
- style={{ backgroundColor: layerColors[step.layer], color: 'white' }}
+ style={{ backgroundColor: layerColors[step.layer].color, color: 'var(--color-bg)' }}
  >
  {currentStep + 1}
  </div>
@@ -923,8 +946,8 @@ export function LoopDetectionAnimation() {
  <div
  className="inline-block px-3 py-1 rounded-full text-sm font-medium"
  style={{
- backgroundColor: `${layerColors[step.layer]}20`,
- color: layerColors[step.layer]
+ backgroundColor: layerColors[step.layer].soft,
+ color: layerColors[step.layer].color
  }}
  >
  {step.highlight}
@@ -976,8 +999,8 @@ export function LoopDetectionAnimation() {
 
  {/* 循环检测警告 */}
  {step.visualData?.detected && (
- <div className="p-4 rounded-lg border-2 border-red-500 bg-red-500/10 animate-pulse">
- <div className="flex items-center gap-2 text-red-400 mb-2">
+ <div className="p-4 rounded-lg border-2 border-edge bg-elevated animate-pulse">
+ <div className="flex items-center gap-2 text-heading mb-2">
  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
  </svg>
@@ -992,21 +1015,7 @@ export function LoopDetectionAnimation() {
 
  {/* 右侧：代码 */}
  <div>
- <h3 className="text-sm font-bold text-body mb-3 font-mono">源码实现</h3>
- <div
- className="rounded-lg overflow-hidden border border-edge"
- style={{ backgroundColor: 'rgba(0,0,0,0.6)' }}
- >
- <div className="p-1 border- border-edge flex items-center gap-2">
- <div className="w-3 h-3 rounded-full bg-red-500/80" />
- <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
- <div className="w-3 h-3 rounded-full bg-green-500/80" />
- <span className="text-xs text-dim ml-2 font-mono">
- loopDetectionService.ts
- </span>
- </div>
- <JsonBlock code={step.codeSnippet} />
- </div>
+ <JsonBlock code={step.codeSnippet} title="loopDetectionService.ts" />
  </div>
  </div>
 
@@ -1030,7 +1039,7 @@ export function LoopDetectionAnimation() {
  className={`
  px-6 py-2 rounded-lg font-medium transition-colors
  ${isPlaying
- ? 'bg-amber-600 text-heading hover:bg-amber-500'
+ ? 'bg-[var(--color-warning)] text-heading hover:bg-[var(--color-warning)]'
  : ' bg-elevated text-heading hover:opacity-90'
  }
  `}
@@ -1050,26 +1059,26 @@ export function LoopDetectionAnimation() {
  <div className="max-w-6xl mx-auto mt-8">
  <div
  className="rounded-lg p-6 border border-edge"
- style={{ backgroundColor: 'rgba(0,0,0,0.4)' }}
+ style={{ backgroundColor: 'var(--color-bg-surface)' }}
  >
  <h3 className="text-lg font-bold text-heading mb-4">三层递进检测策略</h3>
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
  {[
  {
  name: '工具调用层',
- color: '#10b981',
+ color: 'var(--color-success)',
  desc: 'SHA256 哈希比对，5 次重复触发',
  complexity: 'O(1)'
  },
  {
  name: '内容流层',
- color: '#3b82f6',
+ color: 'var(--color-primary)',
  desc: '滑动窗口 + 位置追踪，10 次密集重复触发',
  complexity: 'O(n)'
  },
  {
  name: 'LLM 分析层',
- color: '#8b5cf6',
+ color: 'var(--purple)',
  desc: '语义级分析，自适应间隔，置信度评分',
  complexity: 'O(API)'
  },

@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { useState, useEffect, useCallback } from 'react';
+import { CodeBlock } from '../components/CodeBlock';
 
 /**
  * Prompt 模板引擎动画
@@ -297,7 +298,7 @@ export default function PromptTemplateAnimation() {
             onClick={() => isPlaying ? resetAnimation() : (resetAnimation(), setTimeout(() => setIsPlaying(true), 100))}
             className={`px-4 py-2 rounded font-mono text-sm transition-all ${
               isPlaying
-                ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                ? 'bg-elevated text-heading border-l-2 border-l-edge-hover/30'
                 : 'bg-[var(--terminal-green)]/20 text-[var(--terminal-green)] border border-[var(--terminal-green)]/30'
             }`}
           >
@@ -416,7 +417,7 @@ export default function PromptTemplateAnimation() {
                   Model
                 </span>
                 <span className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-purple-500"></span>
+                  <span className="w-2 h-2 rounded-full bg-accent"></span>
                   Memory
                 </span>
               </div>
@@ -537,8 +538,10 @@ export default function PromptTemplateAnimation() {
         <div className="grid grid-cols-2 gap-4 text-xs font-mono">
           <div className="space-y-2">
             <div className="text-[var(--terminal-green)]">// 主入口函数</div>
-            <pre className="text-[var(--text-secondary)] bg-black/30 p-2 rounded overflow-x-auto">
-{`export function getCoreSystemPrompt(
+            <CodeBlock
+              language="typescript"
+              title="getCoreSystemPrompt"
+              code={`export function getCoreSystemPrompt(
   userMemory?: string,
   model?: string,
 ): string {
@@ -549,12 +552,14 @@ export default function PromptTemplateAnimation() {
   // 5. Append user memory
   return finalPrompt;
 }`}
-            </pre>
+            />
           </div>
           <div className="space-y-2">
             <div className="text-[var(--cyber-blue)]">// 环境变量解析</div>
-            <pre className="text-[var(--text-secondary)] bg-black/30 p-2 rounded overflow-x-auto">
-{`export function resolvePathFromEnv(
+            <CodeBlock
+              language="typescript"
+              title="resolvePathFromEnv"
+              code={`export function resolvePathFromEnv(
   envVar?: string
 ): {
   isSwitch: boolean;
@@ -564,7 +569,7 @@ export default function PromptTemplateAnimation() {
   // Handle: undefined, "off", path
   // Returns resolution result
 }`}
-            </pre>
+            />
           </div>
         </div>
       </div>

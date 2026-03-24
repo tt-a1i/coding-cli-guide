@@ -3,6 +3,9 @@ import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 export function IDEIntegrationOverview() {
  const ideArchitecture = `
@@ -41,9 +44,9 @@ flowchart TB
  IDEBridge --> Symbols
  IDEBridge --> Workspace
 
- style VSCode fill:#007acc,color:#fff
- style Zed fill:#f59e0b,color:#000
- style MCPServer fill:#22d3ee,color:#000
+ style VSCode fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Zed fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style MCPServer fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
 `;
 
  const mcpFlow = `
@@ -113,9 +116,9 @@ sequenceDiagram
  </p>
  <div className="mt-4 flex flex-wrap gap-2">
  <span className="px-3 py-1 bg-elevated/30 rounded-full text-sm text-heading">VS Code</span>
- <span className="px-3 py-1 bg-orange-500/30 rounded-full text-sm text-heading">Zed</span>
+ <span className="px-3 py-1 bg-elevated rounded-full text-sm text-heading">Zed</span>
  <span className="px-3 py-1 bg-elevated rounded-full text-sm text-heading">MCP</span>
- <span className="px-3 py-1 bg-green-500/30 rounded-full text-sm text-green-300">ACP</span>
+ <span className="px-3 py-1 bg-elevated rounded-full text-sm text-heading">ACP</span>
  </div>
  </div>
 
@@ -143,33 +146,33 @@ sequenceDiagram
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">文件读取</td>
- <td className="py-2 px-3 text-green-400">✓ 编辑器缓冲区</td>
- <td className="py-2 px-3 text-green-400">✓ 编辑器缓冲区</td>
+ <td className="py-2 px-3 text-heading">✓ 编辑器缓冲区</td>
+ <td className="py-2 px-3 text-heading">✓ 编辑器缓冲区</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">Diff 视图</td>
- <td className="py-2 px-3 text-green-400">✓ 内置 Diff Editor</td>
- <td className="py-2 px-3 text-green-400">✓ 原生支持</td>
+ <td className="py-2 px-3 text-heading">✓ 内置 Diff Editor</td>
+ <td className="py-2 px-3 text-heading">✓ 原生支持</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">诊断信息</td>
- <td className="py-2 px-3 text-green-400">✓ Problems Panel</td>
- <td className="py-2 px-3 text-green-400">✓ 诊断面板</td>
+ <td className="py-2 px-3 text-heading">✓ Problems Panel</td>
+ <td className="py-2 px-3 text-heading">✓ 诊断面板</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">终端集成</td>
- <td className="py-2 px-3 text-green-400">✓ 集成终端</td>
- <td className="py-2 px-3 text-green-400">✓ 集成终端</td>
+ <td className="py-2 px-3 text-heading">✓ 集成终端</td>
+ <td className="py-2 px-3 text-heading">✓ 集成终端</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">符号跳转</td>
- <td className="py-2 px-3 text-yellow-400">△ 通过 LSP</td>
- <td className="py-2 px-3 text-green-400">✓ 原生支持</td>
+ <td className="py-2 px-3 text-heading">△ 通过 LSP</td>
+ <td className="py-2 px-3 text-heading">✓ 原生支持</td>
  </tr>
  <tr>
  <td className="py-2 px-3">成熟度</td>
- <td className="py-2 px-3 text-green-400">稳定</td>
- <td className="py-2 px-3 text-yellow-400">积极开发中</td>
+ <td className="py-2 px-3 text-heading">稳定</td>
+ <td className="py-2 px-3 text-heading">积极开发中</td>
  </tr>
  </tbody>
  </table>
@@ -407,17 +410,17 @@ async function reconnect(config: ReconnectionConfig) {
  </thead>
  <tbody>
  <tr className="border- border-edge">
- <td className="py-2 px-3 font-mono text-red-400">端口冲突</td>
+ <td className="py-2 px-3 font-mono text-heading">端口冲突</td>
  <td className="py-2 px-3">EADDRINUSE: 3000</td>
  <td className="py-2 px-3">配置不同端口或关闭其他实例</td>
  </tr>
  <tr className="border- border-edge">
- <td className="py-2 px-3 font-mono text-red-400">工作区锁</td>
+ <td className="py-2 px-3 font-mono text-heading">工作区锁</td>
  <td className="py-2 px-3">Workspace locked</td>
  <td className="py-2 px-3">每个工作区只允许一个连接</td>
  </tr>
  <tr>
- <td className="py-2 px-3 font-mono text-red-400">会话冲突</td>
+ <td className="py-2 px-3 font-mono text-heading">会话冲突</td>
  <td className="py-2 px-3">Session already exists</td>
  <td className="py-2 px-3">终止旧会话或使用新会话 ID</td>
  </tr>
@@ -476,31 +479,31 @@ async function checkPortAvailability(port: number): Promise<boolean> {
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono text-heading">Gemini CLI</td>
  <td className="py-2 px-3">1.0.0</td>
- <td className="py-2 px-3 text-green-400">latest</td>
+ <td className="py-2 px-3 text-heading">latest</td>
  <td className="py-2 px-3 font-mono text-body">gemini --version</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono text-heading">VS Code</td>
  <td className="py-2 px-3">1.80.0</td>
- <td className="py-2 px-3 text-green-400">1.90+</td>
+ <td className="py-2 px-3 text-heading">1.90+</td>
  <td className="py-2 px-3 font-mono text-body">code --version</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono text-heading">Companion Ext</td>
  <td className="py-2 px-3">0.5.0</td>
- <td className="py-2 px-3 text-green-400">与 CLI 同版本</td>
+ <td className="py-2 px-3 text-heading">与 CLI 同版本</td>
  <td className="py-2 px-3 font-mono text-body">扩展面板查看</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono text-heading">Zed</td>
  <td className="py-2 px-3">0.140.0</td>
- <td className="py-2 px-3 text-green-400">0.150+</td>
+ <td className="py-2 px-3 text-heading">0.150+</td>
  <td className="py-2 px-3 font-mono text-body">Zed &gt; About</td>
  </tr>
  <tr>
  <td className="py-2 px-3 font-mono text-heading">Node.js</td>
  <td className="py-2 px-3">20.0.0</td>
- <td className="py-2 px-3 text-green-400">20.19+</td>
+ <td className="py-2 px-3 text-heading">20.19+</td>
  <td className="py-2 px-3 font-mono text-body">node --version</td>
  </tr>
  </tbody>

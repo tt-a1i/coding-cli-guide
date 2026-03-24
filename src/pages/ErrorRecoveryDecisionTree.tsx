@@ -3,6 +3,9 @@ import { HighlightBox } from '../components/HighlightBox';
 import { CodeBlock } from '../components/CodeBlock';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 const relatedPages: RelatedPage[] = [
  { id: 'error', label: '错误处理', description: '错误处理机制详解' },
@@ -51,9 +54,9 @@ flowchart TB
  Success -->|是| Resume["恢复执行"]
  Success -->|否| Escalate["上报用户"]
 
- style Error fill:#ef4444,color:#fff
- style Resume fill:#22c55e,color:#fff
- style Escalate fill:#f59e0b,color:#000
+ style Error fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Resume fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Escalate fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
 `;
 
  const retryDecisionTree = `
@@ -78,9 +81,9 @@ flowchart TB
  Fallback -->|是| UseFallback["使用降级"]
  Fallback -->|否| Report["报告错误"]
 
- style Done fill:#22c55e,color:#fff
- style GiveUp fill:#ef4444,color:#fff
- style UseFallback fill:#f59e0b,color:#000
+ style Done fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style GiveUp fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style UseFallback fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
 `;
 
  const apiErrorTree = `
@@ -111,15 +114,15 @@ flowchart TB
  Code -->|其他| Unknown["未知错误"]
  Unknown --> UnknownAction["记录日志<br/>报告用户"]
 
- style Rate fill:#f59e0b,color:#000
- style Server500 fill:#ef4444,color:#fff
- style Auth fill:#8b5cf6,color:#fff
+ style Rate fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Server500 fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Auth fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
 `;
 
  return (
  <div className="space-y-8">
  {/* 页面头部 */}
- <div className="bg-surface rounded-lg p-6 border border-[var(--color-danger)]">
+ <div className="bg-surface rounded-lg p-6 border-l-2 border-l-edge-hover">
  <div className="flex items-center gap-3 mb-4">
  <span className="text-4xl">🌳</span>
  <h1 className="text-3xl font-bold text-heading">Error Recovery 决策树</h1>
@@ -128,9 +131,9 @@ flowchart TB
  系统化的错误恢复决策流程，从错误分类到恢复策略的完整指南
  </p>
  <div className="mt-4 flex flex-wrap gap-2">
- <span className="px-3 py-1 bg-red-500/30 rounded-full text-sm text-[var(--color-danger)]">错误分类</span>
- <span className="px-3 py-1 bg-orange-500/30 rounded-full text-sm text-heading">重试策略</span>
- <span className="px-3 py-1 bg-yellow-500/30 rounded-full text-sm text-[var(--color-warning)]">降级方案</span>
+ <span className="px-3 py-1 bg-elevated rounded-full text-sm text-heading">错误分类</span>
+ <span className="px-3 py-1 bg-elevated rounded-full text-sm text-heading">重试策略</span>
+ <span className="px-3 py-1 bg-elevated rounded-full text-sm text-heading">降级方案</span>
  </div>
  </div>
 
@@ -234,43 +237,43 @@ function calculateDelay(attempt: number, config: RetryConfig): number {
  <tbody>
  <tr className="border- border-edge">
  <td className="py-2 px-3">网络超时</td>
- <td className="py-2 px-3 text-[var(--color-success)]">✓</td>
+ <td className="py-2 px-3 text-heading">✓</td>
  <td className="py-2 px-3">指数退避, 最多 3 次</td>
  <td className="py-2 px-3">切换网络/代理</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">429 速率限制</td>
- <td className="py-2 px-3 text-[var(--color-success)]">✓</td>
+ <td className="py-2 px-3 text-heading">✓</td>
  <td className="py-2 px-3">遵守 Retry-After</td>
  <td className="py-2 px-3">切换 API Key</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">500 服务器错误</td>
- <td className="py-2 px-3 text-[var(--color-success)]">✓</td>
+ <td className="py-2 px-3 text-heading">✓</td>
  <td className="py-2 px-3">立即重试 1 次</td>
  <td className="py-2 px-3">切换厂商</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">401 认证失败</td>
- <td className="py-2 px-3 text-[var(--color-warning)]">△</td>
+ <td className="py-2 px-3 text-heading">△</td>
  <td className="py-2 px-3">刷新 Token 后重试</td>
  <td className="py-2 px-3">提示重新登录</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">400 请求错误</td>
- <td className="py-2 px-3 text-[var(--color-danger)]">✗</td>
+ <td className="py-2 px-3 text-heading">✗</td>
  <td className="py-2 px-3">不重试</td>
  <td className="py-2 px-3">修复请求后重试</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">工具超时</td>
- <td className="py-2 px-3 text-[var(--color-warning)]">△</td>
+ <td className="py-2 px-3 text-heading">△</td>
  <td className="py-2 px-3">增加超时后重试</td>
  <td className="py-2 px-3">拆分任务</td>
  </tr>
  <tr>
  <td className="py-2 px-3">OOM</td>
- <td className="py-2 px-3 text-[var(--color-danger)]">✗</td>
+ <td className="py-2 px-3 text-heading">✗</td>
  <td className="py-2 px-3">不重试</td>
  <td className="py-2 px-3">压缩上下文</td>
  </tr>
@@ -361,32 +364,32 @@ function calculateDelay(attempt: number, config: RetryConfig): number {
  <tbody>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono text-heading">多文件编辑</td>
- <td className="py-2 px-3 text-[var(--color-success)]">file1.ts, file2.ts 已写入</td>
- <td className="py-2 px-3 text-[var(--color-danger)]">file3.ts 写入失败</td>
+ <td className="py-2 px-3 text-heading">file1.ts, file2.ts 已写入</td>
+ <td className="py-2 px-3 text-heading">file3.ts 写入失败</td>
  <td className="py-2 px-3">使用 GitService 回滚到 checkpoint</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono text-heading">工具+Diff</td>
- <td className="py-2 px-3 text-[var(--color-success)]">命令执行成功</td>
- <td className="py-2 px-3 text-[var(--color-danger)]">Diff 应用失败</td>
+ <td className="py-2 px-3 text-heading">命令执行成功</td>
+ <td className="py-2 px-3 text-heading">Diff 应用失败</td>
  <td className="py-2 px-3">保留命令结果，提示用户手动应用</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono text-heading">API+日志</td>
- <td className="py-2 px-3 text-[var(--color-success)]">API 调用成功</td>
- <td className="py-2 px-3 text-[var(--color-danger)]">日志写入失败</td>
+ <td className="py-2 px-3 text-heading">API 调用成功</td>
+ <td className="py-2 px-3 text-heading">日志写入失败</td>
  <td className="py-2 px-3">继续流程，异步重试日志</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono text-heading">写入+UI</td>
- <td className="py-2 px-3 text-[var(--color-success)]">文件已写入</td>
- <td className="py-2 px-3 text-[var(--color-danger)]">UI 更新失败</td>
+ <td className="py-2 px-3 text-heading">文件已写入</td>
+ <td className="py-2 px-3 text-heading">UI 更新失败</td>
  <td className="py-2 px-3">发送 refresh 事件，不回滚</td>
  </tr>
  <tr>
  <td className="py-2 px-3 font-mono text-heading">批量操作</td>
- <td className="py-2 px-3 text-[var(--color-success)]">5/10 项成功</td>
- <td className="py-2 px-3 text-[var(--color-danger)]">5/10 项失败</td>
+ <td className="py-2 px-3 text-heading">5/10 项成功</td>
+ <td className="py-2 px-3 text-heading">5/10 项失败</td>
  <td className="py-2 px-3">报告详细结果，允许选择性重试</td>
  </tr>
  </tbody>
@@ -417,8 +420,8 @@ flowchart TB
  UserDecision -->|放弃| Abort[中止操作]
  UserDecision -->|继续| Continue[继续后续操作]
 
- style PartialSuccess fill:#f59e0b,color:#000
- style UserDecision fill:#22d3ee,color:#000
+ style PartialSuccess fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style UserDecision fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
 `}
  />
 
@@ -514,58 +517,58 @@ async function handlePartialSuccess(
  <tbody>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono">read_file</td>
- <td className="py-2 px-3 text-[var(--color-success)]">✓ 幂等</td>
- <td className="py-2 px-3 text-[var(--color-success)]">无</td>
- <td className="py-2 px-3 text-[var(--color-success)]">✓ 安全</td>
+ <td className="py-2 px-3 text-heading">✓ 幂等</td>
+ <td className="py-2 px-3 text-heading">无</td>
+ <td className="py-2 px-3 text-heading">✓ 安全</td>
  <td className="py-2 px-3">任意次数重试</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono">write_file</td>
- <td className="py-2 px-3 text-[var(--color-success)]">✓ 幂等</td>
- <td className="py-2 px-3 text-[var(--color-warning)]">可逆</td>
- <td className="py-2 px-3 text-[var(--color-success)]">✓ 安全</td>
+ <td className="py-2 px-3 text-heading">✓ 幂等</td>
+ <td className="py-2 px-3 text-heading">可逆</td>
+ <td className="py-2 px-3 text-heading">✓ 安全</td>
  <td className="py-2 px-3">有 checkpoint 可回滚</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono">replace</td>
- <td className="py-2 px-3 text-[var(--color-warning)]">△ 条件</td>
- <td className="py-2 px-3 text-[var(--color-warning)]">可逆</td>
- <td className="py-2 px-3 text-[var(--color-warning)]">△ 需验证</td>
+ <td className="py-2 px-3 text-heading">△ 条件</td>
+ <td className="py-2 px-3 text-heading">可逆</td>
+ <td className="py-2 px-3 text-heading">△ 需验证</td>
  <td className="py-2 px-3">需确认 old_string 仍匹配</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono">run_shell_command（只读）</td>
- <td className="py-2 px-3 text-[var(--color-success)]">✓ 幂等</td>
- <td className="py-2 px-3 text-[var(--color-success)]">无</td>
- <td className="py-2 px-3 text-[var(--color-success)]">✓ 安全</td>
+ <td className="py-2 px-3 text-heading">✓ 幂等</td>
+ <td className="py-2 px-3 text-heading">无</td>
+ <td className="py-2 px-3 text-heading">✓ 安全</td>
  <td className="py-2 px-3">如 ls, cat, grep</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono">run_shell_command（写入）</td>
- <td className="py-2 px-3 text-[var(--color-danger)]">✗ 非幂等</td>
- <td className="py-2 px-3 text-[var(--color-danger)]">不可逆</td>
- <td className="py-2 px-3 text-[var(--color-danger)]">✗ 危险</td>
+ <td className="py-2 px-3 text-heading">✗ 非幂等</td>
+ <td className="py-2 px-3 text-heading">不可逆</td>
+ <td className="py-2 px-3 text-heading">✗ 危险</td>
  <td className="py-2 px-3">如 rm, mv, echo {'>>'}</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono">API 查询</td>
- <td className="py-2 px-3 text-[var(--color-success)]">✓ 幂等</td>
- <td className="py-2 px-3 text-[var(--color-success)]">无</td>
- <td className="py-2 px-3 text-[var(--color-success)]">✓ 安全</td>
+ <td className="py-2 px-3 text-heading">✓ 幂等</td>
+ <td className="py-2 px-3 text-heading">无</td>
+ <td className="py-2 px-3 text-heading">✓ 安全</td>
  <td className="py-2 px-3">GET 请求</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono">API 创建</td>
- <td className="py-2 px-3 text-[var(--color-danger)]">✗ 非幂等</td>
- <td className="py-2 px-3 text-[var(--color-danger)]">扣费</td>
- <td className="py-2 px-3 text-[var(--color-danger)]">✗ 危险</td>
+ <td className="py-2 px-3 text-heading">✗ 非幂等</td>
+ <td className="py-2 px-3 text-heading">扣费</td>
+ <td className="py-2 px-3 text-heading">✗ 危险</td>
  <td className="py-2 px-3">POST 会创建重复资源</td>
  </tr>
  <tr>
  <td className="py-2 px-3 font-mono">AI 生成</td>
- <td className="py-2 px-3 text-[var(--color-warning)]">△ 非确定</td>
+ <td className="py-2 px-3 text-heading">△ 非确定</td>
  <td className="py-2 px-3 text-heading">扣费</td>
- <td className="py-2 px-3 text-[var(--color-warning)]">△ 可重试</td>
+ <td className="py-2 px-3 text-heading">△ 可重试</td>
  <td className="py-2 px-3">结果可能不同，会扣费</td>
  </tr>
  </tbody>
@@ -663,9 +666,9 @@ flowchart TB
  CostRetry --> Execute
  NoRetry --> UserAction[等待用户处理]
 
- style SafeRetry fill:#4ade80,color:#000
- style NoRetry fill:#ef4444,color:#fff
- style ConfirmRetry fill:#f59e0b,color:#000
+ style SafeRetry fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style NoRetry fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style ConfirmRetry fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
 `}
  />
  </div>

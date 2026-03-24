@@ -82,7 +82,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">🔧 为什么需要</h4>
+ <h4 className="text-heading font-bold mb-2">🔧 为什么需要</h4>
  <p className="text-body text-sm">
  LLM 响应是异步流式的，包含多种事件类型（内容、工具调用、思考过程）。
  需要统一状态机管理 Idle/Responding/WaitingForConfirmation 三态转换。
@@ -106,8 +106,8 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  启动 SDK 流式迭代
  </div>
  </div>
- <div className="bg-surface p-3 rounded border border-amber-500/30">
- <div className="text-amber-500 font-semibold text-sm">3. 事件处理</div>
+ <div className="bg-surface p-3 rounded border-l-2 border-l-edge-hover/30">
+ <div className="text-heading font-semibold text-sm">3. 事件处理</div>
  <div className="text-xs text-dim mt-1">
  Content/ToolCall<br/>
  Thought/Finished
@@ -129,7 +129,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">事件类型</div>
  </div>
  <div className="bg-surface p-3 rounded border border-edge">
- <div className="text-xl font-bold text-amber-500">6</div>
+ <div className="text-xl font-bold text-heading">6</div>
  <div className="text-xs text-dim">预处理阶段</div>
  </div>
  <div className="bg-surface p-3 rounded border border-edge">
@@ -276,7 +276,7 @@ export default function StreamingResponseAnimation() {
  switch (state) {
  case 'Idle': return 'var(--color-text-muted)';
  case 'Responding': return 'var(--color-primary)';
- case 'WaitingForConfirmation': return '#f59e0b';
+ case 'WaitingForConfirmation': return 'var(--color-warning)';
  }
  };
 
@@ -285,8 +285,8 @@ export default function StreamingResponseAnimation() {
  case 'Content': return 'var(--color-primary)';
  case 'ToolCallRequest': return 'var(--color-primary)';
  case 'Thought': return 'var(--color-primary)';
- case 'Error': return '#ef4444';
- case 'Finished': return '#f59e0b';
+ case 'Error': return 'var(--color-danger)';
+ case 'Finished': return 'var(--color-warning)';
  default: return 'var(--color-text-muted)';
  }
  };
@@ -323,7 +323,7 @@ export default function StreamingResponseAnimation() {
  onClick={() => isPlaying ? resetAnimation() : (resetAnimation(), setTimeout(() => setIsPlaying(true), 100))}
  className={`px-4 py-2 rounded font-mono text-sm transition-all ${
  isPlaying
- ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+ ? 'bg-elevated text-heading border-l-2 border-l-edge-hover/30'
  : ' bg-elevated/20 text-heading border border-edge/30'
  }`}
  >
@@ -394,7 +394,7 @@ export default function StreamingResponseAnimation() {
  {/* 中间: 事件流 */}
  <div className="col-span-5">
  <div className="bg-surface rounded-lg p-4 border border-edge-hover h-full">
- <h3 className="text-sm font-semibold text-amber-500 mb-3 font-mono">
+ <h3 className="text-sm font-semibold text-heading mb-3 font-mono">
  processGeminiStreamEvents()
  </h3>
 
@@ -493,7 +493,7 @@ export default function StreamingResponseAnimation() {
  log.includes('⊘') || log.includes('跳过') ? 'text-dim' :
  log.includes('🔧') ? 'text-heading' :
  log.includes('💭') ? 'text-heading' :
- log.includes('📝') || log.includes('🔍') ? 'text-amber-500' :
+ log.includes('📝') || log.includes('🔍') ? 'text-heading' :
  'text-body'
  }`}
  >

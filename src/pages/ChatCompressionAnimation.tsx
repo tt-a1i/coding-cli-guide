@@ -342,7 +342,7 @@ const compressionResult = {
 const roleColors: Record<ContentRole, string> = {
  user: 'var(--color-primary)',
  model: 'var(--color-primary)',
- tool_use: '#f59e0b',
+ tool_use: 'var(--color-warning)',
  tool_result: 'var(--color-primary)'
 };
 
@@ -380,7 +380,7 @@ function TokenGauge({
  <div className="relative h-6 bg-base/60 rounded-full overflow-hidden">
  {/* 压缩阈值线 */}
  <div
- className="absolute top-0 bottom-0 w-0.5 bg-red-500 z-20"
+ className="absolute top-0 bottom-0 w-0.5 bg-[var(--color-danger)] z-20"
  style={{ left: `${thresholdPercent}%` }}
  />
 
@@ -412,7 +412,7 @@ function TokenGauge({
  </div>
 
  <div className="flex justify-between text-xs mt-2">
- <span className="text-red-400">压缩阈值 {thresholdPercent}%</span>
+ <span className="text-heading">压缩阈值 {thresholdPercent}%</span>
  <span className="text-heading">保留区 {preservePercent}%</span>
  </div>
  </div>
@@ -449,19 +449,19 @@ function ContentBlocksVisualizer({
  <div key={block.id}>
  {/* 分割点指示器 */}
  {isSplitPoint && (
- <div className="flex items-center gap-2 py-1 text-amber-500">
- <div className="flex-1 border-t-2 border-dashed border-amber-500" />
+ <div className="flex items-center gap-2 py-1 text-heading">
+ <div className="flex-1 border-t-2 border-dashed border-edge" />
  <span className="text-xs font-bold">✂️ 分割点</span>
- <div className="flex-1 border-t-2 border-dashed border-amber-500" />
+ <div className="flex-1 border-t-2 border-dashed border-edge" />
  </div>
  )}
 
  <div
  className={`
  flex items-center gap-3 p-2 rounded transition-all duration-300
- ${isScanning ? 'ring-2 ring-amber-500 animate-pulse' : ''}
+ ${isScanning ? 'ring-2 ring-[var(--color-warning)] animate-pulse' : ''}
  ${isHighlighted ? ' bg-elevated/20' : 'bg-base/30'}
- ${isCompress ? 'opacity-50 bg-red-500/10' : ''}
+ ${isCompress ? 'opacity-50 bg-elevated' : ''}
  ${isPreserve ? ' bg-elevated/10' : ''}
  `}
  >
@@ -503,7 +503,7 @@ function ContentBlocksVisualizer({
 
  {/* 区域标记 */}
  {isCompress && (
- <span className="text-xs text-red-400">压缩</span>
+ <span className="text-xs text-heading">压缩</span>
  )}
  {isPreserve && (
  <span className="text-xs text-heading">保留</span>
@@ -553,9 +553,9 @@ function CompressionStats({
 
  {phase !== 'init' && phase !== 'check_threshold' && (
  <>
- <div className="p-2 bg-red-500/10 rounded border border-red-500/30">
- <div className="text-xs text-red-400">压缩区域</div>
- <div className="text-lg font-bold text-red-400">
+ <div className="p-2 bg-elevated rounded border-l-2 border-l-edge-hover/30">
+ <div className="text-xs text-heading">压缩区域</div>
+ <div className="text-lg font-bold text-heading">
  {compressTokens.toLocaleString()}
  </div>
  </div>
@@ -580,7 +580,7 @@ function CompressionStats({
  </div>
  <div className="text-right">
  <div className="text-xs text-body">节省 Token</div>
- <div className="text-lg font-bold text-amber-500">
+ <div className="text-lg font-bold text-heading">
  {(TOTAL_TOKENS - metrics.totalTokens).toLocaleString()}
  </div>
  </div>
@@ -717,9 +717,9 @@ export function ChatCompressionAnimation() {
  onClick={togglePlay}
  className="px-4 py-2 rounded text-sm font-medium transition-colors"
  style={{
- backgroundColor: isPlaying ? 'rgba(239, 68, 68, 0.2)' : 'rgba(34, 197, 94, 0.2)',
- color: isPlaying ? '#ef4444' : '#22c55e',
- border: `1px solid ${isPlaying ? '#ef4444' : '#22c55e'}`
+ backgroundColor: isPlaying ? 'var(--color-bg-elevated)' : 'var(--color-bg-elevated)',
+ color: isPlaying ? 'var(--color-danger)' : 'var(--color-success)',
+ border: `1px solid ${isPlaying ? 'var(--color-danger)' : 'var(--color-success)'}`
  }}
  >
  {isPlaying ? '⏸ 暂停' : '▶ 播放'}
@@ -728,7 +728,7 @@ export function ChatCompressionAnimation() {
  onClick={() => handleStepChange(Math.max(0, currentStep - 1))}
  disabled={currentStep === 0}
  className="px-3 py-2 rounded text-sm disabled:opacity-30"
- style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: '#fff' }}
+ style={{ backgroundColor: 'var(--color-bg-elevated)', color: 'var(--color-text)' }}
  >
  ← 上一步
  </button>
@@ -736,14 +736,14 @@ export function ChatCompressionAnimation() {
  onClick={() => handleStepChange(Math.min(animationSteps.length - 1, currentStep + 1))}
  disabled={currentStep === animationSteps.length - 1}
  className="px-3 py-2 rounded text-sm disabled:opacity-30"
- style={{ backgroundColor: 'rgba(255,255,255,0.1)', color: '#fff' }}
+ style={{ backgroundColor: 'var(--color-bg-elevated)', color: 'var(--color-text)' }}
  >
  下一步 →
  </button>
  <button
  onClick={() => handleStepChange(0)}
  className="px-3 py-2 rounded text-sm"
- style={{ backgroundColor: 'rgba(255,255,255,0.05)', color: '#888' }}
+ style={{ backgroundColor: 'var(--color-bg-surface)', color: 'var(--color-text-muted)' }}
  >
  ↺ 重置
  </button>
@@ -753,7 +753,7 @@ export function ChatCompressionAnimation() {
  </div>
 
  {/* 当前步骤标题 */}
- <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.1)' }}>
+ <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border)' }}>
  <h2 className="text-lg font-semibold mb-2" style={{ color: 'var(--color-text)' }}>
  {step.title}
  </h2>

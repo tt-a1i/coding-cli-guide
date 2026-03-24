@@ -9,6 +9,7 @@ interface LayerProps {
   depth?: number;
   /** 是否默认展开，默认为 true */
   defaultOpen?: boolean;
+  color?: string;
 }
 
 // 根据层级深度获取样式
@@ -16,22 +17,24 @@ function getDepthStyles(depth: number) {
   switch (depth) {
     case 1:
       return {
-        container: 'bg-white/5 rounded-xl p-5 border border-white/10 mb-5',
-        title: 'text-xl text-cyan-400',
-        titleIcon: 'text-2xl',
+        container: 'mb-8',
+        header: 'pb-3 border-b border-edge mb-4',
+        title: 'text-lg',
+        content: '',
       };
     case 2:
       return {
-        container: 'bg-white/[0.03] rounded-lg p-4 border border-white/5 mb-4 ml-2',
-        title: 'text-lg text-cyan-300',
-        titleIcon: 'text-xl',
+        container: 'mb-6',
+        header: 'pb-2 mb-3',
+        title: 'text-base',
+        content: 'pl-4 border-l-2 border-edge/40 ml-1',
       };
-    case 3:
     default:
       return {
-        container: 'bg-white/[0.02] rounded-md p-3 border border-white/[0.03] mb-3 ml-4',
-        title: 'text-base text-cyan-200',
-        titleIcon: 'text-lg',
+        container: 'mb-4',
+        header: 'pb-2 mb-2',
+        title: 'text-sm',
+        content: 'pl-3.5 border-l-2 border-edge/30 ml-0.5',
       };
   }
 }
@@ -39,7 +42,6 @@ function getDepthStyles(depth: number) {
 export function Layer({ children, title, icon, depth = 1, defaultOpen = true }: LayerProps) {
   const outline = useOutline();
   const [isOpen, setIsOpen] = useState(defaultOpen);
-  const styles = getDepthStyles(depth);
 
   const sectionId = useMemo(() => {
     if (!title) return undefined;
@@ -50,41 +52,48 @@ export function Layer({ children, title, icon, depth = 1, defaultOpen = true }: 
 
   useEffect(() => {
     if (!outline || !title || !sectionId) return;
-    // 只有顶级层级（depth=1）注册到大纲
     if (depth === 1) {
       outline.registerSection({ id: sectionId, title });
     }
   }, [outline, sectionId, title, depth]);
 
   const handleToggle = () => {
-    if (title) {
-      setIsOpen(!isOpen);
-    }
+    if (title) setIsOpen(!isOpen);
   };
 
+  if (!title) {
+    return (
+      <div id={sectionId} className="scroll-mt-8">
+        {children}
+      </div>
+    );
+  }
+
+  const styles = getDepthStyles(depth);
+
   return (
-    <div
-      id={sectionId}
-      className={`${styles.container} scroll-mt-8`}
-    >
-      {title && (
-        <button
-          onClick={handleToggle}
-          className={`w-full ${styles.title} mb-4 flex items-center gap-2 text-left hover:opacity-80 transition-opacity cursor-pointer`}
+    <div id={sectionId} className={`scroll-mt-8 ${styles.container}`}>
+      <button
+        onClick={handleToggle}
+        className={`group w-full flex items-center gap-2 text-left cursor-pointer transition-colors duration-150 ${styles.header}`}
+      >
+        <svg
+          className={`w-3 h-3 text-dim shrink-0 transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
         >
-          {icon && <span className={styles.titleIcon}>{icon}</span>}
-          <span className="flex-1">{title}</span>
-          <span
-            className={`transform transition-transform duration-200 text-white/50 text-sm ${isOpen ? 'rotate-180' : ''}`}
-          >
-            ▼
-          </span>
-        </button>
-      )}
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
+        {icon && <span className="text-base opacity-60">{icon}</span>}
+        <span className={`flex-1 font-semibold text-heading ${styles.title}`}>
+          {title}
+        </span>
+      </button>
       <div
-        className={`transition-all duration-300 overflow-hidden ${
+        className={`overflow-hidden transition-all duration-200 ${
           isOpen ? 'max-h-[100000px] opacity-100' : 'max-h-0 opacity-0'
-        }`}
+        } ${styles.content}`}
       >
         {children}
       </div>

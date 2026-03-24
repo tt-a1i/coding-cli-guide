@@ -9,6 +9,7 @@ import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
 
 const relatedPages: RelatedPage[] = [
  { id: 'model-routing', label: '模型路由', description: '策略链与模型选择' },
@@ -54,7 +55,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">不可用原因</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-amber-500">4</div>
+ <div className="text-2xl font-bold text-heading">4</div>
  <div className="text-xs text-dim">故障类型</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
@@ -67,11 +68,11 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div>
  <h4 className="text-sm font-semibold text-dim mb-2">故障转移流程</h4>
  <div className="flex items-center gap-2 flex-wrap text-sm">
- <span className="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-lg border border-red-500/30">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover/30">
  API 失败
  </span>
  <span className="text-dim">→</span>
- <span className="px-3 py-1.5 bg-amber-500/20 text-amber-500 rounded-lg border border-amber-500/30">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover/30">
  故障分类
  </span>
  <span className="text-dim">→</span>
@@ -115,8 +116,8 @@ export function ModelAvailability() {
 
  STATE --> |healthy| CALL[调用 API]
  STATE --> |terminal| SKIP1[跳过此模型]
- STATE --> |sticky_retry consumed| SKIP2[跳过此模型]
- STATE --> |sticky_retry available| CALL
+ STATE --> |"sticky_retry consumed"| SKIP2[跳过此模型]
+ STATE --> |"sticky_retry available"| CALL
 
  CALL --> RESULT{调用结果}
 
@@ -136,7 +137,7 @@ export function ModelAvailability() {
  style HEALTHY stroke:#4ade80,stroke-width:2px
  style TERMINAL stroke:#f87171,stroke-width:2px
  style TERMINAL2 stroke:#f87171,stroke-width:2px
- style STICKY stroke:#f59e0b,stroke-width:2px`;
+ style STICKY stroke:${getThemeColor("--color-warning", "#b45309")},stroke-width:2px`;
 
  const healthStateCode = `// packages/core/src/availability/modelAvailabilityService.ts
 
@@ -148,78 +149,78 @@ type TerminalUnavailabilityReason = 'quota' | 'capacity';
 export type TurnUnavailabilityReason = 'retry_once_per_turn';
 
 export type UnavailabilityReason =
- | TerminalUnavailabilityReason // 'quota' | 'capacity'
- | TurnUnavailabilityReason // 'retry_once_per_turn'
- | 'unknown';
+  | TerminalUnavailabilityReason // 'quota' | 'capacity'
+  | TurnUnavailabilityReason // 'retry_once_per_turn'
+  | 'unknown';
 
 // 健康状态结构
 type HealthState =
- | { status: 'terminal'; reason: TerminalUnavailabilityReason }
- | { status: 'sticky_retry'; reason: TurnUnavailabilityReason; consumed: boolean };
+  | { status: 'terminal'; reason: TerminalUnavailabilityReason }
+  | { status: 'sticky_retry'; reason: TurnUnavailabilityReason; consumed: boolean };
 
 // 可用性快照
 export interface ModelAvailabilitySnapshot {
- available: boolean;
- reason?: UnavailabilityReason;
+  available: boolean;
+  reason?: UnavailabilityReason;
 }`;
 
  const availabilityServiceCode = `// packages/core/src/availability/modelAvailabilityService.ts
 
 export class ModelAvailabilityService {
- private readonly health = new Map<ModelId, HealthState>();
+  private readonly health = new Map<ModelId, HealthState>();
 
- // 标记为终端故障（不可恢复）
- markTerminal(model: ModelId, reason: TerminalUnavailabilityReason) {
- this.setState(model, { status: 'terminal', reason });
- }
+  // 标记为终端故障（不可恢复）
+  markTerminal(model: ModelId, reason: TerminalUnavailabilityReason) {
+  this.setState(model, { status: 'terminal', reason });
+  }
 
- // 标记为健康
- markHealthy(model: ModelId) {
- this.clearState(model);
- }
+  // 标记为健康
+  markHealthy(model: ModelId) {
+  this.clearState(model);
+  }
 
- // 标记为每轮重试一次（可恢复）
- markRetryOncePerTurn(model: ModelId) {
- const currentState = this.health.get(model);
- // 不覆盖终端故障
- if (currentState?.status === 'terminal') return;
+  // 标记为每轮重试一次（可恢复）
+  markRetryOncePerTurn(model: ModelId) {
+  const currentState = this.health.get(model);
+  // 不覆盖终端故障
+  if (currentState?.status === 'terminal') return;
 
- let consumed = false;
- if (currentState?.status === 'sticky_retry') {
- consumed = currentState.consumed; // 保持已消费状态
- }
+  let consumed = false;
+  if (currentState?.status === 'sticky_retry') {
+  consumed = currentState.consumed; // 保持已消费状态
+  }
 
- this.setState(model, {
- status: 'sticky_retry',
- reason: 'retry_once_per_turn',
- consumed,
- });
- }
+  this.setState(model, {
+  status: 'sticky_retry',
+  reason: 'retry_once_per_turn',
+  consumed,
+  });
+  }
 
- // 消费重试机会
- consumeStickyAttempt(model: ModelId) {
- const state = this.health.get(model);
- if (state?.status === 'sticky_retry') {
- this.setState(model, { ...state, consumed: true });
- }
- }
+  // 消费重试机会
+  consumeStickyAttempt(model: ModelId) {
+  const state = this.health.get(model);
+  if (state?.status === 'sticky_retry') {
+  this.setState(model, { ...state, consumed: true });
+  }
+  }
 
- // 获取模型可用性快照
- snapshot(model: ModelId): ModelAvailabilitySnapshot {
- const state = this.health.get(model);
+  // 获取模型可用性快照
+  snapshot(model: ModelId): ModelAvailabilitySnapshot {
+  const state = this.health.get(model);
 
- if (!state) return { available: true };
+  if (!state) return { available: true };
 
- if (state.status === 'terminal') {
- return { available: false, reason: state.reason };
- }
+  if (state.status === 'terminal') {
+  return { available: false, reason: state.reason };
+  }
 
- if (state.status === 'sticky_retry' && state.consumed) {
- return { available: false, reason: state.reason };
- }
+  if (state.status === 'sticky_retry' && state.consumed) {
+  return { available: false, reason: state.reason };
+  }
 
- return { available: true };
- }
+  return { available: true };
+  }
 }`;
 
  const failureClassificationCode = `// packages/core/src/availability/errorClassification.ts
@@ -229,25 +230,28 @@ export type FailureKind = 'terminal' | 'transient' | 'not_found' | 'unknown';
 
 // 故障分类函数
 export function classifyFailureKind(error: unknown): FailureKind {
- if (error instanceof TerminalQuotaError) {
- return 'terminal'; // 配额用尽，不可恢复
- }
- if (error instanceof RetryableQuotaError) {
- return 'transient'; // 暂时性错误，可重试
- }
- if (error instanceof ModelNotFoundError) {
- return 'not_found'; // 模型不存在
- }
- return 'unknown'; // 未知错误
+  if (error instanceof TerminalQuotaError) {
+  return 'terminal'; // 配额用尽，不可恢复
+  }
+  if (error instanceof RetryableQuotaError) {
+  return 'transient'; // 暂时性错误，可重试
+  }
+  if (error instanceof ModelNotFoundError) {
+  return 'not_found'; // 模型不存在
+  }
+  return 'unknown'; // 未知错误
 }`;
 
  const policyChainCode = `// packages/core/src/availability/policyCatalog.ts
 
 import {
- DEFAULT_GEMINI_MODEL,
- DEFAULT_GEMINI_FLASH_MODEL,
- PREVIEW_GEMINI_MODEL,
- PREVIEW_GEMINI_FLASH_MODEL,
+
+
+
+  DEFAULT_GEMINI_MODEL,
+  DEFAULT_GEMINI_FLASH_MODEL,
+  PREVIEW_GEMINI_MODEL,
+  PREVIEW_GEMINI_FLASH_MODEL,
 } from '../config/models.js';
 
 // 降级动作
@@ -255,33 +259,33 @@ export type FallbackAction = 'silent' | 'prompt';
 
 // 模型策略
 export interface ModelPolicy {
- model: ModelId;
- actions: ModelPolicyActionMap; // 故障 → 动作映射
- stateTransitions: ModelPolicyStateMap; // 故障 → 状态转换
- isLastResort?: boolean; // 是否为最后手段
+  model: ModelId;
+  actions: ModelPolicyActionMap; // 故障 → 动作映射
+  stateTransitions: ModelPolicyStateMap; // 故障 → 状态转换
+  isLastResort?: boolean; // 是否为最后手段
 }
 
 // 默认策略链: Pro → Flash
 const DEFAULT_CHAIN: ModelPolicyChain = [
- definePolicy({ model: DEFAULT_GEMINI_MODEL }),
- definePolicy({ model: DEFAULT_GEMINI_FLASH_MODEL, isLastResort: true }),
+  definePolicy({ model: DEFAULT_GEMINI_MODEL }),
+  definePolicy({ model: DEFAULT_GEMINI_FLASH_MODEL, isLastResort: true }),
 ];
 
 // Preview 策略链
 const PREVIEW_CHAIN: ModelPolicyChain = [
- definePolicy({ model: PREVIEW_GEMINI_MODEL }),
- definePolicy({ model: PREVIEW_GEMINI_FLASH_MODEL, isLastResort: true }),
+  definePolicy({ model: PREVIEW_GEMINI_MODEL }),
+  definePolicy({ model: PREVIEW_GEMINI_FLASH_MODEL, isLastResort: true }),
 ];
 
 // 验证策略链
 export function validateModelPolicyChain(chain: ModelPolicyChain): void {
- if (chain.length === 0) {
- throw new Error('Must include at least one model.');
- }
- const lastResortCount = chain.filter(p => p.isLastResort).length;
- if (lastResortCount !== 1) {
- throw new Error('Must have exactly one isLastResort model.');
- }
+  if (chain.length === 0) {
+  throw new Error('Must include at least one model.');
+  }
+  const lastResortCount = chain.filter(p => p.isLastResort).length;
+  if (lastResortCount !== 1) {
+  throw new Error('Must have exactly one isLastResort model.');
+  }
 }`;
 
  const stateTransitionChart = `stateDiagram-v2
@@ -351,11 +355,11 @@ export function validateModelPolicyChain(chain: ModelPolicyChain): void {
  <HighlightBox title="ModelHealthStatus (2种)" variant="blue">
  <ul className="text-sm space-y-2">
  <li className="flex items-center gap-2">
- <span className="text-red-400 font-mono">terminal</span>
+ <span className="text-heading font-mono">terminal</span>
  <span className="text-dim">- 终端故障，不可恢复</span>
  </li>
  <li className="flex items-center gap-2">
- <span className="text-amber-400 font-mono">sticky_retry</span>
+ <span className="text-heading font-mono">sticky_retry</span>
  <span className="text-dim">- 粘性重试，每轮一次机会</span>
  </li>
  </ul>
@@ -364,15 +368,15 @@ export function validateModelPolicyChain(chain: ModelPolicyChain): void {
  <HighlightBox title="UnavailabilityReason (4种)" variant="purple">
  <ul className="text-sm space-y-2">
  <li className="flex items-center gap-2">
- <span className="text-red-400 font-mono">quota</span>
+ <span className="text-heading font-mono">quota</span>
  <span className="text-dim">- 配额用尽</span>
  </li>
  <li className="flex items-center gap-2">
- <span className="text-red-400 font-mono">capacity</span>
+ <span className="text-heading font-mono">capacity</span>
  <span className="text-dim">- 容量不足</span>
  </li>
  <li className="flex items-center gap-2">
- <span className="text-amber-400 font-mono">retry_once_per_turn</span>
+ <span className="text-heading font-mono">retry_once_per_turn</span>
  <span className="text-dim">- 每轮重试一次</span>
  </li>
  <li className="flex items-center gap-2">
@@ -410,23 +414,23 @@ export function validateModelPolicyChain(chain: ModelPolicyChain): void {
  <tr className="border- border-edge/50">
  <td className="py-2 px-3 text-heading">Healthy</td>
  <td className="py-2 px-3 text-body">配额/容量用尽</td>
- <td className="py-2 px-3 text-red-400">Terminal</td>
- <td className="py-2 px-3 text-red-400">✗ false</td>
+ <td className="py-2 px-3 text-heading">Terminal</td>
+ <td className="py-2 px-3 text-heading">✗ false</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="py-2 px-3 text-heading">Healthy</td>
  <td className="py-2 px-3 text-body">暂时性失败</td>
- <td className="py-2 px-3 text-amber-400">StickyRetry</td>
+ <td className="py-2 px-3 text-heading">StickyRetry</td>
  <td className="py-2 px-3 text-heading">✓ true</td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 text-amber-400">StickyRetry</td>
+ <td className="py-2 px-3 text-heading">StickyRetry</td>
  <td className="py-2 px-3 text-body">消费重试机会</td>
  <td className="py-2 px-3 text-heading">StickyRetry (consumed)</td>
- <td className="py-2 px-3 text-red-400">✗ false</td>
+ <td className="py-2 px-3 text-heading">✗ false</td>
  </tr>
  <tr className="border- border-edge/50">
- <td className="py-2 px-3 text-amber-400">StickyRetry</td>
+ <td className="py-2 px-3 text-heading">StickyRetry</td>
  <td className="py-2 px-3 text-body">API 成功</td>
  <td className="py-2 px-3 text-heading">Healthy</td>
  <td className="py-2 px-3 text-heading">✓ true</td>
@@ -454,11 +458,11 @@ export function validateModelPolicyChain(chain: ModelPolicyChain): void {
  <HighlightBox title="FailureKind (4种)" variant="yellow">
  <ul className="text-sm space-y-2">
  <li>
- <span className="text-red-400 font-mono font-bold">terminal</span>
+ <span className="text-heading font-mono font-bold">terminal</span>
  <span className="text-dim"> - 终端故障，配额用尽</span>
  </li>
  <li>
- <span className="text-amber-400 font-mono font-bold">transient</span>
+ <span className="text-heading font-mono font-bold">transient</span>
  <span className="text-dim"> - 暂时性错误，可重试</span>
  </li>
  <li>
@@ -479,7 +483,7 @@ export function validateModelPolicyChain(chain: ModelPolicyChain): void {
  <span className="text-dim"> - 静默切换到备用模型</span>
  </li>
  <li>
- <span className="text-amber-400 font-mono font-bold">prompt</span>
+ <span className="text-heading font-mono font-bold">prompt</span>
  <span className="text-dim"> - 提示用户后切换</span>
  </li>
  </ul>
@@ -499,9 +503,9 @@ export function validateModelPolicyChain(chain: ModelPolicyChain): void {
 
  <HighlightBox title="策略链验证规则" variant="blue" className="mt-4">
  <ul className="text-sm space-y-1">
- <li>• 策略链必须至少包含一个模型</li>
- <li>• 必须有且仅有一个 <code className="text-amber-400">isLastResort</code> 模型</li>
- <li>• lastResort 模型作为最后手段，即使不可用也会尝试</li>
+ <li>策略链必须至少包含一个模型</li>
+ <li>必须有且仅有一个 <code className="text-heading">isLastResort</code> 模型</li>
+ <li>lastResort 模型作为最后手段，即使不可用也会尝试</li>
  </ul>
  </HighlightBox>
  </Layer>
@@ -572,7 +576,7 @@ export function validateModelPolicyChain(chain: ModelPolicyChain): void {
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-amber-500 font-bold mb-2">Terminal vs Sticky 的选择？</h4>
+ <h4 className="text-heading font-bold mb-2">Terminal vs Sticky 的选择？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策：</strong>根据错误类型决定状态转换。</p>
  <p><strong>规则：</strong></p>

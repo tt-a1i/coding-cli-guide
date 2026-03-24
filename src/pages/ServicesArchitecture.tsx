@@ -5,6 +5,9 @@ import { CodeBlock } from '../components/CodeBlock';
 import { Module } from '../components/Module';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
+import { getThemeColor } from '../utils/theme';
+
+
 
 // ===== Introduction Component =====
 function Introduction({
@@ -50,7 +53,7 @@ function Introduction({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-[var(--color-warning)] font-bold mb-2">
+ <h4 className="text-heading font-bold mb-2">
  🔧 核心服务概览
  </h4>
  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
@@ -71,7 +74,7 @@ function Introduction({
  </div>
  </div>
  <div className="bg-surface p-2 rounded text-center">
- <div className="text-xs text-[var(--color-warning)]">对话记录</div>
+ <div className="text-xs text-heading">对话记录</div>
  <div className="text-[10px] text-dim">
  ChatRecording
  </div>
@@ -123,7 +126,7 @@ function Introduction({
  </div>
  </div>
  <div className="text-center">
- <div className="text-xl font-bold text-[var(--color-warning)]">70%</div>
+ <div className="text-xl font-bold text-heading">70%</div>
  <div className="text-xs text-dim">
  压缩阈值
  </div>
@@ -307,7 +310,7 @@ function ServiceDependencyGraph() {
  y1={service.y + 3}
  x2={dep.x}
  y2={dep.y - 3}
- stroke={isHighlighted ? '#f59e0b' : 'var(--color-bg-elevated)'}
+ stroke={isHighlighted ? 'var(--color-warning)' : 'var(--color-bg-elevated)'}
  strokeWidth={isHighlighted ? '0.5' : '0.3'}
  strokeDasharray={isHighlighted ? '' : '1,1'}
  markerEnd="url(#arrowhead)"
@@ -420,7 +423,7 @@ function PromptProcessorPipeline() {
  {
  name: 'ArgumentProcessor',
  icon: '📝',
- color: '#f59e0b',
+ color: 'var(--color-warning)',
  input: '用户输入: {{args}}',
  output: '用户输入: 帮我重构代码',
  description: '替换参数占位符',
@@ -505,7 +508,7 @@ function PromptProcessorPipeline() {
  <div className="text-xs text-dim">
  <strong>处理顺序</strong>：@File → Shell → Argument → 发送给 AI
  </div>
- <div className="text-xs text-[var(--color-warning)] mt-1">
+ <div className="text-xs text-heading mt-1">
  ⚠️ 安全设计：@File 在 Shell 之前处理，防止路径注入攻击
  </div>
  </div>
@@ -539,13 +542,13 @@ function CompressionVisualization() {
  {[...Array(8)].map((_, i) => (
  <div
  key={i}
- className={`h-4 rounded ${i < 5 ? 'bg-red-500/30' : ' bg-elevated/30'}`}
+ className={`h-4 rounded ${i < 5 ? 'bg-elevated' : ' bg-elevated/30'}`}
  style={{ width: `${60 + Math.random() * 40}%` }}
  />
  ))}
  </div>
  <div className="absolute bottom-2 left-3 right-3 flex justify-between text-xs">
- <span className="text-[var(--color-danger)]">旧消息 (70%)</span>
+ <span className="text-heading">旧消息 (70%)</span>
  <span className="text-heading">新消息 (30%)</span>
  </div>
  </div>
@@ -556,7 +559,7 @@ function CompressionVisualization() {
  <button
  onClick={handleCompress}
  disabled={isCompressing}
- className="px-4 py-2 bg-amber-500 text-heading rounded-lg font-bold hover:opacity-80 disabled:opacity-50"
+ className="px-4 py-2 bg-[var(--color-warning)] text-heading rounded-lg font-bold hover:opacity-80 disabled:opacity-50"
  >
  {isCompressing ? '压缩中...' : '压缩 →'}
  </button>
@@ -592,7 +595,7 @@ function CompressionVisualization() {
 
  <div className="mt-4 grid grid-cols-3 gap-4 text-center">
  <div className="bg-surface rounded-lg p-3">
- <div className="text-xl font-bold text-[var(--color-danger)]">70%</div>
+ <div className="text-xl font-bold text-heading">70%</div>
  <div className="text-xs text-dim">压缩阈值</div>
  </div>
  <div className="bg-surface rounded-lg p-3">
@@ -667,7 +670,7 @@ function LoopDetectionVisualization() {
  onClick={() => setDetectionType(type)}
  className={`px-3 py-1 rounded text-sm transition-colors ${
  detectionType === type
- ? 'bg-amber-500 text-heading'
+ ? 'bg-[var(--color-warning)] text-heading'
  : ' bg-surface text-dim hover:text-heading'
  }`}
  >
@@ -679,7 +682,7 @@ function LoopDetectionVisualization() {
  <div className="bg-base rounded-lg p-4">
  <div className="flex items-center gap-2 mb-3">
  <span className="text-2xl">{current.icon}</span>
- <span className="text-[var(--color-warning)] font-bold">{current.title}</span>
+ <span className="text-heading font-bold">{current.title}</span>
  <span className="text-xs text-dim">
  阈值: {current.threshold}
  </span>
@@ -692,17 +695,17 @@ function LoopDetectionVisualization() {
  className={`flex items-center gap-2 px-3 py-2 rounded ${
  item.ok
  ? ' bg-elevated/10'
- : 'bg-[var(--color-danger-soft)] border border-red-500/50'
+ : 'bg-elevated border-l-2 border-l-edge-hover/50'
  }`}
  >
  <span>{item.ok ? '✓' : '⚠️'}</span>
  <span
- className={`font-mono text-sm ${item.ok ? 'text-body' : 'text-[var(--color-danger)]'}`}
+ className={`font-mono text-sm ${item.ok ? 'text-body' : 'text-heading'}`}
  >
  {item.call}
  </span>
  {!item.ok && (
- <span className="ml-auto text-xs text-[var(--color-danger)]">检测到循环!</span>
+ <span className="ml-auto text-xs text-heading">检测到循环!</span>
  )}
  </div>
  ))}
@@ -942,37 +945,37 @@ graph TB
  MPL --> MCPClient
  TSR --> MCPServer
 
- style CLI stroke:#3b82f6
+ style CLI stroke:${getThemeColor("--color-info", "#2457a6")}
  style Core stroke:#00ff88
- style External stroke:#f59e0b
+ style External stroke:${getThemeColor("--color-warning", "#b45309")}
 `} />
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
  <div className="bg-elevated/10 rounded-lg p-4 border border-edge/30">
  <h4 className="font-bold text-heading mb-2">📱 CLI 层职责</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• 命令发现与加载编排</li>
- <li>• 用户输入预处理</li>
- <li>• UI 状态管理</li>
- <li>• 会话生命周期</li>
+ <li>命令发现与加载编排</li>
+ <li>用户输入预处理</li>
+ <li>UI 状态管理</li>
+ <li>会话生命周期</li>
  </ul>
  </div>
  <div className="bg-elevated/10 rounded-lg p-4 border border-edge/30">
  <h4 className="font-bold text-heading mb-2">⚙️ Core 层职责</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• AI 交互与内容生成</li>
- <li>• 工具执行调度</li>
- <li>• Token 计算与优化</li>
- <li>• 底层服务封装</li>
+ <li>AI 交互与内容生成</li>
+ <li>工具执行调度</li>
+ <li>Token 计算与优化</li>
+ <li>底层服务封装</li>
  </ul>
  </div>
- <div className="bg-[var(--color-warning-soft)] rounded-lg p-4 border border-[var(--color-warning)]">
- <h4 className="font-bold text-[var(--color-warning)] mb-2">🌐 外部依赖</h4>
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover">
+ <h4 className="font-bold text-heading mb-2">🌐 外部依赖</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• AI API (Gemini/OpenAI)</li>
- <li>• 文件系统操作</li>
- <li>• PTY/Shell 执行</li>
- <li>• Git 版本控制</li>
+ <li>AI API (Gemini/OpenAI)</li>
+ <li>文件系统操作</li>
+ <li>PTY/Shell 执行</li>
+ <li>Git 版本控制</li>
  </ul>
  </div>
  </div>
@@ -1154,7 +1157,7 @@ const COMPRESSION_PRESERVE_THRESHOLD = 0.3; // 保留最新 30%
  </div>
  </div>
  <div className="bg-surface rounded-lg p-4 border border-edge">
- <div className="text-[var(--color-warning)] font-bold mb-2">
+ <div className="text-heading font-bold mb-2">
  LLM 认知循环
  </div>
  <div className="text-sm text-body">
@@ -1182,7 +1185,7 @@ const COMPRESSION_PRESERVE_THRESHOLD = 0.3; // 保留最新 30%
  </span>
  </div>
  <div className="flex items-center gap-2">
- <span className="text-[var(--color-warning)]">3.</span>
+ <span className="text-heading">3.</span>
  <span>
  <strong>child_process</strong> - 最后降级，无 PTY 支持
  </span>
@@ -1220,9 +1223,9 @@ const shell = process.platform === 'win32'
  <li>
  • 存储位置: <code>.gemini/git/</code>
  </li>
- <li>• 隔离用户配置（name、email、GPG 签名）</li>
- <li>• 自动复制 .gitignore 规则</li>
- <li>• 使用 GIT_DIR 和 GIT_WORK_TREE 环境变量</li>
+ <li>隔离用户配置（name、email、GPG 签名）</li>
+ <li>自动复制 .gitignore 规则</li>
+ <li>使用 GIT_DIR 和 GIT_WORK_TREE 环境变量</li>
  </ul>
  </HighlightBox>
 
@@ -1265,8 +1268,8 @@ const currentHash = await gitService.getCurrentCommitHash();`}
  IPromptProcessor 接口
  </div>
  </div>
- <div className="bg-surface rounded-lg p-4 border border-[var(--color-warning)]">
- <div className="text-[var(--color-warning)] font-bold mb-2">管道模式</div>
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover">
+ <div className="text-heading font-bold mb-2">管道模式</div>
  <div className="text-sm text-dim">
  Prompt Processors
  <br />
@@ -1281,15 +1284,15 @@ const currentHash = await gitService.getCurrentCommitHash();`}
  封装多个 Parser
  </div>
  </div>
- <div className="bg-surface rounded-lg p-4 border border-red-400/30">
- <div className="text-[var(--color-danger)] font-bold mb-2">包装器模式</div>
+ <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/30">
+ <div className="text-heading font-bold mb-2">包装器模式</div>
  <div className="text-sm text-dim">
  GitService
  <br />
  封装 simple-git 库
  </div>
  </div>
- <div className="bg-surface rounded-lg p-4 border border-pink-400/30">
+ <div className="bg-surface rounded-lg p-4 border border-[var(--purple)]/30">
  <div className="text-heading font-bold mb-2">单例模式</div>
  <div className="text-sm text-dim">
  ChatRecordingService
@@ -1329,7 +1332,7 @@ const currentHash = await gitService.getCurrentCommitHash();`}
  </p>
  </div>
  <div className="bg-base rounded-lg p-4">
- <div className="text-xs text-[var(--color-warning)] font-bold mb-2">
+ <div className="text-xs text-heading font-bold mb-2">
  ✨ 带来的好处
  </div>
  <p className="text-sm text-body">
@@ -1376,8 +1379,8 @@ class MockFileSystemService implements FileSystemService {
  </div>
 
  {/* Loop Detection Rationale */}
- <div className="bg-surface rounded-lg p-6 border border-[var(--color-warning)]">
- <h4 className="text-lg font-bold text-[var(--color-warning)] mb-4 flex items-center gap-2">
+ <div className="bg-surface rounded-lg p-6 border-l-2 border-l-edge-hover">
+ <h4 className="text-lg font-bold text-heading mb-4 flex items-center gap-2">
  <span>🔄</span> LoopDetectionService 阈值设计
  </h4>
 
@@ -1400,7 +1403,7 @@ class MockFileSystemService implements FileSystemService {
  </p>
  </div>
  <div className="bg-base rounded-lg p-4">
- <div className="text-xs text-[var(--color-warning)] font-bold mb-2">
+ <div className="text-xs text-heading font-bold mb-2">
  🤔 为什么 30 轮后 LLM 检测？
  </div>
  <p className="text-sm text-body">
@@ -1470,7 +1473,7 @@ async function checkCognitiveLoop(context: Context): Promise<boolean> {
  </p>
  </div>
  <div className="bg-base rounded-lg p-4">
- <div className="text-xs text-[var(--color-warning)] font-bold mb-2">
+ <div className="text-xs text-heading font-bold mb-2">
  ✨ xterm/headless 的作用
  </div>
  <p className="text-sm text-body">
@@ -1542,7 +1545,7 @@ function processOutput(data: string): string {
  </p>
  </div>
  <div className="bg-base rounded-lg p-4">
- <div className="text-xs text-[var(--color-warning)] font-bold mb-2">
+ <div className="text-xs text-heading font-bold mb-2">
  ✨ 快照的价值
  </div>
  <p className="text-sm text-body">
@@ -1611,8 +1614,8 @@ class GitService {
  </div>
 
  {/* Compression Service Rationale */}
- <div className="bg-surface rounded-lg p-6 border border-[var(--color-danger)]">
- <h4 className="text-lg font-bold text-[var(--color-danger)] mb-4 flex items-center gap-2">
+ <div className="bg-surface rounded-lg p-6 border-l-2 border-l-edge-hover">
+ <h4 className="text-lg font-bold text-heading mb-4 flex items-center gap-2">
  <span>📦</span> ChatCompressionService 压缩策略
  </h4>
 
@@ -1636,7 +1639,7 @@ class GitService {
  </p>
  </div>
  <div className="bg-base rounded-lg p-4">
- <div className="text-xs text-[var(--color-warning)] font-bold mb-2">
+ <div className="text-xs text-heading font-bold mb-2">
  ⚙️ 分割点如何选择？
  </div>
  <p className="text-sm text-body">
@@ -1716,19 +1719,19 @@ function isSafeSplitPoint(
  优点
  </div>
  <ul className="text-sm text-body space-y-1">
- <li>• 无需 DI 框架，减少依赖</li>
- <li>• 类型安全，IDE 支持好</li>
- <li>• 测试时可轻松替换 Mock</li>
+ <li>无需 DI 框架，减少依赖</li>
+ <li>类型安全，IDE 支持好</li>
+ <li>测试时可轻松替换 Mock</li>
  </ul>
  </div>
  <div>
- <div className="text-xs text-[var(--color-warning)] font-bold mb-2">
+ <div className="text-xs text-heading font-bold mb-2">
  权衡
  </div>
  <ul className="text-sm text-body space-y-1">
- <li>• Config 对象可能变得臃肿</li>
- <li>• 需要手动传递依赖</li>
- <li>• 不支持自动生命周期管理</li>
+ <li>Config 对象可能变得臃肿</li>
+ <li>需要手动传递依赖</li>
+ <li>不支持自动生命周期管理</li>
  </ul>
  </div>
  </div>

@@ -47,7 +47,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="text-xs text-dim">React 终端</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
- <div className="text-2xl font-bold text-amber-500">MD</div>
+ <div className="text-2xl font-bold text-heading">MD</div>
  <div className="text-xs text-dim">Markdown</div>
  </div>
  <div className="bg-surface rounded-lg p-3 text-center border border-edge">
@@ -65,7 +65,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <span className="px-3 py-1.5 bg-elevated/20 text-heading rounded-lg border border-edge/30">
  模型响应
  </span>
- <span className="px-3 py-1.5 bg-amber-500/20 text-amber-500 rounded-lg border border-amber-500/30">
+ <span className="px-3 py-1.5 text-heading pl-3 border-l-2 border-l-edge-hover/30">
  工具调用
  </span>
  <span className="px-3 py-1.5 bg-elevated/20 text-heading rounded-lg border border-edge/30">
@@ -155,268 +155,268 @@ export function MessageRendering() {
 
  const historyItemTypesCode = `// HistoryItem 类型定义
 export type HistoryItemUser = HistoryItemBase & {
- type: 'user';
- text: string;
+  type: 'user';
+  text: string;
 };
 
 export type HistoryItemGemini = HistoryItemBase & {
- type: 'gemini';
- text: string;
+  type: 'gemini';
+  text: string;
 };
 
 export type HistoryItemInfo = HistoryItemBase & {
- type: 'info';
- text: string;
- icon?: string;
- color?: string;
+  type: 'info';
+  text: string;
+  icon?: string;
+  color?: string;
 };
 
 export type HistoryItemError = HistoryItemBase & {
- type: 'error';
- text: string;
+  type: 'error';
+  text: string;
 };
 
 export type HistoryItemWarning = HistoryItemBase & {
- type: 'warning';
- text: string;
+  type: 'warning';
+  text: string;
 };
 
 export type HistoryItemToolGroup = HistoryItemBase & {
- type: 'tool_group';
- groupId: number;
- toolCalls: IndividualToolCallDisplay[];
+  type: 'tool_group';
+  groupId: number;
+  toolCalls: IndividualToolCallDisplay[];
 };
 
 export type HistoryItemAbout = HistoryItemBase & {
- type: 'about';
- cliVersion: string;
- osVersion: string;
- sandboxEnv: string;
- modelVersion: string;
- selectedAuthType: string;
- gcpProject: string;
- ideClient: string;
- userEmail?: string;
+  type: 'about';
+  cliVersion: string;
+  osVersion: string;
+  sandboxEnv: string;
+  modelVersion: string;
+  selectedAuthType: string;
+  gcpProject: string;
+  ideClient: string;
+  userEmail?: string;
 };
 
 // 所有消息类型的联合类型
 export type HistoryItem =
- | HistoryItemUser
- | HistoryItemGemini
- | HistoryItemInfo
- | HistoryItemError
- | HistoryItemWarning
- | HistoryItemToolGroup
- | HistoryItemAbout
- | HistoryItemHelp
- | HistoryItemStats
- // ... 更多类型`;
+  | HistoryItemUser
+  | HistoryItemGemini
+  | HistoryItemInfo
+  | HistoryItemError
+  | HistoryItemWarning
+  | HistoryItemToolGroup
+  | HistoryItemAbout
+  | HistoryItemHelp
+  | HistoryItemStats
+  // ... 更多类型`;
 
  const geminiMessageCode = `// GeminiMessage - 模型响应渲染
 export const GeminiMessage: React.FC<GeminiMessageProps> = ({
- text,
- isPending,
- availableTerminalHeight,
- terminalWidth,
+  text,
+  isPending,
+  availableTerminalHeight,
+  terminalWidth,
 }) => {
- const { renderMarkdown } = useUIState();
- const prefix = '✦ '; // 模型响应前缀图标
- const prefixWidth = prefix.length;
+  const { renderMarkdown } = useUIState();
+  const prefix = '✦ '; // 模型响应前缀图标
+  const prefixWidth = prefix.length;
 
- const isAlternateBuffer = useAlternateBuffer();
+  const isAlternateBuffer = useAlternateBuffer();
 
- return (
- <Box flexDirection="row">
- {/* 前缀图标 */}
- <Box width={prefixWidth}>
- <Text color={theme.text.accent} aria-label={SCREEN_READER_MODEL_PREFIX}>
- {prefix}
- </Text>
- </Box>
- {/* 内容区域 */}
- <Box flexGrow={1} flexDirection="column">
- <MarkdownDisplay
- text={text}
- isPending={isPending}
- availableTerminalHeight={
- isAlternateBuffer ? undefined : availableTerminalHeight
- }
- terminalWidth={terminalWidth}
- renderMarkdown={renderMarkdown}
- />
- </Box>
- </Box>
- );
+  return (
+  <Box flexDirection="row">
+  {/* 前缀图标 */}
+  <Box width={prefixWidth}>
+  <Text color={theme.text.accent} aria-label={SCREEN_READER_MODEL_PREFIX}>
+  {prefix}
+  </Text>
+  </Box>
+  {/* 内容区域 */}
+  <Box flexGrow={1} flexDirection="column">
+  <MarkdownDisplay
+  text={text}
+  isPending={isPending}
+  availableTerminalHeight={
+  isAlternateBuffer ? undefined : availableTerminalHeight
+  }
+  terminalWidth={terminalWidth}
+  renderMarkdown={renderMarkdown}
+  />
+  </Box>
+  </Box>
+  );
 };`;
 
  const toolMessageCode = `// ToolMessage - 工具调用渲染
 export interface ToolMessageProps extends IndividualToolCallDisplay {
- availableTerminalHeight?: number;
- terminalWidth: number;
- emphasis?: TextEmphasis;
- renderOutputAsMarkdown?: boolean;
- isFirst: boolean;
- borderColor: string;
- borderDimColor: boolean;
- activeShellPtyId?: number | null;
- embeddedShellFocused?: boolean;
- ptyId?: number;
- config?: Config;
+  availableTerminalHeight?: number;
+  terminalWidth: number;
+  emphasis?: TextEmphasis;
+  renderOutputAsMarkdown?: boolean;
+  isFirst: boolean;
+  borderColor: string;
+  borderDimColor: boolean;
+  activeShellPtyId?: number | null;
+  embeddedShellFocused?: boolean;
+  ptyId?: number;
+  config?: Config;
 }
 
 export const ToolMessage: React.FC<ToolMessageProps> = ({
- name,
- description,
- resultDisplay,
- status,
- availableTerminalHeight,
- terminalWidth,
- emphasis = 'medium',
- renderOutputAsMarkdown = true,
- isFirst,
- borderColor,
- borderDimColor,
- activeShellPtyId,
- embeddedShellFocused,
- ptyId,
- config,
+  name,
+  description,
+  resultDisplay,
+  status,
+  availableTerminalHeight,
+  terminalWidth,
+  emphasis = 'medium',
+  renderOutputAsMarkdown = true,
+  isFirst,
+  borderColor,
+  borderDimColor,
+  activeShellPtyId,
+  embeddedShellFocused,
+  ptyId,
+  config,
 }) => {
- const isThisShellFocused =
- (name === SHELL_COMMAND_NAME || name === 'Shell') &&
- status === ToolCallStatus.Executing &&
- ptyId === activeShellPtyId &&
- embeddedShellFocused;
+  const isThisShellFocused =
+  (name === SHELL_COMMAND_NAME || name === 'Shell') &&
+  status === ToolCallStatus.Executing &&
+  ptyId === activeShellPtyId &&
+  embeddedShellFocused;
 
- return (
- <Box flexDirection="column" width={terminalWidth}>
- {/* Sticky Header - 工具状态和名称 */}
- <StickyHeader
- width={terminalWidth}
- isFirst={isFirst}
- borderColor={borderColor}
- borderDimColor={borderDimColor}
- >
- <ToolStatusIndicator status={status} name={name} />
- <ToolInfo
- name={name}
- status={status}
- description={description}
- emphasis={emphasis}
- />
- {shouldShowFocusHint && (
- <Box marginLeft={1}>
- <Text color={theme.text.accent}>
- {isThisShellFocused ? '(Focused)' : '(ctrl+f to focus)'}
- </Text>
- </Box>
- )}
- </StickyHeader>
+  return (
+  <Box flexDirection="column" width={terminalWidth}>
+  {/* Sticky Header - 工具状态和名称 */}
+  <StickyHeader
+  width={terminalWidth}
+  isFirst={isFirst}
+  borderColor={borderColor}
+  borderDimColor={borderDimColor}
+  >
+  <ToolStatusIndicator status={status} name={name} />
+  <ToolInfo
+  name={name}
+  status={status}
+  description={description}
+  emphasis={emphasis}
+  />
+  {shouldShowFocusHint && (
+  <Box marginLeft={1}>
+  <Text color={theme.text.accent}>
+  {isThisShellFocused ? '(Focused)' : '(ctrl+f to focus)'}
+  </Text>
+  </Box>
+  )}
+  </StickyHeader>
 
- {/* 工具输出内容 */}
- <Box
- width={terminalWidth}
- borderStyle="round"
- borderColor={borderColor}
- borderTop={false}
- borderBottom={false}
- paddingX={1}
- >
- <ToolResultDisplay
- resultDisplay={resultDisplay}
- availableTerminalHeight={availableTerminalHeight}
- terminalWidth={terminalWidth}
- renderOutputAsMarkdown={renderOutputAsMarkdown}
- />
- </Box>
- </Box>
- );
+  {/* 工具输出内容 */}
+  <Box
+  width={terminalWidth}
+  borderStyle="round"
+  borderColor={borderColor}
+  borderTop={false}
+  borderBottom={false}
+  paddingX={1}
+  >
+  <ToolResultDisplay
+  resultDisplay={resultDisplay}
+  availableTerminalHeight={availableTerminalHeight}
+  terminalWidth={terminalWidth}
+  renderOutputAsMarkdown={renderOutputAsMarkdown}
+  />
+  </Box>
+  </Box>
+  );
 };`;
 
  const toolGroupMessageCode = `// ToolGroupMessage - 工具组渲染
 export const ToolGroupMessage: React.FC<ToolGroupMessageProps> = ({
- toolCalls,
- availableTerminalHeight,
- terminalWidth,
- isFocused = true,
- activeShellPtyId,
- embeddedShellFocused,
+  toolCalls,
+  availableTerminalHeight,
+  terminalWidth,
+  isFocused = true,
+  activeShellPtyId,
+  embeddedShellFocused,
 }) => {
- const config = useConfig();
+  const config = useConfig();
 
- // 检查是否有待处理的工具
- const hasPending = !toolCalls.every(
- (t) => t.status === ToolCallStatus.Success,
- );
+  // 检查是否有待处理的工具
+  const hasPending = !toolCalls.every(
+  (t) => t.status === ToolCallStatus.Success,
+  );
 
- // 是否是 Shell 命令
- const isShellCommand = toolCalls.some(
- (t) => t.name === SHELL_COMMAND_NAME || t.name === SHELL_NAME,
- );
+  // 是否是 Shell 命令
+  const isShellCommand = toolCalls.some(
+  (t) => t.name === SHELL_COMMAND_NAME || t.name === SHELL_NAME,
+  );
 
- // 动态边框颜色
- const borderColor =
- (isShellCommand && hasPending) || isEmbeddedShellFocused
- ? theme.ui.symbol // Shell 执行中: 高亮
- : hasPending
- ? theme.status.warning // 待确认: 警告色
- : theme.border.default; // 已完成: 默认
+  // 动态边框颜色
+  const borderColor =
+  (isShellCommand && hasPending) || isEmbeddedShellFocused
+  ? theme.ui.symbol // Shell 执行中: 高亮
+  : hasPending
+  ? theme.status.warning // 待确认: 警告色
+  : theme.border.default; // 已完成: 默认
 
- // 找到第一个需要确认的工具
- const toolAwaitingApproval = useMemo(
- () => toolCalls.find((tc) => tc.status === ToolCallStatus.Confirming),
- [toolCalls],
- );
+  // 找到第一个需要确认的工具
+  const toolAwaitingApproval = useMemo(
+  () => toolCalls.find((tc) => tc.status === ToolCallStatus.Confirming),
+  [toolCalls],
+  );
 
- return (
- <Box flexDirection="column" width={terminalWidth} marginBottom={1}>
- {toolCalls.map((tool, index) => (
- <React.Fragment key={tool.callId}>
- {/* 确认对话框 */}
- {toolAwaitingApproval?.callId === tool.callId && (
- <ToolConfirmationMessage
- tool={tool}
- terminalWidth={terminalWidth}
- />
- )}
+  return (
+  <Box flexDirection="column" width={terminalWidth} marginBottom={1}>
+  {toolCalls.map((tool, index) => (
+  <React.Fragment key={tool.callId}>
+  {/* 确认对话框 */}
+  {toolAwaitingApproval?.callId === tool.callId && (
+  <ToolConfirmationMessage
+  tool={tool}
+  terminalWidth={terminalWidth}
+  />
+  )}
 
- {/* 工具消息 */}
- {tool.name === SHELL_TOOL_NAME ? (
- <ShellToolMessage {...tool} ... />
- ) : (
- <ToolMessage
- {...tool}
- isFirst={index === 0}
- borderColor={borderColor}
- ...
- />
- )}
- </React.Fragment>
- ))}
- </Box>
- );
+  {/* 工具消息 */}
+  {tool.name === SHELL_TOOL_NAME ? (
+  <ShellToolMessage {...tool} ... />
+  ) : (
+  <ToolMessage
+  {...tool}
+  isFirst={index === 0}
+  borderColor={borderColor}
+  ...
+  />
+  )}
+  </React.Fragment>
+  ))}
+  </Box>
+  );
 };`;
 
  const toolCallStatusCode = `// 工具调用状态枚举
 export enum ToolCallStatus {
- Pending = 'Pending', // 等待执行
- Canceled = 'Canceled', // 用户取消
- Confirming = 'Confirming', // 等待确认
- Executing = 'Executing', // 执行中
- Success = 'Success', // 成功
- Error = 'Error', // 失败
+  Pending = 'Pending', // 等待执行
+  Canceled = 'Canceled', // 用户取消
+  Confirming = 'Confirming', // 等待确认
+  Executing = 'Executing', // 执行中
+  Success = 'Success', // 成功
+  Error = 'Error', // 失败
 }
 
 // 工具调用显示信息
 export interface IndividualToolCallDisplay {
- callId: string; // 调用 ID
- name: string; // 工具名称
- description: string; // 描述
- resultDisplay: ToolResultDisplay | undefined; // 结果显示
- status: ToolCallStatus; // 状态
- confirmationDetails: ToolCallConfirmationDetails | undefined;
- renderOutputAsMarkdown?: boolean;
- ptyId?: number; // PTY ID (Shell)
- outputFile?: string; // 输出文件
+  callId: string; // 调用 ID
+  name: string; // 工具名称
+  description: string; // 描述
+  resultDisplay: ToolResultDisplay | undefined; // 结果显示
+  status: ToolCallStatus; // 状态
+  confirmationDetails: ToolCallConfirmationDetails | undefined;
+  renderOutputAsMarkdown?: boolean;
+  ptyId?: number; // PTY ID (Shell)
+  outputFile?: string; // 输出文件
 }`;
 
  const messageTypesTableData = [
@@ -452,25 +452,25 @@ export interface IndividualToolCallDisplay {
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <div className="text-heading font-bold mb-2">📝 HistoryItem</div>
  <ul className="text-sm text-body space-y-1">
- <li>• 消息数据模型</li>
- <li>• 类型标识 + 内容</li>
- <li>• 存储在历史数组中</li>
+ <li>消息数据模型</li>
+ <li>类型标识 + 内容</li>
+ <li>存储在历史数组中</li>
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <div className="text-heading font-bold mb-2">🧩 消息组件</div>
  <ul className="text-sm text-body space-y-1">
- <li>• React/Ink 组件</li>
- <li>• 类型 → 组件映射</li>
- <li>• 独立渲染逻辑</li>
+ <li>React/Ink 组件</li>
+ <li>类型 → 组件映射</li>
+ <li>独立渲染逻辑</li>
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <div className="text-heading font-bold mb-2">🔧 共享组件</div>
  <ul className="text-sm text-body space-y-1">
- <li>• MarkdownDisplay</li>
- <li>• StickyHeader</li>
- <li>• DiffRenderer</li>
+ <li>MarkdownDisplay</li>
+ <li>StickyHeader</li>
+ <li>DiffRenderer</li>
  </ul>
  </div>
  </div>
@@ -519,17 +519,17 @@ export interface IndividualToolCallDisplay {
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="渲染特点" color="blue">
  <ul className="text-sm text-body space-y-1">
- <li>• <code>✦</code> 前缀图标</li>
- <li>• Markdown 渲染支持</li>
- <li>• 流式输出（isPending）</li>
- <li>• 终端高度自适应</li>
+ <li><code>✦</code> 前缀图标</li>
+ <li>Markdown 渲染支持</li>
+ <li>流式输出（isPending）</li>
+ <li>终端高度自适应</li>
  </ul>
  </HighlightBox>
  <HighlightBox title="无障碍支持" color="green">
  <ul className="text-sm text-body space-y-1">
- <li>• aria-label 屏幕阅读器</li>
- <li>• 语义化文本前缀</li>
- <li>• 可配置渲染模式</li>
+ <li>aria-label 屏幕阅读器</li>
+ <li>语义化文本前缀</li>
+ <li>可配置渲染模式</li>
  </ul>
  </HighlightBox>
  </div>
@@ -553,16 +553,16 @@ export interface IndividualToolCallDisplay {
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="边框颜色逻辑" color="orange">
  <ul className="text-sm text-body space-y-1">
- <li>• <strong>高亮</strong>：Shell 执行中或聚焦</li>
- <li>• <strong>警告</strong>：有待确认的工具</li>
- <li>• <strong>默认</strong>：全部完成</li>
+ <li><strong>高亮</strong>：Shell 执行中或聚焦</li>
+ <li><strong>警告</strong>：有待确认的工具</li>
+ <li><strong>默认</strong>：全部完成</li>
  </ul>
  </HighlightBox>
  <HighlightBox title="确认处理" color="blue">
  <ul className="text-sm text-body space-y-1">
- <li>• 只显示第一个待确认工具</li>
- <li>• 确认后自动移到下一个</li>
- <li>• 支持批量确认</li>
+ <li>只显示第一个待确认工具</li>
+ <li>确认后自动移到下一个</li>
+ <li>支持批量确认</li>
  </ul>
  </HighlightBox>
  </div>
@@ -573,19 +573,19 @@ export interface IndividualToolCallDisplay {
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <h4 className="text-heading font-bold mb-2">终端高度分配</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• 计算有结果的工具数量</li>
- <li>• 平均分配可用高度</li>
- <li>• 单行工具不占用高度</li>
- <li>• 最小高度保证</li>
+ <li>计算有结果的工具数量</li>
+ <li>平均分配可用高度</li>
+ <li>单行工具不占用高度</li>
+ <li>最小高度保证</li>
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <h4 className="text-heading font-bold mb-2">Ink 渲染保护</h4>
  <ul className="text-sm text-body space-y-1">
- <li>• 固定宽度约束</li>
- <li>• 防止边框渲染错误</li>
- <li>• 状态变化优化</li>
- <li>• 避免多行边框问题</li>
+ <li>固定宽度约束</li>
+ <li>防止边框渲染错误</li>
+ <li>状态变化优化</li>
+ <li>避免多行边框问题</li>
  </ul>
  </div>
  </div>
