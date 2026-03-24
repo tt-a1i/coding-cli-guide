@@ -13,16 +13,16 @@ import { CodeBlock } from '../components/CodeBlock';
 
 export function VisionModelSwitch() {
  const multimodalFlow = `flowchart TD
- A[用户输入\n(文本 + @file/@dir 等)] --> B[解析为 PartListUnion]
- B --> C{Part 类型?}
- C -->|text| T[Part.text]
- C -->|inlineData| I[Part.inlineData\n(image/audio/pdf...)]
- C -->|fileData| F[Part.fileData\n(gs://... 等引用)]
- T --> D[contentGenerator.generateContentStream()]
+ A["用户输入<br/>(文本 + file/dir 引用)"] --> B["解析为 PartListUnion"]
+ B --> C{"Part 类型?"}
+ C -->|text| T["Part.text"]
+ C -->|inlineData| I["Part.inlineData<br/>(image/audio/pdf)"]
+ C -->|fileData| F["Part.fileData<br/>(gs:// 等引用)"]
+ T --> D["contentGenerator.generateContentStream()"]
  I --> D
  F --> D
- D --> E[Gemini API 返回流式 chunks]
- E --> G[Turn.run 归一为事件\nContent/Thought/ToolCallRequest/Finished]
+ D --> E["Gemini API 返回流式 chunks"]
+ E --> G["Turn.run 归一为事件<br/>Content/Thought/ToolCallRequest/Finished"]
 `;
 
  return (

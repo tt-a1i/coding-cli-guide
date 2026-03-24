@@ -82,7 +82,7 @@ export function StartHere({ onNavigate }: StartHereProps) {
  <div className="mb-8">
  <p className="text-xs font-mono text-dim uppercase tracking-widest mb-4">Architecture Deep Dive</p>
  <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-heading leading-tight">
- Gemini CLI<br />
+ AI Agent CLI<br />
  <span className="text-body font-normal">架构深度解析</span>
  </h1>
  </div>
@@ -128,7 +128,7 @@ export function StartHere({ onNavigate }: StartHereProps) {
  </div>
 
  <p className="text-sm text-dim border-t border-edge pt-4">
- 基于 Google Gemini CLI 源码分析，涵盖
+ 基于 AI Agent CLI 源码分析，涵盖
  <code>GeminiChat</code>、<code>Hook/Policy</code>、<code>Agent 框架</code>
  等事件驱动架构。
  </p>
