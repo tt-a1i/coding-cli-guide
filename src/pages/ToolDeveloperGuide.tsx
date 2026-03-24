@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { CodeBlock } from '../components/CodeBlock';
 import { RelatedPages } from '../components/RelatedPages';
 
 // ============================================================
@@ -40,22 +41,6 @@ function CollapsibleSection({
  {children}
  </div>
  )}
- </div>
- );
-}
-
-// 代码块组件
-function CodeBlock({ code, language = 'typescript', title }: { code: string; language?: string; title?: string }) {
- return (
- <div className="my-4 rounded-lg overflow-hidden border border-edge/50">
- {title && (
- <div className="bg-surface px-4 py-2 text-sm text-body border- border-edge/50">
- {title}
- </div>
- )}
- <pre className={`bg-base/80 p-4 overflow-x-auto language-${language}`}>
- <code className="text-sm text-body">{code}</code>
- </pre>
  </div>
  );
 }
