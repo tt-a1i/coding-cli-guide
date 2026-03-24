@@ -1,32 +1,22 @@
-import { useCallback, useSyncExternalStore } from 'react';
-
-function getIsDark() {
-  return document.documentElement.classList.contains('dark');
-}
-
-function subscribe(callback: () => void) {
-  const observer = new MutationObserver(callback);
-  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-  return () => observer.disconnect();
-}
-
-function applyTheme(dark: boolean) {
-  if (dark) {
-    document.documentElement.classList.add('dark');
-  } else {
-    document.documentElement.classList.remove('dark');
-  }
-  localStorage.setItem('theme', dark ? 'dark' : 'light');
-  const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', dark ? '#111110' : '#fafaf9');
-}
+import { useReducer } from 'react';
 
 export function ThemeToggle() {
-  const isDark = useSyncExternalStore(subscribe, getIsDark);
+  const [, forceUpdate] = useReducer((x: number) => x + 1, 0);
+  const isDark = typeof document !== 'undefined' && document.documentElement.classList.contains('dark');
 
-  const toggle = useCallback(() => {
-    applyTheme(!getIsDark());
-  }, []);
+  const toggle = () => {
+    const nowDark = document.documentElement.classList.contains('dark');
+    const next = !nowDark;
+
+    document.documentElement.classList.toggle('dark', next);
+    localStorage.setItem('theme', next ? 'dark' : 'light');
+
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', next ? '#111110' : '#fafaf9');
+
+    // Force re-render to update icon
+    forceUpdate();
+  };
 
   return (
     <button
