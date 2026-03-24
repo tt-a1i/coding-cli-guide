@@ -656,7 +656,7 @@ export function FormatConverterAnimation() {
  </h2>
  </div>
 
- <HighlightBox title="🧭 fork-only 提示" icon="⚠️" variant="yellow">
+ <HighlightBox title="🧭 fork-only 提示" variant="yellow">
  <p className="m-0 text-sm text-body">
  上游 Gemini CLI 的主线不会进行 "Gemini SDK ↔ OpenAI API" 的双向转换；它直接调用 <code>@google/genai</code>。
  本动画用于解释当 fork 通过 OpenAI 兼容协议接入其他模型时，转换管道是如何工作的。

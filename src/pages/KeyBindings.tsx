@@ -81,7 +81,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码入口:</span>
+ <span className="text-dim">源码入口:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/cli/src/config/keyBindings.ts
  </code>
@@ -259,14 +259,14 @@ export const defaultKeyBindings: KeyBindingConfig = {
 
  <QuickSummary isExpanded={isSummaryExpanded} onToggle={() => setIsSummaryExpanded(!isSummaryExpanded)} />
 
- <Layer title="系统架构" icon="🏗️" defaultOpen={true}>
+ <Layer title="系统架构" defaultOpen={true}>
  <HighlightBox title="按键处理流程" color="blue" className="mb-6">
  <MermaidDiagram chart={keyBindingFlowChart} />
  </HighlightBox>
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
  <div className="bg-surface p-4 rounded-lg border border-edge">
- <div className="text-heading font-bold mb-2">🎹 Input 层</div>
+ <div className="text-heading font-bold mb-2">Input 层</div>
  <ul className="text-sm text-body space-y-1">
  <li>捕获 keypress 事件</li>
  <li>识别修饰键状态</li>
@@ -274,7 +274,7 @@ export const defaultKeyBindings: KeyBindingConfig = {
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge">
- <div className="text-heading font-bold mb-2">🔍 Matching 层</div>
+ <div className="text-heading font-bold mb-2">Matching 层</div>
  <ul className="text-sm text-body space-y-1">
  <li>遍历 KeyBindingConfig</li>
  <li>检查 KeyBinding 规则</li>
@@ -282,7 +282,7 @@ export const defaultKeyBindings: KeyBindingConfig = {
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge">
- <div className="text-heading font-bold mb-2">⚡ Dispatch 层</div>
+ <div className="text-heading font-bold mb-2">Dispatch 层</div>
  <ul className="text-sm text-body space-y-1">
  <li>解析 Command 枚举</li>
  <li>检查上下文条件</li>
@@ -292,7 +292,7 @@ export const defaultKeyBindings: KeyBindingConfig = {
  </div>
  </Layer>
 
- <Layer title="Command 枚举" icon="📋" defaultOpen={true}>
+ <Layer title="Command 枚举" defaultOpen={true}>
  <p className="text-body mb-4">
  所有可用的键盘命令通过 <code className="text-heading">Command</code> 枚举定义，
  分为 5 个功能分组：
@@ -366,7 +366,7 @@ export const defaultKeyBindings: KeyBindingConfig = {
  </div>
  </Layer>
 
- <Layer title="KeyBinding 接口" icon="🔗" defaultOpen={true}>
+ <Layer title="KeyBinding 接口" defaultOpen={true}>
  <p className="text-body mb-4">
  每个 Command 可以绑定多个 <code className="text-heading">KeyBinding</code>，
  支持精确控制修饰键要求：
@@ -384,30 +384,30 @@ export const defaultKeyBindings: KeyBindingConfig = {
  </HighlightBox>
  </Layer>
 
- <Layer title="默认配置示例" icon="⚙️" defaultOpen={false}>
+ <Layer title="默认配置示例" defaultOpen={false}>
  <CodeBlock code={defaultBindingsCode} language="typescript" title="defaultKeyBindings 配置" />
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="设计亮点" color="green">
  <ul className="text-sm text-body space-y-1">
- <li>✅ 数据驱动，易于扩展</li>
- <li>✅ 多绑定支持同一命令</li>
- <li>✅ macOS/Linux 兼容</li>
- <li>✅ Emacs 风格快捷键</li>
+ <li>数据驱动，易于扩展</li>
+ <li>多绑定支持同一命令</li>
+ <li>macOS/Linux 兼容</li>
+ <li>Emacs 风格快捷键</li>
  </ul>
  </HighlightBox>
  <HighlightBox title="使用场景" color="orange">
  <ul className="text-sm text-body space-y-1">
- <li>🔹 主输入框编辑</li>
- <li>🔹 历史记录导航</li>
- <li>🔹 自动补全选择</li>
- <li>🔹 Shell 交互模式</li>
+ <li>主输入框编辑</li>
+ <li>历史记录导航</li>
+ <li>自动补全选择</li>
+ <li>Shell 交互模式</li>
  </ul>
  </HighlightBox>
  </div>
  </Layer>
 
- <Layer title="扩展机制" icon="🔧" defaultOpen={false}>
+ <Layer title="扩展机制" defaultOpen={false}>
  <p className="text-body mb-4">
  未来可通过用户配置文件自定义键盘绑定：
  </p>
@@ -429,7 +429,7 @@ export const defaultKeyBindings: KeyBindingConfig = {
 
  <div className="mt-4 p-4 bg-base/50 rounded-lg border border-edge">
  <div className="text-sm text-dim">
- <strong className="text-heading">💡 扩展思路：</strong>
+ <strong className="text-heading">扩展思路：</strong>
  <ul className="mt-2 space-y-1">
  <li>合并用户配置与默认配置</li>
  <li>支持完全覆盖或追加模式</li>

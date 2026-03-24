@@ -9,7 +9,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  onClick={onToggle}
  className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-surface transition-colors"
  >
- <span className="text-lg font-semibold text-heading">📖 什么是 Turn 状态流转？</span>
+ <span className="text-lg font-semibold text-heading">什么是 Turn 状态流转？</span>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
  </button>
 
@@ -17,7 +17,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="px-4 pb-4 space-y-4 text-sm">
  {/* 核心概念 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">🎯 核心概念</h3>
+ <h3 className="text-heading font-semibold mb-2">核心概念</h3>
  <p className="text-body">
  <strong>Turn</strong> 代表一次完整的 AI 响应周期。从收到第一个流式 chunk 开始，
  到收到 Finished（finishReason）结束，中间经历思考提取、内容输出、工具调用检测等多个事件。
@@ -26,7 +26,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 为什么需要 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">❓ 为什么需要 Turn 状态？</h3>
+ <h3 className="text-heading font-semibold mb-2">为什么需要 Turn 状态？</h3>
  <ul className="text-body space-y-1 list-disc list-inside">
  <li><strong>状态管理</strong>：追踪一次响应的完整生命周期</li>
  <li><strong>工具调用收集</strong>：积累流式解析出的工具调用</li>
@@ -37,7 +37,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 事件类型 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">📊 关键事件</h3>
+ <h3 className="text-heading font-semibold mb-2">关键事件</h3>
  <div className="grid grid-cols-2 gap-2 text-xs">
  <div className="bg-base p-2 rounded border border-edge">
  <div className="text-heading">stream_start</div>
@@ -60,7 +60,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 源码位置 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">📁 源码位置</h3>
+ <h3 className="text-heading font-semibold mb-2">源码位置</h3>
  <code className="text-xs bg-base p-2 rounded block border border-edge">
  packages/core/src/core/turn.ts
  </code>
@@ -68,7 +68,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 相关机制 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">🔗 相关机制</h3>
+ <h3 className="text-heading font-semibold mb-2">相关机制</h3>
  <div className="flex flex-wrap gap-2">
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">流式解析</span>
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">工具调度</span>

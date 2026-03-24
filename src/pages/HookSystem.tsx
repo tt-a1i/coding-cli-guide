@@ -35,8 +35,7 @@ function QuickSummary({
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">🪝</span>
- <span className="text-xl font-bold text-heading">
+  <span className="text-xl font-bold text-heading">
  30秒快速理解
  </span>
  </div>
@@ -110,7 +109,7 @@ function QuickSummary({
 
  {/* 源码入口 */}
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码入口:</span>
+ <span className="text-dim">源码入口:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  gemini-cli/packages/core/src/hooks/hookSystem.ts
  </code>
@@ -402,7 +401,7 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
  </section>
 
  {/* 1. 核心组件 */}
- <Layer title="核心组件" icon="🧩">
+ <Layer title="核心组件">
  <div className="space-y-4">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="HookRegistry" variant="blue">
@@ -479,7 +478,7 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
  </Layer>
 
  {/* 2. 事件类型 */}
- <Layer title="Hook 事件类型" icon="📡">
+ <Layer title="Hook 事件类型">
  <div className="space-y-4">
  <CodeBlock
  code={hookEventTypesCode}
@@ -609,7 +608,7 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
  </Layer>
 
  {/* 3. 执行流程 */}
- <Layer title="执行流程" icon="🔄">
+ <Layer title="执行流程">
  <div className="space-y-4">
  <MermaidDiagram chart={hookEventFlowChart} title="Hook 执行流程" />
  <CodeBlock
@@ -621,7 +620,7 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
  </Layer>
 
  {/* 4. 配置格式 */}
- <Layer title="配置与加载" icon="⚙️">
+ <Layer title="配置与加载">
  <div className="space-y-4">
  <div>
  <h4 className="text-heading font-semibold mb-2">
@@ -695,7 +694,7 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
  </Layer>
 
  {/* 5. Hook 决策 */}
- <Layer title="Hook 决策机制" icon="⚖️">
+ <Layer title="Hook 决策机制">
  <div className="space-y-4">
  <CodeBlock
  code={hookDecisionCode}
@@ -729,7 +728,7 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
  </Layer>
 
  {/* 6. 特定事件 Hook */}
- <Layer title="特定事件 Hook 详解" icon="🎯">
+ <Layer title="特定事件 Hook 详解">
  <div className="space-y-4">
  <div>
  <h4 className="text-heading font-semibold mb-3">
@@ -743,7 +742,7 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
 
  <HighlightBox
  title="STOP_EXECUTION：Hook 可立刻终止整个 Agent"
- icon="🛑"
+
  variant="orange"
  >
  <div className="text-sm space-y-2 text-body">
@@ -786,7 +785,7 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
  </Layer>
 
  {/* 6.5. HookOutput 类层次结构 */}
- <Layer title="HookOutput 类层次结构" icon="🏗️">
+ <Layer title="HookOutput 类层次结构">
  <div className="space-y-4">
  <HighlightBox title="专用 HookOutput 类" variant="purple">
  <div className="text-sm space-y-2 text-body">
@@ -858,7 +857,7 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
  </Layer>
 
  {/* 7. 与 Policy 集成 */}
- <Layer title="与 Policy Engine 集成" icon="🔗">
+ <Layer title="与 Policy Engine 集成">
  <div className="space-y-4">
  <MermaidDiagram
  chart={`sequenceDiagram
@@ -903,7 +902,7 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
  </Layer>
 
  {/* 8. 关键文件 */}
- <Layer title="关键文件与入口" icon="📁">
+ <Layer title="关键文件与入口">
  <div className="grid grid-cols-1 gap-2 text-sm">
  <div className="flex items-start gap-2">
  <code className="bg-base/30 px-2 py-1 rounded text-xs whitespace-nowrap">
@@ -953,7 +952,7 @@ export function createHookOutput(eventName: string, data: Partial<HookOutput>) {
  </Layer>
 
  {/* 设计决策 */}
- <Layer title="设计决策" icon="💡">
+ <Layer title="设计决策">
  <div className="space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
  <h4 className="text-heading font-bold mb-2">

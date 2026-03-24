@@ -334,8 +334,7 @@ export default function CommandInjectionDetectionAnimation() {
 
  {/* 自定义命令测试 */}
  <div className="bg-surface rounded-lg p-4 border border-edge-hover">
- <h3 className="text-sm font-semibold text-heading mb-3 font-mono">
- 🧪 Test Custom Command
+ <h3 className="text-sm font-semibold text-heading mb-3 font-mono">Test Custom Command
  </h3>
  <div className="flex gap-2">
  <input
@@ -359,8 +358,7 @@ export default function CommandInjectionDetectionAnimation() {
  {/* 检测结果 */}
  <div className="col-span-8">
  <div className="bg-surface rounded-lg p-4 border border-edge-hover">
- <h3 className="text-sm font-semibold text-heading mb-3 font-mono">
- 🔍 Security Analysis
+ <h3 className="text-sm font-semibold text-heading mb-3 font-mono">Security Analysis
  </h3>
  <div className="space-y-4 max-h-96 overflow-y-auto">
  {analyses.length === 0 ? (

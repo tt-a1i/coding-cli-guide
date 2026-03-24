@@ -39,8 +39,7 @@ function Introduction({
  {isExpanded && (
  <div className="px-6 pb-6 space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- 🎯 什么是服务层？
+ <h4 className="text-heading font-bold mb-2">什么是服务层？
  </h4>
  <p className="text-body text-sm">
  服务层是 Gemini CLI 的<strong>中间抽象层</strong>，位于 Core
@@ -53,8 +52,7 @@ function Introduction({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- 🔧 核心服务概览
+ <h4 className="text-heading font-bold mb-2">核心服务概览
  </h4>
  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
  <div className="bg-surface p-2 rounded text-center">
@@ -89,8 +87,7 @@ function Introduction({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- 🏗️ 设计原则
+ <h4 className="text-heading font-bold mb-2">设计原则
  </h4>
  <ul className="text-body text-sm space-y-1">
  <li>
@@ -109,7 +106,7 @@ function Introduction({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">📊 关键数字</h4>
+ <h4 className="text-heading font-bold mb-2">关键数字</h4>
  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
  <div className="text-center">
  <div className="text-xl font-bold text-heading">
@@ -508,8 +505,7 @@ function PromptProcessorPipeline() {
  <div className="text-xs text-dim">
  <strong>处理顺序</strong>：@File → Shell → Argument → 发送给 AI
  </div>
- <div className="text-xs text-heading mt-1">
- ⚠️ 安全设计：@File 在 Shell 之前处理，防止路径注入攻击
+ <div className="text-xs text-heading mt-1">安全设计：@File 在 Shell 之前处理，防止路径注入攻击
  </div>
  </div>
  </div>
@@ -528,7 +524,7 @@ function CompressionVisualization() {
  return (
  <div className="bg-surface rounded-lg p-6 border border-edge">
  <h3 className="text-lg font-bold text-heading mb-4 flex items-center gap-2">
- <span>📦</span> 对话压缩机制
+ 对话压缩机制
  </h3>
 
  <div className="flex flex-col md:flex-row gap-4">
@@ -572,8 +568,7 @@ function CompressionVisualization() {
  <div
  className={`space-y-2 transition-all duration-500 ${isCompressing ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-80'}`}
  >
- <div className="h-8 rounded bg-elevated/30 flex items-center justify-center text-xs text-heading">
- 📝 LLM 生成的摘要
+ <div className="h-8 rounded bg-elevated/30 flex items-center justify-center text-xs text-heading">LLM 生成的摘要
  </div>
  <div className="h-4 rounded bg-elevated/20 flex items-center justify-center text-xs text-dim">
  AI 确认: "收到历史摘要"
@@ -660,7 +655,7 @@ function LoopDetectionVisualization() {
  return (
  <div className="bg-surface rounded-lg p-6 border border-edge">
  <h3 className="text-lg font-bold text-heading mb-4 flex items-center gap-2">
- <span>🔄</span> 循环检测机制
+ 循环检测机制
  </h3>
 
  <div className="flex gap-2 mb-4">
@@ -741,47 +736,47 @@ export function ServicesArchitecture() {
  />
 
  {/* Core Services Overview */}
- <Layer title="Core 层服务" icon="⚙️">
+ <Layer title="Core 层服务">
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
  <Module
- icon="📁"
+
  name="FileDiscoveryService"
  path="packages/core/src/services"
  description="基于 .gitignore 和 .geminiignore 过滤文件"
  />
  <Module
- icon="💻"
+
  name="ShellExecutionService"
  path="packages/core/src/services"
  description="跨平台 Shell 执行，支持 PTY"
  />
  <Module
- icon="💬"
+
  name="ChatRecordingService"
  path="packages/core/src/services"
  description="对话历史持久化存储"
  />
  <Module
- icon="📦"
+
  name="ChatCompressionService"
  path="packages/core/src/services"
  description="超长对话自动压缩"
  />
  <Module
- icon="🔄"
+
  name="LoopDetectionService"
  path="packages/core/src/services"
  description="检测并阻止 AI 响应循环"
  />
  <Module
- icon="📂"
+
  name="GitService"
  path="packages/core/src/services"
  description="影子 Git 仓库管理快照"
  />
  </div>
 
- <HighlightBox title="设计特点" icon="💡" variant="blue" className="mt-4">
+ <HighlightBox title="设计特点" variant="blue" className="mt-4">
  <ul className="space-y-1">
  <li>
  • <strong>无状态设计</strong>：大多数服务是纯函数，易于测试
@@ -798,28 +793,28 @@ export function ServicesArchitecture() {
  </Layer>
 
  {/* CLI Services */}
- <Layer title="CLI 层服务" icon="🖥️">
+ <Layer title="CLI 层服务">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <Module
- icon="🎮"
+
  name="CommandService"
  path="packages/cli/src/services"
  description="斜杠命令发现与加载编排"
  />
  <Module
- icon="📦"
+
  name="BuiltinCommandLoader"
  path="packages/cli/src/services"
  description="加载 30+ 内置命令"
  />
  <Module
- icon="📄"
+
  name="FileCommandLoader"
  path="packages/cli/src/services"
  description="从 .toml 文件加载自定义命令"
  />
  <Module
- icon="🔌"
+
  name="McpPromptLoader"
  path="packages/cli/src/services"
  description="从 MCP 服务器加载 Prompt"
@@ -843,7 +838,7 @@ const loadOrder = [
  </Layer>
 
  {/* Service Dependency Graph */}
- <Layer title="服务依赖关系" icon="🕸️">
+ <Layer title="服务依赖关系">
  <ServiceDependencyGraph />
 
  {/* Comprehensive Architecture Diagram */}
@@ -952,7 +947,7 @@ graph TB
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
  <div className="bg-elevated/10 rounded-lg p-4 border border-edge/30">
- <h4 className="font-bold text-heading mb-2">📱 CLI 层职责</h4>
+ <h4 className="font-bold text-heading mb-2">CLI 层职责</h4>
  <ul className="text-sm text-body space-y-1">
  <li>命令发现与加载编排</li>
  <li>用户输入预处理</li>
@@ -961,7 +956,7 @@ graph TB
  </ul>
  </div>
  <div className="bg-elevated/10 rounded-lg p-4 border border-edge/30">
- <h4 className="font-bold text-heading mb-2">⚙️ Core 层职责</h4>
+ <h4 className="font-bold text-heading mb-2">Core 层职责</h4>
  <ul className="text-sm text-body space-y-1">
  <li>AI 交互与内容生成</li>
  <li>工具执行调度</li>
@@ -970,7 +965,7 @@ graph TB
  </ul>
  </div>
  <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover">
- <h4 className="font-bold text-heading mb-2">🌐 外部依赖</h4>
+ <h4 className="font-bold text-heading mb-2">外部依赖</h4>
  <ul className="text-sm text-body space-y-1">
  <li>AI API (Gemini/OpenAI)</li>
  <li>文件系统操作</li>
@@ -984,7 +979,7 @@ graph TB
  {/* Data Flow Diagram */}
  <div className="mt-6 bg-surface rounded-lg p-6 border border-edge">
  <h3 className="text-lg font-bold text-heading mb-4 flex items-center gap-2">
- <span>🔄</span> 服务间数据流
+ 服务间数据流
  </h3>
 
  <MermaidDiagram chart={`
@@ -1031,7 +1026,7 @@ sequenceDiagram
  {/* Package Dependency Matrix */}
  <div className="mt-6 bg-surface rounded-lg p-6 border border-edge">
  <h3 className="text-lg font-bold text-heading mb-4 flex items-center gap-2">
- <span>📦</span> 包依赖矩阵
+ 包依赖矩阵
  </h3>
 
  <div className="overflow-x-auto">
@@ -1093,7 +1088,7 @@ sequenceDiagram
  </Layer>
 
  {/* Prompt Processor Pipeline */}
- <Layer title="Prompt 处理管道" icon="⛓️">
+ <Layer title="Prompt 处理管道">
  <PromptProcessorPipeline />
 
  <div className="mt-4">
@@ -1116,7 +1111,7 @@ prompt = """
  </Layer>
 
  {/* Chat Compression */}
- <Layer title="对话压缩服务" icon="📦">
+ <Layer title="对话压缩服务">
  <CompressionVisualization />
 
  <div className="mt-4">
@@ -1136,7 +1131,7 @@ const COMPRESSION_PRESERVE_THRESHOLD = 0.3; // 保留最新 30%
  </Layer>
 
  {/* Loop Detection */}
- <Layer title="循环检测服务" icon="🔄">
+ <Layer title="循环检测服务">
  <LoopDetectionVisualization />
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
@@ -1168,8 +1163,8 @@ const COMPRESSION_PRESERVE_THRESHOLD = 0.3; // 保留最新 30%
  </Layer>
 
  {/* Shell Execution Details */}
- <Layer title="Shell 执行服务" icon="💻">
- <HighlightBox title="执行方式降级链" icon="🔧" variant="green">
+ <Layer title="Shell 执行服务">
+ <HighlightBox title="执行方式降级链" variant="green">
  <div className="space-y-2">
  <div className="flex items-center gap-2">
  <span className="text-heading">1.</span>
@@ -1213,8 +1208,8 @@ const shell = process.platform === 'win32'
  </Layer>
 
  {/* GitService Details */}
- <Layer title="Git 服务" icon="📂">
- <HighlightBox title="影子仓库设计" icon="💡" variant="purple">
+ <Layer title="Git 服务">
+ <HighlightBox title="影子仓库设计" variant="purple">
  <p className="mb-2">
  GitService 创建一个<strong>隔离的影子 Git 仓库</strong>
  用于快照和回滚，不影响用户的主仓库。
@@ -1246,7 +1241,7 @@ const currentHash = await gitService.getCurrentCommitHash();`}
  </Layer>
 
  {/* Design Patterns Summary */}
- <Layer title="设计模式总结" icon="🎨">
+ <Layer title="设计模式总结">
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
  <div className="bg-surface rounded-lg p-4 border border-edge/30">
  <div className="text-heading font-bold mb-2">
@@ -1304,18 +1299,17 @@ const currentHash = await gitService.getCurrentCommitHash();`}
  </Layer>
 
  {/* Design Rationale Deep Dive */}
- <Layer title="设计原理深度解析" icon="🧠">
+ <Layer title="设计原理深度解析">
  <div className="space-y-6">
  {/* FileSystemService Rationale */}
  <div className="bg-surface rounded-lg p-6 border border-edge/30">
  <h4 className="text-lg font-bold text-heading mb-4 flex items-center gap-2">
- <span>📁</span> FileSystemService 接口设计
+ FileSystemService 接口设计
  </h4>
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
  <div className="bg-base rounded-lg p-4">
- <div className="text-xs text-heading font-bold mb-2">
- 🤔 为什么需要接口？
+ <div className="text-xs text-heading font-bold mb-2">为什么需要接口？
  </div>
  <p className="text-sm text-body">
  测试时需要 Mock 文件系统操作，避免真实 I/O。接口使得可以注入
@@ -1323,8 +1317,7 @@ const currentHash = await gitService.getCurrentCommitHash();`}
  </p>
  </div>
  <div className="bg-base rounded-lg p-4">
- <div className="text-xs text-heading font-bold mb-2">
- ⚙️ 如何实现？
+ <div className="text-xs text-heading font-bold mb-2">如何实现？
  </div>
  <p className="text-sm text-body">
  定义 readTextFile / writeTextFile / findFiles 三个核心方法。
@@ -1332,8 +1325,7 @@ const currentHash = await gitService.getCurrentCommitHash();`}
  </p>
  </div>
  <div className="bg-base rounded-lg p-4">
- <div className="text-xs text-heading font-bold mb-2">
- ✨ 带来的好处
+ <div className="text-xs text-heading font-bold mb-2">带来的好处
  </div>
  <p className="text-sm text-body">
  单元测试无需触碰真实文件系统，测试速度快 10 倍以上。可模拟各种边界情况（权限错误、文件不存在等）。
@@ -1381,13 +1373,12 @@ class MockFileSystemService implements FileSystemService {
  {/* Loop Detection Rationale */}
  <div className="bg-surface rounded-lg p-6 border-l-2 border-l-edge-hover">
  <h4 className="text-lg font-bold text-heading mb-4 flex items-center gap-2">
- <span>🔄</span> LoopDetectionService 阈值设计
+ LoopDetectionService 阈值设计
  </h4>
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
  <div className="bg-base rounded-lg p-4">
- <div className="text-xs text-heading font-bold mb-2">
- 🤔 为什么是 5 次工具调用？
+ <div className="text-xs text-heading font-bold mb-2">为什么是 5 次工具调用？
  </div>
  <p className="text-sm text-body">
  低于 5 次可能误判（如连续读取多个类似文件）。高于 5 次会浪费资源。5
@@ -1395,16 +1386,14 @@ class MockFileSystemService implements FileSystemService {
  </p>
  </div>
  <div className="bg-base rounded-lg p-4">
- <div className="text-xs text-heading font-bold mb-2">
- 🤔 为什么是 10 次内容重复？
+ <div className="text-xs text-heading font-bold mb-2">为什么是 10 次内容重复？
  </div>
  <p className="text-sm text-body">
  代码中常有重复结构（import 语句、模板代码）。10 次 + 50 字符阈值能区分正常重复和真正的循环。
  </p>
  </div>
  <div className="bg-base rounded-lg p-4">
- <div className="text-xs text-heading font-bold mb-2">
- 🤔 为什么 30 轮后 LLM 检测？
+ <div className="text-xs text-heading font-bold mb-2">为什么 30 轮后 LLM 检测？
  </div>
  <p className="text-sm text-body">
  30 轮足够积累模式识别数据，同时避免频繁调用 LLM。使用 LLM
@@ -1450,13 +1439,12 @@ async function checkCognitiveLoop(context: Context): Promise<boolean> {
  {/* Shell Execution Rationale */}
  <div className="bg-surface rounded-lg p-6 border border-edge/30">
  <h4 className="text-lg font-bold text-heading mb-4 flex items-center gap-2">
- <span>💻</span> ShellExecutionService 降级策略
+ ShellExecutionService 降级策略
  </h4>
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
  <div className="bg-base rounded-lg p-4">
- <div className="text-xs text-heading font-bold mb-2">
- 🤔 为什么需要 PTY？
+ <div className="text-xs text-heading font-bold mb-2">为什么需要 PTY？
  </div>
  <p className="text-sm text-body">
  PTY 提供真实终端体验：ANSI 颜色、窗口调整、信号处理。不使用
@@ -1464,8 +1452,7 @@ async function checkCognitiveLoop(context: Context): Promise<boolean> {
  </p>
  </div>
  <div className="bg-base rounded-lg p-4">
- <div className="text-xs text-heading font-bold mb-2">
- ⚙️ 降级链如何工作？
+ <div className="text-xs text-heading font-bold mb-2">降级链如何工作？
  </div>
  <p className="text-sm text-body">
  首选 lydell-node-pty（最完整），失败则尝试
@@ -1473,8 +1460,7 @@ async function checkCognitiveLoop(context: Context): Promise<boolean> {
  </p>
  </div>
  <div className="bg-base rounded-lg p-4">
- <div className="text-xs text-heading font-bold mb-2">
- ✨ xterm/headless 的作用
+ <div className="text-xs text-heading font-bold mb-2">xterm/headless 的作用
  </div>
  <p className="text-sm text-body">
  使用 @xterm/headless 终端仿真器处理 ANSI 转义序列。可以正确渲染颜色输出，同时保持 CLI 轻量。
@@ -1522,13 +1508,12 @@ function processOutput(data: string): string {
  {/* Git Service Rationale */}
  <div className="bg-surface rounded-lg p-6 border border-edge/30">
  <h4 className="text-lg font-bold text-heading mb-4 flex items-center gap-2">
- <span>📂</span> GitService 影子仓库设计
+ GitService 影子仓库设计
  </h4>
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
  <div className="bg-base rounded-lg p-4">
- <div className="text-xs text-heading font-bold mb-2">
- 🤔 为什么用影子仓库？
+ <div className="text-xs text-heading font-bold mb-2">为什么用影子仓库？
  </div>
  <p className="text-sm text-body">
  直接操作用户仓库会污染 git history。影子仓库完全隔离，用户的
@@ -1536,8 +1521,7 @@ function processOutput(data: string): string {
  </p>
  </div>
  <div className="bg-base rounded-lg p-4">
- <div className="text-xs text-heading font-bold mb-2">
- ⚙️ 隔离如何实现？
+ <div className="text-xs text-heading font-bold mb-2">隔离如何实现？
  </div>
  <p className="text-sm text-body">
  使用 GIT_DIR 指向 .gemini/git/，GIT_WORK_TREE
@@ -1545,8 +1529,7 @@ function processOutput(data: string): string {
  </p>
  </div>
  <div className="bg-base rounded-lg p-4">
- <div className="text-xs text-heading font-bold mb-2">
- ✨ 快照的价值
+ <div className="text-xs text-heading font-bold mb-2">快照的价值
  </div>
  <p className="text-sm text-body">
  每次危险操作前自动快照。用户可随时回滚到任意快照点。比文件备份更高效（只存储差异）。
@@ -1616,13 +1599,12 @@ class GitService {
  {/* Compression Service Rationale */}
  <div className="bg-surface rounded-lg p-6 border-l-2 border-l-edge-hover">
  <h4 className="text-lg font-bold text-heading mb-4 flex items-center gap-2">
- <span>📦</span> ChatCompressionService 压缩策略
+ ChatCompressionService 压缩策略
  </h4>
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
  <div className="bg-base rounded-lg p-4">
- <div className="text-xs text-heading font-bold mb-2">
- 🤔 为什么是 70% 触发？
+ <div className="text-xs text-heading font-bold mb-2">为什么是 70% 触发？
  </div>
  <p className="text-sm text-body">
  70% 留有 30% 余量应对峰值。太早压缩浪费上下文；太晚压缩可能无法完成（LLM
@@ -1630,8 +1612,7 @@ class GitService {
  </p>
  </div>
  <div className="bg-base rounded-lg p-4">
- <div className="text-xs text-heading font-bold mb-2">
- 🤔 为什么保留 30%？
+ <div className="text-xs text-heading font-bold mb-2">为什么保留 30%？
  </div>
  <p className="text-sm text-body">
  30% 保留最近的上下文，包括当前任务的关键信息。少于 30%
@@ -1639,8 +1620,7 @@ class GitService {
  </p>
  </div>
  <div className="bg-base rounded-lg p-4">
- <div className="text-xs text-heading font-bold mb-2">
- ⚙️ 分割点如何选择？
+ <div className="text-xs text-heading font-bold mb-2">分割点如何选择？
  </div>
  <p className="text-sm text-body">
  必须在用户消息边界分割，不能切断 AI 的工具调用链（否则会丢失上下文）。使用
@@ -1707,8 +1687,8 @@ function isSafeSplitPoint(
  </Layer>
 
  {/* Service Dependency Injection Pattern */}
- <Layer title="服务依赖注入模式" icon="💉">
- <HighlightBox title="Config 对象模式" icon="🔧" variant="blue">
+ <Layer title="服务依赖注入模式">
+ <HighlightBox title="Config 对象模式" variant="blue">
  <p className="mb-3 text-sm">
  Gemini CLI 使用 <strong>Config 对象</strong> 作为依赖注入的载体，而非传统的 DI 容器。
  这种轻量级方案减少了复杂度，同时保持了可测试性。

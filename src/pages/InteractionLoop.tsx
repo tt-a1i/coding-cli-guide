@@ -16,8 +16,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">🔄</span>
- <span className="text-xl font-bold text-heading">30秒快速理解</span>
+  <span className="text-xl font-bold text-heading">30秒快速理解</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>
  ▼
@@ -83,7 +82,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 关键洞察 */}
  <div className="pl-4 border-l-2 border-l-edge-hover border-l-edge-hover">
- <h4 className="text-sm font-semibold text-heading mb-1">💡 核心机制：Continuation</h4>
+ <h4 className="text-sm font-semibold text-heading mb-1">核心机制：Continuation</h4>
  <p className="text-xs text-body">
  工具执行结果被转换为 <code className="text-heading">functionResponse</code>，
  作为下一条消息重新进入 submitQuery，创造"单次请求即可使用工具"的错觉
@@ -92,7 +91,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 源码入口 */}
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码入口:</span>
+ <span className="text-dim">源码入口:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/cli/src/ui/hooks/useGeminiStream.ts:884 → submitQuery()
  </code>
@@ -231,7 +230,7 @@ export function InteractionLoop() {
  </div>
 
  {/* 1. 目标 */}
- <Layer title="目标" icon="🎯">
+ <Layer title="目标">
  <div className="space-y-4">
  <p className="text-body">
  交互主循环（Interactive Main Loop）是 CLI 的核心机制，负责协调用户输入、AI 响应和工具执行的完整流程。
@@ -239,7 +238,7 @@ export function InteractionLoop() {
  </p>
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
- <HighlightBox title="流式响应" icon="⚡" variant="blue">
+ <HighlightBox title="流式响应" variant="blue">
  <div className="text-sm text-body space-y-1">
  <div>• 实时显示 AI 思考过程</div>
  <div>• 渐进式内容呈现</div>
@@ -247,7 +246,7 @@ export function InteractionLoop() {
  </div>
  </HighlightBox>
 
- <HighlightBox title="工具集成" icon="🔧" variant="green">
+ <HighlightBox title="工具集成" variant="green">
  <div className="text-sm text-body space-y-1">
  <div>• 自动调度和验证</div>
  <div>• 并行执行优化</div>
@@ -255,7 +254,7 @@ export function InteractionLoop() {
  </div>
  </HighlightBox>
 
- <HighlightBox title="循环迭代" icon="🔄" variant="purple">
+ <HighlightBox title="循环迭代" variant="purple">
  <div className="text-sm text-body space-y-1">
  <div>• Continuation 机制</div>
  <div>• 多轮对话支持</div>
@@ -267,7 +266,7 @@ export function InteractionLoop() {
  </Layer>
 
  {/* 1.5 设计理念 */}
- <Layer title="为什么这样设计" icon="💡">
+ <Layer title="为什么这样设计">
  <div className="space-y-4">
  <div className="bg-surface rounded-lg p-5 border border-edge/30">
  <h4 className="text-heading font-bold font-mono mb-3">核心约束：AI 是无状态的</h4>
@@ -317,7 +316,7 @@ export function InteractionLoop() {
  </div>
 
  <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover">
- <h5 className="text-heading font-semibold mb-2">⚖️ 设计权衡</h5>
+ <h5 className="text-heading font-semibold mb-2">设计权衡</h5>
  <div className="text-sm text-body space-y-2">
  <p><strong>复杂性 vs 可控性</strong>：useGeminiStream Hook 有 1000+ 行代码，但提供了对整个流程的精细控制。</p>
  <p><strong>性能 vs 简单</strong>：IDE 上下文增量计算增加了代码复杂度，但避免了每次发送完整文件内容。</p>
@@ -328,11 +327,11 @@ export function InteractionLoop() {
  </Layer>
 
  {/* 2. 输入 */}
- <Layer title="输入" icon="📥">
+ <Layer title="输入">
  <div className="space-y-4">
  <h4 className="text-heading font-semibold font-mono">触发条件</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <HighlightBox title="初始触发" icon="1️⃣" variant="blue">
+ <HighlightBox title="初始触发" variant="blue">
  <div className="text-sm text-body space-y-1">
  <div>• 用户在 TextInput 中按 Enter</div>
  <div>• 用户消息 (Part[])</div>
@@ -341,7 +340,7 @@ export function InteractionLoop() {
  </div>
  </HighlightBox>
 
- <HighlightBox title="Continuation 触发" icon="2️⃣" variant="green">
+ <HighlightBox title="Continuation 触发" variant="green">
  <div className="text-sm text-body space-y-1">
  <div>• 工具执行完成后</div>
  <div>• functionResponse Parts</div>
@@ -373,11 +372,11 @@ const request = await prepareRequest(userParts, ideContextDelta);
  </Layer>
 
  {/* 3. 输出 */}
- <Layer title="输出" icon="📤">
+ <Layer title="输出">
  <div className="space-y-4">
  <h4 className="text-heading font-semibold font-mono">产出物</h4>
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
- <HighlightBox title="UI 显示" icon="💬" variant="blue">
+ <HighlightBox title="UI 显示" variant="blue">
  <div className="text-sm text-body space-y-1">
  <div>• 流式文本内容</div>
  <div>• 思考过程标记</div>
@@ -386,7 +385,7 @@ const request = await prepareRequest(userParts, ideContextDelta);
  </div>
  </HighlightBox>
 
- <HighlightBox title="状态变化" icon="📊" variant="green">
+ <HighlightBox title="状态变化" variant="green">
  <div className="text-sm text-body space-y-1">
  <div>• 对话历史更新</div>
  <div>• Token 计数累积</div>
@@ -395,7 +394,7 @@ const request = await prepareRequest(userParts, ideContextDelta);
  </div>
  </HighlightBox>
 
- <HighlightBox title="副作用" icon="⚙️" variant="purple">
+ <HighlightBox title="副作用" variant="purple">
  <div className="text-sm text-body space-y-1">
  <div>• 文件系统修改</div>
  <div>• Shell 命令执行</div>
@@ -408,7 +407,7 @@ const request = await prepareRequest(userParts, ideContextDelta);
  </Layer>
 
  {/* 4. 关键文件与入口 */}
- <Layer title="关键文件与入口" icon="📁">
+ <Layer title="关键文件与入口">
  <div className="space-y-4">
  <h4 className="text-heading font-semibold font-mono mb-3">核心源文件</h4>
 
@@ -448,7 +447,7 @@ const request = await prepareRequest(userParts, ideContextDelta);
  </Layer>
 
  {/* 5. 流程图 */}
- <Layer title="流程图" icon="📊">
+ <Layer title="流程图">
  <div className="space-y-6">
  <div>
  <h4 className="text-heading font-semibold font-mono mb-3">主循环完整流程</h4>
@@ -573,11 +572,11 @@ const request = await prepareRequest(userParts, ideContextDelta);
  </Layer>
 
  {/* 6. 关键分支与边界条件 */}
- <Layer title="关键分支与边界条件" icon="⚡">
+ <Layer title="关键分支与边界条件">
  <div className="space-y-4">
  <h4 className="text-heading font-semibold font-mono">并发控制</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <HighlightBox title="防重提交" icon="🔒" variant="red">
+ <HighlightBox title="防重提交" variant="red">
  <div className="text-sm space-y-2">
  <div className="flex justify-between">
  <code className="text-heading">isSubmittingQueryRef</code>
@@ -593,7 +592,7 @@ const request = await prepareRequest(userParts, ideContextDelta);
  </div>
  </HighlightBox>
 
- <HighlightBox title="循环保护" icon="🛡️" variant="yellow">
+ <HighlightBox title="循环保护" variant="yellow">
  <div className="text-sm space-y-2">
  <div className="flex justify-between">
  <span className="text-body">最大轮次</span>
@@ -612,7 +611,7 @@ const request = await prepareRequest(userParts, ideContextDelta);
  </div>
 
  <h4 className="text-heading font-semibold font-mono mt-6">Token 管理</h4>
- <HighlightBox title="上下文窗口策略" icon="📊" variant="blue">
+ <HighlightBox title="上下文窗口策略" variant="blue">
  <div className="grid grid-cols-3 gap-4 text-sm">
  <div>
  <h5 className="font-semibold text-heading mb-1">动态截断</h5>
@@ -663,11 +662,11 @@ const request = await prepareRequest(userParts, ideContextDelta);
  </Layer>
 
  {/* 7. 失败与恢复 */}
- <Layer title="失败与恢复" icon="🔧">
+ <Layer title="失败与恢复">
  <div className="space-y-4">
  <h4 className="text-heading font-semibold font-mono">错误处理策略</h4>
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
- <HighlightBox title="API 错误重试" icon="🔄" variant="blue">
+ <HighlightBox title="API 错误重试" variant="blue">
  <div className="text-sm text-body space-y-1">
  <div>• 指数退避 (100ms → 200ms → 400ms)</div>
  <div>• 最大 3 次重试</div>
@@ -676,7 +675,7 @@ const request = await prepareRequest(userParts, ideContextDelta);
  </div>
  </HighlightBox>
 
- <HighlightBox title="工具执行错误" icon="🔧" variant="orange">
+ <HighlightBox title="工具执行错误" variant="orange">
  <div className="text-sm text-body space-y-1">
  <div>• 错误结果返回给模型</div>
  <div>• 模型可选择重试或放弃</div>
@@ -685,7 +684,7 @@ const request = await prepareRequest(userParts, ideContextDelta);
  </div>
  </HighlightBox>
 
- <HighlightBox title="用户中断" icon="🛑" variant="red">
+ <HighlightBox title="用户中断" variant="red">
  <div className="text-sm text-body space-y-1">
  <div>• Ctrl+C 处理</div>
  <div>• AbortController 传播</div>
@@ -762,7 +761,7 @@ function setupAbortHandler(signal: AbortSignal) {
  </Layer>
 
  {/* 8. 相关配置项 */}
- <Layer title="相关配置项" icon="⚙️">
+ <Layer title="相关配置项">
  <div className="space-y-4">
  <h4 className="text-heading font-semibold font-mono">环境变量</h4>
  <div className="bg-base rounded-lg p-4 space-y-2 font-mono text-sm border border-edge">
@@ -824,7 +823,7 @@ function setupAbortHandler(signal: AbortSignal) {
  </Layer>
 
  {/* 执行时间线示例 */}
- <Layer title="执行时间线示例" icon="⏱️">
+ <Layer title="执行时间线示例">
  <div className="bg-base rounded-lg p-4 font-mono text-xs overflow-x-auto border border-edge">
  <pre className="text-body whitespace-pre">{`
 典型交互时间线 (用户请求: "读取 package.json 并分析依赖"):
@@ -912,7 +911,7 @@ Token 消耗: ~4,000 (估算)
  </Layer>
 
  {/* 状态管理 */}
- <Layer title="关键状态变量" icon="📦">
+ <Layer title="关键状态变量">
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
@@ -972,7 +971,7 @@ Token 消耗: ~4,000 (估算)
  </Layer>
 
  {/* 核心代码片段 */}
- <Layer title="核心代码片段" icon="💻">
+ <Layer title="核心代码片段">
  <div className="space-y-4">
  <CodeBlock
  title="useGeminiStream.ts:786 - submitQuery 核心逻辑"
@@ -1066,7 +1065,7 @@ Token 消耗: ~4,000 (估算)
  </Layer>
 
  {/* 边界条件深度解析 */}
- <Layer title="边界条件深度解析" icon="🔬">
+ <Layer title="边界条件深度解析">
  <div className="space-y-6">
  <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover">
  <h4 className="text-heading font-bold mb-2">为什么边界条件如此重要？</h4>
@@ -1079,7 +1078,7 @@ Token 消耗: ~4,000 (估算)
  {/* 边界条件1: Token 耗尽 */}
  <div className="bg-surface rounded-lg p-5 border border-edge">
  <h5 className="text-heading font-semibold mb-3 flex items-center gap-2">
- <span className="text-xl">📊</span> 边界条件 1: Token 上下文窗口耗尽
+ 边界条件 1: Token 上下文窗口耗尽
  </h5>
  <div className="space-y-3 text-sm">
  <div className="bg-base/50 rounded p-3">
@@ -1120,7 +1119,7 @@ if (totalTokens > contextWindowSize * 0.9) {
  {/* 边界条件2: 网络中断 */}
  <div className="bg-surface rounded-lg p-5 border border-edge">
  <h5 className="text-heading font-semibold mb-3 flex items-center gap-2">
- <span className="text-xl">🌐</span> 边界条件 2: 网络中断与恢复
+ 边界条件 2: 网络中断与恢复
  </h5>
  <div className="space-y-3 text-sm">
  <div className="bg-base/50 rounded p-3">
@@ -1193,7 +1192,7 @@ if (totalTokens > contextWindowSize * 0.9) {
  {/* 边界条件4: 循环检测触发 */}
  <div className="bg-surface rounded-lg p-5 border border-edge">
  <h5 className="text-heading font-semibold mb-3 flex items-center gap-2">
- <span className="text-xl">🔄</span> 边界条件 4: 循环检测触发
+ 边界条件 4: 循环检测触发
  </h5>
  <div className="space-y-3 text-sm">
  <div className="bg-base/50 rounded p-3">
@@ -1219,7 +1218,7 @@ if (totalTokens > contextWindowSize * 0.9) {
  {/* 边界条件5: 并发竞态 */}
  <div className="bg-surface rounded-lg p-5 border border-edge">
  <h5 className="text-heading font-semibold mb-3 flex items-center gap-2">
- <span className="text-xl">🏃</span> 边界条件 5: 并发竞态条件
+ 边界条件 5: 并发竞态条件
  </h5>
  <div className="space-y-3 text-sm">
  <div className="bg-base/50 rounded p-3">
@@ -1258,13 +1257,12 @@ if (totalTokens > contextWindowSize * 0.9) {
  </Layer>
 
  {/* 常见问题与调试 */}
- <Layer title="常见问题与调试技巧" icon="🐛">
+ <Layer title="常见问题与调试技巧">
  <div className="space-y-6">
  {/* 问题1 */}
  <div className="bg-surface rounded-lg p-5 border border-edge">
  <div className="flex items-start gap-3">
- <span className="text-2xl">❓</span>
- <div className="flex-1">
+  <div className="flex-1">
  <h5 className="text-heading font-semibold mb-2">
  问题：AI 响应突然中断，显示"流意外结束"
  </h5>
@@ -1295,8 +1293,7 @@ if (totalTokens > contextWindowSize * 0.9) {
  {/* 问题2 */}
  <div className="bg-surface rounded-lg p-5 border border-edge">
  <div className="flex items-start gap-3">
- <span className="text-2xl">❓</span>
- <div className="flex-1">
+  <div className="flex-1">
  <h5 className="text-heading font-semibold mb-2">
  问题：工具执行结果没有反馈给 AI，AI 说"我无法执行这个操作"
  </h5>
@@ -1327,8 +1324,7 @@ if (totalTokens > contextWindowSize * 0.9) {
  {/* 问题3 */}
  <div className="bg-surface rounded-lg p-5 border border-edge">
  <div className="flex items-start gap-3">
- <span className="text-2xl">❓</span>
- <div className="flex-1">
+  <div className="flex-1">
  <h5 className="text-heading font-semibold mb-2">
  问题：AI 陷入循环，不断重复执行同一个工具
  </h5>
@@ -1359,8 +1355,7 @@ if (totalTokens > contextWindowSize * 0.9) {
  {/* 问题4 */}
  <div className="bg-surface rounded-lg p-5 border border-edge">
  <div className="flex items-start gap-3">
- <span className="text-2xl">❓</span>
- <div className="flex-1">
+  <div className="flex-1">
  <h5 className="text-heading font-semibold mb-2">
  问题：响应速度很慢，每次都要等很久
  </h5>
@@ -1390,7 +1385,7 @@ if (totalTokens > contextWindowSize * 0.9) {
 
  {/* 调试工具速查 */}
  <div className="bg-surface rounded-lg p-5 border border-edge/30">
- <h4 className="text-heading font-bold mb-3">🔧 调试工具速查</h4>
+ <h4 className="text-heading font-bold mb-3">调试工具速查</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
  <div className="bg-surface p-3 rounded">
  <code className="text-heading">DEBUG=1 gemini</code>
@@ -1422,7 +1417,7 @@ if (totalTokens > contextWindowSize * 0.9) {
  </Layer>
 
  {/* 性能优化建议 */}
- <Layer title="性能优化建议" icon="⚡">
+ <Layer title="性能优化建议">
  <div className="space-y-6">
  <div className="bg-surface rounded-lg p-4 border border-edge/30">
  <h4 className="text-heading font-bold mb-2">性能关键路径</h4>
@@ -1436,7 +1431,7 @@ if (totalTokens > contextWindowSize * 0.9) {
  {/* 优化1 */}
  <div className="bg-surface rounded-lg p-4 border border-edge">
  <h5 className="text-heading font-semibold mb-2 flex items-center gap-2">
- <span>📉</span> 减少 Token 消耗
+ 减少 Token 消耗
  </h5>
  <ul className="text-sm text-body space-y-2">
  <li className="flex items-start gap-2">
@@ -1461,7 +1456,7 @@ if (totalTokens > contextWindowSize * 0.9) {
  {/* 优化2 */}
  <div className="bg-surface rounded-lg p-4 border border-edge">
  <h5 className="text-heading font-semibold mb-2 flex items-center gap-2">
- <span>🚀</span> 加速工具执行
+ 加速工具执行
  </h5>
  <ul className="text-sm text-body space-y-2">
  <li className="flex items-start gap-2">
@@ -1486,7 +1481,7 @@ if (totalTokens > contextWindowSize * 0.9) {
  {/* 优化3 */}
  <div className="bg-surface rounded-lg p-4 border border-edge">
  <h5 className="text-heading font-semibold mb-2 flex items-center gap-2">
- <span>🎯</span> IDE 上下文优化
+ IDE 上下文优化
  </h5>
  <ul className="text-sm text-body space-y-2">
  <li className="flex items-start gap-2">
@@ -1511,7 +1506,7 @@ if (totalTokens > contextWindowSize * 0.9) {
  {/* 优化4 */}
  <div className="bg-surface rounded-lg p-4 border border-edge">
  <h5 className="text-heading font-semibold mb-2 flex items-center gap-2">
- <span>📊</span> 模型选择策略
+ 模型选择策略
  </h5>
  <ul className="text-sm text-body space-y-2">
  <li className="flex items-start gap-2">
@@ -1586,7 +1581,7 @@ if (totalTokens > contextWindowSize * 0.9) {
  </Layer>
 
  {/* 与其他模块的交互关系 */}
- <Layer title="与其他模块的交互关系" icon="🔗">
+ <Layer title="与其他模块的交互关系">
  <div className="space-y-4">
  <MermaidDiagram
  title="交互循环与其他模块的依赖关系"

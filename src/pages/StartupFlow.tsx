@@ -49,8 +49,8 @@ export function StartupFlow() {
  <h2 className="text-2xl text-heading mb-5">CLI 启动流程详解</h2>
 
  {/* 入口点 */}
- <Layer title="入口点" icon="🚀">
- <HighlightBox title="CLI 入口文件" icon="📁" variant="blue">
+ <Layer title="入口点">
+ <HighlightBox title="CLI 入口文件" variant="blue">
  <p>
  CLI 的入口是 <code className="bg-base/30 px-1 rounded">packages/cli/index.ts</code>，
  它作为 npm bin 脚本被调用，然后启动主程序。
@@ -70,7 +70,7 @@ main();`}
  </Layer>
 
  {/* 启动流程 */}
- <Layer title="启动流程步骤" icon="📋">
+ <Layer title="启动流程步骤">
  <div className="space-y-2">
  <FlowStep
  step={1}
@@ -167,7 +167,7 @@ if (!authResult.valid) {
  </Layer>
 
  {/* 交互模式启动 */}
- <Layer title="交互模式 UI 启动" icon="🖥️">
+ <Layer title="交互模式 UI 启动">
  <CodeBlock
  title="startInteractiveUI()"
  code={`async function startInteractiveUI(...) {
@@ -189,7 +189,7 @@ if (!authResult.valid) {
 }`}
  />
 
- <HighlightBox title="React + Ink" icon="⚛️" variant="green">
+ <HighlightBox title="React + Ink" variant="green">
  <p>
  CLI 使用 <strong>React</strong> 和 <strong>Ink</strong> 来渲染终端 UI。
  Ink 是一个将 React 组件渲染到终端的库，支持 Flexbox 布局。
@@ -198,7 +198,7 @@ if (!authResult.valid) {
  </Layer>
 
  {/* 配置文件 */}
- <Layer title="配置文件结构" icon="⚙️">
+ <Layer title="配置文件结构">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40">
  <h4 className="text-heading font-bold mb-2">全局配置</h4>
@@ -225,7 +225,7 @@ if (!authResult.valid) {
  </Layer>
 
  {/* 命令行参数 */}
- <Layer title="命令行参数" icon="💻">
+ <Layer title="命令行参数">
  <CodeBlock
  code={`gemini [options] [prompt]
 
@@ -2351,10 +2351,10 @@ stateDiagram-v2
  {/* ==================== 深化内容结束 ==================== */}
 
  {/* 为什么这样设计启动流程 */}
- <Layer title="为什么这样设计启动流程" icon="🤔" defaultOpen={false}>
+ <Layer title="为什么这样设计启动流程" defaultOpen={false}>
  <div className="space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">📊 为什么使用分阶段启动？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么使用分阶段启动？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：将启动过程划分为多个明确的阶段（内存检测 → 配置加载 → 认证 → 服务初始化 → UI 启动）。</p>
  <p><strong>原因</strong>：</p>
@@ -2368,7 +2368,7 @@ stateDiagram-v2
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">⚙️ 为什么配置优先级是 CLI &gt; 环境变量 &gt; 文件？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么配置优先级是 CLI &gt; 环境变量 &gt; 文件？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：配置合并遵循 CLI 参数 &gt; 环境变量 &gt; 项目配置 &gt; 全局配置 &gt; 默认值 的优先级。</p>
  <p><strong>原因</strong>：</p>
@@ -2383,7 +2383,7 @@ stateDiagram-v2
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🛡️ 为什么沙箱检测在主逻辑前？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么沙箱检测在主逻辑前？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：沙箱环境检测和初始化在认证和服务加载之前完成。</p>
  <p><strong>原因</strong>：</p>
@@ -2397,7 +2397,7 @@ stateDiagram-v2
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">⚡ 为什么使用异步初始化？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么使用异步初始化？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：几乎所有初始化操作都是异步的，支持并行执行。</p>
  <p><strong>原因</strong>：</p>
@@ -2411,7 +2411,7 @@ stateDiagram-v2
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🔀 为什么分离 Interactive 和 Non-Interactive 入口？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么分离 Interactive 和 Non-Interactive 入口？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：交互模式和非交互模式（--print 或管道输入）使用不同的代码路径。</p>
  <p><strong>原因</strong>：</p>

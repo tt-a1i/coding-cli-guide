@@ -19,7 +19,7 @@ export function ModelConfiguration() {
  <span className="mr-2">🎛️</span>模型配置系统
  </h1>
 
- <HighlightBox title="核心职责" icon="📋" variant="green">
+ <HighlightBox title="核心职责" variant="green">
  <p className="text-body">
  模型配置系统负责管理 Token 限制匹配、模型元信息缓存、多厂商模型发现，
  确保 CLI 能够正确地与不同模型交互并优化上下文使用。
@@ -51,7 +51,7 @@ export function ModelConfiguration() {
  {/* Token Limits Tab */}
  {activeTab === 'limits' && (
  <div className="space-y-6">
- <Layer title="Token 限制（上游 tokenLimit）" icon="📏">
+ <Layer title="Token 限制（上游 tokenLimit）">
  <p className="text-body mb-4">
  上游 gemini-cli 的 <code className="text-heading">tokenLimit(model)</code> 是一个{' '}
  <strong>switch-case</strong> 映射：它只返回“上下文窗口上限”，没有 output token limit，也没有 PATTERNS/normalize 正则匹配。
@@ -69,7 +69,7 @@ flowchart LR
  />
  </Layer>
 
- <Layer title="映射表（上游 tokenLimits.ts）" icon="📊">
+ <Layer title="映射表（上游 tokenLimits.ts）">
  <div className="overflow-x-auto mb-4">
  <table className="w-full border-collapse text-sm">
  <thead>
@@ -146,7 +146,7 @@ export function tokenLimit(model: string): number {
  {/* Cache Tab */}
  {activeTab === 'cache' && (
  <div className="space-y-6">
- <Layer title="模型配置缓存" icon="💾">
+ <Layer title="模型配置缓存">
  <p className="text-body mb-4">
  <code className="text-heading">ModelConfigCache</code> 是一个单例类，
  缓存从后端获取的模型配置（baseURL 和 apiKey），TTL 为 5 分钟。
@@ -171,7 +171,7 @@ sequenceDiagram
 `} />
  </Layer>
 
- <Layer title="缓存实现" icon="📦">
+ <Layer title="缓存实现">
  <CodeBlock
  code={`// packages/core/src/gemini/modelConfigCache.ts
 
@@ -225,7 +225,7 @@ export class ModelConfigCache {
  />
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
- <HighlightBox title="缓存优势" icon="✅" variant="green">
+ <HighlightBox title="缓存优势" variant="green">
  <ul className="text-body pl-5 mb-0 space-y-1 text-sm">
  <li>减少 API 调用次数</li>
  <li>加快模型切换速度</li>
@@ -233,7 +233,7 @@ export class ModelConfigCache {
  </ul>
  </HighlightBox>
 
- <HighlightBox title="TTL 设计" icon="⏱️" variant="yellow">
+ <HighlightBox title="TTL 设计" variant="yellow">
  <ul className="text-body pl-5 mb-0 space-y-1 text-sm">
  <li>5 分钟过期保证新鲜度</li>
  <li>支持强制刷新 forceRefresh</li>
@@ -248,7 +248,7 @@ export class ModelConfigCache {
  {/* Service Tab */}
  {activeTab === 'service' && (
  <div className="space-y-6">
- <Layer title="字段映射策略" icon="🔗">
+ <Layer title="字段映射策略">
  <p className="text-dim mb-4">
  由于不同后端返回的字段名不一致，使用灵活的字段解析策略：
  </p>
@@ -299,7 +299,7 @@ const id = resolveStringField(record, [
  {/* Normalize Tab */}
  {activeTab === 'normalize' && (
  <div className="space-y-6">
- <Layer title="模型名称标准化" icon="🔧">
+ <Layer title="模型名称标准化">
  <p className="text-body mb-4">
  <code className="text-heading">normalize()</code> 函数将各种格式的模型名称转换为标准形式，
  以便正则匹配能够正确工作。
@@ -332,7 +332,7 @@ flowchart TD
 `} />
  </Layer>
 
- <Layer title="标准化实现" icon="📝">
+ <Layer title="标准化实现">
  <CodeBlock
  code={`// packages/core/src/core/tokenLimits.ts
 
@@ -379,16 +379,16 @@ normalize('Claude:sonnet-4'); // "sonnet-4"`}
  />
  </Layer>
 
- <Layer title="特殊处理规则" icon="⚡">
+ <Layer title="特殊处理规则">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <HighlightBox title="保留版本标识" icon="✅" variant="purple">
+ <HighlightBox title="保留版本标识" variant="purple">
  <ul className="text-body pl-5 mb-0 space-y-1 text-sm">
  <li><code>gemini-2.0-flash</code> - latest 是模型标识的一部分</li>
  <li><code>kimi-k2-0905</code> - 日期区分不同版本</li>
  </ul>
  </HighlightBox>
 
- <HighlightBox title="移除的后缀" icon="🗑️" variant="red">
+ <HighlightBox title="移除的后缀" variant="red">
  <ul className="text-body pl-5 mb-0 space-y-1 text-sm">
  <li>日期: <code>-20250219</code>, <code>-0528</code></li>
  <li>版本: <code>-v1</code>, <code>-v2.1.3</code></li>
@@ -401,7 +401,7 @@ normalize('Claude:sonnet-4'); // "sonnet-4"`}
  )}
 
  {/* Architecture Overview */}
- <Layer title="系统架构" icon="🏗️">
+ <Layer title="系统架构">
  <MermaidDiagram chart={`
 graph TB
  subgraph Usage["使用层"]
@@ -434,7 +434,7 @@ graph TB
  </Layer>
 
  {/* Source Files */}
- <Layer title="源文件索引" icon="📁">
+ <Layer title="源文件索引">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
  {[
  'packages/core/src/core/tokenLimits.ts',

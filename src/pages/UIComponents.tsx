@@ -23,8 +23,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">🧩</span>
- <span className="text-xl font-bold text-heading">30秒快速理解</span>
+  <span className="text-xl font-bold text-heading">30秒快速理解</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>
  ▼
@@ -78,7 +77,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码目录:</span>
+ <span className="text-dim">源码目录:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/cli/src/ui/components/
  </code>
@@ -296,7 +295,7 @@ export function ToolGroupMessage({ tools }: { tools: ToolUse[] }) {
 export function ErrorMessage({ error }: { error: string }) {
   return (
   <Box>
-  <Text color={theme.error.text}>✕ </Text>
+  <Text color={theme.error.text}></Text>
   <Text color={theme.error.text}>{error}</Text>
   </Box>
   );
@@ -474,14 +473,14 @@ export function ModelSwitchDialog({ models, currentModel, onSelect }) {
 
  <QuickSummary isExpanded={isSummaryExpanded} onToggle={() => setIsSummaryExpanded(!isSummaryExpanded)} />
 
- <Layer title="组件层次结构" icon="🏗️" defaultOpen={true}>
+ <Layer title="组件层次结构" defaultOpen={true}>
  <HighlightBox title="组件继承与组合关系" color="blue" className="mb-6">
  <MermaidDiagram chart={componentHierarchy} />
  </HighlightBox>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
- <div className="text-heading font-bold mb-2">🎨 设计原则</div>
+ <div className="text-heading font-bold mb-2">设计原则</div>
  <ul className="text-sm text-body space-y-1">
  <li><strong>Ink 渲染</strong>：所有组件渲染到终端</li>
  <li><strong>Box + Text</strong>：核心布局原语</li>
@@ -490,7 +489,7 @@ export function ModelSwitchDialog({ models, currentModel, onSelect }) {
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
- <div className="text-heading font-bold mb-2">📁 目录结构</div>
+ <div className="text-heading font-bold mb-2">目录结构</div>
  <ul className="text-sm text-body space-y-1">
  <li><code>components/</code> - 主组件目录</li>
  <li><code>components/shared/</code> - 共享基础组件</li>
@@ -502,7 +501,7 @@ export function ModelSwitchDialog({ models, currentModel, onSelect }) {
  </div>
  </Layer>
 
- <Layer title="组件分类目录" icon="📚" defaultOpen={true}>
+ <Layer title="组件分类目录" defaultOpen={true}>
  <div className="space-y-6">
  {componentCategories.map((cat) => (
  <div key={cat.category} className="bg-surface rounded-lg border border-edge overflow-hidden">
@@ -528,7 +527,7 @@ export function ModelSwitchDialog({ models, currentModel, onSelect }) {
  </div>
  </Layer>
 
- <Layer title="BaseSelectionList 详解" icon="🔘" defaultOpen={false}>
+ <Layer title="BaseSelectionList 详解" defaultOpen={false}>
  <CodeBlock code={baseSelectionCode} language="typescript" title="BaseSelectionList.tsx" />
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -552,7 +551,7 @@ export function ModelSwitchDialog({ models, currentModel, onSelect }) {
  </div>
  </Layer>
 
- <Layer title="SuggestionsDisplay 详解" icon="✨" defaultOpen={false}>
+ <Layer title="SuggestionsDisplay 详解" defaultOpen={false}>
  <CodeBlock code={suggestionsCode} language="typescript" title="SuggestionsDisplay.tsx" />
 
  <div className="mt-4 overflow-x-auto">
@@ -590,7 +589,7 @@ export function ModelSwitchDialog({ models, currentModel, onSelect }) {
  </div>
  </Layer>
 
- <Layer title="消息组件系统" icon="💭" defaultOpen={false}>
+ <Layer title="消息组件系统" defaultOpen={false}>
  <CodeBlock code={messageComponentsCode} language="typescript" title="messages/*.tsx" />
 
  <div className="mt-4 bg-base p-4 rounded-lg">
@@ -620,7 +619,7 @@ export function ModelSwitchDialog({ models, currentModel, onSelect }) {
  </div>
  </Layer>
 
- <Layer title="对话框模式" icon="💬" defaultOpen={false}>
+ <Layer title="对话框模式" defaultOpen={false}>
  <CodeBlock code={dialogCode} language="typescript" title="Dialog 组件模式" />
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -643,7 +642,7 @@ export function ModelSwitchDialog({ models, currentModel, onSelect }) {
  </div>
  </Layer>
 
- <Layer title="主题与颜色" icon="🎨" defaultOpen={false}>
+ <Layer title="主题与颜色" defaultOpen={false}>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface p-4 rounded-lg border border-edge">
  <h4 className="text-heading font-bold mb-3">semantic-colors.ts</h4>

@@ -30,8 +30,7 @@ function Introduction({
  {isExpanded && (
  <div className="px-6 pb-6 space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- 🎯 核心概念
+ <h4 className="text-heading font-bold mb-2">核心概念
  </h4>
  <p className="text-body text-sm">
  自定义命令（.toml 文件）中的 prompt 模板在发送给 AI
@@ -41,8 +40,7 @@ function Introduction({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- 🔧 处理顺序（安全优先）
+ <h4 className="text-heading font-bold mb-2">处理顺序（安全优先）
  </h4>
  <div className="flex items-center gap-2 mt-2 text-sm">
  <div className="bg-surface px-3 py-1 rounded text-heading">
@@ -61,13 +59,12 @@ function Introduction({
  AI
  </div>
  </div>
- <p className="text-xs text-dim mt-2">
- ⚠️ @File 在 Shell 之前处理，防止用户输入的路径被注入到 Shell 命令
+ <p className="text-xs text-dim mt-2">@File 在 Shell 之前处理，防止用户输入的路径被注入到 Shell 命令
  </p>
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">📊 关键数字</h4>
+ <h4 className="text-heading font-bold mb-2">关键数字</h4>
  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
  <div className="text-center">
  <div className="text-xl font-bold text-heading">
@@ -181,8 +178,7 @@ app.listen(3000);
  return (
  <div className="bg-surface rounded-lg p-6 border border-edge">
  <div className="flex items-center justify-between mb-4">
- <h3 className="text-lg font-bold text-heading">
- ⛓️ 处理管道动画
+ <h3 className="text-lg font-bold text-heading">处理管道动画
  </h3>
  <div className="flex gap-2">
  <button
@@ -412,13 +408,12 @@ function SecurityDesign() {
  return (
  <div className="bg-surface rounded-lg p-6 border border-[color:var(--color-warning-soft)]">
  <h3 className="text-lg font-bold text-heading mb-4 flex items-center gap-2">
- <span>🔒</span> 安全设计
+ 安全设计
  </h3>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-base rounded-lg p-4">
- <div className="text-heading font-bold mb-2">
- ✓ 正确顺序
+ <div className="text-heading font-bold mb-2">正确顺序
  </div>
  <div className="text-sm text-body space-y-2">
  <div>
@@ -436,7 +431,7 @@ function SecurityDesign() {
  </div>
 
  <div className="bg-base rounded-lg p-4">
- <div className="text-heading font-bold mb-2">✗ 危险顺序</div>
+ <div className="text-heading font-bold mb-2">危险顺序</div>
  <div className="text-sm text-body space-y-2">
  <div>
  1. <code className="text-heading">!Shell</code>{' '}

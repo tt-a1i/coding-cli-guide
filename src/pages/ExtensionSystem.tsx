@@ -420,13 +420,12 @@ async function extensionConsentString(extensionConfig, hasHooks, skills = []) {
  <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">最佳实践</h4>
  <ul className="text-sm text-body space-y-1">
- <li>✓ 扩展名与目录名保持一致（小写+短横线）</li>
- <li>
- ✓ manifest 使用 <code>{'${extensionPath}'}</code> 等变量，保证可移植
+ <li>扩展名与目录名保持一致（小写+短横线）</li>
+ <li>manifest 使用 <code>{'${extensionPath}'}</code> 等变量，保证可移植
  </li>
- <li>✓ settings 使用 envVar，敏感信息标记 <code>sensitive: true</code></li>
- <li>✓ hooks 与 skills 都属于高影响能力：保持最小化并充分审阅</li>
- <li>✓ 给扩展提供清晰的 README 与使用示例</li>
+ <li>settings 使用 envVar，敏感信息标记 <code>sensitive: true</code></li>
+ <li>hooks 与 skills 都属于高影响能力：保持最小化并充分审阅</li>
+ <li>给扩展提供清晰的 README 与使用示例</li>
  </ul>
  </div>
  </div>
@@ -434,7 +433,7 @@ async function extensionConsentString(extensionConfig, hasHooks, skills = []) {
 
  {/* 扩展生命周期深入 */}
  <section className="bg-surface rounded-lg border border-edge p-6">
- <h3 className="text-xl font-semibold text-heading mb-4">🔄 扩展生命周期深入</h3>
+ <h3 className="text-xl font-semibold text-heading mb-4">扩展生命周期深入</h3>
 
  <MermaidDiagram chart={extensionLifecycleFlow} title="扩展完整生命周期" />
 
@@ -522,7 +521,7 @@ async function extensionConsentString(extensionConfig, hasHooks, skills = []) {
 
  {/* 安全边界 */}
  <section>
- <h3 className="text-xl font-semibold text-heading mb-4">🔒 扩展安全边界</h3>
+ <h3 className="text-xl font-semibold text-heading mb-4">扩展安全边界</h3>
 
  <HighlightBox title="风险面不是“扩展 API”，而是“扩展带来的能力”" color="red">
  <ul className="text-sm space-y-1 text-body list-disc list-inside">
@@ -576,7 +575,7 @@ async function extensionConsentString(extensionConfig, hasHooks, skills = []) {
 
  {/* 为什么这样设计 */}
  <section className="bg-surface rounded-lg border border-edge p-6">
- <h3 className="text-xl font-semibold text-heading mb-4">💡 为什么这样设计？</h3>
+ <h3 className="text-xl font-semibold text-heading mb-4">为什么这样设计？</h3>
 
  <div className="space-y-6">
  <div>
@@ -626,7 +625,7 @@ async function extensionConsentString(extensionConfig, hasHooks, skills = []) {
 
  {/* 扩展加载错误处理 */}
  <section>
- <h3 className="text-xl font-semibold text-heading mb-4">⚠️ 扩展加载错误处理</h3>
+ <h3 className="text-xl font-semibold text-heading mb-4">扩展加载错误处理</h3>
 
  <div className="overflow-x-auto">
  <table className="w-full text-sm">

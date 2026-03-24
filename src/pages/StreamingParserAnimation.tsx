@@ -161,7 +161,7 @@ function ParserStateVisual({ state }: { state: ParserState }) {
  <div className="space-y-2">
  {state.completedTools.map((tool, i) => (
  <div key={i} className="p-2 bg-elevated/10 rounded border border-edge">
- <span className="text-heading">✓ {tool.name}</span>
+ <span className="text-heading">{tool.name}</span>
  </div>
  ))}
  </div>
@@ -418,7 +418,7 @@ export function StreamingParserAnimation() {
  </h2>
  </div>
 
- <HighlightBox title="🧭 fork-only 提示" icon="⚠️" variant="yellow">
+ <HighlightBox title="🧭 fork-only 提示" variant="yellow">
  <p className="m-0 text-sm text-body">
  上游 Gemini CLI 的主线不会解析 SSE 文本流或 OpenAI <code>tool_calls</code> 增量 JSON；它直接消费结构化 <code>functionCalls</code> 并在 <code>Turn.run()</code> 中产出事件流。
  本页动画用于解释当 fork 通过 OpenAI 兼容协议接入其他模型时，为什么需要“流式工具调用解析器”。
@@ -578,7 +578,7 @@ class StreamingToolCallParser {
  {/* ==================== 深化内容 ==================== */}
 
  {/* 边界条件深度解析 */}
- <Layer title="边界条件深度解析" icon="🔬">
+ <Layer title="边界条件深度解析">
  <p className="text-body mb-6">
  流式解析器需要处理各种极端情况：不完整的 JSON、Unicode 字符、嵌套结构、
  并发流等。本节深入分析这些边界场景的正确处理方式。
@@ -682,7 +682,7 @@ repair.repair('{"files": ["/a", "/b')
 repair.repair('{"a": {"b": [{"c": "val')
 // → '{"a": {"b": [{"c": "val"}]}}'`}
  />
- <HighlightBox title="修复算法的局限性" icon="⚠️" variant="orange">
+ <HighlightBox title="修复算法的局限性" variant="orange">
  <ul className="text-sm space-y-2">
  <li><strong>值类型猜测</strong>：无法区分 null/true/false/number 的中断</li>
  <li><strong>键值对不完整</strong>：{`{"key":`} 中断后无法确定值类型</li>
@@ -958,7 +958,7 @@ class MultiToolParser {
  <td className="py-2 px-3">3</td>
  <td className="py-2 px-3 text-heading">0</td>
  <td className="py-2 px-3">"/src/main.ts"{"}"}</td>
- <td className="py-2 px-3 text-heading">✓ 完成</td>
+ <td className="py-2 px-3 text-heading">完成</td>
  <td className="py-2 px-3 text-heading">{"{"}"pattern":</td>
  </tr>
  <tr>
@@ -966,7 +966,7 @@ class MultiToolParser {
  <td className="py-2 px-3 text-heading">1</td>
  <td className="py-2 px-3">"*.ts"{"}"}</td>
  <td className="py-2 px-3 text-dim">-</td>
- <td className="py-2 px-3 text-heading">✓ 完成</td>
+ <td className="py-2 px-3 text-heading">完成</td>
  </tr>
  </tbody>
  </table>
@@ -1103,7 +1103,7 @@ async function handleLargeContent(
  </div>
 
  {/* 边界条件总结 */}
- <HighlightBox title="边界条件处理速查表" icon="📋" variant="blue">
+ <HighlightBox title="边界条件处理速查表" variant="blue">
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
@@ -1146,7 +1146,7 @@ async function handleLargeContent(
  </Layer>
 
  {/* 常见问题与调试技巧 */}
- <Layer title="常见问题与调试技巧" icon="🐛">
+ <Layer title="常见问题与调试技巧">
  <p className="text-body mb-6">
  流式解析是复杂的状态机，问题往往难以重现。本节提供系统化的调试方法和常见问题解决方案。
  </p>
@@ -1154,7 +1154,7 @@ async function handleLargeContent(
  {/* 问题 1: 工具调用丢失 */}
  <div className="mb-6 bg-surface rounded-lg border-l-2 border-l-edge-hover/30 overflow-hidden">
  <div className="px-4 py-3 bg-elevated border-b border-edge/30">
- <h4 className="text-heading font-bold">❌ 问题1: 工具调用丢失或不完整</h4>
+ <h4 className="text-heading font-bold">问题1: 工具调用丢失或不完整</h4>
  </div>
  <div className="p-4 space-y-3">
  <p className="text-body text-sm">
@@ -1202,7 +1202,7 @@ const checkpoints = [
  '检查 chunk 边界是否切分了关键字符'
 ];`}
  />
- <HighlightBox title="常见原因" icon="🔍" variant="orange">
+ <HighlightBox title="常见原因" variant="orange">
  <ul className="text-sm space-y-1">
  <li><strong>Chunk 边界切分</strong>：{"{"} 和 {"}"} 被分到不同 chunk</li>
  <li><strong>转义状态错误</strong>：\" 被错误识别为字符串结束</li>
@@ -1216,7 +1216,7 @@ const checkpoints = [
  {/* 问题 2: 解析卡住 */}
  <div className="mb-6 bg-surface rounded-lg border-l-2 border-l-edge-hover/30 overflow-hidden">
  <div className="px-4 py-3 bg-elevated border-b border-edge/30">
- <h4 className="text-heading font-bold">⚠️ 问题2: 解析器卡住不返回结果</h4>
+ <h4 className="text-heading font-bold">问题2: 解析器卡住不返回结果</h4>
  </div>
  <div className="p-4 space-y-3">
  <p className="text-body text-sm">
@@ -1293,7 +1293,7 @@ const checkpoints = [
  {/* 问题 3: 参数解析错误 */}
  <div className="mb-6 bg-surface rounded-lg border border-edge overflow-hidden">
  <div className="px-4 py-3 bg-elevated/10 border-b border-edge">
- <h4 className="text-heading font-bold">🔧 问题3: 工具参数解析为 null 或错误类型</h4>
+ <h4 className="text-heading font-bold">问题3: 工具参数解析为 null 或错误类型</h4>
  </div>
  <div className="p-4 space-y-3">
  <p className="text-body text-sm">
@@ -1343,7 +1343,7 @@ function parseArgs(raw: unknown): ParsedArgs {
  </div>
 
  {/* 调试工具 */}
- <HighlightBox title="调试命令和工具" icon="🛠️" variant="blue">
+ <HighlightBox title="调试命令和工具" variant="blue">
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
@@ -1380,7 +1380,7 @@ function parseArgs(raw: unknown): ParsedArgs {
  </Layer>
 
  {/* 性能优化建议 */}
- <Layer title="性能优化建议" icon="⚡">
+ <Layer title="性能优化建议">
  <p className="text-body mb-6">
  流式解析是性能敏感的操作，直接影响用户感知的响应延迟。本节从多个维度分析优化策略。
  </p>
@@ -1654,7 +1654,7 @@ parser.on('tool_args_progress', (event) => {
  </div>
 
  {/* 性能基准 */}
- <HighlightBox title="性能基准" icon="📊" variant="green">
+ <HighlightBox title="性能基准" variant="green">
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
@@ -1697,7 +1697,7 @@ parser.on('tool_args_progress', (event) => {
  </Layer>
 
  {/* 与其他模块的交互关系 */}
- <Layer title="与其他模块的交互关系" icon="🔗">
+ <Layer title="与其他模块的交互关系">
  <p className="text-body mb-6">
  流式解析器是连接 AI 响应和工具执行的关键桥梁。理解它与其他模块的交互有助于全局把握系统架构。
  </p>
@@ -1957,7 +1957,7 @@ async function safeProcess(
  </div>
 
  {/* 配置影响 */}
- <HighlightBox title="配置对解析器的影响" icon="⚙️" variant="orange">
+ <HighlightBox title="配置对解析器的影响" variant="orange">
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>

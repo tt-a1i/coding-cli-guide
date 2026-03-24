@@ -65,8 +65,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">🌊</span>
- <span className="text-xl font-bold text-heading">核心概念介绍</span>
+  <span className="text-xl font-bold text-heading">核心概念介绍</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
  </button>
@@ -74,7 +73,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  {isExpanded && (
  <div className="px-6 pb-6 space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🎯 核心概念</h4>
+ <h4 className="text-heading font-bold mb-2">核心概念</h4>
  <p className="text-body text-sm">
  useGeminiStream 是 CLI 交互的核心 Hook，负责管理用户查询的完整生命周期：
  从输入预处理到流式响应接收、工具调度和结果展示。
@@ -82,7 +81,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🔧 为什么需要</h4>
+ <h4 className="text-heading font-bold mb-2">为什么需要</h4>
  <p className="text-body text-sm">
  LLM 响应是异步流式的，包含多种事件类型（内容、工具调用、思考过程）。
  需要统一状态机管理 Idle/Responding/WaitingForConfirmation 三态转换。
@@ -90,7 +89,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🏗️ 处理流程</h4>
+ <h4 className="text-heading font-bold mb-2">处理流程</h4>
  <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-2">
  <div className="bg-surface p-3 rounded border border-edge/30">
  <div className="text-heading font-semibold text-sm">1. 预处理</div>
@@ -143,8 +142,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="text-xs text-dim bg-surface px-3 py-2 rounded flex items-center gap-2">
- <span>📁</span>
- <code>packages/cli/src/ui/hooks/useGeminiStream.ts</code>
+  <code>packages/cli/src/ui/hooks/useGeminiStream.ts</code>
  </div>
  </div>
  )}
@@ -385,7 +383,7 @@ export default function StreamingResponseAnimation() {
  {/* Thought 显示 */}
  {thought && (
  <div className="mt-4 bg-elevated rounded-lg p-4 border border-edge">
- <h4 className="text-xs font-mono text-heading mb-2">💭 Thought</h4>
+ <h4 className="text-xs font-mono text-heading mb-2">Thought</h4>
  <p className="text-sm text-heading">{thought}</p>
  </div>
  )}

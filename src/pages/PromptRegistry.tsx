@@ -25,8 +25,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">📋</span>
- <span className="text-xl font-bold text-heading">30秒快速理解</span>
+  <span className="text-xl font-bold text-heading">30秒快速理解</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>
  ▼
@@ -87,7 +86,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 源码入口 */}
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码入口:</span>
+ <span className="text-dim">源码入口:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/core/src/prompts/prompt-registry.ts
  </code>
@@ -266,7 +265,7 @@ registry.removePromptsByServer('my-mcp-server');`;
  </section>
 
  {/* 1. 数据结构 */}
- <Layer title="数据结构" icon="📊">
+ <Layer title="数据结构">
  <div className="space-y-4">
  <CodeBlock code={promptTypeCode} language="typescript" title="DiscoveredMCPPrompt 类型" />
 
@@ -297,7 +296,7 @@ registry.removePromptsByServer('my-mcp-server');`;
  </Layer>
 
  {/* 2. 注册流程 */}
- <Layer title="注册流程" icon="🔄">
+ <Layer title="注册流程">
  <div className="space-y-4">
  <MermaidDiagram chart={registryFlowChart} title="Prompt 注册流程" />
  <CodeBlock code={registryCode} language="typescript" title="PromptRegistry 核心实现" />
@@ -305,7 +304,7 @@ registry.removePromptsByServer('my-mcp-server');`;
  </Layer>
 
  {/* 3. 冲突处理 */}
- <Layer title="名称冲突处理" icon="⚠️">
+ <Layer title="名称冲突处理">
  <div className="space-y-4">
  <MermaidDiagram chart={`sequenceDiagram
  participant S1 as MCP Server A
@@ -336,7 +335,7 @@ registry.removePromptsByServer('my-mcp-server');`;
  </Layer>
 
  {/* 4. 服务器管理 */}
- <Layer title="服务器级管理" icon="🖥️">
+ <Layer title="服务器级管理">
  <div className="space-y-4">
  <CodeBlock code={serverMethodsCode} language="typescript" title="服务器级方法" />
 
@@ -378,14 +377,14 @@ registry.removePromptsByServer('my-mcp-server');`;
  </Layer>
 
  {/* 5. 使用示例 */}
- <Layer title="使用示例" icon="💡">
+ <Layer title="使用示例">
  <div className="space-y-4">
  <CodeBlock code={usageCode} language="typescript" title="完整使用流程" />
  </div>
  </Layer>
 
  {/* 6. 与 MCP 集成 */}
- <Layer title="与 MCP 系统集成" icon="🔗">
+ <Layer title="与 MCP 系统集成">
  <div className="space-y-4">
  <MermaidDiagram chart={`flowchart LR
  subgraph MCP["MCP 服务器"]
@@ -440,7 +439,7 @@ registry.removePromptsByServer('my-mcp-server');`;
  </Layer>
 
  {/* 7. 设计决策 */}
- <Layer title="设计决策" icon="💭">
+ <Layer title="设计决策">
  <div className="space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
  <h4 className="text-heading font-bold mb-2">为什么使用 Map 而非 Array？</h4>
@@ -471,7 +470,7 @@ registry.removePromptsByServer('my-mcp-server');`;
  </Layer>
 
  {/* 8. 关键文件 */}
- <Layer title="关键文件与入口" icon="📁">
+ <Layer title="关键文件与入口">
  <div className="grid grid-cols-1 gap-2 text-sm">
  <div className="flex items-start gap-2">
  <code className="bg-base/30 px-2 py-1 rounded text-xs whitespace-nowrap">

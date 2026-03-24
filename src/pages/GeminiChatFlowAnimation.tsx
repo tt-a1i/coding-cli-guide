@@ -362,7 +362,7 @@ export default function GeminiChatFlowAnimation() {
  <div className="grid grid-cols-3 gap-6">
  {/* Left: History Management */}
  <div className="bg-surface/50 rounded-lg p-6 border-l-2 border-l-edge-hover/20">
- <h2 className="text-lg font-semibold text-heading mb-4">📚 History 管理</h2>
+ <h2 className="text-lg font-semibold text-heading mb-4">History 管理</h2>
 
  <div className="space-y-4">
  {/* Comprehensive History */}
@@ -435,7 +435,7 @@ while (i < history.length) {
 
  {/* Middle: Stream Processing */}
  <div className="bg-surface/50 rounded-lg p-6 border-l-2 border-l-edge-hover/20">
- <h2 className="text-lg font-semibold text-heading mb-4">📡 Stream 处理</h2>
+ <h2 className="text-lg font-semibold text-heading mb-4">Stream 处理</h2>
 
  {/* Stream chunks */}
  <div className="bg-base/50 rounded-lg p-3 mb-4">
@@ -526,7 +526,7 @@ while (i < history.length) {
  <div className="space-y-6">
  {/* Input */}
  <div className="bg-surface/50 rounded-lg p-6 border-l-2 border-l-edge-hover/20">
- <h2 className="text-lg font-semibold text-heading mb-4">💬 用户消息</h2>
+ <h2 className="text-lg font-semibold text-heading mb-4">用户消息</h2>
  <textarea
  value={userMessage}
  onChange={(e) => setUserMessage(e.target.value)}
@@ -627,7 +627,7 @@ this.history.push({ role: 'model', parts: consolidatedParts });`}
 
  {/* InvalidStreamError + RETRY */}
  <div className="mt-8 bg-surface/50 rounded-lg p-6 border-l-2 border-l-edge-hover/20">
- <h3 className="text-lg font-semibold text-heading mb-4">🔁 InvalidStreamError 重试语义</h3>
+ <h3 className="text-lg font-semibold text-heading mb-4">InvalidStreamError 重试语义</h3>
  <div className="grid grid-cols-2 gap-6">
  <div>
  <div className="text-sm text-body mb-2">作用</div>

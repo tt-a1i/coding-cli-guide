@@ -154,7 +154,7 @@ export default function ShadowGitCheckpointAnimation() {
  {/* Project Files */}
  <div className="bg-base/40 border border-edge rounded-lg p-4">
  <h3 className="text-heading font-bold mb-3 flex items-center gap-2">
- <span className="text-xl">📁</span> 项目文件
+ 项目文件
  </h3>
  <div className="space-y-2">
  {files.map(file => (
@@ -200,15 +200,14 @@ export default function ShadowGitCheckpointAnimation() {
  onClick={addFile}
  disabled={isOperating}
  className="mt-3 w-full px-4 py-2 bg-elevated text-heading border-l-2 border-l-edge-hover rounded-lg hover:bg-elevated disabled:opacity-50"
- >
- ➕ 添加新文件
+ >添加新文件
  </button>
  </div>
 
  {/* Shadow Git Repository */}
  <div className="bg-base/40 border border-edge rounded-lg p-4">
  <h3 className="text-heading font-bold mb-3 flex items-center gap-2">
- <span className="text-xl">👻</span> 影子 Git 仓库
+ 影子 Git 仓库
  </h3>
  <div className="text-xs text-dim font-mono mb-3">
  .gemini/tmp/[project_hash]/history/.git/
@@ -272,7 +271,7 @@ export default function ShadowGitCheckpointAnimation() {
  {/* Operation Log */}
  <div className="bg-base/40 border border-edge-hover/30 rounded-lg p-4">
  <h3 className="text-body font-bold mb-3 flex items-center gap-2">
- <span className="text-xl">📋</span> Git 操作日志
+ Git 操作日志
  </h3>
  <div className="space-y-1 max-h-80 overflow-y-auto font-mono text-xs">
  {operationLog.length === 0 ? (
@@ -300,7 +299,7 @@ export default function ShadowGitCheckpointAnimation() {
 
  {/* Architecture Diagram */}
  <div className="mt-6 bg-base/40 border-l-2 border-l-edge-hover/30 rounded-lg p-4">
- <h3 className="text-heading font-bold mb-3">🏗️ 影子仓库架构</h3>
+ <h3 className="text-heading font-bold mb-3">影子仓库架构</h3>
  <div className="flex flex-wrap justify-center items-center gap-4 text-sm">
  <div className="p-3 bg-elevated/20 border border-edge rounded-lg text-center">
  <div className="text-heading font-bold">项目目录</div>

@@ -20,9 +20,9 @@ export function GoogleAuthentication() {
 
  return (
  <div className="max-w-4xl mx-auto">
- <h1>🔐 Google OAuth2 认证详解（上游 Gemini CLI）</h1>
+ <h1>Google OAuth2 认证详解（上游 Gemini CLI）</h1>
 
- <HighlightBox title="📌 30秒速览" icon="🎯" variant="blue">
+ <HighlightBox title="📌 30秒速览" variant="blue">
  <ul className="m-0 leading-relaxed text-sm">
  <li>默认走 <strong>浏览器登录</strong>：本地 loopback 回调 <code>http://localhost:{'{'}port{'}'}/oauth2callback</code></li>
  <li>无浏览器/远程环境：走 <strong>手动授权码</strong>（带 PKCE），粘贴 code 完成登录</li>
@@ -54,7 +54,7 @@ export function GoogleAuthentication() {
 
  {activeTab === 'flow' && (
  <section className="space-y-6">
- <h2>🌐 登录流程：Web（默认） + Manual（NO_BROWSER）</h2>
+ <h2>登录流程：Web（默认） + Manual（NO_BROWSER）</h2>
 
  <p className="text-heading">
  上游 Gemini CLI 的 Google OAuth 登录主要在 <code>gemini-cli/packages/core/src/code_assist/oauth2.ts</code>：
@@ -100,7 +100,7 @@ const webLogin = await authWithWeb(client);
 await Promise.race([webLogin.loginCompletePromise, timeoutPromise]);`}
  />
 
- <HighlightBox title="浏览器何时会被抑制？" icon="🧩" variant="yellow">
+ <HighlightBox title="浏览器何时会被抑制？" variant="yellow">
  <ul className="m-0 pl-5 list-disc text-sm space-y-1">
  <li><code>NO_BROWSER=true</code> 或设置项 <code>noBrowser</code></li>
  <li><code>CI</code> / <code>DEBIAN_FRONTEND=noninteractive</code></li>
@@ -121,7 +121,7 @@ await Promise.race([webLogin.loginCompletePromise, timeoutPromise]);`}
 
  {activeTab === 'pkce' && (
  <section className="space-y-6">
- <h2>🔒 PKCE：保护“手动授权码”流程</h2>
+ <h2>PKCE：保护“手动授权码”流程</h2>
 
  <p className="text-heading">
  当浏览器不可用时，Gemini CLI 会打印授权 URL，并让用户粘贴授权码。
@@ -168,9 +168,9 @@ client.setCredentials(tokens);`}
 
  {activeTab === 'storage' && (
  <section className="space-y-6">
- <h2>💾 Token 持久化与事件</h2>
+ <h2>Token 持久化与事件</h2>
 
- <HighlightBox title="关键点" icon="💡" variant="green">
+ <HighlightBox title="关键点" variant="green">
  <ul className="m-0 pl-5 list-disc text-sm space-y-1">
  <li><strong>刷新</strong>：由 <code>google-auth-library</code> 自动处理（access_token 过期会用 refresh_token 刷新）</li>
  <li><strong>持久化</strong>：Gemini CLI 监听 <code>client.on('tokens')</code> 保存更新</li>

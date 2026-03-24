@@ -166,7 +166,7 @@ export function ToolDetails() {
  <div>
  <h2 className="text-2xl text-heading mb-5">工具执行细节</h2>
 
- <HighlightBox title="范围提示" icon="⚠️" variant="orange">
+ <HighlightBox title="范围提示" variant="orange">
  <p className="text-sm text-body">
  本页以 Gemini CLI 的 <code className="bg-base/30 px-1 rounded">functionCall / functionResponse</code> 机制为准。
  Innies/Qwen CLI 的 OpenAI 兼容模式会出现 <code className="bg-base/30 px-1 rounded">tool_calls</code> 与 <code className="bg-base/30 px-1 rounded">role=tool</code> 等结构，属于额外兼容层。
@@ -174,7 +174,7 @@ export function ToolDetails() {
  </HighlightBox>
 
  {/* 工具生命周期 */}
- <Layer title="工具调用的完整生命周期" icon="🔄">
+ <Layer title="工具调用的完整生命周期">
  {/* Step indicator */}
  <div className="flex justify-center gap-2 my-5 flex-wrap">
  {stepContents.map((_, i) => (
@@ -226,31 +226,31 @@ export function ToolDetails() {
  </Layer>
 
  {/* 工具分类 */}
- <Layer title="工具分类" icon="📚">
+ <Layer title="工具分类">
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
  <ToolCard
- icon="📖"
+
  name="读取类"
  tools={['read_file - 读取文件', 'glob - 文件模式匹配', 'search_file_content - 内容搜索']}
  status="✅ 安全，不修改文件"
  statusColor="text-heading"
  />
  <ToolCard
- icon="✏️"
+
  name="写入类"
  tools={['write_file - 写入文件', 'replace - 编辑文件']}
  status="⚠️ 需要用户确认"
  statusColor="text-heading"
  />
  <ToolCard
- icon="💻"
+
  name="执行类"
  tools={['run_shell_command - 执行命令']}
  status="🔒 危险，可能需要沙箱"
  statusColor="text-heading"
  />
  <ToolCard
- icon="🌐"
+
  name="网络类"
  tools={['web_fetch - 获取网页', 'google_web_search - 搜索']}
  status="🌍 访问互联网"
@@ -260,7 +260,7 @@ export function ToolDetails() {
  </Layer>
 
  {/* 用户确认机制 */}
- <Layer title="用户确认机制" icon="✋">
+ <Layer title="用户确认机制">
  <p className="mb-4">某些危险操作需要用户确认才能执行：</p>
 
  <CodeBlock code={`// 工具执行前检查是否需要确认
@@ -280,7 +280,7 @@ if (tool.requiresConfirmation) {
 // 用户确认后才执行
 const result = await tool.execute(params);`} />
 
- <HighlightBox title="安全设计" icon="🛡️" variant="green">
+ <HighlightBox title="安全设计" variant="green">
  <ul className="pl-5 list-disc">
  <li>读取操作通常自动执行</li>
  <li>写入/删除操作需要确认</li>
@@ -291,7 +291,7 @@ const result = await tool.execute(params);`} />
  </Layer>
 
  {/* 参数验证的深层原因 */}
- <Layer title="为什么需要参数验证？" icon="🔐">
+ <Layer title="为什么需要参数验证？">
  <p className="mb-4">
  参数验证不是"可选的好习惯"，而是<strong>安全的必要防线</strong>。AI 生成的参数可能是错误的、恶意的、或超出预期的。
  </p>
@@ -362,7 +362,7 @@ flowchart LR
  </div>
  </div>
 
- <HighlightBox title="AI 可能生成的问题参数" icon="⚠️" variant="red">
+ <HighlightBox title="AI 可能生成的问题参数" variant="red">
  <p className="mb-3">以下是 AI 可能生成的有问题参数，验证层必须拦截：</p>
  <div className="grid md:grid-cols-2 gap-4">
  <div className="bg-surface rounded p-3">
@@ -390,7 +390,7 @@ flowchart LR
  </Layer>
 
  {/* 各工具的边界情况 */}
- <Layer title="各工具的边界情况" icon="🎯">
+ <Layer title="各工具的边界情况">
  <p className="mb-4">
  每个工具都有其特有的边界情况，了解这些可以帮助你理解为什么工具会失败：
  </p>
@@ -399,8 +399,7 @@ flowchart LR
  {/* read_file 边界情况 */}
  <div className="bg-surface rounded-lg p-5 border border-edge">
  <div className="flex items-center gap-3 mb-3">
- <span className="text-2xl">📖</span>
- <h4 className="text-lg font-semibold text-heading">read_file 边界情况</h4>
+  <h4 className="text-lg font-semibold text-heading">read_file 边界情况</h4>
  </div>
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
@@ -496,8 +495,7 @@ flowchart LR
  {/* run_shell_command 边界情况 */}
  <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/30">
  <div className="flex items-center gap-3 mb-3">
- <span className="text-2xl">💻</span>
- <h4 className="text-lg font-semibold text-heading">run_shell_command 边界情况</h4>
+  <h4 className="text-lg font-semibold text-heading">run_shell_command 边界情况</h4>
  </div>
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
@@ -545,7 +543,7 @@ flowchart LR
  </div>
  </div>
 
- <HighlightBox title="边界处理的设计原则" icon="💡" variant="blue">
+ <HighlightBox title="边界处理的设计原则" variant="blue">
  <p className="mb-2">工具边界处理遵循以下原则：</p>
  <ul className="pl-5 list-disc space-y-1">
  <li><strong>Fail Loud</strong>：错误必须返回给 AI，不能静默失败</li>
@@ -557,7 +555,7 @@ flowchart LR
  </Layer>
 
  {/* 工具安全边界 */}
- <Layer title="工具安全边界" icon="🔒">
+ <Layer title="工具安全边界">
  <p className="mb-4">
  理解工具的安全边界对于正确配置和使用 CLI 至关重要：
  </p>
@@ -636,7 +634,7 @@ graph TB
  </div>
  </div>
 
- <HighlightBox title="沙箱执行" icon="📦" variant="purple">
+ <HighlightBox title="沙箱执行" variant="purple">
  <p className="mb-2">
  对于 Shell 工具，沙箱提供额外的隔离层：
  </p>
@@ -655,7 +653,7 @@ export GEMINI_SANDBOX=true # 或 docker, podman
  </Layer>
 
  {/* 工具结果格式化 */}
- <Layer title="工具结果的双重格式化" icon="📝">
+ <Layer title="工具结果的双重格式化">
  <p className="mb-4">
  每个工具都返回两种格式的结果，服务于不同的目的：
  </p>
@@ -695,7 +693,7 @@ export GEMINI_SANDBOX=true # 或 docker, podman
  </div>
  </div>
 
- <HighlightBox title="为什么要分开？" icon="🤔" variant="yellow">
+ <HighlightBox title="为什么要分开？" variant="yellow">
  <p className="mb-2">
  分离 llmContent 和 returnDisplay 有几个重要原因：
  </p>

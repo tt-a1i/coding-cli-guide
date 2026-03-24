@@ -7,21 +7,20 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="mb-8 bg-surface rounded-lg border border-edge overflow-hidden">
  <button onClick={onToggle} className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors">
  <div className="flex items-center gap-3">
- <span className="text-2xl">🤖</span>
- <span className="text-xl font-bold text-heading">核心概念介绍</span>
+  <span className="text-xl font-bold text-heading">核心概念介绍</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
  </button>
  {isExpanded && (
  <div className="px-6 pb-6 space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🎯 核心概念</h4>
+ <h4 className="text-heading font-bold mb-2">核心概念</h4>
  <p className="text-body text-sm">
  Agent 执行循环是 LocalAgentExecutor 的核心，通过迭代调用 LLM 和执行工具完成复杂任务，直到调用 complete_task 工具或达到终止条件。
  </p>
  </div>
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🔄 6 种终止模式</h4>
+ <h4 className="text-heading font-bold mb-2">6 种终止模式</h4>
  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2 text-xs">
  <div className="bg-surface p-2 rounded text-center text-heading">GOAL</div>
  <div className="bg-surface p-2 rounded text-center text-heading">MAX_TURNS</div>
@@ -610,8 +609,7 @@ export function AgentLoopAnimation() {
  </div>
  {step.visualData.success && (
  <div className="text-heading flex items-center gap-2">
- <span>✓</span>
- <span>任务成功完成</span>
+  <span>任务成功完成</span>
  </div>
  )}
  </div>

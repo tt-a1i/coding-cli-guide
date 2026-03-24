@@ -20,8 +20,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">📤</span>
- <span className="text-xl font-bold text-heading">30秒快速理解</span>
+  <span className="text-xl font-bold text-heading">30秒快速理解</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>
  ▼
@@ -72,7 +71,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码入口:</span>
+ <span className="text-dim">源码入口:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/core/src/output/json-formatter.ts
  </code>
@@ -264,14 +263,14 @@ console.log(errorOutput);
 
  <QuickSummary isExpanded={isSummaryExpanded} onToggle={() => setIsSummaryExpanded(!isSummaryExpanded)} />
 
- <Layer title="格式化流程" icon="🔄" defaultOpen={true}>
+ <Layer title="格式化流程" defaultOpen={true}>
  <HighlightBox title="输出格式选择流程" color="blue" className="mb-6">
  <MermaidDiagram chart={outputFlowChart} />
  </HighlightBox>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
- <div className="text-heading font-bold mb-2">📝 TEXT 模式</div>
+ <div className="text-heading font-bold mb-2">TEXT 模式</div>
  <ul className="text-sm text-body space-y-1">
  <li>仅输出 AI 响应文本</li>
  <li>适合管道和脚本</li>
@@ -280,7 +279,7 @@ console.log(errorOutput);
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
- <div className="text-heading font-bold mb-2">📊 JSON 模式</div>
+ <div className="text-heading font-bold mb-2">JSON 模式</div>
  <ul className="text-sm text-body space-y-1">
  <li>结构化 JSON 输出</li>
  <li>包含响应 + 指标 + 错误</li>
@@ -291,11 +290,11 @@ console.log(errorOutput);
  </div>
  </Layer>
 
- <Layer title="类型定义" icon="📋" defaultOpen={true}>
+ <Layer title="类型定义" defaultOpen={true}>
  <CodeBlock code={typesCode} language="typescript" title="output/types.ts" />
  </Layer>
 
- <Layer title="SessionMetrics 指标" icon="📈" defaultOpen={true}>
+ <Layer title="SessionMetrics 指标" defaultOpen={true}>
  <CodeBlock code={sessionMetricsCode} language="typescript" title="会话指标结构" />
 
  <div className="mt-4 overflow-x-auto">
@@ -343,11 +342,11 @@ console.log(errorOutput);
  </div>
  </Layer>
 
- <Layer title="格式化实现" icon="⚙️" defaultOpen={false}>
+ <Layer title="格式化实现" defaultOpen={false}>
  <CodeBlock code={jsonFormatterCode} language="typescript" title="json-formatter.ts" />
  </Layer>
 
- <Layer title="使用示例" icon="💡" defaultOpen={false}>
+ <Layer title="使用示例" defaultOpen={false}>
  <CodeBlock code={usageExampleCode} language="typescript" title="非交互模式使用" />
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">

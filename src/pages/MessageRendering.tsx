@@ -20,8 +20,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">💬</span>
- <span className="text-xl font-bold text-heading">30秒快速理解</span>
+  <span className="text-xl font-bold text-heading">30秒快速理解</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>
  ▼
@@ -75,7 +74,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码位置:</span>
+ <span className="text-dim">源码位置:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/cli/src/ui/components/messages/
  </code>
@@ -443,14 +442,14 @@ export interface IndividualToolCallDisplay {
 
  <QuickSummary isExpanded={isSummaryExpanded} onToggle={() => setIsSummaryExpanded(!isSummaryExpanded)} />
 
- <Layer title="消息组件层次" icon="🏗️" defaultOpen={true}>
+ <Layer title="消息组件层次" defaultOpen={true}>
  <HighlightBox title="消息渲染架构" color="blue" className="mb-6">
  <MermaidDiagram chart={messageHierarchyChart} />
  </HighlightBox>
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
- <div className="text-heading font-bold mb-2">📝 HistoryItem</div>
+ <div className="text-heading font-bold mb-2">HistoryItem</div>
  <ul className="text-sm text-body space-y-1">
  <li>消息数据模型</li>
  <li>类型标识 + 内容</li>
@@ -458,7 +457,7 @@ export interface IndividualToolCallDisplay {
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
- <div className="text-heading font-bold mb-2">🧩 消息组件</div>
+ <div className="text-heading font-bold mb-2">消息组件</div>
  <ul className="text-sm text-body space-y-1">
  <li>React/Ink 组件</li>
  <li>类型 → 组件映射</li>
@@ -466,7 +465,7 @@ export interface IndividualToolCallDisplay {
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
- <div className="text-heading font-bold mb-2">🔧 共享组件</div>
+ <div className="text-heading font-bold mb-2">共享组件</div>
  <ul className="text-sm text-body space-y-1">
  <li>MarkdownDisplay</li>
  <li>StickyHeader</li>
@@ -476,7 +475,7 @@ export interface IndividualToolCallDisplay {
  </div>
  </Layer>
 
- <Layer title="消息类型" icon="📋" defaultOpen={true}>
+ <Layer title="消息类型" defaultOpen={true}>
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
@@ -501,7 +500,7 @@ export interface IndividualToolCallDisplay {
  </div>
  </Layer>
 
- <Layer title="工具状态流转" icon="🔄" defaultOpen={true}>
+ <Layer title="工具状态流转" defaultOpen={true}>
  <MermaidDiagram chart={toolStatusFlow} />
 
  <div className="mt-4">
@@ -509,11 +508,11 @@ export interface IndividualToolCallDisplay {
  </div>
  </Layer>
 
- <Layer title="HistoryItem 类型" icon="📦" defaultOpen={false}>
+ <Layer title="HistoryItem 类型" defaultOpen={false}>
  <CodeBlock code={historyItemTypesCode} language="typescript" title="HistoryItem 类型定义" />
  </Layer>
 
- <Layer title="GeminiMessage" icon="✦" defaultOpen={false}>
+ <Layer title="GeminiMessage" defaultOpen={false}>
  <CodeBlock code={geminiMessageCode} language="typescript" title="GeminiMessage 组件" />
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -535,7 +534,7 @@ export interface IndividualToolCallDisplay {
  </div>
  </Layer>
 
- <Layer title="ToolMessage" icon="🔧" defaultOpen={false}>
+ <Layer title="ToolMessage" defaultOpen={false}>
  <CodeBlock code={toolMessageCode} language="typescript" title="ToolMessage 组件" />
 
  <div className="mt-4 bg-base p-4 rounded-lg">
@@ -547,7 +546,7 @@ export interface IndividualToolCallDisplay {
  </div>
  </Layer>
 
- <Layer title="ToolGroupMessage" icon="📦" defaultOpen={false}>
+ <Layer title="ToolGroupMessage" defaultOpen={false}>
  <CodeBlock code={toolGroupMessageCode} language="typescript" title="ToolGroupMessage 组件" />
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -568,7 +567,7 @@ export interface IndividualToolCallDisplay {
  </div>
  </Layer>
 
- <Layer title="渲染优化" icon="⚡" defaultOpen={false}>
+ <Layer title="渲染优化" defaultOpen={false}>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <h4 className="text-heading font-bold mb-2">终端高度分配</h4>
@@ -591,7 +590,7 @@ export interface IndividualToolCallDisplay {
  </div>
  </Layer>
 
- <Layer title="使用示例" icon="💡" defaultOpen={false}>
+ <Layer title="使用示例" defaultOpen={false}>
  <CodeBlock
  code={`// 在 DetailedMessagesDisplay 中渲染消息
 function renderHistoryItem(item: HistoryItem): ReactNode {

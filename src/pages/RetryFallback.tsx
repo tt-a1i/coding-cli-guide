@@ -701,21 +701,21 @@ class CircuitBreaker {
  <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">推荐做法</h4>
  <ul className="text-sm text-body space-y-1">
- <li>✓ 始终使用指数退避，避免雪崩效应</li>
- <li>✓ 添加随机抖动，分散重试请求</li>
- <li>✓ 设置合理的最大重试次数</li>
- <li>✓ 记录重试和回退事件用于监控</li>
- <li>✓ 为不同操作配置不同的重试策略</li>
+ <li>始终使用指数退避，避免雪崩效应</li>
+ <li>添加随机抖动，分散重试请求</li>
+ <li>设置合理的最大重试次数</li>
+ <li>记录重试和回退事件用于监控</li>
+ <li>为不同操作配置不同的重试策略</li>
  </ul>
  </div>
  <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">避免做法</h4>
  <ul className="text-sm text-body space-y-1">
- <li>✗ 立即重试，无延迟</li>
- <li>✗ 固定间隔重试</li>
- <li>✗ 无限重试</li>
- <li>✗ 对不可重试错误进行重试</li>
- <li>✗ 忽略熔断器状态</li>
+ <li>立即重试，无延迟</li>
+ <li>固定间隔重试</li>
+ <li>无限重试</li>
+ <li>对不可重试错误进行重试</li>
+ <li>忽略熔断器状态</li>
  </ul>
  </div>
  </div>

@@ -127,14 +127,14 @@ sequenceDiagram
  </div>
 
  {/* 核心概念 */}
- <Layer title="核心概念" icon="🎯">
+ <Layer title="核心概念">
  <div className="space-y-4">
  <p className="text-body">
  ShellExecutionService 是 CLI 执行 shell 命令的核心服务。它优先使用 PTY (伪终端) 提供完整的终端体验，
  当 PTY 不可用时降级到 child_process。
  </p>
 
- <HighlightBox title="为什么需要 PTY？" icon="💡" variant="blue">
+ <HighlightBox title="为什么需要 PTY？" variant="blue">
  <ul className="space-y-2 text-sm">
  <li><strong>完整终端体验</strong>：支持颜色、光标移动、进度条等 ANSI 特性</li>
  <li><strong>交互式程序</strong>：支持需要 TTY 的程序（如 vim、less）</li>
@@ -148,7 +148,7 @@ sequenceDiagram
  </Layer>
 
  {/* 执行方式对比 */}
- <Layer title="执行方式对比" icon="⚖️">
+ <Layer title="执行方式对比">
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
@@ -161,28 +161,28 @@ sequenceDiagram
  <tbody>
  <tr className="border- border-edge">
  <td className="py-2 px-3">ANSI 颜色</td>
- <td className="py-2 px-3 text-heading">✓ 完整支持</td>
+ <td className="py-2 px-3 text-heading">完整支持</td>
  <td className="py-2 px-3 text-heading">△ 需要设置 TERM</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">交互式程序</td>
- <td className="py-2 px-3 text-heading">✓ 支持</td>
- <td className="py-2 px-3 text-heading">✗ 不支持</td>
+ <td className="py-2 px-3 text-heading">支持</td>
+ <td className="py-2 px-3 text-heading">不支持</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">进度条渲染</td>
- <td className="py-2 px-3 text-heading">✓ 实时更新</td>
- <td className="py-2 px-3 text-heading">✗ 乱码</td>
+ <td className="py-2 px-3 text-heading">实时更新</td>
+ <td className="py-2 px-3 text-heading">乱码</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">跨平台</td>
  <td className="py-2 px-3 text-heading">△ 需要编译</td>
- <td className="py-2 px-3 text-heading">✓ 内置</td>
+ <td className="py-2 px-3 text-heading">内置</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">依赖复杂度</td>
  <td className="py-2 px-3 text-heading">△ 需要原生模块</td>
- <td className="py-2 px-3 text-heading">✓ 无依赖</td>
+ <td className="py-2 px-3 text-heading">无依赖</td>
  </tr>
  <tr>
  <td className="py-2 px-3">执行方法标记</td>
@@ -195,12 +195,12 @@ sequenceDiagram
  </Layer>
 
  {/* 生命周期 */}
- <Layer title="执行生命周期" icon="🔄">
+ <Layer title="执行生命周期">
  <MermaidDiagram chart={ptyLifecycle} title="PTY 生命周期" />
  </Layer>
 
  {/* 核心代码 */}
- <Layer title="核心实现" icon="💻">
+ <Layer title="核心实现">
  <Layer title="execute 入口" depth={2} defaultOpen={true}>
  <CodeBlock
  title="执行入口方法"
@@ -317,7 +317,7 @@ const handleOutput = (data: Buffer) => {
  {/* 边界条件 */}
  <Layer title="边界条件深度解析" depth={1} defaultOpen={true}>
  <Layer title="1. PTY 不可用场景" depth={2} defaultOpen={true}>
- <HighlightBox title="常见不可用场景" icon="⚠️" variant="orange">
+ <HighlightBox title="常见不可用场景" variant="orange">
  <ul className="space-y-2 text-sm">
  <li><strong>Docker 容器</strong>：部分镜像缺少编译 node-pty 的依赖</li>
  <li><strong>Windows 环境</strong>：需要 Visual C++ Build Tools</li>
@@ -385,9 +385,9 @@ const handleOutput = (data: Buffer) => {
  </Layer>
 
  {/* AbortSignal 语义边界 */}
- <Layer title="AbortSignal 语义边界" icon="🛑">
+ <Layer title="AbortSignal 语义边界">
  <div className="space-y-4">
- <HighlightBox title="AbortSignal 保证什么？" icon="✅" variant="green">
+ <HighlightBox title="AbortSignal 保证什么？" variant="green">
  <ul className="space-y-2 text-sm">
  <li><strong>进程终止尝试</strong>：会发送 SIGTERM，然后 SIGKILL</li>
  <li><strong>Promise 解析</strong>：abort 后 execute() Promise 最终会 resolve/reject</li>
@@ -396,7 +396,7 @@ const handleOutput = (data: Buffer) => {
  </ul>
  </HighlightBox>
 
- <HighlightBox title="AbortSignal 不保证什么？" icon="❌" variant="red">
+ <HighlightBox title="AbortSignal 不保证什么？" variant="red">
  <ul className="space-y-2 text-sm">
  <li><strong>立即终止</strong>：进程可能忽略 SIGTERM，需等待 SIGKILL</li>
  <li><strong>输出完整性</strong>：abort 时可能丢失未刷新的输出缓冲</li>
@@ -479,9 +479,9 @@ clearTimeout(timeoutId);
  </Layer>
 
  {/* 安全责任边界 */}
- <Layer title="安全责任边界澄清" icon="🔐">
+ <Layer title="安全责任边界澄清">
  <div className="space-y-4">
- <HighlightBox title="重要澄清" icon="🚨" variant="red">
+ <HighlightBox title="重要澄清" variant="red">
  <p className="text-sm">
  ShellExecutionService <strong>仅负责执行</strong>，以下安全职责由其他模块承担：
  </p>
@@ -501,31 +501,31 @@ clearTimeout(timeoutId);
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono text-heading">命令注入检测</td>
  <td className="py-2 px-3">BashTool / ToolScheduler</td>
- <td className="py-2 px-3 text-heading">✗ 不处理</td>
+ <td className="py-2 px-3 text-heading">不处理</td>
  <td className="py-2 px-3 text-heading">→ tool-detail</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono text-heading">只读模式策略</td>
  <td className="py-2 px-3">Sandbox / Permission</td>
- <td className="py-2 px-3 text-heading">✗ 不处理</td>
+ <td className="py-2 px-3 text-heading">不处理</td>
  <td className="py-2 px-3 text-heading">→ sandbox</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono text-heading">危险命令拦截</td>
  <td className="py-2 px-3">BashTool / Blocklist</td>
- <td className="py-2 px-3 text-heading">✗ 不处理</td>
+ <td className="py-2 px-3 text-heading">不处理</td>
  <td className="py-2 px-3 text-heading">→ permission</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono text-heading">工作目录限制</td>
  <td className="py-2 px-3">Sandbox / Container</td>
- <td className="py-2 px-3 text-heading">✗ 不处理</td>
+ <td className="py-2 px-3 text-heading">不处理</td>
  <td className="py-2 px-3 text-heading">→ sandbox</td>
  </tr>
  <tr>
  <td className="py-2 px-3 font-mono text-heading">进程终止</td>
  <td className="py-2 px-3">ShellExecutionService</td>
- <td className="py-2 px-3 text-heading">✓ 处理</td>
+ <td className="py-2 px-3 text-heading">处理</td>
  <td className="py-2 px-3">本页</td>
  </tr>
  </tbody>
@@ -563,7 +563,7 @@ const result = await ShellExecutionService.execute(
 );`}
  />
 
- <HighlightBox title="设计原则" icon="💡" variant="blue">
+ <HighlightBox title="设计原则" variant="blue">
  <p className="text-sm">
  ShellExecutionService 采用<strong>单一职责原则</strong>：只负责"如何执行"，
  不负责"是否应该执行"。这使得安全策略可以在上层灵活配置，而执行层保持简单可靠。
@@ -573,7 +573,7 @@ const result = await ShellExecutionService.execute(
  </Layer>
 
  {/* 平台差异对照表 */}
- <Layer title="平台差异对照表" icon="🖥️">
+ <Layer title="平台差异对照表">
  <div className="space-y-4">
  <p className="text-body">
  不同平台对 PTY 和进程管理的支持存在显著差异：
@@ -593,8 +593,8 @@ const result = await ShellExecutionService.execute(
  <tbody>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono">PTY 可用</td>
- <td className="py-2 px-3 text-heading">✓ 默认</td>
- <td className="py-2 px-3 text-heading">✓ 默认</td>
+ <td className="py-2 px-3 text-heading">默认</td>
+ <td className="py-2 px-3 text-heading">默认</td>
  <td className="py-2 px-3 text-heading">△ 需 VC++</td>
  <td className="py-2 px-3 text-heading">△ 需依赖</td>
  </tr>
@@ -616,7 +616,7 @@ const result = await ShellExecutionService.execute(
  <td className="py-2 px-3 font-mono">SIGTERM 支持</td>
  <td className="py-2 px-3 text-heading">✓</td>
  <td className="py-2 px-3 text-heading">✓</td>
- <td className="py-2 px-3 text-heading">✗ 不支持</td>
+ <td className="py-2 px-3 text-heading">不支持</td>
  <td className="py-2 px-3 text-heading">✓</td>
  </tr>
  <tr className="border- border-edge">
@@ -628,10 +628,10 @@ const result = await ShellExecutionService.execute(
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono">颜色支持</td>
- <td className="py-2 px-3 text-heading">✓ 完整</td>
- <td className="py-2 px-3 text-heading">✓ 完整</td>
+ <td className="py-2 px-3 text-heading">完整</td>
+ <td className="py-2 px-3 text-heading">完整</td>
  <td className="py-2 px-3 text-heading">△ 需设置</td>
- <td className="py-2 px-3 text-heading">✓ 完整</td>
+ <td className="py-2 px-3 text-heading">完整</td>
  </tr>
  <tr>
  <td className="py-2 px-3 font-mono">Fallback 行为</td>
@@ -644,7 +644,7 @@ const result = await ShellExecutionService.execute(
  </table>
  </div>
 
- <HighlightBox title="Windows 特殊处理" icon="🪟" variant="orange">
+ <HighlightBox title="Windows 特殊处理" variant="orange">
  <CodeBlock
  title="Windows 进程终止"
  code={`// Windows 不支持 SIGTERM，使用 taskkill
@@ -662,7 +662,7 @@ if (os.platform() === 'win32') {
  />
  </HighlightBox>
 
- <HighlightBox title="Docker 注意事项" icon="🐳" variant="blue">
+ <HighlightBox title="Docker 注意事项" variant="blue">
  <ul className="space-y-2 text-sm">
  <li><strong>Alpine 镜像</strong>：缺少编译工具，node-pty 不可用</li>
  <li><strong>--init 参数</strong>：建议使用，确保信号正确传递</li>
@@ -676,7 +676,7 @@ if (os.platform() === 'win32') {
  {/* 调试技巧 */}
  <Layer title="常见问题与调试技巧" depth={1} defaultOpen={true}>
  <Layer title="问题1: 输出乱码" depth={2} defaultOpen={true}>
- <HighlightBox title="诊断步骤" icon="🔧" variant="blue">
+ <HighlightBox title="诊断步骤" variant="blue">
  <ol className="space-y-2 text-sm list-decimal list-inside">
  <li>检查 executionMethod 字段确认执行方式</li>
  <li>检查是否被识别为二进制（binary_detected 事件）</li>

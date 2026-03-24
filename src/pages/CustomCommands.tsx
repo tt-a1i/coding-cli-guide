@@ -155,7 +155,7 @@ export function CustomCommands() {
  <h2 className="text-2xl text-heading mb-5">自定义命令系统</h2>
 
  {/* 目标 */}
- <Layer title="目标" icon="🎯">
+ <Layer title="目标">
  <p className="text-body mb-4">
  自定义命令系统允许用户将常用的 AI 提示模板保存为可重用的斜杠命令，支持参数替换、
  Shell 命令注入和文件内容注入，实现高效的工作流自动化。
@@ -183,7 +183,7 @@ export function CustomCommands() {
  </Layer>
 
  {/* 输入 */}
- <Layer title="输入" icon="📥">
+ <Layer title="输入">
  <h4 className="text-lg text-heading font-bold mb-3">触发条件</h4>
  <ul className="list-disc pl-5 text-sm text-body space-y-1 mb-4">
  <li>用户在 CLI 中输入斜杠命令（如 <code>/test</code>）</li>
@@ -194,7 +194,7 @@ export function CustomCommands() {
  <h4 className="text-lg text-heading font-bold mb-3">命令文件结构</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-elevated/10 border-2 border-edge rounded-lg p-4">
- <h5 className="text-heading font-bold mb-2">🏠 用户级命令</h5>
+ <h5 className="text-heading font-bold mb-2">用户级命令</h5>
  <code className="text-xs text-body block mb-2">~/.gemini/commands/*.toml</code>
  <p className="text-sm text-body">
  跨所有项目可用的个人命令
@@ -202,7 +202,7 @@ export function CustomCommands() {
  </div>
 
  <div className="bg-elevated border-2 border-edge rounded-lg p-4">
- <h5 className="text-heading font-bold mb-2">📂 项目级命令</h5>
+ <h5 className="text-heading font-bold mb-2">项目级命令</h5>
  <code className="text-xs text-body block mb-2">.gemini/commands/*.toml</code>
  <p className="text-sm text-body">
  项目特定命令，可提交到版本控制共享给团队
@@ -224,7 +224,7 @@ description = "命令描述（显示在 /help 中）"`}
  </Layer>
 
  {/* 输出 */}
- <Layer title="输出" icon="📤">
+ <Layer title="输出">
  <h4 className="text-lg text-heading font-bold mb-3">处理后的 Prompt</h4>
  <p className="text-sm text-body mb-3">
  经过处理器链处理后的最终 prompt 文本，所有注入机制已完成替换
@@ -238,7 +238,7 @@ description = "命令描述（显示在 /help 中）"`}
  </ul>
 
  <h4 className="text-lg text-heading font-bold mb-3 mt-4">副作用</h4>
- <HighlightBox title="Shell 命令执行" icon="⚠️" variant="orange">
+ <HighlightBox title="Shell 命令执行" variant="orange">
  <p className="text-sm text-body">
  <code>!{'{'} ... {'}'}</code> 注入会在用户确认后执行实际的 Shell 命令，可能修改文件系统或执行其他操作
  </p>
@@ -246,7 +246,7 @@ description = "命令描述（显示在 /help 中）"`}
  </Layer>
 
  {/* 关键文件与入口 */}
- <Layer title="关键文件与入口" icon="📁">
+ <Layer title="关键文件与入口">
  <div className="text-sm space-y-2">
  <SourceLink
  path="packages/cli/src/services/FileCommandLoader.ts:145"
@@ -280,7 +280,7 @@ description = "命令描述（显示在 /help 中）"`}
  </Layer>
 
  {/* 流程图 */}
- <Layer title="流程图" icon="📊">
+ <Layer title="流程图">
  <h4 className="text-lg text-heading font-bold mb-3">命令加载流程</h4>
  <MermaidDiagram chart={commandLoadingFlow} title="FileCommandLoader 加载流程" />
 
@@ -292,9 +292,9 @@ description = "命令描述（显示在 /help 中）"`}
  </Layer>
 
  {/* 关键分支与边界条件 */}
- <Layer title="关键分支与边界条件" icon="⚡">
+ <Layer title="关键分支与边界条件">
  <h4 className="text-lg text-heading font-bold mb-3">命名空间冲突</h4>
- <HighlightBox title="优先级规则" icon="📌" variant="blue">
+ <HighlightBox title="优先级规则" variant="blue">
  <p className="text-sm text-body mb-2">
  <strong>项目级命令</strong> 覆盖同名的 <strong>用户级命令</strong>
  </p>
@@ -314,7 +314,7 @@ description = "命令描述（显示在 /help 中）"`}
  />
 
  <h4 className="text-lg text-heading font-bold mb-3 mt-5">工作区信任限制</h4>
- <HighlightBox title="非信任工作区" icon="🔒" variant="red">
+ <HighlightBox title="非信任工作区" variant="red">
  <p className="text-sm text-body mb-2">
  当 <code>security.folderTrust.enabled: true</code> 且工作区未被信任时，
  <strong>项目级命令不会被加载</strong>。
@@ -334,7 +334,7 @@ if (this.folderTrustEnabled && !this.folderTrust) {
  />
 
  <h4 className="text-lg text-heading font-bold mb-3 mt-5">花括号平衡</h4>
- <HighlightBox title="解析器限制" icon="⚠️" variant="orange">
+ <HighlightBox title="解析器限制" variant="orange">
  <p className="text-sm text-body mb-2">
  <code>!{'{'} ... {'}'}</code> 和 <code>@{'{'} ... {'}'}</code> 内部的内容必须<strong>花括号平衡</strong>。
  </p>
@@ -397,7 +397,7 @@ if (!prompt.includes('{{args}}')) {
  </Layer>
 
  {/* 失败与恢复 */}
- <Layer title="失败与恢复" icon="🔧">
+ <Layer title="失败与恢复">
  <h4 className="text-lg text-heading font-bold mb-3">错误处理机制</h4>
 
  <div className="space-y-4">
@@ -483,9 +483,9 @@ if (!allAllowed && isHardDenial) {
  </Layer>
 
  {/* 相关配置项 */}
- <Layer title="相关配置项" icon="⚙️">
+ <Layer title="相关配置项">
  <h4 className="text-lg text-heading font-bold mb-3">Shell 命令权限检查机制</h4>
- <HighlightBox title="权限检查流程" icon="🔒" variant="purple">
+ <HighlightBox title="权限检查流程" variant="purple">
  <p className="text-sm text-body mb-3">
  Shell 命令注入通过三层安全机制保护：<code>tools.exclude</code>（全局阻止列表）、
  <code>tools.core</code>（全局允许列表）、<code>sessionShellAllowlist</code>（会话允许列表）
@@ -580,7 +580,7 @@ mode = "DEFAULT" # DEFAULT | YOLO | AUTO_EDIT`}
  {/* !{...} */}
  <div className="mb-6">
  <h5 className="text-md text-heading font-semibold mb-3">2. !{'{...}'} — Shell 注入</h5>
- <HighlightBox title="执行流程" icon="🔄" variant="green">
+ <HighlightBox title="执行流程" variant="green">
  <ol className="list-decimal pl-5 text-sm space-y-1">
  <li>解析 <code>!{'{command}'}</code> 块（支持嵌套花括号）</li>
  <li>替换 <code>{'{{args}}'}</code> 为转义后的参数</li>
@@ -660,7 +660,7 @@ prompt = """
  </Layer>
 
  {/* 为什么这样设计 */}
- <Layer title="为什么这样设计？" icon="💡">
+ <Layer title="为什么这样设计？">
  <div className="space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
  <h4 className="text-heading font-bold mb-2">为什么用 TOML 而不是 JSON/YAML？</h4>

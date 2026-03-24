@@ -20,8 +20,7 @@ function Introduction({
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">🌐</span>
- <span className="text-xl font-bold text-heading">
+  <span className="text-xl font-bold text-heading">
  多厂商架构导读
  </span>
  </div>
@@ -35,8 +34,7 @@ function Introduction({
  {isExpanded && (
  <div className="px-6 pb-6 space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- 🎯 核心问题
+ <h4 className="text-heading font-bold mb-2">核心问题
  </h4>
  <p className="text-body text-sm">
  如何让 CLI 支持<strong>多个 AI 厂商</strong>（OpenAI、Gemini、DeepSeek）
@@ -47,8 +45,7 @@ function Introduction({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- 🔧 核心抽象层
+ <h4 className="text-heading font-bold mb-2">核心抽象层
  </h4>
  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
  <div className="bg-surface p-2 rounded text-center">
@@ -81,8 +78,7 @@ function Introduction({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- 🏗️ 架构层次
+ <h4 className="text-heading font-bold mb-2">架构层次
  </h4>
  <div className="text-body text-sm space-y-1">
  <div className="flex items-center gap-2">
@@ -108,7 +104,7 @@ function Introduction({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">📊 关键数字</h4>
+ <h4 className="text-heading font-bold mb-2">关键数字</h4>
  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
  <div className="text-center">
  <div className="text-xl font-bold text-heading">
@@ -193,7 +189,7 @@ function ProviderRoutingAnimation() {
  return (
  <div className="bg-surface rounded-lg p-6 border border-edge">
  <h3 className="text-lg font-bold text-heading mb-4 flex items-center gap-2">
- <span>🔀</span> Provider 路由
+ Provider 路由
  </h3>
 
  <div className="flex flex-wrap gap-2 mb-4">
@@ -276,7 +272,7 @@ function ContentConverterFlow() {
  return (
  <div className="bg-surface rounded-lg p-6 border border-edge">
  <h3 className="text-lg font-bold text-heading mb-4 flex items-center gap-2">
- <span>🔄</span> 格式转换器
+ 格式转换器
  </h3>
 
  <div className="flex gap-2 mb-4">
@@ -463,7 +459,7 @@ function TokenLimitsVisualization() {
  return (
  <div className="bg-surface rounded-lg p-6 border border-edge">
  <h3 className="text-lg font-bold text-heading mb-4 flex items-center gap-2">
- <span>📊</span> 模型 Token 限制对比
+ 模型 Token 限制对比
  </h3>
 
  <div className="space-y-4">
@@ -593,7 +589,7 @@ export function MultiProviderArchitecture() {
  onToggle={() => setIsIntroExpanded(!isIntroExpanded)}
  />
 
- <HighlightBox title="🧭 fork-only 提示" icon="⚠️" variant="yellow">
+ <HighlightBox title="🧭 fork-only 提示" variant="yellow">
  <p className="m-0 text-sm text-body">
  上游 Gemini CLI 本身不包含 “OpenAI/DeepSeek 多厂商接入 + Gemini ↔ OpenAI 格式转换” 这条链路；
  这通常是 fork 为了兼容更多模型而额外引入的适配层。本页内容用于理解兼容层设计，
@@ -602,8 +598,8 @@ export function MultiProviderArchitecture() {
  </HighlightBox>
 
  {/* Core Interface */}
- <Layer title="ContentGenerator 接口" icon="📋">
- <HighlightBox title="统一抽象" icon="💡" variant="green">
+ <Layer title="ContentGenerator 接口">
+ <HighlightBox title="统一抽象" variant="green">
  <p className="mb-2">
  <code>ContentGenerator</code> 是所有 AI 厂商的
  <strong>统一接口</strong>，定义了 4 个核心方法：
@@ -640,7 +636,7 @@ export function MultiProviderArchitecture() {
  </Layer>
 
  {/* Provider Routing */}
- <Layer title="认证类型与路由" icon="🔀">
+ <Layer title="认证类型与路由">
  <ProviderRoutingAnimation />
 
  <div className="mt-4">
@@ -662,47 +658,47 @@ export enum AuthType {
  </Layer>
 
  {/* Implementation Hierarchy */}
- <Layer title="实现类层次" icon="🏗️">
+ <Layer title="实现类层次">
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
  <Module
- icon="🐧"
+
  name="GeminiContentGenerator"
  path="packages/core/src/gemini"
  description="继承 OpenAI，动态 Token 管理"
  />
  <Module
- icon="🏠"
+
  name="GeminiContentGenerator"
  path="packages/core/src/gemini"
  description="继承 OpenAI，模型配置缓存"
  />
  <Module
- icon="🤖"
+
  name="OpenAIContentGenerator"
  path="packages/core/src/core/openaiContentGenerator"
  description="OpenAI 兼容基类"
  />
  <Module
- icon="💎"
+
  name="CodeAssistContentGenerator"
  path="packages/core/src/code_assist"
  description="Google CodeAssist 服务器"
  />
  <Module
- icon="📝"
+
  name="LoggingContentGenerator"
  path="packages/core/src/core"
  description="装饰器，添加日志记录"
  />
  <Module
- icon="🔄"
+
  name="OpenAIContentConverter"
  path="packages/core/src/core/openaiContentGenerator"
  description="Gemini ↔ OpenAI 格式转换"
  />
  </div>
 
- <HighlightBox title="继承关系" icon="📊" variant="blue" className="mt-4">
+ <HighlightBox title="继承关系" variant="blue" className="mt-4">
  <div className="font-mono text-sm space-y-1">
  <div className="text-dim">
  ContentGenerator (接口)
@@ -721,7 +717,7 @@ export enum AuthType {
  </Layer>
 
  {/* Provider Abstraction */}
- <Layer title="Provider 适配器" icon="🔌">
+ <Layer title="Provider 适配器">
  <ProviderFeaturesComparison />
 
  <div className="mt-4">
@@ -757,10 +753,10 @@ function determineProvider(config): OpenAICompatibleProvider {
  </Layer>
 
  {/* Format Converter */}
- <Layer title="格式转换器" icon="🔄">
+ <Layer title="格式转换器">
  <ContentConverterFlow />
 
- <HighlightBox title="转换职责" icon="⚙️" variant="purple" className="mt-4">
+ <HighlightBox title="转换职责" variant="purple" className="mt-4">
  <ul className="space-y-1 text-sm">
  <li>
  • <strong>请求转换</strong>：Gemini content/parts → OpenAI
@@ -786,7 +782,7 @@ function determineProvider(config): OpenAICompatibleProvider {
  </Layer>
 
  {/* Token Limits */}
- <Layer title="Token 限制管理" icon="📊">
+ <Layer title="Token 限制管理">
  <TokenLimitsVisualization />
 
  <div className="mt-4">
@@ -811,7 +807,7 @@ normalize("gemini-2.5-pro-preview") → "gemini-2.5-pro"`}
  </Layer>
 
  {/* Token Management */}
- <Layer title="Token 刷新机制" icon="🔐">
+ <Layer title="Token 刷新机制">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface rounded-lg p-4 border border-edge/30">
  <div className="text-heading font-bold mb-2">
@@ -873,7 +869,7 @@ async generateContent(request, promptId) {
  </Layer>
 
  {/* Request Pipeline */}
- <Layer title="请求管道" icon="⛓️">
+ <Layer title="请求管道">
  <div className="bg-surface rounded-lg p-6 border border-edge">
  <div className="flex flex-col md:flex-row items-center justify-between gap-4">
  {[
@@ -907,7 +903,7 @@ async generateContent(request, promptId) {
  </Layer>
 
  {/* Design Patterns */}
- <Layer title="设计模式" icon="🎨">
+ <Layer title="设计模式">
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
  <div className="bg-surface rounded-lg p-4 border border-edge/30">
  <div className="text-heading font-bold mb-2">
@@ -965,40 +961,40 @@ async generateContent(request, promptId) {
  </Layer>
 
  {/* Key Files */}
- <Layer title="关键文件" icon="📁">
+ <Layer title="关键文件">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <Module
- icon="📋"
+
  name="contentGenerator.ts"
  path="packages/core/src/core"
  description="接口定义 + 工厂方法"
  />
  <Module
- icon="🔄"
+
  name="converter.ts"
  path="packages/core/src/core/openaiContentGenerator"
  description="Gemini ↔ OpenAI 格式转换"
  />
  <Module
- icon="🔌"
+
  name="provider/*.ts"
  path="packages/core/src/core/openaiContentGenerator"
  description="厂商适配器实现"
  />
  <Module
- icon="📊"
+
  name="tokenLimits.ts"
  path="packages/core/src/core"
  description="模型 Token 限制表"
  />
  <Module
- icon="🐧"
+
  name="geminiContentGenerator.ts"
  path="packages/core/src/gemini"
  description="Gemini 实现 + Token 管理"
  />
  <Module
- icon="🔐"
+
  name="sharedTokenManager.ts"
  path="packages/core/src/gemini"
  description="Token 刷新单例"
@@ -1007,7 +1003,7 @@ async generateContent(request, promptId) {
  </Layer>
 
  {/* Design Decisions */}
- <Layer title="为什么这样设计多提供商架构" icon="🤔" defaultOpen={false}>
+ <Layer title="为什么这样设计多提供商架构" defaultOpen={false}>
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
  <div className="bg-surface rounded-lg p-4 border border-edge/30">
  <div className="text-heading font-bold mb-2">

@@ -14,8 +14,8 @@ export function ConfigSystem() {
  <h2 className="text-2xl text-heading mb-5">配置系统详解 (Settings v2)</h2>
 
  {/* 30秒速览 */}
- <Layer title="30秒速览" icon="⚡">
- <HighlightBox title="配置系统核心要点" icon="🎯" variant="purple">
+ <Layer title="30秒速览">
+ <HighlightBox title="配置系统核心要点" variant="purple">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="space-y-2 text-sm">
  <div className="flex items-start gap-2">
@@ -82,7 +82,7 @@ export function ConfigSystem() {
  </Layer>
 
  {/* 完整加载序列图 */}
- <Layer title="配置加载完整序列" icon="📊">
+ <Layer title="配置加载完整序列">
  <MermaidDiagram
  title="从 CLI 启动到 Config 实例创建的完整流程"
  chart={`sequenceDiagram
@@ -141,8 +141,8 @@ export function ConfigSystem() {
  </Layer>
 
  {/* 配置层次 */}
- <Layer title="配置层次与优先级" icon="📁">
- <HighlightBox title="七层配置优先级（从低到高）" icon="🏗️" variant="blue">
+ <Layer title="配置层次与优先级">
+ <HighlightBox title="七层配置优先级（从低到高）" variant="blue">
  <p className="mb-2">配置按优先级从低到高合并，高优先级覆盖低优先级：</p>
  <ol className="list-decimal pl-5 space-y-1 text-sm">
  <li><strong>默认值</strong> - 代码中的硬编码默认</li>
@@ -157,7 +157,7 @@ export function ConfigSystem() {
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
  <div className="bg-elevated/10 border-2 border-edge rounded-lg p-4">
- <h4 className="text-heading font-bold mb-2">🏠 用户级配置</h4>
+ <h4 className="text-heading font-bold mb-2">用户级配置</h4>
  <code className="text-xs text-body block mb-2">~/.gemini/settings.json</code>
  <p className="text-sm text-body">
  跨所有项目的全局配置，如 UI 偏好、默认模型等
@@ -165,16 +165,16 @@ export function ConfigSystem() {
  </div>
 
  <div className="bg-elevated border-2 border-edge rounded-lg p-4">
- <h4 className="text-heading font-bold mb-2">📂 项目级配置</h4>
+ <h4 className="text-heading font-bold mb-2">项目级配置</h4>
  <code className="text-xs text-body block mb-2">.gemini/settings.json</code>
  <p className="text-sm text-body">
  项目特定配置，覆盖用户级设置<br/>
- <span className="text-heading text-xs">⚠️ 非信任目录时被忽略</span>
+ <span className="text-heading text-xs">非信任目录时被忽略</span>
  </p>
  </div>
 
  <div className="bg-elevated border-2 border-edge rounded-lg p-4">
- <h4 className="text-heading font-bold mb-2">🏢 System Defaults</h4>
+ <h4 className="text-heading font-bold mb-2">System Defaults</h4>
  <code className="text-xs text-body block mb-2">
  /etc/gemini-cli/system-defaults.json (Linux)<br/>
  /Library/Application Support/GeminiCli/system-defaults.json (macOS)
@@ -185,7 +185,7 @@ export function ConfigSystem() {
  </div>
 
  <div className="bg-elevated border-2 border-edge rounded-lg p-4">
- <h4 className="text-heading font-bold mb-2">🔒 System Settings (Override)</h4>
+ <h4 className="text-heading font-bold mb-2">System Settings (Override)</h4>
  <code className="text-xs text-body block mb-2">
  /etc/gemini-cli/settings.json (Linux)<br/>
  /Library/Application Support/GeminiCli/settings.json (macOS)
@@ -228,8 +228,8 @@ export function getSystemDefaultsPath(): string {
  </Layer>
 
  {/* v2 结构 */}
- <Layer title="Settings v2 嵌套结构" icon="🆕">
- <HighlightBox title="v1 → v2 迁移" icon="⚠️" variant="orange">
+ <Layer title="Settings v2 嵌套结构">
+ <HighlightBox title="v1 → v2 迁移" variant="orange">
  <p className="text-sm">
  v0.3.0 起采用嵌套结构。旧版 v1 扁平结构会自动迁移，原文件备份为 <code>settings.json.orig</code>。
  迁移判定不依赖版本字段，而是用 <code>needsMigration()</code> 扫描是否存在需要搬迁的 v1 顶层 key。
@@ -405,8 +405,8 @@ export function getSystemDefaultsPath(): string {
  </Layer>
 
  {/* v1 → v2 迁移映射 */}
- <Layer title="v1 → v2 字段映射与迁移" icon="🔄">
- <HighlightBox title="迁移逻辑详解" icon="⚙️" variant="purple">
+ <Layer title="v1 → v2 字段映射与迁移">
+ <HighlightBox title="迁移逻辑详解" variant="purple">
  <p className="text-sm mb-2">
  <code>migrateSettingsToV2()</code> 函数负责将 v1 扁平结构迁移到 v2 嵌套结构。
  迁移时会备份原文件为 <code>.orig</code>。
@@ -550,8 +550,8 @@ export function needsMigration(settings: Record<string, unknown>): boolean {
  </Layer>
 
  {/* 四层合并策略可视化 */}
- <Layer title="四层合并策略 (核心机制)" icon="🔀">
- <HighlightBox title="customDeepMerge 合并顺序" icon="⚡" variant="purple">
+ <Layer title="四层合并策略 (核心机制)">
+ <HighlightBox title="customDeepMerge 合并顺序" variant="purple">
  <p className="text-sm mb-3">
  配置通过 <code>customDeepMerge</code> 按优先级顺序合并，后面的层覆盖前面的层：
  </p>
@@ -573,7 +573,7 @@ export function needsMigration(settings: Record<string, unknown>): boolean {
  <div className="bg-elevated border border-edge rounded px-3 py-2 text-center relative">
  <div className="text-xs text-body">Layer 3</div>
  <div className="text-heading font-mono text-sm">workspace</div>
- <div className="text-xs text-heading">⚠️ 需信任</div>
+ <div className="text-xs text-heading">需信任</div>
  </div>
  <span className="text-heading">→</span>
  <div className="bg-elevated border-l-2 border-l-edge-hover/50 rounded px-3 py-2 text-center">
@@ -688,7 +688,7 @@ export function customDeepMerge(
  />
 
  {/* 合并策略类型 */}
- <HighlightBox title="MergeStrategy 枚举" icon="🎯" variant="blue">
+ <HighlightBox title="MergeStrategy 枚举" variant="blue">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
  <div className="bg-base/30 rounded p-3">
  <div className="text-heading font-bold text-sm mb-1">REPLACE (默认)</div>
@@ -809,8 +809,8 @@ function getMergeStrategyForPath(path: string[]): MergeStrategy | undefined {
  </Layer>
 
  {/* 环境变量解析 */}
- <Layer title="环境变量解析机制" icon="🌍">
- <HighlightBox title="$VAR 和 \${VAR} 语法支持" icon="💡" variant="green">
+ <Layer title="环境变量解析机制">
+ <HighlightBox title="$VAR 和 \${VAR} 语法支持" variant="green">
  <p className="text-sm">
  settings.json 中的字符串值可以使用 <code>$VAR</code> 或 <code>{'${VAR}'}</code> 语法引用环境变量，
  加载时自动解析。例如：<code>"apiKey": "$MY_API_TOKEN"</code>
@@ -977,8 +977,8 @@ HTTP_PROXY=http://proxy:8080`}
  </Layer>
 
  {/* .env 文件加载 */}
- <Layer title=".env 文件加载机制" icon="📄">
- <HighlightBox title="loadEnvironment() 加载逻辑" icon="⚙️" variant="blue">
+ <Layer title=".env 文件加载机制">
+ <HighlightBox title="loadEnvironment() 加载逻辑" variant="blue">
  <p className="text-sm mb-2">
  <code>loadEnvironment()</code> 负责发现和加载 .env 文件，受信任检查影响。
  </p>
@@ -1096,7 +1096,7 @@ function findEnvFile(startDir: string): string | null {
  </Layer>
 
  {/* 配置加载流程 */}
- <Layer title="loadSettings() 完整实现" icon="⚙️">
+ <Layer title="loadSettings() 完整实现">
  <CodeBlock
  title="packages/cli/src/config/settings.ts:583-792 - loadSettings 核心实现"
  code={`export function loadSettings(
@@ -1296,7 +1296,7 @@ export class LoadedSettings {
  </Layer>
 
  {/* 命令行参数 */}
- <Layer title="命令行参数" icon="💻">
+ <Layer title="命令行参数">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="space-y-2 text-sm">
  <div className="bg-elevated/5 rounded p-2">
@@ -1378,7 +1378,7 @@ if (!trustedFolder && approvalMode !== ApprovalMode.DEFAULT) {
  </Layer>
 
  {/* .gemini 目录结构 */}
- <Layer title=".gemini 目录结构" icon="📂">
+ <Layer title=".gemini 目录结构">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-elevated/10 border-2 border-edge rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">~/.gemini/ (用户级)</h4>
@@ -1412,8 +1412,8 @@ if (!trustedFolder && approvalMode !== ApprovalMode.DEFAULT) {
  </Layer>
 
  {/* 信任机制 */}
- <Layer title="工作区信任与配置安全" icon="🔐">
- <HighlightBox title="非信任工作区限制" icon="⚠️" variant="red">
+ <Layer title="工作区信任与配置安全">
+ <HighlightBox title="非信任工作区限制" variant="red">
  <p className="text-sm mb-2">
  当 <code>security.folderTrust.enabled: true</code> 且工作区未被信任时：
  </p>
@@ -1442,7 +1442,7 @@ if (
 // ⚠️ yolo 和 auto_edit 在不受信任目录强制降级为 default`}
  />
 
- <HighlightBox title="信任检查触发时机" icon="⏱️" variant="purple">
+ <HighlightBox title="信任检查触发时机" variant="purple">
  <div className="text-sm space-y-2">
  <div className="flex items-start gap-2">
  <span className="text-heading">1.</span>
@@ -1485,8 +1485,8 @@ if (
  </Layer>
 
  {/* loadCliConfig() 完整链路 */}
- <Layer title="loadCliConfig() 完整链路" icon="🔄">
- <HighlightBox title="配置加载入口函数" icon="🚀" variant="blue">
+ <Layer title="loadCliConfig() 完整链路">
+ <HighlightBox title="配置加载入口函数" variant="blue">
  <p className="text-sm mb-2">
  <code>loadCliConfig()</code> 是 CLI 启动时的核心配置加载函数，位于 <code>packages/cli/src/config/config.ts:522</code>
  </p>
@@ -1637,8 +1637,8 @@ if (
  </Layer>
 
  {/* MCP 服务器合并 */}
- <Layer title="MCP 服务器配置合并" icon="🔌">
- <HighlightBox title="mergeMcpServers() 合并逻辑" icon="⚙️" variant="purple">
+ <Layer title="MCP 服务器配置合并">
+ <HighlightBox title="mergeMcpServers() 合并逻辑" variant="purple">
  <p className="text-sm mb-2">
  MCP 服务器配置来源于 <code>settings.mcpServers</code> 和扩展定义，
  按 key 去重合并（settings 优先）。
@@ -1708,7 +1708,7 @@ if (argv.allowedMcpServerNames) {
  </Layer>
 
  {/* 工具排除合并 */}
- <Layer title="工具排除列表合并" icon="🛠️">
+ <Layer title="工具排除列表合并">
  <CodeBlock
  title="packages/cli/src/config/config.ts:859-874 - mergeExcludeTools"
  code={`function mergeExcludeTools(
@@ -1734,7 +1734,7 @@ if (argv.allowedMcpServerNames) {
 }`}
  />
 
- <HighlightBox title="非交互模式的额外排除" icon="⚠️" variant="orange">
+ <HighlightBox title="非交互模式的额外排除" variant="orange">
  <p className="text-sm mb-2">
  在非交互模式下，根据 approvalMode 自动排除需要用户确认的工具：
  </p>
@@ -1760,8 +1760,8 @@ if (!interactive && !argv.experimentalAcp) {
  </Layer>
 
  {/* 源码位置 */}
- <Layer title="源码导航" icon="📍">
- <HighlightBox title="配置系统核心源码" icon="📁" variant="blue">
+ <Layer title="源码导航">
+ <HighlightBox title="配置系统核心源码" variant="blue">
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
@@ -1861,7 +1861,7 @@ if (!interactive && !argv.experimentalAcp) {
  {/* ==================== 深化内容 ==================== */}
 
  {/* 边界条件深度解析 */}
- <Layer title="边界条件深度解析" icon="🔬">
+ <Layer title="边界条件深度解析">
  <p className="text-body mb-4">
  配置系统在加载和合并过程中会遇到各种边界情况。理解这些边界有助于诊断配置问题。
  </p>
@@ -1927,7 +1927,7 @@ if (realWorkspaceDir !== realHomeDir) {
  </div>
  </div>
  <div className="mt-4 p-3 bg-elevated rounded-lg border-l-2 border-l-edge-hover">
- <h5 className="text-heading font-semibold mb-2">⚠️ 注意</h5>
+ <h5 className="text-heading font-semibold mb-2">注意</h5>
  <p className="text-sm text-body">
  配置解析失败不会阻止 CLI 启动，但可能导致期望的配置未生效。
  错误信息会在启动日志中显示。
@@ -2061,7 +2061,7 @@ if (needsMigration(settingsObject)) {
  </div>
  </div>
  <div className="mt-4 p-3 bg-elevated rounded-lg border-l-2 border-l-edge-hover">
- <h5 className="text-heading font-semibold mb-2">✅ 安全设计</h5>
+ <h5 className="text-heading font-semibold mb-2">安全设计</h5>
  <p className="text-sm text-body">
  信任检查分两次进行：第一次仅用 user+system 配置（排除 workspace），
  决定是否加载 workspace 配置；第二次使用完整合并后的配置，决定功能降级。
@@ -2071,7 +2071,7 @@ if (needsMigration(settingsObject)) {
  </Layer>
 
  {/* 常见问题与调试技巧 */}
- <Layer title="常见问题与调试技巧" icon="🐛">
+ <Layer title="常见问题与调试技巧">
  <p className="text-body mb-4">
  配置问题通常表现为：设置不生效、意外行为、权限问题等。以下是常见问题的诊断方法。
  </p>
@@ -2254,7 +2254,7 @@ gemini config --show | grep trust`}
  </div>
 
  {/* 调试工具速查 */}
- <HighlightBox title="调试工具速查表" icon="🔧" variant="blue">
+ <HighlightBox title="调试工具速查表" variant="blue">
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
@@ -2297,7 +2297,7 @@ gemini config --show | grep trust`}
  </Layer>
 
  {/* 性能优化建议 */}
- <Layer title="性能优化建议" icon="⚡">
+ <Layer title="性能优化建议">
  <p className="text-body mb-4">
  配置加载发生在 CLI 启动时，优化配置加载可以减少启动延迟。
  </p>
@@ -2306,8 +2306,7 @@ gemini config --show | grep trust`}
  {/* 优化 1 */}
  <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover">
  <div className="flex items-center gap-3 mb-4">
- <span className="text-2xl">📁</span>
- <h4 className="text-lg font-semibold text-heading">减少配置文件数量</h4>
+  <h4 className="text-lg font-semibold text-heading">减少配置文件数量</h4>
  </div>
  <p className="text-sm text-body mb-3">
  每个配置文件都需要磁盘 I/O 和 JSON 解析。
@@ -2338,8 +2337,7 @@ gemini config --show | grep trust`}
  {/* 优化 2 */}
  <div className="bg-surface rounded-lg p-5 border border-edge">
  <div className="flex items-center gap-3 mb-4">
- <span className="text-2xl">🔄</span>
- <h4 className="text-lg font-semibold text-heading">避免复杂的环境变量</h4>
+  <h4 className="text-lg font-semibold text-heading">避免复杂的环境变量</h4>
  </div>
  <p className="text-sm text-body mb-3">
  环境变量解析需要递归遍历整个配置树。
@@ -2370,8 +2368,7 @@ gemini config --show | grep trust`}
  {/* 优化 3 */}
  <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover">
  <div className="flex items-center gap-3 mb-4">
- <span className="text-2xl">📄</span>
- <h4 className="text-lg font-semibold text-heading">.env 文件位置优化</h4>
+  <h4 className="text-lg font-semibold text-heading">.env 文件位置优化</h4>
  </div>
  <p className="text-sm text-body mb-3">
  .env 文件搜索会向上遍历目录树。
@@ -2402,8 +2399,7 @@ gemini config --show | grep trust`}
  {/* 优化 4 */}
  <div className="bg-surface rounded-lg p-5 border border-edge">
  <div className="flex items-center gap-3 mb-4">
- <span className="text-2xl">🚀</span>
- <h4 className="text-lg font-semibold text-heading">启动配置缓存</h4>
+  <h4 className="text-lg font-semibold text-heading">启动配置缓存</h4>
  </div>
  <p className="text-sm text-body mb-3">
  对于长期运行的场景，配置可以缓存。
@@ -2433,7 +2429,7 @@ gemini config --show | grep trust`}
  </div>
 
  {/* 性能基准 */}
- <HighlightBox title="配置加载性能基准" icon="📊" variant="purple">
+ <HighlightBox title="配置加载性能基准" variant="purple">
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
@@ -2486,7 +2482,7 @@ gemini config --show | grep trust`}
  </Layer>
 
  {/* 与其他模块的交互关系 */}
- <Layer title="与其他模块的交互关系" icon="🔗">
+ <Layer title="与其他模块的交互关系">
  <p className="text-body mb-4">
  配置系统是 CLI 的基础设施，被几乎所有模块依赖。
  </p>
@@ -2623,7 +2619,7 @@ style LoadCliConfig stroke:${getThemeColor("--color-success", "#15803d")}`}
  </div>
 
  {/* 关键接口 */}
- <HighlightBox title="关键公开接口" icon="📡" variant="green">
+ <HighlightBox title="关键公开接口" variant="green">
  <CodeBlock
  code={`// 配置加载主入口
 function loadSettings(workspaceDir?: string): LoadedSettings;
@@ -2659,7 +2655,7 @@ class LoadedSettings {
  </HighlightBox>
 
  {/* 扩展点 */}
- <HighlightBox title="扩展点" icon="🔧" variant="purple">
+ <HighlightBox title="扩展点" variant="purple">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
  <div className="space-y-2">
  <h5 className="text-body font-semibold">添加新配置项</h5>
@@ -2695,7 +2691,7 @@ class LoadedSettings {
  </Layer>
 
  {/* 为什么这样设计配置系统 */}
- <Layer title="💡 为什么这样设计配置系统？" icon="🤔">
+ <Layer title="💡 为什么这样设计配置系统？">
  <div className="space-y-6">
  <div className="bg-base/30 rounded-lg p-5">
  <h4 className="text-lg font-medium text-heading mb-3">1. 为什么采用四层配置而非两层？</h4>
@@ -2792,7 +2788,7 @@ class LoadedSettings {
  </Layer>
 
  {/* 配置边界情况 */}
- <Layer title="⚠️ 配置加载边界情况" icon="🔧">
+ <Layer title="⚠️ 配置加载边界情况">
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>

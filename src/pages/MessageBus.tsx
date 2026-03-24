@@ -25,8 +25,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">📡</span>
- <span className="text-xl font-bold text-heading">30秒快速理解</span>
+  <span className="text-xl font-bold text-heading">30秒快速理解</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>
  ▼
@@ -87,7 +86,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 源码入口 */}
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码入口:</span>
+ <span className="text-dim">源码入口:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/core/src/confirmation-bus/message-bus.ts
  </code>
@@ -392,7 +391,7 @@ if (response.confirmed) {
  </section>
 
  {/* 1. 消息类型 */}
- <Layer title="消息类型" icon="📨">
+ <Layer title="消息类型">
  <div className="space-y-4">
  <CodeBlock code={messageTypesCode} language="typescript" title="MessageBusType 枚举" />
 
@@ -458,7 +457,7 @@ if (response.confirmed) {
  </Layer>
 
  {/* 2. 消息结构 */}
- <Layer title="消息结构" icon="📋">
+ <Layer title="消息结构">
  <div className="space-y-4">
  <CodeBlock code={messageStructuresCode} language="typescript" title="消息接口定义" />
 
@@ -479,7 +478,7 @@ if (response.confirmed) {
  </Layer>
 
  {/* 3. 消息流转 */}
- <Layer title="消息流转" icon="🔄">
+ <Layer title="消息流转">
  <div className="space-y-4">
  <MermaidDiagram chart={messageFlowChart} title="MessageBus 消息流转" />
  <CodeBlock code={messageBusCode} language="typescript" title="MessageBus.publish 核心逻辑" />
@@ -487,7 +486,7 @@ if (response.confirmed) {
  </Layer>
 
  {/* 4. 工具确认流程 */}
- <Layer title="工具确认流程" icon="✅">
+ <Layer title="工具确认流程">
  <div className="space-y-4">
  <MermaidDiagram chart={`sequenceDiagram
  participant S as ToolScheduler
@@ -543,7 +542,7 @@ if (response.confirmed) {
  </Layer>
 
  {/* 5. 通信模式 */}
- <Layer title="通信模式" icon="📡">
+ <Layer title="通信模式">
  <div className="space-y-4">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div>
@@ -572,7 +571,7 @@ if (response.confirmed) {
  </Layer>
 
  {/* 6. Hook 执行流程 */}
- <Layer title="Hook 执行流程" icon="🪝">
+ <Layer title="Hook 执行流程">
  <div className="space-y-4">
  <MermaidDiagram chart={`sequenceDiagram
  participant HS as HookSystem
@@ -608,7 +607,7 @@ if (response.confirmed) {
  </Layer>
 
  {/* 7. 错误处理机制 */}
- <Layer title="错误处理机制" icon="⚠️">
+ <Layer title="错误处理机制">
  <div className="space-y-4">
  <HighlightBox title="错误不抛出，通过事件传递" variant="red">
  <div className="text-sm space-y-2 text-body">
@@ -651,7 +650,7 @@ if (response.confirmed) {
  </Layer>
 
  {/* 8. 策略更新 */}
- <Layer title="动态策略更新" icon="🔄">
+ <Layer title="动态策略更新">
  <div className="space-y-4">
  <CodeBlock
  code={`// 用户选择"总是允许"后发送策略更新
@@ -686,7 +685,7 @@ messageBus.publish({
  </Layer>
 
  {/* 8. 关键文件 */}
- <Layer title="关键文件与入口" icon="📁">
+ <Layer title="关键文件与入口">
  <div className="grid grid-cols-1 gap-2 text-sm">
  <div className="flex items-start gap-2">
  <code className="bg-base/30 px-2 py-1 rounded text-xs whitespace-nowrap">
@@ -710,7 +709,7 @@ messageBus.publish({
  </Layer>
 
  {/* 设计决策 */}
- <Layer title="设计决策" icon="💡">
+ <Layer title="设计决策">
  <div className="space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
  <h4 className="text-heading font-bold mb-2">为什么基于 EventEmitter？</h4>

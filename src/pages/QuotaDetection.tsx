@@ -23,8 +23,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">📊</span>
- <span className="text-xl font-bold text-heading">30秒快速理解</span>
+  <span className="text-xl font-bold text-heading">30秒快速理解</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>
  ▼
@@ -81,7 +80,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码入口:</span>
+ <span className="text-dim">源码入口:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/core/src/utils/quotaErrorDetection.ts
  </code>
@@ -284,14 +283,14 @@ export function isGenericQuotaExceededError(error: unknown): boolean {
 
  <QuickSummary isExpanded={isSummaryExpanded} onToggle={() => setIsSummaryExpanded(!isSummaryExpanded)} />
 
- <Layer title="决策流程" icon="🔀" defaultOpen={true}>
+ <Layer title="决策流程" defaultOpen={true}>
  <HighlightBox title="配额错误检测与决策" color="blue" className="mb-6">
  <MermaidDiagram chart={quotaDecisionChart} />
  </HighlightBox>
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
  <div className="bg-surface p-4 rounded-lg border-l-2 border-l-edge-hover/30">
- <div className="text-heading font-bold mb-2">⚠️ Pro 配额超限</div>
+ <div className="text-heading font-bold mb-2">Pro 配额超限</div>
  <ul className="text-sm text-body space-y-1">
  <li>触发 Fallback 降级</li>
  <li>Pro → Flash 模型</li>
@@ -299,7 +298,7 @@ export function isGenericQuotaExceededError(error: unknown): boolean {
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border-l-2 border-l-edge-hover/30">
- <div className="text-heading font-bold mb-2">🚫 Gemini 配额耗尽</div>
+ <div className="text-heading font-bold mb-2">Gemini 配额耗尽</div>
  <ul className="text-sm text-body space-y-1">
  <li>停止重试</li>
  <li>提示用户充值</li>
@@ -307,7 +306,7 @@ export function isGenericQuotaExceededError(error: unknown): boolean {
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
- <div className="text-heading font-bold mb-2">🔄 限流 (429)</div>
+ <div className="text-heading font-bold mb-2">限流 (429)</div>
  <ul className="text-sm text-body space-y-1">
  <li>可恢复错误</li>
  <li>指数退避重试</li>
@@ -317,7 +316,7 @@ export function isGenericQuotaExceededError(error: unknown): boolean {
  </div>
  </Layer>
 
- <Layer title="错误类型守卫" icon="🛡️" defaultOpen={true}>
+ <Layer title="错误类型守卫" defaultOpen={true}>
  <p className="text-body mb-4">
  使用 TypeScript 类型守卫精确识别错误类型：
  </p>
@@ -325,7 +324,7 @@ export function isGenericQuotaExceededError(error: unknown): boolean {
  <CodeBlock code={isApiErrorCode} language="typescript" title="类型定义与守卫" />
  </Layer>
 
- <Layer title="Pro 配额检测" icon="💎" defaultOpen={true}>
+ <Layer title="Pro 配额检测" defaultOpen={true}>
  <CodeBlock code={proQuotaCode} language="typescript" title="isProQuotaExceededError" />
 
  <HighlightBox title="安全设计" color="purple" className="mt-4">
@@ -336,7 +335,7 @@ export function isGenericQuotaExceededError(error: unknown): boolean {
  </HighlightBox>
  </Layer>
 
- <Layer title="Gemini 错误检测" icon="🔮" defaultOpen={true}>
+ <Layer title="Gemini 错误检测" defaultOpen={true}>
  <CodeBlock code={geminiQuotaCode} language="typescript" title="Gemini 配额与限流检测" />
 
  <div className="mt-4 overflow-x-auto">
@@ -379,12 +378,12 @@ export function isGenericQuotaExceededError(error: unknown): boolean {
  </div>
  </Layer>
 
- <Layer title="通用配额检测" icon="📈" defaultOpen={false}>
+ <Layer title="通用配额检测" defaultOpen={false}>
  <CodeBlock code={genericQuotaCode} language="typescript" title="isGenericQuotaExceededError" />
 
  <div className="mt-4 p-4 bg-base/50 rounded-lg border border-edge">
  <div className="text-sm">
- <strong className="text-heading">💡 使用场景：</strong>
+ <strong className="text-heading">使用场景：</strong>
  <ul className="mt-2 text-body space-y-1">
  <li>当 Pro 专用检测未匹配时</li>
  <li>作为通用 Fallback 触发条件</li>
@@ -394,7 +393,7 @@ export function isGenericQuotaExceededError(error: unknown): boolean {
  </div>
  </Layer>
 
- <Layer title="集成示例" icon="🔌" defaultOpen={false}>
+ <Layer title="集成示例" defaultOpen={false}>
  <CodeBlock
  code={`// 在 contentGenerator 中的使用
 async function handleApiError(error: unknown): Promise<void> {

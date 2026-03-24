@@ -7,22 +7,21 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="mb-8 bg-surface rounded-lg border border-edge overflow-hidden">
  <button onClick={onToggle} className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors">
  <div className="flex items-center gap-3">
- <span className="text-2xl">📡</span>
- <span className="text-xl font-bold text-heading">核心概念介绍</span>
+  <span className="text-xl font-bold text-heading">核心概念介绍</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
  </button>
  {isExpanded && (
  <div className="px-6 pb-6 space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🎯 核心概念</h4>
+ <h4 className="text-heading font-bold mb-2">核心概念</h4>
  <p className="text-body text-sm">
  MessageBus 是 Gemini CLI 的异步事件协调系统：表面是发布/订阅（EventEmitter），但对关键消息会<strong>内置“中间件”逻辑</strong>。
  例如工具审批会先由 PolicyEngine 判定（ALLOW / DENY / ASK_USER），仅在 ASK_USER 时才“放行”到 UI/调度器。
  </p>
  </div>
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">📨 9 种消息类型</h4>
+ <h4 className="text-heading font-bold mb-2">9 种消息类型</h4>
  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2 text-xs">
  <div className="bg-surface p-2 rounded text-center text-heading">TOOL_CONFIRMATION_REQUEST</div>
  <div className="bg-surface p-2 rounded text-center text-heading">TOOL_CONFIRMATION_RESPONSE</div>

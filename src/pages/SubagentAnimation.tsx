@@ -9,7 +9,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  onClick={onToggle}
  className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-surface transition-colors"
  >
- <span className="text-lg font-semibold text-heading">📖 什么是子代理系统？</span>
+ <span className="text-lg font-semibold text-heading">什么是子代理系统？</span>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
  </button>
 
@@ -17,7 +17,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="px-4 pb-4 space-y-4 text-sm">
  {/* 核心概念 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">🎯 核心概念</h3>
+ <h3 className="text-heading font-semibold mb-2">核心概念</h3>
  <p className="text-body">
  <strong>子代理 (Subagent)</strong> 是主 AI 可以委派任务的专家助手。当主 AI 需要执行特定领域任务
  （如代码审查、安全扫描）时，会启动对应的子代理，让它们并行处理任务，最后汇总结果。
@@ -26,7 +26,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 为什么需要 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">❓ 为什么需要子代理？</h3>
+ <h3 className="text-heading font-semibold mb-2">为什么需要子代理？</h3>
  <ul className="text-body space-y-1 list-disc list-inside">
  <li><strong>专业化</strong>：每个子代理专注于特定领域，效果更好</li>
  <li><strong>并行处理</strong>：多个子代理同时工作，提高效率</li>
@@ -37,7 +37,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 子代理类型 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">📊 子代理类型</h3>
+ <h3 className="text-heading font-semibold mb-2">子代理类型</h3>
  <div className="grid grid-cols-3 gap-2 text-xs">
  <div className="bg-base p-2 rounded border border-edge">
  <div className="text-heading">内置代理</div>
@@ -56,7 +56,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 源码位置 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">📁 源码位置</h3>
+ <h3 className="text-heading font-semibold mb-2">源码位置</h3>
  <code className="text-xs bg-base p-2 rounded block border border-edge">
  packages/core/src/agents/registry.ts
  </code>
@@ -64,7 +64,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 相关机制 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">🔗 相关机制</h3>
+ <h3 className="text-heading font-semibold mb-2">相关机制</h3>
  <div className="flex flex-wrap gap-2">
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">工具调度</span>
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">Token 管理</span>
@@ -278,9 +278,7 @@ function HierarchyDiagram({ activeType }: { activeType: SubagentType | null }) {
  </div>
  </div>
  {isActive && (
- <div className="absolute -top-2 -right-2 w-4 h-4 bg-elevated rounded-full flex items-center justify-center text-xs text-heading">
- ✓
- </div>
+ <div className="absolute -top-2 -right-2 w-4 h-4 bg-elevated rounded-full flex items-center justify-center text-xs text-heading"></div>
  )}
  </div>
  {i < 2 && (

@@ -28,8 +28,7 @@ function Introduction({
  className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">💻</span>
- <div>
+  <div>
  <h2 className="text-lg font-bold text-heading">
  核心代码剖析
  </h2>
@@ -51,8 +50,7 @@ function Introduction({
  <div className="px-6 pb-6">
  <div className="grid md:grid-cols-2 gap-6 mt-4">
  <div className="space-y-4">
- <h3 className="font-semibold text-heading">
- 🎯 核心模块
+ <h3 className="font-semibold text-heading">核心模块
  </h3>
  <ul className="text-sm text-body space-y-2">
  <li className="flex items-start gap-2">
@@ -83,8 +81,7 @@ function Introduction({
  </div>
 
  <div className="space-y-4">
- <h3 className="font-semibold text-heading">
- 📂 核心文件
+ <h3 className="font-semibold text-heading">核心文件
  </h3>
  <ul className="text-sm text-body space-y-2">
  <li className="flex items-start gap-2">
@@ -112,8 +109,7 @@ function Introduction({
  </div>
 
  <div className="mt-6 p-4 bg-base rounded-lg">
- <h4 className="text-sm font-semibold text-heading mb-2">
- 💡 阅读顺序建议
+ <h4 className="text-sm font-semibold text-heading mb-2">阅读顺序建议
  </h4>
  <div className="text-sm text-body">
  <p>
@@ -144,7 +140,7 @@ export function CoreCode() {
  <h2 className="text-2xl text-heading mb-5">核心代码剖析</h2>
 
  {/* GeminiClient */}
- <Layer title="GeminiClient - 循环核心" icon="🔑">
+ <Layer title="GeminiClient - 循环核心">
  <div className="text-sm text-body font-mono mb-4">
  packages/core/src/core/client.ts
  </div>
@@ -235,7 +231,7 @@ async *sendMessageStream(
  </Layer>
 
  {/* Turn */}
- <Layer title="Turn - 单次响应周期" icon="🎯">
+ <Layer title="Turn - 单次响应周期">
  <div className="text-sm text-body font-mono mb-4">
  packages/core/src/core/turn.ts
  </div>
@@ -319,7 +315,7 @@ async *sendMessageStream(
  </Layer>
 
  {/* GeminiChat */}
- <Layer title="GeminiChat - 对话历史管理" icon="💬">
+ <Layer title="GeminiChat - 对话历史管理">
  <div className="text-sm text-body font-mono mb-4">
  packages/core/src/core/geminiChat.ts
  </div>
@@ -382,7 +378,7 @@ async *sendMessageStream(
  </Layer>
 
  {/* ContentGenerator */}
- <Layer title="ContentGenerator - API 调用层" icon="📡">
+ <Layer title="ContentGenerator - API 调用层">
  <div className="text-sm text-body font-mono mb-4">
  packages/core/src/core/contentGenerator.ts
  </div>
@@ -424,7 +420,7 @@ export async function createContentGenerator(
 }`}
  />
 
- <HighlightBox title="与 OpenAI/tool_calls 的差异" icon="🧭" variant="yellow">
+ <HighlightBox title="与 OpenAI/tool_calls 的差异" variant="yellow">
  <p className="m-0 text-sm text-body">
  上游 Gemini CLI 的主线不会解析 SSE 文本流或 OpenAI <code>tool_calls</code> 增量 JSON；它直接从 SDK 响应读取结构化
  <code>functionCalls</code>，并在 <code>Turn.run()</code> 里产出 <code>ToolCallRequest</code> 事件。
@@ -433,7 +429,7 @@ export async function createContentGenerator(
  </Layer>
 
  {/* ToolRegistry */}
- <Layer title="ToolRegistry - 工具注册" icon="📚">
+ <Layer title="ToolRegistry - 工具注册">
  <div className="text-sm text-body font-mono mb-4">
  packages/core/src/tools/tool-registry.ts
  </div>
@@ -500,7 +496,7 @@ async function createToolRegistry(config: Config) {
  </Layer>
 
  {/* BaseDeclarativeTool */}
- <Layer title="BaseDeclarativeTool - 工具基类" icon="🔧">
+ <Layer title="BaseDeclarativeTool - 工具基类">
  <div className="text-sm text-body font-mono mb-4">
  packages/core/src/tools/tools.ts
  </div>
@@ -571,7 +567,7 @@ export abstract class BaseDeclarativeTool<TParams extends object, TResult extend
  </Layer>
 
  {/* 工具调度器 */}
- <Layer title="ToolScheduler - 工具调度" icon="⚡">
+ <Layer title="ToolScheduler - 工具调度">
  <div className="text-sm text-body font-mono mb-4">
  packages/core/src/core/coreToolScheduler.ts
  </div>
@@ -622,9 +618,9 @@ class CoreToolScheduler {
  </Layer>
 
  {/* 设计总结 */}
- <Layer title="架构设计总结" icon="🎨">
+ <Layer title="架构设计总结">
  <div className="grid md:grid-cols-2 gap-4">
- <HighlightBox title="分层设计" icon="📊" variant="blue">
+ <HighlightBox title="分层设计" variant="blue">
  <ul className="text-sm space-y-1">
  <li><strong>GeminiClient</strong>: 最高层，管理整体流程</li>
  <li><strong>Turn</strong>: 中间层，管理单次响应</li>
@@ -634,7 +630,7 @@ class CoreToolScheduler {
  </ul>
  </HighlightBox>
 
- <HighlightBox title="关键模式" icon="🔑" variant="purple">
+ <HighlightBox title="关键模式" variant="purple">
  <ul className="text-sm space-y-1">
  <li><strong>AsyncGenerator</strong>: 流式处理</li>
  <li><strong>Provider Pattern</strong>: 多厂商支持</li>
@@ -645,7 +641,7 @@ class CoreToolScheduler {
  </div>
 
  <div className="mt-6 p-4 bg-base rounded-lg">
- <h4 className="font-semibold text-heading mb-2">🔗 代码阅读路径</h4>
+ <h4 className="font-semibold text-heading mb-2">代码阅读路径</h4>
  <ol className="text-sm text-body space-y-1 list-decimal list-inside">
  <li>入口: <code>packages/cli/src/ui/hooks/useGeminiStream.ts</code> → submitQuery</li>
  <li>核心: <code>packages/core/src/core/client.ts</code> → sendMessageStream</li>
@@ -657,7 +653,7 @@ class CoreToolScheduler {
  </Layer>
 
  {/* 为什么这样设计 */}
- <Layer title="为什么这样设计？" icon="💡">
+ <Layer title="为什么这样设计？">
  <div className="space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
  <h4 className="text-heading font-bold mb-2">为什么用 AsyncGenerator 实现流式处理？</h4>

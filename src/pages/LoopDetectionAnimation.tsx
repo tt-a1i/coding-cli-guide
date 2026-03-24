@@ -11,8 +11,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">🔄</span>
- <span className="text-xl font-bold text-heading">核心概念介绍</span>
+  <span className="text-xl font-bold text-heading">核心概念介绍</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
  </button>
@@ -20,7 +19,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  {isExpanded && (
  <div className="px-6 pb-6 space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🎯 核心概念</h4>
+ <h4 className="text-heading font-bold mb-2">核心概念</h4>
  <p className="text-body text-sm">
  循环检测服务 (LoopDetectionService) 是防止 AI 陷入无限循环的安全机制。
  当 AI 重复执行相同操作或产生重复内容时，系统会自动检测并中断。
@@ -28,7 +27,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🛡️ 为什么需要</h4>
+ <h4 className="text-heading font-bold mb-2">为什么需要</h4>
  <p className="text-body text-sm">
  AI 可能陷入循环模式：反复调用相同工具、生成重复内容、或进入认知死循环。
  三层检测机制在不同粒度上捕获这些问题，确保系统稳定性。
@@ -36,7 +35,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🏗️ 三层检测策略</h4>
+ <h4 className="text-heading font-bold mb-2">三层检测策略</h4>
  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
  <div className="bg-surface p-3 rounded border-l-2 border-l-edge-hover/30">
  <div className="text-heading font-semibold text-sm">Layer 1: 工具调用</div>
@@ -64,13 +63,13 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  <div className="flex flex-wrap gap-4 text-sm">
  <div className="flex items-center gap-2">
- <span className="text-dim">📍 源码:</span>
+ <span className="text-dim">源码:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/core/src/services/loopDetectionService.ts
  </code>
  </div>
  <div className="flex items-center gap-2">
- <span className="text-dim">🔗 相关:</span>
+ <span className="text-dim">相关:</span>
  <span className="text-heading text-xs">GeminiChat, CoreToolScheduler</span>
  </div>
  </div>

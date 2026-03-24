@@ -29,8 +29,7 @@ flowchart TD
  return (
  <div className="space-y-8 animate-fadeIn">
  <div className="border- border-edge pb-6">
- <h1 className="text-3xl font-bold text-heading mb-2">
- 📊 Token 计算策略（上游 Gemini CLI）
+ <h1 className="text-3xl font-bold text-heading mb-2">Token 计算策略（上游 Gemini CLI）
  </h1>
  <p className="text-body">
  核心目标只有一个：在请求发出去之前尽量避免“上下文窗口溢出”，同时把真实 usage 记录下来用于 UI/遥测/会话记录。
@@ -58,7 +57,7 @@ flowchart TD
  </ul>
  </HighlightBox>
 
- <Layer title="关键文件（上游源码）" icon="📁" defaultOpen>
+ <Layer title="关键文件（上游源码）" defaultOpen>
  <ul className="text-sm text-body space-y-2">
  <li>
  <code className="bg-base/30 px-1 rounded">gemini-cli/packages/core/src/utils/tokenCalculation.ts</code>：
@@ -79,14 +78,14 @@ flowchart TD
  </ul>
  </Layer>
 
- <Layer title="策略总览：先算再发" icon="🧭" defaultOpen>
+ <Layer title="策略总览：先算再发" defaultOpen>
  <p className="text-body mb-4">
  这张图对应上游 <code>GeminiClient.processTurn()</code> 的关键顺序：先算剩余空间、再估本次请求、过线就预警并停止。
  </p>
  <MermaidDiagram chart={overviewDiagram} />
  </Layer>
 
- <Layer title="预估 1：estimateTokenCountSync（字符启发式）" icon="🧮">
+ <Layer title="预估 1：estimateTokenCountSync（字符启发式）">
  <p className="text-body mb-4">
  上游对“纯文本/轻量 part”使用本地启发式：ASCII 约 <code>0.25 token/char</code>，非 ASCII（含 CJK）用更保守的
  <code>1.3 token/char</code>；非文本 part（functionCall/response 等）用 <code>JSON.length/4</code> 估算。
@@ -113,7 +112,7 @@ export function estimateTokenCountSync(parts: Part[]): number {
  return Math.floor(totalTokens);
 }`}
  />
- <HighlightBox title="为什么不是 tiktoken？" icon="💡" variant="yellow">
+ <HighlightBox title="为什么不是 tiktoken？" variant="yellow">
  <p className="m-0 text-sm text-body">
  Gemini CLI 的上游主线不依赖 OpenAI 分词器；它需要一个“快速、无外部依赖、可保守估计”的方案来做预警与流程控制，
  精确 usage 则交给 API 返回的 <code>usageMetadata</code>。
@@ -121,7 +120,7 @@ export function estimateTokenCountSync(parts: Part[]): number {
  </HighlightBox>
  </Layer>
 
- <Layer title="预估 2：calculateRequestTokenCount（遇到媒体就用 API）" icon="🔀">
+ <Layer title="预估 2：calculateRequestTokenCount（遇到媒体就用 API）">
  <p className="text-body mb-4">
  当请求包含图片/文件等媒体 part（<code>inlineData</code>/<code>fileData</code>）时，本地很难可靠估算，
  上游会调用 <code>countTokens</code> API；如果 API 失败，再降级为本地启发式。
@@ -150,7 +149,7 @@ export async function calculateRequestTokenCount(request, contentGenerator, mode
  />
  </Layer>
 
- <Layer title="预警：ContextWindowWillOverflow（95% 阈值）" icon="🚨">
+ <Layer title="预警：ContextWindowWillOverflow（95% 阈值）">
  <p className="text-body mb-4">
  上游把“溢出风险”作为一个<strong>事件</strong>抛给 UI，而不是赌一把把请求发出去。
  条件是 <code>estimatedRequestTokenCount &gt; remainingTokenCount * 0.95</code>。
@@ -169,7 +168,7 @@ if (estimatedRequestTokenCount > remainingTokenCount * 0.95) {
  return turn;
 }`}
  />
- <HighlightBox title="读者要记住的点" icon="📌" variant="green">
+ <HighlightBox title="读者要记住的点" variant="green">
  <ul className="m-0 text-sm text-body space-y-1">
  <li>这是“请求发出前”的保护门槛；不是模型返回的 finishReason。</li>
  <li>它主要保护上下文窗口（input context），不是输出长度。</li>
@@ -178,7 +177,7 @@ if (estimatedRequestTokenCount > remainingTokenCount * 0.95) {
  </HighlightBox>
  </Layer>
 
- <Layer title="对齐：usageMetadata 更新 lastPromptTokenCount" icon="🧾">
+ <Layer title="对齐：usageMetadata 更新 lastPromptTokenCount">
  <p className="text-body mb-4">
  一旦模型在流式 chunk 里返回 <code>usageMetadata</code>，上游会把它记录到会话记录，并用
  <code>promptTokenCount</code> 更新 <code>lastPromptTokenCount</code>（后续溢出判断更准）。

@@ -18,8 +18,8 @@ export function AtCommands() {
  <h2 className="text-2xl text-heading mb-5">@ 命令处理 (At Commands)</h2>
 
  {/* 概述 */}
- <Layer title="什么是 @ 命令？" icon="@">
- <HighlightBox title="@ 文件引用" icon="📁" variant="blue">
+ <Layer title="什么是 @ 命令？">
+ <HighlightBox title="@ 文件引用" variant="blue">
  <p className="mb-2">
  <code>@path</code> 语法允许用户在提示中引用文件或目录，
  CLI 会自动读取这些文件的内容并附加到发送给 AI 的消息中。
@@ -49,7 +49,7 @@ export function AtCommands() {
  </Layer>
 
  {/* 解析流程 */}
- <Layer title="@ 命令解析" icon="🔍">
+ <Layer title="@ 命令解析">
  <CodeBlock
  title="parseAllAtCommands()"
  code={`// packages/cli/src/ui/hooks/atCommandProcessor.ts
@@ -121,7 +121,7 @@ function parseAllAtCommands(query: string): AtCommandPart[] {
  </Layer>
 
  {/* 处理流程 */}
- <Layer title="@ 命令处理流程" icon="⚡">
+ <Layer title="@ 命令处理流程">
  <div className="bg-base/30 rounded-lg p-6">
  <div className="flex flex-col items-center space-y-3">
  <div className="bg-accent/10 border border-edge rounded-lg px-4 py-2 text-center w-full max-w-md">
@@ -225,7 +225,7 @@ async function handleAtCommand({
  </Layer>
 
  {/* 路径解析策略 */}
- <Layer title="路径解析策略" icon="🗂️">
+ <Layer title="路径解析策略">
  <div className="space-y-4">
  <div className="bg-elevated/10 border border-edge rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">直接文件路径</h4>
@@ -270,8 +270,8 @@ async function handleAtCommand({
  </Layer>
 
  {/* 忽略规则 */}
- <Layer title="文件忽略规则" icon="🚫">
- <HighlightBox title="忽略文件来源" icon="📋" variant="orange">
+ <Layer title="文件忽略规则">
+ <HighlightBox title="忽略文件来源" variant="orange">
  <ul className="pl-5 list-disc space-y-1">
  <li><strong>.gitignore</strong> - Git 忽略的文件</li>
  <li><strong>.geminiignore</strong> - CLI 特定忽略规则</li>
@@ -312,7 +312,7 @@ if (totalIgnored > 0) {
  </Layer>
 
  {/* 返回结果结构 */}
- <Layer title="处理结果结构" icon="📦">
+ <Layer title="处理结果结构">
  <CodeBlock
  title="HandleAtCommandResult"
  code={`interface HandleAtCommandResult {
@@ -346,7 +346,7 @@ if (totalIgnored > 0) {
  </Layer>
 
  {/* 使用示例 */}
- <Layer title="使用示例" icon="💡">
+ <Layer title="使用示例">
  <CodeBlock
  code={`# 单文件引用
 @src/components/Button.tsx 请添加 loading 状态
@@ -370,7 +370,7 @@ if (totalIgnored > 0) {
 @不存在的文件.ts # 将尝试 glob 搜索，找不到则跳过`}
  />
 
- <HighlightBox title="注意事项" icon="⚠️" variant="orange">
+ <HighlightBox title="注意事项" variant="orange">
  <ul className="pl-5 list-disc space-y-1">
  <li>被 .gitignore 或 .geminiignore 忽略的文件不会被读取</li>
  <li>目录会自动展开为 ** glob 模式</li>
@@ -382,7 +382,7 @@ if (totalIgnored > 0) {
  </Layer>
 
  {/* 集成点 */}
- <Layer title="与其他系统集成" icon="🔗">
+ <Layer title="与其他系统集成">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-elevated/10 border border-edge rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">read_many_files 工具</h4>
@@ -414,7 +414,7 @@ if (totalIgnored > 0) {
  </Layer>
 
  {/* 为什么这样设计 */}
- <Layer title="为什么这样设计？" icon="💡">
+ <Layer title="为什么这样设计？">
  <div className="space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
  <h4 className="text-heading font-bold mb-2">为什么使用 @ 符号作为文件引用语法？</h4>

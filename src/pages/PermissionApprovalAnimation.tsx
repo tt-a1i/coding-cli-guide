@@ -702,7 +702,7 @@ const options = [
 
  return (
  <div className="space-y-8">
- <Layer title="目标" icon="🧭">
+ <Layer title="目标">
  <div className="space-y-4 text-sm text-body">
  <p>
  这一页把 Gemini CLI 的 shell “权限/审批”拆成两个层次：
@@ -726,7 +726,7 @@ const options = [
  </div>
  </Layer>
 
- <Layer title="交互面板" icon="🎛️">
+ <Layer title="交互面板">
  <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
  <div className="bg-elevated rounded-lg p-4 border border-edge space-y-3">
  <div className="text-sm font-bold text-heading">场景</div>
@@ -863,7 +863,7 @@ const options = [
  </div>
  </Layer>
 
- <Layer title="命令选择" icon="⌨️">
+ <Layer title="命令选择">
  <div className="flex flex-wrap gap-2">
  {EXAMPLE_COMMANDS.map((c, i) => (
  <button
@@ -881,7 +881,7 @@ const options = [
  </div>
  </Layer>
 
- <Layer title="动画" icon="🎬">
+ <Layer title="动画">
  <div className="flex items-center justify-between bg-elevated rounded-lg p-3 border border-edge mb-4">
  <div className="flex items-center gap-2">
  <button
@@ -1034,7 +1034,7 @@ const options = [
  )}
  </Layer>
 
- <Layer title="关键结论" icon="✅">
+ <Layer title="关键结论">
  <div className="text-sm text-body space-y-2">
  <ul className="list-disc pl-5 space-y-1">
  <li><code>tools.exclude</code> 优先级最高：命中即 hard deny（无法通过确认绕过）</li>

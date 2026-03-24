@@ -16,8 +16,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">🏢</span>
- <span className="text-xl font-bold text-heading">企业部署与离线</span>
+  <span className="text-xl font-bold text-heading">企业部署与离线</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
  </button>
@@ -25,7 +24,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  {isExpanded && (
  <div className="px-6 pb-6 space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🎯 核心挑战</h4>
+ <h4 className="text-heading font-bold mb-2">核心挑战</h4>
  <p className="text-body text-sm">
  将面向公网设计的 AI CLI 适配到企业内网环境：
  <strong className="text-heading">网络受限</strong>、
@@ -55,8 +54,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="text-xs text-dim bg-surface px-3 py-2 rounded flex items-center gap-2">
- <span>📁</span>
- <code>scripts/build-portable.js</code>
+  <code>scripts/build-portable.js</code>
  <span className="mx-2">|</span>
  <code>devdocs/DISABLE-AUTO-UPDATE.md</code>
  </div>
@@ -143,16 +141,16 @@ export function EnterpriseDeployment() {
  <h2 className="text-2xl text-heading mb-5">企业部署与离线指南</h2>
 
  {/* 为什么需要企业化部署 */}
- <Layer title="为什么需要企业化部署" icon="💡">
+ <Layer title="为什么需要企业化部署">
  <div className="space-y-4">
  <div className="bg-surface rounded-xl p-5 border-l-2 border-l-edge-hover/30">
- <h4 className="text-heading font-bold mb-3">🎯 核心问题</h4>
+ <h4 className="text-heading font-bold mb-3">核心问题</h4>
  <p className="text-body text-sm mb-3">
  上游 CLI 默认假设用户能访问公网，但企业内网环境通常：
  </p>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
  <div className="pl-4 border-l-2 border-l-edge-hover border-l-edge-hover/30">
- <div className="text-heading font-semibold text-sm mb-1">❌ 网络受限</div>
+ <div className="text-heading font-semibold text-sm mb-1">网络受限</div>
  <ul className="text-xs text-dim space-y-1">
  <li>无法访问 npm registry</li>
  <li>无法访问 GitHub releases</li>
@@ -160,7 +158,7 @@ export function EnterpriseDeployment() {
  </ul>
  </div>
  <div className="pl-4 border-l-2 border-l-edge-hover border-l-edge-hover/30">
- <div className="text-heading font-semibold text-sm mb-1">❌ 依赖不可控</div>
+ <div className="text-heading font-semibold text-sm mb-1">依赖不可控</div>
  <ul className="text-xs text-dim space-y-1">
  <li>版本更新需审批</li>
  <li>安全扫描要求</li>
@@ -171,13 +169,13 @@ export function EnterpriseDeployment() {
  </div>
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
- <HighlightBox title="解决：私有 Registry" icon="📦" variant="green">
+ <HighlightBox title="解决：私有 Registry" variant="green">
  <p className="text-sm">Nexus/Verdaccio 托管内部包，npm install 走内网</p>
  </HighlightBox>
- <HighlightBox title="解决：Portable 分发" icon="📁" variant="blue">
+ <HighlightBox title="解决：Portable 分发" variant="blue">
  <p className="text-sm">内嵌 Node.js 运行时，解压即用，无需安装</p>
  </HighlightBox>
- <HighlightBox title="解决：关闭自动更新" icon="🔒" variant="purple">
+ <HighlightBox title="解决：关闭自动更新" variant="purple">
  <p className="text-sm">版本锁定，手动控制升级节奏</p>
  </HighlightBox>
  </div>
@@ -185,12 +183,12 @@ export function EnterpriseDeployment() {
  </Layer>
 
  {/* 部署流程图 */}
- <Layer title="部署流程总览" icon="🔄">
+ <Layer title="部署流程总览">
  <MermaidDiagram chart={deploymentFlowChart} title="从源码到运行时的完整链路" />
  </Layer>
 
  {/* 分发方式对比 */}
- <Layer title="分发方式对比" icon="📊">
+ <Layer title="分发方式对比">
  <div className="overflow-x-auto">
  <table className="w-full text-sm border-collapse">
  <thead>
@@ -216,9 +214,9 @@ export function EnterpriseDeployment() {
  </tr>
  <tr>
  <td className="border border-edge p-3 font-semibold">需要 Node.js</td>
- <td className="border border-edge p-3">✅ 是</td>
- <td className="border border-edge p-3">❌ 否（内嵌）</td>
- <td className="border border-edge p-3">❌ 否（内嵌）</td>
+ <td className="border border-edge p-3">是</td>
+ <td className="border border-edge p-3">否（内嵌）</td>
+ <td className="border border-edge p-3">否（内嵌）</td>
  </tr>
  <tr className="bg-surface/30">
  <td className="border border-edge p-3 font-semibold">网络依赖</td>
@@ -228,14 +226,14 @@ export function EnterpriseDeployment() {
  </tr>
  <tr>
  <td className="border border-edge p-3 font-semibold">中国大陆友好</td>
- <td className="border border-edge p-3">⚠️ 需镜像</td>
- <td className="border border-edge p-3">✅ 使用 npmmirror</td>
- <td className="border border-edge p-3">❌ 需要 GitHub</td>
+ <td className="border border-edge p-3">需镜像</td>
+ <td className="border border-edge p-3">使用 npmmirror</td>
+ <td className="border border-edge p-3">需要 GitHub</td>
  </tr>
  <tr className="bg-surface/30">
  <td className="border border-edge p-3 font-semibold">推荐场景</td>
  <td className="border border-edge p-3">有私有 Registry</td>
- <td className="border border-edge p-3 text-heading font-semibold">✅ 企业内网首选</td>
+ <td className="border border-edge p-3 text-heading font-semibold">企业内网首选</td>
  <td className="border border-edge p-3">单文件分发需求</td>
  </tr>
  </tbody>
@@ -251,7 +249,7 @@ export function EnterpriseDeployment() {
  </Layer>
 
  {/* Portable 构建详解 */}
- <Layer title="Portable 便携版构建" icon="📦">
+ <Layer title="Portable 便携版构建">
  <div className="space-y-4">
  <CodeBlock
  title="构建命令"
@@ -265,7 +263,7 @@ npm run build:portable
  />
 
  <div className="bg-surface rounded-lg p-4 border border-edge">
- <h4 className="text-heading font-semibold mb-3">📂 产物结构</h4>
+ <h4 className="text-heading font-semibold mb-3">产物结构</h4>
  <pre className="text-sm text-body font-mono">
 {`portable-win-x64/
 ├── node/ # Node.js 运行时 (v20.19.0)
@@ -299,7 +297,7 @@ const NODE_DIST_URL_MIRROR =
  </Layer>
 
  {/* 私有 Registry 配置 */}
- <Layer title="私有 Registry 配置" icon="🏛️">
+ <Layer title="私有 Registry 配置">
  <div className="space-y-4">
  <HighlightBox title="为什么需要私有 Registry" variant="blue">
  <ul className="text-sm space-y-1">
@@ -348,7 +346,7 @@ npm publish --registry=http://localhost:4873/`}
  </Layer>
 
  {/* 关闭自动更新 */}
- <Layer title="关闭自动更新" icon="🔒">
+ <Layer title="关闭自动更新">
  <div className="space-y-4">
  <div className="bg-surface rounded-lg p-4 ">
  <h4 className="text-heading font-bold mb-2">为什么要关闭？</h4>
@@ -375,15 +373,15 @@ export async function checkForUpdates(): Promise<UpdateObject | null> {
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
  <div className="bg-elevated/10 rounded-lg p-3 border border-edge/30 text-center">
- <div className="text-heading font-bold">✅ 不检查更新</div>
+ <div className="text-heading font-bold">不检查更新</div>
  <div className="text-xs text-dim">启动时无网络请求</div>
  </div>
  <div className="bg-elevated/10 rounded-lg p-3 border border-edge/30 text-center">
- <div className="text-heading font-bold">✅ 不显示提示</div>
+ <div className="text-heading font-bold">不显示提示</div>
  <div className="text-xs text-dim">无"有新版本"干扰</div>
  </div>
  <div className="bg-elevated/10 rounded-lg p-3 border border-edge/30 text-center">
- <div className="text-heading font-bold">✅ 启动更快</div>
+ <div className="text-heading font-bold">启动更快</div>
  <div className="text-xs text-dim">移除网络等待</div>
  </div>
  </div>
@@ -404,7 +402,7 @@ cp -r new-version/app/* portable-win-x64/app/`}
  </Layer>
 
  {/* 离线资源管理 */}
- <Layer title="离线资源管理" icon="📥">
+ <Layer title="离线资源管理">
  <MermaidDiagram chart={offlineResourceChart} title="资源分类与离线策略" />
 
  <div className="mt-4 space-y-4">
@@ -459,7 +457,7 @@ cp -r new-version/app/* portable-win-x64/app/`}
  </Layer>
 
  {/* 常见坑与解决方案 */}
- <Layer title="常见坑与解决方案" icon="⚠️">
+ <Layer title="常见坑与解决方案">
  <div className="space-y-4">
  <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/30">
  <div className="flex items-start gap-3">
@@ -470,7 +468,7 @@ cp -r new-version/app/* portable-win-x64/app/`}
  即使使用 npmmirror，大文件下载仍可能失败。
  </p>
  <div className="bg-elevated/10 rounded p-2 text-sm">
- <strong className="text-heading">✅ 解决：</strong>
+ <strong className="text-heading">解决：</strong>
  <span className="text-body"> 手动下载 Node.js zip 到 </span>
  <code>dist/portable-win-x64/node/</code>
  <span className="text-body">，然后重新运行构建脚本。</span>
@@ -488,7 +486,7 @@ cp -r new-version/app/* portable-win-x64/app/`}
  企业机器可能限制环境变量修改。
  </p>
  <div className="bg-elevated/10 rounded p-2 text-sm">
- <strong className="text-heading">✅ 解决：</strong>
+ <strong className="text-heading">解决：</strong>
  <span className="text-body"> 直接使用 </span>
  <code>gemini.bat</code>
  <span className="text-body">，或创建桌面快捷方式。</span>
@@ -506,7 +504,7 @@ cp -r new-version/app/* portable-win-x64/app/`}
  多个终端同时刷新 Token 导致互相覆盖。
  </p>
  <div className="bg-elevated/10 rounded p-2 text-sm">
- <strong className="text-heading">✅ 解决：</strong>
+ <strong className="text-heading">解决：</strong>
  <span className="text-body"> 使用文件锁确保只有一个进程刷新 Token。</span>
  </div>
  </div>
@@ -522,7 +520,7 @@ cp -r new-version/app/* portable-win-x64/app/`}
  pkg 需要从 GitHub 下载 Node.js 基础二进制，中国大陆网络不稳定。
  </p>
  <div className="bg-elevated/10 rounded p-2 text-sm">
- <strong className="text-heading">✅ 解决：</strong>
+ <strong className="text-heading">解决：</strong>
  <span className="text-body"> 放弃 Standalone，使用 </span>
  <code>build:portable</code>
  <span className="text-body"> 方案。</span>
@@ -534,7 +532,7 @@ cp -r new-version/app/* portable-win-x64/app/`}
  </Layer>
 
  {/* 设计考量 */}
- <Layer title="设计考量" icon="🧠">
+ <Layer title="设计考量">
  <div className="space-y-4">
  <div className="bg-surface rounded-lg p-4 ">
  <h4 className="text-heading font-bold mb-2">为什么选择 Portable 而非 pkg？</h4>
@@ -602,7 +600,7 @@ cp -r new-version/app/* portable-win-x64/app/`}
  </Layer>
 
  {/* 源码位置 */}
- <Layer title="相关源码" icon="📁">
+ <Layer title="相关源码">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
  <div className="space-y-2">
  <h4 className="text-heading font-semibold">构建脚本</h4>

@@ -415,8 +415,7 @@ export default function MultiProviderPipelineAnimation() {
  {/* Header */}
  <div className="flex items-center justify-between">
  <div>
- <h2 className="text-2xl font-bold text-heading">
- 🔄 Multi-Provider Content Pipeline
+ <h2 className="text-2xl font-bold text-heading">Multi-Provider Content Pipeline
  </h2>
  <p className="text-body mt-1">
  可视化 OpenAI/Gemini 多厂商格式转换与流式处理管道
@@ -443,7 +442,7 @@ export default function MultiProviderPipelineAnimation() {
  </div>
  </div>
 
- <HighlightBox title="🧭 fork-only 提示" icon="⚠️" variant="yellow">
+ <HighlightBox title="🧭 fork-only 提示" variant="yellow">
  <p className="m-0 text-sm text-body">
  本动画聚焦“多厂商 + OpenAI-compatible 适配 + 格式转换 + tool_calls 流式解析”的兼容层。
  上游 Gemini CLI 的主线不需要这条转换管道；它直接消费 <code>@google/genai</code> 的结构化响应流并在 <code>Turn.run()</code> 中产出事件。
@@ -453,7 +452,7 @@ export default function MultiProviderPipelineAnimation() {
  {/* Configuration Panel */}
  <div className="grid grid-cols-2 gap-4">
  <div className="bg-surface rounded-lg p-4 border border-edge">
- <h3 className="text-sm font-medium text-body mb-3">🔐 认证类型 (AuthType)</h3>
+ <h3 className="text-sm font-medium text-body mb-3">认证类型 (AuthType)</h3>
  <div className="grid grid-cols-2 gap-2">
  {(Object.entries(authTypeInfo) as [AuthType, typeof authTypeInfo[AuthType]][]).map(([type, info]) => (
  <button
@@ -475,7 +474,7 @@ export default function MultiProviderPipelineAnimation() {
  </div>
 
  <div className="bg-surface rounded-lg p-4 border border-edge">
- <h3 className="text-sm font-medium text-body mb-3">🏭 Provider 类型</h3>
+ <h3 className="text-sm font-medium text-body mb-3">Provider 类型</h3>
  <div className="grid grid-cols-2 gap-2">
  {(Object.entries(providerInfo) as [Provider, typeof providerInfo[Provider]][]).map(([type, info]) => (
  <button
@@ -578,8 +577,8 @@ export default function MultiProviderPipelineAnimation() {
  <div className="mb-3">
  <div className="text-xs text-dim mb-1 flex items-center justify-between">
  <span>OpenAI Messages ({openaiMessages.length}):</span>
- {phase === 'clean_orphans' && <span className="text-heading">🧹 清理中</span>}
- {phase === 'merge_messages' && <span className="text-heading">🔗 合并中</span>}
+ {phase === 'clean_orphans' && <span className="text-heading">清理中</span>}
+ {phase === 'merge_messages' && <span className="text-heading">合并中</span>}
  </div>
  <div className="space-y-1 max-h-36 overflow-y-auto">
  {openaiMessages.map((msg, idx) => (
@@ -623,7 +622,7 @@ export default function MultiProviderPipelineAnimation() {
  {/* Tool Call Buffers */}
  {toolCallBuffers.size > 0 && (
  <div className="mb-3">
- <div className="text-xs text-dim mb-1">🔧 Tool Call Buffers:</div>
+ <div className="text-xs text-dim mb-1">Tool Call Buffers:</div>
  <div className="space-y-1">
  {Array.from(toolCallBuffers.entries()).map(([idx, buffer]) => (
  <div key={idx} className="bg-base rounded p-2 text-xs">
@@ -712,10 +711,10 @@ export default function MultiProviderPipelineAnimation() {
  >
  <div className="flex items-center gap-2">
  <span className="text-dim">#{idx + 1}</span>
- {hasText && <span className="text-heading">📝 text</span>}
- {hasFuncCall && <span className="text-heading">🔧 functionCall</span>}
- {hasFinish && <span className="text-heading">🏁 {hasFinish ? 'STOP' : ''}</span>}
- {hasUsage && <span className="text-heading">📊 usage</span>}
+ {hasText && <span className="text-heading">text</span>}
+ {hasFuncCall && <span className="text-heading">functionCall</span>}
+ {hasFinish && <span className="text-heading">{hasFinish ? 'STOP' : ''}</span>}
+ {hasUsage && <span className="text-heading">usage</span>}
  </div>
  </div>
  );
@@ -727,7 +726,7 @@ export default function MultiProviderPipelineAnimation() {
 
  {/* Pipeline Architecture Diagram */}
  <div className="bg-surface/30 rounded-lg p-4 border border-edge">
- <h3 className="text-sm font-medium text-body mb-3">📐 管道架构图</h3>
+ <h3 className="text-sm font-medium text-body mb-3">管道架构图</h3>
  <div className="flex items-center justify-between text-xs overflow-x-auto pb-2">
  {[
  { id: 'auth_type_check', label: 'AuthType', icon: '🔐' },
@@ -769,7 +768,7 @@ export default function MultiProviderPipelineAnimation() {
  {/* Logs */}
  <div className="bg-base rounded-lg p-4 border border-edge">
  <h3 className="text-sm font-medium text-body mb-2 flex items-center gap-2">
- <span>📋</span> 执行日志
+ 执行日志
  </h3>
  <div className="font-mono text-xs space-y-1 max-h-48 overflow-y-auto">
  {logs.length === 0 ? (
@@ -795,7 +794,7 @@ export default function MultiProviderPipelineAnimation() {
  {/* Technical Details */}
  <div className="grid grid-cols-2 gap-4">
  <div className="bg-surface/30 rounded-lg p-4 border border-edge">
- <h3 className="text-sm font-medium text-body mb-3">🔑 关键转换逻辑</h3>
+ <h3 className="text-sm font-medium text-body mb-3">关键转换逻辑</h3>
  <div className="text-xs space-y-2">
  <div className="bg-base rounded p-2">
  <div className="text-heading font-medium">Gemini Content → OpenAI Message</div>
@@ -819,7 +818,7 @@ export default function MultiProviderPipelineAnimation() {
  </div>
 
  <div className="bg-surface/30 rounded-lg p-4 border border-edge">
- <h3 className="text-sm font-medium text-body mb-3">🏭 Provider 特性</h3>
+ <h3 className="text-sm font-medium text-body mb-3">Provider 特性</h3>
  <div className="text-xs space-y-2">
  <div className="bg-base rounded p-2">
  <div className="text-heading font-medium">DashScope (通义千问)</div>
@@ -849,7 +848,7 @@ export default function MultiProviderPipelineAnimation() {
 
  {/* Source Code Reference */}
  <div className="bg-surface/20 rounded-lg p-4 border border-edge">
- <h3 className="text-sm font-medium text-body mb-2">📁 源码位置</h3>
+ <h3 className="text-sm font-medium text-body mb-2">源码位置</h3>
  <div className="grid grid-cols-3 gap-2 text-xs">
  <div className="bg-base rounded p-2">
  <div className="text-heading">ContentGenerator 接口</div>

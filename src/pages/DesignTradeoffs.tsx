@@ -24,8 +24,7 @@ export function DesignTradeoffs() {
 
  return (
  <div className="max-w-4xl mx-auto">
- <h1 className="text-2xl font-bold mb-2 text-heading">
- 🎭 设计权衡与架构决策
+ <h1 className="text-2xl font-bold mb-2 text-heading">设计权衡与架构决策
  </h1>
  <p className="text-body mb-6 text-sm">
  深入分析 Gemini CLI 的关键架构决策及其背后的权衡考量
@@ -319,11 +318,11 @@ async function bfsFileSearch(startDir: string): Promise<string[]> {
 
  <div className="grid grid-cols-2 gap-3 mt-4">
  <div className="p-3 bg-elevated rounded-lg">
- <div className="text-heading font-semibold mb-1">✅ 选择</div>
+ <div className="text-heading font-semibold mb-1">选择</div>
  <div className="text-body text-sm">指针式队列 + 并行批读</div>
  </div>
  <div className="p-3 bg-elevated rounded-lg">
- <div className="text-heading font-semibold mb-1">⚠️ 取舍</div>
+ <div className="text-heading font-semibold mb-1">取舍</div>
  <div className="text-body text-sm">更复杂的队列管理逻辑</div>
  </div>
  </div>
@@ -662,7 +661,7 @@ export class GeminiLogger {
 
  <div className="grid grid-cols-2 gap-3 mt-4">
  <div className="p-3 bg-elevated rounded-lg">
- <div className="text-heading font-semibold mb-1">✅ 优点</div>
+ <div className="text-heading font-semibold mb-1">优点</div>
  <ul className="text-body text-sm space-y-1 list-disc list-inside">
  <li>全局唯一收集点</li>
  <li>防止重复日志</li>
@@ -670,7 +669,7 @@ export class GeminiLogger {
  </ul>
  </div>
  <div className="p-3 bg-elevated rounded-lg">
- <div className="text-heading font-semibold mb-1">⚠️ 缺点</div>
+ <div className="text-heading font-semibold mb-1">缺点</div>
  <ul className="text-body text-sm space-y-1 list-disc list-inside">
  <li>测试隔离困难</li>
  <li>需要显式重置</li>
@@ -735,8 +734,7 @@ function AlternativesTab() {
  {/* 工具并行执行 */}
  <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-5 mb-4">
  <div className="flex items-start gap-3">
- <span className="text-2xl">❌</span>
- <div className="flex-1">
+  <div className="flex-1">
  <h4 className="text-lg font-semibold text-heading mb-2">替代方案 1：工具并行执行</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
  <div>
@@ -770,8 +768,7 @@ function AlternativesTab() {
  {/* 单层循环检测 */}
  <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-5 mb-4">
  <div className="flex items-start gap-3">
- <span className="text-2xl">❌</span>
- <div className="flex-1">
+  <div className="flex-1">
  <h4 className="text-lg font-semibold text-heading mb-2">替代方案 2：单层循环检测（仅 LLM）</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
  <div>
@@ -805,8 +802,7 @@ function AlternativesTab() {
  {/* 无信任边界 */}
  <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-5 mb-4">
  <div className="flex items-start gap-3">
- <span className="text-2xl">❌</span>
- <div className="flex-1">
+  <div className="flex-1">
  <h4 className="text-lg font-semibold text-heading mb-2">替代方案 3：无信任边界的统一审批模式</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
  <div>
@@ -840,8 +836,7 @@ function AlternativesTab() {
  {/* 深合并配置 */}
  <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-5">
  <div className="flex items-start gap-3">
- <span className="text-2xl">❌</span>
- <div className="flex-1">
+  <div className="flex-1">
  <h4 className="text-lg font-semibold text-heading mb-2">替代方案 4：简单深合并配置</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
  <div>

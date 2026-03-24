@@ -282,8 +282,7 @@ graph TD
  <button
  onClick={reset}
  className="px-4 py-2 bg-elevated text-heading rounded hover:opacity-80"
- >
- 🔄 重置
+ >重置
  </button>
  <button
  onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
@@ -321,8 +320,7 @@ graph TD
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
  {/* Left: Current Action */}
  <div className="bg-surface rounded-xl p-6 border border-edge-hover">
- <h3 className="text-lg font-bold text-heading mb-4">
- 📍 当前操作
+ <h3 className="text-lg font-bold text-heading mb-4">当前操作
  </h3>
 
  <div className="space-y-4">
@@ -377,8 +375,7 @@ graph TD
 
  {/* Right: Processed Files */}
  <div className="bg-surface rounded-xl p-6 border border-edge-hover">
- <h3 className="text-lg font-bold text-heading mb-4">
- 📁 已处理文件 Set
+ <h3 className="text-lg font-bold text-heading mb-4">已处理文件 Set
  </h3>
 
  <div className="space-y-2 max-h-[400px] overflow-y-auto">
@@ -431,17 +428,17 @@ graph TD
  </div>
 
  {/* Import Tree Visualization */}
- <Layer title="📊 导入树结构" icon="🌲">
+ <Layer title="📊 导入树结构">
  <MermaidDiagram chart={treeStructure} />
  </Layer>
 
  {/* State Machine */}
- <Layer title="🔄 处理状态机" icon="⚙️">
+ <Layer title="🔄 处理状态机">
  <MermaidDiagram chart={importStateDiagram} />
  </Layer>
 
  {/* Code Explanation */}
- <Layer title="💡 核心实现" icon="📝">
+ <Layer title="💡 核心实现">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div className="bg-base p-4 rounded-lg">
  <h4 className="text-heading font-bold mb-3">循环检测逻辑</h4>

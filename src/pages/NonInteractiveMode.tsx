@@ -540,28 +540,28 @@ fi`;
  <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">推荐做法</h4>
  <ul className="text-sm text-body space-y-1">
- <li>✓ 用 <code>--output-format json</code> / <code>--output-format stream-json</code> 做自动化消费</li>
- <li>✓ 需要自动改动时优先用 <code>--approval-mode auto_edit</code>（而非全量 yolo）</li>
- <li>✓ 用 <code>--allowed-tools</code> 只放行必要工具（Shell 用 <code>run_shell_command(git ...)</code> 前缀）</li>
- <li>✓ 检查退出码（0 / 41 / 42 / 52 / 130）并处理失败分支</li>
- <li>✓ 敏感操作配合 <code>--sandbox</code> 隔离执行</li>
+ <li>用 <code>--output-format json</code> / <code>--output-format stream-json</code> 做自动化消费</li>
+ <li>需要自动改动时优先用 <code>--approval-mode auto_edit</code>（而非全量 yolo）</li>
+ <li>用 <code>--allowed-tools</code> 只放行必要工具（Shell 用 <code>run_shell_command(git ...)</code> 前缀）</li>
+ <li>检查退出码（0 / 41 / 42 / 52 / 130）并处理失败分支</li>
+ <li>敏感操作配合 <code>--sandbox</code> 隔离执行</li>
  </ul>
  </div>
  <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">注意事项</h4>
  <ul className="text-sm text-body space-y-1">
- <li>⚠ 确保 API 密钥在环境变量中</li>
- <li>⚠ 大文件通过 <code>@path</code> 传递</li>
- <li>⚠ 敏感操作启用 <code>--sandbox</code></li>
- <li>⚠ 日志输出到 stderr，结果到 stdout</li>
- <li>⚠ 非交互模式无法弹确认：确保 <code>tools.allowed</code> / <code>--allowed-tools</code> 覆盖必需的危险操作</li>
+ <li>确保 API 密钥在环境变量中</li>
+ <li>大文件通过 <code>@path</code> 传递</li>
+ <li>敏感操作启用 <code>--sandbox</code></li>
+ <li>日志输出到 stderr，结果到 stdout</li>
+ <li>非交互模式无法弹确认：确保 <code>tools.allowed</code> / <code>--allowed-tools</code> 覆盖必需的危险操作</li>
  </ul>
  </div>
  </div>
  </section>
 
  {/* 设计决策 */}
- <Layer title="为什么这样设计非交互模式" icon="🤔" defaultOpen={false}>
+ <Layer title="为什么这样设计非交互模式" defaultOpen={false}>
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
  <HighlightBox title="为什么需要独立的非交互模式?" color="blue">
  <p className="text-sm text-body">

@@ -83,7 +83,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 源码入口 */}
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码入口:</span>
+ <span className="text-dim">源码入口:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/cli/src/services/prompt-processors/
  </code>
@@ -371,7 +371,7 @@ export function extractInjections(
  </section>
 
  {/* 1. 管道架构 */}
- <Layer title="处理器管道" icon="🔄">
+ <Layer title="处理器管道">
  <div className="space-y-4">
  <MermaidDiagram chart={pipelineFlowChart} title="处理器执行顺序" />
  <CodeBlock code={interfaceCode} language="typescript" title="处理器接口与触发器" />
@@ -390,7 +390,7 @@ export function extractInjections(
  </Layer>
 
  {/* 2. AtFileProcessor */}
- <Layer title="@文件处理器" icon="📄">
+ <Layer title="@文件处理器">
  <div className="space-y-4">
  <CodeBlock code={atFileProcessorCode} language="typescript" title="AtFileProcessor" />
 
@@ -420,7 +420,7 @@ export function extractInjections(
  </Layer>
 
  {/* 3. ShellProcessor */}
- <Layer title="!Shell 处理器" icon="💻">
+ <Layer title="!Shell 处理器">
  <div className="space-y-4">
  <CodeBlock code={shellProcessorCode} language="typescript" title="ShellProcessor" />
 
@@ -472,7 +472,7 @@ export function extractInjections(
  </Layer>
 
  {/* 4. DefaultArgumentProcessor */}
- <Layer title="参数处理器" icon="📝">
+ <Layer title="参数处理器">
  <div className="space-y-4">
  <CodeBlock code={argsProcessorCode} language="typescript" title="DefaultArgumentProcessor" />
 
@@ -495,7 +495,7 @@ export function extractInjections(
  </Layer>
 
  {/* 5. 注入解析器 */}
- <Layer title="注入点解析" icon="🔍">
+ <Layer title="注入点解析">
  <div className="space-y-4">
  <CodeBlock code={injectionParserCode} language="typescript" title="extractInjections" />
 
@@ -517,7 +517,7 @@ export function extractInjections(
  </Layer>
 
  {/* 6. 完整示例 */}
- <Layer title="完整示例" icon="💡">
+ <Layer title="完整示例">
  <div className="space-y-4">
  <CodeBlock code={`# commands/review.toml
 
@@ -557,7 +557,7 @@ Additional context: {{args}}
  </Layer>
 
  {/* 7. 关键文件 */}
- <Layer title="关键文件与入口" icon="📁">
+ <Layer title="关键文件与入口">
  <div className="grid grid-cols-1 gap-2 text-sm">
  <div className="flex items-start gap-2">
  <code className="bg-base/30 px-2 py-1 rounded text-xs whitespace-nowrap">

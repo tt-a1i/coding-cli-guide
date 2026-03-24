@@ -16,8 +16,7 @@ function Introduction({
  className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">⚡</span>
- <div>
+  <div>
  <h2 className="text-lg font-bold text-heading">
  斜杠命令执行系统
  </h2>
@@ -39,8 +38,7 @@ function Introduction({
  <div className="px-6 pb-6">
  <div className="grid md:grid-cols-2 gap-6 mt-4">
  <div className="space-y-4">
- <h3 className="font-semibold text-heading">
- 🎯 核心概念
+ <h3 className="font-semibold text-heading">核心概念
  </h3>
  <ul className="text-sm text-body space-y-2">
  <li className="flex items-start gap-2">
@@ -72,8 +70,7 @@ function Introduction({
  </div>
 
  <div className="space-y-4">
- <h3 className="font-semibold text-heading">
- 📂 核心文件
+ <h3 className="font-semibold text-heading">核心文件
  </h3>
  <ul className="text-sm text-body space-y-2">
  <li className="flex items-start gap-2">
@@ -105,8 +102,7 @@ function Introduction({
  </div>
 
  <div className="mt-6 p-4 bg-base rounded-lg">
- <h4 className="text-sm font-semibold text-heading mb-2">
- 💡 设计亮点
+ <h4 className="text-sm font-semibold text-heading mb-2">设计亮点
  </h4>
  <div className="text-sm text-body">
  <p>
@@ -733,8 +729,7 @@ function TomlSecurityFlow() {
  </div>
 
  <div className="p-4 bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg">
- <h5 className="text-sm font-semibold text-heading mb-2">
- ⚠️ 安全设计要点
+ <h5 className="text-sm font-semibold text-heading mb-2">安全设计要点
  </h5>
  <ul className="text-sm text-body space-y-1">
  <li>@File 必须在 !Shell 之前处理，防止路径注入</li>

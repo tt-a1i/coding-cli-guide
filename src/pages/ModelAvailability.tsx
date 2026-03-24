@@ -26,8 +26,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">🏥</span>
- <span className="text-xl font-bold text-heading">30秒快速理解</span>
+  <span className="text-xl font-bold text-heading">30秒快速理解</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>
  ▼
@@ -88,7 +87,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 源码入口 */}
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码入口:</span>
+ <span className="text-dim">源码入口:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/core/src/availability/modelAvailabilityService.ts
  </code>
@@ -409,31 +408,31 @@ export function validateModelPolicyChain(chain: ModelPolicyChain): void {
  <td className="py-2 px-3 text-heading">Healthy</td>
  <td className="py-2 px-3 text-body">API 成功</td>
  <td className="py-2 px-3 text-heading">Healthy</td>
- <td className="py-2 px-3 text-heading">✓ true</td>
+ <td className="py-2 px-3 text-heading">true</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="py-2 px-3 text-heading">Healthy</td>
  <td className="py-2 px-3 text-body">配额/容量用尽</td>
  <td className="py-2 px-3 text-heading">Terminal</td>
- <td className="py-2 px-3 text-heading">✗ false</td>
+ <td className="py-2 px-3 text-heading">false</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="py-2 px-3 text-heading">Healthy</td>
  <td className="py-2 px-3 text-body">暂时性失败</td>
  <td className="py-2 px-3 text-heading">StickyRetry</td>
- <td className="py-2 px-3 text-heading">✓ true</td>
+ <td className="py-2 px-3 text-heading">true</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="py-2 px-3 text-heading">StickyRetry</td>
  <td className="py-2 px-3 text-body">消费重试机会</td>
  <td className="py-2 px-3 text-heading">StickyRetry (consumed)</td>
- <td className="py-2 px-3 text-heading">✗ false</td>
+ <td className="py-2 px-3 text-heading">false</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="py-2 px-3 text-heading">StickyRetry</td>
  <td className="py-2 px-3 text-body">API 成功</td>
  <td className="py-2 px-3 text-heading">Healthy</td>
- <td className="py-2 px-3 text-heading">✓ true</td>
+ <td className="py-2 px-3 text-heading">true</td>
  </tr>
  </tbody>
  </table>
@@ -511,7 +510,7 @@ export function validateModelPolicyChain(chain: ModelPolicyChain): void {
  </Layer>
 
  {/* 关键文件 */}
- <Layer title="关键文件与入口" icon="📁">
+ <Layer title="关键文件与入口">
  <div className="grid grid-cols-1 gap-2 text-sm">
  <div className="flex items-start gap-2">
  <code className="bg-base/30 px-2 py-1 rounded text-xs whitespace-nowrap">
@@ -547,7 +546,7 @@ export function validateModelPolicyChain(chain: ModelPolicyChain): void {
  </Layer>
 
  {/* 设计决策 */}
- <Layer title="设计决策" icon="💡">
+ <Layer title="设计决策">
  <div className="space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
  <h4 className="text-heading font-bold mb-2">为什么使用 Sticky Retry？</h4>

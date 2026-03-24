@@ -298,9 +298,7 @@ export default function ReactToolSchedulerAnimation() {
  {getDisplayStatus(tc.status)}
  </span>
  {tc.responseSubmittedToGemini && (
- <span className="text-xs text-heading" title="Response submitted to Gemini">
- ✓
- </span>
+ <span className="text-xs text-heading" title="Response submitted to Gemini"></span>
  )}
  </div>
  </div>

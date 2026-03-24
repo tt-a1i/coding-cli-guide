@@ -48,7 +48,7 @@ export function AuthenticationFlow() {
  <div>
  <h2 className="text-2xl text-heading mb-5">认证流程详解（上游 Gemini CLI）</h2>
 
- <HighlightBox title="⏱️ 30秒速览" icon="🎯" variant="blue">
+ <HighlightBox title="⏱️ 30秒速览" variant="blue">
  <ul className="space-y-2 text-sm">
  <li><strong>默认方式</strong>：Login with Google（OAuth 浏览器登录）60 req/min &amp; 1000 req/day</li>
  <li><strong>无浏览器回退</strong>：NO_BROWSER/CI/SSH 等环境触发“手动粘贴授权码”（带 PKCE）</li>
@@ -57,10 +57,10 @@ export function AuthenticationFlow() {
  </ul>
  </HighlightBox>
 
- <Layer title="支持的认证方式" icon="🔐">
+ <Layer title="支持的认证方式">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-elevated border-2 border-edge rounded-lg p-4">
- <h4 className="text-heading font-bold mb-2">🌟 Login with Google（默认）</h4>
+ <h4 className="text-heading font-bold mb-2">Login with Google（默认）</h4>
  <p className="text-sm text-body mb-2">个人账号免费：60 req/min &amp; 1000 req/day</p>
  <ul className="text-sm text-body space-y-1">
  <li>浏览器登录：Loopback 回调（本地 HTTP server）</li>
@@ -71,7 +71,7 @@ export function AuthenticationFlow() {
  </div>
 
  <div className="bg-elevated border-2 border-edge/30 rounded-lg p-4">
- <h4 className="text-heading font-bold mb-2">🔑 Gemini API Key</h4>
+ <h4 className="text-heading font-bold mb-2">Gemini API Key</h4>
  <p className="text-sm text-body mb-2">适合需要精确控制模型/计费的场景</p>
  <ul className="text-sm text-body space-y-1">
  <li>通过 <code>GEMINI_API_KEY</code> 提供密钥</li>
@@ -81,7 +81,7 @@ export function AuthenticationFlow() {
  </div>
 
  <div className="bg-elevated/10 border-2 border-edge rounded-lg p-4">
- <h4 className="text-heading font-bold mb-2">🏢 Vertex AI</h4>
+ <h4 className="text-heading font-bold mb-2">Vertex AI</h4>
  <p className="text-sm text-body mb-2">企业/生产环境：项目 + 区域 + 计费</p>
  <ul className="text-sm text-body space-y-1">
  <li><code>GOOGLE_CLOUD_PROJECT</code> + <code>GOOGLE_CLOUD_LOCATION</code></li>
@@ -91,7 +91,7 @@ export function AuthenticationFlow() {
  </div>
 
  <div className="bg-elevated border-2 border-edge/30 rounded-lg p-4">
- <h4 className="text-heading font-bold mb-2">☁️ Compute ADC / Cloud Shell</h4>
+ <h4 className="text-heading font-bold mb-2">Compute ADC / Cloud Shell</h4>
  <p className="text-sm text-body mb-2">在支持的 GCP 环境中可非交互使用</p>
  <ul className="text-sm text-body space-y-1">
  <li>通过 metadata server 获取 token</li>
@@ -101,7 +101,7 @@ export function AuthenticationFlow() {
  </div>
  </div>
 
- <HighlightBox title="📌 AuthType 的真实来源（上游）" icon="🧾" variant="yellow">
+ <HighlightBox title="📌 AuthType 的真实来源（上游）" variant="yellow">
  <p className="text-sm">
  枚举定义在 <code>gemini-cli/packages/core/src/core/contentGenerator.ts</code>。
  设置项落在 <code>security.auth.selectedType</code>（<code>gemini-cli/packages/cli/src/config/settingsSchema.ts</code>）。
@@ -109,7 +109,7 @@ export function AuthenticationFlow() {
  </HighlightBox>
  </Layer>
 
- <Layer title="启动时的认证决策" icon="🧠">
+ <Layer title="启动时的认证决策">
  <MermaidDiagram
  title="settings → refreshAuth 的关键链路"
  chart={`flowchart TD
@@ -127,7 +127,7 @@ export function AuthenticationFlow() {
  />
  </Layer>
 
- <Layer title="OAuth 浏览器登录（默认）" icon="🌐">
+ <Layer title="OAuth 浏览器登录（默认）">
  <p className="text-sm text-body mb-3">
  上游实现不是 RFC8628 的 device_code 轮询，而是 <strong>Authorization Code + Loopback 回调</strong>：
  CLI 启动本地 HTTP Server（<code>localhost:{'{'}port{'}'}</code>），打开浏览器登录，并在回调中交换 token。
@@ -178,7 +178,7 @@ const { tokens } = await client.getToken({ code: qs.get('code')!, redirect_uri: 
 client.setCredentials(tokens);`}
  />
 
- <HighlightBox title="什么时候不会自动打开浏览器？" icon="🧩" variant="blue">
+ <HighlightBox title="什么时候不会自动打开浏览器？" variant="blue">
  <ul className="pl-5 list-disc text-sm space-y-1">
  <li><code>NO_BROWSER=true</code> 或 config.noBrowser</li>
  <li><code>CI=true</code>、<code>DEBIAN_FRONTEND=noninteractive</code></li>
@@ -191,7 +191,7 @@ client.setCredentials(tokens);`}
  </HighlightBox>
  </Layer>
 
- <CollapsibleSection title="无浏览器：手动授权码（带 PKCE）" icon="🔒">
+ <CollapsibleSection title="无浏览器：手动授权码（带 PKCE）">
  <p className="text-sm text-body mb-3">
  当浏览器启动被抑制时，上游会打印一个授权 URL，并提示用户粘贴浏览器页面给出的 authorization code。
  该路径使用 <code>google-auth-library</code> 的 PKCE 辅助（<code>generateCodeVerifierAsync()</code>）。
@@ -240,8 +240,8 @@ client.setCredentials(tokens);`}
  />
  </CollapsibleSection>
 
- <Layer title="凭据存储与刷新" icon="💾">
- <HighlightBox title="存储策略" icon="📁" variant="green">
+ <Layer title="凭据存储与刷新">
+ <HighlightBox title="存储策略" variant="green">
  <ul className="pl-5 list-disc text-sm space-y-1">
  <li>token 更新由 <code>google-auth-library</code> 管理（自动刷新）</li>
  <li>Gemini CLI 监听 <code>client.on('tokens')</code> 并持久化更新</li>
@@ -271,8 +271,8 @@ Storage.getOAuthCredsPath() // -> ~/.gemini/oauth_creds.json`}
  />
  </Layer>
 
- <CollapsibleSection title="fork-only：OpenAI-compatible 认证" icon="🧭">
- <HighlightBox title="⚠️ 不属于上游 Gemini CLI" icon="⚠️" variant="yellow">
+ <CollapsibleSection title="fork-only：OpenAI-compatible 认证">
+ <HighlightBox title="⚠️ 不属于上游 Gemini CLI" variant="yellow">
  <p className="text-sm">
  如果你阅读的是基于 Gemini CLI 的 fork（例如接入 OpenAI-compatible 端点），可能会出现
  <code>OPENAI_API_KEY</code>/<code>OPENAI_BASE_URL</code> 等环境变量与额外的认证/兼容层。
@@ -281,7 +281,7 @@ Storage.getOAuthCredsPath() // -> ~/.gemini/oauth_creds.json`}
  </HighlightBox>
  </CollapsibleSection>
 
- <Layer title="源码导航" icon="📂">
+ <Layer title="源码导航">
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>

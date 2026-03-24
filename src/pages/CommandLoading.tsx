@@ -25,8 +25,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">📦</span>
- <span className="text-xl font-bold text-heading">30秒快速理解</span>
+  <span className="text-xl font-bold text-heading">30秒快速理解</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>
  ▼
@@ -87,7 +86,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 源码入口 */}
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码入口:</span>
+ <span className="text-dim">源码入口:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/cli/src/services/CommandService.ts
  </code>
@@ -395,7 +394,7 @@ for (const cmd of allCommands) {
  </section>
 
  {/* 1. 架构概览 */}
- <Layer title="架构概览" icon="🏗️">
+ <Layer title="架构概览">
  <div className="space-y-4">
  <MermaidDiagram chart={loadingFlowChart} title="命令加载流程" />
 
@@ -428,7 +427,7 @@ for (const cmd of allCommands) {
  </Layer>
 
  {/* 2. CommandService */}
- <Layer title="CommandService 协调器" icon="🎛️">
+ <Layer title="CommandService 协调器">
  <div className="space-y-4">
  <CodeBlock code={commandServiceCode} language="typescript" title="CommandService 实现" />
 
@@ -458,7 +457,7 @@ for (const cmd of allCommands) {
  </Layer>
 
  {/* 3. BuiltinCommandLoader */}
- <Layer title="内置命令加载" icon="📦">
+ <Layer title="内置命令加载">
  <div className="space-y-4">
  <CodeBlock code={builtinLoaderCode} language="typescript" title="BuiltinCommandLoader" />
 
@@ -499,7 +498,7 @@ for (const cmd of allCommands) {
  </Layer>
 
  {/* 4. FileCommandLoader */}
- <Layer title="文件命令加载" icon="📄">
+ <Layer title="文件命令加载">
  <div className="space-y-4">
  <CodeBlock code={fileLoaderCode} language="typescript" title="FileCommandLoader" />
  <CodeBlock code={tomlParsingCode} language="typescript" title="TOML 解析与命令构建" />
@@ -507,7 +506,7 @@ for (const cmd of allCommands) {
  </Layer>
 
  {/* 5. 冲突解决 */}
- <Layer title="命名冲突解决" icon="⚠️">
+ <Layer title="命名冲突解决">
  <div className="space-y-4">
  <CodeBlock code={conflictResolutionCode} language="typescript" title="冲突解决策略" />
 
@@ -534,7 +533,7 @@ for (const cmd of allCommands) {
  </Layer>
 
  {/* 6. 安全考量 */}
- <Layer title="安全考量" icon="🔒">
+ <Layer title="安全考量">
  <div className="space-y-4">
  <HighlightBox title="文件夹信任检查" variant="red">
  <div className="text-sm space-y-2 text-body">
@@ -563,7 +562,7 @@ for (const cmd of allCommands) {
  </Layer>
 
  {/* 7. 关键文件 */}
- <Layer title="关键文件与入口" icon="📁">
+ <Layer title="关键文件与入口">
  <div className="grid grid-cols-1 gap-2 text-sm">
  <div className="flex items-start gap-2">
  <code className="bg-base/30 px-2 py-1 rounded text-xs whitespace-nowrap">

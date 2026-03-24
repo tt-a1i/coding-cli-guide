@@ -16,8 +16,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">🚀</span>
- <span className="text-xl font-bold text-heading">30秒快速理解</span>
+  <span className="text-xl font-bold text-heading">30秒快速理解</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>
  ▼
@@ -98,7 +97,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 源码入口 */}
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码入口:</span>
+ <span className="text-dim">源码入口:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/cli/index.ts:14 → main()
  </code>
@@ -242,7 +241,7 @@ export function StartupChain() {
  </div>
 
  {/* 目标 */}
- <Layer title="目标" icon="🎯">
+ <Layer title="目标">
  <div className="text-body space-y-3">
  <p>
  CLI 启动链路负责完成从用户执行 <code>gemini</code> 命令到应用完全初始化的整个过程。
@@ -259,9 +258,9 @@ export function StartupChain() {
  </Layer>
 
  {/* 输入 */}
- <Layer title="输入" icon="📥">
+ <Layer title="输入">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <HighlightBox title="触发条件" icon="🚀" variant="blue">
+ <HighlightBox title="触发条件" variant="blue">
  <ul className="text-sm space-y-1">
  <li>用户在终端执行 <code>gemini</code> 命令</li>
  <li>可选的 CLI 参数（--model, --prompt, --sandbox 等）</li>
@@ -269,7 +268,7 @@ export function StartupChain() {
  </ul>
  </HighlightBox>
 
- <HighlightBox title="环境依赖" icon="🌍" variant="green">
+ <HighlightBox title="环境依赖" variant="green">
  <ul className="text-sm space-y-1">
  <li>Node.js &gt;= 20 运行时</li>
  <li>配置文件（可选）：~/.gemini/settings.json</li>
@@ -279,7 +278,7 @@ export function StartupChain() {
  </HighlightBox>
  </div>
 
- <HighlightBox title="CLI 参数优先级" icon="⚖️" variant="purple">
+ <HighlightBox title="CLI 参数优先级" variant="purple">
  <div className="text-sm space-y-2">
  <p className="font-semibold">命令行参数 &gt; 环境变量 &gt; 项目配置 &gt; 用户配置 &gt; 系统默认</p>
  <div className="grid grid-cols-2 gap-4 mt-3">
@@ -306,7 +305,7 @@ export function StartupChain() {
  </Layer>
 
  {/* 输出 */}
- <Layer title="输出" icon="📤">
+ <Layer title="输出">
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
  <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">Interactive Mode</h4>
@@ -341,7 +340,7 @@ export function StartupChain() {
  </div>
  </div>
 
- <HighlightBox title="状态变化" icon="🔄" variant="yellow">
+ <HighlightBox title="状态变化" variant="yellow">
  <div className="text-sm space-y-2">
  <p>启动完成后的系统状态：</p>
  <ul className="list-disc list-inside space-y-1 ml-2">
@@ -356,7 +355,7 @@ export function StartupChain() {
  </Layer>
 
  {/* 关键文件与入口 */}
- <Layer title="关键文件与入口" icon="📁">
+ <Layer title="关键文件与入口">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-base rounded-lg p-4">
  <h4 className="text-heading font-bold mb-3">核心启动文件</h4>
@@ -409,7 +408,7 @@ export function StartupChain() {
  </Layer>
 
  {/* 流程图 */}
- <Layer title="流程图" icon="📊">
+ <Layer title="流程图">
  <MermaidDiagram chart={startupFlowDiagram} title="CLI 启动主流程" />
 
  <div className="mt-6">
@@ -433,9 +432,9 @@ return customDeepMerge(
  </Layer>
 
  {/* 关键分支与边界条件 */}
- <Layer title="关键分支与边界条件" icon="⚡">
+ <Layer title="关键分支与边界条件">
  <div className="space-y-4">
- <HighlightBox title="Stage 3: 沙箱检测分支" icon="🔀" variant="blue">
+ <HighlightBox title="Stage 3: 沙箱检测分支" variant="blue">
  <p className="text-sm text-body mb-3">
  沙箱检测是启动链路的关键分支点，决定是否需要重新启动进程：
  </p>
@@ -443,7 +442,7 @@ return customDeepMerge(
  </HighlightBox>
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
- <HighlightBox title="macOS Seatbelt" icon="🍎" variant="green">
+ <HighlightBox title="macOS Seatbelt" variant="green">
  <div className="text-sm space-y-2">
  <p className="text-body">
  使用 <code>sandbox-exec</code> + profile 文件
@@ -457,7 +456,7 @@ return customDeepMerge(
  </div>
  </HighlightBox>
 
- <HighlightBox title="Docker/Podman" icon="🐳" variant="purple">
+ <HighlightBox title="Docker/Podman" variant="purple">
  <div className="text-sm space-y-2">
  <p className="text-body">容器化隔离</p>
  <p className="text-xs text-dim">
@@ -469,7 +468,7 @@ return customDeepMerge(
  </div>
  </HighlightBox>
 
- <HighlightBox title="沙箱重启机制" icon="🔄" variant="yellow">
+ <HighlightBox title="沙箱重启机制" variant="yellow">
  <div className="text-sm space-y-2">
  <p className="text-body">
  检测到需要沙箱后，当前进程启动沙箱子进程并自身退出
@@ -506,7 +505,7 @@ if (sandboxConfig) {
 }`}
  />
 
- <HighlightBox title="Stage 4: 审批模式决策" icon="🔐" variant="red">
+ <HighlightBox title="Stage 4: 审批模式决策" variant="red">
  <div className="text-sm space-y-3">
  <p className="font-semibold text-heading">审批模式优先级（从高到低）：</p>
  <ol className="space-y-2 ml-4">
@@ -520,7 +519,7 @@ if (sandboxConfig) {
  </div>
  </HighlightBox>
 
- <HighlightBox title="Stage 7: 模式检测边界" icon="🚦" variant="green">
+ <HighlightBox title="Stage 7: 模式检测边界" variant="green">
  <div className="text-sm space-y-2">
  <p className="font-semibold text-heading">运行模式检测逻辑：</p>
  <ul className="list-disc list-inside space-y-1 ml-2">
@@ -540,9 +539,9 @@ if (sandboxConfig) {
  </Layer>
 
  {/* 失败与恢复 */}
- <Layer title="失败与恢复" icon="🔧">
+ <Layer title="失败与恢复">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
- <HighlightBox title="致命错误 (FatalError)" icon="🔴" variant="red">
+ <HighlightBox title="致命错误 (FatalError)" variant="red">
  <div className="text-sm space-y-2">
  <p className="text-body">导致进程立即退出的错误：</p>
  <ul className="list-disc list-inside text-body text-xs space-y-1 ml-2">
@@ -557,7 +556,7 @@ if (sandboxConfig) {
  </div>
  </HighlightBox>
 
- <HighlightBox title="可恢复错误" icon="🟡" variant="yellow">
+ <HighlightBox title="可恢复错误" variant="yellow">
  <div className="text-sm space-y-2">
  <p className="text-body">UI 中处理的错误：</p>
  <ul className="list-disc list-inside text-body text-xs space-y-1 ml-2">
@@ -592,7 +591,7 @@ main().catch((error) => {
 });`}
  />
 
- <HighlightBox title="降级策略" icon="🛡️" variant="blue">
+ <HighlightBox title="降级策略" variant="blue">
  <div className="text-sm space-y-2">
  <p className="font-semibold text-heading">启动过程中的降级机制：</p>
  <ul className="list-disc list-inside space-y-1 ml-2 text-body">
@@ -607,7 +606,7 @@ main().catch((error) => {
  </Layer>
 
  {/* 相关配置项 */}
- <Layer title="相关配置项" icon="⚙️">
+ <Layer title="相关配置项">
  <div className="space-y-4">
  <h4 className="text-lg font-semibold text-heading">环境变量</h4>
  <div className="overflow-x-auto">
@@ -738,7 +737,7 @@ main().catch((error) => {
  </Layer>
 
  {/* React UI 组件层次 */}
- <Layer title="Interactive Mode: React UI 架构" icon="⚛️">
+ <Layer title="Interactive Mode: React UI 架构">
  <p className="text-body mb-4">
  当进入 Interactive Mode 时，CLI 会启动 React/Ink 渲染的终端 UI。
  以下是完整的 Provider 层次和组件树：
@@ -795,9 +794,9 @@ render(<AppWrapper />, {
  </Layer>
 
  {/* 为什么这样设计 */}
- <Layer title="为什么这样设计启动链" icon="🤔" defaultOpen={false}>
+ <Layer title="为什么这样设计启动链" defaultOpen={false}>
  <div className="space-y-6">
- <HighlightBox title="设计决策解析" icon="💡" variant="blue">
+ <HighlightBox title="设计决策解析" variant="blue">
  <p className="text-sm text-body">
  启动链的设计目标是<strong>快速、可靠、可配置</strong>，
  确保 CLI 能够在各种环境下正确初始化并进入工作状态。
@@ -868,7 +867,7 @@ render(<AppWrapper />, {
 
  {/* 启动阶段参考表 */}
  <div className="bg-base/50 rounded-lg p-4 border border-edge">
- <h4 className="text-heading font-bold mb-3">📊 启动阶段耗时参考</h4>
+ <h4 className="text-heading font-bold mb-3">启动阶段耗时参考</h4>
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>

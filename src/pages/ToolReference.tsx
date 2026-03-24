@@ -129,7 +129,7 @@ export function ToolReference() {
  </div>
 
  {/* 🎯 目标 */}
- <Layer title="目标" icon="🎯">
+ <Layer title="目标">
  <div className="space-y-3 text-body">
  <p>
  工具系统是 Gemini CLI 的核心能力，提供了 AI 与本地环境交互的标准化接口。
@@ -157,7 +157,7 @@ export function ToolReference() {
  </Layer>
 
  {/* 工具来源说明 */}
- <Layer title="工具来源说明" icon="🔍">
+ <Layer title="工具来源说明">
  <div className="space-y-4">
  <p className="text-body">
  Gemini CLI 的工具系统由三种来源组成,提供了从核心功能到动态扩展的完整能力：
@@ -246,15 +246,15 @@ export function ToolReference() {
  <h4 className="text-heading font-semibold mb-2">工具来源架构图</h4>
  <div className="text-xs text-body font-mono space-y-1">
  <div className="flex items-center space-x-2">
- <span className="text-heading">📦 Static</span>
+ <span className="text-heading">Static</span>
  <span>→ tool-names.ts 定义的核心工具 (编译时确定)</span>
  </div>
  <div className="flex items-center space-x-2">
- <span className="text-heading">🔧 Built-in</span>
+ <span className="text-heading">Built-in</span>
  <span>→ 其他内建工具 (运行时注册, 非 tool-names.ts 常量)</span>
  </div>
  <div className="flex items-center space-x-2">
- <span className="text-heading">🔌 Dynamic</span>
+ <span className="text-heading">Dynamic</span>
  <span>→ MCP + Extensions (运行时动态加载)</span>
  </div>
  </div>
@@ -270,7 +270,7 @@ export function ToolReference() {
  </Layer>
 
  {/* 📥 输入 */}
- <Layer title="输入" icon="📥">
+ <Layer title="输入">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="工具调用请求" variant="blue">
  <div className="text-sm space-y-2">
@@ -297,7 +297,7 @@ export function ToolReference() {
  </Layer>
 
  {/* 📤 输出 */}
- <Layer title="输出" icon="📤">
+ <Layer title="输出">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="Gemini 格式响应" variant="yellow">
  <CodeBlock
@@ -339,7 +339,7 @@ export function ToolReference() {
  </Layer>
 
  {/* 📁 关键文件与入口 */}
- <Layer title="关键文件与入口" icon="📁">
+ <Layer title="关键文件与入口">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-base rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">核心定义文件</h4>
@@ -408,7 +408,7 @@ export function ToolReference() {
  </Layer>
 
  {/* 📊 流程图 */}
- <Layer title="流程图" icon="📊">
+ <Layer title="流程图">
  <div className="space-y-6">
  <div>
  <h4 className="text-lg font-semibold text-heading mb-3">工具注册和发现流程</h4>
@@ -428,7 +428,7 @@ export function ToolReference() {
  </Layer>
 
  {/* ⚡ 关键分支与边界条件 */}
- <Layer title="关键分支与边界条件" icon="⚡">
+ <Layer title="关键分支与边界条件">
  <div className="space-y-4">
  <HighlightBox title="工具名称区分大小写" variant="red">
  <p className="text-sm text-body mb-2">
@@ -541,7 +541,7 @@ export function ToolReference() {
  </Layer>
 
  {/* 🔧 失败与恢复 */}
- <Layer title="失败与恢复" icon="🔧">
+ <Layer title="失败与恢复">
  <div className="space-y-4">
  <HighlightBox title="工具未找到" variant="red">
  <div className="text-sm space-y-2">
@@ -603,7 +603,7 @@ export function ToolReference() {
  </Layer>
 
  {/* ⚙️ 相关配置项 */}
- <Layer title="相关配置项" icon="⚙️">
+ <Layer title="相关配置项">
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
@@ -651,7 +651,7 @@ export function ToolReference() {
  </Layer>
 
  {/* 工具名称常量表 */}
- <Layer title="tool-names.ts 常量表（14 个内置工具名）" icon="🏷️">
+ <Layer title="tool-names.ts 常量表（14 个内置工具名）">
  <p className="text-body mb-4">
  来源: <code className="text-heading">packages/core/src/tools/tool-names.ts</code>
  <span className="text-heading ml-2">(工具名常量表 ≠ 实际会话可用工具)</span>
@@ -790,9 +790,9 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  </Layer>
 
  {/* 工具参数 Schema 详解 */}
- <Layer title="工具参数 Schema (详解)" icon="📋">
+ <Layer title="工具参数 Schema (详解)">
  {/* replace */}
- <HighlightBox title="replace - 文件编辑" icon="✏️" variant="yellow">
+ <HighlightBox title="replace - 文件编辑" variant="yellow">
  <p className="text-sm text-body mb-2">
  来源: <code>packages/core/src/tools/edit.ts</code> | Kind: <span className="text-heading">Edit</span>
  </p>
@@ -855,7 +855,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  </HighlightBox>
 
  {/* write_file */}
- <HighlightBox title="write_file - 文件写入" icon="📝" variant="yellow">
+ <HighlightBox title="write_file - 文件写入" variant="yellow">
  <p className="text-sm text-body mb-2">
  来源: <code>packages/core/src/tools/write-file.ts</code> | Kind: <span className="text-heading">Edit</span>
  </p>
@@ -888,7 +888,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  </HighlightBox>
 
  {/* read_file */}
- <HighlightBox title="read_file - 文件读取" icon="📖" variant="blue">
+ <HighlightBox title="read_file - 文件读取" variant="blue">
  <p className="text-sm text-body mb-2">
  来源: <code>packages/core/src/tools/read-file.ts</code> | Kind: <span className="text-heading">Read</span>
  </p>
@@ -927,7 +927,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  </HighlightBox>
 
  {/* search_file_content */}
- <HighlightBox title="search_file_content - 内容搜索" icon="🔍" variant="green">
+ <HighlightBox title="search_file_content - 内容搜索" variant="green">
  <p className="text-sm text-body mb-2">
  来源: <code>packages/core/src/tools/grep.ts</code> | Kind: <span className="text-heading">Search</span>
  </p>
@@ -966,7 +966,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  </HighlightBox>
 
  {/* glob */}
- <HighlightBox title="glob - 文件查找" icon="📁" variant="green">
+ <HighlightBox title="glob - 文件查找" variant="green">
  <p className="text-sm text-body mb-2">
  来源: <code>packages/core/src/tools/glob.ts</code> | Kind: <span className="text-heading">Search</span>
  </p>
@@ -1017,7 +1017,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  </HighlightBox>
 
  {/* run_shell_command */}
- <HighlightBox title="run_shell_command - Shell 执行" icon="💻" variant="orange">
+ <HighlightBox title="run_shell_command - Shell 执行" variant="orange">
  <p className="text-sm text-body mb-2">
  来源: <code>packages/core/src/tools/shell.ts</code> | Kind: <span className="text-heading">Execute</span>
  </p>
@@ -1056,7 +1056,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  </HighlightBox>
 
  {/* save_memory */}
- <HighlightBox title="save_memory - 记忆保存" icon="🧠" variant="blue">
+ <HighlightBox title="save_memory - 记忆保存" variant="blue">
  <p className="text-sm text-body mb-2">
  来源: <code>packages/core/src/tools/memoryTool.ts</code> | Kind: <span className="text-heading">Think</span>
  </p>
@@ -1083,7 +1083,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  </HighlightBox>
 
  {/* write_todos */}
- <HighlightBox title="write_todos - 任务管理" icon="✅" variant="blue">
+ <HighlightBox title="write_todos - 任务管理" variant="blue">
  <p className="text-sm text-body mb-2">
  来源: <code>packages/core/src/tools/write-todos.ts</code> | Kind: <span className="text-body">Other</span>
  </p>
@@ -1114,7 +1114,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  </HighlightBox>
 
  {/* activate_skill */}
- <HighlightBox title="activate_skill - 激活技能" icon="🧩" variant="purple">
+ <HighlightBox title="activate_skill - 激活技能" variant="purple">
  <p className="text-sm text-body mb-2">
  来源: <code>packages/core/src/tools/activate-skill.ts</code> | Kind: <span className="text-body">Other</span>
  </p>
@@ -1149,7 +1149,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  </HighlightBox>
 
  {/* delegate_to_agent */}
- <HighlightBox title="delegate_to_agent - 子代理调度" icon="🤖" variant="purple">
+ <HighlightBox title="delegate_to_agent - 子代理调度" variant="purple">
  <p className="text-sm text-body mb-2">
  来源: <code>packages/core/src/agents/delegate-</code> | Kind: <span className="text-heading">Think</span>
  </p>
@@ -1183,7 +1183,7 @@ export const ALL_BUILTIN_TOOL_NAMES = [...] as const; // 14 个内置工具`}
  </Layer>
 
  {/* 为什么这样设计 */}
- <Layer title="为什么这样设计" icon="💡">
+ <Layer title="为什么这样设计">
  <div className="space-y-4">
  <div className="bg-surface rounded-lg p-5 border border-edge/30">
  <h4 className="text-heading font-bold font-mono mb-3">Kind 分类驱动权限</h4>

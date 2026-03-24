@@ -20,8 +20,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">🔌</span>
- <span className="text-xl font-bold text-heading">30秒快速理解</span>
+  <span className="text-xl font-bold text-heading">30秒快速理解</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>
  ▼
@@ -75,7 +74,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码位置:</span>
+ <span className="text-dim">源码位置:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/core/src/ide/ide-client.ts
  </code>
@@ -481,14 +480,14 @@ export type RestartReason = 'NONE' | 'CONNECTION_CHANGE' | 'TRUST_CHANGE';`;
 
  <QuickSummary isExpanded={isSummaryExpanded} onToggle={() => setIsSummaryExpanded(!isSummaryExpanded)} />
 
- <Layer title="架构概览" icon="🏗️" defaultOpen={true}>
+ <Layer title="架构概览" defaultOpen={true}>
  <HighlightBox title="IDE Client 架构" color="blue" className="mb-6">
  <MermaidDiagram chart={architectureChart} />
  </HighlightBox>
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
- <div className="text-heading font-bold mb-2">🔌 MCP 协议</div>
+ <div className="text-heading font-bold mb-2">MCP 协议</div>
  <ul className="text-sm text-body space-y-1">
  <li>Model Context Protocol</li>
  <li>HTTP 或 Stdio 传输</li>
@@ -497,7 +496,7 @@ export type RestartReason = 'NONE' | 'CONNECTION_CHANGE' | 'TRUST_CHANGE';`;
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
- <div className="text-heading font-bold mb-2">📂 工作区感知</div>
+ <div className="text-heading font-bold mb-2">工作区感知</div>
  <ul className="text-sm text-body space-y-1">
  <li>获取打开的文件列表</li>
  <li>活动文件标记</li>
@@ -506,7 +505,7 @@ export type RestartReason = 'NONE' | 'CONNECTION_CHANGE' | 'TRUST_CHANGE';`;
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
- <div className="text-heading font-bold mb-2">🔐 信任管理</div>
+ <div className="text-heading font-bold mb-2">信任管理</div>
  <ul className="text-sm text-body space-y-1">
  <li>IDE 信任状态同步</li>
  <li>Trust 变化检测</li>
@@ -517,7 +516,7 @@ export type RestartReason = 'NONE' | 'CONNECTION_CHANGE' | 'TRUST_CHANGE';`;
  </div>
  </Layer>
 
- <Layer title="连接流程" icon="🔗" defaultOpen={true}>
+ <Layer title="连接流程" defaultOpen={true}>
  <MermaidDiagram chart={connectionFlowChart} />
 
  <div className="mt-4 overflow-x-auto">
@@ -542,7 +541,7 @@ export type RestartReason = 'NONE' | 'CONNECTION_CHANGE' | 'TRUST_CHANGE';`;
  </div>
  </Layer>
 
- <Layer title="IdeClient 单例" icon="🎯" defaultOpen={false}>
+ <Layer title="IdeClient 单例" defaultOpen={false}>
  <CodeBlock code={ideClientCode} language="typescript" title="IdeClient 类结构" />
 
  <div className="mt-4">
@@ -550,7 +549,7 @@ export type RestartReason = 'NONE' | 'CONNECTION_CHANGE' | 'TRUST_CHANGE';`;
  </div>
  </Layer>
 
- <Layer title="连接管理" icon="🔌" defaultOpen={false}>
+ <Layer title="连接管理" defaultOpen={false}>
  <CodeBlock code={connectCode} language="typescript" title="connect() 方法" />
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -572,7 +571,7 @@ export type RestartReason = 'NONE' | 'CONNECTION_CHANGE' | 'TRUST_CHANGE';`;
  </div>
  </Layer>
 
- <Layer title="Diff 视图" icon="📝" defaultOpen={false}>
+ <Layer title="Diff 视图" defaultOpen={false}>
  <CodeBlock code={diffCode} language="typescript" title="Diff 视图管理" />
 
  <div className="mt-4 bg-base p-4 rounded-lg">
@@ -584,7 +583,7 @@ export type RestartReason = 'NONE' | 'CONNECTION_CHANGE' | 'TRUST_CHANGE';`;
  </div>
  </Layer>
 
- <Layer title="/ide 命令" icon="⌨️" defaultOpen={false}>
+ <Layer title="/ide 命令" defaultOpen={false}>
  <CodeBlock code={ideCommandCode} language="typescript" title="/ide 命令实现" />
 
  <div className="mt-4 overflow-x-auto">
@@ -607,7 +606,7 @@ export type RestartReason = 'NONE' | 'CONNECTION_CHANGE' | 'TRUST_CHANGE';`;
  </div>
  </Layer>
 
- <Layer title="Trust 监听" icon="🔐" defaultOpen={false}>
+ <Layer title="Trust 监听" defaultOpen={false}>
  <CodeBlock code={trustListenerCode} language="typescript" title="useIdeTrustListener Hook" />
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -628,7 +627,7 @@ export type RestartReason = 'NONE' | 'CONNECTION_CHANGE' | 'TRUST_CHANGE';`;
  </div>
  </Layer>
 
- <Layer title="IDE 检测" icon="🔍" defaultOpen={false}>
+ <Layer title="IDE 检测" defaultOpen={false}>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
  <h4 className="text-heading font-bold mb-2">检测方式</h4>
@@ -654,10 +653,10 @@ export type RestartReason = 'NONE' | 'CONNECTION_CHANGE' | 'TRUST_CHANGE';`;
  </div>
  </Layer>
 
- <Layer title="使用场景" icon="💡" defaultOpen={false}>
+ <Layer title="使用场景" defaultOpen={false}>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
- <h4 className="text-heading font-bold mb-2">✅ 适用场景</h4>
+ <h4 className="text-heading font-bold mb-2">适用场景</h4>
  <ul className="text-sm text-body space-y-1">
  <li>在 IDE 集成终端中运行 CLI</li>
  <li>需要可视化 Diff 审查的编辑</li>
@@ -666,7 +665,7 @@ export type RestartReason = 'NONE' | 'CONNECTION_CHANGE' | 'TRUST_CHANGE';`;
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border-l-2 border-l-edge-hover/30">
- <h4 className="text-heading font-bold mb-2">❌ 限制</h4>
+ <h4 className="text-heading font-bold mb-2">限制</h4>
  <ul className="text-sm text-body space-y-1">
  <li>需要安装 companion 扩展</li>
  <li>仅支持特定 IDE（VS Code 系）</li>

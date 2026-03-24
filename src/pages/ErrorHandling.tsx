@@ -34,8 +34,7 @@ function Introduction({
  {isExpanded && (
  <div className="px-6 pb-6 space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- 🎯 错误处理目标
+ <h4 className="text-heading font-bold mb-2">错误处理目标
  </h4>
  <p className="text-body text-sm">
  CLI 的错误处理系统旨在：<strong>分类错误</strong>（可恢复 vs 不可恢复）、
@@ -44,8 +43,7 @@ function Introduction({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- 🔧 错误类型层次
+ <h4 className="text-heading font-bold mb-2">错误类型层次
  </h4>
  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
  <div className="bg-surface p-2 rounded text-center">
@@ -68,8 +66,7 @@ function Introduction({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- 🔄 可恢复错误
+ <h4 className="text-heading font-bold mb-2">可恢复错误
  </h4>
  <ul className="text-body text-sm space-y-1">
  <li><strong>429 Rate Limit</strong> - 等待后重试</li>
@@ -79,7 +76,7 @@ function Introduction({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">📊 关键数字</h4>
+ <h4 className="text-heading font-bold mb-2">关键数字</h4>
  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
  <div className="text-center">
  <div className="text-xl font-bold text-heading">6+</div>
@@ -1233,21 +1230,21 @@ function attemptJSONFix(
  <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">推荐做法</h4>
  <ul className="text-sm text-body space-y-1">
- <li>✓ 使用自定义错误类携带上下文</li>
- <li>✓ 始终分类错误并评估严重性</li>
- <li>✓ 为用户提供有意义的错误消息</li>
- <li>✓ 记录完整的错误堆栈用于调试</li>
- <li>✓ 实现优雅的降级和恢复策略</li>
+ <li>使用自定义错误类携带上下文</li>
+ <li>始终分类错误并评估严重性</li>
+ <li>为用户提供有意义的错误消息</li>
+ <li>记录完整的错误堆栈用于调试</li>
+ <li>实现优雅的降级和恢复策略</li>
  </ul>
  </div>
  <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">避免做法</h4>
  <ul className="text-sm text-body space-y-1">
- <li>✗ 忽略或吞掉错误</li>
- <li>✗ 向用户暴露技术细节</li>
- <li>✗ 使用 catch 而不处理</li>
- <li>✗ 不区分错误类型统一处理</li>
- <li>✗ 在 uncaughtException 后继续运行</li>
+ <li>忽略或吞掉错误</li>
+ <li>向用户暴露技术细节</li>
+ <li>使用 catch 而不处理</li>
+ <li>不区分错误类型统一处理</li>
+ <li>在 uncaughtException 后继续运行</li>
  </ul>
  </div>
  </div>
@@ -1255,7 +1252,7 @@ function attemptJSONFix(
 
  {/* 为什么这样设计错误分类系统 */}
  <section className="bg-surface rounded-lg border border-edge p-6">
- <h3 className="text-xl font-semibold text-heading mb-4">💡 为什么这样设计错误分类系统？</h3>
+ <h3 className="text-xl font-semibold text-heading mb-4">为什么这样设计错误分类系统？</h3>
 
  <div className="space-y-6">
  <div>
@@ -1413,7 +1410,7 @@ function attemptJSONFix(
 
  {/* 实战调试场景 */}
  <section className="bg-surface/30 rounded-lg border border-edge/50 p-6">
- <h3 className="text-xl font-semibold text-heading mb-4">🔧 实战调试场景</h3>
+ <h3 className="text-xl font-semibold text-heading mb-4">实战调试场景</h3>
  <p className="text-body text-sm mb-4">
  以下是开发者可能遇到的典型错误场景及其排查步骤：
  </p>

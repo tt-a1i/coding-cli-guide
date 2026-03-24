@@ -674,9 +674,9 @@ export default function ShellInjectionProcessorAnimation() {
             </h3>
             <div className={`rounded border p-3 ${permissionStateClassName[state.permissionStatus]}`}>
               <div className="flex items-center gap-2">
-                {state.permissionStatus === 'allowed' && <span>✅ 允许执行</span>}
-                {state.permissionStatus === 'denied' && <span>❌ 拒绝执行</span>}
-                {state.permissionStatus === 'confirm_required' && <span>⚠️ 需要确认</span>}
+                {state.permissionStatus === 'allowed' && <span>允许执行</span>}
+                {state.permissionStatus === 'denied' && <span>拒绝执行</span>}
+                {state.permissionStatus === 'confirm_required' && <span>需要确认</span>}
                 {state.permissionStatus === 'pending' && <span>⏳ 待检查</span>}
               </div>
             </div>

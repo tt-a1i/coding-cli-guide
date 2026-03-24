@@ -54,7 +54,7 @@ export function MemoryManagement() {
  <h2 className="text-2xl text-heading mb-5">内存与上下文管理</h2>
 
  {/* 30秒速览 */}
- <HighlightBox title="⏱️ 30秒速览" icon="🎯" variant="blue">
+ <HighlightBox title="⏱️ 30秒速览" variant="blue">
  <ul className="space-y-2 text-sm">
  <li>
  • <strong>压缩触发</strong>: Token 使用量超过模型上下文窗口 70% 时自动触发
@@ -72,8 +72,8 @@ export function MemoryManagement() {
  </HighlightBox>
 
  {/* 概述 */}
- <Layer title="上下文管理概述" icon="🧠">
- <HighlightBox title="三大核心功能" icon="🎯" variant="blue">
+ <Layer title="上下文管理概述">
+ <HighlightBox title="三大核心功能" variant="blue">
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
  <div className="text-center">
  <div className="text-2xl mb-1">📝</div>
@@ -95,7 +95,7 @@ export function MemoryManagement() {
  </Layer>
 
  {/* 聊天压缩核心 */}
- <Layer title="聊天压缩 (Chat Compression)" icon="🗜️">
+ <Layer title="聊天压缩 (Chat Compression)">
  <MermaidDiagram
  title="压缩决策流程"
  chart={`flowchart TB
@@ -137,8 +137,8 @@ export function MemoryManagement() {
  </Layer>
 
  {/* 分割点算法 */}
- <CollapsibleSection title="分割点算法详解" icon="✂️" defaultOpen={true}>
- <HighlightBox title="核心约束" icon="⚠️" variant="yellow">
+ <CollapsibleSection title="分割点算法详解" defaultOpen={true}>
+ <HighlightBox title="核心约束" variant="yellow">
  <p className="text-sm">
  分割点<strong>必须</strong>在用户消息边界，且不能在 functionResponse 消息处分割。
  这确保工具调用的上下文完整性。
@@ -265,7 +265,7 @@ export function findCompressSplitPoint(
  </CollapsibleSection>
 
  {/* 压缩状态 */}
- <Layer title="压缩状态机" icon="📊">
+ <Layer title="压缩状态机">
  <MermaidDiagram
  title="CompressionStatus 状态"
  chart={`stateDiagram-v2
@@ -305,8 +305,8 @@ export interface ChatCompressionInfo {
  </Layer>
 
  {/* Token 限制系统 */}
- <Layer title="Token 限制匹配系统" icon="📏">
- <HighlightBox title="设计理念" icon="💡" variant="green">
+ <Layer title="Token 限制匹配系统">
+ <HighlightBox title="设计理念" variant="green">
  <p className="text-sm">
  上游 gemini-cli 使用 <strong>switch-case 映射</strong>确定模型的上下文窗口大小：不做 normalize，也没有 PATTERNS/OUTPUT_PATTERNS。
  未识别的模型返回默认值（<code>DEFAULT_TOKEN_LIMIT</code>）。
@@ -401,7 +401,7 @@ export function tokenLimit(model: string): number {
  </Layer>
 
  {/* 压缩摘要生成 */}
- <CollapsibleSection title="摘要生成机制" icon="📝">
+ <CollapsibleSection title="摘要生成机制">
  <MermaidDiagram
  title="摘要生成时序"
  chart={`sequenceDiagram
@@ -478,10 +478,10 @@ export function tokenLimit(model: string): number {
  </CollapsibleSection>
 
  {/* 记忆系统 */}
- <Layer title="记忆系统 (Memory Tool)" icon="📝">
+ <Layer title="记忆系统 (Memory Tool)">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
  <div className="bg-elevated/10 border-2 border-edge rounded-lg p-4">
- <h4 className="text-heading font-bold mb-2">🌍 全局记忆</h4>
+ <h4 className="text-heading font-bold mb-2">全局记忆</h4>
  <code className="text-xs text-body block mb-2">~/.gemini/GEMINI.md</code>
  <p className="text-sm text-body">
  跨所有项目共享的知识，如用户偏好、通用技术栈等
@@ -489,7 +489,7 @@ export function tokenLimit(model: string): number {
  </div>
 
  <div className="bg-elevated border-2 border-edge rounded-lg p-4">
- <h4 className="text-heading font-bold mb-2">📂 项目记忆</h4>
+ <h4 className="text-heading font-bold mb-2">项目记忆</h4>
  <code className="text-xs text-body block mb-2">.gemini/GEMINI.md</code>
  <p className="text-sm text-body">
  项目特定信息，如架构决策、API 约定等
@@ -560,7 +560,7 @@ function appendToMemorySection(content: string, fact: string): string {
  </Layer>
 
  {/* 会话持久化 */}
- <Layer title="会话持久化 (Session Persistence)" icon="💾">
+ <Layer title="会话持久化 (Session Persistence)">
  <CodeBlock
  title="会话存储位置"
  code={`~/.gemini/tmp/<project_hash>/chats/
@@ -609,7 +609,7 @@ session-<日期>-<时间>-<sessionId前8位>.json`}
  </Layer>
 
  {/* 会话恢复 */}
- <Layer title="会话恢复 (Resume)" icon="🔄">
+ <Layer title="会话恢复 (Resume)">
  <CodeBlock
  code={`# 恢复最近的会话
 gemini --resume
@@ -625,7 +625,7 @@ gemini --resume abc12345
 5. 继续对话`}
  />
 
- <HighlightBox title="恢复注意事项" icon="⚠️" variant="orange">
+ <HighlightBox title="恢复注意事项" variant="orange">
  <ul className="pl-5 list-disc space-y-1">
  <li>思考内容 (thoughts) 会被移除，减少 Token 使用</li>
  <li>工具调用结果会保留</li>
@@ -635,7 +635,7 @@ gemini --resume abc12345
  </Layer>
 
  {/* Token 统计 */}
- <Layer title="Token 统计" icon="📊">
+ <Layer title="Token 统计">
  <JsonBlock
  code={`// TokensSummary 结构
 {
@@ -671,7 +671,7 @@ uiTelemetryService.updateTokenStats(tokens);`}
  </Layer>
 
  {/* 源码导航 */}
- <Layer title="源码导航" icon="📂">
+ <Layer title="源码导航">
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
@@ -718,7 +718,7 @@ uiTelemetryService.updateTokenStats(tokens);`}
  </Layer>
 
  {/* 为什么这样设计内存管理 */}
- <Layer title="为什么这样设计内存管理" icon="🤔" defaultOpen={false}>
+ <Layer title="为什么这样设计内存管理" defaultOpen={false}>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  {/* 设计决策 1 */}
  <div className="bg-elevated/10 border border-edge rounded-lg p-4">

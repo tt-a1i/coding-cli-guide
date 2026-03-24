@@ -25,8 +25,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">🔄</span>
- <span className="text-xl font-bold text-heading">30秒快速理解</span>
+  <span className="text-xl font-bold text-heading">30秒快速理解</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>
  ▼
@@ -83,7 +82,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 源码入口 */}
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码入口:</span>
+ <span className="text-dim">源码入口:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/core/src/fallback/handler.ts
  </code>
@@ -226,7 +225,7 @@ interface Config {
  </section>
 
  {/* 1. Fallback 决策类型 */}
- <Layer title="Fallback 决策类型" icon="⚖️">
+ <Layer title="Fallback 决策类型">
  <div className="space-y-4">
  <CodeBlock code={fallbackTypesCode} language="typescript" title="FallbackIntent 类型定义" />
 
@@ -268,7 +267,7 @@ interface Config {
  </Layer>
 
  {/* 2. 执行流程 */}
- <Layer title="Fallback 执行流程" icon="🔄">
+ <Layer title="Fallback 执行流程">
  <div className="space-y-4">
  <MermaidDiagram chart={fallbackFlowChart} title="Fallback 决策流程" />
  <CodeBlock code={handleFallbackCode} language="typescript" title="handleFallback 核心逻辑" />
@@ -276,7 +275,7 @@ interface Config {
  </Layer>
 
  {/* 3. 回退模式激活 */}
- <Layer title="回退模式激活" icon="⚡">
+ <Layer title="回退模式激活">
  <div className="space-y-4">
  <CodeBlock code={activateFallbackCode} language="typescript" title="activateFallbackMode" />
 
@@ -300,7 +299,7 @@ interface Config {
  </Layer>
 
  {/* 5. UI Handler 集成 */}
- <Layer title="UI Handler 集成" icon="🖥️">
+ <Layer title="UI Handler 集成">
  <div className="space-y-4">
  <MermaidDiagram chart={`sequenceDiagram
  participant CG as ContentGenerator
@@ -334,7 +333,7 @@ interface Config {
  </Layer>
 
  {/* 6. 设计决策 */}
- <Layer title="设计决策" icon="💡">
+ <Layer title="设计决策">
  <div className="space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
  <h4 className="text-heading font-bold mb-2">为什么需要用户确认？</h4>
@@ -365,7 +364,7 @@ interface Config {
  </Layer>
 
  {/* 7. 关键文件 */}
- <Layer title="关键文件与入口" icon="📁">
+ <Layer title="关键文件与入口">
  <div className="grid grid-cols-1 gap-2 text-sm">
  <div className="flex items-start gap-2">
  <code className="bg-base/30 px-2 py-1 rounded text-xs whitespace-nowrap">

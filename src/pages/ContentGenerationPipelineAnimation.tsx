@@ -339,8 +339,7 @@ export default function ContentGenerationPipelineAnimation() {
  {/* 格式转换 */}
  <div className="col-span-4">
  <div className="bg-surface rounded-lg p-4 border border-edge-hover">
- <h3 className="text-sm font-semibold text-heading mb-3 font-mono">
- 🔄 Format Conversion
+ <h3 className="text-sm font-semibold text-heading mb-3 font-mono">Format Conversion
  </h3>
  <div className="space-y-2">
  {CONVERSION_STEPS.map((step, i) => (
@@ -367,8 +366,7 @@ export default function ContentGenerationPipelineAnimation() {
  {/* 流式块 */}
  <div className="col-span-4">
  <div className="bg-base/60 rounded-lg p-4 border border-edge-hover">
- <h3 className="text-sm font-semibold text-heading mb-3 font-mono">
- 📡 Stream Chunks
+ <h3 className="text-sm font-semibold text-heading mb-3 font-mono">Stream Chunks
  </h3>
  <div className="space-y-2 min-h-[200px]">
  {streamChunks.length === 0 ? (
@@ -416,8 +414,7 @@ export default function ContentGenerationPipelineAnimation() {
  {/* 合并结果 */}
  <div className="col-span-4">
  <div className="bg-surface rounded-lg p-4 border border-edge-hover">
- <h3 className="text-sm font-semibold text-heading mb-3 font-mono">
- ✅ Merged Response
+ <h3 className="text-sm font-semibold text-heading mb-3 font-mono">Merged Response
  </h3>
  {mergedResponse ? (
  <div className="space-y-3">

@@ -600,8 +600,7 @@ export default function Glossary({ onNavigate }: GlossaryProps) {
  className="text-sm text-heading hover:underline font-mono flex items-center gap-1"
  >
  <span>查看详细文档</span>
- <span>→</span>
- </button>
+  </button>
  )}
  </div>
  )}
@@ -630,7 +629,7 @@ export default function Glossary({ onNavigate }: GlossaryProps) {
  </section>
 
  {/* 为什么这样设计 */}
- <Layer title="为什么这样设计" icon="💡">
+ <Layer title="为什么这样设计">
  <div className="space-y-4">
  <div className="bg-surface rounded-lg p-5 border border-edge/30">
  <h4 className="text-heading font-bold font-mono mb-3">术语统一命名</h4>

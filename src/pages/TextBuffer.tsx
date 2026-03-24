@@ -23,8 +23,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">📝</span>
- <span className="text-xl font-bold text-heading">30秒快速理解</span>
+  <span className="text-xl font-bold text-heading">30秒快速理解</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>
  ▼
@@ -78,7 +77,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码位置:</span>
+ <span className="text-dim">源码位置:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/cli/src/ui/components/shared/text-buffer.ts
  </code>
@@ -394,14 +393,14 @@ const openExternalEditor = useCallback((): void => {
 
  <QuickSummary isExpanded={isSummaryExpanded} onToggle={() => setIsSummaryExpanded(!isSummaryExpanded)} />
 
- <Layer title="架构概览" icon="🏗️" defaultOpen={true}>
+ <Layer title="架构概览" defaultOpen={true}>
  <HighlightBox title="TextBuffer 架构" color="blue" className="mb-6">
  <MermaidDiagram chart={architectureChart} />
  </HighlightBox>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
- <div className="text-heading font-bold mb-2">🎯 设计目标</div>
+ <div className="text-heading font-bold mb-2">设计目标</div>
  <ul className="text-sm text-body space-y-1">
  <li>多行文本编辑（类似 IDE）</li>
  <li>完整 Vim 键位支持</li>
@@ -411,7 +410,7 @@ const openExternalEditor = useCallback((): void => {
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
- <div className="text-heading font-bold mb-2">📦 核心模式</div>
+ <div className="text-heading font-bold mb-2">核心模式</div>
  <ul className="text-sm text-body space-y-1">
  <li><strong>useReducer</strong> 驱动状态更新</li>
  <li><strong>useMemo</strong> 缓存视觉布局</li>
@@ -422,7 +421,7 @@ const openExternalEditor = useCallback((): void => {
  </div>
  </Layer>
 
- <Layer title="状态结构" icon="📊" defaultOpen={true}>
+ <Layer title="状态结构" defaultOpen={true}>
  <CodeBlock code={stateTypeCode} language="typescript" title="TextBufferState 类型定义" />
 
  <div className="mt-4 overflow-x-auto">
@@ -470,7 +469,7 @@ const openExternalEditor = useCallback((): void => {
  </div>
  </Layer>
 
- <Layer title="词边界检测" icon="🔤" defaultOpen={true}>
+ <Layer title="词边界检测" defaultOpen={true}>
  <CodeBlock code={wordBoundaryCode} language="typescript" title="多语言词边界算法" />
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -494,7 +493,7 @@ const openExternalEditor = useCallback((): void => {
  </div>
  </Layer>
 
- <Layer title="Action 系统" icon="⚡" defaultOpen={false}>
+ <Layer title="Action 系统" defaultOpen={false}>
  <CodeBlock code={actionsCode} language="typescript" title="TextBuffer Actions" />
 
  <div className="mt-4 overflow-x-auto">
@@ -537,11 +536,11 @@ const openExternalEditor = useCallback((): void => {
  </div>
  </Layer>
 
- <Layer title="useTextBuffer Hook" icon="🪝" defaultOpen={false}>
+ <Layer title="useTextBuffer Hook" defaultOpen={false}>
  <CodeBlock code={useTextBufferCode} language="typescript" title="useTextBuffer 入口" />
  </Layer>
 
- <Layer title="视觉换行" icon="📐" defaultOpen={false}>
+ <Layer title="视觉换行" defaultOpen={false}>
  <CodeBlock code={visualLayoutCode} language="typescript" title="视觉布局计算" />
 
  <div className="mt-4 bg-base p-4 rounded-lg">
@@ -556,7 +555,7 @@ const openExternalEditor = useCallback((): void => {
  </div>
  </Layer>
 
- <Layer title="外部编辑器" icon="🖥️" defaultOpen={false}>
+ <Layer title="外部编辑器" defaultOpen={false}>
  <CodeBlock code={externalEditorCode} language="typescript" title="外部编辑器集成" />
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -580,7 +579,7 @@ const openExternalEditor = useCallback((): void => {
  </div>
  </Layer>
 
- <Layer title="使用示例" icon="💡" defaultOpen={false}>
+ <Layer title="使用示例" defaultOpen={false}>
  <CodeBlock
  code={`// 在 Composer 组件中使用
 const buffer = useTextBuffer({

@@ -200,7 +200,7 @@ export default function StreamingDecoderAnimation() {
  </button>
  </div>
 
- <HighlightBox title="🧭 fork-only 提示" icon="⚠️" variant="yellow">
+ <HighlightBox title="🧭 fork-only 提示" variant="yellow">
  <p className="m-0 text-sm text-body">
  上游 Gemini CLI 的主线不会解析 SSE 文本流或 <code>tool_calls</code> 增量 JSON；它直接消费结构化 <code>functionCalls</code>。
  本动画用于解释当 fork 通过 OpenAI 兼容协议接入其他模型时，为何需要这类“流式拼接/修复”解析器。
@@ -211,8 +211,7 @@ export default function StreamingDecoderAnimation() {
  {/* SSE 流 */}
  <div className="col-span-3">
  <div className="bg-surface rounded-lg p-4 border border-edge-hover">
- <h3 className="text-sm font-semibold text-heading mb-3 font-mono">
- 📡 SSE Stream
+ <h3 className="text-sm font-semibold text-heading mb-3 font-mono">SSE Stream
  </h3>
  <div className="space-y-2 max-h-80 overflow-y-auto">
  {SAMPLE_CHUNKS.map((chunk, i) => (
@@ -244,8 +243,7 @@ export default function StreamingDecoderAnimation() {
  {/* 解析器状态 */}
  <div className="col-span-5">
  <div className="bg-base/60 rounded-lg p-4 border border-edge-hover">
- <h3 className="text-sm font-semibold text-heading mb-3 font-mono">
- 🔧 Parser State (per index)
+ <h3 className="text-sm font-semibold text-heading mb-3 font-mono">Parser State (per index)
  </h3>
  <div className="space-y-4">
  {Array.from(buffers.entries()).map(([index, buf]) => (
@@ -262,7 +260,7 @@ export default function StreamingDecoderAnimation() {
  Index {index}: {buf.name || '...'}
  </span>
  {buf.state.complete && (
- <span className="text-xs text-heading">✓ complete</span>
+ <span className="text-xs text-heading">complete</span>
  )}
  </div>
 
@@ -322,8 +320,7 @@ export default function StreamingDecoderAnimation() {
  {/* 完成的工具调用 */}
  <div className="col-span-4">
  <div className="bg-surface rounded-lg p-4 border border-edge-hover">
- <h3 className="text-sm font-semibold text-heading mb-3 font-mono">
- ✅ Completed Tool Calls
+ <h3 className="text-sm font-semibold text-heading mb-3 font-mono">Completed Tool Calls
  </h3>
  <div className="space-y-3">
  {completedCalls.length === 0 ? (

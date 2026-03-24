@@ -123,12 +123,12 @@ sequenceDiagram
  </div>
 
  {/* 架构总览 */}
- <Layer title="集成架构总览" icon="🏗️">
+ <Layer title="集成架构总览">
  <MermaidDiagram chart={ideArchitecture} title="IDE 集成架构" />
  </Layer>
 
  {/* IDE 对比 */}
- <Layer title="IDE 集成对比" icon="⚖️">
+ <Layer title="IDE 集成对比">
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
@@ -146,28 +146,28 @@ sequenceDiagram
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">文件读取</td>
- <td className="py-2 px-3 text-heading">✓ 编辑器缓冲区</td>
- <td className="py-2 px-3 text-heading">✓ 编辑器缓冲区</td>
+ <td className="py-2 px-3 text-heading">编辑器缓冲区</td>
+ <td className="py-2 px-3 text-heading">编辑器缓冲区</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">Diff 视图</td>
- <td className="py-2 px-3 text-heading">✓ 内置 Diff Editor</td>
- <td className="py-2 px-3 text-heading">✓ 原生支持</td>
+ <td className="py-2 px-3 text-heading">内置 Diff Editor</td>
+ <td className="py-2 px-3 text-heading">原生支持</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">诊断信息</td>
- <td className="py-2 px-3 text-heading">✓ Problems Panel</td>
- <td className="py-2 px-3 text-heading">✓ 诊断面板</td>
+ <td className="py-2 px-3 text-heading">Problems Panel</td>
+ <td className="py-2 px-3 text-heading">诊断面板</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">终端集成</td>
- <td className="py-2 px-3 text-heading">✓ 集成终端</td>
- <td className="py-2 px-3 text-heading">✓ 集成终端</td>
+ <td className="py-2 px-3 text-heading">集成终端</td>
+ <td className="py-2 px-3 text-heading">集成终端</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3">符号跳转</td>
  <td className="py-2 px-3 text-heading">△ 通过 LSP</td>
- <td className="py-2 px-3 text-heading">✓ 原生支持</td>
+ <td className="py-2 px-3 text-heading">原生支持</td>
  </tr>
  <tr>
  <td className="py-2 px-3">成熟度</td>
@@ -180,11 +180,11 @@ sequenceDiagram
  </Layer>
 
  {/* VS Code 集成 */}
- <Layer title="VS Code 集成详解" icon="💙">
+ <Layer title="VS Code 集成详解">
  <div className="space-y-4">
  <MermaidDiagram chart={mcpFlow} title="VS Code MCP 通信流程" />
 
- <HighlightBox title="Companion Extension 功能" icon="🧩" variant="blue">
+ <HighlightBox title="Companion Extension 功能" variant="blue">
  <ul className="space-y-2 text-sm">
  <li><strong>MCP Server</strong>：提供工作区访问能力</li>
  <li><strong>文件操作</strong>：读取编辑器缓冲区（未保存内容）</li>
@@ -208,11 +208,11 @@ sequenceDiagram
  </Layer>
 
  {/* Zed 集成 */}
- <Layer title="Zed 集成详解" icon="🟠">
+ <Layer title="Zed 集成详解">
  <div className="space-y-4">
  <MermaidDiagram chart={acpFlow} title="Zed ACP 通信流程" />
 
- <HighlightBox title="ACP 协议特性" icon="🔧" variant="orange">
+ <HighlightBox title="ACP 协议特性" variant="orange">
  <ul className="space-y-2 text-sm">
  <li><strong>原生集成</strong>：Zed 内置 ACP 支持，无需扩展</li>
  <li><strong>Context Provider</strong>：提供工作区上下文给 CLI</li>
@@ -239,9 +239,9 @@ sequenceDiagram
  </Layer>
 
  {/* 通用功能 */}
- <Layer title="通用集成功能" icon="🔧">
+ <Layer title="通用集成功能">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <HighlightBox title="文件操作" icon="📄" variant="green">
+ <HighlightBox title="文件操作" variant="green">
  <ul className="space-y-1 text-sm">
  <li>读取编辑器缓冲区（包含未保存内容）</li>
  <li>创建新文件</li>
@@ -250,7 +250,7 @@ sequenceDiagram
  </ul>
  </HighlightBox>
 
- <HighlightBox title="工作区访问" icon="📁" variant="blue">
+ <HighlightBox title="工作区访问" variant="blue">
  <ul className="space-y-1 text-sm">
  <li>列出工作区文件</li>
  <li>搜索文件内容</li>
@@ -259,7 +259,7 @@ sequenceDiagram
  </ul>
  </HighlightBox>
 
- <HighlightBox title="诊断信息" icon="🔍" variant="purple">
+ <HighlightBox title="诊断信息" variant="purple">
  <ul className="space-y-1 text-sm">
  <li>获取 ESLint/TSLint 错误</li>
  <li>TypeScript 类型错误</li>
@@ -268,7 +268,7 @@ sequenceDiagram
  </ul>
  </HighlightBox>
 
- <HighlightBox title="上下文感知" icon="🎯" variant="orange">
+ <HighlightBox title="上下文感知" variant="orange">
  <ul className="space-y-1 text-sm">
  <li>当前打开文件</li>
  <li>光标位置</li>
@@ -280,7 +280,7 @@ sequenceDiagram
  </Layer>
 
  {/* Diff 协议 */}
- <Layer title="IDE Diff 协议" icon="📝">
+ <Layer title="IDE Diff 协议">
  <CodeBlock
  title="Diff 请求格式"
  code={`interface IDEDiffRequest {
@@ -310,9 +310,9 @@ sequenceDiagram
  </Layer>
 
  {/* 快速开始 */}
- <Layer title="快速开始" icon="🚀">
+ <Layer title="快速开始">
  <div className="space-y-4">
- <HighlightBox title="VS Code 设置" icon="💙" variant="blue">
+ <HighlightBox title="VS Code 设置" variant="blue">
  <ol className="space-y-2 text-sm list-decimal list-inside">
  <li>安装 "Gemini IDE Companion" 扩展</li>
  <li>扩展自动启动 MCP Server</li>
@@ -321,7 +321,7 @@ sequenceDiagram
  </ol>
  </HighlightBox>
 
- <HighlightBox title="Zed 设置" icon="🟠" variant="orange">
+ <HighlightBox title="Zed 设置" variant="orange">
  <ol className="space-y-2 text-sm list-decimal list-inside">
  <li>确保 Zed 版本 &gt;= 0.140</li>
  <li>在 settings.json 中配置 assistant</li>
@@ -333,7 +333,7 @@ sequenceDiagram
  </Layer>
 
  {/* 连接状态机 */}
- <Layer title="连接状态机与故障排查" icon="🔗">
+ <Layer title="连接状态机与故障排查">
  <div className="space-y-4">
  <MermaidDiagram
  title="IDE 连接状态机"
@@ -362,7 +362,7 @@ stateDiagram-v2
 `}
  />
 
- <HighlightBox title="断线重连机制" icon="🔄" variant="blue">
+ <HighlightBox title="断线重连机制" variant="blue">
  <CodeBlock
  title="重连策略"
  code={`interface ReconnectionConfig {
@@ -393,7 +393,7 @@ async function reconnect(config: ReconnectionConfig) {
  />
  </HighlightBox>
 
- <HighlightBox title="多 IDE 冲突处理" icon="⚠️" variant="orange">
+ <HighlightBox title="多 IDE 冲突处理" variant="orange">
  <div className="space-y-4">
  <p className="text-sm">
  当多个 IDE 实例同时尝试连接时，可能发生端口或工作区锁冲突：
@@ -459,7 +459,7 @@ async function checkPortAvailability(port: number): Promise<boolean> {
  </Layer>
 
  {/* 版本兼容性 */}
- <Layer title="版本兼容性 Checklist" icon="✅">
+ <Layer title="版本兼容性 Checklist">
  <div className="space-y-4">
  <p className="text-body">
  确保 CLI、扩展、IDE 版本兼容，避免连接或功能问题：
@@ -510,7 +510,7 @@ async function checkPortAvailability(port: number): Promise<boolean> {
  </table>
  </div>
 
- <HighlightBox title="自动更新机制" icon="🔄" variant="green">
+ <HighlightBox title="自动更新机制" variant="green">
  <ul className="space-y-2 text-sm">
  <li><strong>CLI</strong>：运行 <code className="text-heading">npm update -g @google/gemini-cli</code> 或使用包管理器更新</li>
  <li><strong>VS Code 扩展</strong>：自动更新，或手动在扩展面板更新</li>
@@ -518,7 +518,7 @@ async function checkPortAvailability(port: number): Promise<boolean> {
  </ul>
  </HighlightBox>
 
- <HighlightBox title="版本不兼容症状" icon="🔍" variant="red">
+ <HighlightBox title="版本不兼容症状" variant="red">
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>

@@ -177,7 +177,7 @@ export default function ModelConfigCacheAnimation() {
  {/* Cache Stats */}
  <div className="bg-base/40 border border-edge rounded-lg p-4">
  <h3 className="text-heading font-bold mb-3 flex items-center gap-2">
- <span className="text-xl">📊</span> 缓存统计
+ 缓存统计
  </h3>
  <div className="grid grid-cols-3 gap-4 text-center">
  <div className="bg-elevated/10 rounded-lg p-3">
@@ -236,7 +236,7 @@ export default function ModelConfigCacheAnimation() {
  {/* Query Control */}
  <div className="bg-base/40 border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h3 className="text-heading font-bold mb-3 flex items-center gap-2">
- <span className="text-xl">🔍</span> 查询模型配置
+ 查询模型配置
  </h3>
  <div className="flex gap-2 mb-3">
  <select
@@ -280,7 +280,7 @@ export default function ModelConfigCacheAnimation() {
  {/* Action Buttons */}
  <div className="bg-base/40 border border-edge rounded-lg p-4">
  <h3 className="text-heading font-bold mb-3 flex items-center gap-2">
- <span className="text-xl">🎮</span> 操作控制
+ 操作控制
  </h3>
  <div className="grid grid-cols-2 gap-2">
  <button
@@ -293,14 +293,13 @@ export default function ModelConfigCacheAnimation() {
  <span className="animate-spin">⏳</span> 刷新中...
  </>
  ) : (
- <>🔄 手动刷新</>
+ <>手动刷新</>
  )}
  </button>
  <button
  onClick={clearCache}
  className="px-4 py-2 bg-[var(--color-danger)] text-heading rounded-lg font-medium hover:bg-[var(--color-danger)] transition-all"
- >
- 🗑️ 清空缓存
+ >清空缓存
  </button>
  </div>
  </div>
@@ -308,7 +307,7 @@ export default function ModelConfigCacheAnimation() {
  {/* Operation Logs */}
  <div className="bg-base/40 border border-edge-hover/30 rounded-lg p-4">
  <h3 className="text-body font-bold mb-3 flex items-center gap-2">
- <span className="text-xl">📝</span> 操作日志
+ 操作日志
  </h3>
  <div className="space-y-2 max-h-64 overflow-y-auto">
  {logs.length === 0 ? (

@@ -28,8 +28,7 @@ function Introduction({
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">🔍</span>
- <span className="text-xl font-bold text-heading">
+  <span className="text-xl font-bold text-heading">
  文件发现系统导读
  </span>
  </div>
@@ -43,8 +42,7 @@ function Introduction({
  {isExpanded && (
  <div className="px-6 pb-6 space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- 🎯 设计目标
+ <h4 className="text-heading font-bold mb-2">设计目标
  </h4>
  <p className="text-body text-sm">
  CLI 需要高效地搜索代码文件，同时尊重用户的 ignore 配置。
@@ -54,8 +52,7 @@ function Introduction({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- 💡 为什么需要这个系统
+ <h4 className="text-heading font-bold mb-2">为什么需要这个系统
  </h4>
  <div className="text-body text-sm space-y-2">
  <p><strong>问题 1：node_modules 太大</strong> - 不过滤的话，搜索一个文件可能要遍历几十万个文件</p>
@@ -65,7 +62,7 @@ function Introduction({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">📊 关键数字</h4>
+ <h4 className="text-heading font-bold mb-2">关键数字</h4>
  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
  <div className="text-center">
  <div className="text-xl font-bold text-heading">2</div>
@@ -625,19 +622,19 @@ logs/
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
  <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-3">
- <h4 className="text-heading font-semibold text-sm mb-2">🔴 硬性排除</h4>
+ <h4 className="text-heading font-semibold text-sm mb-2">硬性排除</h4>
  <p className="text-xs text-dim">
  内置规则 + 工具参数。无法覆盖，始终生效。
  </p>
  </div>
  <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-3">
- <h4 className="text-heading font-semibold text-sm mb-2">🟡 Git 排除</h4>
+ <h4 className="text-heading font-semibold text-sm mb-2">Git 排除</h4>
  <p className="text-xs text-dim">
  支持多级嵌套。可通过 respectGitIgnore=false 禁用。
  </p>
  </div>
  <div className="bg-elevated border border-edge rounded-lg p-3">
- <h4 className="text-heading font-semibold text-sm mb-2">🟣 CLI 排除</h4>
+ <h4 className="text-heading font-semibold text-sm mb-2">CLI 排除</h4>
  <p className="text-xs text-dim">
  .geminiignore 专属。适合敏感文件，优先级最高。
  </p>
@@ -653,7 +650,7 @@ logs/
 
  <div className="space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🎯 为什么需要两层 Ignore？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么需要两层 Ignore？</h4>
  <p className="text-body text-sm mb-2">
  <strong>核心矛盾</strong>：.gitignore 设计目的是排除版本控制，但 AI 需要排除的文件集合不同。
  </p>
@@ -668,7 +665,7 @@ logs/
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🎯 为什么 BFS 而不是 DFS？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么 BFS 而不是 DFS？</h4>
  <p className="text-body text-sm mb-2">
  <strong>核心问题</strong>：用户通常关心的文件在项目浅层，深层目录往往是依赖/缓存。
  </p>
@@ -683,7 +680,7 @@ logs/
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🎯 为什么目录级别提前过滤？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么目录级别提前过滤？</h4>
  <p className="text-body text-sm mb-2">
  <strong>性能关键</strong>：node_modules 可能包含 50,000+ 文件，逐个检查太慢。
  </p>
@@ -751,7 +748,7 @@ logs/
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
  <div className="bg-surface rounded-lg p-4 border border-edge/30">
- <h4 className="text-heading font-semibold mb-2">🚫 始终忽略</h4>
+ <h4 className="text-heading font-semibold mb-2">始终忽略</h4>
  <ul className="text-xs text-dim space-y-1 font-mono">
  <li>node_modules/</li>
  <li>.git/</li>
@@ -761,7 +758,7 @@ logs/
  </div>
 
  <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/30">
- <h4 className="text-heading font-semibold mb-2">📦 二进制文件</h4>
+ <h4 className="text-heading font-semibold mb-2">二进制文件</h4>
  <ul className="text-xs text-dim space-y-1 font-mono">
  <li>*.exe, *.dll, *.so</li>
  <li>*.zip, *.tar, *.gz</li>
@@ -770,7 +767,7 @@ logs/
  </div>
 
  <div className="bg-surface rounded-lg p-4 border border-edge/30">
- <h4 className="text-heading font-semibold mb-2">📁 常见目录</h4>
+ <h4 className="text-heading font-semibold mb-2">常见目录</h4>
  <ul className="text-xs text-dim space-y-1 font-mono">
  <li>.vscode/, .idea/</li>
  <li>dist/, build/</li>
@@ -985,7 +982,7 @@ logs/
  </h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
- <h4 className="text-heading font-semibold mb-2">✓ 推荐做法</h4>
+ <h4 className="text-heading font-semibold mb-2">推荐做法</h4>
  <ul className="text-sm text-body space-y-1">
  <li>使用 .geminiignore 排除敏感文件</li>
  <li>保持 .gitignore 更新，排除大型构建产物</li>
@@ -994,7 +991,7 @@ logs/
  </ul>
  </div>
  <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
- <h4 className="text-heading font-semibold mb-2">✗ 避免做法</h4>
+ <h4 className="text-heading font-semibold mb-2">避免做法</h4>
  <ul className="text-sm text-body space-y-1">
  <li>在大型 monorepo 中不设置 ignore</li>
  <li>搜索整个 node_modules 目录</li>

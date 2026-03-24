@@ -365,8 +365,7 @@ export default function MessageFormatPipelineAnimation() {
  {/* 转换管道 */}
  <div className="col-span-4">
  <div className="bg-base/60 rounded-lg p-4 border border-edge-hover h-full">
- <h3 className="text-sm font-semibold text-heading mb-3 font-mono">
- 🔄 Conversion Pipeline
+ <h3 className="text-sm font-semibold text-heading mb-3 font-mono">Conversion Pipeline
  </h3>
  <div className="space-y-3">
  {/* 角色映射 */}

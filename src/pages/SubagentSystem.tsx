@@ -25,8 +25,7 @@ export function SubagentSystem() {
  <div className="space-y-8">
  {/* Header */}
  <div className="border- border-edge pb-6">
- <h1 className="text-3xl font-bold text-heading mb-2">
- 🤖 Agent 子代理系统
+ <h1 className="text-3xl font-bold text-heading mb-2">Agent 子代理系统
  </h1>
  <p className="text-body">
  基于 Markdown + YAML frontmatter 配置的可扩展子代理框架，支持本地执行和远程 A2A 协议
@@ -46,8 +45,7 @@ export function SubagentSystem() {
 
  {/* 30秒速览 */}
  <section className="bg-surface rounded-xl p-6 border border-edge">
- <h2 className="text-xl font-bold text-heading mb-4 flex items-center gap-2">
- ⚡ 30秒速览
+ <h2 className="text-xl font-bold text-heading mb-4 flex items-center gap-2">30秒速览
  </h2>
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -141,8 +139,7 @@ export function SubagentSystem() {
 
  {/* 架构概览 */}
  <section className="bg-surface rounded-xl p-6 border border-edge">
- <h2 className="text-xl font-bold text-heading mb-4 flex items-center gap-2">
- 🏗️ 架构概览
+ <h2 className="text-xl font-bold text-heading mb-4 flex items-center gap-2">架构概览
  </h2>
 
  <MermaidDiagram
@@ -193,8 +190,7 @@ export function SubagentSystem() {
  onClick={() => toggleSection('types')}
  className="w-full flex items-center justify-between mb-4"
  >
- <h2 className="text-xl font-bold text-heading flex items-center gap-2">
- 📋 Agent 定义类型
+ <h2 className="text-xl font-bold text-heading flex items-center gap-2">Agent 定义类型
  </h2>
  <span className={`transform transition-transform ${expandedSections.has('types') ? 'rotate-180' : ''}`}>
  ▼
@@ -311,8 +307,7 @@ interface OutputConfig<T extends z.ZodTypeAny> {
  onClick={() => toggleSection('markdown')}
  className="w-full flex items-center justify-between mb-4"
  >
- <h2 className="text-xl font-bold text-heading flex items-center gap-2">
- 📄 Markdown 配置格式
+ <h2 className="text-xl font-bold text-heading flex items-center gap-2">Markdown 配置格式
  </h2>
  <span className={`transform transition-transform ${expandedSections.has('markdown') ? 'rotate-180' : ''}`}>
  ▼
@@ -459,7 +454,7 @@ async function loadAgentsFromDirectory(dir: string): Promise<AgentLoadResult> {
  </div>
 
  <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/30">
- <h4 className="text-heading font-bold mb-2">⚠️ 安全限制</h4>
+ <h4 className="text-heading font-bold mb-2">安全限制</h4>
  <p className="text-sm text-body">
  子 Agent 不能使用 <code className="text-heading">delegate_to_agent</code> 工具，
  防止无限递归和复杂的嵌套调用链。配置时 tools 列表中包含该工具会导致加载失败。
@@ -475,8 +470,7 @@ async function loadAgentsFromDirectory(dir: string): Promise<AgentLoadResult> {
  onClick={() => toggleSection('registry')}
  className="w-full flex items-center justify-between mb-4"
  >
- <h2 className="text-xl font-bold text-heading flex items-center gap-2">
- 📚 AgentRegistry 注册表
+ <h2 className="text-xl font-bold text-heading flex items-center gap-2">AgentRegistry 注册表
  </h2>
  <span className={`transform transition-transform ${expandedSections.has('registry') ? 'rotate-180' : ''}`}>
  ▼
@@ -758,8 +752,7 @@ private prepareToolsList(): FunctionDeclaration[] {
  onClick={() => toggleSection('builtin')}
  className="w-full flex items-center justify-between mb-4"
  >
- <h2 className="text-xl font-bold text-heading flex items-center gap-2">
- 🔧 内置 Agent
+ <h2 className="text-xl font-bold text-heading flex items-center gap-2">内置 Agent
  </h2>
  <span className={`transform transition-transform ${expandedSections.has('builtin') ? 'rotate-180' : ''}`}>
  ▼
@@ -868,8 +861,7 @@ export const CodebaseInvestigatorAgent: LocalAgentDefinition = {
  onClick={() => toggleSection('delegate')}
  className="w-full flex items-center justify-between mb-4"
  >
- <h2 className="text-xl font-bold text-heading flex items-center gap-2">
- 🎯 delegate_to_agent 工具
+ <h2 className="text-xl font-bold text-heading flex items-center gap-2">delegate_to_agent 工具
  </h2>
  <span className={`transform transition-transform ${expandedSections.has('delegate') ? 'rotate-180' : ''}`}>
  ▼
@@ -940,7 +932,7 @@ async execute(signal: AbortSignal): Promise<ToolResult> {
  />
 
  <div className="bg-elevated/10 rounded-lg p-4 border border-edge/30">
- <h4 className="text-heading font-bold mb-2">💡 使用示例</h4>
+ <h4 className="text-heading font-bold mb-2">使用示例</h4>
  <CodeBlock
  language="json"
  code={`// 模型生成的工具调用
@@ -963,8 +955,7 @@ async execute(signal: AbortSignal): Promise<ToolResult> {
  onClick={() => toggleSection('events')}
  className="w-full flex items-center justify-between mb-4"
  >
- <h2 className="text-xl font-bold text-heading flex items-center gap-2">
- 📡 事件与活动通知
+ <h2 className="text-xl font-bold text-heading flex items-center gap-2">事件与活动通知
  </h2>
  <span className={`transform transition-transform ${expandedSections.has('events') ? 'rotate-180' : ''}`}>
  ▼

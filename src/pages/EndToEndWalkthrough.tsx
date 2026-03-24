@@ -175,7 +175,7 @@ export function EndToEndWalkthrough() {
  {/* 30秒快速理解 */}
  <div className="mb-8 p-6 rounded-lg bg-surface border border-edge">
  <h3 className="text-xl font-bold text-heading mb-4 flex items-center gap-2">
- <span>⚡</span> 30 秒快速理解
+ 30 秒快速理解
  </h3>
  <div className="space-y-3 text-body text-sm">
  <p>
@@ -194,18 +194,18 @@ export function EndToEndWalkthrough() {
  </div>
  </div>
 
- <Layer title="端到端流程图" icon="🗺️">
+ <Layer title="端到端流程图">
  <MermaidDiagram chart={e2eFlow} />
  <p className="text-sm text-dim mt-2 text-center">
  蓝色起点 → 黄色审批关卡 → 绿色终点
  </p>
  </Layer>
 
- <Layer title="详细时序图" icon="📊">
+ <Layer title="详细时序图">
  <MermaidDiagram chart={sequenceDiagram} />
  </Layer>
 
- <CollapsibleSection title="阶段 1：用户输入与启动" icon="1️⃣" defaultOpen={true} highlight>
+ <CollapsibleSection title="阶段 1：用户输入与启动" defaultOpen={true} highlight>
  <StageCard
  number={1}
  title="用户输入与启动"
@@ -225,7 +225,7 @@ export function EndToEndWalkthrough() {
  />
  </CollapsibleSection>
 
- <CollapsibleSection title="阶段 2：消息预处理" icon="2️⃣" defaultOpen={true} highlight>
+ <CollapsibleSection title="阶段 2：消息预处理" defaultOpen={true} highlight>
  <StageCard
  number={2}
  title="消息预处理"
@@ -256,7 +256,7 @@ export function EndToEndWalkthrough() {
  </div>
  </CollapsibleSection>
 
- <CollapsibleSection title="阶段 3：构建 API 请求" icon="3️⃣" defaultOpen={true}>
+ <CollapsibleSection title="阶段 3：构建 API 请求" defaultOpen={true}>
  <StageCard
  number={3}
  title="构建 API 请求"
@@ -304,7 +304,7 @@ export function EndToEndWalkthrough() {
  </div>
  </CollapsibleSection>
 
- <CollapsibleSection title="阶段 4：流式响应处理" icon="4️⃣" defaultOpen={true}>
+ <CollapsibleSection title="阶段 4：流式响应处理" defaultOpen={true}>
  <StageCard
  number={4}
  title="流式响应处理"
@@ -338,7 +338,7 @@ chunk: { candidates: [{ finishReason: "STOP" }] }`}
  </div>
  </CollapsibleSection>
 
- <CollapsibleSection title="阶段 5：工具调用与执行" icon="5️⃣" defaultOpen={true}>
+ <CollapsibleSection title="阶段 5：工具调用与执行" defaultOpen={true}>
  <StageCard
  number={5}
  title="工具调用与执行"
@@ -390,7 +390,7 @@ chunk: { candidates: [{ finishReason: "STOP" }] }`}
  </div>
  </CollapsibleSection>
 
- <CollapsibleSection title="阶段 6：循环与终止" icon="6️⃣" defaultOpen={true}>
+ <CollapsibleSection title="阶段 6：循环与终止" defaultOpen={true}>
  <StageCard
  number={6}
  title="循环与终止"
@@ -420,7 +420,7 @@ chunk: { candidates: [{ finishReason: "STOP" }] }`}
  </div>
  </CollapsibleSection>
 
- <CollapsibleSection title="阶段 7：最终输出与持久化" icon="7️⃣" defaultOpen={true}>
+ <CollapsibleSection title="阶段 7：最终输出与持久化" defaultOpen={true}>
  <StageCard
  number={7}
  title="最终输出与持久化"
@@ -459,7 +459,7 @@ chunk: { candidates: [{ finishReason: "STOP" }] }`}
  </div>
  </CollapsibleSection>
 
- <Layer title="关键入口（建议打开的源码点）" icon="🔍">
+ <Layer title="关键入口（建议打开的源码点）">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="CLI 交互主循环" variant="green">
  <div className="text-sm text-body">
@@ -502,7 +502,7 @@ chunk: { candidates: [{ finishReason: "STOP" }] }`}
  </div>
  </Layer>
 
- <Layer title="常见问题" icon="💬">
+ <Layer title="常见问题">
  <div className="space-y-3 text-sm text-body">
  <div className="p-4 bg-surface rounded-lg border border-edge">
  <div className="text-heading font-semibold">Q：为什么需要"审批/沙箱"？</div>

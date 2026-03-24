@@ -29,7 +29,7 @@ export function VisionModelSwitch() {
  <div className="space-y-8">
  <h2 className="text-2xl font-bold text-heading mb-2">多模态输入（图片/文件）机制</h2>
 
- <HighlightBox title="先澄清：上游不靠 authType 自动切 VLM" icon="📌" variant="yellow">
+ <HighlightBox title="先澄清：上游不靠 authType 自动切 VLM" variant="yellow">
  <ul className="pl-5 list-disc text-sm space-y-1">
  <li>上游 gemini-cli 的主线把图片/文件当作 <code>Part</code>（<code>inlineData</code>/<code>fileData</code>）随请求一起发送</li>
  <li>是否“能理解图片”取决于所选模型是否支持多模态；模型选择由 <code>model</code>/<code>routing</code> 决定</li>

@@ -32,7 +32,7 @@ export function StreamingResponseProcessing() {
 
  return (
  <div className="max-w-4xl mx-auto">
- <h1>🌊 流式响应处理详解</h1>
+ <h1>流式响应处理详解</h1>
 
  <HighlightBox title="📌 30秒速览（上游 Gemini CLI）" variant="blue">
  <ul className="m-0 leading-relaxed">
@@ -69,7 +69,7 @@ export function StreamingResponseProcessing() {
  {/* Overview Tab */}
  {activeTab === 'overview' && (
  <section>
- <h2>🔄 流式响应架构</h2>
+ <h2>流式响应架构</h2>
 
  <p className="text-heading">
  Gemini CLI 的“流式”不是把一堆 <code>data: ...</code> 文本行（SSE）交给解析器去拼 JSON；
@@ -193,7 +193,7 @@ for await (const streamEvent of responseStream) {
  {/* Parser Tab */}
  {activeTab === 'parser' && (
  <section>
- <h2>🧠 事件解码：从 chunk 到 GeminiEventType</h2>
+ <h2>事件解码：从 chunk 到 GeminiEventType</h2>
 
  <p className="text-heading">
  这一层的目标不是“把字符串拼成 JSON”，而是把底层响应（<code>GenerateContentResponse</code>）转换为 UI/调度器能消费的<strong>语义事件</strong>。
@@ -247,7 +247,7 @@ private handlePendingFunctionCall(fnCall: FunctionCall, traceId?: string) {
  {/* Merge Tab */}
  {activeTab === 'merge' && (
  <section>
- <h2>🏁 Finished / UsageMetadata / Citation</h2>
+ <h2>Finished / UsageMetadata / Citation</h2>
 
  <p className="text-heading">
  上游 Gemini CLI 的关键规则是：<strong>只在 chunk 出现 <code>finishReason</code> 时发出 <code>GeminiEventType.Finished</code></strong>。
@@ -315,7 +315,7 @@ if (finishReason) {
  {/* Repair Tab */}
  {activeTab === 'repair' && (
  <section>
- <h2>♻️ InvalidStream & Retry</h2>
+ <h2>InvalidStream & Retry</h2>
 
  <p className="text-heading">
  上游 Gemini CLI 面对“流式不可靠”时的策略不是修复 JSON 字符串，而是把它视为<strong>无效流</strong>并进行一次重试：
@@ -362,7 +362,7 @@ for (let attempt = 0; attempt < maxAttempts; attempt++) {
 
  {/* 错误处理 */}
  <section className="mt-8">
- <h2>🚨 错误处理</h2>
+ <h2>错误处理</h2>
 
  <CodeBlock language="typescript" code={`// gemini-cli/packages/core/src/core/turn.ts (simplified)
 
@@ -380,36 +380,36 @@ try {
 
  {/* 相关链接 */}
  <section className="mt-8">
- <h2>🔗 相关文档</h2>
+ <h2>相关文档</h2>
 
  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
  <button onClick={() => navigate('gemini-chat')} className="block p-4 text-left bg-[rgba(59,130,246,0.1)] rounded-lg hover:bg-[rgba(59,130,246,0.2)] transition-colors border-none cursor-pointer">
- <h4 className="text-heading m-0 mb-2">💬 GeminiChat 核心</h4>
+ <h4 className="text-heading m-0 mb-2">GeminiChat 核心</h4>
  <p className="m-0 text-sm text-body">sendMessageStream 与重试</p>
  </button>
 
  <button onClick={() => navigate('turn-internal-anim')} className="block p-4 text-left bg-[rgba(139,92,246,0.1)] rounded-lg hover:bg-[rgba(139,92,246,0.2)] transition-colors border-none cursor-pointer">
- <h4 className="text-heading m-0 mb-2">🎬 Turn 状态流转</h4>
+ <h4 className="text-heading m-0 mb-2">Turn 状态流转</h4>
  <p className="m-0 text-sm text-body">GeminiEventType 事件细节</p>
  </button>
 
  <button onClick={() => navigate('session-state-anim')} className="block p-4 text-left bg-[rgba(236,72,153,0.1)] rounded-lg hover:bg-[rgba(236,72,153,0.2)] transition-colors border-none cursor-pointer">
- <h4 className="text-heading m-0 mb-2">🎬 会话状态机</h4>
+ <h4 className="text-heading m-0 mb-2">会话状态机</h4>
  <p className="m-0 text-sm text-body">Retry/Finished/ToolCallRequest</p>
  </button>
 
  <button onClick={() => navigate('retry')} className="block p-4 text-left bg-[rgba(245,158,11,0.1)] rounded-lg hover:bg-[rgba(245,158,11,0.2)] transition-colors border-none cursor-pointer">
- <h4 className="text-heading m-0 mb-2">♻️ 重试回退</h4>
+ <h4 className="text-heading m-0 mb-2">重试回退</h4>
  <p className="m-0 text-sm text-body">InvalidStream / 网络错误处理</p>
  </button>
 
  <button onClick={() => navigate('tool-scheduler')} className="block p-4 text-left bg-[rgba(16,185,129,0.1)] rounded-lg hover:bg-[rgba(16,185,129,0.2)] transition-colors border-none cursor-pointer">
- <h4 className="text-heading m-0 mb-2">🔧 工具调度详解</h4>
+ <h4 className="text-heading m-0 mb-2">工具调度详解</h4>
  <p className="m-0 text-sm text-body">ToolCallRequest → 执行 → continuation</p>
  </button>
 
  <button onClick={() => navigate('error-recovery-patterns')} className="block p-4 text-left bg-[rgba(239,68,68,0.1)] rounded-lg hover:bg-[rgba(239,68,68,0.2)] transition-colors border-none cursor-pointer">
- <h4 className="text-heading m-0 mb-2">🛡️ 错误恢复模式</h4>
+ <h4 className="text-heading m-0 mb-2">错误恢复模式</h4>
  <p className="m-0 text-sm text-body">流式错误处理策略</p>
  </button>
  </div>

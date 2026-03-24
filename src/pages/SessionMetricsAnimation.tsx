@@ -414,7 +414,7 @@ export default function SessionMetricsAnimation() {
             highlightedSection === 'api' ? 'border-edge ring-2 ring-[color:var(--color-warning-soft)]' : 'border-edge'
           }`}>
             <h2 className="text-lg font-semibold text-heading mb-4 flex items-center gap-2">
-              <span className="text-xl">🤖</span> ModelMetrics
+              ModelMetrics
             </h2>
 
             {Object.keys(metrics.models).length === 0 ? (
@@ -466,7 +466,7 @@ export default function SessionMetricsAnimation() {
             highlightedSection === 'tools' ? 'border-edge ring-2 ring-[color:var(--color-warning-soft)]' : 'border-edge'
           }`}>
             <h2 className="text-lg font-semibold text-heading mb-4 flex items-center gap-2">
-              <span className="text-xl">🔧</span> ToolCallStats
+              ToolCallStats
             </h2>
 
             {/* Summary */}
@@ -533,7 +533,7 @@ export default function SessionMetricsAnimation() {
             highlightedSection === 'computed' ? 'border-accent ring-2 ring-accent-light' : 'border-edge'
           }`}>
             <h2 className="text-lg font-semibold text-heading mb-4 flex items-center gap-2">
-              <span className="text-xl">📊</span> ComputedSessionStats
+              ComputedSessionStats
             </h2>
 
             <div className="space-y-4">

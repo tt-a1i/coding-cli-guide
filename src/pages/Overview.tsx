@@ -100,13 +100,12 @@ export function Overview() {
  className="text-xs text-dim hover:text-heading transition-colors flex items-center gap-1"
  >
  <span>查看源码</span>
- <span>↗</span>
- </a>
+  </a>
  </div>
 
  <Introduction isExpanded={isIntroExpanded} onToggle={() => setIsIntroExpanded(!isIntroExpanded)} />
 
- <Layer title="整体架构" icon="🏗️">
+ <Layer title="整体架构">
  <HighlightBox title="核心理解" variant="info">
  <p>
  <strong>AI 不是一直运行的！</strong> 每次 AI
@@ -121,27 +120,27 @@ export function Overview() {
  </HighlightBox>
 
  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mt-5">
- <Module icon="👤" name="用户" description="在终端输入问题" />
+ <Module name="用户" description="在终端输入问题" />
  <Module
- icon="🖥️"
+
  name="CLI 层"
  path="packages/cli"
  description="UI 渲染、用户交互"
  />
  <Module
- icon="⚙️"
+
  name="Core 层"
  path="packages/core"
  description="AI 客户端、工具调度"
  />
  <Module
- icon="🔧"
+
  name="工具层"
  path="packages/core/src/tools"
  description="ReadFile、Edit、Shell 等"
  />
  <Module
- icon="☁️"
+
  name="AI API"
  description="Gemini API / Vertex AI / Code Assist"
  />
@@ -154,19 +153,19 @@ export function Overview() {
  </h4>
  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
  <Module
- icon="🪝"
+
  name="Hook 系统"
  path="packages/core/src/hooks"
  description="事件拦截与扩展点"
  />
  <Module
- icon="🛡️"
+
  name="Policy 引擎"
  path="packages/core/src/policy"
  description="安全策略与权限决策"
  />
  <Module
- icon="📡"
+
  name="消息总线"
  path="packages/core/src/confirmation-bus"
  description="发布/订阅异步通信"
@@ -181,13 +180,13 @@ export function Overview() {
  </h4>
  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
  <Module
- icon="🔀"
+
  name="模型路由"
  path="packages/core/src/routing"
  description="Flash/Pro 智能选择"
  />
  <Module
- icon="🤖"
+
  name="Agent 框架"
  path="packages/core/src/agents"
  description="子代理执行与编排"
@@ -197,34 +196,26 @@ export function Overview() {
  </Layer>
 
  {/* 核心流程 */}
- <Layer title="核心交互流程" icon="🔄">
+ <Layer title="核心交互流程">
  <div className="bg-surface rounded-lg p-6 border border-edge">
  <div className="flex flex-col md:flex-row items-center justify-between gap-4">
  <div className="flex-1 text-center">
- <div className="w-16 h-16 mx-auto rounded-full bg-elevated flex items-center justify-center text-2xl border-2 border-edge-hover">
- 👤
- </div>
+ <div className="w-16 h-16 mx-auto rounded-full bg-elevated flex items-center justify-center text-2xl border-2 border-edge-hover"></div>
  <div className="mt-2 text-sm text-heading">用户输入</div>
  </div>
  <div className="text-dim text-2xl">→</div>
  <div className="flex-1 text-center">
- <div className="w-16 h-16 mx-auto rounded-full bg-elevated flex items-center justify-center text-2xl border-2 border-edge-hover">
- 🤖
- </div>
+ <div className="w-16 h-16 mx-auto rounded-full bg-elevated flex items-center justify-center text-2xl border-2 border-edge-hover"></div>
  <div className="mt-2 text-sm text-heading">AI 思考</div>
  </div>
  <div className="text-dim text-2xl">→</div>
  <div className="flex-1 text-center">
- <div className="w-16 h-16 mx-auto rounded-full bg-elevated flex items-center justify-center text-2xl border-2 border-edge-hover">
- 🔧
- </div>
+ <div className="w-16 h-16 mx-auto rounded-full bg-elevated flex items-center justify-center text-2xl border-2 border-edge-hover"></div>
  <div className="mt-2 text-sm text-heading">工具执行</div>
  </div>
  <div className="text-dim text-2xl">→</div>
  <div className="flex-1 text-center">
- <div className="w-16 h-16 mx-auto rounded-full bg-elevated flex items-center justify-center text-2xl border-2 border-edge-hover">
- 📝
- </div>
+ <div className="w-16 h-16 mx-auto rounded-full bg-elevated flex items-center justify-center text-2xl border-2 border-edge-hover"></div>
  <div className="mt-2 text-sm text-heading">结果反馈</div>
  </div>
  <div className="text-dim text-2xl hidden md:block">↻</div>
@@ -236,7 +227,7 @@ export function Overview() {
  </Layer>
 
  {/* 数据流详解 */}
- <Layer title="数据流详解" icon="🌊">
+ <Layer title="数据流详解">
  <p className="mb-4">
  理解数据在系统中如何流动是掌握架构的关键。下图展示了一次完整交互中数据的流向：
  </p>
@@ -363,7 +354,7 @@ sequenceDiagram
  </HighlightBox>
  </Layer>
 
- <Layer title="常见问题" icon="❓">
+ <Layer title="常见问题">
  <ComparisonTable
  headers={['问题', '答案']}
  rows={[
@@ -412,7 +403,7 @@ sequenceDiagram
  </Layer>
 
  {/* 关键数字 */}
- <Layer title="关键数字" icon="📊">
+ <Layer title="关键数字">
  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
  <div className="bg-surface rounded-lg p-4 border border-edge text-center">
  <div className="text-2xl font-bold text-heading">14</div>
@@ -473,7 +464,7 @@ sequenceDiagram
  </Layer>
 
  {/* 分层架构的深层原因 */}
- <Layer title="为什么要分层？" icon="🏛️">
+ <Layer title="为什么要分层？">
  <p className="mb-4">
  分层架构不是"为了整洁"，而是解决了真实的工程问题。每一层都有其存在的必要性：
  </p>
@@ -614,7 +605,7 @@ graph TB
  </Layer>
 
  {/* 事件驱动架构 */}
- <Layer title="事件驱动架构" icon="🎯">
+ <Layer title="事件驱动架构">
  <p className="mb-4">
  Gemini CLI 采用事件驱动架构实现松耦合的组件通信。核心是 Hook System、Policy Engine 和 MessageBus 的协作：
  </p>
@@ -745,7 +736,7 @@ graph LR
  </Layer>
 
  {/* 常见故障模式 */}
- <Layer title="常见故障模式与应对" icon="🚨">
+ <Layer title="常见故障模式与应对">
  <p className="mb-4">
  了解系统可能出现的故障模式，可以帮助你更快地定位和解决问题：
  </p>
@@ -887,7 +878,7 @@ flowchart TD
  </Layer>
 
  {/* 进阶阅读 */}
- <Layer title="进阶阅读路线" icon="📚">
+ <Layer title="进阶阅读路线">
  <p className="mb-4">
  根据你的学习目标，选择合适的深入方向：
  </p>

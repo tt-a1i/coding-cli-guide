@@ -55,7 +55,7 @@ export function AIToolInteraction() {
  </p>
  </div>
 
- <HighlightBox title="术语对齐（非常重要）" icon="🧭" variant="yellow">
+ <HighlightBox title="术语对齐（非常重要）" variant="yellow">
  <div className="space-y-2 text-sm text-heading">
  <p className="m-0">
  上游 Gemini CLI 主线使用 <code>tools: [&#123; functionDeclarations: FunctionDeclaration[] &#125;]</code> 声明工具，
@@ -67,11 +67,11 @@ export function AIToolInteraction() {
  </div>
  </HighlightBox>
 
- <Layer title="端到端时序" icon="🗺️" defaultOpen>
+ <Layer title="端到端时序" defaultOpen>
  <MermaidDiagram chart={sequence} />
  </Layer>
 
- <Layer title="1) 工具声明（FunctionDeclaration）" icon="📋">
+ <Layer title="1) 工具声明（FunctionDeclaration）">
  <p className="text-body mb-4">
  CLI 每次向模型发起请求时，会把当前可用工具的 <code>FunctionDeclaration</code> 一并发送。上游实现来自：
  <code className="ml-2 text-heading">packages/core/src/tools/tool-registry.ts</code> 与
@@ -120,7 +120,7 @@ getFunctionDeclarations(): FunctionDeclaration[] {
 }`}
  />
 
- <HighlightBox title="要点" icon="💡" variant="blue">
+ <HighlightBox title="要点" variant="blue">
  <ul className="pl-5 list-disc space-y-1 text-sm text-heading">
  <li><code>parametersJsonSchema</code> 是上游的字段名（不是 <code>parameters</code>）。</li>
  <li><code>read_file</code> 参数名是 <code>file_path</code>（不是 <code>absolute_path</code>）。</li>
@@ -128,7 +128,7 @@ getFunctionDeclarations(): FunctionDeclaration[] {
  </HighlightBox>
  </Layer>
 
- <Layer title="2) 模型请求工具（functionCall / functionCalls）" icon="🤖">
+ <Layer title="2) 模型请求工具（functionCall / functionCalls）">
  <p className="text-body mb-4">
  Gemini SDK 的响应 chunk 可以直接通过 <code>resp.functionCalls</code> 读取工具请求（SDK 从候选内容 parts 中推导得到）。上游核心处理在 <code>Turn.run()</code>：
  </p>
@@ -158,14 +158,14 @@ for (const fnCall of functionCalls) {
 }`}
  />
 
- <HighlightBox title="args 是对象，不需要 JSON.parse" icon="✅" variant="green">
+ <HighlightBox title="args 是对象，不需要 JSON.parse" variant="green">
  <p className="m-0 text-sm text-heading">
  上游主线里 <code>fnCall.args</code> 已经是对象。只有在 OpenAI-compatible 兼容层里，才会遇到 <code>arguments</code> 为 JSON 字符串需要解析的情况。
  </p>
  </HighlightBox>
  </Layer>
 
- <Layer title="3) 调度与执行（CoreToolScheduler → ToolInvocation）" icon="⚙️">
+ <Layer title="3) 调度与执行（CoreToolScheduler → ToolInvocation）">
  <p className="text-body mb-4">
  <code>ToolCallRequest</code> 事件到达后，CLI 把它交给 <code>CoreToolScheduler</code>：负责队列、确认、执行、以及把结果转换为 <code>functionResponse</code> parts。
  </p>
@@ -184,7 +184,7 @@ const confirmation = await invocation.shouldConfirmExecute(signal);
 `}
  />
 
- <HighlightBox title="两个关键边界" icon="⚠️" variant="yellow">
+ <HighlightBox title="两个关键边界" variant="yellow">
  <ul className="pl-5 list-disc space-y-1 text-sm text-heading">
  <li><strong>参数非法</strong>：<code>tool.build(args)</code> 会直接抛错或返回 INVALID_TOOL_PARAMS 类错误。</li>
  <li><strong>需要确认</strong>：<code>shouldConfirmExecute()</code> 由 policy + messageBus 决策（ALLOW/DENY/ASK_USER）。</li>
@@ -192,7 +192,7 @@ const confirmation = await invocation.shouldConfirmExecute(signal);
  </HighlightBox>
  </Layer>
 
- <Layer title="4) 回传 functionResponse 并继续（Continuation）" icon="📤">
+ <Layer title="4) 回传 functionResponse 并继续（Continuation）">
  <p className="text-body mb-4">
  工具执行结果会被转换为 Gemini 的 <code>functionResponse</code> part，并以 <code>role: 'user'</code> 的消息写回历史，
  然后再发起一次 continuation 请求，让模型基于结果继续完成任务。
@@ -220,14 +220,14 @@ export function convertToFunctionResponse(
  />
  </Layer>
 
- <Layer title="5) 多工具调用与 finishReason" icon="🧩">
- <HighlightBox title="一次响应里可能有多个 functionCalls" icon="📦" variant="blue">
+ <Layer title="5) 多工具调用与 finishReason">
+ <HighlightBox title="一次响应里可能有多个 functionCalls" variant="blue">
  <p className="m-0 text-sm text-heading">
  <code>resp.functionCalls</code> 是数组：模型可能一次请求多个工具调用。CLI 的 scheduler 会把它们排队执行，并逐个回传对应的 functionResponse。
  </p>
  </HighlightBox>
 
- <HighlightBox title="finishReason 是状态信号" icon="🔄" variant="purple">
+ <HighlightBox title="finishReason 是状态信号" variant="purple">
  <ul className="pl-5 list-disc space-y-1 text-sm text-heading">
  <li><code>TOOL_USE</code>：模型请求工具（本轮会出现 functionCalls）。</li>
  <li><code>STOP</code>：模型认为本轮已经完成自然语言回复。</li>
@@ -236,7 +236,7 @@ export function convertToFunctionResponse(
  </HighlightBox>
  </Layer>
 
- <Layer title="6) 错误与停止执行（含 stop_execution）" icon="🧨">
+ <Layer title="6) 错误与停止执行（含 stop_execution）">
  <p className="text-body mb-4">
  工具执行失败也必须返回给模型（让它理解发生了什么并决定下一步）。上游用 <code>ToolResult.error</code> 携带机器可读的 <code>ToolErrorType</code>。
  </p>
@@ -275,7 +275,7 @@ if (beforeOutput?.shouldStopExecution()) {
  />
  </Layer>
 
- <Layer title="Fork-only：OpenAI tool_calls 对照" icon="🧷">
+ <Layer title="Fork-only：OpenAI tool_calls 对照">
  <div className="space-y-3 text-body text-sm">
  <p className="m-0">
  如果你的 fork 需要兼容 OpenAI 协议：<code>tool_calls[].function.arguments</code> 通常是 JSON 字符串，需要 <code>JSON.parse</code> 才能得到对象；

@@ -70,7 +70,7 @@ function DesignRationaleCard({ title, why, how, benefit }: {
 }) {
  return (
  <div className="my-4 rounded-lg border-l-2 border-l-edge-hover bg-surface p-5">
- <h4 className="mb-3 text-lg font-semibold text-heading">💡 {title}</h4>
+ <h4 className="mb-3 text-lg font-semibold text-heading">{title}</h4>
  <div className="space-y-3 text-sm">
  <div>
  <span className="font-medium text-heading">为什么：</span>
@@ -93,7 +93,7 @@ function DesignRationaleCard({ title, why, how, benefit }: {
 function SessionFileVisualization() {
  return (
  <div className="my-6 p-6 bg-surface rounded-lg border border-edge/50">
- <h4 className="text-lg font-semibold text-heading mb-4">📁 会话存储结构</h4>
+ <h4 className="text-lg font-semibold text-heading mb-4">会话存储结构</h4>
  <div className="font-mono text-sm space-y-1">
  <div className="text-body">~/.gemini/</div>
  <div className="pl-4 text-body">└── tmp/</div>
@@ -123,7 +123,7 @@ function SessionRecordFlow() {
 
  return (
  <div className="my-6 rounded-lg border-l-2 border-l-edge-hover bg-surface p-6">
- <h4 className="mb-4 text-lg font-semibold text-heading">📝 会话记录数据流</h4>
+ <h4 className="mb-4 text-lg font-semibold text-heading">会话记录数据流</h4>
  <div className="flex items-center justify-between overflow-x-auto pb-2">
  {steps.map((step, i) => (
  <div key={i} className="flex items-center min-w-[100px]">
@@ -149,7 +149,7 @@ function CompressionThresholdVisualization() {
 
  return (
  <div className="my-6 rounded-lg border-l-2 border-l-edge-hover bg-surface p-6">
- <h4 className="text-lg font-semibold text-heading mb-4">📊 压缩阈值判断</h4>
+ <h4 className="text-lg font-semibold text-heading mb-4">压缩阈值判断</h4>
 
  <div className="mb-4">
  <label className="block text-sm text-body mb-2">
@@ -240,7 +240,7 @@ function CompressionSplitPointVisualization() {
 
  return (
  <div className="my-6 p-6 bg-surface rounded-lg border border-edge">
- <h4 className="text-lg font-semibold text-heading mb-4">✂️ 压缩分割点算法</h4>
+ <h4 className="text-lg font-semibold text-heading mb-4">压缩分割点算法</h4>
 
  <div className="space-y-2">
  {messages.map((msg, i) => {
@@ -292,8 +292,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  onClick={onToggle}
  className="w-full text-left group"
  >
- <h1 className="text-3xl font-bold bg-surface text-heading mb-4 flex items-center gap-3">
- 💾 Session 持久化与上下文压缩
+ <h1 className="text-3xl font-bold bg-surface text-heading mb-4 flex items-center gap-3">Session 持久化与上下文压缩
  <span className={`text-lg text-dim transition-transform ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
  </h1>
  </button>
@@ -614,7 +613,7 @@ function BestPracticesSection() {
  <div className="pt-6 space-y-4">
  <div className="grid grid-cols-2 gap-4">
  <div className="rounded-lg border-l-2 border-l-edge-hover bg-elevated p-4">
- <h4 className="mb-2 font-semibold text-heading">✓ 推荐做法</h4>
+ <h4 className="mb-2 font-semibold text-heading">推荐做法</h4>
  <ul className="text-sm text-body space-y-2">
  <li>定期让 AI 生成阶段性总结</li>
  <li>使用 CLAUDE.md 记录关键决策</li>
@@ -623,7 +622,7 @@ function BestPracticesSection() {
  </ul>
  </div>
  <div className="rounded-lg border-l-2 border-l-edge-hover bg-elevated p-4">
- <h4 className="mb-2 font-semibold text-heading">✗ 避免做法</h4>
+ <h4 className="mb-2 font-semibold text-heading">避免做法</h4>
  <ul className="text-sm text-body space-y-2">
  <li>在一个会话中处理过多不相关任务</li>
  <li>忽略 Token 使用量警告</li>
@@ -698,7 +697,7 @@ function EdgeCasesSection() {
 
  {/* 故障恢复指南 */}
  <div className="bg-surface rounded-lg p-5">
- <h4 className="text-lg font-semibold text-heading mb-4">🔧 常见问题排查</h4>
+ <h4 className="text-lg font-semibold text-heading mb-4">常见问题排查</h4>
  <div className="space-y-4">
  <div className="bg-base/30 rounded-lg p-4">
  <div className="text-heading font-medium mb-2">问题: Welcome Back 列表为空</div>
@@ -832,7 +831,7 @@ export function SessionPersistence() {
 
  <CollapsibleSection
  title="会话记录服务 (ChatRecordingService)"
- icon="💾"
+
  defaultOpen={true}
  highlight
  >
@@ -841,7 +840,7 @@ export function SessionPersistence() {
 
  <CollapsibleSection
  title="上下文压缩 (ChatCompressionService)"
- icon="📦"
+
  defaultOpen={true}
  highlight
  >
@@ -850,7 +849,7 @@ export function SessionPersistence() {
 
  <CollapsibleSection
  title="会话恢复 (Welcome Back)"
- icon="🔄"
+
  defaultOpen={false}
  >
  <SessionResumeSection />
@@ -858,7 +857,7 @@ export function SessionPersistence() {
 
  <CollapsibleSection
  title="最佳实践"
- icon="📋"
+
  defaultOpen={false}
  >
  <BestPracticesSection />
@@ -866,7 +865,7 @@ export function SessionPersistence() {
 
  <CollapsibleSection
  title="边界情况与故障恢复"
- icon="⚠️"
+
  defaultOpen={false}
  >
  <EdgeCasesSection />
@@ -874,7 +873,7 @@ export function SessionPersistence() {
 
  <CollapsibleSection
  title="为什么这样设计？"
- icon="💡"
+
  defaultOpen={false}
  >
  <DesignDecisionsSection />

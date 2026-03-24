@@ -17,7 +17,7 @@ export function CommandExecutionContext() {
 
  return (
  <div className="max-w-4xl mx-auto">
- <h1>🎯 命令执行上下文详解</h1>
+ <h1>命令执行上下文详解</h1>
 
  <div className="info-box" style={{
  background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1))',
@@ -26,7 +26,7 @@ export function CommandExecutionContext() {
  borderRadius: '8px',
  marginBottom: '2rem'
  }}>
- <h3 style={{ margin: '0 0 1rem 0', color: 'sky-400' }}>📌 30秒速览</h3>
+ <h3 style={{ margin: '0 0 1rem 0', color: 'sky-400' }}>30秒速览</h3>
  <ul style={{ margin: 0, lineHeight: 1.8 }}>
  <li><strong>CommandContext</strong>：命令执行的核心上下文对象，包含 services、ui、session 三大模块</li>
  <li><strong>Command Loaders</strong>：三种命令加载器 - Built-in、File(TOML)、MCP Prompt</li>
@@ -70,7 +70,7 @@ export function CommandExecutionContext() {
  {/* Context Tab */}
  {activeTab === 'context' && (
  <section>
- <h2>📦 CommandContext 核心接口</h2>
+ <h2>CommandContext 核心接口</h2>
 
  <p>
  <code>CommandContext</code> 是命令执行的核心上下文对象，它将所有命令执行所需的依赖项打包在一起，
@@ -168,7 +168,7 @@ export interface CommandContext {
 
  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(au, minmax(300px, 1fr))', gap: '1rem' }}>
  <div className="card" style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '1rem', borderRadius: '8px' }}>
- <h4 style={{ color: 'sky-400' }}>🎯 依赖注入</h4>
+ <h4 style={{ color: 'sky-400' }}>依赖注入</h4>
  <p>
  将所有依赖通过 Context 注入，而非直接导入。这使得命令实现可以被隔离测试，
  通过 <code>createMockCommandContext()</code> 创建测试用的 mock 对象。
@@ -176,7 +176,7 @@ export interface CommandContext {
  </div>
 
  <div className="card" style={{ background: 'rgba(139, 92, 246, 0.1)', padding: '1rem', borderRadius: '8px' }}>
- <h4 style={{ color: 'sky-400' }}>📦 分层设计</h4>
+ <h4 style={{ color: 'sky-400' }}>分层设计</h4>
  <p>
  Context 分为 services（基础设施）、ui（界面操作）、session（会话状态）三层，
  职责清晰，便于理解和维护。
@@ -184,7 +184,7 @@ export interface CommandContext {
  </div>
 
  <div className="card" style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '1rem', borderRadius: '8px' }}>
- <h4 style={{ color: 'sky-400' }}>🔄 动态扩展</h4>
+ <h4 style={{ color: 'sky-400' }}>动态扩展</h4>
  <p>
  <code>invocation</code> 和 <code>overwriteConfirmed</code> 是可选字段，
  在执行时动态注入，支持命令重试和确认流程。
@@ -240,7 +240,7 @@ export const createMockCommandContext = (
  {/* Loaders Tab */}
  {activeTab === 'loaders' && (
  <section>
- <h2>🔌 命令加载器架构</h2>
+ <h2>命令加载器架构</h2>
 
  <p>
  Gemini CLI 使用<strong>提供者模式</strong>加载命令。三种加载器分别负责不同来源的命令，
@@ -434,7 +434,7 @@ static async create(loaders: ICommandLoader[], signal: AbortSignal) {
  borderRadius: '8px',
  marginTop: '1rem'
  }}>
- <h4 style={{ color: 'amber-500', margin: '0 0 0.5rem 0' }}>⚠️ 加载顺序影响</h4>
+ <h4 style={{ color: 'amber-500', margin: '0 0 0.5rem 0' }}>加载顺序影响</h4>
  <p style={{ margin: 0 }}>
  <strong>非扩展命令</strong>（用户/项目）采用"后来者覆盖"策略；
  <strong>扩展命令</strong>冲突时会被重命名为 <code>extensionName.commandName</code>。
@@ -446,7 +446,7 @@ static async create(loaders: ICommandLoader[], signal: AbortSignal) {
  {/* Actions Tab */}
  {activeTab === 'actions' && (
  <section>
- <h2>🎬 SlashCommandActionReturn 类型</h2>
+ <h2>SlashCommandActionReturn 类型</h2>
 
  <p>
  命令的 <code>action</code> 函数返回不同类型的结果，驱动 UI 层执行相应的操作。
@@ -558,7 +558,7 @@ export type SlashCommandActionReturn =
 
  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(au, minmax(400px, 1fr))', gap: '1rem' }}>
  <div>
- <h4>💬 消息返回</h4>
+ <h4>消息返回</h4>
  <CodeBlock language="typescript" code={`// /chat list 命令
 action: async (context): Promise<MessageActionReturn> => {
  const chats = await getSavedChatTags(context, false);
@@ -578,7 +578,7 @@ action: async (context): Promise<MessageActionReturn> => {
  </div>
 
  <div>
- <h4>📜 加载历史</h4>
+ <h4>加载历史</h4>
  <CodeBlock language="typescript" code={`// /chat resume 命令
 action: async (context, args) => {
  const conversation = await logger.loadCheckpoint(args);
@@ -593,7 +593,7 @@ action: async (context, args) => {
  </div>
 
  <div>
- <h4>✅ 确认流程</h4>
+ <h4>确认流程</h4>
  <CodeBlock language="typescript" code={`// /chat save 命令 - 覆盖确认
 action: async (context, args): Promise<SlashCommandActionReturn> => {
  if (!context.overwriteConfirmed) {
@@ -615,7 +615,7 @@ action: async (context, args): Promise<SlashCommandActionReturn> => {
  </div>
 
  <div>
- <h4>📤 提交提示</h4>
+ <h4>提交提示</h4>
  <CodeBlock language="typescript" code={`// MCP 提示命令
 action: async (context, args) => {
  const promptInputs = parseArgs(args, prompt.arguments);
@@ -634,7 +634,7 @@ action: async (context, args) => {
  {/* Flow Tab */}
  {activeTab === 'flow' && (
  <section>
- <h2>🔄 命令执行流程</h2>
+ <h2>命令执行流程</h2>
 
  <p>
  <code>useSlashCommandProcessor</code> Hook 是命令系统的核心调度器，
@@ -824,7 +824,7 @@ sequenceDiagram
 
  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(au, minmax(280px, 1fr))', gap: '1rem' }}>
  <div className="card" style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '1rem', borderRadius: '8px' }}>
- <h4 style={{ color: 'sky-400' }}>🔄 递归重试</h4>
+ <h4 style={{ color: 'sky-400' }}>递归重试</h4>
  <p>
  确认流程通过递归调用 <code>handleSlashCommand</code> 实现，
  传入 <code>oneTimeShellAllowlist</code> 或 <code>overwriteConfirmed</code>
@@ -833,7 +833,7 @@ sequenceDiagram
  </div>
 
  <div className="card" style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '1rem', borderRadius: '8px' }}>
- <h4 style={{ color: 'sky-400' }}>📊 会话级白名单</h4>
+ <h4 style={{ color: 'sky-400' }}>会话级白名单</h4>
  <p>
  <code>sessionShellAllowlist</code> 存储用户在本次会话中批准的 Shell 命令，
  选择 "Proceed Always" 后同类命令不再重复询问。
@@ -841,7 +841,7 @@ sequenceDiagram
  </div>
 
  <div className="card" style={{ background: 'rgba(139, 92, 246, 0.1)', padding: '1rem', borderRadius: '8px' }}>
- <h4 style={{ color: 'sky-400' }}>📡 遥测集成</h4>
+ <h4 style={{ color: 'sky-400' }}>遥测集成</h4>
  <p>
  每个命令执行都会记录遥测事件 (<code>logSlashCommand</code>)，
  包含命令名、子命令、执行状态，便于分析用户行为和错误率。
@@ -849,7 +849,7 @@ sequenceDiagram
  </div>
 
  <div className="card" style={{ background: 'rgba(245, 158, 11, 0.1)', padding: '1rem', borderRadius: '8px' }}>
- <h4 style={{ color: 'amber-500' }}>⚡ 热重载</h4>
+ <h4 style={{ color: 'amber-500' }}>热重载</h4>
  <p>
  <code>reloadCommands()</code> 触发命令重新加载，
  IDE 连接状态变化时自动调用，确保命令列表实时更新。
@@ -861,7 +861,7 @@ sequenceDiagram
 
  {/* SlashCommand 结构 */}
  <section style={{ marginTop: '2rem' }}>
- <h2>📋 SlashCommand 接口</h2>
+ <h2>SlashCommand 接口</h2>
 
  <CodeBlock language="typescript" code={`// packages/cli/src/ui/commands/types.ts
 
@@ -935,7 +935,7 @@ export const chatCommand: SlashCommand = {
 
  {/* 相关链接 */}
  <section style={{ marginTop: '2rem' }}>
- <h2>🔗 相关文档</h2>
+ <h2>相关文档</h2>
 
  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(au, minmax(200px, 1fr))', gap: '1rem' }}>
  <button onClick={() => navigate('slash-cmd')} className="card" style={{
@@ -948,7 +948,7 @@ export const chatCommand: SlashCommand = {
  cursor: 'pointer',
  textAlign: 'left'
  }}>
- <h4 style={{ color: 'sky-400', margin: '0 0 0.5rem 0' }}>💻 斜杠命令</h4>
+ <h4 style={{ color: 'sky-400', margin: '0 0 0.5rem 0' }}>斜杠命令</h4>
  <p style={{ margin: 0, fontSize: '0.9rem' }}>命令系统概述</p>
  </button>
 
@@ -962,7 +962,7 @@ export const chatCommand: SlashCommand = {
  cursor: 'pointer',
  textAlign: 'left'
  }}>
- <h4 style={{ color: 'sky-400', margin: '0 0 0.5rem 0' }}>📝 自定义命令</h4>
+ <h4 style={{ color: 'sky-400', margin: '0 0 0.5rem 0' }}>自定义命令</h4>
  <p style={{ margin: 0, fontSize: '0.9rem' }}>TOML 文件格式详解</p>
  </button>
 
@@ -976,7 +976,7 @@ export const chatCommand: SlashCommand = {
  cursor: 'pointer',
  textAlign: 'left'
  }}>
- <h4 style={{ color: 'sky-400', margin: '0 0 0.5rem 0' }}>🌐 MCP 集成</h4>
+ <h4 style={{ color: 'sky-400', margin: '0 0 0.5rem 0' }}>MCP 集成</h4>
  <p style={{ margin: 0, fontSize: '0.9rem' }}>MCP 提示加载机制</p>
  </button>
 
@@ -990,7 +990,7 @@ export const chatCommand: SlashCommand = {
  cursor: 'pointer',
  textAlign: 'left'
  }}>
- <h4 style={{ color: 'amber-500', margin: '0 0 0.5rem 0' }}>🛡️ 审批模式</h4>
+ <h4 style={{ color: 'amber-500', margin: '0 0 0.5rem 0' }}>审批模式</h4>
  <p style={{ margin: 0, fontSize: '0.9rem' }}>Shell 命令确认流程</p>
  </button>
  </div>

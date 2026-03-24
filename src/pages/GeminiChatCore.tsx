@@ -17,8 +17,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">🔄</span>
- <span className="text-xl font-bold text-heading">核心概念介绍</span>
+  <span className="text-xl font-bold text-heading">核心概念介绍</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
  </button>
@@ -26,7 +25,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  {isExpanded && (
  <div className="px-6 pb-6 space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🎯 核心概念</h4>
+ <h4 className="text-heading font-bold mb-2">核心概念</h4>
  <p className="text-body text-sm">
  GeminiChat 是整个 CLI 的"大脑"，负责管理与 AI 模型的所有通信。
  它实现了关键的 <strong className="text-heading">Continuation 机制</strong>：当 AI 需要执行工具时，
@@ -35,7 +34,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🔧 为什么这样设计</h4>
+ <h4 className="text-heading font-bold mb-2">为什么这样设计</h4>
  <p className="text-body text-sm">
  AI Agent 需要自主决策何时完成任务。GeminiChat 的 Continuation 主要通过检测响应{' '}
  <code className="text-heading bg-elevated px-1 rounded">parts[].functionCall</code> 来决定是否需要执行工具并继续；
@@ -44,7 +43,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🏗️ 核心流程</h4>
+ <h4 className="text-heading font-bold mb-2">核心流程</h4>
  <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-2">
  <div className="bg-surface p-3 rounded border border-edge/30 text-center">
  <div className="text-heading font-semibold text-sm">1. sendMessage</div>
@@ -85,8 +84,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="text-xs text-dim bg-surface px-3 py-2 rounded flex items-center gap-2">
- <span>📁</span>
- <code>packages/core/src/core/geminiChat.ts</code>
+  <code>packages/core/src/core/geminiChat.ts</code>
  </div>
  </div>
  )}
@@ -113,8 +111,8 @@ export function GeminiChatCore() {
  <h2 className="text-2xl text-heading mb-5">GeminiChat 核心循环机制</h2>
 
  {/* 核心概念 */}
- <Layer title="核心概念" icon="🧠">
- <HighlightBox title="GeminiChat 的职责" icon="🎯" variant="blue">
+ <Layer title="核心概念">
+ <HighlightBox title="GeminiChat 的职责" variant="blue">
  <p className="mb-2">
  <code className="bg-base/30 px-1 rounded">GeminiChat</code> 是整个 CLI 的核心，
  负责管理与 AI 的通信循环。它位于：
@@ -142,13 +140,12 @@ export function GeminiChatCore() {
  </Layer>
 
  {/* 设计哲学深度解析 */}
- <Layer title="设计哲学深度解析" icon="💡">
+ <Layer title="设计哲学深度解析">
  <div className="space-y-6">
  {/* 核心约束 */}
  <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover/30">
  <h4 className="text-heading font-bold text-lg mb-3 flex items-center gap-2">
- <span>🧠</span>
- 核心约束：AI 是无状态的
+  核心约束：AI 是无状态的
  </h4>
  <p className="text-body text-sm mb-3">
  每次 API 调用都是独立的 HTTP 请求，AI 不会"记住"之前说过什么。
@@ -166,8 +163,7 @@ export function GeminiChatCore() {
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface rounded-lg p-4 border border-edge/30">
  <h5 className="text-heading font-bold mb-2 flex items-center gap-2">
- <span>🔄</span>
- 为什么需要 Continuation 机制？
+  为什么需要 Continuation 机制？
  </h5>
  <p className="text-sm text-body mb-2">
  传统 CLI 是"一问一答"，但 AI Agent 需要<strong>自主决策</strong>：
@@ -185,8 +181,7 @@ export function GeminiChatCore() {
 
  <div className="bg-surface rounded-lg p-4 border border-edge/30">
  <h5 className="text-heading font-bold mb-2 flex items-center gap-2">
- <span>🌊</span>
- 为什么选择流式响应？
+  为什么选择流式响应？
  </h5>
  <p className="text-sm text-body mb-2">
  批量响应意味着用户要等待整个响应完成，体验很差：
@@ -205,8 +200,7 @@ export function GeminiChatCore() {
  {/* 历史管理的设计考量 */}
  <div className="bg-surface rounded-lg p-4 border border-edge/30">
  <h5 className="text-heading font-bold mb-3 flex items-center gap-2">
- <span>📚</span>
- 为什么有两种历史视图？
+  为什么有两种历史视图？
  </h5>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
  <div>
@@ -275,8 +269,7 @@ export function GeminiChatCore() {
  {/* 与其他模块的关系 */}
  <div className="bg-surface rounded-lg p-4 border border-edge">
  <h5 className="text-heading font-bold mb-3 flex items-center gap-2">
- <span>🔗</span>
- 架构定位
+  架构定位
  </h5>
  <div className="flex flex-wrap gap-2 text-xs">
  <div className="bg-elevated/20 text-heading px-3 py-1 rounded-full">
@@ -302,7 +295,7 @@ export function GeminiChatCore() {
  </Layer>
 
  {/* sendMessageStream 详解 */}
- <Layer title="sendMessageStream() 核心方法" icon="📤">
+ <Layer title="sendMessageStream() 核心方法">
  <CodeBlock
  title="packages/core/src/core/geminiChat.ts"
  code={`async sendMessageStream(
@@ -334,7 +327,7 @@ export function GeminiChatCore() {
  </Layer>
 
  {/* makeApiCallAndProcessStream */}
- <Layer title="API 调用与重试机制" icon="🔁">
+ <Layer title="API 调用与重试机制">
  <CodeBlock
  title="makeApiCallAndProcessStream()"
  code={`async makeApiCallAndProcessStream(...) {
@@ -366,7 +359,7 @@ export function GeminiChatCore() {
 }`}
  />
 
- <HighlightBox title="重试策略" icon="🔄" variant="green">
+ <HighlightBox title="重试策略" variant="green">
  <ul className="pl-5 list-disc space-y-1">
  <li><strong>指数退避</strong>：每次重试延迟翻倍</li>
  <li><strong>最大重试</strong>：默认 3 次</li>
@@ -377,7 +370,7 @@ export function GeminiChatCore() {
  </Layer>
 
  {/* processStreamResponse */}
- <Layer title="流响应处理" icon="📥">
+ <Layer title="流响应处理">
  <CodeBlock
  title="processStreamResponse()"
  code={`async *processStreamResponse(stream) {
@@ -429,7 +422,7 @@ export function GeminiChatCore() {
 }`}
  />
 
- <HighlightBox title="stopBeforeSecondMutator" icon="🛡️" variant="red">
+ <HighlightBox title="stopBeforeSecondMutator" variant="red">
  <p>
  这是一个<strong>安全机制</strong>：如果 AI 尝试在一轮中执行多个写操作，
  系统会在第二个写操作之前停止，防止意外的连续修改。
@@ -438,7 +431,7 @@ export function GeminiChatCore() {
  </Layer>
 
  {/* 消息历史管理 */}
- <Layer title="消息历史管理" icon="📚">
+ <Layer title="消息历史管理">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
  <div className="bg-elevated/5 rounded-lg p-4 border border-edge">
  <h4 className="text-heading font-bold mb-2">完整历史 (Comprehensive)</h4>
@@ -484,27 +477,24 @@ history: Content[] = [
  </Layer>
 
  {/* 循环终止条件 */}
- <Layer title="循环终止条件" icon="🏁">
+ <Layer title="循环终止条件">
  <div className="space-y-3">
  <div className="flex items-center gap-3 bg-elevated p-3 rounded-lg">
- <span className="text-2xl">✅</span>
- <div>
+  <div>
  <strong className="text-heading">无 functionCall</strong>
  <p className="text-sm text-body">响应包含有效文本且不需要工具，结束本轮</p>
  </div>
  </div>
 
  <div className="flex items-center gap-3 bg-elevated p-3 rounded-lg">
- <span className="text-2xl">🔄</span>
- <div>
+  <div>
  <strong className="text-heading">检测到 functionCall</strong>
  <p className="text-sm text-body">执行工具并把 functionResponse 写回历史，继续下一轮</p>
  </div>
  </div>
 
  <div className="flex items-center gap-3 bg-elevated p-3 rounded-lg">
- <span className="text-2xl">🛑</span>
- <div>
+  <div>
  <strong className="text-heading">MAX_TURNS 达到上限</strong>
  <p className="text-sm text-body">默认 100 轮，防止无限循环</p>
  </div>
@@ -521,7 +511,7 @@ history: Content[] = [
  </Layer>
 
  {/* 完整循环图 */}
- <Layer title="完整循环流程图" icon="🔄">
+ <Layer title="完整循环流程图">
  <div className="bg-base/30 rounded-lg p-6">
  <div className="flex flex-col items-center space-y-4">
  <div className="bg-accent/10 border border-edge rounded-lg px-6 py-3 text-center">

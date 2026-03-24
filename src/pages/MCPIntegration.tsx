@@ -24,8 +24,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">🔌</span>
- <span className="text-xl font-bold text-heading">核心概念介绍</span>
+  <span className="text-xl font-bold text-heading">核心概念介绍</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
  </button>
@@ -33,7 +32,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  {isExpanded && (
  <div className="px-6 pb-6 space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🎯 核心概念</h4>
+ <h4 className="text-heading font-bold mb-2">核心概念</h4>
  <p className="text-body text-sm">
  MCP (Model Context Protocol) 是 Anthropic 提出的开放协议，定义了 AI 应用与外部工具/服务的标准通信方式。
  通过 MCP，CLI 可以动态发现和调用外部服务提供的工具，无需硬编码集成。
@@ -41,7 +40,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🔧 为什么需要 MCP</h4>
+ <h4 className="text-heading font-bold mb-2">为什么需要 MCP</h4>
  <ul className="text-body text-sm space-y-1">
  <li><strong>标准化</strong>：统一的工具描述和调用格式，任何 MCP 服务器都可被任何客户端使用</li>
  <li><strong>可扩展</strong>：IDE 集成、数据库访问、API 调用等都可以通过 MCP 服务提供</li>
@@ -50,7 +49,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🏗️ MCP 通信流程</h4>
+ <h4 className="text-heading font-bold mb-2">MCP 通信流程</h4>
  <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-2">
  <div className="bg-surface p-3 rounded border border-edge/30 text-center">
  <div className="text-heading font-semibold text-sm">1. 发现</div>
@@ -91,8 +90,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="text-xs text-dim bg-surface px-3 py-2 rounded flex items-center gap-2">
- <span>📁</span>
- <code>packages/core/src/tools/mcp-*.ts</code>
+  <code>packages/core/src/tools/mcp-*.ts</code>
  </div>
  </div>
  )}
@@ -110,8 +108,8 @@ export function MCPIntegration() {
  <h2 className="text-2xl text-heading mb-5">MCP (Model Context Protocol) 集成</h2>
 
  {/* MCP 概述 */}
- <Layer title="什么是 MCP？" icon="🌐">
- <HighlightBox title="Model Context Protocol" icon="📡" variant="blue">
+ <Layer title="什么是 MCP？">
+ <HighlightBox title="Model Context Protocol" variant="blue">
  <p className="mb-2">
  <strong>MCP</strong> 是一个开放协议，允许 AI 应用与外部工具和数据源进行标准化通信。
  它定义了一套标准的 JSON-RPC 接口。
@@ -141,7 +139,7 @@ export function MCPIntegration() {
  </Layer>
 
  {/* MCP 架构 */}
- <Layer title="MCP 架构" icon="🏗️">
+ <Layer title="MCP 架构">
  <div className="bg-base/30 rounded-lg p-6">
  <div className="flex flex-col items-center space-y-4">
  <div className="bg-accent-light border border-edge rounded-lg px-6 py-3 w-full max-w-md text-center">
@@ -181,7 +179,7 @@ export function MCPIntegration() {
  </Layer>
 
  {/* McpClientManager */}
- <Layer title="McpClientManager" icon="🔧">
+ <Layer title="McpClientManager">
  <CodeBlock
  title="packages/core/src/tools/mcp-client-manager.ts"
  code={`// 管理多个 MCP 客户端的生命周期
@@ -221,7 +219,7 @@ export class McpClientManager {
 }`}
  />
 
- <HighlightBox title="MCPDiscoveryState 状态" icon="📊" variant="blue">
+ <HighlightBox title="MCPDiscoveryState 状态" variant="blue">
  <ul className="pl-5 list-disc space-y-1 text-sm">
  <li><code className="text-heading">NOT_STARTED</code> - 发现尚未开始</li>
  <li><code className="text-heading">IN_PROGRESS</code> - 发现进行中</li>
@@ -231,7 +229,7 @@ export class McpClientManager {
  </Layer>
 
  {/* MCP 配置 */}
- <Layer title="MCP 服务器配置" icon="⚙️">
+ <Layer title="MCP 服务器配置">
  <JsonBlock
  code={`// ~/.gemini/settings.json (或项目级 .gemini/settings.json)
 {
@@ -258,7 +256,7 @@ export class McpClientManager {
 }`}
  />
 
- <HighlightBox title="MCPServerConfig 配置选项" icon="📋" variant="green">
+ <HighlightBox title="MCPServerConfig 配置选项" variant="green">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
  <div>
  <h5 className="font-semibold text-heading mb-2">传输方式</h5>
@@ -283,7 +281,7 @@ export class McpClientManager {
  </Layer>
 
  {/* MCP 工具发现 */}
- <Layer title="工具发现流程" icon="🔍">
+ <Layer title="工具发现流程">
  <CodeBlock
  title="工具发现"
  code={`// 1. 发送 tools/list 请求
@@ -327,7 +325,7 @@ const response = await client.request({
  </Layer>
 
  {/* MCP 工具调用 */}
- <Layer title="工具调用流程" icon="⚡">
+ <Layer title="工具调用流程">
  <CodeBlock
  title="调用 MCP 工具"
  code={`// 1) 模型返回 functionCall（Gemini / GenAI SDK）
@@ -359,7 +357,7 @@ if (tool instanceof DiscoveredMCPTool) {
  </Layer>
 
  {/* MCPTool 包装 */}
- <Layer title="MCPTool 包装类" icon="📦">
+ <Layer title="MCPTool 包装类">
  <CodeBlock
  title="DiscoveredMCPTool"
  code={`// packages/core/src/tools/mcp-tool.ts（关键片段）
@@ -451,7 +449,7 @@ class DiscoveredMCPToolInvocation extends BaseToolInvocation {
  </Layer>
 
  {/* 认证提供者 */}
- <Layer title="认证提供者" icon="🔐">
+ <Layer title="认证提供者">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40">
  <h4 className="text-heading font-bold mb-2">Google OAuth</h4>
@@ -496,8 +494,8 @@ class DiscoveredMCPToolInvocation extends BaseToolInvocation {
  </Layer>
 
  {/* IDE 集成 */}
- <Layer title="IDE 集成 (VS Code MCP)" icon="💻">
- <HighlightBox title="VS Code IDE Companion" icon="🔗" variant="purple">
+ <Layer title="IDE 集成 (VS Code MCP)">
+ <HighlightBox title="VS Code IDE Companion" variant="purple">
  <p className="mb-2">
  <code className="bg-base/30 px-1 rounded">packages/vscode-ide-companion/</code>
  是一个 VS Code 扩展，它提供了一个 MCP 服务器，让 CLI 可以访问 VS Code 的工作区。
@@ -526,7 +524,7 @@ class DiscoveredMCPToolInvocation extends BaseToolInvocation {
  </Layer>
 
  {/* MCP 生态系统 */}
- <Layer title="MCP 生态系统" icon="🌍">
+ <Layer title="MCP 生态系统">
  <div className="space-y-3">
  <div className="bg-elevated/10 border border-edge rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">官方 MCP 服务器</h4>
@@ -553,7 +551,7 @@ class DiscoveredMCPToolInvocation extends BaseToolInvocation {
  {/* ==================== 深化内容 ==================== */}
 
  {/* 边界条件深度解析 */}
- <Layer title="边界条件深度解析" icon="🔬">
+ <Layer title="边界条件深度解析">
  <div className="space-y-6">
  {/* 边界 1: MCP 服务器启动超时 */}
  <div className="bg-base/50 rounded-lg border border-edge overflow-hidden">
@@ -562,7 +560,7 @@ class DiscoveredMCPToolInvocation extends BaseToolInvocation {
  </div>
  <div className="p-4 space-y-3">
  <div className="bg-surface p-3 rounded">
- <h5 className="text-body text-sm font-semibold mb-2">🎯 触发场景</h5>
+ <h5 className="text-body text-sm font-semibold mb-2">触发场景</h5>
  <ul className="text-xs text-dim space-y-1">
  <li>MCP 服务器进程启动缓慢（如需要下载依赖的 npx 命令）</li>
  <li>服务器初始化时执行耗时操作（数据库连接、大量文件扫描）</li>
@@ -596,7 +594,7 @@ async connect(): Promise<void> {
 }`}
  />
  <div className="bg-elevated border-l-2 border-l-edge-hover rounded p-3">
- <h5 className="text-heading text-sm font-semibold mb-1">⚠️ 潜在问题</h5>
+ <h5 className="text-heading text-sm font-semibold mb-1">潜在问题</h5>
  <ul className="text-xs text-dim space-y-1">
  <li>僵尸进程：如果 SIGTERM 后进程未退出，可能留下孤儿进程</li>
  <li>资源泄漏：子进程的 stdio 管道可能未正确关闭</li>
@@ -604,7 +602,7 @@ async connect(): Promise<void> {
  </ul>
  </div>
  <div className="bg-elevated border-l-2 border-l-edge-hover rounded p-3">
- <h5 className="text-heading text-sm font-semibold mb-1">✅ 正确处理</h5>
+ <h5 className="text-heading text-sm font-semibold mb-1">正确处理</h5>
  <CodeBlock
  code={`// 完整的超时清理流程
 async cleanupOnTimeout() {
@@ -645,7 +643,7 @@ async cleanupOnTimeout() {
  </div>
  <div className="p-4 space-y-3">
  <div className="bg-surface p-3 rounded">
- <h5 className="text-body text-sm font-semibold mb-2">🎯 触发场景</h5>
+ <h5 className="text-body text-sm font-semibold mb-2">触发场景</h5>
  <ul className="text-xs text-dim space-y-1">
  <li>两个 MCP 服务器提供同名工具（如都有 `read_file`）</li>
  <li>MCP 工具名与内置工具名冲突（如 MCP 服务器提供 `run_shell_command` 工具）</li>
@@ -679,7 +677,7 @@ if (existing && existing.getServerConfig().extension !== config.extension) {
  />
  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
  <div className="bg-elevated border-l-2 border-l-edge-hover rounded p-3">
- <h5 className="text-heading text-sm font-semibold mb-1">❌ 冲突情况</h5>
+ <h5 className="text-heading text-sm font-semibold mb-1">冲突情况</h5>
  <pre className="text-xs text-dim whitespace-pre-wrap">{`servers.json:
 [
  { "name": "fs", "command": "..." },
@@ -688,7 +686,7 @@ if (existing && existing.getServerConfig().extension !== config.extension) {
 // 第二个会覆盖第一个！`}</pre>
  </div>
  <div className="bg-elevated border-l-2 border-l-edge-hover rounded p-3">
- <h5 className="text-heading text-sm font-semibold mb-1">✅ 正确配置</h5>
+ <h5 className="text-heading text-sm font-semibold mb-1">正确配置</h5>
  <pre className="text-xs text-dim whitespace-pre-wrap">{`servers.json:
 [
  { "name": "fs-local", "command": "..." },
@@ -707,7 +705,7 @@ if (existing && existing.getServerConfig().extension !== config.extension) {
  </div>
  <div className="p-4 space-y-3">
  <div className="bg-surface p-3 rounded">
- <h5 className="text-body text-sm font-semibold mb-2">🎯 触发场景</h5>
+ <h5 className="text-body text-sm font-semibold mb-2">触发场景</h5>
  <ul className="text-xs text-dim space-y-1">
  <li>MCP 服务器向 stderr 输出调试信息混入 stdout</li>
  <li>服务器发送了非 JSON 格式的响应（如错误堆栈）</li>
@@ -762,7 +760,7 @@ class JsonRpcTransport {
 }`}
  />
  <div className="bg-elevated/10 border border-edge rounded p-3">
- <h5 className="text-heading text-sm font-semibold mb-1">💡 调试技巧</h5>
+ <h5 className="text-heading text-sm font-semibold mb-1">调试技巧</h5>
  <p className="text-xs text-dim">
  设置 <code className="bg-base/30 px-1 rounded">DEBUG=mcp:*</code> 环境变量可以看到原始的 JSON-RPC 消息流，
  帮助诊断解析问题。
@@ -778,7 +776,7 @@ class JsonRpcTransport {
  </div>
  <div className="p-4 space-y-3">
  <div className="bg-surface p-3 rounded">
- <h5 className="text-body text-sm font-semibold mb-2">🎯 触发场景</h5>
+ <h5 className="text-body text-sm font-semibold mb-2">触发场景</h5>
  <ul className="text-xs text-dim space-y-1">
  <li>MCP 服务器进程崩溃</li>
  <li>远程 HTTP/WebSocket 连接断开</li>
@@ -856,7 +854,7 @@ class MCPClient {
  </div>
  <div className="p-4 space-y-3">
  <div className="bg-surface p-3 rounded">
- <h5 className="text-body text-sm font-semibold mb-2">🎯 触发场景</h5>
+ <h5 className="text-body text-sm font-semibold mb-2">触发场景</h5>
  <ul className="text-xs text-dim space-y-1">
  <li>配置中使用 <code className="bg-base/30 px-1 rounded">${'${ENV_VAR}'}</code> 语法引用未定义的环境变量</li>
  <li>环境变量包含特殊字符（空格、引号、换行）</li>
@@ -905,7 +903,7 @@ function sanitizeForLogging(config: MCPServerConfig): MCPServerConfig {
 }`}
  />
  <div className="bg-elevated border-l-2 border-l-edge-hover rounded p-3">
- <h5 className="text-heading text-sm font-semibold mb-1">🔐 安全警告</h5>
+ <h5 className="text-heading text-sm font-semibold mb-1">安全警告</h5>
  <ul className="text-xs text-dim space-y-1">
  <li>永远不要在配置文件中硬编码敏感信息</li>
  <li>使用环境变量或密钥管理服务</li>
@@ -922,7 +920,7 @@ function sanitizeForLogging(config: MCPServerConfig): MCPServerConfig {
  </div>
  <div className="p-4 space-y-3">
  <div className="bg-surface p-3 rounded">
- <h5 className="text-body text-sm font-semibold mb-2">🎯 触发场景</h5>
+ <h5 className="text-body text-sm font-semibold mb-2">触发场景</h5>
  <ul className="text-xs text-dim space-y-1">
  <li>MCP 服务器返回的工具 schema 不符合 JSON Schema 规范</li>
  <li>AI 模型传入的参数不符合工具定义的 schema</li>
@@ -982,7 +980,7 @@ if (!result.valid) {
 }`}
  />
  <div className="bg-elevated border-l-2 border-l-edge-hover rounded p-3">
- <h5 className="text-heading text-sm font-semibold mb-1">💡 最佳实践</h5>
+ <h5 className="text-heading text-sm font-semibold mb-1">最佳实践</h5>
  <p className="text-xs text-dim">
  Schema 验证失败时，将错误信息反馈给 AI 模型而非直接抛出异常，让 AI 有机会修正参数重试。
  </p>
@@ -993,7 +991,7 @@ if (!result.valid) {
  </Layer>
 
  {/* 常见问题与调试技巧 */}
- <Layer title="常见问题与调试技巧" icon="🐛">
+ <Layer title="常见问题与调试技巧">
  <div className="space-y-6">
  {/* 问题 1 */}
  <div className="bg-base/50 rounded-lg border border-edge overflow-hidden">
@@ -1003,7 +1001,7 @@ if (!result.valid) {
  <div className="p-4 space-y-3">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
  <div className="bg-surface p-3 rounded">
- <h5 className="text-body text-sm font-semibold mb-2">🔍 常见原因</h5>
+ <h5 className="text-body text-sm font-semibold mb-2">常见原因</h5>
  <ul className="text-xs text-dim space-y-1">
  <li>命令或路径不存在</li>
  <li>缺少必要的环境变量</li>
@@ -1013,7 +1011,7 @@ if (!result.valid) {
  </ul>
  </div>
  <div className="bg-surface p-3 rounded">
- <h5 className="text-body text-sm font-semibold mb-2">🛠️ 排查步骤</h5>
+ <h5 className="text-body text-sm font-semibold mb-2">排查步骤</h5>
  <ul className="text-xs text-dim space-y-1">
  <li>1. 手动运行启动命令测试</li>
  <li>2. 检查 stderr 输出</li>
@@ -1051,7 +1049,7 @@ DEBUG=mcp:* gemini`}
  <div className="p-4 space-y-3">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
  <div className="bg-surface p-3 rounded">
- <h5 className="text-body text-sm font-semibold mb-2">🔍 常见原因</h5>
+ <h5 className="text-body text-sm font-semibold mb-2">常见原因</h5>
  <ul className="text-xs text-dim space-y-1">
  <li>参数格式不正确</li>
  <li>工具需要的资源不存在</li>
@@ -1061,7 +1059,7 @@ DEBUG=mcp:* gemini`}
  </ul>
  </div>
  <div className="bg-surface p-3 rounded">
- <h5 className="text-body text-sm font-semibold mb-2">🛠️ 排查步骤</h5>
+ <h5 className="text-body text-sm font-semibold mb-2">排查步骤</h5>
  <ul className="text-xs text-dim space-y-1">
  <li>1. 检查完整错误消息</li>
  <li>2. 验证参数是否符合 schema</li>
@@ -1104,7 +1102,7 @@ class MCPClient {
  <div className="p-4 space-y-3">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
  <div className="bg-surface p-3 rounded">
- <h5 className="text-body text-sm font-semibold mb-2">🔍 常见原因</h5>
+ <h5 className="text-body text-sm font-semibold mb-2">常见原因</h5>
  <ul className="text-xs text-dim space-y-1">
  <li>服务器的 tools/list 实现不完整</li>
  <li>工具需要认证后才可见</li>
@@ -1113,7 +1111,7 @@ class MCPClient {
  </ul>
  </div>
  <div className="bg-surface p-3 rounded">
- <h5 className="text-body text-sm font-semibold mb-2">🛠️ 排查步骤</h5>
+ <h5 className="text-body text-sm font-semibold mb-2">排查步骤</h5>
  <ul className="text-xs text-dim space-y-1">
  <li>1. 直接调用 tools/list 检查响应</li>
  <li>2. 查看 CLI 的工具注册日志</li>
@@ -1150,7 +1148,7 @@ echo '{"jsonrpc":"2.0","method":"tools/list","id":1,"params":{}}' \\
  <div className="p-4 space-y-3">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
  <div className="bg-surface p-3 rounded">
- <h5 className="text-body text-sm font-semibold mb-2">🔍 常见原因</h5>
+ <h5 className="text-body text-sm font-semibold mb-2">常见原因</h5>
  <ul className="text-xs text-dim space-y-1">
  <li>VS Code 扩展未安装或未启用</li>
  <li>扩展版本与 CLI 不兼容</li>
@@ -1160,7 +1158,7 @@ echo '{"jsonrpc":"2.0","method":"tools/list","id":1,"params":{}}' \\
  </ul>
  </div>
  <div className="bg-surface p-3 rounded">
- <h5 className="text-body text-sm font-semibold mb-2">🛠️ 排查步骤</h5>
+ <h5 className="text-body text-sm font-semibold mb-2">排查步骤</h5>
  <ul className="text-xs text-dim space-y-1">
  <li>1. 检查扩展是否已安装并启用</li>
  <li>2. 在 VS Code 中查看扩展输出</li>
@@ -1243,7 +1241,7 @@ gemini mcp reconnect vscode`}
  </Layer>
 
  {/* 性能优化建议 */}
- <Layer title="性能优化建议" icon="⚡">
+ <Layer title="性能优化建议">
  <div className="space-y-6">
  {/* 优化 1: 连接池与复用 */}
  <div className="bg-base/50 rounded-lg border border-edge overflow-hidden">
@@ -1353,7 +1351,7 @@ maybeDiscoverMcpServer(name: string, config: MCPServerConfig) {
 }`}
  />
  <div className="bg-elevated border-l-2 border-l-edge-hover rounded p-3">
- <h5 className="text-heading text-sm font-semibold mb-1">⚠️ 权衡</h5>
+ <h5 className="text-heading text-sm font-semibold mb-1">权衡</h5>
  <p className="text-xs text-dim">
  Trusted Folder gate 会让“未信任目录”下的 MCP 能力不可用，但能显著降低风险并减少不必要的外部进程/网络连接。
  </p>
@@ -1527,11 +1525,11 @@ class SchemaCache {
  </Layer>
 
  {/* 与其他模块的交互关系 */}
- <Layer title="与其他模块的交互关系" icon="🔗">
+ <Layer title="与其他模块的交互关系">
  <div className="space-y-6">
  {/* 依赖关系图 */}
  <div className="bg-base/50 rounded-lg p-4 border border-edge">
- <h4 className="text-heading font-bold mb-3">📊 MCP 系统依赖关系图</h4>
+ <h4 className="text-heading font-bold mb-3">MCP 系统依赖关系图</h4>
  <CodeBlock
  title="Mermaid 依赖图"
  code={`graph TB
@@ -1638,7 +1636,7 @@ class SchemaCache {
 
  {/* 关键接口 */}
  <div className="bg-base/50 rounded-lg p-4 border border-edge">
- <h4 className="text-heading font-bold mb-3">🔌 关键接口定义</h4>
+ <h4 className="text-heading font-bold mb-3">关键接口定义</h4>
  <CodeBlock
  title="MCP 模块导出接口"
  code={`// packages/core/src/mcp/index.ts
@@ -1687,7 +1685,7 @@ export interface MCPEvents {
 
  {/* 数据流 */}
  <div className="bg-base/50 rounded-lg p-4 border border-edge">
- <h4 className="text-heading font-bold mb-3">🔄 MCP 工具调用数据流</h4>
+ <h4 className="text-heading font-bold mb-3">MCP 工具调用数据流</h4>
  <CodeBlock
  title="完整调用流程"
  code={`sequenceDiagram
@@ -1721,7 +1719,7 @@ export interface MCPEvents {
 
  {/* 扩展点 */}
  <div className="bg-base/50 rounded-lg p-4 border border-edge">
- <h4 className="text-heading font-bold mb-3">🧩 扩展点</h4>
+ <h4 className="text-heading font-bold mb-3">扩展点</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface p-4 rounded border border-edge">
  <h5 className="text-heading font-semibold mb-2">自定义传输层</h5>
@@ -1819,10 +1817,10 @@ class LoggingMiddleware implements MCPMiddleware {
  </Layer>
 
  {/* 为什么这样设计 MCP 集成 */}
- <Layer title="为什么这样设计 MCP 集成？" icon="💡">
+ <Layer title="为什么这样设计 MCP 集成？">
  <div className="space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🔌 为什么选择 JSON-RPC over stdio？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么选择 JSON-RPC over stdio？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：采用 JSON-RPC 2.0 作为消息格式，stdio 作为默认传输层。</p>
  <p><strong>原因</strong>：</p>
@@ -1837,7 +1835,7 @@ class LoggingMiddleware implements MCPMiddleware {
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🏷️ 为什么用 serverName__ 前缀命名工具？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么用 serverName__ 前缀命名工具？</h4>
  <div className="text-sm text-body space-y-2">
  <p>
  <strong>决策</strong>：当 MCP 工具名与现有工具发生冲突时，ToolRegistry 会将其升级为{' '}
@@ -1854,7 +1852,7 @@ class LoggingMiddleware implements MCPMiddleware {
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🔄 为什么采用懒连接策略？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么采用懒连接策略？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：MCP 服务器在首次需要时才启动连接，而非 CLI 启动时全部连接。</p>
  <p><strong>原因</strong>：</p>
@@ -1868,7 +1866,7 @@ class LoggingMiddleware implements MCPMiddleware {
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🔐 为什么 MCP 工具需要单独授权？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么 MCP 工具需要单独授权？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：MCP 工具默认需要用户确认，不能像内置工具那样自动批准。</p>
  <p><strong>原因</strong>：</p>
@@ -1882,7 +1880,7 @@ class LoggingMiddleware implements MCPMiddleware {
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">⚡ 为什么不支持并行 MCP 调用？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么不支持并行 MCP 调用？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：对同一 MCP 服务器的工具调用串行执行，不并行。</p>
  <p><strong>原因</strong>：</p>
@@ -1898,7 +1896,7 @@ class LoggingMiddleware implements MCPMiddleware {
  </Layer>
 
  {/* MCP 协议版本兼容性 */}
- <Layer title="协议版本与兼容性" icon="📋">
+ <Layer title="协议版本与兼容性">
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
@@ -1912,19 +1910,19 @@ class LoggingMiddleware implements MCPMiddleware {
  <tbody className="text-body">
  <tr className="border- border-edge/50">
  <td className="py-2 px-3 font-mono text-heading">2024-11-05</td>
- <td className="py-2 px-3">✅ 完全支持</td>
+ <td className="py-2 px-3">完全支持</td>
  <td className="py-2 px-3">基础工具调用、资源访问</td>
  <td className="py-2 px-3">-</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="py-2 px-3 font-mono text-heading">2025-01-01</td>
- <td className="py-2 px-3">✅ 完全支持</td>
+ <td className="py-2 px-3">完全支持</td>
  <td className="py-2 px-3">流式响应、采样支持</td>
  <td className="py-2 px-3">旧服务器自动降级</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="py-2 px-3 font-mono text-heading">未来版本</td>
- <td className="py-2 px-3">🔄 前向兼容</td>
+ <td className="py-2 px-3">前向兼容</td>
  <td className="py-2 px-3">未知新特性</td>
  <td className="py-2 px-3">忽略未知字段</td>
  </tr>
@@ -1932,7 +1930,7 @@ class LoggingMiddleware implements MCPMiddleware {
  </table>
  </div>
 
- <HighlightBox title="版本协商机制" icon="🤝" variant="blue">
+ <HighlightBox title="版本协商机制" variant="blue">
  <CodeBlock
  code={`// 初始化握手时的版本协商
 const initResult = await client.request({

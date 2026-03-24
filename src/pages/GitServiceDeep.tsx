@@ -109,14 +109,14 @@ stateDiagram-v2
  </div>
 
  {/* 核心概念 */}
- <Layer title="核心概念" icon="🎯">
+ <Layer title="核心概念">
  <div className="space-y-4">
  <p className="text-body">
  GitService 是 Gemini CLI 检查点系统的核心，它创建一个独立于用户仓库的「影子 Git 仓库」来跟踪文件变更。
  这种设计确保 CLI 的版本控制不会干扰用户的 Git 工作流。
  </p>
 
- <HighlightBox title="为什么需要影子仓库？" icon="💡" variant="blue">
+ <HighlightBox title="为什么需要影子仓库？" variant="blue">
  <ul className="space-y-2 text-sm">
  <li><strong>隔离性</strong>：不污染用户的 .git 历史和暂存区</li>
  <li><strong>独立配置</strong>：使用专用的 user.name/email，禁用 GPG 签名</li>
@@ -130,7 +130,7 @@ stateDiagram-v2
  </Layer>
 
  {/* 初始化流程 */}
- <Layer title="初始化流程" icon="🚀">
+ <Layer title="初始化流程">
  <div className="space-y-4">
  <p className="text-body">
  GitService 在会话启动时初始化，创建影子仓库并配置独立的 Git 环境。
@@ -207,7 +207,7 @@ export class GitService {
  </Layer>
 
  {/* 环境变量覆盖 */}
- <Layer title="环境变量覆盖机制" icon="🔧">
+ <Layer title="环境变量覆盖机制">
  <div className="space-y-4">
  <p className="text-body">
  GitService 通过设置环境变量，让 simple-git 操作影子仓库而不是用户仓库。
@@ -232,7 +232,7 @@ export class GitService {
 }`}
  />
 
- <HighlightBox title="环境变量说明" icon="📝" variant="green">
+ <HighlightBox title="环境变量说明" variant="green">
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
@@ -271,7 +271,7 @@ export class GitService {
  </Layer>
 
  {/* 检查点操作 */}
- <Layer title="检查点创建与恢复" icon="💾">
+ <Layer title="检查点创建与恢复">
  <div className="space-y-4">
  <MermaidDiagram chart={checkpointFlow} title="检查点操作流程" />
 
@@ -317,7 +317,7 @@ export class GitService {
  />
  </div>
 
- <HighlightBox title="恢复操作注意事项" icon="⚠️" variant="orange">
+ <HighlightBox title="恢复操作注意事项" variant="orange">
  <ul className="space-y-2 text-sm">
  <li><code className="text-heading">git restore --source</code>：恢复跟踪文件到指定提交状态</li>
  <li><code className="text-heading">git clean -fd</code>：删除快照后新增的未跟踪文件和目录</li>
@@ -328,7 +328,7 @@ export class GitService {
  </Layer>
 
  {/* Git 命令矩阵 */}
- <Layer title="Git 命令矩阵" icon="📋">
+ <Layer title="Git 命令矩阵">
  <div className="space-y-4">
  <p className="text-body">
  GitService 实际调用的 Git 命令及其语义、失败处理和重试策略：
@@ -349,7 +349,7 @@ export class GitService {
  <td className="py-2 px-3 font-mono text-heading">git --version</td>
  <td className="py-2 px-3">verifyGitAvailability()</td>
  <td className="py-2 px-3 text-heading">禁用检查点功能</td>
- <td className="py-2 px-3 text-heading">✗ 环境问题</td>
+ <td className="py-2 px-3 text-heading">环境问题</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono text-heading">git init</td>
@@ -361,13 +361,13 @@ export class GitService {
  <td className="py-2 px-3 font-mono text-heading">git checkIsRepo</td>
  <td className="py-2 px-3">检查仓库是否已初始化</td>
  <td className="py-2 px-3">返回 false，触发 init</td>
- <td className="py-2 px-3 text-heading">✓ 幂等</td>
+ <td className="py-2 px-3 text-heading">幂等</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono text-heading">git add .</td>
  <td className="py-2 px-3">createFileSnapshot()</td>
  <td className="py-2 px-3 text-heading">快照创建失败</td>
- <td className="py-2 px-3 text-heading">✓ 幂等</td>
+ <td className="py-2 px-3 text-heading">幂等</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono text-heading">git commit</td>
@@ -379,23 +379,23 @@ export class GitService {
  <td className="py-2 px-3 font-mono text-heading">git restore --source</td>
  <td className="py-2 px-3">restoreProjectFromSnapshot()</td>
  <td className="py-2 px-3 text-heading">恢复失败，状态不一致</td>
- <td className="py-2 px-3 text-heading">✓ 幂等</td>
+ <td className="py-2 px-3 text-heading">幂等</td>
  </tr>
  <tr>
  <td className="py-2 px-3 font-mono text-heading">git clean -fd</td>
  <td className="py-2 px-3">restoreProjectFromSnapshot()</td>
  <td className="py-2 px-3 text-heading">残留未跟踪文件</td>
- <td className="py-2 px-3 text-heading">✓ 幂等</td>
+ <td className="py-2 px-3 text-heading">幂等</td>
  </tr>
  </tbody>
  </table>
  </div>
 
- <HighlightBox title="重试策略说明" icon="🔄" variant="blue">
+ <HighlightBox title="重试策略说明" variant="blue">
  <ul className="space-y-2 text-sm">
- <li><span className="text-heading">✓ 幂等</span>：安全重试，多次执行结果一致</li>
+ <li><span className="text-heading">幂等</span>：安全重试，多次执行结果一致</li>
  <li><span className="text-heading">△ 条件重试</span>：需要检查前置条件或清理状态后重试</li>
- <li><span className="text-heading">✗ 不可重试</span>：环境问题或需要用户介入</li>
+ <li><span className="text-heading">不可重试</span>：环境问题或需要用户介入</li>
  </ul>
  </HighlightBox>
 
@@ -422,9 +422,9 @@ async createFileSnapshot(message: string): Promise<string> {
  </Layer>
 
  {/* 冲突类型澄清 */}
- <Layer title="「冲突」的准确定义" icon="⚠️">
+ <Layer title="「冲突」的准确定义">
  <div className="space-y-4">
- <HighlightBox title="重要澄清" icon="🚨" variant="red">
+ <HighlightBox title="重要澄清" variant="red">
  <p className="text-sm">
  GitService 处理的「冲突」是<strong>编辑/补丁应用冲突</strong>，而非 <code>git merge</code> 冲突。
  这两者有本质区别：
@@ -482,7 +482,7 @@ const diff = generateDiff(originalContent, newContent);
 // - GitService 的 checkpoint 可用于回滚`}
  />
 
- <HighlightBox title="GitService 在冲突中的角色" icon="📦" variant="green">
+ <HighlightBox title="GitService 在冲突中的角色" variant="green">
  <ul className="space-y-2 text-sm">
  <li><strong>提供回滚能力</strong>：/undo 可恢复到 diff 应用前的状态</li>
  <li><strong>不参与冲突检测</strong>：检测由 EditTool 的 old_string 匹配完成</li>
@@ -516,7 +516,7 @@ if (!gitAvailable) {
 }`}
  />
 
- <HighlightBox title="常见场景" icon="🔍" variant="blue">
+ <HighlightBox title="常见场景" variant="blue">
  <ul className="space-y-2 text-sm">
  <li><strong>Docker 容器</strong>：部分镜像不包含 git</li>
  <li><strong>受限环境</strong>：企业环境可能限制 git 访问</li>
@@ -574,7 +574,7 @@ try {
 await fs.writeFile(shadowGitIgnorePath, userGitIgnoreContent);`}
  />
 
- <HighlightBox title="边界情况" icon="⚠️" variant="orange">
+ <HighlightBox title="边界情况" variant="orange">
  <ul className="space-y-2 text-sm">
  <li><strong>.gitignore 不存在</strong>：静默处理，使用空内容</li>
  <li><strong>权限错误</strong>：EACCES 等错误会被抛出</li>
@@ -586,7 +586,7 @@ await fs.writeFile(shadowGitIgnorePath, userGitIgnoreContent);`}
 
  <Layer title="4. 大文件与性能边界" depth={2} defaultOpen={true}>
  <div className="space-y-4">
- <HighlightBox title="性能考量" icon="⚡" variant="yellow">
+ <HighlightBox title="性能考量" variant="yellow">
  <ul className="space-y-2 text-sm">
  <li><strong>大型仓库</strong>：git add . 可能耗时较长</li>
  <li><strong>二进制文件</strong>：大型二进制文件会显著增加仓库体积</li>
@@ -614,7 +614,7 @@ coverage/`}
  <Layer title="常见问题与调试技巧" depth={1} defaultOpen={true}>
  <Layer title="问题1: 检查点创建失败" depth={2} defaultOpen={true}>
  <div className="space-y-4">
- <HighlightBox title="诊断步骤" icon="🔧" variant="blue">
+ <HighlightBox title="诊断步骤" variant="blue">
  <ol className="space-y-2 text-sm list-decimal list-inside">
  <li>检查 .gemini/history/ 目录是否存在</li>
  <li>验证 .gemini/history/.git 是否为有效仓库</li>
@@ -682,7 +682,7 @@ GIT_DIR=.gemini/history/.git GIT_WORK_TREE=. git status`}
  </Layer>
 
  {/* 工具执行与检查点时序 */}
- <Layer title="工具执行 → Checkpoint → Undo 完整时序" icon="⏱️">
+ <Layer title="工具执行 → Checkpoint → Undo 完整时序">
  <div className="space-y-4">
  <p className="text-body">
  从用户发起工具调用到检查点创建，再到 /undo 恢复的完整调用链：
@@ -729,7 +729,7 @@ sequenceDiagram
 `}
  />
 
- <HighlightBox title="关键调用点" icon="📍" variant="blue">
+ <HighlightBox title="关键调用点" variant="blue">
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
@@ -839,7 +839,7 @@ flowchart LR
 `}
  />
 
- <HighlightBox title="核心接口" icon="🔌" variant="purple">
+ <HighlightBox title="核心接口" variant="purple">
  <div className="space-y-4">
  <CodeBlock
  title="GitService 接口定义"

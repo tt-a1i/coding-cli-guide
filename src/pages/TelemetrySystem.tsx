@@ -399,10 +399,10 @@ export GEMINI_TELEMETRY_ENABLED=false
  <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">事件设计</h4>
  <ul className="text-sm text-body space-y-1">
- <li>✓ 统一入口：只在 loggers.ts 发事件</li>
- <li>✓ 统一命名：events/metrics 用 gemini_cli.* 前缀</li>
- <li>✓ 先保底再增强：bufferTelemetryEvent 避免启动早期丢数据</li>
- <li>✓ 可禁用：Telemetry 与 Usage Statistics 分开关</li>
+ <li>统一入口：只在 loggers.ts 发事件</li>
+ <li>统一命名：events/metrics 用 gemini_cli.* 前缀</li>
+ <li>先保底再增强：bufferTelemetryEvent 避免启动早期丢数据</li>
+ <li>可禁用：Telemetry 与 Usage Statistics 分开关</li>
  </ul>
  </div>
  <div className="bg-elevated/20 border border-edge rounded-lg p-4">

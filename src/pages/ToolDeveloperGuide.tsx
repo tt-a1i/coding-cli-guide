@@ -69,7 +69,7 @@ function DesignRationaleCard({ title, why, how, benefit }: {
 }) {
  return (
  <div className="my-4 p-5 rounded-xl bg-surface border-l-2 border-l-edge-hover/30">
- <h4 className="text-lg font-semibold text-heading mb-3">💡 {title}</h4>
+ <h4 className="text-lg font-semibold text-heading mb-3">{title}</h4>
  <div className="space-y-3 text-sm">
  <div>
  <span className="text-heading font-medium">为什么：</span>
@@ -92,7 +92,7 @@ function DesignRationaleCard({ title, why, how, benefit }: {
 function ToolArchitectureDiagram() {
  return (
  <div className="my-6 p-6 bg-surface rounded-xl border border-edge/50">
- <h4 className="text-lg font-semibold text-heading mb-4">🏗️ 工具系统架构</h4>
+ <h4 className="text-lg font-semibold text-heading mb-4">工具系统架构</h4>
  <div className="flex flex-col items-center space-y-4">
  <div className="flex items-center gap-4">
  <div className="p-3 bg-elevated/30 rounded-lg border border-edge text-center">
@@ -192,7 +192,7 @@ function ToolLifecycleFlow() {
 
  return (
  <div className="my-6 p-6 bg-surface rounded-xl border-l-2 border-l-edge-hover/50">
- <h4 className="text-lg font-semibold text-heading mb-4">🔄 工具生命周期</h4>
+ <h4 className="text-lg font-semibold text-heading mb-4">工具生命周期</h4>
  <div className="grid grid-cols-5 gap-4">
  {steps.map((step, i) => (
  <div key={i} className="relative">
@@ -225,8 +225,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  onClick={onToggle}
  className="w-full text-left group"
  >
- <h1 className="text-3xl font-bold bg-surface text-heading mb-4 flex items-center gap-3">
- 🔧 工具开发者指南
+ <h1 className="text-3xl font-bold bg-surface text-heading mb-4 flex items-center gap-3">工具开发者指南
  <span className={`text-lg text-dim transition-transform ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
  </h1>
  </button>
@@ -598,7 +597,7 @@ function BestPracticesSection() {
  <div className="pt-6 space-y-4">
  <div className="grid grid-cols-2 gap-4">
  <div className="p-4 bg-elevated rounded-xl border-l-2 border-l-edge-hover/50">
- <h4 className="text-heading font-semibold mb-2">✓ 推荐做法</h4>
+ <h4 className="text-heading font-semibold mb-2">推荐做法</h4>
  <ul className="text-sm text-body space-y-2">
  <li>总是验证路径在工作区内</li>
  <li>使用 AbortSignal 支持取消</li>
@@ -609,7 +608,7 @@ function BestPracticesSection() {
  </ul>
  </div>
  <div className="p-4 bg-elevated rounded-xl border-l-2 border-l-edge-hover/50">
- <h4 className="text-heading font-semibold mb-2">✗ 避免做法</h4>
+ <h4 className="text-heading font-semibold mb-2">避免做法</h4>
  <ul className="text-sm text-body space-y-2">
  <li>直接使用 fs 模块（使用 FileSystemService）</li>
  <li>忽略取消信号</li>
@@ -676,7 +675,7 @@ export function ToolDeveloperGuide() {
 
  <CollapsibleSection
  title="核心概念"
- icon="🏗️"
+
  defaultOpen={true}
  highlight
  >
@@ -685,7 +684,7 @@ export function ToolDeveloperGuide() {
 
  <CollapsibleSection
  title="实现自定义工具"
- icon="⚙️"
+
  defaultOpen={true}
  highlight
  >
@@ -694,7 +693,7 @@ export function ToolDeveloperGuide() {
 
  <CollapsibleSection
  title="高级特性"
- icon="🚀"
+
  defaultOpen={false}
  >
  <AdvancedFeaturesSection />
@@ -702,7 +701,7 @@ export function ToolDeveloperGuide() {
 
  <CollapsibleSection
  title="最佳实践"
- icon="📋"
+
  defaultOpen={false}
  >
  <BestPracticesSection />

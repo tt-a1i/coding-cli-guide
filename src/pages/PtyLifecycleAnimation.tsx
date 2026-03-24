@@ -14,7 +14,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  onClick={onToggle}
  className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-elevated transition-colors"
  >
- <span className="text-lg font-semibold">📖 什么是 PTY 生命周期？</span>
+ <span className="text-lg font-semibold">什么是 PTY 生命周期？</span>
  <span className={`transform transition-transform ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
  </button>
 
@@ -22,7 +22,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="px-4 pb-4 space-y-4 text-sm">
  {/* 核心概念 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">🎯 核心概念</h3>
+ <h3 className="text-heading font-semibold mb-2">核心概念</h3>
  <p className="text-body">
  <strong>PTY (Pseudo-Terminal)</strong> 是一个虚拟终端设备，让 CLI 能够像真实终端一样执行命令。
  当你在 Gemini CLI 中使用 <code className="bg-elevated px-1 rounded">run_shell_command</code> 工具执行 <code className="bg-elevated px-1 rounded">ls</code>、
@@ -32,7 +32,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 为什么需要 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">❓ 为什么需要 PTY？</h3>
+ <h3 className="text-heading font-semibold mb-2">为什么需要 PTY？</h3>
  <ul className="text-body space-y-1 list-disc list-inside">
  <li><strong>彩色输出</strong>：支持 ANSI 转义序列，显示彩色的命令输出</li>
  <li><strong>交互式命令</strong>：支持需要终端的命令（如 vim、top）</li>
@@ -43,7 +43,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 触发场景 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">⚡ 何时触发？</h3>
+ <h3 className="text-heading font-semibold mb-2">何时触发？</h3>
  <div className="bg-base p-3 rounded font-mono text-xs">
  <div className="text-body"># 用户请求 AI 执行命令</div>
  <div className="text-heading">User: 帮我查看当前目录的文件</div>
@@ -56,7 +56,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 关键设计 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">🔧 关键设计决策</h3>
+ <h3 className="text-heading font-semibold mb-2">关键设计决策</h3>
  <div className="grid grid-cols-2 gap-2 text-xs">
  <div className="bg-base p-2 rounded">
  <div className="text-heading">执行方法回退</div>
@@ -79,7 +79,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 源码位置 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">📁 源码位置</h3>
+ <h3 className="text-heading font-semibold mb-2">源码位置</h3>
  <code className="text-xs bg-base p-2 rounded block">
  packages/core/src/services/shellExecutionService.ts
  </code>
@@ -87,7 +87,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 相关机制 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">🔗 相关机制</h3>
+ <h3 className="text-heading font-semibold mb-2">相关机制</h3>
  <div className="flex flex-wrap gap-2">
  <span className="px-2 py-1 bg-elevated/50 text-heading rounded text-xs">run_shell_command 工具</span>
  <span className="px-2 py-1 bg-elevated text-heading rounded text-xs">工具调度器</span>

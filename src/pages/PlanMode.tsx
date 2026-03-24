@@ -28,8 +28,7 @@ function Introduction({
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">📋</span>
- <span className="text-xl font-bold text-heading">
+  <span className="text-xl font-bold text-heading">
  Plan Mode 导读
  </span>
  </div>

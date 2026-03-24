@@ -78,7 +78,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码位置:</span>
+ <span className="text-dim">源码位置:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/cli/src/nonInteractiveCli.ts
  </code>
@@ -503,7 +503,7 @@ gemini "check for security issues in @package.json" \\
 
  <QuickSummary isExpanded={isSummaryExpanded} onToggle={() => setIsSummaryExpanded(!isSummaryExpanded)} />
 
- <Layer title="执行流程" icon="🔄" defaultOpen={true}>
+ <Layer title="执行流程" defaultOpen={true}>
  <HighlightBox title="NonInteractive CLI 执行流程" color="blue" className="mb-6">
  <MermaidDiagram chart={executionFlowChart} />
  </HighlightBox>
@@ -544,7 +544,7 @@ gemini "check for security issues in @package.json" \\
  </div>
  </Layer>
 
- <Layer title="工具调用循环" icon="🔁" defaultOpen={true}>
+ <Layer title="工具调用循环" defaultOpen={true}>
  <MermaidDiagram chart={toolLoopDiagram} />
 
  <div className="mt-4 bg-base p-4 rounded-lg">
@@ -558,7 +558,7 @@ gemini "check for security issues in @package.json" \\
  </div>
  </Layer>
 
- <Layer title="功能特性" icon="📋" defaultOpen={true}>
+ <Layer title="功能特性" defaultOpen={true}>
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
@@ -581,11 +581,11 @@ gemini "check for security issues in @package.json" \\
  </div>
  </Layer>
 
- <Layer title="主函数实现" icon="⚡" defaultOpen={false}>
+ <Layer title="主函数实现" defaultOpen={false}>
  <CodeBlock code={mainCodeExample} language="typescript" title="runNonInteractive" />
  </Layer>
 
- <Layer title="响应处理" icon="📨" defaultOpen={false}>
+ <Layer title="响应处理" defaultOpen={false}>
  <CodeBlock code={responseHandlingCode} language="typescript" title="响应流处理" />
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -604,7 +604,7 @@ gemini "check for security issues in @package.json" \\
  </div>
  </Layer>
 
- <Layer title="非交互 UI" icon="🎭" defaultOpen={false}>
+ <Layer title="非交互 UI" defaultOpen={false}>
  <CodeBlock code={nonInteractiveUICode} language="typescript" title="No-op UI Context" />
 
  <div className="mt-4 bg-surface p-4 rounded-lg border border-edge/30">
@@ -616,7 +616,7 @@ gemini "check for security issues in @package.json" \\
  </div>
  </Layer>
 
- <Layer title="Slash 命令处理" icon="/" defaultOpen={false}>
+ <Layer title="Slash 命令处理" defaultOpen={false}>
  <CodeBlock code={slashCommandCode} language="typescript" title="handleSlashCommand" />
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -636,12 +636,12 @@ gemini "check for security issues in @package.json" \\
  </div>
  </Layer>
 
- <Layer title="使用示例" icon="💻" defaultOpen={false}>
+ <Layer title="使用示例" defaultOpen={false}>
  <CodeBlock code={usageExamples} language="bash" title="非交互模式示例" />
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
- <h4 className="text-heading font-bold mb-2">✅ 适用场景</h4>
+ <h4 className="text-heading font-bold mb-2">适用场景</h4>
  <ul className="text-sm text-body space-y-1">
  <li>CI/CD 流水线中的代码审查</li>
  <li>批量文件处理脚本</li>
@@ -651,7 +651,7 @@ gemini "check for security issues in @package.json" \\
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border-l-2 border-l-edge-hover/30">
- <h4 className="text-heading font-bold mb-2">❌ 不适用场景</h4>
+ <h4 className="text-heading font-bold mb-2">不适用场景</h4>
  <ul className="text-sm text-body space-y-1">
  <li>需要用户确认的操作</li>
  <li>复杂的多轮对话</li>
@@ -663,7 +663,7 @@ gemini "check for security issues in @package.json" \\
  </div>
  </Layer>
 
- <Layer title="错误处理" icon="⚠️" defaultOpen={false}>
+ <Layer title="错误处理" defaultOpen={false}>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="FatalInputError" color="orange">
  <p className="text-sm text-body mb-2">

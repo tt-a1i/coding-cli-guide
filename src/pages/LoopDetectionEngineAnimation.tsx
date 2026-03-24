@@ -357,8 +357,7 @@ export default function LoopDetectionEngineAnimation() {
  {/* Layer 1: Tool Call Detection */}
  <div className="col-span-4">
  <div className="bg-surface rounded-lg p-4 border border-edge-hover">
- <h3 className="text-sm font-semibold text-heading mb-3 font-mono">
- 🔧 Tool Call Tracking
+ <h3 className="text-sm font-semibold text-heading mb-3 font-mono">Tool Call Tracking
  </h3>
  <div className="space-y-2 max-h-64 overflow-y-auto">
  {toolCalls.length === 0 ? (
@@ -405,8 +404,7 @@ export default function LoopDetectionEngineAnimation() {
  {/* Layer 2: Content Detection */}
  <div className="col-span-4">
  <div className="bg-surface rounded-lg p-4 border border-edge-hover">
- <h3 className="text-sm font-semibold text-heading mb-3 font-mono">
- 📝 Content Chunk Analysis
+ <h3 className="text-sm font-semibold text-heading mb-3 font-mono">Content Chunk Analysis
  </h3>
  <div className="space-y-2 max-h-64 overflow-y-auto">
  {contentChunks.length === 0 ? (
@@ -447,8 +445,7 @@ export default function LoopDetectionEngineAnimation() {
  {/* Layer 3: LLM Detection */}
  <div className="col-span-4">
  <div className="bg-surface rounded-lg p-4 border border-edge-hover">
- <h3 className="text-sm font-semibold text-heading mb-3 font-mono">
- 🧠 LLM Loop Detection
+ <h3 className="text-sm font-semibold text-heading mb-3 font-mono">LLM Loop Detection
  </h3>
 
  {/* Turn Progress */}

@@ -19,7 +19,7 @@ export function ZedIntegration() {
 
  return (
  <div className="max-w-4xl mx-auto">
- <h1>🔌 Zed 编辑器集成</h1>
+ <h1>Zed 编辑器集成</h1>
 
  <HighlightBox title="ACP 协议概述" variant="purple">
  <p className="m-0 text-body">
@@ -128,7 +128,7 @@ sequenceDiagram
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
  {/* Agent Methods */}
- <Layer title="Agent 方法 (Zed → CLI)" icon="📨">
+ <Layer title="Agent 方法 (Zed → CLI)">
  <div className="flex flex-col gap-2">
  {[
  { method: 'initialize', desc: '协商协议版本和能力' },
@@ -146,7 +146,7 @@ sequenceDiagram
  </Layer>
 
  {/* Client Methods */}
- <Layer title="Client 方法 (CLI → Zed)" icon="📤">
+ <Layer title="Client 方法 (CLI → Zed)">
  <div className="flex flex-col gap-2">
  {[
  { method: 'session/update', desc: '流式推送内容更新' },
@@ -527,7 +527,7 @@ class AcpFileSystemService implements FileSystemService {
  )}
 
  {/* Design Insights */}
- <Layer title="设计洞察" icon="💡">
+ <Layer title="设计洞察">
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
  <div className="bg-base/20 p-4 rounded-lg">
  <h4 className="text-heading mt-0 mb-2">协议解耦</h4>

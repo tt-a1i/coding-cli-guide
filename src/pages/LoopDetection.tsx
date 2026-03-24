@@ -602,11 +602,11 @@ export class GeminiChat {
  <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">预防措施</h4>
  <ul className="text-sm text-body space-y-1">
- <li>✓ 为工具调用添加重试限制</li>
- <li>✓ 在失败时提供替代方案</li>
- <li>✓ 记录失败原因以避免重复</li>
- <li>✓ 使用渐进式策略调整</li>
- <li>✓ 设置全局操作超时</li>
+ <li>为工具调用添加重试限制</li>
+ <li>在失败时提供替代方案</li>
+ <li>记录失败原因以避免重复</li>
+ <li>使用渐进式策略调整</li>
+ <li>设置全局操作超时</li>
  </ul>
  </div>
  <div className="bg-elevated/20 border border-edge rounded-lg p-4">
@@ -3344,10 +3344,10 @@ loopDetectionService.setHashAlgorithm({
  </Layer>
 
  {/* 为什么这样设计循环检测 */}
- <Layer title="为什么这样设计循环检测？" icon="💡">
+ <Layer title="为什么这样设计循环检测？">
  <div className="space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🔢 为什么用固定阈值（5次工具、10次内容）？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么用固定阈值（5次工具、10次内容）？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：工具调用重复 5 次、内容重复 10 次触发循环检测。</p>
  <p><strong>原因</strong>：</p>
@@ -3361,7 +3361,7 @@ loopDetectionService.setHashAlgorithm({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🧠 为什么 30 轮后才启用 LLM 检测？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么 30 轮后才启用 LLM 检测？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：LLM 智能循环检测只在对话超过 30 轮后才激活。</p>
  <p><strong>原因</strong>：</p>
@@ -3375,7 +3375,7 @@ loopDetectionService.setHashAlgorithm({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🔗 为什么用哈希而非精确匹配？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么用哈希而非精确匹配？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：使用内容哈希（MD5）比较而非逐字符精确匹配。</p>
  <p><strong>原因</strong>：</p>
@@ -3389,7 +3389,7 @@ loopDetectionService.setHashAlgorithm({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🚨 为什么检测到循环后中断而非自动重试？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么检测到循环后中断而非自动重试？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：检测到循环后向用户报告并中断，而非自动尝试恢复。</p>
  <p><strong>原因</strong>：</p>
@@ -3403,7 +3403,7 @@ loopDetectionService.setHashAlgorithm({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🔄 为什么需要多层检测机制？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么需要多层检测机制？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：工具调用 → 内容哈希 → LLM 智能检测，三层递进。</p>
  <p><strong>原因</strong>：</p>
@@ -3419,7 +3419,7 @@ loopDetectionService.setHashAlgorithm({
  </Layer>
 
  {/* 循环检测阈值速查表 */}
- <Layer title="循环检测阈值速查表" icon="📊">
+ <Layer title="循环检测阈值速查表">
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>

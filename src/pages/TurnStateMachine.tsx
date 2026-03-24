@@ -26,8 +26,7 @@ function Introduction({
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">🔄</span>
- <span className="text-xl font-bold text-heading">
+  <span className="text-xl font-bold text-heading">
  Turn 状态机导读
  </span>
  </div>
@@ -41,8 +40,7 @@ function Introduction({
  {isExpanded && (
  <div className="px-6 pb-6 space-y-4">
  <div className="bg-surface rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- 🎯 什么是 Turn？
+ <h4 className="text-heading font-bold mb-2">什么是 Turn？
  </h4>
  <p className="text-body text-sm">
  Turn（轮次）是 Gemini CLI 的<strong>核心抽象单元</strong>，
@@ -53,8 +51,7 @@ function Introduction({
  </div>
 
  <div className="bg-surface rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- 🤔 为什么需要 Turn 抽象？
+ <h4 className="text-heading font-bold mb-2">为什么需要 Turn 抽象？
  </h4>
  <ul className="text-body text-sm space-y-2">
  <li>
@@ -77,7 +74,7 @@ function Introduction({
  </div>
 
  <div className="bg-surface rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">📊 关键数字</h4>
+ <h4 className="text-heading font-bold mb-2">关键数字</h4>
  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
  <div className="text-center">
  <div className="text-xl font-bold text-heading">17</div>
@@ -255,7 +252,7 @@ function EventTypesSection() {
  return (
  <div className="mb-8">
  <h2 className="text-xl font-bold text-heading mb-4 flex items-center gap-2">
- <span>📡</span> GeminiEventType 事件类型
+ GeminiEventType 事件类型
  </h2>
 
  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 mb-4">
@@ -344,7 +341,7 @@ function StateMachineVisualization() {
  return (
  <div className="mb-8">
  <h2 className="text-xl font-bold text-heading mb-4 flex items-center gap-2">
- <span>🔄</span> Turn 状态流转图
+ Turn 状态流转图
  </h2>
 
  <div className="bg-surface rounded-lg p-4 border border-edge mb-4">
@@ -404,7 +401,7 @@ function DesignRationaleSection() {
  return (
  <div className="mb-8">
  <h2 className="text-xl font-bold text-heading mb-4 flex items-center gap-2">
- <span>🎨</span> 设计考量
+ 设计考量
  </h2>
 
  <div className="space-y-4">
@@ -519,7 +516,7 @@ function CoreCodeSection() {
  return (
  <div className="mb-8">
  <h2 className="text-xl font-bold text-heading mb-4 flex items-center gap-2">
- <span>💻</span> 核心代码解析
+ 核心代码解析
  </h2>
 
  <div className="space-y-4">
@@ -670,7 +667,7 @@ function CompressionStatusSection() {
  return (
  <div className="mb-8">
  <h2 className="text-xl font-bold text-heading mb-4 flex items-center gap-2">
- <span>📦</span> CompressionStatus 压缩状态
+ CompressionStatus 压缩状态
  </h2>
 
  <div className="bg-surface rounded-lg p-4 border border-edge">
@@ -716,8 +713,7 @@ export function TurnStateMachine() {
  return (
  <div className="max-w-4xl mx-auto">
  <div className="mb-6">
- <h1 className="text-3xl font-bold text-heading mb-2">
- 🔄 Turn 状态机深度解析
+ <h1 className="text-3xl font-bold text-heading mb-2">Turn 状态机深度解析
  </h1>
  <p className="text-body">
  理解 Gemini CLI 的核心抽象单元：一次完整的 AI 响应周期

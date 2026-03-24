@@ -11,8 +11,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">🪝</span>
- <span className="text-xl font-bold text-heading">核心概念介绍</span>
+  <span className="text-xl font-bold text-heading">核心概念介绍</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
  </button>
@@ -20,7 +19,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  {isExpanded && (
  <div className="px-6 pb-6 space-y-4">
  <div className="bg-base p-4 border/50 rounded-lg-l-4 border-edge">
- <h4 className="text-heading font-bold mb-2">🎯 核心概念</h4>
+ <h4 className="text-heading font-bold mb-2">核心概念</h4>
  <p className="text-body text-sm">
  Hook 系统是 Gemini CLI 的事件驱动拦截机制。
  在工具执行前后、模型调用前后等关键节点，执行用户自定义脚本进行拦截和修改。
@@ -28,7 +27,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🏗️ 四层配置</h4>
+ <h4 className="text-heading font-bold mb-2">四层配置</h4>
  <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-2">
  <div className="bg-surface p-3 rounded border-l-2 border-l-edge-hover/30">
  <div className="text-heading font-semibold text-sm">项目级</div>
@@ -62,7 +61,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🔧 11 种事件类型</h4>
+ <h4 className="text-heading font-bold mb-2">11 种事件类型</h4>
  <div className="grid grid-cols-3 md:grid-cols-4 gap-2 mt-2 text-xs">
  <div className="bg-surface p-2 rounded text-center text-heading">BeforeTool</div>
  <div className="bg-surface p-2 rounded text-center text-heading">AfterTool</div>
@@ -80,13 +79,13 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  <div className="flex flex-wrap gap-4 text-sm">
  <div className="flex items-center gap-2">
- <span className="text-dim">📍 源码:</span>
+ <span className="text-dim">源码:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/core/src/hooks/
  </code>
  </div>
  <div className="flex items-center gap-2">
- <span className="text-dim">🔗 相关:</span>
+ <span className="text-dim">相关:</span>
  <span className="text-heading text-xs">HookPlanner, HookRunner, HookAggregator</span>
  </div>
  </div>

@@ -24,8 +24,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">🎨</span>
- <span className="text-xl font-bold text-heading">30秒快速理解</span>
+  <span className="text-xl font-bold text-heading">30秒快速理解</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>
  ▼
@@ -83,7 +82,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 源码入口 */}
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码入口:</span>
+ <span className="text-dim">源码入口:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/cli/src/ui/contexts/
  </code>
@@ -359,7 +358,7 @@ export const useVimMode = () => {
  </section>
 
  {/* 1. Context 层级 */}
- <Layer title="Context 层级结构" icon="🏗️">
+ <Layer title="Context 层级结构">
  <div className="space-y-4">
  <MermaidDiagram chart={contextHierarchyChart} title="Context 嵌套关系" />
 
@@ -420,7 +419,7 @@ export const useVimMode = () => {
  </Layer>
 
  {/* 2. AppContext */}
- <Layer title="AppContext - 应用配置" icon="📦">
+ <Layer title="AppContext - 应用配置">
  <div className="space-y-4">
  <CodeBlock code={appContextCode} language="typescript" title="AppContext 定义" />
 
@@ -437,7 +436,7 @@ export const useVimMode = () => {
  </Layer>
 
  {/* 3. SessionContext */}
- <Layer title="SessionContext - 会话指标" icon="📊">
+ <Layer title="SessionContext - 会话指标">
  <div className="space-y-4">
  <CodeBlock code={sessionContextCode} language="typescript" title="SessionContext 实现" />
 
@@ -466,7 +465,7 @@ export const useVimMode = () => {
  </Layer>
 
  {/* 4. UIStateContext */}
- <Layer title="UIStateContext - 核心状态" icon="🎛️">
+ <Layer title="UIStateContext - 核心状态">
  <div className="space-y-4">
  <CodeBlock code={uiStateContextCode} language="typescript" title="UIState 接口（部分）" />
 
@@ -498,7 +497,7 @@ export const useVimMode = () => {
  </Layer>
 
  {/* 5. KeypressContext */}
- <Layer title="KeypressContext - 键盘事件" icon="⌨️">
+ <Layer title="KeypressContext - 键盘事件">
  <div className="space-y-4">
  <CodeBlock code={keypressContextCode} language="typescript" title="KeypressContext 实现" />
 
@@ -525,7 +524,7 @@ export const useVimMode = () => {
  </Layer>
 
  {/* 6. VimModeContext */}
- <Layer title="VimModeContext - Vim 模式" icon="📝">
+ <Layer title="VimModeContext - Vim 模式">
  <div className="space-y-4">
  <CodeBlock code={vimModeContextCode} language="typescript" title="VimModeContext" />
 
@@ -551,7 +550,7 @@ export const useVimMode = () => {
  </Layer>
 
  {/* 7. 设计决策 */}
- <Layer title="设计决策" icon="💡">
+ <Layer title="设计决策">
  <div className="space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
  <h4 className="text-heading font-bold mb-2">为什么使用多个 Context 而非单一全局 Store？</h4>
@@ -582,7 +581,7 @@ export const useVimMode = () => {
  </Layer>
 
  {/* 8. 关键文件 */}
- <Layer title="关键文件与入口" icon="📁">
+ <Layer title="关键文件与入口">
  <div className="grid grid-cols-1 gap-2 text-sm">
  <div className="flex items-start gap-2">
  <code className="bg-base/30 px-2 py-1 rounded text-xs whitespace-nowrap">

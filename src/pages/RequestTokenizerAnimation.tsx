@@ -129,8 +129,7 @@ export function RequestTokenizerAnimation() {
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">🧮</span>
- <span className="text-xl font-bold text-heading">核心概念介绍</span>
+  <span className="text-xl font-bold text-heading">核心概念介绍</span>
  </div>
  <span
  className={`transform transition-transform text-dim ${
@@ -144,14 +143,14 @@ export function RequestTokenizerAnimation() {
  {isIntroExpanded ? (
  <div className="px-6 pb-6 space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🎯 上游为什么不用 tiktoken？</h4>
+ <h4 className="text-heading font-bold mb-2">上游为什么不用 tiktoken？</h4>
  <p className="text-body text-sm">
  上游 gemini-cli 不依赖 OpenAI 的 tokenizer。它用 ASCII/CJK 启发式对文本做 token 预估；遇到媒体（图片/文件）时优先调用{' '}
  <code>countTokens</code> API，失败再回退本地预估。
  </p>
  </div>
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🔗 源码位置</h4>
+ <h4 className="text-heading font-bold mb-2">源码位置</h4>
  <p className="text-body text-sm">
  <code>packages/core/src/utils/tokenCalculation.ts</code>（estimateTokenCountSync / calculateRequestTokenCount）
  </p>
@@ -160,7 +159,7 @@ export function RequestTokenizerAnimation() {
  ) : null}
  </div>
 
- <Layer title="输入样例" icon="📥">
+ <Layer title="输入样例">
  <div className="flex flex-col md:flex-row gap-3 md:items-center">
  <label className="text-sm text-body">
  sample
@@ -220,7 +219,7 @@ export function RequestTokenizerAnimation() {
  </div>
  </Layer>
 
- <Layer title="过程动画" icon="🎞️">
+ <Layer title="过程动画">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-base/20 border border-edge rounded p-4">
  <div className="text-sm text-body mb-3">阶段</div>
@@ -260,7 +259,7 @@ export function RequestTokenizerAnimation() {
  </div>
  </Layer>
 
- <Layer title="核心源码（节选）" icon="🧾">
+ <Layer title="核心源码（节选）">
  <CodeBlock
  title="packages/core/src/utils/tokenCalculation.ts"
  code={`const ASCII_TOKENS_PER_CHAR = 0.25;

@@ -248,7 +248,7 @@ export default function SubagentResolutionAnimation() {
  {/* Resolution Control */}
  <div className="mt-6 bg-base/40 border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h3 className="text-heading font-bold mb-3 flex items-center gap-2">
- <span className="text-xl">🔍</span> 解析 Subagent
+ 解析 Subagent
  </h3>
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -291,7 +291,7 @@ export default function SubagentResolutionAnimation() {
  {steps.length > 0 && (
  <div className="mt-6 bg-base/40 border border-edge rounded-lg p-4">
  <h3 className="text-heading font-bold mb-3 flex items-center gap-2">
- <span className="text-xl">📋</span> 解析步骤
+ 解析步骤
  </h3>
  <div className="space-y-2">
  {steps.map((step, index) => (
@@ -331,7 +331,7 @@ export default function SubagentResolutionAnimation() {
  {result && (
  <div className="mt-6 bg-base/40 border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h3 className="text-heading font-bold mb-3 flex items-center gap-2">
- <span className="text-xl">✅</span> 解析结果
+ 解析结果
  </h3>
  <pre className="text-sm text-body overflow-x-auto">
 {JSON.stringify(result, null, 2)}

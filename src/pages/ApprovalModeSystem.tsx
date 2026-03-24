@@ -126,8 +126,7 @@ function QuickSummary({
  {/* 关键规则 */}
  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
  <div className="pl-4 border-l-2 border-l-edge-hover border-l-edge-hover">
- <h4 className="text-sm font-semibold text-heading mb-1">
- ✅ 自动批准
+ <h4 className="text-sm font-semibold text-heading mb-1">自动批准
  </h4>
  <p className="text-xs text-body">
  默认策略会允许 read-only 工具（如
@@ -135,8 +134,7 @@ function QuickSummary({
  </p>
  </div>
  <div className="pl-4 border-l-2 border-l-edge-hover border-l-edge-hover">
- <h4 className="text-sm font-semibold text-heading mb-1">
- 🚫 不可信文件夹
+ <h4 className="text-sm font-semibold text-heading mb-1">不可信文件夹
  </h4>
  <p className="text-xs text-body">
  只能使用 Default 模式，Au和 YOLO 被禁用
@@ -146,7 +144,7 @@ function QuickSummary({
 
  {/* 源码入口 */}
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码入口:</span>
+ <span className="text-dim">源码入口:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  gemini-cli/packages/core/src/tools/tools.ts:98 →
  BaseToolInvocation.shouldConfirmExecute()
@@ -351,7 +349,7 @@ export interface PolicyRule {
  </section>
 
  {/* 1. 目标 */}
- <Layer title="目标" icon="🎯">
+ <Layer title="目标">
  <div className="space-y-3 text-body">
  <p>审批模式系统旨在解决以下核心问题：</p>
  <ul className="list-disc list-inside space-y-2 ml-4">
@@ -376,7 +374,7 @@ export interface PolicyRule {
  </Layer>
 
  {/* 2. 输入 */}
- <Layer title="输入" icon="📥">
+ <Layer title="输入">
  <div className="space-y-4">
  <div>
  <h4 className="text-heading font-semibold mb-2">触发条件</h4>
@@ -428,7 +426,7 @@ export interface PolicyRule {
  </Layer>
 
  {/* 3. 输出 */}
- <Layer title="输出" icon="📤">
+ <Layer title="输出">
  <div className="space-y-4">
  <div>
  <h4 className="text-heading font-semibold mb-2">产出物</h4>
@@ -491,7 +489,7 @@ export interface PolicyRule {
  </Layer>
 
  {/* 4. 关键文件与入口 */}
- <Layer title="关键文件与入口" icon="📁">
+ <Layer title="关键文件与入口">
  <div className="space-y-3">
  <div className="grid grid-cols-1 gap-2 text-sm">
  <div className="flex items-start gap-2">
@@ -558,7 +556,7 @@ export interface PolicyRule {
  </Layer>
 
  {/* 5. 流程图 */}
- <Layer title="流程图" icon="📊">
+ <Layer title="流程图">
  <div className="space-y-6">
  <div>
  <h4 className="text-heading font-semibold mb-3">审批决策流程</h4>
@@ -616,7 +614,7 @@ export interface PolicyRule {
  </Layer>
 
  {/* 6. 关键分支与边界条件 */}
- <Layer title="关键分支与边界条件" icon="⚡">
+ <Layer title="关键分支与边界条件">
  <div className="space-y-4">
  <div>
  <h4 className="text-heading font-semibold mb-2">模式切换规则</h4>
@@ -876,7 +874,7 @@ export interface PolicyRule {
  </Layer>
 
  {/* 7. 失败与恢复 */}
- <Layer title="失败与恢复" icon="🔧">
+ <Layer title="失败与恢复">
  <div className="space-y-4">
  <div>
  <h4 className="text-heading font-semibold mb-2">失败场景</h4>
@@ -999,7 +997,7 @@ priority = 10`}
  </Layer>
 
  {/* 8. 相关配置项 */}
- <Layer title="相关配置项" icon="⚙️">
+ <Layer title="相关配置项">
  <div className="space-y-4">
  <div>
  <h4 className="text-heading font-semibold mb-2">审批模式配置</h4>
@@ -1162,98 +1160,77 @@ priority = 10`}
  <td className="border border-edge p-3">
  <code className="text-heading">Read</code> 读取文件
  </td>
- <td className="border border-edge p-3 text-center text-heading">
- ✅ 自动
+ <td className="border border-edge p-3 text-center text-heading">自动
  </td>
- <td className="border border-edge p-3 text-center text-heading">
- ✅ 自动
+ <td className="border border-edge p-3 text-center text-heading">自动
  </td>
- <td className="border border-edge p-3 text-center text-heading">
- ✅ 自动
+ <td className="border border-edge p-3 text-center text-heading">自动
  </td>
  </tr>
  <tr className="bg-surface/30">
  <td className="border border-edge p-3">
  <code className="text-heading">Search</code> 搜索文件
  </td>
- <td className="border border-edge p-3 text-center text-heading">
- ✅ 自动
+ <td className="border border-edge p-3 text-center text-heading">自动
  </td>
- <td className="border border-edge p-3 text-center text-heading">
- ✅ 自动
+ <td className="border border-edge p-3 text-center text-heading">自动
  </td>
- <td className="border border-edge p-3 text-center text-heading">
- ✅ 自动
+ <td className="border border-edge p-3 text-center text-heading">自动
  </td>
  </tr>
  <tr>
  <td className="border border-edge p-3">
  <code className="text-heading">Fetch</code> 网络请求
  </td>
- <td className="border border-edge p-3 text-center text-heading">
- ⚠️ 确认
+ <td className="border border-edge p-3 text-center text-heading">确认
  </td>
- <td className="border border-edge p-3 text-center text-heading">
- ⚠️ 确认
+ <td className="border border-edge p-3 text-center text-heading">确认
  </td>
- <td className="border border-edge p-3 text-center text-heading">
- ✅ 自动
+ <td className="border border-edge p-3 text-center text-heading">自动
  </td>
  </tr>
  <tr className="bg-surface/30">
  <td className="border border-edge p-3">
  <code className="text-heading">Edit</code> 编辑文件
  </td>
- <td className="border border-edge p-3 text-center text-heading">
- ⚠️ 确认
+ <td className="border border-edge p-3 text-center text-heading">确认
  </td>
- <td className="border border-edge p-3 text-center text-heading">
- ✅ 自动
+ <td className="border border-edge p-3 text-center text-heading">自动
  </td>
- <td className="border border-edge p-3 text-center text-heading">
- ✅ 自动
+ <td className="border border-edge p-3 text-center text-heading">自动
  </td>
  </tr>
  <tr>
  <td className="border border-edge p-3">
  <code className="text-heading">Delete</code> 删除文件
  </td>
- <td className="border border-edge p-3 text-center text-heading">
- ⚠️ 确认
+ <td className="border border-edge p-3 text-center text-heading">确认
  </td>
- <td className="border border-edge p-3 text-center text-heading">
- ⚠️ 确认
+ <td className="border border-edge p-3 text-center text-heading">确认
  </td>
- <td className="border border-edge p-3 text-center text-heading">
- ✅ 自动
+ <td className="border border-edge p-3 text-center text-heading">自动
  </td>
  </tr>
  <tr className="bg-surface/30">
  <td className="border border-edge p-3">
  <code className="text-heading">Execute</code> Shell 命令
  </td>
- <td className="border border-edge p-3 text-center text-heading">
- ⚠️ 确认
+ <td className="border border-edge p-3 text-center text-heading">确认
  </td>
- <td className="border border-edge p-3 text-center text-heading">
- ⚠️ 确认
+ <td className="border border-edge p-3 text-center text-heading">确认
  </td>
- <td className="border border-edge p-3 text-center text-heading">
- ✅ 自动
+ <td className="border border-edge p-3 text-center text-heading">自动
  </td>
  </tr>
  <tr>
  <td className="border border-edge p-3">
  <code className="text-heading">MCP Tools</code> 外部服务器
  </td>
- <td className="border border-edge p-3 text-center text-heading">
- ⚠️ 确认
+ <td className="border border-edge p-3 text-center text-heading">确认
  </td>
- <td className="border border-edge p-3 text-center text-heading">
- ⚠️ 确认
+ <td className="border border-edge p-3 text-center text-heading">确认
  </td>
- <td className="border border-edge p-3 text-center text-heading">
- ✅ 自动
+ <td className="border border-edge p-3 text-center text-heading">自动
  </td>
  </tr>
  </tbody>
@@ -1354,32 +1331,31 @@ priority = 10`}
  <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">推荐做法</h4>
  <ul className="text-sm text-body space-y-1">
- <li>✓ 日常开发使用 default 模式</li>
- <li>✓ 审查不熟悉的代码时仔细看 Diff</li>
- <li>✓ 只在可信项目中使用 autoEdit</li>
- <li>✓ 仔细阅读 Diff 后再批准</li>
- <li>✓ 配置合理的 allowedTools</li>
+ <li>日常开发使用 default 模式</li>
+ <li>审查不熟悉的代码时仔细看 Diff</li>
+ <li>只在可信项目中使用 autoEdit</li>
+ <li>仔细阅读 Diff 后再批准</li>
+ <li>配置合理的 allowedTools</li>
  </ul>
  </div>
  <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">避免做法</h4>
  <ul className="text-sm text-body space-y-1">
- <li>✗ 在不可信项目中使用 yolo</li>
- <li>✗ 不看 Diff 直接批准</li>
- <li>✗ 对所有 Shell 命令自动批准</li>
- <li>✗ 忽略安全警告</li>
- <li>✗ 在生产环境使用 yolo 模式</li>
+ <li>在不可信项目中使用 yolo</li>
+ <li>不看 Diff 直接批准</li>
+ <li>对所有 Shell 命令自动批准</li>
+ <li>忽略安全警告</li>
+ <li>在生产环境使用 yolo 模式</li>
  </ul>
  </div>
  </div>
  </section>
 
  {/* 为什么这样设计审批系统 */}
- <Layer title="为什么这样设计审批系统？" icon="💡">
+ <Layer title="为什么这样设计审批系统？">
  <div className="space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- 🎚️ 为什么需要 3 种模式？
+ <h4 className="text-heading font-bold mb-2">为什么需要 3 种模式？
  </h4>
  <div className="text-sm text-body space-y-2">
  <p>
@@ -1410,8 +1386,7 @@ priority = 10`}
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- 📖 为什么只读工具始终自动批准？
+ <h4 className="text-heading font-bold mb-2">为什么只读工具始终自动批准？
  </h4>
  <div className="text-sm text-body space-y-2">
  <p>
@@ -1442,8 +1417,7 @@ priority = 10`}
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- 🔄 为什么用 Shift+Tab 而非配置文件？
+ <h4 className="text-heading font-bold mb-2">为什么用 Shift+Tab 而非配置文件？
  </h4>
  <div className="text-sm text-body space-y-2">
  <p>
@@ -1483,8 +1457,7 @@ priority = 10`}
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- 🚫 为什么不可信文件夹限制模式？
+ <h4 className="text-heading font-bold mb-2">为什么不可信文件夹限制模式？
  </h4>
  <div className="text-sm text-body space-y-2">
  <p>
@@ -1517,8 +1490,7 @@ priority = 10`}
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- ⚠️ 为什么 Shell 命令需要特殊处理？
+ <h4 className="text-heading font-bold mb-2">为什么 Shell 命令需要特殊处理？
  </h4>
  <div className="text-sm text-body space-y-2">
  <p>
@@ -1552,7 +1524,7 @@ priority = 10`}
  </Layer>
 
  {/* Policy Engine 集成 */}
- <Layer title="与 Policy Engine 集成" icon="🛡️">
+ <Layer title="与 Policy Engine 集成">
  <div className="space-y-4">
  <HighlightBox title="架构关系" variant="blue">
  <div className="text-sm space-y-2">
@@ -1689,7 +1661,7 @@ async evaluate(request: ToolRequest): Promise<PolicyDecision> {
  </Layer>
 
  {/* 模式选择决策树 */}
- <Layer title="模式选择决策树" icon="🌳">
+ <Layer title="模式选择决策树">
  <MermaidDiagram
  chart={`flowchart TD
  start[选择审批模式] --> q1{是否信任<br/>此项目？}

@@ -810,11 +810,11 @@ gemini config export-theme > current-theme.json`;
  <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">创建自定义主题</h4>
  <ul className="text-sm text-body space-y-1">
- <li>✓ 保持足够的对比度</li>
- <li>✓ 使用一致的色调</li>
- <li>✓ 测试不同终端的兼容性</li>
- <li>✓ 考虑色盲用户</li>
- <li>✓ 提供语义化的颜色命名</li>
+ <li>保持足够的对比度</li>
+ <li>使用一致的色调</li>
+ <li>测试不同终端的兼容性</li>
+ <li>考虑色盲用户</li>
+ <li>提供语义化的颜色命名</li>
  </ul>
  </div>
  <div className="bg-elevated/20 border border-edge rounded-lg p-4">

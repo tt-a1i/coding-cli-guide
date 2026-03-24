@@ -100,7 +100,7 @@ function QuickSummary({
 
  {/* 源码入口 */}
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码入口:</span>
+ <span className="text-dim">源码入口:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  gemini-cli/packages/core/src/policy/policy-engine.ts
  </code>
@@ -430,7 +430,7 @@ async checkHook(
  </section>
 
  {/* 1. 核心概念 */}
- <Layer title="核心概念" icon="🎯">
+ <Layer title="核心概念">
  <div className="space-y-4">
  <CodeBlock
  code={policyTypesCode}
@@ -476,7 +476,7 @@ async checkHook(
  </Layer>
 
  {/* 2. 决策流程 */}
- <Layer title="决策流程" icon="📊">
+ <Layer title="决策流程">
  <div className="space-y-4">
  <MermaidDiagram
  chart={policyDecisionFlowChart}
@@ -491,7 +491,7 @@ async checkHook(
  </Layer>
 
  {/* 3. 规则定义 */}
- <Layer title="规则定义" icon="📜">
+ <Layer title="规则定义">
  <div className="space-y-4">
  <CodeBlock
  code={policyRuleCode}
@@ -543,7 +543,7 @@ async checkHook(
  </Layer>
 
  {/* 4. 通配符匹配 */}
- <Layer title="通配符与 MCP 工具" icon="🔗">
+ <Layer title="通配符与 MCP 工具">
  <div className="space-y-4">
  <HighlightBox title="MCP 服务器工具匹配" variant="purple">
  <div className="text-sm space-y-3">
@@ -569,8 +569,7 @@ async checkHook(
  <span className="text-body">→ 精确匹配单个工具</span>
  </div>
  </div>
- <p className="text-heading text-xs">
- ⚠️ 安全检查：serverName 必须精确匹配前缀，防止恶意服务器伪造名称
+ <p className="text-heading text-xs">安全检查：serverName 必须精确匹配前缀，防止恶意服务器伪造名称
  </p>
  </div>
  </HighlightBox>
@@ -578,7 +577,7 @@ async checkHook(
  </Layer>
 
  {/* 5. Safety Checker */}
- <Layer title="Safety Checker" icon="🔍">
+ <Layer title="Safety Checker">
  <div className="space-y-4">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="External Checker" variant="blue">
@@ -630,7 +629,7 @@ async checkHook(
  </Layer>
 
  {/* 6. TOML 配置 */}
- <Layer title="TOML 配置" icon="⚙️">
+ <Layer title="TOML 配置">
  <div className="space-y-4">
  <CodeBlock
  code={tomlConfigCode}
@@ -670,7 +669,7 @@ async checkHook(
  </Layer>
 
  {/* 7. Hook 策略检查 */}
- <Layer title="Hook 策略检查" icon="🪝">
+ <Layer title="Hook 策略检查">
  <div className="space-y-4">
  <CodeBlock
  code={hookPolicyCode}
@@ -697,7 +696,7 @@ async checkHook(
  </Layer>
 
  {/* 8. Shell 命令特殊处理 */}
- <Layer title="Shell 命令特殊处理" icon="💻">
+ <Layer title="Shell 命令特殊处理">
  <div className="space-y-4">
  <MermaidDiagram
  chart={`flowchart TD
@@ -772,7 +771,7 @@ async checkHook(
  </Layer>
 
  {/* 9. 非交互模式 */}
- <Layer title="非交互模式" icon="🤖">
+ <Layer title="非交互模式">
  <div className="space-y-4">
  <HighlightBox title="nonInteractive 模式" variant="purple">
  <div className="text-sm space-y-2 text-body">
@@ -801,7 +800,7 @@ async checkHook(
  </Layer>
 
  {/* 10. 关键文件 */}
- <Layer title="关键文件与入口" icon="📁">
+ <Layer title="关键文件与入口">
  <div className="grid grid-cols-1 gap-2 text-sm">
  <div className="flex items-start gap-2">
  <code className="bg-base/30 px-2 py-1 rounded text-xs whitespace-nowrap">
@@ -839,7 +838,7 @@ async checkHook(
  </Layer>
 
  {/* 设计决策 */}
- <Layer title="设计决策" icon="💡">
+ <Layer title="设计决策">
  <div className="space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
  <h4 className="text-heading font-bold mb-2">

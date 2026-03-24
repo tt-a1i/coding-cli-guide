@@ -120,7 +120,7 @@ export function IDEIntegration() {
  <h3 className="text-xl font-semibold text-heading mb-4">集成边界：什么能做/不能做</h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
- <h4 className="text-heading font-semibold mb-3">✓ IDE 集成能做</h4>
+ <h4 className="text-heading font-semibold mb-3">IDE 集成能做</h4>
  <ul className="text-sm text-body space-y-2">
  <li className="flex items-start gap-2">
  <span className="text-heading">•</span>
@@ -141,7 +141,7 @@ export function IDEIntegration() {
  </ul>
  </div>
  <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
- <h4 className="text-heading font-semibold mb-3">✗ IDE 集成不能做</h4>
+ <h4 className="text-heading font-semibold mb-3">IDE 集成不能做</h4>
  <ul className="text-sm text-body space-y-2">
  <li className="flex items-start gap-2">
  <span className="text-heading">•</span>
@@ -167,7 +167,7 @@ export function IDEIntegration() {
  </div>
  </div>
  <div className="mt-4 bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
- <h4 className="text-heading font-semibold mb-2">💡 设计哲学</h4>
+ <h4 className="text-heading font-semibold mb-2">设计哲学</h4>
  <p className="text-sm text-body">
  IDE 集成的定位是<strong>增强 CLI 体验</strong>，而非替代传统 IDE 插件。核心价值是
  <span className="text-heading mx-1">Native Diff</span>和
@@ -215,8 +215,8 @@ export function IDEIntegration() {
  </section>
 
  {/* Zed 集成详情 */}
- <Layer title="Zed 集成" icon="⚡">
- <HighlightBox title="Zed 支持状态" icon="⚡" variant="yellow">
+ <Layer title="Zed 集成">
+ <HighlightBox title="Zed 支持状态" variant="yellow">
  <p className="text-sm mb-2">
  <strong className="text-heading">Zed</strong> 是一款高性能的现代编辑器。
  Gemini CLI 可在 Zed 的集成终端中运行，但原生 Diff 功能需要额外配置。
@@ -225,7 +225,7 @@ export function IDEIntegration() {
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
- <h4 className="text-heading font-semibold mb-2">✓ Zed 中可用</h4>
+ <h4 className="text-heading font-semibold mb-2">Zed 中可用</h4>
  <ul className="text-sm text-body space-y-1">
  <li>在集成终端中运行 CLI</li>
  <li>使用 CLI 内置 Diff 视图</li>
@@ -235,7 +235,7 @@ export function IDEIntegration() {
  </ul>
  </div>
  <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
- <h4 className="text-heading font-semibold mb-2">⚠️ Zed 限制</h4>
+ <h4 className="text-heading font-semibold mb-2">Zed 限制</h4>
  <ul className="text-sm text-body space-y-1">
  <li>无 Companion 扩展 — Zed 扩展 API 不同</li>
  <li>无原生 Diff — 需使用 CLI 内置 Diff</li>
@@ -275,7 +275,7 @@ gemini
  />
  </div>
 
- <HighlightBox title="未来展望" icon="🔮" variant="purple" className="mt-4">
+ <HighlightBox title="未来展望" variant="purple" className="mt-4">
  <p className="text-sm text-body">
  Zed 的扩展系统正在快速发展。当 Zed 支持类似 VS Code 的扩展 API 时，
  可以开发 Zed 专用的 Companion 扩展，提供原生 Diff 和上下文同步功能。
@@ -285,8 +285,8 @@ gemini
  </Layer>
 
  {/* JetBrains 集成状态 */}
- <Layer title="JetBrains IDE 集成" icon="🧠">
- <HighlightBox title="JetBrains 支持状态" icon="🧠" variant="purple">
+ <Layer title="JetBrains IDE 集成">
+ <HighlightBox title="JetBrains 支持状态" variant="purple">
  <p className="text-sm mb-2">
  JetBrains IDE (IntelliJ IDEA, WebStorm, PyCharm 等) 使用不同的插件架构，
  目前没有官方 Companion 插件。CLI 可以在 JetBrains 终端中运行。
@@ -295,7 +295,7 @@ gemini
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
- <h4 className="text-heading font-semibold mb-2">✓ 可用功能</h4>
+ <h4 className="text-heading font-semibold mb-2">可用功能</h4>
  <ul className="text-sm text-body space-y-1">
  <li>在终端工具窗口运行 CLI</li>
  <li>使用 CLI 内置 Diff</li>
@@ -318,7 +318,7 @@ gemini
  </Layer>
 
  {/* IDEServer 架构 */}
- <Layer title="IDEServer 架构" icon="🏗️">
+ <Layer title="IDEServer 架构">
  <div className="bg-surface rounded-lg p-6 mb-4">
  <h4 className="text-heading font-bold mb-3">核心组件</h4>
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -386,7 +386,7 @@ gemini
 }`}
  />
 
- <HighlightBox title="三层安全认证" icon="🔒" variant="green" className="mt-4">
+ <HighlightBox title="三层安全认证" variant="green" className="mt-4">
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
  <div>
  <h5 className="font-semibold text-heading">1. CORS 保护</h5>
@@ -405,8 +405,8 @@ gemini
  </Layer>
 
  {/* gemini-diff scheme */}
- <Layer title="gemini-diff:// 虚拟文档机制" icon="📄">
- <HighlightBox title="技术原理" icon="💡" variant="blue">
+ <Layer title="gemini-diff:// 虚拟文档机制">
+ <HighlightBox title="技术原理" variant="blue">
  <p className="text-sm mb-2">
  VS Code 的 Diff 视图需要两个文档 URI：左侧（原始）和右侧（修改后）。
  <code className="text-heading mx-1">gemini-diff://</code> 是自定义的虚拟文档 scheme，
@@ -503,7 +503,7 @@ class DiffContentProvider implements TextDocumentContentProvider {
  </div>
  </div>
 
- <HighlightBox title="左侧文档选择策略" icon="📋" variant="purple" className="mt-4">
+ <HighlightBox title="左侧文档选择策略" variant="purple" className="mt-4">
  <ul className="text-sm space-y-1">
  <li>如果文件存在：使用 <code>file://</code> 真实文件 URI</li>
  <li>如果是新文件：使用 <code>untitled:</code> scheme (空文档)</li>
@@ -512,7 +512,7 @@ class DiffContentProvider implements TextDocumentContentProvider {
  </Layer>
 
  {/* MCP 工具 */}
- <Layer title="MCP 工具接口" icon="🔧">
+ <Layer title="MCP 工具接口">
  <CodeBlock
  title="openDiff / closeDiff 工具"
  language="typescript"
@@ -582,7 +582,7 @@ server.registerTool('closeDiff', {
  </section>
 
  {/* 连接配置 */}
- <Layer title="连接配置与持久化" icon="⚙️">
+ <Layer title="连接配置与持久化">
  <CodeBlock
  title="临时文件位置"
  language="text"
@@ -618,7 +618,7 @@ GEMINI_CLI_IDE_SERVER_STDIO_COMMAND=node
 GEMINI_CLI_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
  />
 
- <HighlightBox title="容器支持" icon="🐳" variant="blue" className="mt-4">
+ <HighlightBox title="容器支持" variant="blue" className="mt-4">
  <p className="text-sm mb-2">
  在 Docker/Podman 容器中运行时，CLI 自动检测容器环境并使用
  <code className="mx-1 text-heading">host.docker.internal</code> 连接宿主机。
@@ -637,7 +637,7 @@ GEMINI_CLI_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
  </Layer>
 
  {/* 工作区上下文 */}
- <Layer title="工作区上下文同步" icon="📂">
+ <Layer title="工作区上下文同步">
  <CodeBlock
  title="OpenFilesManager 实现"
  language="typescript"
@@ -699,7 +699,7 @@ GEMINI_CLI_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
  </div>
  </div>
 
- <HighlightBox title="上下文通知" icon="📡" variant="green" className="mt-4">
+ <HighlightBox title="上下文通知" variant="green" className="mt-4">
  <p className="text-sm mb-2">
  上下文变更通过 <code>ide/contextUpdate</code> 通知推送给 CLI：
  </p>
@@ -735,15 +735,15 @@ GEMINI_CLI_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
  </div>
  <div className="flex gap-4 mt-4 justify-center">
  <button className="px-4 py-2 bg-[var(--color-success)] text-heading rounded flex items-center gap-2">
- <span>✓</span> Accept (Cmd+S)
+ Accept (Cmd+S)
  </button>
  <button className="px-4 py-2 bg-[var(--color-danger)] text-heading rounded flex items-center gap-2">
- <span>✗</span> Reject
+ Reject
  </button>
  </div>
  </div>
 
- <HighlightBox title="用户可编辑" icon="✏️" variant="blue" className="mt-4">
+ <HighlightBox title="用户可编辑" variant="blue" className="mt-4">
  <p className="text-sm">
  打开 Diff 后会自动执行 <code>setActiveEditorWriteableInSession</code>，
  允许用户直接在右侧编辑内容。接受时会保存用户编辑后的版本。
@@ -752,7 +752,7 @@ GEMINI_CLI_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
  </section>
 
  {/* Diff 互斥锁 */}
- <Layer title="Diff 互斥锁机制" icon="🔐">
+ <Layer title="Diff 互斥锁机制">
  <CodeBlock
  title="Mutex 实现"
  language="typescript"
@@ -792,7 +792,7 @@ GEMINI_CLI_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
 }`}
  />
 
- <HighlightBox title="为什么需要互斥锁？" icon="❓" variant="yellow">
+ <HighlightBox title="为什么需要互斥锁？" variant="yellow">
  <ul className="text-sm space-y-1">
  <li>避免多个 Diff 视图同时打开造成混乱</li>
  <li>确保用户按顺序处理每个修改建议</li>
@@ -802,7 +802,7 @@ GEMINI_CLI_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
  </Layer>
 
  {/* IDE 命令 */}
- <Layer title="IDE 命令" icon="⌨️">
+ <Layer title="IDE 命令">
  <div className="bg-surface rounded-lg p-4">
  <h4 className="font-semibold text-heading mb-3">CLI 命令</h4>
  <table className="w-full text-sm">
@@ -855,28 +855,28 @@ GEMINI_CLI_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
  </Layer>
 
  {/* 故障排查 */}
- <Layer title="故障排查" icon="🔍">
+ <Layer title="故障排查">
  <div className="space-y-3 text-sm">
  <div className="p-3 bg-elevated rounded">
- <p className="text-heading font-mono">🔴 Failed to connect to IDE companion extension</p>
+ <p className="text-heading font-mono">Failed to connect to IDE companion extension</p>
  <p className="text-body mt-1">
  → 确保扩展已安装且 IDE 已打开，在 IDE 集成终端中启动 CLI
  </p>
  </div>
  <div className="p-3 bg-elevated rounded">
- <p className="text-heading font-mono">🔴 Directory mismatch</p>
+ <p className="text-heading font-mono">Directory mismatch</p>
  <p className="text-body mt-1">
  → CLI 工作目录必须在 IDE 工作区内，使用 <code>cd</code> 切换到正确目录
  </p>
  </div>
  <div className="p-3 bg-elevated rounded">
- <p className="text-heading font-mono">🔴 To use this feature, please open a workspace</p>
+ <p className="text-heading font-mono">To use this feature, please open a workspace</p>
  <p className="text-body mt-1">
  → 在 IDE 中打开项目文件夹，不是单个文件
  </p>
  </div>
  <div className="p-3 bg-elevated rounded">
- <p className="text-heading font-mono">⚠️ 容器中连接失败</p>
+ <p className="text-heading font-mono">容器中连接失败</p>
  <p className="text-body mt-1">
  → 确保容器可以访问 <code>host.docker.internal</code>，检查网络配置
  </p>
@@ -885,7 +885,7 @@ GEMINI_CLI_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
  </Layer>
 
  {/* 架构图 */}
- <Layer title="集成架构总览" icon="🏗️">
+ <Layer title="集成架构总览">
  <div className="bg-surface rounded-lg p-6">
  <pre className="text-xs text-body overflow-x-auto">
 {`┌─────────────────────────────────────────────────────────────────┐
@@ -940,21 +940,21 @@ GEMINI_CLI_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
  <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">推荐做法</h4>
  <ul className="text-sm text-body space-y-1">
- <li>✓ 在 IDE 集成终端中启动 CLI</li>
- <li>✓ 使用原生 Diff 查看修改</li>
- <li>✓ 利用 Ctrl+G 查看上下文</li>
- <li>✓ 在 Diff 中直接编辑后接受</li>
- <li>✓ 保持 IDE 和 CLI 目录一致</li>
+ <li>在 IDE 集成终端中启动 CLI</li>
+ <li>使用原生 Diff 查看修改</li>
+ <li>利用 Ctrl+G 查看上下文</li>
+ <li>在 Diff 中直接编辑后接受</li>
+ <li>保持 IDE 和 CLI 目录一致</li>
  </ul>
  </div>
  <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">注意事项</h4>
  <ul className="text-sm text-body space-y-1">
- <li>✗ 不要在外部终端启动后尝试连接</li>
- <li>✗ 避免目录不匹配</li>
- <li>✗ 沙箱中注意网络配置</li>
- <li>✗ 大型选区会被截断 (16KB)</li>
- <li>✗ 只读工作区无法使用 Diff</li>
+ <li>不要在外部终端启动后尝试连接</li>
+ <li>避免目录不匹配</li>
+ <li>沙箱中注意网络配置</li>
+ <li>大型选区会被截断 (16KB)</li>
+ <li>只读工作区无法使用 Diff</li>
  </ul>
  </div>
  </div>

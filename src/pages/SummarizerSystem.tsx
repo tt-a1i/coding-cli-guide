@@ -20,8 +20,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">📝</span>
- <span className="text-xl font-bold text-heading">30秒快速理解</span>
+  <span className="text-xl font-bold text-heading">30秒快速理解</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>
  ▼
@@ -78,7 +77,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码入口:</span>
+ <span className="text-dim">源码入口:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/core/src/utils/summarizer.ts
  </code>
@@ -255,14 +254,14 @@ export async function summarizeToolOutput(
 
  <QuickSummary isExpanded={isSummaryExpanded} onToggle={() => setIsSummaryExpanded(!isSummaryExpanded)} />
 
- <Layer title="摘要流程" icon="🔄" defaultOpen={true}>
+ <Layer title="摘要流程" defaultOpen={true}>
  <HighlightBox title="工具输出摘要决策流程" color="blue" className="mb-6">
  <MermaidDiagram chart={summarizerFlowChart} />
  </HighlightBox>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface p-4 rounded-lg border border-edge">
- <div className="text-heading font-bold mb-2">📊 触发条件</div>
+ <div className="text-heading font-bold mb-2">触发条件</div>
  <ul className="text-sm text-body space-y-1">
  <li>输出长度 &gt; maxOutputTokens (默认 2000)</li>
  <li>使用字符长度作为 Token 近似</li>
@@ -270,7 +269,7 @@ export async function summarizeToolOutput(
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge">
- <div className="text-heading font-bold mb-2">🔧 摘要模型</div>
+ <div className="text-heading font-bold mb-2">摘要模型</div>
  <ul className="text-sm text-body space-y-1">
  <li>使用 Flash-Lite 轻量级模型</li>
  <li>低延迟、低成本</li>
@@ -280,7 +279,7 @@ export async function summarizeToolOutput(
  </div>
  </Layer>
 
- <Layer title="Summarizer 类型" icon="📋" defaultOpen={true}>
+ <Layer title="Summarizer 类型" defaultOpen={true}>
  <CodeBlock code={summarizerTypeCode} language="typescript" title="Summarizer 类型定义" />
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -303,12 +302,12 @@ export async function summarizeToolOutput(
  </div>
  </Layer>
 
- <Layer title="摘要 Prompt" icon="💬" defaultOpen={true}>
+ <Layer title="摘要 Prompt" defaultOpen={true}>
  <CodeBlock code={summaryPromptCode} language="typescript" title="SUMMARIZE_TOOL_OUTPUT_PROMPT" />
 
  <div className="mt-4 p-4 bg-base/50 rounded-lg border border-edge">
  <div className="text-sm">
- <strong className="text-heading">📝 三种摘要规则：</strong>
+ <strong className="text-heading">三种摘要规则：</strong>
  <div className="mt-2 space-y-3">
  <div className="flex items-start gap-2">
  <span className="text-heading">1.</span>
@@ -336,32 +335,32 @@ export async function summarizeToolOutput(
  </div>
  </Layer>
 
- <Layer title="核心实现" icon="⚙️" defaultOpen={false}>
+ <Layer title="核心实现" defaultOpen={false}>
  <CodeBlock code={summarizeToolOutputCode} language="typescript" title="summarizeToolOutput 函数" />
  </Layer>
 
- <Layer title="使用场景" icon="🎯" defaultOpen={false}>
+ <Layer title="使用场景" defaultOpen={false}>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface p-4 rounded-lg border border-edge">
- <div className="text-heading font-bold mb-2">📁 文件读取</div>
+ <div className="text-heading font-bold mb-2">文件读取</div>
  <p className="text-sm text-body">
  读取大文件时，摘要提取关键代码片段和结构信息
  </p>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge">
- <div className="text-heading font-bold mb-2">🔍 搜索结果</div>
+ <div className="text-heading font-bold mb-2">搜索结果</div>
  <p className="text-sm text-body">
  Grep 返回大量匹配时，摘要为最相关的结果列表
  </p>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge">
- <div className="text-heading font-bold mb-2">💻 Shell 输出</div>
+ <div className="text-heading font-bold mb-2">Shell 输出</div>
  <p className="text-sm text-body">
  npm install 等长输出，摘要结果但保留错误堆栈
  </p>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge">
- <div className="text-heading font-bold mb-2">📊 目录列表</div>
+ <div className="text-heading font-bold mb-2">目录列表</div>
  <p className="text-sm text-body">
  大型目录树，智能提取用户关心的文件/目录
  </p>

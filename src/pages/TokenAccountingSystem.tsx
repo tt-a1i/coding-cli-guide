@@ -31,8 +31,7 @@ flowchart TD
  return (
  <div className="space-y-8 animate-fadeIn">
  <div className="border- border-edge pb-6">
- <h1 className="text-3xl font-bold text-heading mb-2">
- 🧾 Token 计费与记录系统（上游 Gemini CLI）
+ <h1 className="text-3xl font-bold text-heading mb-2">Token 计费与记录系统（上游 Gemini CLI）
  </h1>
  <p className="text-body">
  “计费系统”在上游语境里更准确的说法是：<strong>token 使用量的预估、预警、以及对齐记录</strong>。
@@ -50,11 +49,11 @@ flowchart TD
  </ul>
  </HighlightBox>
 
- <Layer title="核心流程图" icon="🧭" defaultOpen>
+ <Layer title="核心流程图" defaultOpen>
  <MermaidDiagram chart={coreFlow} />
  </Layer>
 
- <Layer title="1) lastPromptTokenCount：从“估算”到“对齐”" icon="📌" defaultOpen>
+ <Layer title="1) lastPromptTokenCount：从“估算”到“对齐”" defaultOpen>
  <p className="text-body mb-4">
  <code>lastPromptTokenCount</code> 是“当前历史 + 系统指令 + 工具等”大致占用的 prompt token 数：
  初始化时用启发式估算；一旦后续响应带回真实 <code>promptTokenCount</code>，会被更新为更准确的值。
@@ -76,7 +75,7 @@ if (chunk.usageMetadata?.promptTokenCount !== undefined) {
 }`}
  />
 
- <HighlightBox title="为什么要更新 lastPromptTokenCount？" icon="💡" variant="green">
+ <HighlightBox title="为什么要更新 lastPromptTokenCount？" variant="green">
  <p className="m-0 text-sm text-body">
  因为后续 turn 的溢出判断依赖 <code>remainingTokenCount = tokenLimit(model) - lastPromptTokenCount</code>。
  如果一直只用启发式，误差会累积；用 API 回传对齐后会稳定很多。
@@ -84,7 +83,7 @@ if (chunk.usageMetadata?.promptTokenCount !== undefined) {
  </HighlightBox>
  </Layer>
 
- <Layer title="2) estimateTokenCountSync：上游启发式（ASCII/CJK）" icon="🧮" defaultOpen>
+ <Layer title="2) estimateTokenCountSync：上游启发式（ASCII/CJK）" defaultOpen>
  <p className="text-body mb-4">
  上游把 token 估算做成<strong>快速且偏保守</strong>的本地计算，用于“预警”和“流程控制”，不是用于计费准确性。
  </p>
@@ -100,7 +99,7 @@ export function estimateTokenCountSync(parts: Part[]): number { /* ... */ }`}
  />
  </Layer>
 
- <Layer title="3) calculateRequestTokenCount：媒体走 countTokens API" icon="🔀" defaultOpen>
+ <Layer title="3) calculateRequestTokenCount：媒体走 countTokens API" defaultOpen>
  <p className="text-body mb-4">
  图片/文件的 token 估算在本地很难可靠；上游选择调用 <code>countTokens</code> API。
  这也意味着：当网络/权限导致 API 失败时，系统会退回启发式估算，宁可保守。
@@ -121,7 +120,7 @@ if (hasMedia) {
  />
  </Layer>
 
- <Layer title="4) ContextWindowWillOverflow：请求前的硬门槛" icon="🛑" defaultOpen>
+ <Layer title="4) ContextWindowWillOverflow：请求前的硬门槛" defaultOpen>
  <p className="text-body mb-4">
  这个事件不是模型“说我超了”，而是客户端在发请求前做的预警：当本次请求预计会占用剩余窗口的 95% 以上，就停止并交给 UI 处理。
  </p>
@@ -136,7 +135,7 @@ if (estimatedRequestTokenCount > remainingTokenCount * 0.95) {
 }`}
  />
 
- <HighlightBox title="UI 可以怎么做？" icon="🧠" variant="yellow">
+ <HighlightBox title="UI 可以怎么做？" variant="yellow">
  <ul className="m-0 text-sm text-body space-y-1">
  <li>提示用户缩短输入（特别是粘贴的大段日志/代码）。</li>
  <li>引导用户拆分任务或让模型先做高层总结。</li>
@@ -145,7 +144,7 @@ if (estimatedRequestTokenCount > remainingTokenCount * 0.95) {
  </HighlightBox>
  </Layer>
 
- <Layer title="5) Finished：把 usageMetadata 带到事件层" icon="🏁" defaultOpen>
+ <Layer title="5) Finished：把 usageMetadata 带到事件层" defaultOpen>
  <p className="text-body mb-4">
  上游把底层 SDK 的 chunk 流封装成 <code>GeminiEventType</code> 事件流；
  当检测到 <code>finishReason</code> 时发出 <code>Finished</code>，并携带 <code>usageMetadata</code> 供 UI 展示与持久化。

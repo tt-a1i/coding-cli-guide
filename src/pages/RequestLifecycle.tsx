@@ -17,8 +17,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-elevated/50 transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">⚡</span>
- <span className="text-xl font-bold text-heading">30秒快速理解</span>
+  <span className="text-xl font-bold text-heading">30秒快速理解</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
  </button>
@@ -54,7 +53,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 核心流程 */}
  <div>
- <h4 className="text-sm font-semibold text-dim mb-3">📍 核心流程</h4>
+ <h4 className="text-sm font-semibold text-dim mb-3">核心流程</h4>
  <div className="flex items-center gap-2 flex-wrap text-sm">
  <span className="px-3 py-1.5 bg-elevated/20 text-heading rounded-full">用户输入</span>
  <span className="text-dim">→</span>
@@ -70,7 +69,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 何时终止 */}
  <div>
- <h4 className="text-sm font-semibold text-dim mb-3">🛑 何时终止循环？</h4>
+ <h4 className="text-sm font-semibold text-dim mb-3">何时终止循环？</h4>
  <div className="grid grid-cols-3 gap-2 text-xs">
  <div className="p-2 bg-base rounded border border-edge/30">
  <div className="text-heading font-medium">Finished: finishReason=STOP</div>
@@ -89,7 +88,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 源码入口 */}
  <div className="flex items-center gap-4 text-xs">
- <span className="text-dim">📁 核心源码:</span>
+ <span className="text-dim">核心源码:</span>
  <code className="px-2 py-1 bg-base rounded text-heading">
  packages/core/src/core/geminiChat.ts → chat()
  </code>
@@ -446,7 +445,7 @@ function setupAbortController(): AbortController {
 
  {/* 目标 */}
  <section>
- <Layer title="目标" icon="🎯">
+ <Layer title="目标">
  <HighlightBox title="请求生命周期核心目标" variant="blue">
  <p className="text-body mb-2">
  管理从用户输入到 AI 响应的完整流程，包括：
@@ -464,7 +463,7 @@ function setupAbortController(): AbortController {
 
  {/* 输入 */}
  <section>
- <Layer title="输入" icon="📥">
+ <Layer title="输入">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="用户输入" variant="green">
  <ul className="text-sm text-body space-y-1">
@@ -491,7 +490,7 @@ function setupAbortController(): AbortController {
 
  {/* 输出 */}
  <section>
- <Layer title="输出" icon="📤">
+ <Layer title="输出">
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
  <HighlightBox title="AI 响应" variant="blue">
  <ul className="text-sm text-body space-y-1">
@@ -525,7 +524,7 @@ function setupAbortController(): AbortController {
 
  {/* 关键文件与入口 */}
  <section>
- <Layer title="关键文件与入口" icon="📁">
+ <Layer title="关键文件与入口">
  <div className="space-y-3 text-sm">
  <div className="flex items-center gap-2">
  <code className="bg-base px-2 py-1 rounded text-heading border border-edge">
@@ -563,7 +562,7 @@ function setupAbortController(): AbortController {
 
  {/* 流程图 */}
  <section>
- <Layer title="流程图" icon="📊">
+ <Layer title="流程图">
  <h3 className="text-xl font-semibold font-mono text-heading mb-4">完整请求生命周期</h3>
  <MermaidDiagram chart={requestLifecycleFlowChart} title="请求生命周期流程" />
 
@@ -577,7 +576,7 @@ function setupAbortController(): AbortController {
 
  {/* 关键分支与边界条件 */}
  <section>
- <Layer title="关键分支与边界条件" icon="⚡">
+ <Layer title="关键分支与边界条件">
  <div className="space-y-4">
  <HighlightBox title="Continuation 判断" variant="purple">
  <div className="text-sm space-y-2">
@@ -660,7 +659,7 @@ if (input.length > MAX_INPUT_LENGTH) {
 
  {/* 失败与恢复 */}
  <section>
- <Layer title="失败与恢复" icon="🔧">
+ <Layer title="失败与恢复">
  <div className="space-y-4">
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
  <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
@@ -719,7 +718,7 @@ if (input.length > MAX_INPUT_LENGTH) {
 
  {/* 相关配置项 */}
  <section>
- <Layer title="相关配置项" icon="⚙️">
+ <Layer title="相关配置项">
  <div className="space-y-4">
  <div className="bg-base rounded-lg p-4 border border-edge">
  <h4 className="font-semibold font-mono text-heading mb-3">模型配置</h4>
@@ -792,7 +791,7 @@ if (input.length > MAX_INPUT_LENGTH) {
 
  {/* 详细步骤展开 */}
  <section>
- <Layer title="详细实现步骤" icon="📋">
+ <Layer title="详细实现步骤">
  <h3 className="text-xl font-semibold font-mono text-heading mb-4">1. 消息预处理</h3>
  <CodeBlock
  code={messagePreprocessCode}
@@ -864,7 +863,7 @@ await Promise.all([
 
  {/* 多工具调用场景 */}
  <section>
- <Layer title="复杂场景示例" icon="🔗">
+ <Layer title="复杂场景示例">
  <h3 className="text-xl font-semibold font-mono text-heading mb-4">多工具调用任务</h3>
  <CodeBlock
  code={`用户: "读取 package.json 并更新版本号为 2.0.0"
@@ -894,7 +893,7 @@ await Promise.all([
 
  {/* 性能优化提示 */}
  <section>
- <Layer title="性能优化" icon="🚀">
+ <Layer title="性能优化">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="流式响应优化" variant="blue">
  <ul className="text-sm text-body space-y-1">
@@ -932,9 +931,9 @@ await Promise.all([
  </section>
 
  {/* 为什么这样设计 */}
- <Layer title="为什么这样设计请求生命周期" icon="🤔" defaultOpen={false}>
+ <Layer title="为什么这样设计请求生命周期" defaultOpen={false}>
  <div className="space-y-6">
- <HighlightBox title="设计决策解析" icon="💡" variant="blue">
+ <HighlightBox title="设计决策解析" variant="blue">
  <p className="text-sm text-body">
  请求生命周期的设计目标是<strong>可靠、高效、可恢复</strong>，
  确保每个请求都能被正确处理，即使遇到错误也能优雅恢复。
@@ -1005,7 +1004,7 @@ await Promise.all([
 
  {/* 请求状态参考表 */}
  <div className="bg-base/50 rounded-lg p-4 border border-edge">
- <h4 className="text-heading font-bold mb-3">📊 请求状态转换参考</h4>
+ <h4 className="text-heading font-bold mb-3">请求状态转换参考</h4>
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>

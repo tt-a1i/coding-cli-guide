@@ -13,8 +13,8 @@ export function SlashCommands() {
  <h2 className="text-2xl text-heading mb-5">斜杠命令完整参考</h2>
 
  {/* 概述 */}
- <Layer title="命令系统概述" icon="/">
- <HighlightBox title="三种命令前缀" icon="⚡" variant="blue">
+ <Layer title="命令系统概述">
+ <HighlightBox title="三种命令前缀" variant="blue">
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
  <div className="text-center">
  <div className="text-2xl mb-1 font-mono">/</div>
@@ -54,10 +54,9 @@ export function SlashCommands() {
  </Layer>
 
  {/* 内置命令完整清单 */}
- <Layer title="内置命令完整清单" icon="📋">
+ <Layer title="内置命令完整清单">
  {/* 会话管理 */}
- <h4 className="text-lg text-heading font-bold mb-3 mt-4">
- 🗂️ 会话管理
+ <h4 className="text-lg text-heading font-bold mb-3 mt-4">会话管理
  </h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-6">
  <CommandCard name="/chat save <tag>" desc="保存会话到检查点" />
@@ -81,8 +80,7 @@ export function SlashCommands() {
  </div>
 
  {/* 上下文与记忆 */}
- <h4 className="text-lg text-heading font-bold mb-3">
- 🧠 上下文与记忆
+ <h4 className="text-lg text-heading font-bold mb-3">上下文与记忆
  </h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-6">
  <CommandCard name="/memory show" desc="显示已加载的层级上下文" />
@@ -95,7 +93,7 @@ export function SlashCommands() {
  </div>
 
  {/* 文件检查点 */}
- <h4 className="text-lg text-heading font-bold mb-3">💾 文件检查点</h4>
+ <h4 className="text-lg text-heading font-bold mb-3">文件检查点</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-6">
  <CommandCard
  name="/restore [tool_call_id]"
@@ -105,7 +103,7 @@ export function SlashCommands() {
  </div>
 
  {/* 工作区管理 */}
- <h4 className="text-lg text-heading font-bold mb-3">📁 工作区管理</h4>
+ <h4 className="text-lg text-heading font-bold mb-3">工作区管理</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-6">
  <CommandCard
  name="/directory add <path>"
@@ -116,7 +114,7 @@ export function SlashCommands() {
  </div>
 
  {/* 工具与模式 */}
- <h4 className="text-lg text-heading font-bold mb-3">🛠️ 工具与模式</h4>
+ <h4 className="text-lg text-heading font-bold mb-3">工具与模式</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-6">
  <CommandCard name="/tools" desc="列出可用工具（只显示名称）" />
  <CommandCard name="/tools desc" desc="显示工具详细描述" />
@@ -139,7 +137,7 @@ export function SlashCommands() {
  </div>
 
  {/* MCP 与扩展 */}
- <h4 className="text-lg text-heading font-bold mb-3">🔌 MCP 与扩展</h4>
+ <h4 className="text-lg text-heading font-bold mb-3">MCP 与扩展</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-6">
  <CommandCard name="/mcp" desc="列出 MCP 服务器状态和工具" />
  <CommandCard name="/mcp desc" desc="显示 MCP 工具描述" />
@@ -152,7 +150,7 @@ export function SlashCommands() {
  </div>
 
  {/* 配置与偏好 */}
- <h4 className="text-lg text-heading font-bold mb-3">⚙️ 配置与偏好</h4>
+ <h4 className="text-lg text-heading font-bold mb-3">配置与偏好</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-6">
  <CommandCard name="/settings" desc="打开设置编辑器" />
  <CommandCard name="/theme" desc="切换视觉主题" />
@@ -174,7 +172,7 @@ export function SlashCommands() {
  </div>
 
  {/* 退出 */}
- <h4 className="text-lg text-heading font-bold mb-3">🚪 退出</h4>
+ <h4 className="text-lg text-heading font-bold mb-3">退出</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-6">
  <CommandCard name="/quit" desc="立即退出（无确认）" />
  <CommandCard name="/exit" desc="/quit 的别名" />
@@ -186,8 +184,8 @@ export function SlashCommands() {
  </Layer>
 
  {/* @ 命令 */}
- <Layer title="@ 命令 (文件注入)" icon="@">
- <HighlightBox title="用法" icon="📄" variant="green">
+ <Layer title="@ 命令 (文件注入)">
+ <HighlightBox title="用法" variant="green">
  <p className="text-sm">
  <code>@path/to/file</code> 或 <code>@path/to/directory</code> —
  将文件/目录内容注入到提示中。内部使用 <code>read_many_files</code>{' '}
@@ -218,7 +216,7 @@ export function SlashCommands() {
  </div>
  </div>
 
- <HighlightBox title="支持的文件类型" icon="📁" variant="blue">
+ <HighlightBox title="支持的文件类型" variant="blue">
  <ul className="list-disc pl-5 text-sm space-y-1">
  <li>文本文件：直接注入内容</li>
  <li>图片 (PNG, JPEG)：多模态输入</li>
@@ -230,7 +228,7 @@ export function SlashCommands() {
  </Layer>
 
  {/* ! 命令 */}
- <Layer title="! 命令 (Shell 模式)" icon="!">
+ <Layer title="! 命令 (Shell 模式)">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-elevated/10 border-2 border-edge rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">
@@ -257,7 +255,7 @@ export function SlashCommands() {
  </div>
  </div>
 
- <HighlightBox title="环境变量" icon="🔧" variant="orange">
+ <HighlightBox title="环境变量" variant="orange">
  <p className="text-sm">
  通过 <code>!</code> 执行的命令会设置 <code>GEMINI_CLI=1</code>{' '}
  环境变量， 脚本可以据此检测是否在 CLI 中运行。
@@ -266,7 +264,7 @@ export function SlashCommands() {
  </Layer>
 
  {/* 命令加载架构 */}
- <Layer title="命令加载架构" icon="🏗️">
+ <Layer title="命令加载架构">
  <CodeBlock
  title="CommandService.create()"
  code={`// gemini-cli/packages/cli/src/services/CommandService.ts
@@ -308,7 +306,7 @@ class CommandService {
  </Layer>
 
  {/* 快捷键 */}
- <Layer title="快捷键" icon="⌨️">
+ <Layer title="快捷键">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
  <ShortcutCard keys="Ctrl+L" desc="清空屏幕 (等同 /clear)" />
  <ShortcutCard keys="Ctrl+T" desc="切换 MCP 工具描述显示" />
@@ -325,7 +323,7 @@ class CommandService {
  </Layer>
 
  {/* 源码位置 */}
- <Layer title="源码位置" icon="📍">
+ <Layer title="源码位置">
  <div className="text-sm space-y-2">
  <div className="flex items-center gap-2">
  <code className="bg-base/30 px-2 py-1 rounded">
@@ -361,7 +359,7 @@ class CommandService {
  </Layer>
 
  {/* 命令执行模式 */}
- <Layer title="命令执行模式详解" icon="⚙️">
+ <Layer title="命令执行模式详解">
  <p className="mb-4">
  斜杠命令有三种不同的执行模式，理解它们的区别对于选择正确的命令至关重要：
  </p>
@@ -396,7 +394,7 @@ flowchart TB
 
  <div className="mt-6 grid md:grid-cols-3 gap-4">
  <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
- <h4 className="text-heading font-semibold mb-2">🟢 LOCAL 模式</h4>
+ <h4 className="text-heading font-semibold mb-2">LOCAL 模式</h4>
  <p className="text-sm text-body mb-3">
  命令完全在本地执行，不涉及 AI
  </p>
@@ -413,8 +411,7 @@ flowchart TB
  </div>
 
  <div className="bg-elevated/10 border border-edge rounded-lg p-4">
- <h4 className="text-heading font-semibold mb-2">
- 🔵 AI_PROMPT 模式
+ <h4 className="text-heading font-semibold mb-2">AI_PROMPT 模式
  </h4>
  <p className="text-sm text-body mb-3">
  命令内容作为特殊提示发送给 AI 处理
@@ -432,8 +429,7 @@ flowchart TB
  </div>
 
  <div className="bg-elevated border border-edge rounded-lg p-4">
- <h4 className="text-heading font-semibold mb-2">
- 🟣 HYBRID 模式
+ <h4 className="text-heading font-semibold mb-2">HYBRID 模式
  </h4>
  <p className="text-sm text-body mb-3">
  本地预处理后发送给 AI 进一步处理
@@ -453,7 +449,7 @@ flowchart TB
 
  <HighlightBox
  title="执行模式对 Token 的影响"
- icon="📊"
+
  variant="yellow"
  >
  <div className="overflow-x-auto">
@@ -500,7 +496,7 @@ flowchart TB
  </Layer>
 
  {/* 场景对比：选择正确的命令 */}
- <Layer title="场景对比：选择正确的命令" icon="🎯">
+ <Layer title="场景对比：选择正确的命令">
  <p className="mb-4">
  不同场景下应该使用哪个命令？以下是常见场景的决策指南：
  </p>
@@ -508,8 +504,7 @@ flowchart TB
  <div className="space-y-6">
  {/* 场景1：Token 管理 */}
  <div className="bg-surface rounded-lg p-5 border border-edge">
- <h4 className="text-lg font-semibold text-heading mb-3">
- 💰 Token 管理场景
+ <h4 className="text-lg font-semibold text-heading mb-3">Token 管理场景
  </h4>
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
@@ -576,8 +571,7 @@ flowchart TB
 
  {/* 场景2：文件操作 */}
  <div className="bg-surface rounded-lg p-5 border border-edge">
- <h4 className="text-lg font-semibold text-heading mb-3">
- 📁 文件操作场景
+ <h4 className="text-lg font-semibold text-heading mb-3">文件操作场景
  </h4>
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
@@ -642,8 +636,7 @@ flowchart TB
 
  {/* 场景3：会话控制 */}
  <div className="bg-surface rounded-lg p-5 border border-edge">
- <h4 className="text-lg font-semibold text-heading mb-3">
- 🔄 会话控制场景
+ <h4 className="text-lg font-semibold text-heading mb-3">会话控制场景
  </h4>
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
@@ -705,14 +698,14 @@ flowchart TB
  </Layer>
 
  {/* 命令 vs 自然语言 */}
- <Layer title="命令 vs 自然语言：什么时候用哪个？" icon="💬">
+ <Layer title="命令 vs 自然语言：什么时候用哪个？">
  <p className="mb-4">
  有时候用命令更好，有时候直接问 AI 更好。以下是决策指南：
  </p>
 
  <div className="grid md:grid-cols-2 gap-6">
  <div className="bg-elevated/10 border border-edge rounded-lg p-5">
- <h4 className="text-heading font-semibold mb-3">✅ 用斜杠命令</h4>
+ <h4 className="text-heading font-semibold mb-3">用斜杠命令</h4>
  <ul className="space-y-2 text-sm">
  <li className="flex items-start gap-2">
  <span className="text-heading">→</span>
@@ -742,8 +735,7 @@ flowchart TB
  </div>
 
  <div className="bg-elevated border border-edge rounded-lg p-5">
- <h4 className="text-heading font-semibold mb-3">
- ✅ 用自然语言
+ <h4 className="text-heading font-semibold mb-3">用自然语言
  </h4>
  <ul className="space-y-2 text-sm">
  <li className="flex items-start gap-2">
@@ -774,7 +766,7 @@ flowchart TB
  </div>
  </div>
 
- <HighlightBox title="组合使用的威力" icon="🔥" variant="green">
+ <HighlightBox title="组合使用的威力" variant="green">
  <p className="mb-2">最佳实践是组合使用命令和自然语言：</p>
  <div className="bg-surface rounded p-3 mt-2 space-y-2">
  <code className="block text-heading text-sm">
@@ -797,7 +789,7 @@ flowchart TB
  </Layer>
 
  {/* 自定义命令 */}
- <Layer title="创建自定义命令" icon="🛠️">
+ <Layer title="创建自定义命令">
  <p className="mb-4">你可以创建自己的斜杠命令来自动化重复的工作流程：</p>
 
  <div className="space-y-4">
@@ -842,7 +834,7 @@ description: 部署到测试环境
  </div>
  </div>
 
- <HighlightBox title="命令文件格式" icon="📝" variant="blue">
+ <HighlightBox title="命令文件格式" variant="blue">
  <p className="mb-2">命令文件使用 Markdown 格式：</p>
  <ul className="pl-5 list-disc space-y-1 text-sm">
  <li>
@@ -887,7 +879,7 @@ flowchart LR
  </Layer>
 
  {/* 常见问题 */}
- <Layer title="常见问题与解答" icon="❓">
+ <Layer title="常见问题与解答">
  <div className="space-y-4">
  <div className="bg-surface rounded-lg p-4 border border-edge">
  <h4 className="text-heading font-semibold mb-2">

@@ -82,7 +82,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码位置:</span>
+ <span className="text-dim">源码位置:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/cli/src/tools/pty/
  </code>
@@ -732,7 +732,7 @@ export function buildSandboxedEnv(
  <QuickSummary isExpanded={isSummaryExpanded} onToggle={() => setIsSummaryExpanded(!isSummaryExpanded)} />
 
  {/* 概述 */}
- <Layer title="概述" icon="📖" defaultOpen={true}>
+ <Layer title="概述" defaultOpen={true}>
  <div className="space-y-4">
  <p className="text-body">
  伪终端 (Pseudo Terminal, PTY) 是 Gemini CLI 中实现<strong className="text-heading">双向终端通信</strong>的核心机制。
@@ -774,7 +774,7 @@ export function buildSandboxedEnv(
  </Layer>
 
  {/* 架构设计 */}
- <Layer title="架构设计" icon="🏗️" defaultOpen={true}>
+ <Layer title="架构设计" defaultOpen={true}>
  <HighlightBox title="PTY 系统架构" color="blue" className="mb-6">
  <MermaidDiagram chart={architectureDiagram} />
  </HighlightBox>
@@ -812,7 +812,7 @@ export function buildSandboxedEnv(
  </Layer>
 
  {/* PTY 生命周期 */}
- <Layer title="PTY 生命周期" icon="🔄" defaultOpen={true}>
+ <Layer title="PTY 生命周期" defaultOpen={true}>
  <HighlightBox title="会话生命周期状态机" color="green" className="mb-6">
  <MermaidDiagram chart={lifecycleDiagram} />
  </HighlightBox>
@@ -852,7 +852,7 @@ export function buildSandboxedEnv(
  </Layer>
 
  {/* 核心能力 */}
- <Layer title="核心能力" icon="⚡" defaultOpen={true}>
+ <Layer title="核心能力" defaultOpen={true}>
  <div className="space-y-6">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="运行交互式程序" color="green">
@@ -897,7 +897,7 @@ export function buildSandboxedEnv(
  </Layer>
 
  {/* 双向通信协议 */}
- <Layer title="双向通信协议" icon="🔀" defaultOpen={true}>
+ <Layer title="双向通信协议" defaultOpen={true}>
  <HighlightBox title="Agent 与 PTY 之间的完整交互流程" color="blue" className="mb-6">
  <MermaidDiagram chart={communicationDiagram} />
  </HighlightBox>
@@ -914,7 +914,7 @@ export function buildSandboxedEnv(
  </Layer>
 
  {/* Shell 自动补全 */}
- <Layer title="Shell 自动补全交互" icon="⌨️" defaultOpen={false}>
+ <Layer title="Shell 自动补全交互" defaultOpen={false}>
  <HighlightBox title="Tab 补全流程" color="green" className="mb-6">
  <MermaidDiagram chart={autocompleteDiagram} />
  </HighlightBox>
@@ -942,7 +942,7 @@ export function buildSandboxedEnv(
  </Layer>
 
  {/* 代码示例 */}
- <Layer title="核心代码实现" icon="💻" defaultOpen={false}>
+ <Layer title="核心代码实现" defaultOpen={false}>
  <div className="space-y-6">
  <div>
  <h3 className="text-lg font-bold text-heading mb-3">PtyManager - 会话管理器</h3>
@@ -962,7 +962,7 @@ export function buildSandboxedEnv(
  </Layer>
 
  {/* 工具定义 */}
- <Layer title="工具接口定义" icon="🔧" defaultOpen={false}>
+ <Layer title="工具接口定义" defaultOpen={false}>
  <p className="text-body mb-4">
  PTY 系统通过四个工具暴露给 Agent：<code>run_in_terminal</code>、<code>write_to_terminal</code>、
  <code>resize_terminal</code>、<code>close_terminal</code>。这些工具遵循 Gemini CLI 统一的 ToolDefinition 接口，
@@ -972,9 +972,9 @@ export function buildSandboxedEnv(
  </Layer>
 
  {/* 安全考虑 */}
- <Layer title="安全考虑" icon="🛡️" defaultOpen={true}>
+ <Layer title="安全考虑" defaultOpen={true}>
  <div className="space-y-4">
- <HighlightBox title="PTY 安全模型" icon="⚠️" color="red">
+ <HighlightBox title="PTY 安全模型" color="red">
  <p className="text-sm text-body mb-3">
  PTY 会话提供完整的终端访问能力，相比普通 Shell 执行具有更大的攻击面。
  系统通过多层防御机制确保安全：
@@ -1022,7 +1022,7 @@ export function buildSandboxedEnv(
  </Layer>
 
  {/* 与现有系统的集成 */}
- <Layer title="与现有系统的集成" icon="🔗" defaultOpen={false}>
+ <Layer title="与现有系统的集成" defaultOpen={false}>
  <div className="space-y-4">
  <p className="text-body">
  PTY 系统并非孤立存在，它与 Gemini CLI 的多个核心子系统紧密协作。

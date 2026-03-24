@@ -23,8 +23,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">🤖</span>
- <span className="text-xl font-bold text-heading">30秒快速理解</span>
+  <span className="text-xl font-bold text-heading">30秒快速理解</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>
  ▼
@@ -85,7 +84,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 源码入口 */}
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码入口:</span>
+ <span className="text-dim">源码入口:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/core/src/agents/
  </code>
@@ -865,12 +864,12 @@ this.emitActivity('ERROR', { error: errorMessage, context: 'tool_call' });`;
  <tr className="border- border-edge/50">
  <td className="py-2 px-3 text-heading font-bold">TIMEOUT</td>
  <td className="py-2 px-3 text-body">超过 max_time_minutes</td>
- <td className="py-2 px-3 text-heading">✓ 60秒恢复期</td>
+ <td className="py-2 px-3 text-heading">60秒恢复期</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="py-2 px-3 text-heading font-bold">MAX_TURNS</td>
  <td className="py-2 px-3 text-body">达到 max_turns 限制</td>
- <td className="py-2 px-3 text-heading">✓ 60秒恢复期</td>
+ <td className="py-2 px-3 text-heading">60秒恢复期</td>
  </tr>
  <tr className="border- border-edge/50">
  <td className="py-2 px-3 text-heading font-bold">ERROR</td>

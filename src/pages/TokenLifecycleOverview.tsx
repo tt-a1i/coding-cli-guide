@@ -79,8 +79,7 @@ flowchart TB
  return (
  <div className="space-y-8 animate-fadeIn">
  <div className="border- border-edge pb-6">
- <h1 className="text-3xl font-bold text-heading mb-2">
- 🧬 Token 生命周期全景（上游 Gemini CLI）
+ <h1 className="text-3xl font-bold text-heading mb-2">Token 生命周期全景（上游 Gemini CLI）
  </h1>
  <p className="text-body">
  这页回答三个问题：Token 从哪里来？什么时候估算？什么时候得到“真实 usage”？
@@ -96,7 +95,7 @@ flowchart TB
  </ul>
  </HighlightBox>
 
- <Layer title="Token 从哪里来？（输入源）" icon="🧾" defaultOpen>
+ <Layer title="Token 从哪里来？（输入源）" defaultOpen>
  <p className="text-body mb-4">
  进入模型上下文窗口的内容大致分为：系统指令、记忆、工具声明、历史、IDE 上下文、用户本轮输入。
  这些共同构成“prompt token”。
@@ -104,7 +103,7 @@ flowchart TB
  <MermaidDiagram chart={tokenSourcesDiagram} />
  </Layer>
 
- <Layer title="请求前：为什么要做 Preflight？" icon="🛑" defaultOpen>
+ <Layer title="请求前：为什么要做 Preflight？" defaultOpen>
  <p className="text-body mb-4">
  请求如果把上下文窗口打满，API 可能直接失败。上游选择在发请求前做一个保守的“将溢出”判断：
  发现风险就 yield <code>ContextWindowWillOverflow</code> 并停止本轮。
@@ -122,7 +121,7 @@ if (estimatedRequestTokenCount > remainingTokenCount * 0.95) {
  />
  </Layer>
 
- <Layer title="请求中：usageMetadata 在哪里出现？" icon="📡" defaultOpen>
+ <Layer title="请求中：usageMetadata 在哪里出现？" defaultOpen>
  <p className="text-body mb-4">
  真实 token usage 来自模型响应的 <code>usageMetadata</code>（不是本地分词器）。
  上游在流式过程中边 yield chunk，边记录 token，并把 <code>promptTokenCount</code> 写回 <code>lastPromptTokenCount</code>。
@@ -142,7 +141,7 @@ for await (const chunk of streamResponse) {
  />
  </Layer>
 
- <Layer title="请求后：Finished 事件如何携带 usage？" icon="🏁" defaultOpen>
+ <Layer title="请求后：Finished 事件如何携带 usage？" defaultOpen>
  <p className="text-body mb-4">
  Turn.run 会把底层响应流归一成事件流，并在检测到 <code>finishReason</code> 时发出 <code>GeminiEventType.Finished</code>：
  其中包含 <code>reason</code> 与 <code>usageMetadata</code>。
@@ -160,7 +159,7 @@ if (finishReason) {
  />
  </Layer>
 
- <Layer title="完整生命周期图（事件视角）" icon="🗺️">
+ <Layer title="完整生命周期图（事件视角）">
  <MermaidDiagram chart={lifecycleDiagram} />
  </Layer>
 

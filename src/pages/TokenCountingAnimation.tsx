@@ -143,7 +143,7 @@ export function TokenCountingAnimation() {
  <div className="space-y-8 animate-fadeIn">
  <h2 className="text-2xl font-bold text-heading">Token 计数与溢出预警（上游 gemini-cli）</h2>
 
- <Layer title="输入" icon="📥">
+ <Layer title="输入">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-base/20 border border-edge rounded p-4">
  <div className="text-sm text-body mb-2">model</div>
@@ -218,14 +218,14 @@ export function TokenCountingAnimation() {
  </div>
  </Layer>
 
- <Layer title="请求内容（parts）" icon="🧩">
+ <Layer title="请求内容（parts）">
  <JsonBlock code={JSON.stringify(requestParts, null, 2)} />
  <div className="mt-3 text-xs text-dim">
  hasMedia = {String(media)}；本地启发式估算 = {localEstimate.toLocaleString()}
  </div>
  </Layer>
 
- <Layer title="动画过程" icon="🎞️">
+ <Layer title="动画过程">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-base/20 border border-edge rounded p-4">
  <div className="text-sm text-body mb-3">阶段</div>
@@ -276,7 +276,7 @@ export function TokenCountingAnimation() {
  </div>
  </Layer>
 
- <Layer title="上游源码（节选）" icon="🧾">
+ <Layer title="上游源码（节选）">
  <CodeBlock
  title="packages/core/src/core/client.ts (ContextWindowWillOverflow)"
  code={`const estimatedRequestTokenCount = await calculateRequestTokenCount(request, contentGenerator, modelForLimitCheck);

@@ -8,8 +8,8 @@ export function UIRenderingLayer() {
  <h2 className="text-2xl text-heading mb-5">UI 渲染层 (React + Ink)</h2>
 
  {/* Ink 介绍 */}
- <Layer title="什么是 Ink？" icon="🖊️">
- <HighlightBox title="React for CLI" icon="⚛️" variant="blue">
+ <Layer title="什么是 Ink？">
+ <HighlightBox title="React for CLI" variant="blue">
  <p className="mb-2">
  <strong>Ink</strong> 是一个让你可以用 React 组件来构建命令行界面的库。
  它使用 Yoga 布局引擎（和 React Native 相同）来实现 Flexbox 布局。
@@ -39,7 +39,7 @@ export function UIRenderingLayer() {
  </Layer>
 
  {/* 组件树 */}
- <Layer title="UI 组件树结构" icon="🌳">
+ <Layer title="UI 组件树结构">
  <CodeBlock
  title="packages/cli/src/ui/"
  code={`App
@@ -86,7 +86,7 @@ export function UIRenderingLayer() {
  </Layer>
 
  {/* 核心 Hooks */}
- <Layer title="核心 Hooks" icon="🪝">
+ <Layer title="核心 Hooks">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 <div className="bg-elevated/5 rounded-lg p-4 border border-edge">
  <h4 className="text-heading font-bold mb-2">useGeminiStream</h4>
@@ -169,7 +169,7 @@ export function UIRenderingLayer() {
  </Layer>
 
  {/* HistoryItemDisplay */}
- <Layer title="HistoryItemDisplay 消息渲染" icon="💬">
+ <Layer title="HistoryItemDisplay 消息渲染">
  <CodeBlock
  title="消息类型渲染"
  code={`function HistoryItemDisplay({ item, pending }: Props) {
@@ -208,7 +208,7 @@ export function UIRenderingLayer() {
  </Layer>
 
  {/* Static vs Pending */}
- <Layer title="Static vs Pending 渲染" icon="📊">
+ <Layer title="Static vs Pending 渲染">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-elevated border-2 border-edge/30 rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">Static (已完成)</h4>
@@ -255,7 +255,7 @@ export function UIRenderingLayer() {
  </Layer>
 
  {/* InputPrompt */}
- <Layer title="InputPrompt 输入组件" icon="⌨️">
+ <Layer title="InputPrompt 输入组件">
  <CodeBlock
  title="InputPrompt 组件"
  code={`function InputPrompt({ onSubmit, disabled }: Props) {
@@ -303,7 +303,7 @@ export function UIRenderingLayer() {
  </Layer>
 
  {/* 斜杠命令 */}
- <Layer title="斜杠命令处理" icon="/">
+ <Layer title="斜杠命令处理">
  <CodeBlock
  title="内置斜杠命令"
  code={`const SLASH_COMMANDS = {
@@ -332,7 +332,7 @@ function handleSlashCommand(input: string) {
  </Layer>
 
  {/* @ 命令处理 */}
- <Layer title="@ 命令处理" icon="@">
+ <Layer title="@ 命令处理">
  <CodeBlock
  title="@ 命令注入"
  code={`function processAtCommands(text: string): ProcessedInput {
@@ -376,13 +376,13 @@ function handleSlashCommand(input: string) {
  </Layer>
 
  {/* 确认对话框 */}
- <Layer title="确认对话框" icon="✋">
+ <Layer title="确认对话框">
  <CodeBlock
  title="ShellConfirmationDialog"
  code={`function ShellConfirmationDialog({ toolCall, onApprove, onReject }) {
  return (
  <Box flexDirection="column" borderStyle="round" borderColor="yellow">
- <Text color="yellow">⚠️ 工具需要确认执行</Text>
+ <Text color="yellow">工具需要确认执行</Text>
 
  <Box marginY={1}>
  <Text>工具: </Text>
@@ -408,7 +408,7 @@ function handleSlashCommand(input: string) {
  </Layer>
 
  {/* 性能优化 */}
- <Layer title="UI 性能优化" icon="⚡">
+ <Layer title="UI 性能优化">
  <div className="space-y-3">
  <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">Static 组件</h4>
@@ -441,8 +441,8 @@ function handleSlashCommand(input: string) {
  </Layer>
 
  {/* 调试工具 */}
- <Layer title="开发调试" icon="🔍">
- <HighlightBox title="React DevTools" icon="🛠️" variant="purple">
+ <Layer title="开发调试">
+ <HighlightBox title="React DevTools" variant="purple">
  <p className="mb-2">
  可以使用 React DevTools 4.x 调试 Ink 应用：
  </p>

@@ -420,19 +420,19 @@ your-project/
  <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">推荐做法</h4>
  <ul className="text-sm text-body space-y-1">
- <li>✓ 长期项目使用 /quit-confirm 退出</li>
- <li>✓ 定期运行 /summary 更新摘要</li>
- <li>✓ 保持摘要内容简洁有效</li>
- <li>✓ 利用任务状态跟踪进度</li>
+ <li>长期项目使用 /quit-confirm 退出</li>
+ <li>定期运行 /summary 更新摘要</li>
+ <li>保持摘要内容简洁有效</li>
+ <li>利用任务状态跟踪进度</li>
  </ul>
  </div>
  <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">注意事项</h4>
  <ul className="text-sm text-body space-y-1">
- <li>✗ 不要依赖摘要保存代码细节</li>
- <li>✗ 摘要只保存高层信息</li>
- <li>✗ 需要完整对话用 /chat save</li>
- <li>✗ 摘要不会自动更新</li>
+ <li>不要依赖摘要保存代码细节</li>
+ <li>摘要只保存高层信息</li>
+ <li>需要完整对话用 /chat save</li>
+ <li>摘要不会自动更新</li>
  </ul>
  </div>
  </div>

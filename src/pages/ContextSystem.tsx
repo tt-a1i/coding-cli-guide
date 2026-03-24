@@ -20,8 +20,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">🔗</span>
- <span className="text-xl font-bold text-heading">30秒快速理解</span>
+  <span className="text-xl font-bold text-heading">30秒快速理解</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>
  ▼
@@ -75,7 +74,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码位置:</span>
+ <span className="text-dim">源码位置:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/cli/src/ui/contexts/
  </code>
@@ -425,14 +424,14 @@ function Composer() {
 
  <QuickSummary isExpanded={isSummaryExpanded} onToggle={() => setIsSummaryExpanded(!isSummaryExpanded)} />
 
- <Layer title="Context 层次结构" icon="🏗️" defaultOpen={true}>
+ <Layer title="Context 层次结构" defaultOpen={true}>
  <HighlightBox title="Context Provider 嵌套结构" color="blue" className="mb-6">
  <MermaidDiagram chart={contextHierarchyChart} />
  </HighlightBox>
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
- <div className="text-heading font-bold mb-2">🔗 Provider 嵌套</div>
+ <div className="text-heading font-bold mb-2">Provider 嵌套</div>
  <ul className="text-sm text-body space-y-1">
  <li>从外到内依次嵌套</li>
  <li>内层可访问外层</li>
@@ -440,7 +439,7 @@ function Composer() {
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
- <div className="text-heading font-bold mb-2">🪝 Hook 封装</div>
+ <div className="text-heading font-bold mb-2">Hook 封装</div>
  <ul className="text-sm text-body space-y-1">
  <li>每个 Context 对应一个 Hook</li>
  <li>自动错误检查</li>
@@ -448,7 +447,7 @@ function Composer() {
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
- <div className="text-heading font-bold mb-2">🧩 组件消费</div>
+ <div className="text-heading font-bold mb-2">组件消费</div>
  <ul className="text-sm text-body space-y-1">
  <li>组件通过 Hook 访问</li>
  <li>解耦状态和 UI</li>
@@ -458,7 +457,7 @@ function Composer() {
  </div>
  </Layer>
 
- <Layer title="Context 一览" icon="📋" defaultOpen={true}>
+ <Layer title="Context 一览" defaultOpen={true}>
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
@@ -481,7 +480,7 @@ function Composer() {
  </div>
  </Layer>
 
- <Layer title="UIStateContext" icon="📊" defaultOpen={false}>
+ <Layer title="UIStateContext" defaultOpen={false}>
  <CodeBlock code={uiStateCode} language="typescript" title="UIState 接口（部分）" />
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -509,7 +508,7 @@ function Composer() {
  </div>
  </Layer>
 
- <Layer title="SessionContext" icon="📈" defaultOpen={false}>
+ <Layer title="SessionContext" defaultOpen={false}>
  <CodeBlock code={sessionContextCode} language="typescript" title="SessionContext 类型" />
 
  <div className="mt-4 bg-base p-4 rounded-lg">
@@ -523,15 +522,15 @@ function Composer() {
  </div>
  </Layer>
 
- <Layer title="ConfigContext" icon="⚙️" defaultOpen={false}>
+ <Layer title="ConfigContext" defaultOpen={false}>
  <CodeBlock code={configContextCode} language="typescript" title="ConfigContext" />
  </Layer>
 
- <Layer title="StreamingContext" icon="📡" defaultOpen={false}>
+ <Layer title="StreamingContext" defaultOpen={false}>
  <CodeBlock code={streamingContextCode} language="typescript" title="StreamingContext" />
  </Layer>
 
- <Layer title="KeypressContext" icon="⌨️" defaultOpen={false}>
+ <Layer title="KeypressContext" defaultOpen={false}>
  <CodeBlock code={keypressContextCode} language="typescript" title="KeypressContext" />
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -550,10 +549,10 @@ function Composer() {
  </div>
  </Layer>
 
- <Layer title="最佳实践" icon="💡" defaultOpen={false}>
+ <Layer title="最佳实践" defaultOpen={false}>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
- <h4 className="text-heading font-bold mb-2">✅ 推荐做法</h4>
+ <h4 className="text-heading font-bold mb-2">推荐做法</h4>
  <ul className="text-sm text-body space-y-1">
  <li>使用 Hook 访问 Context</li>
  <li>只订阅需要的状态</li>
@@ -563,7 +562,7 @@ function Composer() {
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border-l-2 border-l-edge-hover/30">
- <h4 className="text-heading font-bold mb-2">❌ 避免做法</h4>
+ <h4 className="text-heading font-bold mb-2">避免做法</h4>
  <ul className="text-sm text-body space-y-1">
  <li>直接使用 useContext</li>
  <li>在 Provider 外使用 Hook</li>

@@ -21,7 +21,7 @@ export function ContentGeneratorDetails() {
  <h2 className="text-2xl text-heading mb-5">ContentGenerator API 调用层详解</h2>
 
  {/* 30秒速览 */}
- <Layer title="30秒速览" icon="⚡">
+ <Layer title="30秒速览">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-elevated/10 border border-edge rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">上游主线：调用链</h4>
@@ -70,15 +70,15 @@ ContentGenerator (interface)
  </Layer>
 
  {/* 概述 */}
- <Layer title="架构概述" icon="🏗️">
- <HighlightBox title="ContentGenerator 的作用" icon="📡" variant="blue">
+ <Layer title="架构概述">
+ <HighlightBox title="ContentGenerator 的作用" variant="blue">
  <p>
  <code className="bg-base/30 px-1 rounded">ContentGenerator</code> 是 API 调用的抽象层，
  负责与不同的 AI 提供商通信。它将内部格式转换为 API 格式，并处理流式响应。
  </p>
  </HighlightBox>
 
- <HighlightBox title="⚠️ 重要：上游主线 vs fork-only" icon="🧭" variant="yellow">
+ <HighlightBox title="⚠️ 重要：上游主线 vs fork-only" variant="yellow">
  <p className="m-0 text-sm text-heading">
  上游 Gemini CLI 的主线只需要 <code>@google/genai</code> 的结构化流（<code>GenerateContentResponse</code> + <code>functionCalls</code>）。
  如果你的 fork 通过 OpenAI 兼容协议接入其他模型，才会额外引入 <code>tool_calls</code>/SSE/格式转换等兼容层。
@@ -108,7 +108,7 @@ ContentGenerator (interface)
  </Layer>
 
  {/* 上游：ContentGenerator */}
- <Layer title="上游：ContentGenerator 接口与工厂" icon="🏭">
+ <Layer title="上游：ContentGenerator 接口与工厂">
  <CodeBlock
  title="contentGenerator.ts（上游）"
  code={`// gemini-cli/packages/core/src/core/contentGenerator.ts
@@ -136,7 +136,7 @@ export async function createContentGenerator(
 }`}
  />
 
- <HighlightBox title="为什么要抽象 ContentGenerator？" icon="🧩" variant="green">
+ <HighlightBox title="为什么要抽象 ContentGenerator？" variant="green">
  <ul className="m-0 text-sm leading-relaxed">
  <li><strong>GeminiChat 只依赖接口</strong>：不关心底层是 API Key、Vertex、还是 OAuth Code Assist</li>
  <li><strong>可插拔 wrapper</strong>：Logging/Recording/Fake 组合起来方便测试、录制与排障</li>
@@ -145,7 +145,7 @@ export async function createContentGenerator(
  </HighlightBox>
  </Layer>
 
- <Layer title="上游：GeminiChat 如何调用 ContentGenerator" icon="📤">
+ <Layer title="上游：GeminiChat 如何调用 ContentGenerator">
  <CodeBlock
  title="makeApiCallAndProcessStream（上游）"
  code={`// gemini-cli/packages/core/src/core/geminiChat.ts (simplified)
@@ -164,7 +164,7 @@ return this.config.getContentGenerator().generateContentStream(
  prompt_id,
 );`}
  />
- <HighlightBox title="与 Turn.run 的边界" icon="📌" variant="blue">
+ <HighlightBox title="与 Turn.run 的边界" variant="blue">
  <p className="m-0 text-sm text-heading">
  <code>GeminiChat</code> 负责“发请求 + 重试 + history + hooks”；<code>Turn.run</code> 负责“把响应流解码为 GeminiEventType”。
  UI 只消费事件流，不直接依赖底层 SDK 返回结构。
@@ -173,7 +173,7 @@ return this.config.getContentGenerator().generateContentStream(
  </Layer>
 
  {/* OpenAI ContentGenerator */}
- <Layer title="Fork-only：OpenAI ContentGenerator 架构" icon="🔧">
+ <Layer title="Fork-only：OpenAI ContentGenerator 架构">
  <CodeBlock
  title="类结构"
  code={`class OpenAIContentGenerator implements ContentGenerator {
@@ -196,7 +196,7 @@ return this.config.getContentGenerator().generateContentStream(
  </Layer>
 
  {/* generateContentStream */}
- <Layer title="Fork-only：generateContentStream()（OpenAI stream）" icon="📤">
+ <Layer title="Fork-only：generateContentStream()（OpenAI stream）">
  <CodeBlock
  title="核心生成方法"
  code={`async *generateContentStream(
@@ -225,7 +225,7 @@ return this.config.getContentGenerator().generateContentStream(
  </Layer>
 
  {/* 格式转换 */}
- <Layer title="Fork-only：请求格式转换（Gemini ↔ OpenAI）" icon="🔄">
+ <Layer title="Fork-only：请求格式转换（Gemini ↔ OpenAI）">
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
  <div>
  <h4 className="text-heading font-bold mb-2">Gemini 格式 (内部)</h4>
@@ -299,7 +299,7 @@ return this.config.getContentGenerator().generateContentStream(
  </Layer>
 
  {/* 响应转换 */}
- <Layer title="Fork-only：响应格式转换（OpenAI → Gemini）" icon="📥">
+ <Layer title="Fork-only：响应格式转换（OpenAI → Gemini）">
  <CodeBlock
  title="OpenAIContentConverter.convertOpenAIResponseToGemini()"
  code={`convertOpenAIResponseToGemini(chunk: ChatCompletionChunk) {
@@ -341,7 +341,7 @@ return this.config.getContentGenerator().generateContentStream(
  </Layer>
 
  {/* 工具定义转换 */}
- <Layer title="Fork-only：工具定义转换（FunctionDeclaration → OpenAI Tool）" icon="🔧">
+ <Layer title="Fork-only：工具定义转换（FunctionDeclaration → OpenAI Tool）">
  <CodeBlock
  title="convertToolsToOpenAI()"
  code={`convertToolsToOpenAI(tools: Tool[]): OpenAITool[] {
@@ -365,7 +365,7 @@ return this.config.getContentGenerator().generateContentStream(
 }`}
  />
 
- <HighlightBox title="工具定义结构" icon="📋" variant="green">
+ <HighlightBox title="工具定义结构" variant="green">
  <p className="mb-2">每个工具定义包含：</p>
  <ul className="pl-5 list-disc space-y-1">
  <li><strong>name</strong>: 工具名称（如 read_file, edit, bash）</li>
@@ -376,7 +376,7 @@ return this.config.getContentGenerator().generateContentStream(
  </Layer>
 
  {/* 配置选项 */}
- <Layer title="配置：ContentGeneratorConfig（上游）" icon="⚙️">
+ <Layer title="配置：ContentGeneratorConfig（上游）">
  <CodeBlock
  code={`// gemini-cli/packages/core/src/core/contentGenerator.ts
 
@@ -400,7 +400,7 @@ export type ContentGeneratorConfig = {
  </Layer>
 
  {/* 错误处理 */}
- <Layer title="错误处理" icon="⚠️">
+ <Layer title="错误处理">
  <div className="space-y-3">
  <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">429 Rate Limit</h4>
@@ -437,7 +437,7 @@ export type ContentGeneratorConfig = {
  </Layer>
 
  {/* 流式处理管道 */}
- <Layer title="流式处理管道" icon="🌊">
+ <Layer title="流式处理管道">
  <div className="bg-base/30 rounded-lg p-6">
  <div className="flex flex-col md:flex-row items-center justify-between gap-4">
  <div className="bg-accent/10 border border-edge rounded-lg px-4 py-2 text-center">
@@ -469,8 +469,8 @@ export type ContentGeneratorConfig = {
  </Layer>
 
  {/* StreamingToolCallParser 详解 */}
- <Layer title="Fork-only：StreamingToolCallParser（tool_calls 增量解析）" icon="🔧">
- <HighlightBox title="核心问题：流式 JSON 解析" icon="⚠️" variant="orange">
+ <Layer title="Fork-only：StreamingToolCallParser（tool_calls 增量解析）">
+ <HighlightBox title="核心问题：流式 JSON 解析" variant="orange">
  <p className="mb-2">
  当 AI 调用工具时，参数是一个 JSON 对象。但在流式传输中，这个 JSON 被分割成多个小片段依次到达。
  例如 <code className="bg-base/30 px-1 rounded">{`{"path": "/src/app.ts"}`}</code> 可能分成：
@@ -607,7 +607,7 @@ private tryRepairAndParse(buffer: string): Record<string, unknown> | null {
 }`}
  />
 
- <HighlightBox title="典型流式场景示例" icon="📖" variant="green">
+ <HighlightBox title="典型流式场景示例" variant="green">
  <div className="space-y-3">
  <div className="bg-base/30 rounded p-3">
  <div className="text-xs text-body mb-1">Chunk 1: tool_call 开始</div>
@@ -626,7 +626,7 @@ private tryRepairAndParse(buffer: string): Record<string, unknown> | null {
  </Layer>
 
  {/* ContentGenerationPipeline 详解 */}
- <Layer title="ContentGenerationPipeline 执行管道" icon="⚡">
+ <Layer title="ContentGenerationPipeline 执行管道">
  <CodeBlock
  title="executeStream() 入口方法"
  language="typescript"
@@ -765,8 +765,8 @@ async executeStream(
  </Layer>
 
  {/* Chunk 合并策略 */}
- <Layer title="Chunk 合并策略" icon="🔗">
- <HighlightBox title="为什么需要合并？" icon="❓" variant="blue">
+ <Layer title="Chunk 合并策略">
+ <HighlightBox title="为什么需要合并？" variant="blue">
  <p>
  某些 API 提供商会将 <code className="bg-base/30 px-1 rounded">finishReason</code> 和{' '}
  <code className="bg-base/30 px-1 rounded">usageMetadata</code> 在不同的 chunk 中发送。
@@ -862,7 +862,7 @@ private handleChunkMerging(
  </Layer>
 
  {/* OpenAIContentConverter 详解 */}
- <Layer title="OpenAIContentConverter 格式转换" icon="🔄">
+ <Layer title="OpenAIContentConverter 格式转换">
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
  <div>
  <h4 className="text-heading font-bold mb-2">请求转换: Gemini → OpenAI</h4>
@@ -984,7 +984,7 @@ Gemini Response:
 }`}
  />
 
- <HighlightBox title="finishReason 映射" icon="🏁" variant="purple">
+ <HighlightBox title="finishReason 映射" variant="purple">
  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
  <div className="bg-base/30 rounded p-2">
  <div className="text-body">OpenAI</div>
@@ -1023,7 +1023,7 @@ Gemini Response:
  </Layer>
 
  {/* 采样参数构建 */}
- <Layer title="采样参数构建" icon="🎛️">
+ <Layer title="采样参数构建">
  <CodeBlock
  title="buildSamplingParameters() 参数优先级"
  language="typescript"
@@ -1123,7 +1123,7 @@ private buildSamplingParameters(
  </Layer>
 
  {/* 错误处理详解 */}
- <Layer title="错误处理机制" icon="🛡️">
+ <Layer title="错误处理机制">
  <CodeBlock
  title="handleError() 统一错误处理"
  language="typescript"
@@ -1180,7 +1180,7 @@ private async handleError(
  </Layer>
 
  {/* 源码导航 */}
- <Layer title="源码导航" icon="📂">
+ <Layer title="源码导航">
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>

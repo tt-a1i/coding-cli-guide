@@ -175,7 +175,7 @@ export function ShellModes() {
  return (
  <div className="space-y-8">
  {/* 目标 */}
- <Layer title="目标" icon="🎯">
+ <Layer title="目标">
  <p className="text-body mb-4">
  Shell 模式系统为用户和 AI
  提供安全、灵活的命令执行能力，通过两条独立的执行路径满足不同的使用场景：
@@ -212,7 +212,7 @@ export function ShellModes() {
  </Layer>
 
  {/* 输入 */}
- <Layer title="输入" icon="📥">
+ <Layer title="输入">
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
@@ -306,7 +306,7 @@ export function ShellModes() {
  </Layer>
 
  {/* 输出 */}
- <Layer title="输出" icon="📤">
+ <Layer title="输出">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-elevated/10 border border-edge rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-3">
@@ -406,7 +406,7 @@ export function ShellModes() {
  </Layer>
 
  {/* 关键文件与入口 */}
- <Layer title="关键文件与入口" icon="📁">
+ <Layer title="关键文件与入口">
  <div className="space-y-4">
  <div className="bg-surface rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-3">
@@ -495,7 +495,7 @@ export function ShellModes() {
  </Layer>
 
  {/* 流程图 */}
- <Layer title="流程图" icon="📊">
+ <Layer title="流程图">
  <h3 className="text-xl font-semibold text-heading mb-4">
  完整执行路径对比
  </h3>
@@ -522,7 +522,7 @@ export function ShellModes() {
  </Layer>
 
  {/* 关键分支与边界条件 */}
- <Layer title="关键分支与边界条件" icon="⚡">
+ <Layer title="关键分支与边界条件">
  <div className="space-y-4">
  <div className="bg-elevated/10 border border-edge rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">
@@ -702,7 +702,7 @@ for (const injection of injections) {
  </Layer>
 
  {/* 失败与恢复 */}
- <Layer title="失败与恢复" icon="🔧">
+ <Layer title="失败与恢复">
  <div className="space-y-4">
  <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-3">PTY 降级机制</h4>
@@ -855,7 +855,7 @@ signal.addEventListener('abort', () => {
  </Layer>
 
  {/* 相关配置项 */}
- <Layer title="相关配置项" icon="⚙️">
+ <Layer title="相关配置项">
  <div className="space-y-4">
  <div className="bg-surface rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-3">Shell 执行配置</h4>
@@ -1097,14 +1097,13 @@ prompt = """
  </Layer>
 
  {/* 常见误解澄清 */}
- <Layer title="常见误解澄清" icon="❓">
+ <Layer title="常见误解澄清">
  <div className="space-y-4">
  <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40">
- <h4 className="text-heading font-bold mb-2">
- ❌ 误解：两者都需要用户确认
+ <h4 className="text-heading font-bold mb-2">误解：两者都需要用户确认
  </h4>
  <p className="text-sm text-body mb-2">
- <strong>✅ 正确：</strong>
+ <strong>正确：</strong>
  </p>
  <ul className="text-sm text-body list-disc pl-5 space-y-1">
  <li>
@@ -1118,11 +1117,10 @@ prompt = """
  </div>
 
  <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40">
- <h4 className="text-heading font-bold mb-2">
- ❌ 误解：两者输出都显示在终端
+ <h4 className="text-heading font-bold mb-2">误解：两者输出都显示在终端
  </h4>
  <p className="text-sm text-body mb-2">
- <strong>✅ 正确：</strong>
+ <strong>正确：</strong>
  </p>
  <ul className="text-sm text-body list-disc pl-5 space-y-1">
  <li>
@@ -1135,11 +1133,10 @@ prompt = """
  </div>
 
  <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40">
- <h4 className="text-heading font-bold mb-2">
- ❌ 误解：两者安全模型相同
+ <h4 className="text-heading font-bold mb-2">误解：两者安全模型相同
  </h4>
  <p className="text-sm text-body mb-2">
- <strong>✅ 正确：</strong>
+ <strong>正确：</strong>
  </p>
  <ul className="text-sm text-body list-disc pl-5 space-y-1">
  <li>
@@ -1154,11 +1151,10 @@ prompt = """
  </div>
 
  <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40">
- <h4 className="text-heading font-bold mb-2">
- ❌ 误解：PTY 模式总是可用
+ <h4 className="text-heading font-bold mb-2">误解：PTY 模式总是可用
  </h4>
  <p className="text-sm text-body mb-2">
- <strong>✅ 正确：</strong>
+ <strong>正确：</strong>
  </p>
  <ul className="text-sm text-body list-disc pl-5 space-y-1">
  <li>
@@ -1172,11 +1168,10 @@ prompt = """
  </div>
 
  <div className="bg-elevated/5 rounded-lg p-4 border border-edge/40">
- <h4 className="text-heading font-bold mb-2">
- ❌ 误解：run_shell_command 和交互式 Shell 是同一个
+ <h4 className="text-heading font-bold mb-2">误解：run_shell_command 和交互式 Shell 是同一个
  </h4>
  <p className="text-sm text-body mb-2">
- <strong>✅ 正确：</strong>
+ <strong>正确：</strong>
  </p>
  <ul className="text-sm text-body list-disc pl-5 space-y-1">
  <li>

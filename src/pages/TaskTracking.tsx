@@ -26,8 +26,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">📋</span>
- <span className="text-xl font-bold text-heading">30秒快速理解</span>
+  <span className="text-xl font-bold text-heading">30秒快速理解</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>
  ▼
@@ -73,7 +72,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码入口:</span>
+ <span className="text-dim">源码入口:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/core/src/tools/taskTracker.ts
  </code>
@@ -417,7 +416,7 @@ export class TaskPersistence {
  </section>
 
  {/* 数据模型 */}
- <Layer title="数据模型" icon="📊">
+ <Layer title="数据模型">
  <div className="space-y-4">
  <CodeBlock code={taskInterfaceCode} language="typescript" title="Task 接口定义" />
  <CodeBlock code={taskStoreCode} language="typescript" title="TaskStore 数据管理" />
@@ -425,7 +424,7 @@ export class TaskPersistence {
  </Layer>
 
  {/* 工具接口 */}
- <Layer title="工具接口" icon="🔧">
+ <Layer title="工具接口">
  <div className="space-y-4">
  <CodeBlock code={createTaskToolCode} language="typescript" title="createTask 工具" />
  <CodeBlock code={updateTaskToolCode} language="typescript" title="updateTask 工具" />
@@ -463,7 +462,7 @@ export class TaskPersistence {
  </Layer>
 
  {/* 依赖关系 */}
- <Layer title="任务依赖关系" icon="🔗">
+ <Layer title="任务依赖关系">
  <div className="space-y-4">
  <MermaidDiagram chart={dependencyFlowChart} title="任务依赖关系示例" />
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -490,7 +489,7 @@ export class TaskPersistence {
  </Layer>
 
  {/* 策略系统 */}
- <Layer title="Strategy 策略系统" icon="🧠">
+ <Layer title="Strategy 策略系统">
  <div className="space-y-4">
  <CodeBlock code={strategyCode} language="typescript" title="TaskTracker Strategy" />
  <HighlightBox title="策略工作原理" variant="purple">
@@ -503,7 +502,7 @@ export class TaskPersistence {
  </Layer>
 
  {/* 可视化 */}
- <Layer title="可视化展示" icon="📊">
+ <Layer title="可视化展示">
  <div className="space-y-4">
  <div className="bg-base rounded-lg p-4 font-mono text-xs overflow-x-auto">
  <div className="text-dim mb-2"># 任务列表示例输出</div>
@@ -536,7 +535,7 @@ Progress: [████████████████░░░░░░░
  </section>
 
  {/* 持久化 */}
- <Layer title="持久化机制" icon="💾">
+ <Layer title="持久化机制">
  <div className="space-y-4">
  <CodeBlock code={persistenceCode} language="typescript" title="任务持久化" />
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -567,7 +566,7 @@ Progress: [████████████████░░░░░░░
  </Layer>
 
  {/* 设计决策 */}
- <Layer title="设计决策" icon="💡">
+ <Layer title="设计决策">
  <div className="space-y-4">
  {[
  { color: 'var(--color-text)', q: '为什么使用内存 Map + JSON 文件？',
@@ -602,7 +601,7 @@ Progress: [████████████████░░░░░░░
  </Layer>
 
  {/* 关键文件 */}
- <Layer title="关键文件与入口" icon="📁">
+ <Layer title="关键文件与入口">
  <div className="grid grid-cols-1 gap-2 text-sm">
  {[
  ['packages/core/src/tools/taskTracker.ts', 'TaskTracker 核心实现'],

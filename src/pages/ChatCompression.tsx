@@ -23,8 +23,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">📦</span>
- <span className="text-xl font-bold text-heading">30秒快速理解</span>
+  <span className="text-xl font-bold text-heading">30秒快速理解</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>
  ▼
@@ -78,7 +77,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码位置:</span>
+ <span className="text-dim">源码位置:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/core/src/services/chatCompressionService.ts
  </code>
@@ -372,7 +371,7 @@ async function runConversationLoop(chat: Chat) {
 
  <QuickSummary isExpanded={isSummaryExpanded} onToggle={() => setIsSummaryExpanded(!isSummaryExpanded)} />
 
- <Layer title="压缩流程" icon="🔄" defaultOpen={true}>
+ <Layer title="压缩流程" defaultOpen={true}>
  <HighlightBox title="ChatCompression 工作流程" color="blue" className="mb-6">
  <MermaidDiagram chart={compressionFlowChart} />
  </HighlightBox>
@@ -405,7 +404,7 @@ async function runConversationLoop(chat: Chat) {
  </div>
  </Layer>
 
- <Layer title="阈值配置" icon="📊" defaultOpen={true}>
+ <Layer title="阈值配置" defaultOpen={true}>
  <MermaidDiagram chart={thresholdDiagram} />
 
  <div className="mt-6">
@@ -425,7 +424,7 @@ async function runConversationLoop(chat: Chat) {
  </div>
  </Layer>
 
- <Layer title="分割点算法" icon="✂️" defaultOpen={true}>
+ <Layer title="分割点算法" defaultOpen={true}>
  <CodeBlock code={splitPointCode} language="typescript" title="findCompressSplitPoint" />
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -448,11 +447,11 @@ async function runConversationLoop(chat: Chat) {
  </div>
  </Layer>
 
- <Layer title="压缩服务" icon="🔧" defaultOpen={false}>
+ <Layer title="压缩服务" defaultOpen={false}>
  <CodeBlock code={serviceCode} language="typescript" title="ChatCompressionService" />
  </Layer>
 
- <Layer title="摘要生成" icon="📝" defaultOpen={false}>
+ <Layer title="摘要生成" defaultOpen={false}>
  <CodeBlock code={summaryPromptCode} language="typescript" title="摘要 Prompt 设计" />
 
  <div className="mt-4 bg-surface p-4 rounded-lg border border-edge/30">
@@ -466,7 +465,7 @@ async function runConversationLoop(chat: Chat) {
  </div>
  </Layer>
 
- <Layer title="状态处理" icon="📋" defaultOpen={false}>
+ <Layer title="状态处理" defaultOpen={false}>
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
@@ -489,7 +488,7 @@ async function runConversationLoop(chat: Chat) {
  </div>
  </Layer>
 
- <Layer title="集成使用" icon="🔌" defaultOpen={false}>
+ <Layer title="集成使用" defaultOpen={false}>
  <CodeBlock code={integrationCode} language="typescript" title="在对话循环中集成" />
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -510,10 +509,10 @@ async function runConversationLoop(chat: Chat) {
  </div>
  </Layer>
 
- <Layer title="最佳实践" icon="💡" defaultOpen={false}>
+ <Layer title="最佳实践" defaultOpen={false}>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
- <h4 className="text-heading font-bold mb-2">✅ 推荐做法</h4>
+ <h4 className="text-heading font-bold mb-2">推荐做法</h4>
  <ul className="text-sm text-body space-y-1">
  <li>在发送消息前而非后压缩</li>
  <li>为摘要使用专用的快速模型</li>
@@ -523,7 +522,7 @@ async function runConversationLoop(chat: Chat) {
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border-l-2 border-l-edge-hover/30">
- <h4 className="text-heading font-bold mb-2">❌ 避免做法</h4>
+ <h4 className="text-heading font-bold mb-2">避免做法</h4>
  <ul className="text-sm text-body space-y-1">
  <li>频繁触发压缩（阈值太低）</li>
  <li>忽略压缩失败状态</li>

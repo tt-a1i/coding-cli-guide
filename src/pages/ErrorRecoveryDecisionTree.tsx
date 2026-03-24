@@ -138,14 +138,14 @@ flowchart TB
  </div>
 
  {/* 主决策树 */}
- <Layer title="错误恢复主决策树" icon="🌳">
+ <Layer title="错误恢复主决策树">
  <MermaidDiagram chart={mainDecisionTree} title="错误分类与处理流程" />
  </Layer>
 
  {/* 错误分类 */}
- <Layer title="错误分类详解" icon="📋">
+ <Layer title="错误分类详解">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- <HighlightBox title="网络错误" icon="🌐" variant="blue">
+ <HighlightBox title="网络错误" variant="blue">
  <ul className="space-y-1 text-sm">
  <li><code>ECONNREFUSED</code> - 连接被拒绝</li>
  <li><code>ETIMEDOUT</code> - 连接超时</li>
@@ -154,7 +154,7 @@ flowchart TB
  </ul>
  </HighlightBox>
 
- <HighlightBox title="API 错误" icon="🔌" variant="purple">
+ <HighlightBox title="API 错误" variant="purple">
  <ul className="space-y-1 text-sm">
  <li><code>429</code> - 速率限制</li>
  <li><code>500-503</code> - 服务器错误</li>
@@ -163,7 +163,7 @@ flowchart TB
  </ul>
  </HighlightBox>
 
- <HighlightBox title="工具执行错误" icon="🔧" variant="orange">
+ <HighlightBox title="工具执行错误" variant="orange">
  <ul className="space-y-1 text-sm">
  <li>命令超时</li>
  <li>权限不足</li>
@@ -172,7 +172,7 @@ flowchart TB
  </ul>
  </HighlightBox>
 
- <HighlightBox title="系统错误" icon="💻" variant="red">
+ <HighlightBox title="系统错误" variant="red">
  <ul className="space-y-1 text-sm">
  <li>内存溢出 (OOM)</li>
  <li>磁盘空间不足</li>
@@ -184,7 +184,7 @@ flowchart TB
  </Layer>
 
  {/* 重试决策 */}
- <Layer title="重试决策树" icon="🔄">
+ <Layer title="重试决策树">
  <MermaidDiagram chart={retryDecisionTree} title="重试策略决策" />
 
  <CodeBlock
@@ -218,12 +218,12 @@ function calculateDelay(attempt: number, config: RetryConfig): number {
  </Layer>
 
  {/* API 错误处理 */}
- <Layer title="API 错误处理决策树" icon="🔌">
+ <Layer title="API 错误处理决策树">
  <MermaidDiagram chart={apiErrorTree} title="API 错误码处理" />
  </Layer>
 
  {/* 恢复策略表 */}
- <Layer title="恢复策略速查表" icon="📊">
+ <Layer title="恢复策略速查表">
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>
@@ -283,7 +283,7 @@ function calculateDelay(attempt: number, config: RetryConfig): number {
  </Layer>
 
  {/* 实现示例 */}
- <Layer title="错误恢复实现示例" icon="💻">
+ <Layer title="错误恢复实现示例">
  <CodeBlock
  title="统一错误处理器"
  code={`class ErrorRecoveryHandler {
@@ -345,7 +345,7 @@ function calculateDelay(attempt: number, config: RetryConfig): number {
  </Layer>
 
  {/* 部分成功补偿模式 */}
- <Layer title="部分成功补偿模式" icon="🔧">
+ <Layer title="部分成功补偿模式">
  <div className="space-y-4">
  <p className="text-body">
  当操作「部分成功」时（部分步骤完成，部分失败），需要特殊的补偿策略：
@@ -486,13 +486,13 @@ async function handlePartialSuccess(
  </Layer>
 
  {/* 重试判定标准 */}
- <Layer title="重试判定标准" icon="🔄">
+ <Layer title="重试判定标准">
  <div className="space-y-4">
  <p className="text-body">
  判断操作是否可重试，需要考虑幂等性和副作用：
  </p>
 
- <HighlightBox title="核心判定原则" icon="⚖️" variant="blue">
+ <HighlightBox title="核心判定原则" variant="blue">
  <div className="space-y-2 text-sm">
  <p><strong>可重试 = 幂等 ∧ (无副作用 ∨ 副作用可逆)</strong></p>
  <ul className="mt-2 space-y-1 list-disc list-inside">
@@ -517,16 +517,16 @@ async function handlePartialSuccess(
  <tbody>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono">read_file</td>
- <td className="py-2 px-3 text-heading">✓ 幂等</td>
+ <td className="py-2 px-3 text-heading">幂等</td>
  <td className="py-2 px-3 text-heading">无</td>
- <td className="py-2 px-3 text-heading">✓ 安全</td>
+ <td className="py-2 px-3 text-heading">安全</td>
  <td className="py-2 px-3">任意次数重试</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono">write_file</td>
- <td className="py-2 px-3 text-heading">✓ 幂等</td>
+ <td className="py-2 px-3 text-heading">幂等</td>
  <td className="py-2 px-3 text-heading">可逆</td>
- <td className="py-2 px-3 text-heading">✓ 安全</td>
+ <td className="py-2 px-3 text-heading">安全</td>
  <td className="py-2 px-3">有 checkpoint 可回滚</td>
  </tr>
  <tr className="border- border-edge">
@@ -538,30 +538,30 @@ async function handlePartialSuccess(
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono">run_shell_command（只读）</td>
- <td className="py-2 px-3 text-heading">✓ 幂等</td>
+ <td className="py-2 px-3 text-heading">幂等</td>
  <td className="py-2 px-3 text-heading">无</td>
- <td className="py-2 px-3 text-heading">✓ 安全</td>
+ <td className="py-2 px-3 text-heading">安全</td>
  <td className="py-2 px-3">如 ls, cat, grep</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono">run_shell_command（写入）</td>
- <td className="py-2 px-3 text-heading">✗ 非幂等</td>
+ <td className="py-2 px-3 text-heading">非幂等</td>
  <td className="py-2 px-3 text-heading">不可逆</td>
- <td className="py-2 px-3 text-heading">✗ 危险</td>
+ <td className="py-2 px-3 text-heading">危险</td>
  <td className="py-2 px-3">如 rm, mv, echo {'>>'}</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono">API 查询</td>
- <td className="py-2 px-3 text-heading">✓ 幂等</td>
+ <td className="py-2 px-3 text-heading">幂等</td>
  <td className="py-2 px-3 text-heading">无</td>
- <td className="py-2 px-3 text-heading">✓ 安全</td>
+ <td className="py-2 px-3 text-heading">安全</td>
  <td className="py-2 px-3">GET 请求</td>
  </tr>
  <tr className="border- border-edge">
  <td className="py-2 px-3 font-mono">API 创建</td>
- <td className="py-2 px-3 text-heading">✗ 非幂等</td>
+ <td className="py-2 px-3 text-heading">非幂等</td>
  <td className="py-2 px-3 text-heading">扣费</td>
- <td className="py-2 px-3 text-heading">✗ 危险</td>
+ <td className="py-2 px-3 text-heading">危险</td>
  <td className="py-2 px-3">POST 会创建重复资源</td>
  </tr>
  <tr>

@@ -81,7 +81,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码入口:</span>
+ <span className="text-dim">源码入口:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/cli/src/config/settings.ts
  </code>
@@ -304,14 +304,14 @@ function getMergeStrategyForPath(path: string[]): MergeStrategy | undefined {
 
  <QuickSummary isExpanded={isSummaryExpanded} onToggle={() => setIsSummaryExpanded(!isSummaryExpanded)} />
 
- <Layer title="配置合并架构" icon="🏗️" defaultOpen={true}>
+ <Layer title="配置合并架构" defaultOpen={true}>
  <HighlightBox title="配置加载与合并流程" color="blue" className="mb-6">
  <MermaidDiagram chart={settingsMergeChart} />
  </HighlightBox>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface p-4 rounded-lg border border-edge">
- <div className="text-heading font-bold mb-2">📁 配置文件位置</div>
+ <div className="text-heading font-bold mb-2">配置文件位置</div>
  <ul className="text-sm text-body space-y-2">
  <li className="flex items-start gap-2">
  <span className="text-dim">User:</span>
@@ -328,7 +328,7 @@ function getMergeStrategyForPath(path: string[]): MergeStrategy | undefined {
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge">
- <div className="text-heading font-bold mb-2">🔒 信任机制</div>
+ <div className="text-heading font-bold mb-2">信任机制</div>
  <ul className="text-sm text-body space-y-1">
  <li>工作区配置需要信任才生效</li>
  <li>不信任时跳过 Workspace 配置</li>
@@ -339,7 +339,7 @@ function getMergeStrategyForPath(path: string[]): MergeStrategy | undefined {
  </div>
  </Layer>
 
- <Layer title="作用域与路径" icon="📍" defaultOpen={true}>
+ <Layer title="作用域与路径" defaultOpen={true}>
  <CodeBlock code={scopeEnum} language="typescript" title="SettingScope 枚举与路径" />
 
  <div className="mt-4 overflow-x-auto">
@@ -382,7 +382,7 @@ function getMergeStrategyForPath(path: string[]): MergeStrategy | undefined {
  </div>
  </Layer>
 
- <Layer title="V1 → V2 迁移" icon="🔄" defaultOpen={true}>
+ <Layer title="V1 → V2 迁移" defaultOpen={true}>
  <p className="text-body mb-4">
  设置系统自动检测旧版配置并迁移到新的嵌套结构：
  </p>
@@ -418,7 +418,7 @@ function getMergeStrategyForPath(path: string[]): MergeStrategy | undefined {
 
  <div className="mt-4 p-4 bg-base/50 rounded-lg border border-edge">
  <div className="text-sm">
- <strong className="text-heading">💡 迁移行为：</strong>
+ <strong className="text-heading">迁移行为：</strong>
  <ul className="mt-2 text-body space-y-1">
  <li>自动备份原文件为 <code>.orig</code></li>
  <li>写入迁移后的 V2 格式</li>
@@ -428,11 +428,11 @@ function getMergeStrategyForPath(path: string[]): MergeStrategy | undefined {
  </div>
  </Layer>
 
- <Layer title="LoadedSettings 类" icon="📦" defaultOpen={false}>
+ <Layer title="LoadedSettings 类" defaultOpen={false}>
  <CodeBlock code={loadedSettingsCode} language="typescript" title="LoadedSettings 运行时管理" />
  </Layer>
 
- <Layer title="配置合并策略" icon="🔀" defaultOpen={false}>
+ <Layer title="配置合并策略" defaultOpen={false}>
  <CodeBlock code={mergeSettingsCode} language="typescript" title="mergeSettings 合并逻辑" />
 
  <div className="mt-4">

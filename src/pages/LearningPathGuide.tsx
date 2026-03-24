@@ -56,8 +56,7 @@ function Introduction({
  {isExpanded && (
  <div className="px-6 pb-6 space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- 🎯 如何使用本指南
+ <h4 className="text-heading font-bold mb-2">如何使用本指南
  </h4>
  <p className="text-body text-sm">
  本指南根据不同的学习目标提供了多条学习路径。每条路径都有清晰的里程碑和检查点，
@@ -67,8 +66,7 @@ function Introduction({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- ⚡ 快速开始建议
+ <h4 className="text-heading font-bold mb-2">快速开始建议
  </h4>
  <ul className="text-body text-sm space-y-1">
  <li><strong>想快速了解全貌？</strong> 选择「快速概览路径」</li>
@@ -79,8 +77,7 @@ function Introduction({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- 📊 学习进度追踪
+ <h4 className="text-heading font-bold mb-2">学习进度追踪
  </h4>
  <p className="text-body text-sm">
  每个步骤都有估算时间和检查点问题。当你能回答检查点问题时，
@@ -627,11 +624,10 @@ export function LearningPathGuide() {
  </div>
 
  {/* 学习建议 */}
- <HighlightBox title="📝 高效学习建议" icon="💡" variant="blue">
+ <HighlightBox title="📝 高效学习建议" variant="blue">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
  <div>
- <h4 className="font-bold text-heading mb-2">
- ✓ 推荐做法
+ <h4 className="font-bold text-heading mb-2">推荐做法
  </h4>
  <ul className="text-body space-y-1">
  <li>按顺序学习，不要跳跃</li>
@@ -642,7 +638,7 @@ export function LearningPathGuide() {
  </ul>
  </div>
  <div>
- <h4 className="font-bold text-heading mb-2">⚠️ 避免做法</h4>
+ <h4 className="font-bold text-heading mb-2">避免做法</h4>
  <ul className="text-body space-y-1">
  <li>一次学习过多内容</li>
  <li>跳过基础直接看高级内容</li>
@@ -677,7 +673,7 @@ export function LearningPathGuide() {
 
  {/* 为什么这样设计 */}
  <div className="mt-12" />
- <Layer title="为什么这样设计" icon="💡">
+ <Layer title="为什么这样设计">
  <div className="space-y-4">
  <div className="bg-surface rounded-lg p-5 border border-edge/30">
  <h4 className="text-heading font-bold font-mono mb-3">渐进式学习路径</h4>

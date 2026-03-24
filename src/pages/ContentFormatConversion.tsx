@@ -97,8 +97,7 @@ stateDiagram-v2
  <div className="space-y-8">
  {/* Header */}
  <div className="border- border-edge pb-6">
- <h1 className="text-3xl font-bold text-heading mb-2">
- 🔄 内容格式转换
+ <h1 className="text-3xl font-bold text-heading mb-2">内容格式转换
  </h1>
  <p className="text-body">
  （fork-only）深入理解 Gemini ↔ OpenAI 格式的双向转换机制
@@ -113,7 +112,7 @@ stateDiagram-v2
  </div>
  </div>
 
- <HighlightBox title="🧭 fork-only 提示" icon="⚠️" variant="yellow">
+ <HighlightBox title="🧭 fork-only 提示" variant="yellow">
  <p className="m-0 text-sm text-body">
  上游 Gemini CLI 直接使用 <code>@google/genai</code> 的 <code>GenerateContentParameters</code>/<code>GenerateContentResponse</code>，
  不需要 Gemini ↔ OpenAI 的格式转换。本页描述的是为了接入 OpenAI-compatible 端点而引入的转换与流式解析层。
@@ -122,8 +121,7 @@ stateDiagram-v2
 
  {/* 30秒速览 */}
  <section className="bg-surface rounded-xl p-6 border border-edge">
- <h2 className="text-xl font-bold text-heading mb-4 flex items-center gap-2">
- ⚡ 30秒速览
+ <h2 className="text-xl font-bold text-heading mb-4 flex items-center gap-2">30秒速览
  </h2>
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -154,8 +152,7 @@ stateDiagram-v2
  onClick={() => toggleSection('arch')}
  className="w-full flex items-center justify-between p-4 bg-surface rounded-lg border border-edge hover:border-edge-hover transition-colors"
  >
- <span className="text-lg font-bold text-heading">
- 🏗️ 转换架构总览
+ <span className="text-lg font-bold text-heading">转换架构总览
  </span>
  <span className="text-dim">
  {expandedSections.has('arch') ? '收起' : '展开'}
@@ -174,8 +171,7 @@ stateDiagram-v2
  onClick={() => toggleSection('request')}
  className="w-full flex items-center justify-between p-4 bg-surface rounded-lg border border-edge hover:border-edge-hover transition-colors"
  >
- <span className="text-lg font-bold text-heading">
- ➡️ 请求转换: Gemini → OpenAI
+ <span className="text-lg font-bold text-heading">请求转换: Gemini → OpenAI
  </span>
  <span className="text-dim">
  {expandedSections.has('request') ? '收起' : '展开'}
@@ -185,7 +181,7 @@ stateDiagram-v2
  <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
  {/* 内容类型映射 */}
  <div className="p-4 bg-surface rounded-lg border border-edge">
- <h3 className="text-heading font-bold mb-4">📋 内容类型映射</h3>
+ <h3 className="text-heading font-bold mb-4">内容类型映射</h3>
  <div className="space-y-2">
  {[
  { gemini: 'content.role: "user"', openai: 'message.role: "user"', icon: '👤' },
@@ -276,7 +272,7 @@ convertGeminiRequestToOpenAI(request) {
  <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
  {/* 非流式响应 */}
  <div className="p-4 bg-surface rounded-lg border border-edge">
- <h3 className="text-heading font-bold mb-4">📦 非流式响应</h3>
+ <h3 className="text-heading font-bold mb-4">非流式响应</h3>
  <CodeBlock
  code={`// convertOpenAIResponseToGemini
 convertOpenAIResponseToGemini(response) {
@@ -320,7 +316,7 @@ convertOpenAIResponseToGemini(response) {
 
  {/* 完成原因映射 */}
  <div className="p-4 bg-surface rounded-lg border border-edge">
- <h3 className="text-heading font-bold mb-4">✅ 完成原因映射</h3>
+ <h3 className="text-heading font-bold mb-4">完成原因映射</h3>
  <div className="space-y-2">
  {[
  { openai: 'stop', gemini: 'STOP', desc: '正常结束', color: 'terminal-green' },
@@ -365,11 +361,10 @@ convertOpenAIResponseToGemini(response) {
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
  {/* Chunk 合并策略 */}
  <div className="p-4 bg-surface rounded-lg border border-edge">
- <h3 className="text-heading font-bold mb-4">🔀 Chunk 合并策略</h3>
+ <h3 className="text-heading font-bold mb-4">Chunk 合并策略</h3>
  <MermaidDiagram chart={chunkMergingDiagram} />
  <div className="mt-4 p-3 bg-elevated rounded-lg border-l-2 border-l-edge-hover/30">
- <h4 className="text-heading font-bold mb-2 flex items-center gap-2">
- ⚠️ 设计考量
+ <h4 className="text-heading font-bold mb-2 flex items-center gap-2">设计考量
  </h4>
  <p className="text-sm text-body">
  部分 OpenAI 兼容 API (如 Gemini) 会将 finishReason 和 usageMetadata
@@ -380,7 +375,7 @@ convertOpenAIResponseToGemini(response) {
 
  {/* 流式工具调用解析 */}
  <div className="p-4 bg-surface rounded-lg border border-edge">
- <h3 className="text-heading font-bold mb-4">🔧 流式工具调用解析</h3>
+ <h3 className="text-heading font-bold mb-4">流式工具调用解析</h3>
  <CodeBlock
  code={`// StreamingToolCallParser - 增量解析
 class StreamingToolCallParser {
@@ -444,8 +439,7 @@ class StreamingToolCallParser {
  onClick={() => toggleSection('orphan')}
  className="w-full flex items-center justify-between p-4 bg-surface rounded-lg border border-edge hover:border-edge-hover transition-colors"
  >
- <span className="text-lg font-bold text-heading">
- 🧹 孤儿工具调用清理
+ <span className="text-lg font-bold text-heading">孤儿工具调用清理
  </span>
  <span className="text-dim">
  {expandedSections.has('orphan') ? '收起' : '展开'}
@@ -454,7 +448,7 @@ class StreamingToolCallParser {
  {expandedSections.has('orphan') && (
  <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
  <div className="p-4 bg-surface rounded-lg border border-edge">
- <h3 className="text-heading font-bold mb-4">❌ 问题场景</h3>
+ <h3 className="text-heading font-bold mb-4">问题场景</h3>
  <div className="space-y-3">
  <div className="p-3 bg-elevated/10 rounded-lg border border-edge/30">
  <div className="text-heading font-bold mb-1">孤儿 FunctionCall</div>
@@ -478,7 +472,7 @@ class StreamingToolCallParser {
  </div>
 
  <div className="p-4 bg-surface rounded-lg border border-edge">
- <h3 className="text-heading font-bold mb-4">✅ 清理算法</h3>
+ <h3 className="text-heading font-bold mb-4">清理算法</h3>
  <CodeBlock
  code={`// converter.ts - cleanOrphanedToolCalls
 cleanOrphanedToolCalls(messages) {
@@ -524,8 +518,7 @@ cleanOrphanedToolCalls(messages) {
  onClick={() => toggleSection('tools')}
  className="w-full flex items-center justify-between p-4 bg-surface rounded-lg border border-edge hover:border-edge transition-colors"
  >
- <span className="text-lg font-bold text-heading">
- 🔧 工具定义转换
+ <span className="text-lg font-bold text-heading">工具定义转换
  </span>
  <span className="text-dim">
  {expandedSections.has('tools') ? '收起' : '展开'}
@@ -596,8 +589,7 @@ cleanOrphanedToolCalls(messages) {
  onClick={() => toggleSection('error')}
  className="w-full flex items-center justify-between p-4 bg-surface rounded-lg border border-edge hover:border-edge-hover transition-colors"
  >
- <span className="text-lg font-bold text-heading">
- ⚠️ 错误状态处理
+ <span className="text-lg font-bold text-heading">错误状态处理
  </span>
  <span className="text-dim">
  {expandedSections.has('error') ? '收起' : '展开'}
@@ -670,8 +662,7 @@ private async handleError(error, context, request) {
  onClick={() => toggleSection('reset')}
  className="w-full flex items-center justify-between p-4 bg-surface rounded-lg border border-edge hover:border-edge-hover transition-colors"
  >
- <span className="text-lg font-bold text-heading">
- 🔄 状态重置机制
+ <span className="text-lg font-bold text-heading">状态重置机制
  </span>
  <span className="text-dim">
  {expandedSections.has('reset') ? '收起' : '展开'}
@@ -716,7 +707,7 @@ reset(): void {
 
  {/* 源码参考 */}
  <section className="bg-base/30 rounded-xl p-6 border border-edge">
- <h3 className="text-lg font-bold text-body mb-4">📚 源码参考</h3>
+ <h3 className="text-lg font-bold text-body mb-4">源码参考</h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
  <div>
  <h4 className="text-dim mb-2">核心文件</h4>

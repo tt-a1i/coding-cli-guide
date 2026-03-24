@@ -337,8 +337,7 @@ export default function PromptTemplateAnimation() {
         <div className="col-span-4 space-y-4">
           {/* 环境变量解析 */}
           <div className="bg-[var(--bg-secondary)] rounded-lg p-4 border border-[var(--border)]">
-            <h3 className="text-sm font-semibold text-[var(--cyber-blue)] mb-3 font-mono">
-              📋 resolvePathFromEnv()
+            <h3 className="text-sm font-semibold text-[var(--cyber-blue)] mb-3 font-mono">resolvePathFromEnv()
             </h3>
             <div className="space-y-2">
               {envVars.map((env, i) => (
@@ -367,8 +366,7 @@ export default function PromptTemplateAnimation() {
 
           {/* 模型匹配 */}
           <div className="bg-[var(--bg-secondary)] rounded-lg p-4 border border-[var(--border)]">
-            <h3 className="text-sm font-semibold text-[var(--amber)] mb-3 font-mono">
-              🤖 getToolCallExamples()
+            <h3 className="text-sm font-semibold text-[var(--amber)] mb-3 font-mono">getToolCallExamples()
             </h3>
             <div className="text-xs text-[var(--muted)] mb-3 font-mono">
               model = "{selectedModel}"
@@ -386,7 +384,7 @@ export default function PromptTemplateAnimation() {
                   <div className="flex items-center justify-between">
                     <span className="text-sm">{opt.name}</span>
                     {opt.selected && (
-                      <span className="text-[var(--amber)] text-xs">✓ matched</span>
+                      <span className="text-[var(--amber)] text-xs">matched</span>
                     )}
                   </div>
                   <code className="text-xs text-[var(--muted)]">/{opt.pattern}/</code>
@@ -400,8 +398,7 @@ export default function PromptTemplateAnimation() {
         <div className="col-span-5">
           <div className="bg-[var(--bg-secondary)] rounded-lg p-4 border border-[var(--border)] h-full">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-[var(--terminal-green)] font-mono">
-                📦 Prompt Sections
+              <h3 className="text-sm font-semibold text-[var(--terminal-green)] font-mono">Prompt Sections
               </h3>
               <div className="flex items-center gap-4 text-xs">
                 <span className="flex items-center gap-1">

@@ -24,8 +24,7 @@ export function SubagentArchitecture() {
  <div className="space-y-8">
  {/* Header */}
  <div className="border- border-edge pb-6">
- <h1 className="text-3xl font-bold text-heading mb-2">
- 🏗️ Agent 架构深度解析
+ <h1 className="text-3xl font-bold text-heading mb-2">Agent 架构深度解析
  </h1>
  <p className="text-body">
  深入理解 Agent 类型系统、Markdown frontmatter 配置验证、执行循环和终止模式
@@ -45,8 +44,7 @@ export function SubagentArchitecture() {
 
  {/* 30秒速览 */}
  <section className="bg-surface rounded-xl p-6 border border-edge">
- <h2 className="text-xl font-bold text-heading mb-4 flex items-center gap-2">
- ⚡ 30秒速览
+ <h2 className="text-xl font-bold text-heading mb-4 flex items-center gap-2">30秒速览
  </h2>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -144,8 +142,7 @@ export function SubagentArchitecture() {
  onClick={() => toggleSection('types')}
  className="w-full flex items-center justify-between mb-4"
  >
- <h2 className="text-xl font-bold text-heading flex items-center gap-2">
- 📦 类型系统详解
+ <h2 className="text-xl font-bold text-heading flex items-center gap-2">类型系统详解
  </h2>
  <span className={`transform transition-transform ${expandedSections.has('types') ? 'rotate-180' : ''}`}>
  ▼
@@ -313,8 +310,7 @@ interface AgentInputDefinition {
  onClick={() => toggleSection('markdown')}
  className="w-full flex items-center justify-between mb-4"
  >
- <h2 className="text-xl font-bold text-heading flex items-center gap-2">
- 📄 Markdown 配置与验证
+ <h2 className="text-xl font-bold text-heading flex items-center gap-2">Markdown 配置与验证
  </h2>
  <span className={`transform transition-transform ${expandedSections.has('markdown') ? 'rotate-180' : ''}`}>
  ▼
@@ -417,7 +413,7 @@ const remoteAgentSchema = z.object({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4">
- <h4 className="text-heading font-bold mb-3">💡 禁止嵌套委托</h4>
+ <h4 className="text-heading font-bold mb-3">禁止嵌套委托</h4>
  <CodeBlock
  language="typescript"
  code={`// agentLoader.ts - 防止循环委托
@@ -448,8 +444,7 @@ if (
  onClick={() => toggleSection('executor')}
  className="w-full flex items-center justify-between mb-4"
  >
- <h2 className="text-xl font-bold text-heading flex items-center gap-2">
- 🔄 LocalAgentExecutor 执行循环
+ <h2 className="text-xl font-bold text-heading flex items-center gap-2">LocalAgentExecutor 执行循环
  </h2>
  <span className={`transform transition-transform ${expandedSections.has('executor') ? 'rotate-180' : ''}`}>
  ▼
@@ -605,8 +600,7 @@ if (!roundText || roundText.trim().length === 0) {
  onClick={() => toggleSection('delegate')}
  className="w-full flex items-center justify-between mb-4"
  >
- <h2 className="text-xl font-bold text-heading flex items-center gap-2">
- 🎯 delegate_to_agent 工具详解
+ <h2 className="text-xl font-bold text-heading flex items-center gap-2">delegate_to_agent 工具详解
  </h2>
  <span className={`transform transition-transform ${expandedSections.has('delegate') ? 'rotate-180' : ''}`}>
  ▼
@@ -741,7 +735,7 @@ class DelegateInvocation extends BaseToolInvocation {
  </div>
 
  <div className="bg-base/50 rounded-lg p-4">
- <h4 className="text-heading font-bold mb-3">💡 为什么用 discriminatedUnion？</h4>
+ <h4 className="text-heading font-bold mb-3">为什么用 discriminatedUnion？</h4>
  <ul className="space-y-2 text-sm text-body">
  <li className="flex items-start gap-2">
  <span className="text-heading">1.</span>
@@ -780,8 +774,7 @@ class DelegateInvocation extends BaseToolInvocation {
  onClick={() => toggleSection('events')}
  className="w-full flex items-center justify-between mb-4"
  >
- <h2 className="text-xl font-bold text-heading flex items-center gap-2">
- 📡 SubagentActivityEvent 事件系统
+ <h2 className="text-xl font-bold text-heading flex items-center gap-2">SubagentActivityEvent 事件系统
  </h2>
  <span className={`transform transition-transform ${expandedSections.has('events') ? 'rotate-180' : ''}`}>
  ▼
@@ -886,8 +879,7 @@ await executor.run(signal, updateOutput);`}
 
  {/* 设计权衡 */}
  <section className="bg-surface rounded-xl p-6 border border-edge">
- <h2 className="text-xl font-bold text-heading mb-4 flex items-center gap-2">
- ⚖️ 设计权衡与决策
+ <h2 className="text-xl font-bold text-heading mb-4 flex items-center gap-2">设计权衡与决策
  </h2>
 
  <div className="space-y-4">

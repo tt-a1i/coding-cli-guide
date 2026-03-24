@@ -451,7 +451,7 @@ function ContentBlocksVisualizer({
  {isSplitPoint && (
  <div className="flex items-center gap-2 py-1 text-heading">
  <div className="flex-1 border-t-2 border-dashed border-edge" />
- <span className="text-xs font-bold">✂️ 分割点</span>
+ <span className="text-xs font-bold">分割点</span>
  <div className="flex-1 border-t-2 border-dashed border-edge" />
  </div>
  )}
@@ -496,9 +496,7 @@ function ContentBlocksVisualizer({
 
  {/* 安全边界标记 */}
  {block.isSafeBoundary && (
- <span className="text-xs text-heading" title="安全边界">
- ⚡
- </span>
+ <span className="text-xs text-heading" title="安全边界"></span>
  )}
 
  {/* 区域标记 */}

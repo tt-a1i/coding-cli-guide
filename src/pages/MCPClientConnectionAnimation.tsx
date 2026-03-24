@@ -311,18 +311,15 @@ export default function MCPClientConnectionAnimation() {
  </h3>
  <div className="space-y-2 text-xs">
  <div className="flex items-center gap-2">
- <span>⚡</span>
- <span className="font-mono text-body">StdioClientTransport</span>
+  <span className="font-mono text-body">StdioClientTransport</span>
  <span className="text-dim">- 本地进程</span>
  </div>
  <div className="flex items-center gap-2">
- <span>🌊</span>
- <span className="font-mono text-body">SSEClientTransport</span>
+  <span className="font-mono text-body">SSEClientTransport</span>
  <span className="text-dim">- Server-Sent Events</span>
  </div>
  <div className="flex items-center gap-2">
- <span>🌐</span>
- <span className="font-mono text-body">StreamableHTTPClientTransport</span>
+  <span className="font-mono text-body">StreamableHTTPClientTransport</span>
  <span className="text-dim">- HTTP 流</span>
  </div>
  </div>

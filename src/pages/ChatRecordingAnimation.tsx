@@ -224,7 +224,7 @@ export default function ChatRecordingAnimation() {
  <div className="space-y-4">
  <div className="bg-base/40 border-l-2 border-l-edge-hover rounded-lg p-4">
  <h3 className="text-heading font-bold mb-3 flex items-center gap-2">
- <span className="text-xl">💭</span> 思考队列
+ 思考队列
  <span className="text-xs bg-elevated px-2 py-0.5 rounded-full">
  {queuedThoughts.length}
  </span>
@@ -250,7 +250,7 @@ export default function ChatRecordingAnimation() {
 
  <div className="bg-base/40 border border-edge rounded-lg p-4">
  <h3 className="text-heading font-bold mb-3 flex items-center gap-2">
- <span className="text-xl">📊</span> Token 队列
+ Token 队列
  </h3>
  {queuedTokens ? (
  <div className="grid grid-cols-2 gap-2 text-sm">
@@ -281,7 +281,7 @@ export default function ChatRecordingAnimation() {
  {/* Controls */}
  <div className="bg-base/40 border border-edge rounded-lg p-4">
  <h3 className="text-heading font-bold mb-3 flex items-center gap-2">
- <span className="text-xl">🎮</span> 操作控制
+ 操作控制
  </h3>
  <div className="space-y-2">
  <button
@@ -296,36 +296,31 @@ export default function ChatRecordingAnimation() {
  onClick={() => recordUserMessage('测试用户消息')}
  disabled={isSimulating}
  className="px-3 py-2 bg-elevated/20 text-heading border border-edge rounded-lg text-sm hover:bg-elevated/30 disabled:opacity-50"
- >
- 👤 用户消息
+ >用户消息
  </button>
  <button
  onClick={() => recordThought('这是一个测试思考')}
  disabled={isSimulating}
  className="px-3 py-2 bg-elevated text-heading border-l-2 border-l-edge-hover rounded-lg text-sm hover:bg-elevated disabled:opacity-50"
- >
- 💭 添加思考
+ >添加思考
  </button>
  <button
  onClick={() => recordToolCalls([{ id: 'call_' + generateId(), name: 'read_file', status: 'completed' }])}
  disabled={isSimulating}
  className="px-3 py-2 bg-elevated text-heading border-l-2 border-l-edge-hover rounded-lg text-sm hover:bg-elevated disabled:opacity-50"
- >
- 🔧 工具调用
+ >工具调用
  </button>
  <button
  onClick={() => recordGeminiMessage('AI 响应内容')}
  disabled={isSimulating}
  className="px-3 py-2 bg-elevated text-heading border border-edge rounded-lg text-sm hover:bg-elevated disabled:opacity-50"
- >
- 🤖 AI 消息
+ >AI 消息
  </button>
  </div>
  <button
  onClick={clearAll}
  className="w-full px-4 py-2 bg-elevated text-heading border-l-2 border-l-edge-hover rounded-lg hover:bg-elevated"
- >
- 🗑️ 清空全部
+ >清空全部
  </button>
  </div>
  </div>
@@ -334,7 +329,7 @@ export default function ChatRecordingAnimation() {
  {/* Conversation Record */}
  <div className="bg-base/40 border border-edge rounded-lg p-4">
  <h3 className="text-heading font-bold mb-3 flex items-center gap-2">
- <span className="text-xl">💬</span> 会话记录
+ 会话记录
  <span className="text-xs bg-elevated/20 px-2 py-0.5 rounded-full">
  {conversation.messages.length} 条
  </span>
@@ -373,7 +368,7 @@ export default function ChatRecordingAnimation() {
 
  {msg.thoughts && msg.thoughts.length > 0 && (
  <div className="mb-2 p-2 bg-elevated rounded border-l-2 border-l-edge-hover/20">
- <div className="text-xs text-heading mb-1">💭 思考 ({msg.thoughts.length})</div>
+ <div className="text-xs text-heading mb-1">思考 ({msg.thoughts.length})</div>
  {msg.thoughts.map((t, i) => (
  <div key={i} className="text-xs text-body truncate">• {t.content}</div>
  ))}
@@ -382,7 +377,7 @@ export default function ChatRecordingAnimation() {
 
  {msg.toolCalls && msg.toolCalls.length > 0 && (
  <div className="mb-2 p-2 bg-elevated rounded border-l-2 border-l-edge-hover">
- <div className="text-xs text-heading mb-1">🔧 工具 ({msg.toolCalls.length})</div>
+ <div className="text-xs text-heading mb-1">工具 ({msg.toolCalls.length})</div>
  {msg.toolCalls.map((tc, i) => (
  <div key={i} className="text-xs text-body">• {tc.name} ({tc.status})</div>
  ))}
@@ -406,7 +401,7 @@ export default function ChatRecordingAnimation() {
  {/* Operation Log */}
  <div className="bg-base/40 border border-edge-hover/30 rounded-lg p-4">
  <h3 className="text-body font-bold mb-3 flex items-center gap-2">
- <span className="text-xl">📝</span> 操作日志
+ 操作日志
  </h3>
  <div className="space-y-1 max-h-96 overflow-y-auto font-mono text-xs">
  {operationLog.length === 0 ? (
@@ -434,7 +429,7 @@ export default function ChatRecordingAnimation() {
 
  {/* Queue Flow Diagram */}
  <div className="mt-6 bg-base/40 border border-edge rounded-lg p-4">
- <h3 className="text-heading font-bold mb-3">🔄 队列流程</h3>
+ <h3 className="text-heading font-bold mb-3">队列流程</h3>
  <div className="flex flex-wrap justify-center items-center gap-3 text-sm">
  <div className="p-3 bg-elevated border-l-2 border-l-edge-hover rounded-lg text-center">
  <div className="text-heading font-bold">recordThought()</div>

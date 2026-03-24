@@ -433,8 +433,7 @@ export default function LruCacheAnimation() {
  </div>
  )}
  {op.evictedKey && (
- <div className="mt-1 text-heading">
- ⚠ 淘汰: {op.evictedKey}
+ <div className="mt-1 text-heading">淘汰: {op.evictedKey}
  </div>
  )}
  </div>

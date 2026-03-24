@@ -877,31 +877,31 @@ async function restoreAction(
  <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">推荐做法</h4>
  <ul className="text-sm text-body space-y-1">
- <li>✓ 尝试新功能时启用检查点</li>
- <li>✓ 重构代码时启用检查点</li>
- <li>✓ 定期清理旧检查点释放空间</li>
- <li>✓ 恢复前确认当前有未保存的更改</li>
- <li>✓ 使用配置文件永久启用</li>
+ <li>尝试新功能时启用检查点</li>
+ <li>重构代码时启用检查点</li>
+ <li>定期清理旧检查点释放空间</li>
+ <li>恢复前确认当前有未保存的更改</li>
+ <li>使用配置文件永久启用</li>
  </ul>
  </div>
  <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">注意事项</h4>
  <ul className="text-sm text-body space-y-1">
- <li>✗ 不要依赖检查点作为唯一备份</li>
- <li>✗ 大型项目注意磁盘空间</li>
- <li>✗ 恢复会覆盖当前文件状态</li>
- <li>✗ 检查点不包含非文件状态</li>
- <li>✗ 跨会话恢复可能有上下文问题</li>
+ <li>不要依赖检查点作为唯一备份</li>
+ <li>大型项目注意磁盘空间</li>
+ <li>恢复会覆盖当前文件状态</li>
+ <li>检查点不包含非文件状态</li>
+ <li>跨会话恢复可能有上下文问题</li>
  </ul>
  </div>
  </div>
  </section>
 
  {/* 为什么这样设计检查点系统 */}
- <Layer title="为什么这样设计检查点系统？" icon="💡">
+ <Layer title="为什么这样设计检查点系统？">
  <div className="space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🌲 为什么使用影子 Git 仓库？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么使用影子 Git 仓库？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：在 <code className="bg-base/30 px-1 rounded">~/.gemini/history/{'{project_hash}'}</code> 创建独立的 Git 仓库存储快照。</p>
  <p><strong>原因</strong>：</p>
@@ -930,7 +930,7 @@ async function restoreAction(
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">📝 为什么只对修改工具创建检查点？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么只对修改工具创建检查点？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：只有 <code className="bg-base/30 px-1 rounded">write_file</code>、<code className="bg-base/30 px-1 rounded">replace</code> 等修改工具触发检查点。</p>
  <p><strong>原因</strong>：</p>
@@ -944,7 +944,7 @@ async function restoreAction(
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🔄 为什么恢复时重新提议工具调用？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么恢复时重新提议工具调用？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：恢复检查点后，AI 会重新提议相同的工具调用。</p>
  <p><strong>原因</strong>：</p>
@@ -958,7 +958,7 @@ async function restoreAction(
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🚫 为什么默认不启用检查点？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么默认不启用检查点？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：检查点功能默认关闭，需要用户显式启用。</p>
  <p><strong>原因</strong>：</p>
@@ -974,7 +974,7 @@ async function restoreAction(
  </Layer>
 
  {/* 检查点边界情况 */}
- <Layer title="边界情况与故障恢复" icon="⚠️">
+ <Layer title="边界情况与故障恢复">
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>

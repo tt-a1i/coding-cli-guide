@@ -12,8 +12,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">📜</span>
- <div>
+  <div>
  <h3 className="text-lg font-bold text-heading">System Prompt 动态构建机制</h3>
  <p className="text-sm text-body">理解 AI 的"灵魂"是如何根据上下文动态生成的</p>
  </div>
@@ -25,7 +24,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="px-6 pb-6 space-y-4 border-t border-edge/40 mt-2 pt-4">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-base/30 rounded-lg p-4 border border-edge">
- <h4 className="font-semibold text-heading mb-2">🎯 核心概念</h4>
+ <h4 className="font-semibold text-heading mb-2">核心概念</h4>
  <ul className="text-sm text-body space-y-1">
  <li><strong>System Prompt</strong>: AI 的行为指令和人格定义</li>
  <li><strong>动态注入</strong>: 根据环境实时组装 Prompt 内容</li>
@@ -35,7 +34,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </ul>
  </div>
  <div className="bg-base/30 rounded-lg p-4 border border-edge">
- <h4 className="font-semibold text-heading mb-2">📁 关键文件</h4>
+ <h4 className="font-semibold text-heading mb-2">关键文件</h4>
  <ul className="text-sm text-body space-y-1">
  <li><code>packages/core/src/core/prompts.ts</code></li>
  <li className="text-xs text-dim ml-4">getCoreSystemPrompt, getCompressionPrompt</li>
@@ -48,7 +47,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="bg-elevated/10 rounded-lg p-4 border border-edge/30">
- <h4 className="font-semibold text-heading mb-2">💡 设计理念</h4>
+ <h4 className="font-semibold text-heading mb-2">设计理念</h4>
  <p className="text-sm text-body">
  System Prompt 不是静态文本，而是一个<strong>动态组装的指令集</strong>。
  它根据当前环境（是否在 Git 仓库、是否启用沙箱）、用户记忆（GEMINI.md）、
@@ -80,7 +79,7 @@ export function SystemPromptArch() {
  onToggle={() => setIsIntroExpanded(!isIntroExpanded)}
  />
 
- <Layer title="构建流水线总览 (Pipeline Overview)" icon="🏭">
+ <Layer title="构建流水线总览 (Pipeline Overview)">
  <p className="text-body mb-4">
  <code>getCoreSystemPrompt()</code> 函数负责组装完整的 System Prompt。
  整个流水线按顺序执行以下步骤：
@@ -121,7 +120,7 @@ export function SystemPromptArch() {
  </div>
  </Layer>
 
- <Layer title="基础 Prompt 加载逻辑" icon="📄">
+ <Layer title="基础 Prompt 加载逻辑">
  <p className="text-body mb-4">
  系统支持两种 Prompt 来源：内置默认值或用户自定义文件。通过环境变量 <code>GEMINI_SYSTEM_MD</code> 控制：
  </p>
@@ -164,7 +163,7 @@ export function SystemPromptArch() {
  若你阅读的是 Innies/Qwen fork，可能会看到以 <code>QWEN_*</code> 为前缀的同类开关，语义相同但命名不同。
  </div>
 
- <HighlightBox title="设计考量" icon="🎯" variant="blue">
+ <HighlightBox title="设计考量" variant="blue">
  <p className="text-sm text-body">
  <strong>为什么支持自定义 System Prompt？</strong><br/>
  不同团队可能有特定的代码规范、安全要求或工作流程。
@@ -175,21 +174,21 @@ export function SystemPromptArch() {
  </HighlightBox>
  </Layer>
 
- <Layer title="内置 Base Prompt 结构" icon="📋">
+ <Layer title="内置 Base Prompt 结构">
  <p className="text-body mb-4">
  内置的默认 System Prompt 包含以下核心部分：
  </p>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
  <div className="bg-surface rounded-lg p-4 border border-edge">
- <h4 className="font-semibold text-heading mb-2">🎭 身份定义</h4>
+ <h4 className="font-semibold text-heading mb-2">身份定义</h4>
  <div className="text-sm text-body font-mono bg-base/30 p-2 rounded">
  "You are Gemini CLI, an interactive CLI agent developed by Google, specializing in software engineering tasks..."
  </div>
  </div>
 
  <div className="bg-surface rounded-lg p-4 border border-edge">
- <h4 className="font-semibold text-heading mb-2">📜 Core Mandates</h4>
+ <h4 className="font-semibold text-heading mb-2">Core Mandates</h4>
  <ul className="text-sm text-body space-y-1">
  <li>遵循项目现有代码规范</li>
  <li>验证库/框架的使用是否合理</li>
@@ -200,7 +199,7 @@ export function SystemPromptArch() {
  </div>
 
  <div className="bg-surface rounded-lg p-4 border border-edge">
- <h4 className="font-semibold text-heading mb-2">✅ Task Management</h4>
+ <h4 className="font-semibold text-heading mb-2">Task Management</h4>
  <ul className="text-sm text-body space-y-1">
  <li>强制使用 write_todos 工具</li>
  <li>计划阶段分解任务</li>
@@ -210,7 +209,7 @@ export function SystemPromptArch() {
  </div>
 
  <div className="bg-surface rounded-lg p-4 border border-edge">
- <h4 className="font-semibold text-heading mb-2">🔧 Primary Workflows</h4>
+ <h4 className="font-semibold text-heading mb-2">Primary Workflows</h4>
  <ul className="text-sm text-body space-y-1">
  <li>Plan → Implement → Adapt → Verify</li>
  <li>软件工程任务流程</li>
@@ -244,14 +243,14 @@ tasks - and that is unacceptable.
  />
  </Layer>
 
- <Layer title="环境上下文注入 (Dynamic Injections)" icon="🌍">
+ <Layer title="环境上下文注入 (Dynamic Injections)">
  <p className="text-body mb-4">
  根据运行时环境，动态注入不同的指令块。这些是通过 IIFE (立即执行函数) 实现的：
  </p>
 
  <div className="space-y-4">
  <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
- <h4 className="font-semibold text-heading mb-2">🛡️ Sandbox 模式检测</h4>
+ <h4 className="font-semibold text-heading mb-2">Sandbox 模式检测</h4>
  <CodeBlock
  title="Sandbox Injection Logic"
  code={`\${(function () {
@@ -285,7 +284,7 @@ enabling sandboxing.
  </div>
 
  <div className="bg-elevated/20 border border-edge rounded-lg p-4">
- <h4 className="font-semibold text-heading mb-2">📁 Git 仓库检测</h4>
+ <h4 className="font-semibold text-heading mb-2">Git 仓库检测</h4>
  <CodeBlock
  title="Git Repository Injection"
  code={`\${(function () {
@@ -310,7 +309,7 @@ enabling sandboxing.
  </div>
  </div>
 
- <HighlightBox title="为什么使用动态注入？" icon="💡" variant="purple">
+ <HighlightBox title="为什么使用动态注入？" variant="purple">
  <p className="text-sm text-body">
  <strong>Token 优化</strong>: 如果不在 Git 仓库中，就没必要让 AI 知道 Git 相关指令。
  动态注入避免了发送无关内容，节省了 Token 消耗。<br/><br/>
@@ -319,7 +318,7 @@ enabling sandboxing.
  </HighlightBox>
  </Layer>
 
- <Layer title="模型特定工具调用示例" icon="🔧">
+ <Layer title="模型特定工具调用示例">
  <p className="text-body mb-4">
  不同模型使用不同的工具调用格式。通过 <code>getToolCallExamples(model)</code> 函数选择适配的示例：
  </p>
@@ -387,7 +386,7 @@ enabling sandboxing.
 }`}
  />
 
- <HighlightBox title="环境变量覆盖" icon="⚙️" variant="orange">
+ <HighlightBox title="环境变量覆盖" variant="orange">
  <p className="text-sm text-body">
  <strong>注意：</strong>这一段属于 Innies/Qwen 的多厂商兼容层（通过 prompt 注入 tool-call examples）。
  上游 <code>gemini-cli</code> 主要依赖 API 级别的 tools schema + <code>functionCall/functionResponse</code>，不需要此环境变量。
@@ -396,7 +395,7 @@ enabling sandboxing.
  </HighlightBox>
  </Layer>
 
- <Layer title="用户记忆注入 (User Memory)" icon="🧠">
+ <Layer title="用户记忆注入 (User Memory)">
  <p className="text-body mb-4">
  用户记忆（来自 GEMINI.md 文件）会被追加到 System Prompt 的末尾：
  </p>
@@ -418,7 +417,7 @@ return \`\${basePrompt}\${memorySuffix}\`;
  />
 
  <div className="bg-elevated border border-edge rounded-lg p-4 mt-4">
- <h4 className="font-semibold text-heading mb-2">📝 GEMINI.md 示例内容</h4>
+ <h4 className="font-semibold text-heading mb-2">GEMINI.md 示例内容</h4>
  <div className="text-sm font-mono bg-base/30 p-3 rounded text-body">
  <div className="text-heading"># 用户偏好</div>
  - 使用 TypeScript 而非 JavaScript<br/>
@@ -433,14 +432,14 @@ return \`\${basePrompt}\${memorySuffix}\`;
  </div>
  </Layer>
 
- <Layer title="运行时上下文注入" icon="⚡">
+ <Layer title="运行时上下文注入">
  <p className="text-body mb-4">
  除了初始的 System Prompt，在运行过程中还会动态注入上下文信息：
  </p>
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
  <div className="bg-elevated/20 border border-edge rounded-lg p-4">
- <h4 className="font-semibold text-heading mb-2">🌍 环境上下文</h4>
+ <h4 className="font-semibold text-heading mb-2">环境上下文</h4>
  <p className="text-xs text-body mb-2">会话开始时注入的环境信息：</p>
  <CodeBlock
  title="getEnvironmentContext()"
@@ -459,7 +458,7 @@ Here is the folder structure:
  </div>
 
  <div className="bg-elevated/20 border border-edge rounded-lg p-4">
- <h4 className="font-semibold text-heading mb-2">🤖 Agent 目录上下文</h4>
+ <h4 className="font-semibold text-heading mb-2">Agent 目录上下文</h4>
  <p className="text-xs text-body mb-2">当有可用的专业代理时注入系统提示：</p>
  <CodeBlock
  title="registry.getDirectoryContext()"
@@ -475,7 +474,7 @@ requiring specialized analysis.
  </div>
 
  <div className="bg-elevated border border-edge rounded-lg p-4">
- <h4 className="font-semibold text-heading mb-2">🧩 Agent Skills</h4>
+ <h4 className="font-semibold text-heading mb-2">Agent Skills</h4>
  <p className="text-xs text-body mb-2">当启用 skills 且存在可用技能时注入：</p>
  <CodeBlock
  title="Available Agent Skills (prompts.ts)"
@@ -492,7 +491,7 @@ To activate a skill, call \`activate_skill\` with the skill's name.
  </div>
  </div>
 
- <HighlightBox title="静态 vs 动态上下文" icon="📌" variant="blue">
+ <HighlightBox title="静态 vs 动态上下文" variant="blue">
  <p className="text-sm text-body">
  <strong>System Prompt</strong> 在会话开始时设置，定义 AI 的基本人格和规则。<br/>
  <strong>Environment Context</strong> 在初始历史中注入，包含日期、平台、工作目录等环境信息。<br/>
@@ -502,7 +501,7 @@ To activate a skill, call \`activate_skill\` with the skill's name.
  </HighlightBox>
  </Layer>
 
- <Layer title="历史压缩 Prompt" icon="📦">
+ <Layer title="历史压缩 Prompt">
  <p className="text-body mb-4">
  当对话历史过长时，系统会使用专门的 Prompt 来压缩历史。
  <code>getCompressionPrompt()</code> 定义了压缩输出的结构：
@@ -547,7 +546,7 @@ To activate a skill, call \`activate_skill\` with the skill's name.
 </state_snapshot>`}
  />
 
- <HighlightBox title="为什么需要结构化压缩？" icon="💡" variant="green">
+ <HighlightBox title="为什么需要结构化压缩？" variant="green">
  <p className="text-sm text-body">
  AI 需要在有限的上下文窗口中保持对整个会话的理解。
  结构化的 XML 格式确保：<br/>
@@ -558,7 +557,7 @@ To activate a skill, call \`activate_skill\` with the skill's name.
  </HighlightBox>
  </Layer>
 
- <Layer title="完整流程图" icon="🔄">
+ <Layer title="完整流程图">
  <div className="bg-surface rounded-lg p-4 border border-edge">
  <div className="font-mono text-sm space-y-2">
  <div className="flex items-center gap-2">
@@ -609,10 +608,10 @@ To activate a skill, call \`activate_skill\` with the skill's name.
  </div>
  </Layer>
 
- <Layer title="设计总结与关键要点" icon="📝">
+ <Layer title="设计总结与关键要点">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface rounded-lg p-4 border border-edge">
- <h4 className="font-semibold text-heading mb-3">🎯 设计原则</h4>
+ <h4 className="font-semibold text-heading mb-3">设计原则</h4>
  <ul className="text-sm text-body space-y-2">
  <li className="flex items-start gap-2">
  <span className="text-heading">•</span>
@@ -634,7 +633,7 @@ To activate a skill, call \`activate_skill\` with the skill's name.
  </div>
 
  <div className="bg-surface rounded-lg p-4 border border-edge">
- <h4 className="font-semibold text-heading mb-3">🔑 关键环境变量</h4>
+ <h4 className="font-semibold text-heading mb-3">关键环境变量</h4>
  <ul className="text-sm text-body space-y-2">
  <li className="flex items-start gap-2">
  <code className="text-heading">GEMINI_SYSTEM_MD</code>
@@ -658,7 +657,7 @@ To activate a skill, call \`activate_skill\` with the skill's name.
 
  <div className="mt-4 p-4 bg-elevated/10 rounded-lg border border-edge/30">
  <p className="text-sm text-body">
- <span className="text-heading font-bold">💡 实践提示</span>:
+ <span className="text-heading font-bold">实践提示</span>:
  调试 System Prompt 时，可以设置 <code>GEMINI_WRITE_SYSTEM_MD=./debug-prompt.md</code>，
  这会将完整的 System Prompt 写入文件，方便检查最终生成的内容。
  </p>

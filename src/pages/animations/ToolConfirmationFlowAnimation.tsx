@@ -330,8 +330,7 @@ flowchart TD
  <button
  onClick={reset}
  className="px-4 py-2 bg-elevated text-heading rounded hover:opacity-80"
- >
- 🔄 重置
+ >重置
  </button>
  <button
  onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
@@ -369,8 +368,7 @@ flowchart TD
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
  {/* Left: Current Phase */}
  <div className="bg-surface rounded-xl p-6 border border-edge-hover">
- <h3 className="text-lg font-bold text-heading mb-4">
- 📍 当前阶段: {step.phase}
+ <h3 className="text-lg font-bold text-heading mb-4">当前阶段: {step.phase}
  </h3>
 
  <div className="bg-base p-4 rounded-lg mb-4">
@@ -384,7 +382,7 @@ flowchart TD
 
  {step.isQueueProcessing && (
  <div className="bg-accent-light border border-accent/30 rounded-lg p-4">
- <div className="text-heading font-bold mb-2">🔄 队列处理模式</div>
+ <div className="text-heading font-bold mb-2">队列处理模式</div>
  <div className="text-sm text-body">
  当有工具调用正在执行时，新请求会被加入队列。
  完成后自动处理队列中的下一批请求。
@@ -395,8 +393,7 @@ flowchart TD
 
  {/* Right: Tool Calls */}
  <div className="bg-surface rounded-xl p-6 border border-edge-hover">
- <h3 className="text-lg font-bold text-heading mb-4">
- 🔧 工具调用状态
+ <h3 className="text-lg font-bold text-heading mb-4">工具调用状态
  </h3>
 
  <div className="space-y-4">
@@ -459,22 +456,22 @@ flowchart TD
  </div>
 
  {/* State Machine */}
- <Layer title="🔄 状态机图" icon="⚙️">
+ <Layer title="🔄 状态机图">
  <MermaidDiagram chart={stateMachineDiagram} />
  </Layer>
 
  {/* Confirmation Outcomes */}
- <Layer title="🎯 用户确认选项" icon="👆">
+ <Layer title="🎯 用户确认选项">
  <MermaidDiagram chart={confirmationOutcomesDiagram} />
  </Layer>
 
  {/* Queue Diagram */}
- <Layer title="📋 请求队列机制" icon="🔀">
+ <Layer title="📋 请求队列机制">
  <MermaidDiagram chart={queueDiagram} />
  </Layer>
 
  {/* Code Explanation */}
- <Layer title="💡 核心类型定义" icon="📝">
+ <Layer title="💡 核心类型定义">
  <div className="bg-base p-4 rounded-lg">
  <pre className="text-sm overflow-x-auto">
 {`// 工具调用状态类型

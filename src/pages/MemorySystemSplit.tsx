@@ -153,7 +153,7 @@ export function MemorySystemSplit() {
  </section>
 
  {/* 目标 */}
- <Layer title="目标" icon="🎯">
+ <Layer title="目标">
  <div className="space-y-3 text-sm">
  <div>
  <h4 className="text-heading font-semibold mb-1">解决的问题</h4>
@@ -178,7 +178,7 @@ export function MemorySystemSplit() {
  </Layer>
 
  {/* 输入 */}
- <Layer title="输入" icon="📥">
+ <Layer title="输入">
  <div className="space-y-3 text-sm">
  <div>
  <h4 className="text-heading font-semibold mb-1">/memory 命令触发条件</h4>
@@ -218,7 +218,7 @@ export function MemorySystemSplit() {
  </Layer>
 
  {/* 输出 */}
- <Layer title="输出" icon="📤">
+ <Layer title="输出">
  <div className="space-y-3 text-sm">
  <div>
  <h4 className="text-heading font-semibold mb-1">/memory 系统产出</h4>
@@ -260,7 +260,7 @@ export function MemorySystemSplit() {
  </Layer>
 
  {/* 关键文件与入口 */}
- <Layer title="关键文件与入口" icon="📁">
+ <Layer title="关键文件与入口">
  <div className="text-sm space-y-2">
  <div className="flex items-start gap-2">
  <code className="bg-base/30 px-2 py-1 rounded text-heading shrink-0">
@@ -339,7 +339,7 @@ export function MemorySystemSplit() {
  </Layer>
 
  {/* 流程图 */}
- <Layer title="流程图" icon="📊">
+ <Layer title="流程图">
  <div className="space-y-6">
  <div>
  <h4 className="text-heading font-semibold mb-3">记忆系统整体架构</h4>
@@ -359,7 +359,7 @@ export function MemorySystemSplit() {
  </Layer>
 
  {/* 关键分支与边界条件 */}
- <Layer title="关键分支与边界条件" icon="⚡">
+ <Layer title="关键分支与边界条件">
  <div className="space-y-4">
  <div className="bg-surface rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-3">folderTrust 安全机制</h4>
@@ -462,7 +462,7 @@ export function MemorySystemSplit() {
  </Layer>
 
  {/* 失败与恢复 */}
- <Layer title="失败与恢复" icon="🔧">
+ <Layer title="失败与恢复">
  <div className="space-y-4">
  <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">文件读取失败</h4>
@@ -542,7 +542,7 @@ export function MemorySystemSplit() {
  </Layer>
 
  {/* 相关配置项 */}
- <Layer title="相关配置项" icon="⚙️">
+ <Layer title="相关配置项">
  <CodeBlock
  title="settings.json 配置示例"
  language="json"

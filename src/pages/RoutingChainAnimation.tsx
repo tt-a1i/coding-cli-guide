@@ -7,21 +7,20 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
     <div className="mb-8 bg-gradient-to-r from-[var(--purple)]/10 to-[var(--amber)]/10 rounded-xl border border-[var(--border-subtle)] overflow-hidden">
       <button onClick={onToggle} className="w-full px-6 py-4 flex items-center justify-between hover:bg-white/5 transition-colors">
         <div className="flex items-center gap-3">
-          <span className="text-2xl">🔀</span>
-          <span className="text-xl font-bold text-[var(--text-primary)]">核心概念介绍</span>
+                    <span className="text-xl font-bold text-[var(--text-primary)]">核心概念介绍</span>
         </div>
         <span className={`transform transition-transform text-[var(--text-muted)] ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
       </button>
       {isExpanded && (
         <div className="px-6 pb-6 space-y-4">
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--purple)]">
-            <h4 className="text-[var(--purple)] font-bold mb-2">🎯 核心概念</h4>
+            <h4 className="text-[var(--purple)] font-bold mb-2">核心概念</h4>
             <p className="text-[var(--text-secondary)] text-sm">
               模型路由系统采用策略链模式，根据任务复杂度和用户配置智能选择最合适的模型（Flash 快速 vs Pro 强大）。
             </p>
           </div>
           <div className="bg-[var(--bg-terminal)]/50 rounded-lg p-4 border-l-4 border-[var(--terminal-green)]">
-            <h4 className="text-[var(--terminal-green)] font-bold mb-2">⛓️ 策略链执行顺序</h4>
+            <h4 className="text-[var(--terminal-green)] font-bold mb-2">策略链执行顺序</h4>
             <div className="flex items-center gap-2 mt-2 text-xs flex-wrap">
               <div className="bg-[var(--bg-card)] p-2 rounded text-center text-accent border border-accent/30">Composite</div>
               <span className="text-dim">→</span>

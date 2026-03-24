@@ -10,7 +10,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  onClick={onToggle}
  className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-surface transition-colors"
  >
- <span className="text-lg font-semibold text-heading">📖 什么是核心交互循环？</span>
+ <span className="text-lg font-semibold text-heading">什么是核心交互循环？</span>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
  </button>
 
@@ -18,7 +18,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="px-4 pb-4 space-y-4 text-sm">
  {/* 核心概念 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">🎯 核心概念</h3>
+ <h3 className="text-heading font-semibold mb-2">核心概念</h3>
  <p className="text-body">
  <strong>核心交互循环</strong>是 Gemini CLI 的心跳。当用户发送消息后，CLI 会与 AI 进行多轮交互，
  直到 AI 完成任务或需要用户输入。这个循环包括：消息发送 → AI 思考 → 工具调用 → 用户审批 → 执行 → 继续对话。
@@ -27,7 +27,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 为什么需要 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">❓ 为什么需要理解这个循环？</h3>
+ <h3 className="text-heading font-semibold mb-2">为什么需要理解这个循环？</h3>
  <ul className="text-body space-y-1 list-disc list-inside">
  <li><strong>掌控全局</strong>：理解 CLI 每一步在做什么，不再黑箱操作</li>
  <li><strong>排查问题</strong>：当 CLI 卡住或行为异常时，知道从哪里入手</li>
@@ -38,22 +38,22 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 关键参与者 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">👥 关键参与者</h3>
+ <h3 className="text-heading font-semibold mb-2">关键参与者</h3>
  <div className="grid grid-cols-2 gap-2 text-xs">
  <div className="bg-base p-2 rounded border border-edge">
- <div className="text-heading">👤 用户</div>
+ <div className="text-heading">用户</div>
  <div className="text-dim">发起请求、审批工具、接收结果</div>
  </div>
  <div className="bg-base p-2 rounded border border-edge">
- <div className="text-heading">🖥️ CLI</div>
+ <div className="text-heading">CLI</div>
  <div className="text-dim">协调各方、执行工具、管理状态</div>
  </div>
  <div className="bg-base p-2 rounded border border-edge">
- <div className="text-heading">☁️ AI API</div>
+ <div className="text-heading">AI API</div>
  <div className="text-dim">理解意图、生成回复、调用工具</div>
  </div>
  <div className="bg-base p-2 rounded border border-edge">
- <div className="text-heading">🔧 工具</div>
+ <div className="text-heading">工具</div>
  <div className="text-dim">读写文件、执行命令、搜索代码</div>
  </div>
  </div>
@@ -61,7 +61,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 源码位置 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">📁 核心源码</h3>
+ <h3 className="text-heading font-semibold mb-2">核心源码</h3>
  <div className="bg-base p-2 rounded font-mono text-xs border border-edge">
  <div className="text-dim">// 主循环入口</div>
  <div>packages/core/src/core/geminiChat.ts</div>
@@ -72,7 +72,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 相关机制 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">🔗 相关机制</h3>
+ <h3 className="text-heading font-semibold mb-2">相关机制</h3>
  <div className="flex flex-wrap gap-2">
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">工具调度器</span>
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">流式解析</span>

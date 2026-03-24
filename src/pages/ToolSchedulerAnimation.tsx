@@ -9,7 +9,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  onClick={onToggle}
  className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-surface transition-colors"
  >
- <span className="text-lg font-semibold text-heading">📖 什么是工具调度状态机？</span>
+ <span className="text-lg font-semibold text-heading">什么是工具调度状态机？</span>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
  </button>
 
@@ -17,7 +17,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="px-4 pb-4 space-y-4 text-sm">
  {/* 核心概念 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">🎯 核心概念</h3>
+ <h3 className="text-heading font-semibold mb-2">核心概念</h3>
  <p className="text-body">
  <strong>Scheduler</strong> 是工具执行的事件驱动调度中心。当 AI 请求调用工具（如读文件、执行命令）时，
  调度器负责验证参数、请求用户审批、执行工具、处理结果或错误。CoreToolScheduler 作为 legacy adapter
@@ -27,7 +27,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 为什么需要 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">❓ 为什么需要状态机？</h3>
+ <h3 className="text-heading font-semibold mb-2">为什么需要状态机？</h3>
  <ul className="text-body space-y-1 list-disc list-inside">
  <li><strong>可预测性</strong>：每个工具调用的状态清晰可追踪</li>
  <li><strong>错误隔离</strong>：一个工具失败不影响其他工具</li>
@@ -38,7 +38,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 状态说明 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">📊 状态说明</h3>
+ <h3 className="text-heading font-semibold mb-2">状态说明</h3>
  <div className="grid grid-cols-2 gap-2 text-xs">
  <div className="bg-base p-2 rounded border border-edge">
  <div className="text-body">idle → validating</div>
@@ -61,7 +61,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 源码位置 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">📁 源码位置</h3>
+ <h3 className="text-heading font-semibold mb-2">源码位置</h3>
  <code className="text-xs bg-base p-2 rounded block border border-edge">
  packages/core/src/scheduler/scheduler.ts
  </code>
@@ -69,7 +69,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 相关机制 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">🔗 相关机制</h3>
+ <h3 className="text-heading font-semibold mb-2">相关机制</h3>
  <div className="flex flex-wrap gap-2">
  <span className="px-2 py-1 bg-elevated text-heading rounded text-xs">权限审批</span>
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">工具执行</span>
@@ -778,8 +778,7 @@ export function ToolSchedulerAnimation() {
  <div className="flex items-center gap-2 text-xs font-mono text-dim">
  <span>步骤</span>
  <span className="text-heading font-bold">{currentStep + 1}</span>
- <span>/</span>
- <span>{allSteps.length}</span>
+  <span>{allSteps.length}</span>
  {isPlaying && (
  <span className="ml-2 text-heading animate-pulse">● 播放中</span>
  )}

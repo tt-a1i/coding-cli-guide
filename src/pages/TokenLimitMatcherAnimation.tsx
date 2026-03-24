@@ -101,8 +101,7 @@ export default function TokenLimitMatcherAnimation() {
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">📊</span>
- <span className="text-xl font-bold text-heading">核心概念介绍</span>
+  <span className="text-xl font-bold text-heading">核心概念介绍</span>
  </div>
  <span
  className={`transform transition-transform text-dim ${
@@ -116,7 +115,7 @@ export default function TokenLimitMatcherAnimation() {
  {isIntroExpanded ? (
  <div className="px-6 pb-6 space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🎯 tokenLimit(model) 是什么？</h4>
+ <h4 className="text-heading font-bold mb-2">tokenLimit(model) 是什么？</h4>
  <p className="text-body text-sm">
  上游 gemini-cli 用 <code>tokenLimit(model)</code> 返回“上下文窗口 token 上限”。它是一个简单的{' '}
  <code>switch-case</code> 映射：已知模型返回固定值；未知模型走默认值{' '}
@@ -124,14 +123,14 @@ export default function TokenLimitMatcherAnimation() {
  </p>
  </div>
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🔗 它会被用在什么地方？</h4>
+ <h4 className="text-heading font-bold mb-2">它会被用在什么地方？</h4>
  <p className="text-body text-sm">
  它会配合 token 预估（<code>tokenCalculation.ts</code>）决定是否触发{' '}
  <code>ContextWindowWillOverflow</code> 预警（例如 95% 阈值），提醒即将触顶需要压缩/截断上下文。
  </p>
  </div>
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码:</span>
+ <span className="text-dim">源码:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/core/src/core/tokenLimits.ts
  </code>

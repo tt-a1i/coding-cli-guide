@@ -268,8 +268,7 @@ export default function ToolSchedulerQueueAnimation() {
  <div className="col-span-8">
  <div className="bg-surface rounded-lg p-4 border border-edge-hover">
  <div className="flex items-center justify-between mb-4">
- <h3 className="text-sm font-semibold text-heading font-mono">
- 📋 Tool Call Queue
+ <h3 className="text-sm font-semibold text-heading font-mono">Tool Call Queue
  </h3>
  <span className="text-xs text-dim">
  {toolCalls.filter(tc => tc.status === 'success').length}/{toolCalls.length} completed
@@ -348,8 +347,7 @@ export default function ToolSchedulerQueueAnimation() {
  <div className="col-span-4 space-y-4">
  {/* 阶段指示 */}
  <div className="bg-surface rounded-lg p-4 border border-edge-hover">
- <h3 className="text-sm font-semibold text-heading mb-3 font-mono">
- 🎯 Current Phase
+ <h3 className="text-sm font-semibold text-heading mb-3 font-mono">Current Phase
  </h3>
  <div className="text-center">
  <span

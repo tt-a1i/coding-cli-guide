@@ -21,8 +21,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">🪝</span>
- <span className="text-xl font-bold text-heading">30秒快速理解</span>
+  <span className="text-xl font-bold text-heading">30秒快速理解</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>
  ▼
@@ -76,7 +75,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码目录:</span>
+ <span className="text-dim">源码目录:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/cli/src/ui/hooks/
  </code>
@@ -433,14 +432,14 @@ export function useSelectionList<T>({
 
  <QuickSummary isExpanded={isSummaryExpanded} onToggle={() => setIsSummaryExpanded(!isSummaryExpanded)} />
 
- <Layer title="Hook 依赖关系" icon="🔗" defaultOpen={true}>
+ <Layer title="Hook 依赖关系" defaultOpen={true}>
  <HighlightBox title="核心 Hook 依赖图" color="blue" className="mb-6">
  <MermaidDiagram chart={hooksDependencyChart} />
  </HighlightBox>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
- <div className="text-heading font-bold mb-2">🎯 核心设计模式</div>
+ <div className="text-heading font-bold mb-2">核心设计模式</div>
  <ul className="text-sm text-body space-y-1">
  <li><strong>Context 驱动</strong>：KeypressContext, VimModeContext</li>
  <li><strong>订阅模式</strong>：subscribe/unsubscribe 模式</li>
@@ -449,7 +448,7 @@ export function useSelectionList<T>({
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge/30">
- <div className="text-heading font-bold mb-2">📦 Hook 组织结构</div>
+ <div className="text-heading font-bold mb-2">Hook 组织结构</div>
  <ul className="text-sm text-body space-y-1">
  <li><code>ui/hooks/</code> - 主要 Hook 目录</li>
  <li><code>ui/contexts/</code> - Context Provider</li>
@@ -460,7 +459,7 @@ export function useSelectionList<T>({
  </div>
  </Layer>
 
- <Layer title="Hook 分类目录" icon="📚" defaultOpen={true}>
+ <Layer title="Hook 分类目录" defaultOpen={true}>
  <div className="space-y-6">
  {hooksCatalog.map((cat) => (
  <div key={cat.category} className="bg-surface rounded-lg border border-edge overflow-hidden">
@@ -486,7 +485,7 @@ export function useSelectionList<T>({
  </div>
  </Layer>
 
- <Layer title="核心 Hook 详解" icon="🔍" defaultOpen={false}>
+ <Layer title="核心 Hook 详解" defaultOpen={false}>
  <div className="space-y-6">
  <div>
  <h4 className="text-lg font-semibold text-heading mb-3">useKeypress - 键盘事件监听</h4>
@@ -500,7 +499,7 @@ export function useSelectionList<T>({
  </div>
  </Layer>
 
- <Layer title="Vim Hook 详解" icon="⌨️" defaultOpen={false}>
+ <Layer title="Vim Hook 详解" defaultOpen={false}>
  <CodeBlock code={useVimCode} language="typescript" title="vim.ts" />
 
  <div className="mt-4 overflow-x-auto">
@@ -553,7 +552,7 @@ export function useSelectionList<T>({
  </div>
  </Layer>
 
- <Layer title="列表选择 Hook" icon="📋" defaultOpen={false}>
+ <Layer title="列表选择 Hook" defaultOpen={false}>
  <CodeBlock code={useSelectionListCode} language="typescript" title="useSelectionList.ts" />
 
  <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -576,7 +575,7 @@ export function useSelectionList<T>({
  </div>
  </Layer>
 
- <Layer title="最佳实践" icon="💡" defaultOpen={false}>
+ <Layer title="最佳实践" defaultOpen={false}>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <HighlightBox title="Hook 设计原则" color="blue">
  <ul className="text-sm text-body space-y-2">

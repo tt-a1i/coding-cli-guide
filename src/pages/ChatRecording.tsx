@@ -25,8 +25,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">📝</span>
- <span className="text-xl font-bold text-heading">30秒快速理解</span>
+  <span className="text-xl font-bold text-heading">30秒快速理解</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>
  ▼
@@ -87,7 +86,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 源码入口 */}
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码入口:</span>
+ <span className="text-dim">源码入口:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/core/src/services/chatRecordingService.ts
  </code>
@@ -386,7 +385,7 @@ private updateConversation(updateFn: (conv: ConversationRecord) => void) {
  </section>
 
  {/* 1. 数据结构 */}
- <Layer title="数据结构" icon="📊">
+ <Layer title="数据结构">
  <div className="space-y-4">
  <CodeBlock code={dataTypesCode} language="typescript" title="核心类型定义" />
  <CodeBlock code={messageTypeCode} language="typescript" title="消息类型" />
@@ -418,7 +417,7 @@ private updateConversation(updateFn: (conv: ConversationRecord) => void) {
  </Layer>
 
  {/* 2. 录制流程 */}
- <Layer title="录制流程" icon="🔄">
+ <Layer title="录制流程">
  <div className="space-y-4">
  <MermaidDiagram chart={recordingFlowChart} title="录制数据流" />
  <CodeBlock code={serviceCode} language="typescript" title="ChatRecordingService 初始化" />
@@ -426,7 +425,7 @@ private updateConversation(updateFn: (conv: ConversationRecord) => void) {
  </Layer>
 
  {/* 3. 录制方法 */}
- <Layer title="录制方法" icon="📝">
+ <Layer title="录制方法">
  <div className="space-y-4">
  <CodeBlock code={recordMethodsCode} language="typescript" title="消息和思考录制" />
 
@@ -444,7 +443,7 @@ private updateConversation(updateFn: (conv: ConversationRecord) => void) {
  </Layer>
 
  {/* 4. 工具调用录制 */}
- <Layer title="工具调用录制" icon="🔧">
+ <Layer title="工具调用录制">
  <div className="space-y-4">
  <CodeBlock code={toolCallsCode} language="typescript" title="recordToolCalls" />
 
@@ -490,7 +489,7 @@ private updateConversation(updateFn: (conv: ConversationRecord) => void) {
  </Layer>
 
  {/* 5. 文件操作 */}
- <Layer title="文件操作" icon="💾">
+ <Layer title="文件操作">
  <div className="space-y-4">
  <CodeBlock code={fileOpsCode} language="typescript" title="读写优化" />
 
@@ -521,7 +520,7 @@ private updateConversation(updateFn: (conv: ConversationRecord) => void) {
  </Layer>
 
  {/* 6. 会话恢复 */}
- <Layer title="会话恢复" icon="🔙">
+ <Layer title="会话恢复">
  <div className="space-y-4">
  <MermaidDiagram chart={`sequenceDiagram
  participant App as Application
@@ -558,7 +557,7 @@ private updateConversation(updateFn: (conv: ConversationRecord) => void) {
  </Layer>
 
  {/* 7. 设计决策 */}
- <Layer title="设计决策" icon="💡">
+ <Layer title="设计决策">
  <div className="space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
  <h4 className="text-heading font-bold mb-2">为什么使用 JSON 而非数据库？</h4>
@@ -590,7 +589,7 @@ private updateConversation(updateFn: (conv: ConversationRecord) => void) {
  </Layer>
 
  {/* 8. 关键文件 */}
- <Layer title="关键文件与入口" icon="📁">
+ <Layer title="关键文件与入口">
  <div className="grid grid-cols-1 gap-2 text-sm">
  <div className="flex items-start gap-2">
  <code className="bg-base/30 px-2 py-1 rounded text-xs whitespace-nowrap">

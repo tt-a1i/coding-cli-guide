@@ -246,8 +246,7 @@ async function checkIDETrust(): Promise<boolean | null> {
 
  <div className="bg-base rounded-lg p-6 border border-edge">
  <div className="text-center mb-4">
- <span className="text-2xl">🔒</span>
- <h4 className="text-lg font-semibold text-heading mt-2">Do you trust this folder?</h4>
+  <h4 className="text-lg font-semibold text-heading mt-2">Do you trust this folder?</h4>
  <p className="text-body text-sm mt-1">/Users/dev/downloaded-project</p>
  </div>
 
@@ -454,21 +453,21 @@ async function checkIDETrust(): Promise<boolean | null> {
  <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">推荐做法</h4>
  <ul className="text-sm text-body space-y-1">
- <li>✓ 启用 folderTrust 功能</li>
- <li>✓ 信任包含所有项目的父目录</li>
- <li>✓ 对下载的代码保持"不信任"</li>
- <li>✓ 使用 IDE 集成统一管理信任</li>
- <li>✓ 定期审查 trustedFolders.json</li>
+ <li>启用 folderTrust 功能</li>
+ <li>信任包含所有项目的父目录</li>
+ <li>对下载的代码保持"不信任"</li>
+ <li>使用 IDE 集成统一管理信任</li>
+ <li>定期审查 trustedFolders.json</li>
  </ul>
  </div>
  <div className="bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">避免做法</h4>
  <ul className="text-sm text-body space-y-1">
- <li>✗ 信任 /tmp 或下载目录</li>
- <li>✗ 信任包含不熟悉代码的仓库</li>
- <li>✗ 禁用功能后运行不可信代码</li>
- <li>✗ 忽略信任对话框直接全部信任</li>
- <li>✗ 在不信任的项目中强制绕过限制</li>
+ <li>信任 /tmp 或下载目录</li>
+ <li>信任包含不熟悉代码的仓库</li>
+ <li>禁用功能后运行不可信代码</li>
+ <li>忽略信任对话框直接全部信任</li>
+ <li>在不信任的项目中强制绕过限制</li>
  </ul>
  </div>
  </div>

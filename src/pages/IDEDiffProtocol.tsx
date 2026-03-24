@@ -384,8 +384,8 @@ this.client.setNotificationHandler(
  <h2 className="text-2xl text-heading mb-5">IDE Diff 协议与伴侣插件</h2>
 
  {/* 1. 目标 */}
- <Layer title="目标" icon="🎯">
- <HighlightBox title="IDE Diff 协议要解决什么问题" icon="💡" variant="blue">
+ <Layer title="目标">
+ <HighlightBox title="IDE Diff 协议要解决什么问题" variant="blue">
  <div className="text-sm space-y-2">
  <p>
  <strong>核心目标：</strong>让 AI 修改文件前，用户能在熟悉的 IDE 中预览变更，
@@ -402,7 +402,7 @@ this.client.setNotificationHandler(
 
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
  <div className="bg-elevated border-2 border-edge rounded-lg p-4">
- <h4 className="text-heading font-bold mb-2">🖥️ VS Code Extension</h4>
+ <h4 className="text-heading font-bold mb-2">VS Code Extension</h4>
  <p className="text-sm text-body">
  MCP Server + DiffManager<br/>
  监听 CLI 请求，渲染 Diff View
@@ -410,7 +410,7 @@ this.client.setNotificationHandler(
  </div>
 
  <div className="bg-elevated/10 border-2 border-edge rounded-lg p-4">
- <h4 className="text-heading font-bold mb-2">📡 MCP Protocol</h4>
+ <h4 className="text-heading font-bold mb-2">MCP Protocol</h4>
  <p className="text-sm text-body">
  JSON-RPC 2.0 over HTTP SSE<br/>
  双向通信 (请求 + 通知)
@@ -428,7 +428,7 @@ this.client.setNotificationHandler(
  </Layer>
 
  {/* 2. 输入 */}
- <Layer title="输入" icon="📥">
+ <Layer title="输入">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface rounded-lg p-4">
  <h4 className="font-semibold text-heading mb-3">触发条件</h4>
@@ -450,7 +450,7 @@ this.client.setNotificationHandler(
  </div>
  </div>
 
- <HighlightBox title="前置依赖" icon="⚠️" variant="orange">
+ <HighlightBox title="前置依赖" variant="orange">
  <ul className="text-sm text-body space-y-1">
  <li>VS Code 已打开当前项目工作区</li>
  <li>VS Code 插件已启动 MCP Server（端口文件存在）</li>
@@ -461,7 +461,7 @@ this.client.setNotificationHandler(
  </Layer>
 
  {/* 3. 输出 */}
- <Layer title="输出" icon="📤">
+ <Layer title="输出">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface rounded-lg p-4">
  <h4 className="font-semibold text-heading mb-3">成功输出（用户接受）</h4>
@@ -484,7 +484,7 @@ this.client.setNotificationHandler(
  </div>
  </div>
 
- <HighlightBox title="副作用" icon="🔄" variant="purple">
+ <HighlightBox title="副作用" variant="purple">
  <ul className="text-sm text-body space-y-1">
  <li><strong>MCP 通知</strong>：发送 <code>ide/diffAccepted</code> 或 <code>ide/diffClosed</code></li>
  <li><strong>VS Code UI</strong>：打开 Diff Editor Tab，占用编辑器空间</li>
@@ -495,7 +495,7 @@ this.client.setNotificationHandler(
  </Layer>
 
  {/* 4. 关键文件与入口 */}
- <Layer title="关键文件与入口" icon="📁">
+ <Layer title="关键文件与入口">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface rounded-lg p-4">
  <h4 className="font-semibold text-heading mb-3">VS Code Extension 侧</h4>
@@ -554,7 +554,7 @@ this.client.setNotificationHandler(
  </Layer>
 
  {/* 5. 流程图 */}
- <Layer title="流程图" icon="📊">
+ <Layer title="流程图">
  <div className="space-y-6">
  <div>
  <h4 className="text-lg font-semibold text-heading mb-3">连接建立流程</h4>
@@ -575,9 +575,9 @@ this.client.setNotificationHandler(
  </Layer>
 
  {/* 6. 关键分支与边界条件 */}
- <Layer title="关键分支与边界条件" icon="⚡">
+ <Layer title="关键分支与边界条件">
  <div className="space-y-4">
- <HighlightBox title="Workspace 路径验证" icon="🔍" variant="orange">
+ <HighlightBox title="Workspace 路径验证" variant="orange">
  <div className="text-sm">
  <p className="mb-2">
  CLI 只会连接到 <strong>当前工作目录所属的 VS Code 窗口</strong>。
@@ -591,7 +591,7 @@ this.client.setNotificationHandler(
  </div>
  </HighlightBox>
 
- <HighlightBox title="Mutex 锁机制" icon="🔒" variant="red">
+ <HighlightBox title="Mutex 锁机制" variant="red">
  <div className="text-sm">
  <p className="mb-2">
  <code>diffMutex</code> 确保同时只有一个 Diff View 打开，避免 UI 竞态和用户混淆。
@@ -605,7 +605,7 @@ this.client.setNotificationHandler(
  </div>
  </HighlightBox>
 
- <HighlightBox title="新文件处理" icon="📄" variant="blue">
+ <HighlightBox title="新文件处理" variant="blue">
  <div className="text-sm">
  <p className="mb-2">
  当目标文件不存在时，左侧使用 <code>untitled:</code> URI 创建空文档。
@@ -619,7 +619,7 @@ this.client.setNotificationHandler(
  </div>
  </HighlightBox>
 
- <HighlightBox title="用户可编辑右侧内容" icon="✏️" variant="green">
+ <HighlightBox title="用户可编辑右侧内容" variant="green">
  <div className="text-sm">
  <p className="mb-2">
  Diff View 右侧（AI 生成内容）是可编辑的，用户可在接受前修改。
@@ -636,7 +636,7 @@ this.client.setNotificationHandler(
  </Layer>
 
  {/* 7. 失败与恢复 */}
- <Layer title="失败与恢复" icon="🔧">
+ <Layer title="失败与恢复">
  <div className="space-y-4">
  <div className="bg-surface rounded-lg p-4">
  <h4 className="font-semibold text-heading mb-3">连接失败场景</h4>
@@ -708,7 +708,7 @@ this.client.setNotificationHandler(
  </table>
  </div>
 
- <HighlightBox title="降级策略" icon="🛡️" variant="purple">
+ <HighlightBox title="降级策略" variant="purple">
  <div className="text-sm">
  <p className="mb-2">
  当 IDE 集成不可用时，CLI 会自动降级到 <strong>直接文件写入模式</strong>：
@@ -725,7 +725,7 @@ this.client.setNotificationHandler(
  </Layer>
 
  {/* 8. 相关配置项 */}
- <Layer title="相关配置项" icon="⚙️">
+ <Layer title="相关配置项">
  <div className="space-y-4">
  <div className="bg-surface rounded-lg p-4">
  <h4 className="font-semibold text-heading mb-3">环境变量</h4>
@@ -813,7 +813,7 @@ this.client.setNotificationHandler(
  </div>
  </div>
 
- <HighlightBox title="端口文件格式" icon="📄" variant="blue">
+ <HighlightBox title="端口文件格式" variant="blue">
  <div className="text-sm">
  <p className="mb-2">
  端口文件位于 <code>/tmp/gemini/ide/gemini-ide-server-&lt;idePid&gt;-&lt;port&gt;.json</code>（兼容旧版：
@@ -834,7 +834,7 @@ this.client.setNotificationHandler(
  </Layer>
 
  {/* 技术细节补充 */}
- <Layer title="技术细节补充" icon="🔍">
+ <Layer title="技术细节补充">
  <div className="space-y-4">
  <CodeBlock code={diffSchemeCode} title="gemini-diff:// URI Scheme 实现" />
 
@@ -886,7 +886,7 @@ this.client.setNotificationHandler(
 
  <CodeBlock code={contextSyncCode} title="IDE 上下文双向同步" />
 
- <HighlightBox title="工作区信任状态同步" icon="🔐" variant="green">
+ <HighlightBox title="工作区信任状态同步" variant="green">
  <p className="text-sm">
  VS Code 的工作区信任状态通过 <code>workspaceState.isTrusted</code> 同步到 CLI。
  当用户在 VS Code 中信任工作区时，CLI 会自动更新信任状态，影响工具执行权限。

@@ -20,8 +20,7 @@ function Introduction({
  className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">🔄</span>
- <div>
+  <div>
  <h2 className="text-lg font-bold text-heading">
  Agentic Loop 机制详解
  </h2>
@@ -43,8 +42,7 @@ function Introduction({
  <div className="px-6 pb-6">
  <div className="grid md:grid-cols-2 gap-6 mt-4">
  <div className="space-y-4">
- <h3 className="font-semibold text-heading">
- 🎯 核心概念
+ <h3 className="font-semibold text-heading">核心概念
  </h3>
  <ul className="text-sm text-body space-y-2">
  <li className="flex items-start gap-2">
@@ -75,8 +73,7 @@ function Introduction({
  </div>
 
  <div className="space-y-4">
- <h3 className="font-semibold text-heading">
- 📂 核心文件
+ <h3 className="font-semibold text-heading">核心文件
  </h3>
  <ul className="text-sm text-body space-y-3">
  <li>
@@ -99,8 +96,7 @@ function Introduction({
  </div>
 
  <div className="mt-6 p-4 bg-base rounded-lg">
- <h4 className="text-sm font-semibold text-heading mb-2">
- 💡 设计亮点
+ <h4 className="text-sm font-semibold text-heading mb-2">设计亮点
  </h4>
  <div className="text-sm text-body">
  <p>
@@ -174,8 +170,8 @@ export function LoopMechanism() {
  </h2>
 
  {/* 核心概念 */}
- <Layer title="核心概念" icon="💡">
- <HighlightBox title="关键理解" icon="🔑" variant="blue">
+ <Layer title="核心概念">
+ <HighlightBox title="关键理解" variant="blue">
  <p className="text-lg">
  CLI 中有一个 <strong>while 循环</strong>，不断地：
  <br />
@@ -191,13 +187,13 @@ export function LoopMechanism() {
  </Layer>
 
  {/* 循环流程图 - 增强版 */}
- <Layer title="循环流程图" icon="🔄">
+ <Layer title="循环流程图">
  <div className="flex justify-center items-center gap-5 flex-wrap p-8 bg-base/20 rounded-lg my-5">
- <LoopNode icon="📤" title="发送请求" description="用户消息 + 工具定义" />
+ <LoopNode title="发送请求" description="用户消息 + 工具定义" />
  <div className="text-3xl text-heading">→</div>
- <LoopNode icon="🤖" title="AI 处理" description="生成 Turn 响应" />
+ <LoopNode title="AI 处理" description="生成 Turn 响应" />
  <div className="text-3xl text-heading">→</div>
- <LoopNode icon="❓" title="检查响应" description="有 pendingToolCalls?" />
+ <LoopNode title="检查响应" description="有 pendingToolCalls?" />
  </div>
 
  <div className="flex justify-center items-center gap-5 flex-wrap p-4">
@@ -205,9 +201,9 @@ export function LoopMechanism() {
  <div className="text-heading font-bold">有工具调用</div>
  <div className="text-3xl text-heading">↓</div>
  </div>
- <LoopNode icon="🔧" title="执行工具" description="调度器并行执行" variant="warning" />
+ <LoopNode title="执行工具" description="调度器并行执行" variant="warning" />
  <div className="text-3xl text-heading">→</div>
- <LoopNode icon="📝" title="收集结果" description="工具响应加入历史" variant="warning" />
+ <LoopNode title="收集结果" description="工具响应加入历史" variant="warning" />
  <div className="text-3xl text-heading">↩️</div>
  </div>
 
@@ -215,13 +211,13 @@ export function LoopMechanism() {
  <div className="text-lg text-body mb-4">无工具调用时检查 Next Speaker</div>
  <div className="flex justify-center gap-8">
  <LoopNode
- icon="🗣️"
+
  title="Model 继续"
  description="nextSpeaker = model"
  variant="warning"
  />
  <LoopNode
- icon="✅"
+
  title="完成"
  description='Finished (finishReason="STOP")'
  variant="success"
@@ -231,7 +227,7 @@ export function LoopMechanism() {
  </Layer>
 
  {/* 核心代码 - 更详细版本 */}
- <Layer title="核心代码解析" icon="📝">
+ <Layer title="核心代码解析">
  <CodeBlock
  title="packages/core/src/core/client.ts - sendMessageStream"
  language="typescript"
@@ -324,26 +320,26 @@ private async *processTurn(
  </Layer>
 
  {/* Turn 内部处理 */}
- <Layer title="Turn 内部处理" icon="🎯">
+ <Layer title="Turn 内部处理">
  <p className="mb-4 text-body">
  每个 Turn 代表一次完整的 AI 响应周期，内部包含多个事件类型：
  </p>
 
  <div className="grid md:grid-cols-2 gap-4 mb-6">
  <div className="p-4 bg-elevated/10 border border-edge rounded-lg">
- <h4 className="font-bold text-heading mb-2">📤 Content 事件</h4>
+ <h4 className="font-bold text-heading mb-2">Content 事件</h4>
  <p className="text-sm text-body">AI 输出的文本内容，流式传输给 UI</p>
  </div>
  <div className="p-4 bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg">
- <h4 className="font-bold text-heading mb-2">🔧 ToolCallRequest 事件</h4>
+ <h4 className="font-bold text-heading mb-2">ToolCallRequest 事件</h4>
  <p className="text-sm text-body">AI 请求调用工具，加入 pendingToolCalls</p>
  </div>
  <div className="p-4 bg-elevated border border-edge rounded-lg">
- <h4 className="font-bold text-heading mb-2">💭 Thought 事件</h4>
+ <h4 className="font-bold text-heading mb-2">Thought 事件</h4>
  <p className="text-sm text-body">AI 的内部思考过程（如果模型支持）</p>
  </div>
  <div className="p-4 bg-elevated border-l-2 border-l-edge-hover/30 rounded-lg">
- <h4 className="font-bold text-heading mb-2">✅ Finished 事件</h4>
+ <h4 className="font-bold text-heading mb-2">Finished 事件</h4>
  <p className="text-sm text-body">Turn 完成，包含 finishReason 和 usage</p>
  </div>
  </div>
@@ -374,7 +370,7 @@ enum GeminiEventType {
  </Layer>
 
  {/* 多工具调用示例 */}
- <Layer title="复杂场景：多工具链式调用" icon="🔗">
+ <Layer title="复杂场景：多工具链式调用">
  <p className="mb-4">
  用户请求："帮我在 src 目录下找所有 .ts 文件，然后统计总行数"
  </p>
@@ -406,7 +402,7 @@ enum GeminiEventType {
  ]}
  />
 
- <HighlightBox title="AI 可以并行调用多个工具" icon="💡">
+ <HighlightBox title="AI 可以并行调用多个工具">
  <p>
  一次响应中可以包含多个{' '}
  <code className="bg-base/30 px-1 rounded">functionCalls</code>（对应多个 ToolCallRequest 事件），工具调度器会并行执行它们，提高效率。
@@ -415,7 +411,7 @@ enum GeminiEventType {
  </Layer>
 
  {/* 循环检测机制 */}
- <Layer title="循环检测机制" icon="🔍">
+ <Layer title="循环检测机制">
  <p className="mb-4 text-body">
  防止 AI 陷入无限循环的多重检测机制：
  </p>
@@ -477,7 +473,7 @@ class LoopDetectionService {
  </Layer>
 
  {/* 最大轮次限制 */}
- <Layer title="安全机制：最大轮次限制" icon="🛡️">
+ <Layer title="安全机制：最大轮次限制">
  <CodeBlock
  language="typescript"
  code={`// packages/core/src/core/client.ts
@@ -500,7 +496,7 @@ const maxSessionTurns = config.get('maxSessionTurns'); // 可配置`}
  </Layer>
 
  {/* Next Speaker 机制 */}
- <Layer title="Next Speaker 机制" icon="🗣️">
+ <Layer title="Next Speaker 机制">
  <p className="mb-4 text-body">
  当 AI 完成一轮响应但没有工具调用时，需要决定谁是下一个发言者：
  </p>
@@ -528,7 +524,7 @@ async checkNextSpeaker(): Promise<boolean> {
 }`}
  />
 
- <HighlightBox title="递归调用" icon="⚡">
+ <HighlightBox title="递归调用">
  <p>
  当 <code className="bg-base/30 px-1 rounded">checkNextSpeaker()</code> 返回 true 时，
  <code className="bg-base/30 px-1 rounded">sendMessageStream</code> 会递归调用自己，
@@ -538,23 +534,23 @@ async checkNextSpeaker(): Promise<boolean> {
  </Layer>
 
  {/* 设计考虑 */}
- <Layer title="设计考虑" icon="🎨">
+ <Layer title="设计考虑">
  <div className="space-y-4">
- <HighlightBox title="为什么使用 AsyncGenerator?" icon="❓" variant="blue">
+ <HighlightBox title="为什么使用 AsyncGenerator?" variant="blue">
  <p>
  <code className="bg-base/30 px-1 rounded">async *sendMessageStream</code> 是一个异步生成器，
  可以逐个 yield 事件，实现真正的流式处理。UI 可以实时显示 AI 响应，而不用等待完整响应。
  </p>
  </HighlightBox>
 
- <HighlightBox title="为什么 Turn 要独立?" icon="❓" variant="blue">
+ <HighlightBox title="为什么 Turn 要独立?" variant="blue">
  <p>
  Turn 封装了一次响应的完整状态（pendingToolCalls、finishReason 等），
  使得状态管理清晰，便于调试和测试。每个 Turn 是独立的生命周期单元。
  </p>
  </HighlightBox>
 
- <HighlightBox title="为什么需要循环检测?" icon="❓" variant="blue">
+ <HighlightBox title="为什么需要循环检测?" variant="blue">
  <p>
  AI 可能会陷入"认知循环"，不断尝试相同的操作。循环检测服务使用多种策略
  （工具调用重复、内容重复、LLM 分析）来识别和中断这种情况。

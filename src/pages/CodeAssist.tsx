@@ -78,7 +78,7 @@ function QuickSummary({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="flex items-center gap-2 text-sm">
- <span className="text-dim">📍 源码入口:</span>
+ <span className="text-dim">源码入口:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/core/src/code_assist/
  </code>
@@ -275,14 +275,14 @@ export type ClientMetadataPluginType =
 
  <QuickSummary isExpanded={isSummaryExpanded} onToggle={() => setIsSummaryExpanded(!isSummaryExpanded)} />
 
- <Layer title="系统架构" icon="🏗️" defaultOpen={true}>
+ <Layer title="系统架构" defaultOpen={true}>
  <HighlightBox title="Code Assist 集成流程" color="blue" className="mb-6">
  <MermaidDiagram chart={codeAssistFlowChart} />
  </HighlightBox>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-surface p-4 rounded-lg border border-edge">
- <div className="text-heading font-bold mb-2">☁️ Cloud Code Assist</div>
+ <div className="text-heading font-bold mb-2">Cloud Code Assist</div>
  <ul className="text-sm text-body space-y-1">
  <li>Google Cloud 服务</li>
  <li>管理 Gemini 访问权限</li>
@@ -290,7 +290,7 @@ export type ClientMetadataPluginType =
  </ul>
  </div>
  <div className="bg-surface p-4 rounded-lg border border-edge">
- <div className="text-heading font-bold mb-2">🔗 集成方式</div>
+ <div className="text-heading font-bold mb-2">集成方式</div>
  <ul className="text-sm text-body space-y-1">
  <li>OAuth2 认证获取 Token</li>
  <li>REST API 调用</li>
@@ -300,7 +300,7 @@ export type ClientMetadataPluginType =
  </div>
  </Layer>
 
- <Layer title="用户 Tier" icon="👤" defaultOpen={true}>
+ <Layer title="用户 Tier" defaultOpen={true}>
  <CodeBlock code={userTierCode} language="typescript" title="UserTier 类型定义" />
 
  <div className="mt-4 overflow-x-auto">
@@ -333,7 +333,7 @@ export type ClientMetadataPluginType =
  </div>
  </Layer>
 
- <Layer title="不合格原因" icon="⚠️" defaultOpen={true}>
+ <Layer title="不合格原因" defaultOpen={true}>
  <CodeBlock code={ineligibleTierCode} language="typescript" title="IneligibleTier 原因码" />
 
  <HighlightBox title="常见不合格原因" color="orange" className="mt-4">
@@ -358,16 +358,16 @@ export type ClientMetadataPluginType =
  </HighlightBox>
  </Layer>
 
- <Layer title="LoadCodeAssist API" icon="📥" defaultOpen={false}>
+ <Layer title="LoadCodeAssist API" defaultOpen={false}>
  <CodeBlock code={loadCodeAssistCode} language="typescript" title="LoadCodeAssist 请求/响应" />
  </Layer>
 
- <Layer title="OnboardUser 注册" icon="✅" defaultOpen={false}>
+ <Layer title="OnboardUser 注册" defaultOpen={false}>
  <CodeBlock code={onboardUserCode} language="typescript" title="OnboardUser 注册流程" />
 
  <div className="mt-4 p-4 bg-base/50 rounded-lg border border-edge">
  <div className="text-sm">
- <strong className="text-heading">💡 Long Running Operation (LRO)：</strong>
+ <strong className="text-heading">Long Running Operation (LRO)：</strong>
  <p className="text-body mt-2">
  OnboardUser 是一个长时操作，需要轮询检查 <code>done</code> 状态直到完成。
  完成后返回 <code>cloudaicompanionProject</code> 用于后续 API 调用。
@@ -376,7 +376,7 @@ export type ClientMetadataPluginType =
  </div>
  </Layer>
 
- <Layer title="平台与 IDE 类型" icon="💻" defaultOpen={false}>
+ <Layer title="平台与 IDE 类型" defaultOpen={false}>
  <CodeBlock code={platformTypesCode} language="typescript" title="平台与 IDE 类型枚举" />
  </Layer>
 

@@ -14,7 +14,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  onClick={onToggle}
  className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-elevated transition-colors"
  >
- <span className="text-lg font-semibold">📖 什么是 Vim 复合操作？</span>
+ <span className="text-lg font-semibold">什么是 Vim 复合操作？</span>
  <span className={`transform transition-transform ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
  </button>
 
@@ -22,7 +22,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="px-4 pb-4 space-y-4 text-sm">
  {/* 核心概念 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">🎯 核心概念</h3>
+ <h3 className="text-heading font-semibold mb-2">核心概念</h3>
  <p className="text-body">
  CLI 的输入框支持 <strong>Vim 风格的快捷键</strong>（如 <code className="bg-elevated px-1 rounded">w</code> 跳词、
  <code className="bg-elevated px-1 rounded">dw</code> 删词）。这个模块处理所有 Vim 动作的状态转换，
@@ -32,7 +32,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 为什么需要 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">❓ 解决什么问题？</h3>
+ <h3 className="text-heading font-semibold mb-2">解决什么问题？</h3>
  <ul className="text-body space-y-1 list-disc list-inside">
  <li><strong>高效编辑</strong>：熟悉 Vim 的用户可以快速编辑长命令</li>
  <li><strong>Unicode 支持</strong>：正确处理中文、emoji 等多字节字符</li>
@@ -43,7 +43,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 触发场景 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">⚡ 何时触发？</h3>
+ <h3 className="text-heading font-semibold mb-2">何时触发？</h3>
  <div className="bg-base p-3 rounded font-mono text-xs">
  <div className="text-body"># 用户在 CLI 输入框中</div>
  <div className="text-heading">$ git commit -m "fix bug"</div>
@@ -56,7 +56,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 关键设计 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">🔧 关键设计</h3>
+ <h3 className="text-heading font-semibold mb-2">关键设计</h3>
  <div className="grid grid-cols-2 gap-2 text-xs">
  <div className="bg-base p-2 rounded">
  <div className="text-heading">不可变状态</div>
@@ -79,7 +79,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 源码位置 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">📁 源码位置</h3>
+ <h3 className="text-heading font-semibold mb-2">源码位置</h3>
  <code className="text-xs bg-base p-2 rounded block">
  packages/cli/src/ui/components/shared/vim-buffer-actions.ts
  </code>
@@ -87,7 +87,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 相关机制 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">🔗 相关机制</h3>
+ <h3 className="text-heading font-semibold mb-2">相关机制</h3>
  <div className="flex flex-wrap gap-2">
  <span className="px-2 py-1 bg-elevated/50 text-heading rounded text-xs">文本缓冲区</span>
  <span className="px-2 py-1 bg-elevated text-heading rounded text-xs">输入组件</span>

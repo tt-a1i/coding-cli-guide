@@ -30,8 +30,7 @@ function Introduction({
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">📦</span>
- <span className="text-xl font-bold text-heading">
+  <span className="text-xl font-bold text-heading">
  沙箱系统导读
  </span>
  </div>
@@ -45,8 +44,7 @@ function Introduction({
  {isExpanded && (
  <div className="px-6 pb-6 space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- 🎯 为什么需要沙箱？
+ <h4 className="text-heading font-bold mb-2">为什么需要沙箱？
  </h4>
  <p className="text-body text-sm">
  AI 可能执行<strong>危险命令</strong>（如 rm -rf、格式化磁盘）。
@@ -56,8 +54,7 @@ function Introduction({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- 🔧 沙箱类型
+ <h4 className="text-heading font-bold mb-2">沙箱类型
  </h4>
  <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
  <div className="bg-surface p-2 rounded text-center">
@@ -80,8 +77,7 @@ function Introduction({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">
- 🏗️ 沙箱策略
+ <h4 className="text-heading font-bold mb-2">沙箱策略
  </h4>
  <ul className="text-body text-sm space-y-1">
  <li><strong>permissive-open</strong> - 宽松模式，允许大多数操作</li>
@@ -91,7 +87,7 @@ function Introduction({
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">📊 关键配置</h4>
+ <h4 className="text-heading font-bold mb-2">关键配置</h4>
  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
  <div className="text-center">
  <div className="text-xl font-bold text-heading">3</div>
@@ -671,21 +667,21 @@ async function startContainer(config: DockerSandboxConfig) {
  <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">推荐做法</h4>
  <ul className="text-sm text-body space-y-1">
- <li>✓ 生产环境始终启用沙箱</li>
- <li>✓ 使用自定义 Dockerfile 控制环境</li>
- <li>✓ 配置适当的资源限制</li>
- <li>✓ 定期更新沙箱镜像</li>
- <li>✓ 禁用不必要的网络访问</li>
+ <li>生产环境始终启用沙箱</li>
+ <li>使用自定义 Dockerfile 控制环境</li>
+ <li>配置适当的资源限制</li>
+ <li>定期更新沙箱镜像</li>
+ <li>禁用不必要的网络访问</li>
  </ul>
  </div>
  <div className="bg-elevated border-l-2 border-l-edge-hover rounded-lg p-4">
  <h4 className="text-heading font-semibold mb-2">避免做法</h4>
  <ul className="text-sm text-body space-y-1">
- <li>✗ 在沙箱中运行特权容器</li>
- <li>✗ 挂载敏感目录到容器</li>
- <li>✗ 使用过时的沙箱镜像</li>
- <li>✗ 禁用所有安全检查</li>
- <li>✗ 在不信任环境中禁用沙箱</li>
+ <li>在沙箱中运行特权容器</li>
+ <li>挂载敏感目录到容器</li>
+ <li>使用过时的沙箱镜像</li>
+ <li>禁用所有安全检查</li>
+ <li>在不信任环境中禁用沙箱</li>
  </ul>
  </div>
  </div>
@@ -694,7 +690,7 @@ async function startContainer(config: DockerSandboxConfig) {
  {/* ==================== 深化内容 ==================== */}
 
  {/* 边界条件深度解析 */}
- <Layer title="边界条件深度解析" icon="🔬">
+ <Layer title="边界条件深度解析">
  <p className="text-body mb-4">
  沙箱系统作为安全边界，必须正确处理各种边界情况。以下是六个关键边界场景的详细分析：
  </p>
@@ -718,10 +714,10 @@ async function startContainer(config: DockerSandboxConfig) {
  <div className="bg-base rounded p-3">
  <div className="text-xs text-heading font-bold mb-2">处理策略</div>
  <ul className="text-xs text-body space-y-1">
- <li>✓ 检测 Docker 可用性再执行</li>
- <li>✓ 提示用户启动 Docker</li>
- <li>✓ macOS 自动降级到 Seatbelt</li>
- <li>✓ 拒绝执行而非无沙箱执行</li>
+ <li>检测 Docker 可用性再执行</li>
+ <li>提示用户启动 Docker</li>
+ <li>macOS 自动降级到 Seatbelt</li>
+ <li>拒绝执行而非无沙箱执行</li>
  </ul>
  </div>
  </div>
@@ -798,10 +794,10 @@ if (!available) {
  <div className="bg-base rounded p-3">
  <div className="text-xs text-heading font-bold mb-2">处理策略</div>
  <ul className="text-xs text-body space-y-1">
- <li>✓ 分阶段超时: 构建 10min, 启动 30s</li>
- <li>✓ 进度反馈: 显示构建日志</li>
- <li>✓ 健康检查: 确认容器就绪</li>
- <li>✓ 重试机制: 自动重试 2 次</li>
+ <li>分阶段超时: 构建 10min, 启动 30s</li>
+ <li>进度反馈: 显示构建日志</li>
+ <li>健康检查: 确认容器就绪</li>
+ <li>重试机制: 自动重试 2 次</li>
  </ul>
  </div>
  </div>
@@ -910,10 +906,10 @@ async function waitForHealthy(
  <div className="bg-base rounded p-3">
  <div className="text-xs text-heading font-bold mb-2">处理策略</div>
  <ul className="text-xs text-body space-y-1">
- <li>✓ 解析符号链接获取真实路径</li>
- <li>✓ 正确转义路径中的特殊字符</li>
- <li>✓ 始终使用绝对路径</li>
- <li>✓ 验证路径存在且可访问</li>
+ <li>解析符号链接获取真实路径</li>
+ <li>正确转义路径中的特殊字符</li>
+ <li>始终使用绝对路径</li>
+ <li>验证路径存在且可访问</li>
  </ul>
  </div>
  </div>
@@ -1006,10 +1002,10 @@ const mountArg = buildMountArg(hostPath, containerPath);
  <div className="bg-base rounded p-3">
  <div className="text-xs text-heading font-bold mb-2">解决方案</div>
  <ul className="text-xs text-body space-y-1">
- <li>✓ 动态调整沙箱配置</li>
- <li>✓ 预检测命令所需权限</li>
- <li>✓ 提供配置文件级别选择</li>
- <li>✓ 允许用户自定义规则</li>
+ <li>动态调整沙箱配置</li>
+ <li>预检测命令所需权限</li>
+ <li>提供配置文件级别选择</li>
+ <li>允许用户自定义规则</li>
  </ul>
  </div>
  </div>
@@ -1091,10 +1087,10 @@ const profile = selectSeatbeltProfile('git push origin main');
  <div className="bg-base rounded p-3">
  <div className="text-xs text-heading font-bold mb-2">检测与恢复</div>
  <ul className="text-xs text-body space-y-1">
- <li>✓ 检测 exit code 137 (OOM)</li>
- <li>✓ 监控容器资源使用</li>
- <li>✓ 自动清理临时文件</li>
- <li>✓ 动态调整资源限制</li>
+ <li>检测 exit code 137 (OOM)</li>
+ <li>监控容器资源使用</li>
+ <li>自动清理临时文件</li>
+ <li>动态调整资源限制</li>
  </ul>
  </div>
  </div>
@@ -1196,10 +1192,10 @@ async function monitorContainerResources(containerId: string): Promise<void> {
  <div className="bg-base rounded p-3">
  <div className="text-xs text-heading font-bold mb-2">清理策略</div>
  <ul className="text-xs text-body space-y-1">
- <li>✓ 注册 SIGINT/SIGTERM 处理器</li>
- <li>✓ 使用 --rm 自动删除</li>
- <li>✓ 启动时清理旧容器</li>
- <li>✓ 容器命名包含时间戳</li>
+ <li>注册 SIGINT/SIGTERM 处理器</li>
+ <li>使用 --rm 自动删除</li>
+ <li>启动时清理旧容器</li>
+ <li>容器命名包含时间戳</li>
  </ul>
  </div>
  </div>
@@ -1284,7 +1280,7 @@ function registerCleanupHandler(containerId: string): void {
  </Layer>
 
  {/* 常见问题与调试技巧 */}
- <Layer title="常见问题与调试技巧" icon="🐛">
+ <Layer title="常见问题与调试技巧">
  <p className="text-body mb-4">
  沙箱系统涉及容器、权限、路径等多个复杂层面，以下是常见问题及其诊断方法：
  </p>
@@ -1353,10 +1349,10 @@ docker run -v /path:/workspace:z ...`} />
  <div className="bg-base rounded p-3">
  <div className="text-xs text-heading font-bold mb-2">诊断方法</div>
  <ul className="text-xs text-body space-y-1">
- <li>✓ 查看系统日志中的沙箱拒绝</li>
- <li>✓ 尝试更宽松的配置文件</li>
- <li>✓ 检查命令所需的系统调用</li>
- <li>✓ 使用 dtruss 追踪系统调用</li>
+ <li>查看系统日志中的沙箱拒绝</li>
+ <li>尝试更宽松的配置文件</li>
+ <li>检查命令所需的系统调用</li>
+ <li>使用 dtruss 追踪系统调用</li>
  </ul>
  </div>
  </div>
@@ -1404,10 +1400,10 @@ security find-generic-password -s "github.com" -w`} />
  <div className="bg-base rounded p-3">
  <div className="text-xs text-heading font-bold mb-2">解决方案</div>
  <ul className="text-xs text-body space-y-1">
- <li>✓ 预先拉取沙箱镜像</li>
- <li>✓ 检查 Docker Desktop 状态</li>
- <li>✓ 使用国内镜像加速器</li>
- <li>✓ 增加启动超时时间</li>
+ <li>预先拉取沙箱镜像</li>
+ <li>检查 Docker Desktop 状态</li>
+ <li>使用国内镜像加速器</li>
+ <li>增加启动超时时间</li>
  </ul>
  </div>
  </div>
@@ -1460,10 +1456,10 @@ export GEMINI_SANDBOX_TIMEOUT=120 # 秒`} />
  <div className="bg-base rounded p-3">
  <div className="text-xs text-heading font-bold mb-2">解决方案</div>
  <ul className="text-xs text-body space-y-1">
- <li>✓ 使用自定义 Dockerfile</li>
- <li>✓ 配置 sandbox.bashrc</li>
- <li>✓ 使用项目级别的 .tool-versions</li>
- <li>✓ 在 Dockerfile 中安装依赖</li>
+ <li>使用自定义 Dockerfile</li>
+ <li>配置 sandbox.bashrc</li>
+ <li>使用项目级别的 .tool-versions</li>
+ <li>在 Dockerfile 中安装依赖</li>
  </ul>
  </div>
  </div>
@@ -1545,7 +1541,7 @@ docker build -t gemini-sandbox-custom -f .gemini/sandbox.Dockerfile .
  </Layer>
 
  {/* 性能优化建议 */}
- <Layer title="性能优化建议" icon="⚡">
+ <Layer title="性能优化建议">
  <p className="text-body mb-4">
  沙箱执行会引入额外开销，以下是四个关键优化策略：
  </p>
@@ -1886,7 +1882,7 @@ const commands = [
  </Layer>
 
  {/* 与其他模块的交互关系 */}
- <Layer title="与其他模块的交互关系" icon="🔗">
+ <Layer title="与其他模块的交互关系">
  <p className="text-body mb-4">
  沙箱系统与 Shell 工具、权限系统、配置系统等紧密协作。以下是其依赖关系：
  </p>
@@ -2121,10 +2117,10 @@ registerSandboxExecutor('firejail', FirejailExecutor);`} />
  </Layer>
 
  {/* 为什么这样设计沙箱系统 */}
- <Layer title="为什么这样设计沙箱系统？" icon="💡">
+ <Layer title="为什么这样设计沙箱系统？">
  <div className="space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🍎 为什么 macOS 优先使用 Seatbelt？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么 macOS 优先使用 Seatbelt？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：macOS 上 <code className="bg-base/30 px-1 rounded">GEMINI_SANDBOX=true</code> 默认使用 Seatbelt 而非 Docker。</p>
  <p><strong>原因</strong>：</p>
@@ -2138,7 +2134,7 @@ registerSandboxExecutor('firejail', FirejailExecutor);`} />
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🔄 为什么保持容器持久运行？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么保持容器持久运行？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：Docker/Podman 容器在会话期间保持运行，而非每次命令都重建。</p>
  <p><strong>原因</strong>：</p>
@@ -2152,7 +2148,7 @@ registerSandboxExecutor('firejail', FirejailExecutor);`} />
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">📂 为什么工作目录使用读写挂载？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么工作目录使用读写挂载？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：项目工作目录默认以读写模式挂载到容器中。</p>
  <p><strong>原因</strong>：</p>
@@ -2180,7 +2176,7 @@ registerSandboxExecutor('firejail', FirejailExecutor);`} />
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🌐 为什么默认禁用网络？</h4>
+ <h4 className="text-heading font-bold mb-2">为什么默认禁用网络？</h4>
  <div className="text-sm text-body space-y-2">
  <p><strong>决策</strong>：<code className="bg-base/30 px-1 rounded">restrictive-closed</code> 策略默认禁用网络访问。</p>
  <p><strong>原因</strong>：</p>
@@ -2196,7 +2192,7 @@ registerSandboxExecutor('firejail', FirejailExecutor);`} />
  </Layer>
 
  {/* 沙箱错误处理速查表 */}
- <Layer title="沙箱错误处理速查表" icon="⚠️">
+ <Layer title="沙箱错误处理速查表">
  <div className="overflow-x-auto">
  <table className="w-full text-sm">
  <thead>

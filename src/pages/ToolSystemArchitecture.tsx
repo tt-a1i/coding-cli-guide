@@ -221,8 +221,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">🔧</span>
- <span className="text-xl font-bold text-heading">核心概念介绍</span>
+  <span className="text-xl font-bold text-heading">核心概念介绍</span>
  </div>
  <span
  className={`transform transition-transform text-dim ${
@@ -236,7 +235,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  {isExpanded ? (
  <div className="px-6 pb-6 space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🎯 这套系统解决什么问题？</h4>
+ <h4 className="text-heading font-bold mb-2">这套系统解决什么问题？</h4>
  <p className="text-body text-sm">
  工具系统是 Gemini CLI 与“外部世界”（文件系统、Shell、网络、MCP 服务、技能库）交互的桥梁。模型不直接操作环境，而是输出{' '}
  <code>functionCall</code>；CLI 负责验证、审批、执行，并把执行结果以 <code>functionResponse</code> 回注给模型继续生成（continuation）。
@@ -244,7 +243,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🧩 三层对象：Tool / Invocation / Scheduler</h4>
+ <h4 className="text-heading font-bold mb-2">三层对象：Tool / Invocation / Scheduler</h4>
  <ul className="text-body text-sm space-y-1">
  <li><strong>DeclarativeTool</strong>：声明工具元信息 + JSON Schema（发给模型）</li>
  <li><strong>ToolInvocation</strong>：一次具体调用（已校验 params + 可执行）</li>
@@ -253,7 +252,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🔐 “是否需要确认”不是写死的</h4>
+ <h4 className="text-heading font-bold mb-2">“是否需要确认”不是写死的</h4>
  <p className="text-body text-sm">
  Gemini CLI 通过 <code>PolicyEngine</code> + <code>MessageBus</code> 决策：ALLOW / ASK_USER / DENY。
  工具的 <code>Kind</code>（9 类）是重要输入，但最终以 policy rules、approvalMode、命令解析（shell）等综合结果为准。
@@ -276,8 +275,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="text-xs text-dim bg-surface px-3 py-2 rounded flex items-center gap-2">
- <span>📁</span>
- <code>packages/core/src/tools/</code>
+  <code>packages/core/src/tools/</code>
  <span className="opacity-70">（工具实现）</span>
  </div>
  </div>
@@ -328,7 +326,7 @@ export function ToolSystemArchitecture() {
 
  <h2 className="text-2xl text-heading mb-5">工具系统架构（对齐上游 gemini-cli）</h2>
 
- <Layer title="主链路：模型 → 工具 → 继续生成" icon="🔁">
+ <Layer title="主链路：模型 → 工具 → 继续生成">
  <MermaidDiagram chart={toolLoopDiagram} />
  <div className="mt-4 text-sm text-body">
  关键点：Gemini CLI 直接消费 <code>AsyncGenerator</code> 的结构化事件，并用 <code>functionResponse</code> 做 continuation；
@@ -336,7 +334,7 @@ export function ToolSystemArchitecture() {
  </div>
  </Layer>
 
- <Layer title="注册：Config.createToolRegistry()" icon="🧩">
+ <Layer title="注册：Config.createToolRegistry()">
  <p className="text-sm text-body mb-4">
  上游的“哪些工具可用”主要由 <code>Config.createToolRegistry()</code> 组装：注册核心工具、按条件切换实现（ripgrep fallback）、
  按配置开关启用 write_todos / agents，并在最后执行动态发现（discovered tools）。
@@ -387,7 +385,7 @@ export function ToolSystemArchitecture() {
  />
  </Layer>
 
- <Layer title="工具定义：DeclarativeTool / BaseDeclarativeTool" icon="📜">
+ <Layer title="工具定义：DeclarativeTool / BaseDeclarativeTool">
  <p className="text-sm text-body mb-4">
  工具的 schema 会作为 <code>FunctionDeclaration</code> 发给模型。<code>BaseDeclarativeTool</code> 提供“先 schema 校验、再生成 invocation”的标准路径。
  </p>
@@ -420,7 +418,7 @@ export abstract class BaseDeclarativeTool<TParams extends object, TResult extend
  />
  </Layer>
 
- <Layer title="调用与确认：BaseToolInvocation.shouldConfirmExecute()" icon="🔐">
+ <Layer title="调用与确认：BaseToolInvocation.shouldConfirmExecute()">
  <p className="text-sm text-body mb-4">
  Invocation 层负责把 “PolicyEngine 的决策”翻译成三种行为：直接执行、抛错拒绝、返回 confirmationDetails 交给 UI。并且用户选择
  “总是允许/保存规则”会通过 <code>UPDATE_POLICY</code> 写入用户策略文件。
@@ -451,7 +449,7 @@ commandPrefix = ["git", "npm"]`}
  />
  </Layer>
 
- <Layer title="ToolRegistry：内置 + discovered + MCP" icon="🗂️">
+ <Layer title="ToolRegistry：内置 + discovered + MCP">
  <p className="text-sm text-body mb-4">
  ToolRegistry 维护“模型看到的工具集合”。它会把 Built-in、discovered_tool_*、以及 MCP server__tool 放进同一个注册表，并用稳定排序确保顺序一致。
  </p>
@@ -482,7 +480,7 @@ commandPrefix = ["git", "npm"]`}
  }
 }`}
  />
- <HighlightBox title="命名规则速记" icon="🧠" variant="green">
+ <HighlightBox title="命名规则速记" variant="green">
  <ul className="pl-5 list-disc space-y-1 text-sm">
  <li><code>ALL_BUILTIN_TOOL_NAMES</code>：内置工具“名称常量表”（14 个）</li>
  <li>
@@ -495,7 +493,7 @@ commandPrefix = ["git", "npm"]`}
  </HighlightBox>
  </Layer>
 
- <Layer title="内置工具索引（名称常量 = 14）" icon="🛠️">
+ <Layer title="内置工具索引（名称常量 = 14）">
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  {BUILTIN_TOOL_INDEX.map((tool) => (
  <ToolCard key={tool.name} {...tool} />

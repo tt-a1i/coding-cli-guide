@@ -584,7 +584,7 @@ function FilterVisualizer({
  <span className="font-mono text-sm text-heading">{item.file}</span>
  <div className="flex-1" />
  {item.matches ? (
- <span className="text-heading">✓ 匹配</span>
+ <span className="text-heading">匹配</span>
  ) : (
  <span className="text-dim">✗</span>
  )}

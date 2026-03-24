@@ -31,8 +31,7 @@ export function ErrorRecoveryPatterns() {
 
  return (
  <div className="max-w-4xl mx-auto">
- <h1 className="text-2xl font-bold mb-2 text-heading">
- 🛠️ 错误恢复模式
+ <h1 className="text-2xl font-bold mb-2 text-heading">错误恢复模式
  </h1>
  <p className="text-body mb-6 text-sm">
  Gemini CLI 中的错误处理、重试机制与优雅降级策略

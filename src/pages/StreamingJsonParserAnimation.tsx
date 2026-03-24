@@ -14,7 +14,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  onClick={onToggle}
  className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-elevated transition-colors"
  >
- <span className="text-lg font-semibold">📖 什么是流式 JSON 解析器？</span>
+ <span className="text-lg font-semibold">什么是流式 JSON 解析器？</span>
  <span className={`transform transition-transform ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
  </button>
 
@@ -22,7 +22,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="px-4 pb-4 space-y-4 text-sm">
  {/* 核心概念 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">🎯 核心概念</h3>
+ <h3 className="text-heading font-semibold mb-2">核心概念</h3>
  <p className="text-body">
  在 OpenAI-compatible 的流式输出里，工具调用参数（<code>tool_calls</code>）常常是<strong>增量分片</strong>的——一次只收到几个字符。
  解析器需要在数据不完整时就开始解析，并能处理多个并发的工具调用。
@@ -31,7 +31,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 为什么需要 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">❓ 解决什么问题？</h3>
+ <h3 className="text-heading font-semibold mb-2">解决什么问题？</h3>
  <ul className="text-body space-y-1 list-disc list-inside">
  <li><strong>流式解析</strong>：不等待完整 JSON，边收边解析</li>
  <li><strong>索引碰撞</strong>：多个工具调用可能使用相同索引</li>
@@ -42,7 +42,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 触发场景 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">⚡ 何时触发？</h3>
+ <h3 className="text-heading font-semibold mb-2">何时触发？</h3>
  <div className="bg-base p-3 rounded font-mono text-xs">
  <div className="text-body"># AI 决定调用工具</div>
  <div className="text-heading">AI: 我需要读取文件...</div>
@@ -56,7 +56,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 关键算法 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">🔧 关键算法</h3>
+ <h3 className="text-heading font-semibold mb-2">关键算法</h3>
  <div className="grid grid-cols-2 gap-2 text-xs">
  <div className="bg-base p-2 rounded">
  <div className="text-heading">深度计数</div>
@@ -79,7 +79,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 源码位置 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">📁 源码位置</h3>
+ <h3 className="text-heading font-semibold mb-2">源码位置</h3>
  <code className="text-xs bg-base p-2 rounded block">
  packages/core/src/core/openaiContentGenerator/streamingToolCallParser.ts
  </code>
@@ -87,7 +87,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 相关机制 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">🔗 相关机制</h3>
+ <h3 className="text-heading font-semibold mb-2">相关机制</h3>
  <div className="flex flex-wrap gap-2">
  <span className="px-2 py-1 bg-elevated/50 text-heading rounded text-xs">OpenAI 管道</span>
  <span className="px-2 py-1 bg-elevated text-heading rounded text-xs">工具调度器</span>

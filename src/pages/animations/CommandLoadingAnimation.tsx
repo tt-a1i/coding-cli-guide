@@ -459,8 +459,7 @@ flowchart TD
  <button
  onClick={reset}
  className="px-4 py-2 bg-elevated text-heading rounded hover:opacity-80"
- >
- 🔄 重置
+ >重置
  </button>
  <button
  onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
@@ -498,8 +497,7 @@ flowchart TD
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
  {/* Left: Loaders Status */}
  <div className="bg-surface rounded-xl p-6 border border-edge-hover">
- <h3 className="text-lg font-bold text-heading mb-4">
- 🔌 命令加载器状态
+ <h3 className="text-lg font-bold text-heading mb-4">命令加载器状态
  </h3>
 
  <div className="space-y-4">
@@ -538,8 +536,7 @@ flowchart TD
 
  {/* Right: Command Map */}
  <div className="bg-surface rounded-xl p-6 border border-edge-hover">
- <h3 className="text-lg font-bold text-heading mb-4">
- 🗺️ commandMap 最终结果
+ <h3 className="text-lg font-bold text-heading mb-4">commandMap 最终结果
  </h3>
 
  <div className="bg-base p-4 rounded-lg mb-4">
@@ -587,17 +584,17 @@ flowchart TD
  </div>
 
  {/* Sequence Diagram */}
- <Layer title="⏱️ 加载时序" icon="📊">
+ <Layer title="⏱️ 加载时序">
  <MermaidDiagram chart={loadingDiagram} />
  </Layer>
 
  {/* Conflict Resolution Flow */}
- <Layer title="🔀 冲突解决流程" icon="⚙️">
+ <Layer title="🔀 冲突解决流程">
  <MermaidDiagram chart={conflictResolutionDiagram} />
  </Layer>
 
  {/* Code Explanation */}
- <Layer title="💡 核心实现" icon="📝">
+ <Layer title="💡 核心实现">
  <div className="bg-base p-4 rounded-lg">
  <pre className="text-sm overflow-x-auto">
 {`// CommandService.create() 核心逻辑

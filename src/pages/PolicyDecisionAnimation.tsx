@@ -20,7 +20,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  {isExpanded && (
  <div className="px-6 pb-6 space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🎯 核心概念</h4>
+ <h4 className="text-heading font-bold mb-2">核心概念</h4>
  <p className="text-body text-sm">
  Policy 策略引擎是 Gemini CLI 的安全决策中枢。
  在工具执行前，根据配置的规则决定是否允许、拒绝或询问用户。
@@ -28,7 +28,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🔐 三种决策</h4>
+ <h4 className="text-heading font-bold mb-2">三种决策</h4>
  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
  <div className="bg-surface p-3 rounded border-l-2 border-l-edge-hover">
  <div className="text-heading font-semibold text-sm">ALLOW</div>
@@ -55,7 +55,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🏗️ 三种审批模式</h4>
+ <h4 className="text-heading font-bold mb-2">三种审批模式</h4>
  <div className="grid grid-cols-3 gap-2 mt-2 text-xs">
  <div className="bg-surface p-2 rounded text-center">
  <div className="text-heading">DEFAULT</div>
@@ -74,13 +74,13 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  <div className="flex flex-wrap gap-4 text-sm">
  <div className="flex items-center gap-2">
- <span className="text-dim">📍 源码:</span>
+ <span className="text-dim">源码:</span>
  <code className="px-2 py-1 bg-base rounded text-heading text-xs">
  packages/core/src/policy/
  </code>
  </div>
  <div className="flex items-center gap-2">
- <span className="text-dim">🔗 相关:</span>
+ <span className="text-dim">相关:</span>
  <span className="text-heading text-xs">PolicyEngine, SafetyChecker, MessageBus</span>
  </div>
  </div>

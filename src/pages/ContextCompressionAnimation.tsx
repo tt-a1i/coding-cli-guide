@@ -9,7 +9,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  onClick={onToggle}
  className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-surface transition-colors"
  >
- <span className="text-lg font-semibold text-heading">📖 什么是上下文压缩？</span>
+ <span className="text-lg font-semibold text-heading">什么是上下文压缩？</span>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
  </button>
 
@@ -17,7 +17,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="px-4 pb-4 space-y-4 text-sm">
  {/* 核心概念 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">🎯 核心概念</h3>
+ <h3 className="text-heading font-semibold mb-2">核心概念</h3>
  <p className="text-body">
  <strong>上下文压缩</strong>是 CLI 保持长对话能力的关键机制。当对话历史超过 Token 限制时，
  系统会智能压缩旧消息，保留最重要的信息，让 AI 能够继续理解上下文。
@@ -26,7 +26,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 为什么需要 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">❓ 为什么需要压缩？</h3>
+ <h3 className="text-heading font-semibold mb-2">为什么需要压缩？</h3>
  <ul className="text-body space-y-1 list-disc list-inside">
  <li><strong>Token 限制</strong>：每个 AI 模型都有最大上下文长度限制</li>
  <li><strong>成本控制</strong>：Token 越多，API 调用成本越高</li>
@@ -37,7 +37,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 压缩策略 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">📊 压缩策略</h3>
+ <h3 className="text-heading font-semibold mb-2">压缩策略</h3>
  <div className="grid grid-cols-2 gap-2 text-xs">
  <div className="bg-base p-2 rounded border border-edge">
  <div className="text-heading">阈值触发</div>
@@ -60,7 +60,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 源码位置 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">📁 源码位置</h3>
+ <h3 className="text-heading font-semibold mb-2">源码位置</h3>
  <code className="text-xs bg-base p-2 rounded block border border-edge">
  packages/core/src/core/chatHistory.ts
  </code>
@@ -68,7 +68,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 相关机制 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">🔗 相关机制</h3>
+ <h3 className="text-heading font-semibold mb-2">相关机制</h3>
  <div className="flex flex-wrap gap-2">
  <span className="px-2 py-1 bg-elevated text-heading rounded text-xs">Token 计数</span>
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">消息格式</span>
@@ -261,8 +261,7 @@ function MessageList({
  {msg.tokens} tokens
  </span>
  {isCompressed && (
- <span className="text-xs font-mono text-heading">
- ✓ 压缩摘要
+ <span className="text-xs font-mono text-heading">压缩摘要
  </span>
  )}
  {isInCompressedRange && phase === 'summarizing' && (

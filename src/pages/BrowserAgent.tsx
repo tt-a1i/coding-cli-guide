@@ -24,8 +24,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  className="w-full px-6 py-4 flex items-center justify-between hover:bg-elevated transition-colors"
  >
  <div className="flex items-center gap-3">
- <span className="text-2xl">🌐</span>
- <span className="text-xl font-bold text-heading">核心概念介绍</span>
+  <span className="text-xl font-bold text-heading">核心概念介绍</span>
  </div>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
  </button>
@@ -33,7 +32,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  {isExpanded && (
  <div className="px-6 pb-6 space-y-4">
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🧪 实验性功能</h4>
+ <h4 className="text-heading font-bold mb-2">实验性功能</h4>
  <p className="text-body text-sm">
  Browser Agent 是 Gemini CLI 的实验性功能，允许模型直接与 Web 页面进行交互。
  通过 Puppeteer 控制 Chrome/Chromium 浏览器实例，实现页面导航、元素操作、截图分析等自动化能力。
@@ -41,7 +40,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🔧 典型使用场景</h4>
+ <h4 className="text-heading font-bold mb-2">典型使用场景</h4>
  <ul className="text-body text-sm space-y-1">
  <li><strong>网页信息提取</strong>：访问文档站点、抓取 API 文档内容</li>
  <li><strong>表单自动化</strong>：填写表单、提交数据、验证页面状态</li>
@@ -51,7 +50,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="bg-base/50 rounded-lg p-4 ">
- <h4 className="text-heading font-bold mb-2">🏗️ 核心流程</h4>
+ <h4 className="text-heading font-bold mb-2">核心流程</h4>
  <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-2">
  <div className="bg-surface p-3 rounded border border-edge/30 text-center">
  <div className="text-heading font-semibold text-sm">1. 启动</div>
@@ -92,8 +91,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  </div>
 
  <div className="text-xs text-dim bg-surface px-3 py-2 rounded flex items-center gap-2">
- <span>📁</span>
- <code>packages/core/src/tools/browser-agent/</code>
+  <code>packages/core/src/tools/browser-agent/</code>
  </div>
  </div>
  )}
@@ -564,7 +562,7 @@ class ProgressReporter {
 
  {/* 概述 */}
  <section id="overview" className="mb-8">
- <Layer title="概述" icon="🌐">
+ <Layer title="概述">
  <p className="text-body mb-4">
  Browser Agent 是 Gemini CLI 的<strong>实验性功能</strong>，通过 Puppeteer 驱动 Chrome/Chromium 浏览器，
  赋予模型与 Web 页面直接交互的能力。它作为 <code className="text-heading">web_browser</code> 工具注册到
@@ -593,7 +591,7 @@ class ProgressReporter {
 
  {/* 架构设计 */}
  <section id="architecture" className="mb-8">
- <Layer title="架构设计" icon="🏗️">
+ <Layer title="架构设计">
  <p className="text-body mb-4">
  Browser Agent 采用分层架构：<code className="text-heading">BrowserTool</code> 作为工具入口，
  <code className="text-heading"> BrowserController</code> 管理浏览器生命周期，
@@ -629,7 +627,7 @@ class ProgressReporter {
 
  {/* 工作流程 */}
  <section id="workflow" className="mb-8">
- <Layer title="工作流程" icon="🔄">
+ <Layer title="工作流程">
  <p className="text-body mb-4">
  当模型判断需要浏览器交互时，会通过 Agent Loop 调用{' '}
  <code className="text-heading">web_browser</code> 工具。BrowserController 采用懒启动模式，
@@ -662,7 +660,7 @@ class ProgressReporter {
 
  {/* 核心功能 */}
  <section id="core-features" className="mb-8">
- <Layer title="核心功能详解" icon="⚡">
+ <Layer title="核心功能详解">
  <div className="space-y-6">
  <div>
  <h4 className="text-lg font-medium text-heading mb-3">1. BrowserController — 浏览器生命周期管理</h4>
@@ -696,7 +694,7 @@ class ProgressReporter {
 
  {/* 进度报告与自动化覆盖层 */}
  <section id="progress-overlay" className="mb-8">
- <Layer title="进度报告与自动化覆盖层" icon="📊">
+ <Layer title="进度报告与自动化覆盖层">
  <p className="text-body mb-4">
  Browser Agent 通过 <code className="text-heading">ProgressReporter</code> 向 MessageBus 发布操作进度，
  同时在浏览器页面中注入 <code className="text-heading">AutomationOverlay</code> 提供操作可视化，
@@ -734,7 +732,7 @@ class ProgressReporter {
 
  {/* API 接口 */}
  <section id="api" className="mb-8">
- <Layer title="API 接口（web_browser 工具）" icon="🔧">
+ <Layer title="API 接口（web_browser 工具）">
  <p className="text-body mb-4">
  Browser Agent 通过 <code className="text-heading">web_browser</code> 工具暴露所有功能。
  工具 Schema 使用 <code>action</code> 枚举区分不同操作，每种操作有对应的参数。
@@ -819,7 +817,7 @@ class ProgressReporter {
 
  {/* 与工具系统的集成 */}
  <section id="tool-integration" className="mb-8">
- <Layer title="与工具系统的集成" icon="🧩">
+ <Layer title="与工具系统的集成">
  <p className="text-body mb-4">
  Browser Agent 作为标准工具注册到 <code className="text-heading">ToolRegistry</code>，
  遵循与其他内置工具相同的生命周期管理。通过{' '}
@@ -866,7 +864,7 @@ class ProgressReporter {
 
  {/* 限制和注意事项 */}
  <section id="limitations" className="mb-8">
- <Layer title="限制和注意事项" icon="⚠️">
+ <Layer title="限制和注意事项">
  <HighlightBox title="实验性功能警告" variant="red">
  <p className="text-sm text-body mb-2">
  Browser Agent 是实验性功能，API 和行为可能在未来版本中发生变化。生产环境使用需谨慎评估。
@@ -939,7 +937,7 @@ class ProgressReporter {
 
  {/* 使用示例 */}
  <section id="examples" className="mb-8">
- <Layer title="使用示例" icon="💡">
+ <Layer title="使用示例">
  <p className="text-body mb-4">
  以下是 Browser Agent 在实际场景中的典型用法。模型会根据用户请求自动选择合适的 action 序列。
  </p>

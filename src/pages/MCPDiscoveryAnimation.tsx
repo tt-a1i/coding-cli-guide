@@ -9,7 +9,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  onClick={onToggle}
  className="w-full px-4 py-3 flex items-center justify-between text-left hover:bg-surface transition-colors"
  >
- <span className="text-lg font-semibold text-heading">📖 什么是 MCP 服务发现？</span>
+ <span className="text-lg font-semibold text-heading">什么是 MCP 服务发现？</span>
  <span className={`transform transition-transform text-dim ${isExpanded ? 'rotate-180' : ''}`}>▼</span>
  </button>
 
@@ -17,7 +17,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
  <div className="px-4 pb-4 space-y-4 text-sm">
  {/* 核心概念 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">🎯 核心概念</h3>
+ <h3 className="text-heading font-semibold mb-2">核心概念</h3>
  <p className="text-body">
  <strong>MCP (Model Context Protocol)</strong> 是一种扩展 AI 能力的协议。通过 MCP 服务器，
  CLI 可以连接外部工具（如数据库、API、文件系统）。服务发现流程负责找到、连接并注册这些扩展服务。
@@ -26,7 +26,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 为什么需要 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">❓ 为什么需要服务发现？</h3>
+ <h3 className="text-heading font-semibold mb-2">为什么需要服务发现？</h3>
  <ul className="text-body space-y-1 list-disc list-inside">
  <li><strong>扩展能力</strong>：无需修改核心代码，插件式扩展功能</li>
  <li><strong>隔离错误</strong>：一个服务失败不影响其他服务</li>
@@ -37,7 +37,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 发现阶段 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">📊 发现阶段</h3>
+ <h3 className="text-heading font-semibold mb-2">发现阶段</h3>
  <div className="grid grid-cols-2 gap-2 text-xs">
  <div className="bg-base p-2 rounded border border-edge">
  <div className="text-heading">1. 加载配置</div>
@@ -60,7 +60,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 源码位置 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">📁 源码位置</h3>
+ <h3 className="text-heading font-semibold mb-2">源码位置</h3>
  <code className="text-xs bg-base p-2 rounded block border border-edge">
  packages/core/src/tools/mcp-client-manager.ts
  </code>
@@ -68,7 +68,7 @@ function Introduction({ isExpanded, onToggle }: { isExpanded: boolean; onToggle:
 
  {/* 相关机制 */}
  <div>
- <h3 className="text-heading font-semibold mb-2">🔗 相关机制</h3>
+ <h3 className="text-heading font-semibold mb-2">相关机制</h3>
  <div className="flex flex-wrap gap-2">
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">工具系统</span>
  <span className="px-2 py-1 bg-elevated/20 text-heading rounded text-xs">扩展系统</span>
@@ -202,8 +202,7 @@ function ServerCard({ server, isActive }: { server: MCPServer; isActive: boolean
 
  {/* Tools or Error */}
  {server.status === 'error' ? (
- <div className="text-xs font-mono text-heading p-2 bg-elevated rounded">
- ⚠ {server.error}
+ <div className="text-xs font-mono text-heading p-2 bg-elevated rounded">{server.error}
  </div>
  ) : server.status === 'ready' ? (
  <div className="flex flex-wrap gap-1">

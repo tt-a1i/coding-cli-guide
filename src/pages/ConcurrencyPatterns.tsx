@@ -28,8 +28,7 @@ export function ConcurrencyPatterns() {
 
  return (
  <div className="max-w-4xl mx-auto">
- <h1 className="text-2xl font-bold mb-2 text-heading">
- ⚡ 并发模式详解
+ <h1 className="text-2xl font-bold mb-2 text-heading">并发模式详解
  </h1>
  <p className="text-body mb-6 text-sm">
  Gemini CLI 中的并行处理、队列调度与分布式同步策略

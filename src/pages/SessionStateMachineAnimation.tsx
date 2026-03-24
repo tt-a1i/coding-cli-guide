@@ -310,8 +310,7 @@ export default function SessionStateMachineAnimation() {
  {/* 事件时间线 */}
  <div className="col-span-4">
  <div className="bg-surface rounded-lg p-4 border border-edge-hover">
- <h3 className="text-sm font-semibold text-heading mb-3 font-mono">
- 📡 Event Stream
+ <h3 className="text-sm font-semibold text-heading mb-3 font-mono">Event Stream
  </h3>
  <div className="space-y-2 max-h-72 overflow-y-auto">
  {events.length === 0 ? (
@@ -355,8 +354,7 @@ export default function SessionStateMachineAnimation() {
  {/* Turn 状态 */}
  <div className="col-span-4">
  <div className="bg-base/60 rounded-lg p-4 border border-edge-hover">
- <h3 className="text-sm font-semibold text-heading mb-3 font-mono">
- 🎯 Turn State
+ <h3 className="text-sm font-semibold text-heading mb-3 font-mono">Turn State
  </h3>
 
  {/* 当前阶段 */}

@@ -497,13 +497,12 @@ export type ToolCall =
  {/* 设计哲学 */}
  <section className="bg-surface rounded-lg p-6 border-l-2 border-l-edge-hover">
  <h3 className="text-xl font-semibold text-heading mb-4 flex items-center gap-2">
- <span>💡</span>
- 设计哲学：为什么这样设计
+  设计哲学：为什么这样设计
  </h3>
 
  {/* 核心问题 */}
  <div className="bg-surface rounded-lg p-4 mb-6 ">
- <h4 className="text-heading font-bold mb-2">🎯 核心问题</h4>
+ <h4 className="text-heading font-bold mb-2">核心问题</h4>
  <p className="text-body text-sm">
  AI 可以调用工具执行任意操作（读写文件、执行命令、网络请求）。
  如何在<strong className="text-heading">保持 AI 自主性</strong>的同时，
@@ -535,8 +534,7 @@ export type ToolCall =
  {/* 为什么串行队列 */}
 <div className="bg-surface rounded-lg p-4 border border-edge">
   <h5 className="text-heading font-bold mb-2 flex items-center gap-2">
-  <span>📋</span>
-  为什么串行队列执行？
+    为什么串行队列执行？
  </h5>
  <p className="text-body text-sm mb-2">
  并行执行工具会带来问题：
@@ -1089,8 +1087,7 @@ async check(
  {/* 边界条件深度解析 */}
  <section className="bg-surface rounded-lg p-6 border-l-2 border-l-edge-hover">
  <h3 className="text-xl font-semibold text-heading mb-4 flex items-center gap-2">
- <span>🔬</span>
- 边界条件深度解析
+  边界条件深度解析
  </h3>
  <p className="text-body mb-6">
  工具调度系统面临复杂的边界条件。理解这些边界情况有助于诊断调度异常和优化系统稳定性。
@@ -1456,16 +1453,14 @@ function getMcpToolKind(tool: McpTool): Kind {
  {/* 常见问题与调试技巧 */}
  <section className="bg-surface rounded-lg p-6 border-l-2 border-l-edge-hover mt-8">
  <h3 className="text-xl font-semibold text-heading mb-4 flex items-center gap-2">
- <span>🐛</span>
- 常见问题与调试技巧
+  常见问题与调试技巧
  </h3>
 
  <div className="space-y-4">
  {/* 问题 1 */}
  <div className="bg-surface rounded-lg p-4">
  <div className="flex items-start gap-3">
- <span className="text-2xl">🔴</span>
- <div className="flex-1">
+  <div className="flex-1">
  <h4 className="text-heading font-bold mb-2">问题：工具卡在 awaiting_approval 状态不响应</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div>
@@ -1513,8 +1508,7 @@ console.log('onApprove bound:', typeof onApprove);
  {/* 问题 2 */}
  <div className="bg-surface rounded-lg p-4">
  <div className="flex items-start gap-3">
- <span className="text-2xl">🟡</span>
- <div className="flex-1">
+  <div className="flex-1">
  <h4 className="text-heading font-bold mb-2">问题：YOLO 模式下某些工具仍需确认</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div>
@@ -1569,8 +1563,7 @@ async shouldConfirmExecute(signal: AbortSignal) {
  {/* 问题 3 */}
  <div className="bg-surface rounded-lg p-4">
  <div className="flex items-start gap-3">
- <span className="text-2xl">🟠</span>
- <div className="flex-1">
+  <div className="flex-1">
  <h4 className="text-heading font-bold mb-2">问题：工具输出被截断但找不到完整文件</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div>
@@ -1619,8 +1612,7 @@ DEBUG=gemini:truncate gemini`}
  {/* 问题 4 */}
  <div className="bg-surface rounded-lg p-4">
  <div className="flex items-start gap-3">
- <span className="text-2xl">🔵</span>
- <div className="flex-1">
+  <div className="flex-1">
  <h4 className="text-heading font-bold mb-2">问题：PolicyEngine 规则不生效</h4>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div>
@@ -1714,16 +1706,14 @@ DEBUG=gemini:policy gemini
  {/* 性能优化建议 */}
  <section className="bg-surface rounded-lg p-6 border-l-2 border-l-edge-hover mt-8">
  <h3 className="text-xl font-semibold text-heading mb-4 flex items-center gap-2">
- <span>⚡</span>
- 性能优化建议
+  性能优化建议
  </h3>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  {/* 优化 1: 减少确认次数 */}
  <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover">
  <h4 className="text-heading font-bold mb-3 flex items-center gap-2">
- <span>🎯</span>
- 减少人工确认次数
+  减少人工确认次数
  </h4>
  <p className="text-sm text-body mb-3">
  频繁确认是影响交互效率的主要因素。通过合理配置可大幅减少确认次数。
@@ -1811,8 +1801,7 @@ DEBUG=gemini:policy gemini
  {/* 优化 3: 加速批量工具执行 */}
  <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover">
  <h4 className="text-heading font-bold mb-3 flex items-center gap-2">
- <span>📦</span>
- 加速批量工具执行
+  加速批量工具执行
  </h4>
  <p className="text-sm text-body mb-3">
  当 AI 返回多个工具调用时，可通过优化批准策略加速执行。
@@ -1842,8 +1831,7 @@ DEBUG=gemini:policy gemini
  {/* 优化 4: 队列管理优化 */}
  <div className="pl-5 border-l-2 border-l-edge-hover border-l-edge-hover">
  <h4 className="text-heading font-bold mb-3 flex items-center gap-2">
- <span>📋</span>
- 队列管理优化
+  队列管理优化
  </h4>
  <p className="text-sm text-body mb-3">
  串行队列保证安全但可能成为瓶颈，可通过策略优化。
@@ -1943,8 +1931,7 @@ DEBUG=gemini:policy gemini
  {/* 与其他模块的交互关系 */}
  <section className="bg-surface rounded-lg p-6 border border-edge mt-8">
  <h3 className="text-xl font-semibold text-heading mb-4 flex items-center gap-2">
- <span>🔗</span>
- 与其他模块的交互关系
+  与其他模块的交互关系
  </h3>
 
  <MermaidDiagram chart={`flowchart TB
@@ -2161,8 +2148,7 @@ interface ToolCallRequestInfo {
  {/* 设计演进与未来方向 */}
  <section className="bg-surface rounded-lg p-6 border border-edge mt-8">
  <h3 className="text-xl font-semibold text-heading mb-4 flex items-center gap-2">
- <span>🔮</span>
- 设计演进与未来方向
+  设计演进与未来方向
  </h3>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

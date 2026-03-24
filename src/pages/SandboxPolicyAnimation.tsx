@@ -219,8 +219,7 @@ export default function SandboxPolicyAnimation() {
  {/* 检测步骤 */}
  <div className="col-span-4">
  <div className="bg-surface rounded-lg p-4 border border-edge-hover">
- <h3 className="text-sm font-semibold text-heading mb-3 font-mono">
- 🔍 Detection Steps
+ <h3 className="text-sm font-semibold text-heading mb-3 font-mono">Detection Steps
  </h3>
  <div className="space-y-2">
  {detectionSteps.length === 0 ? (
@@ -258,8 +257,7 @@ export default function SandboxPolicyAnimation() {
  {/* 沙箱配置 */}
  <div className="col-span-4">
  <div className="bg-base/60 rounded-lg p-4 border border-edge-hover">
- <h3 className="text-sm font-semibold text-heading mb-3 font-mono">
- ⚙️ Sandbox Config
+ <h3 className="text-sm font-semibold text-heading mb-3 font-mono">Sandbox Config
  </h3>
  {sandboxConfig ? (
  <div className="space-y-3">
@@ -315,8 +313,7 @@ export default function SandboxPolicyAnimation() {
  {/* Seatbelt 策略 */}
  {selectedType === 'seatbelt' && (
  <div className="bg-surface rounded-lg p-4 border border-edge-hover">
- <h3 className="text-xs font-semibold text-heading mb-2 font-mono">
- 🛡️ Seatbelt Rules
+ <h3 className="text-xs font-semibold text-heading mb-2 font-mono">Seatbelt Rules
  </h3>
  <div className="space-y-1 max-h-32 overflow-y-auto">
  {activePolicy.map((policy, i) => (

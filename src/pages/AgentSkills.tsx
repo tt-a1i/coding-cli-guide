@@ -33,7 +33,7 @@ export function AgentSkills() {
  </p>
  </section>
 
- <Layer title="目标" icon="🎯">
+ <Layer title="目标">
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
  <HighlightBox title="可复用工作流" variant="blue">
  <p className="text-sm text-body">
@@ -54,7 +54,7 @@ export function AgentSkills() {
  </div>
  </Layer>
 
- <Layer title="技能发现（Discovery）" icon="🗂️">
+ <Layer title="技能发现（Discovery）">
  <p className="text-body mb-4">
  skills 启用后，<code>SkillManager</code> 会扫描{' '}
  <code>*/SKILL.md</code> 并汇总为“可用技能清单”。 覆盖优先级为：
@@ -115,7 +115,7 @@ description: Pre-implementation confidence assessment (≥90% required).
  />
  </Layer>
 
- <Layer title="激活机制（activate_skill）" icon="🧩">
+ <Layer title="激活机制（activate_skill）">
  <p className="text-body mb-4">
  模型激活 skill 时调用{' '}
  <code className="text-heading">activate_skill</code>
@@ -152,7 +152,7 @@ return {
  </div>
  </Layer>
 
- <Layer title="Schema 收敛：把 name 变成 enum" icon="🧷">
+ <Layer title="Schema 收敛：把 name 变成 enum">
  <p className="text-body mb-4">
  技能列表发现完成后，CLI 会<strong>重新注册一次</strong>{' '}
  <code>ActivateSkillTool</code>，让参数 <code>name</code>从{' '}
@@ -174,7 +174,7 @@ if (this.skillsSupport) {
  />
  </Layer>
 
- <Layer title="System Prompt 注入" icon="🧱">
+ <Layer title="System Prompt 注入">
  <p className="text-body mb-4">
  当存在可用 skills 时，System Prompt 会追加一个{' '}
  <code>Available Agent Skills</code> 段落，列出技能元信息，并要求模型：
@@ -195,7 +195,7 @@ You have access to the following specialized skills...
  />
  </Layer>
 
- <Layer title="用户侧管理（/skills + settings）" icon="🧰">
+ <Layer title="用户侧管理（/skills + settings）">
  <p className="text-body mb-4">
  Skills 目前属于实验特性：通过 <code>experimental.skills</code>{' '}
  开启；通过 <code>skills.disabled</code> 禁用特定技能。 CLI 也提供{' '}
@@ -221,7 +221,7 @@ skills.disabled: string[] # List of disabled skills (restart required)`}
  </p>
  </Layer>
 
- <Layer title="终端命令（gemini skills）" icon="🧪">
+ <Layer title="终端命令（gemini skills）">
  <p className="text-body mb-4">
  除了 Slash Commands，CLI 还提供 <code>gemini skills</code>{' '}
  子命令用于安装/卸载技能包（默认 user scope）。
@@ -242,7 +242,7 @@ gemini skills disable my-skill --scope workspace`}
  />
  </Layer>
 
- <Layer title="扩展技能与安全披露" icon="🛡️">
+ <Layer title="扩展技能与安全披露">
  <p className="text-body mb-4">
  Extension 可以携带 <code>skills/</code> 目录（例如{' '}
  <code>skills/my-skill/SKILL.md</code>）。在安装/更新扩展时，CLI 会在
