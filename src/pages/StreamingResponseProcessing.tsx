@@ -207,9 +207,9 @@ flowchart TD
  B -- No --> C{Has text?}
  C -- Yes --> D[GeminiEventType.Content]
  C -- No --> E{Has functionCalls?}
- E -- Yes --> F[GeminiEventType.ToolCallRequest\n(callId/name/args)]
+ E -- Yes --> F["GeminiEventType.ToolCallRequest<br/>(callId/name/args)"]
  E -- No --> G{Has finishReason?}
- G -- Yes --> H[GeminiEventType.Finished\n(reason + usageMetadata)]
+ G -- Yes --> H["GeminiEventType.Finished<br/>(reason + usageMetadata)"]
  G -- No --> I[Continue reading stream]
 `} />
 
@@ -324,11 +324,11 @@ if (finishReason) {
 
  <MermaidDiagram chart={`
 flowchart TD
- A[sendMessageStream() attempt #1] --> B{InvalidStreamError?}
+ A["sendMessageStream() attempt #1"] --> B{InvalidStreamError?}
  B -- No --> C[正常消费 CHUNK]
  B -- Yes --> D[Yield StreamEventType.RETRY]
  D --> E[UI 丢弃 partial 内容]
- E --> F[sendMessageStream() attempt #2]
+ E --> F2["sendMessageStream() attempt #2"]
 
  style C fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},stroke:${getThemeColor("--color-success", "#15803d")},color:${getThemeColor("--color-text", "#1c1917")}
  style D fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},stroke:${getThemeColor("--color-warning", "#b45309")},color:${getThemeColor("--color-text", "#1c1917")}

@@ -60,8 +60,8 @@ export function ModelConfiguration() {
  <MermaidDiagram
  chart={`
 flowchart LR
- M[model string] --> S[tokenLimit(model)<br/>switch-case]
- S --> R[token limit]
+ M["model string"] --> S["tokenLimit(model)<br/>switch-case"]
+ S --> R["token limit"]
 
  style S stroke:#276749
  style R stroke:#1e3a5f
