@@ -260,14 +260,8 @@ function App() {
     }
   }, []);
 
-  useEffect(() => {
-    const stored = localStorage.getItem('theme');
-    if (stored === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else if (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      document.documentElement.classList.add('dark');
-    }
-  }, []);
+  // Theme is initialized in index.html inline script (before React)
+  // and managed by ThemeToggle component — no need to re-init here
 
   const renderContent = () => {
     switch (activeTab) {
