@@ -356,14 +356,14 @@ export function ToolReference() {
 
  <div className="bg-base rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">注册和调度</h4>
- <div className="text-xs font-mono space-y-1 text-body">
- <div className="flex justify-between">
- <code>packages/core/src/config/config.ts#createToolRegistry()</code>
+ <div className="text-xs font-mono space-y-2 text-body">
+ <div>
  <span className="text-heading">组装 ToolRegistry</span>
+ <div className="text-dim mt-0.5 break-all">config.ts#createToolRegistry()</div>
  </div>
- <div className="flex justify-between">
- <code>packages/core/src/core/coreToolScheduler.ts</code>
+ <div>
  <span className="text-heading">工具调度器</span>
+ <div className="text-dim mt-0.5 break-all">core/coreToolScheduler.ts</div>
  </div>
  </div>
  </div>
