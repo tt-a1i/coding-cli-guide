@@ -25,16 +25,16 @@ const relatedPages: RelatedPage[] = [
 export function ToolReference() {
  // 工具注册和发现流程
  const toolRegistrationFlow = `flowchart TD
- start([启动 Gemini CLI])
- init_config[初始化 Config]
- create_registry[createToolRegistry]
- register_core[注册核心工具]
- register_optional[条件注册 tools<br/>write_todos / agents]
- discover[discoverAllTools<br/>discovered_tool_*]
- sort[sortTools]
- build_schema[生成 FunctionDeclaration<br/>parametersJsonSchema]
- gemini_tools[传给模型的 tools[]]
- available[工具可用]
+ start(["启动 Gemini CLI"])
+ init_config["初始化 Config"]
+ create_registry["createToolRegistry"]
+ register_core["注册核心工具"]
+ register_optional["条件注册 tools<br/>write_todos / agents"]
+ discover["discoverAllTools<br/>discovered_tool_*"]
+ sort["sortTools"]
+ build_schema["生成 FunctionDeclaration<br/>parametersJsonSchema"]
+ gemini_tools["传给模型的 tools"]
+ available["工具可用"]
 
  start --> init_config
  init_config --> create_registry
