@@ -120,7 +120,7 @@ export function CommandLoading() {
  freeze[冻结结果]
  end
 
- output([readonly SlashCommand[]])
+ output(["readonly SlashCommand list"])
 
  BL --> builtin
  FL --> user

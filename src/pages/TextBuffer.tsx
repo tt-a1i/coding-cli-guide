@@ -99,7 +99,7 @@ export function TextBuffer() {
  end
 
  subgraph State["状态结构"]
- LINES["lines: string["]]
+ LINES["lines: string array"]
  CURSOR["cursorRow/cursorCol"]
  UNDO["undoStack/redoStack"]
  CLIP[clipboard]
