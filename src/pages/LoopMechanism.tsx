@@ -117,7 +117,7 @@ function Introduction({
 
 // ===== Loop Node Component =====
 interface LoopNodeProps {
- icon: string;
+ icon?: string;
  title: string;
  description: string;
  variant?: 'default' | 'success' | 'warning';

@@ -10,7 +10,7 @@ import { getThemeColor } from '../utils/theme';
 
 
 interface ToolCardProps {
- icon: string;
+ icon?: string;
  name: string;
  tools: string[];
  status: string;

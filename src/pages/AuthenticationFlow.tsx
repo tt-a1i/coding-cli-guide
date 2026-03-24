@@ -12,7 +12,7 @@ function CollapsibleSection({
  defaultOpen = false,
 }: {
  title: string;
- icon: string;
+ icon?: string;
  children: React.ReactNode;
  defaultOpen?: boolean;
 }) {

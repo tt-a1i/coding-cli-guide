@@ -11,7 +11,7 @@ import { getThemeColor } from '../utils/theme';
 interface LearningPath {
  id: string;
  title: string;
- icon: string;
+ icon?: string;
  description: string;
  duration: string;
  difficulty: 'beginner' | 'intermediate' | 'advanced';
@@ -100,18 +100,6 @@ function PathCard({
  isSelected: boolean;
  onSelect: () => void;
 }) {
- const difficultyColors = {
- beginner: 'var(--color-primary)',
- intermediate: 'var(--color-warning)',
- advanced: 'var(--color-primary)',
- };
-
- const difficultyLabels = {
- beginner: '入门',
- intermediate: '中级',
- advanced: '高级',
- };
-
  return (
  <button
  onClick={onSelect}

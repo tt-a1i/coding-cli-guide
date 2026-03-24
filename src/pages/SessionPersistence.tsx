@@ -15,7 +15,7 @@ function CollapsibleSection({
  highlight = false
 }: {
  title: string;
- icon: string;
+ icon?: string;
  children: React.ReactNode;
  defaultOpen?: boolean;
  highlight?: boolean;
