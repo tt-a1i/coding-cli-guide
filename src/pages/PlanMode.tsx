@@ -3,7 +3,6 @@ import { HighlightBox } from '../components/HighlightBox';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
-import { getThemeColor } from '../utils/theme';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 const relatedPages: RelatedPage[] = [
