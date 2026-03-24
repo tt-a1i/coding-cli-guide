@@ -94,7 +94,7 @@ export function normalizeLanguage(
 
 function mapLanguage(raw: string): CodeLanguage | null {
   if (!raw) return null;
-  if (raw === 'ts') return 'typescript';
+  if (raw === 'ts' || raw === 'typescript') return 'typescript';
   if (raw === 'tsx') return 'tsx';
   if (raw === 'js' || raw === 'javascript') return 'javascript';
   if (raw === 'jsx') return 'jsx';
@@ -194,7 +194,7 @@ export function inferLanguageFromCode(code: string): CodeLanguage | null {
     return 'typescript';
   }
 
-  if (c.includes('function ') || c.includes('const ') || c.includes('let ')) {
+  if (c.includes('function ') || c.includes('const ') || c.includes('let ') || c.includes('class ')) {
     return 'typescript';
   }
 
