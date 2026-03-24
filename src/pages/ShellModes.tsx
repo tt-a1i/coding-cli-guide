@@ -59,7 +59,7 @@ export function ShellModes() {
  permission_check --> hard_denial
  hard_denial -->|Yes| blocked_error
  hard_denial -->|No| needs_confirm
- needs_confirm -->|No (YOLO/allowlisted)| inject_exec
+ needs_confirm -->|"No (YOLO/allowlisted)"| inject_exec
  needs_confirm -->|Yes| confirm_dialog
  confirm_dialog -->|Allow once| allow_once
  confirm_dialog -->|Allow session| allow_session
