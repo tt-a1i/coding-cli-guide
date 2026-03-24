@@ -68,24 +68,23 @@ function OverviewTab() {
  <div className="flex flex-col gap-6">
  <Layer title="📐 并发策略矩阵">
  <MermaidDiagram chart={`
-mindmap
- root((并发模式))
- 批量并行
- Promise.all
- 并发限制
- 分批处理
- 请求队列
- FIFO 顺序
- 状态机
- 去重
- 分布式锁
- 文件锁
- 指数退避
- 原子操作
- 容错模式
- Promise.allSettled
- 独立失败
- 继续处理
+flowchart LR
+ ROOT["并发模式"] --- A["批量并行"]
+ ROOT --- B["请求队列"]
+ ROOT --- C["分布式锁"]
+ ROOT --- D["容错模式"]
+ A --- A1["Promise.all"]
+ A --- A2["并发限制"]
+ A --- A3["分批处理"]
+ B --- B1["FIFO 顺序"]
+ B --- B2["状态机"]
+ B --- B3["去重"]
+ C --- C1["文件锁"]
+ C --- C2["指数退避"]
+ C --- C3["原子操作"]
+ D --- D1["Promise.allSettled"]
+ D --- D2["独立失败"]
+ D --- D3["继续处理"]
 `} />
  </Layer>
 
