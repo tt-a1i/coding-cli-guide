@@ -1707,23 +1707,23 @@ parser.on('tool_args_progress', (event) => {
  <h4 className="text-lg font-bold text-heading mb-4">数据流架构</h4>
  <MermaidDiagram chart={`graph LR
  subgraph Network["网络层"]
- SSE[SSE 连接<br/>Server-Sent Events]
+ SSE["SSE 连接<br/>Server-Sent Events"]
  end
 
  subgraph Parser["解析层"]
- SP[StreamingParser<br/>流式解析器]
- JP[JsonParser<br/>JSON 解析]
- TR[ToolRecognizer<br/>工具识别]
+ SP["StreamingParser<br/>流式解析器"]
+ JP["JsonParser<br/>JSON 解析"]
+ TR["ToolRecognizer<br/>工具识别"]
  end
 
  subgraph Output["输出层"]
- TB[TextBuffer<br/>文本缓冲]
- TC[ToolCalls<br/>工具调用队列]
+ TB["TextBuffer<br/>文本缓冲"]
+ TC["ToolCalls<br/>工具调用队列"]
  end
 
  subgraph Execution["执行层"]
- TS[ToolScheduler<br/>工具调度器]
- UI[UI Renderer<br/>界面渲染]
+ TS["ToolScheduler<br/>工具调度器"]
+ UI["UI Renderer<br/>界面渲染"]
  end
 
  SSE -->|"chunks"| SP

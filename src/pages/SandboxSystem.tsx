@@ -117,16 +117,16 @@ export function SandboxSystem() {
  const [isIntroExpanded, setIsIntroExpanded] = useState(true);
  const sandboxDecisionFlow = `flowchart TD
  start[启动 run_shell_command]
- check_env[检查 GEMINI_SANDBOX<br/>环境变量]
- is_docker{sandbox=docker?}
- is_podman{sandbox=podman?}
- is_true{sandbox=true?}
+ check_env["检查 GEMINI_SANDBOX<br/>环境变量"]
+ is_docker{"sandbox=docker?"}
+ is_podman{"sandbox=podman?"}
+ is_true{"sandbox=true?"}
  check_platform[检测操作系统]
- is_macos{macOS?}
- docker_exec[Docker 容器<br/>沙箱]
- podman_exec[Podman 容器<br/>沙箱]
- seatbelt_exec[macOS Seatbelt<br/>sandbox-exec]
- no_sandbox[无沙箱<br/>直接执行]
+ is_macos{"macOS?"}
+ docker_exec["Docker 容器<br/>沙箱"]
+ podman_exec["Podman 容器<br/>沙箱"]
+ seatbelt_exec["macOS Seatbelt<br/>sandbox-exec"]
+ no_sandbox["无沙箱<br/>直接执行"]
 
  start --> check_env
  check_env --> is_docker
@@ -150,12 +150,12 @@ export function SandboxSystem() {
 
  const containerStartupFlow = `flowchart TD
  start[请求沙箱执行]
- check_running{检查容器<br/>是否运行}
- build_image[构建镜像<br/>如果需要]
- create_container[创建容器<br/>挂载工作目录]
+ check_running{"检查容器<br/>是否运行"}
+ build_image["构建镜像<br/>如果需要"]
+ create_container["创建容器<br/>挂载工作目录"]
  start_container[启动容器]
- exec_command[执行命令<br/>docker exec]
- capture_output[捕获输出<br/>stdout/stderr]
+ exec_command["执行命令<br/>docker exec"]
+ capture_output["捕获输出<br/>stdout/stderr"]
  return_result[返回结果]
 
  start --> check_running
@@ -1897,10 +1897,10 @@ const commands = [
  end
 
  subgraph "沙箱系统 (Sandbox)"
- Detector[Sandbox Detector<br/>类型检测]
- Docker[Docker Handler<br/>容器沙箱]
- Seatbelt[Seatbelt Handler<br/>macOS 沙箱]
- Pool[Container Pool<br/>容器复用池]
+ Detector["Sandbox Detector<br/>类型检测"]
+ Docker["Docker Handler<br/>容器沙箱"]
+ Seatbelt["Seatbelt Handler<br/>macOS 沙箱"]
+ Pool["Container Pool<br/>容器复用池"]
  end
 
  subgraph "基础设施"

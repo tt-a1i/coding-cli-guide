@@ -95,7 +95,7 @@ export function ChatCompression() {
  subgraph Input["输入检测"]
  HISTORY[Chat History]
  TOKEN[Token 计算]
- CHECK{超过 50% 阈值?}
+ CHECK{"超过 50% 阈值?"}
  end
 
  subgraph Split["分割计算"]

@@ -97,23 +97,23 @@ export function SettingsManager() {
 
  const settingsMergeChart = `flowchart TD
  subgraph Sources["配置源"]
- SD[SystemDefaults<br/>/etc/gemini-cli/system-defaults.json]
- SYS[System<br/>/etc/gemini-cli/settings.json]
- USER[User<br/>~/.gemini/settings.json]
- WS[Workspace<br/>.gemini/settings.json]
+ SD["SystemDefaults<br/>/etc/gemini-cli/system-defaults.json"]
+ SYS["System<br/>/etc/gemini-cli/settings.json"]
+ USER["User<br/>~/.gemini/settings.json"]
+ WS["Workspace<br/>.gemini/settings.json"]
  end
 
  subgraph Process["处理流程"]
  LOAD[loadSettings]
- MIGRATE{需要迁移?}
+ MIGRATE{"需要迁移?"}
  V2[V1 → V2 迁移]
  ENV[环境变量解析]
- TRUST{工作区信任?}
+ TRUST{"工作区信任?"}
  end
 
  subgraph Merge["合并层"]
  MERGE[customDeepMerge]
- STRAT[MergeStrategy<br/>replace/append/merge]
+ STRAT["MergeStrategy<br/>replace/append/merge"]
  RESULT[LoadedSettings]
  end
 

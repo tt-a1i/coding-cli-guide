@@ -95,13 +95,13 @@ export function NonInteractiveDeep() {
  const executionFlowChart = `flowchart TD
  subgraph Input["输入处理"]
  STDIN["stdin + prompt"]
- SLASH{Slash 命令?}
+ SLASH{"Slash 命令?"}
  AT["@ 命令处理"]
  end
 
  subgraph Loop["执行循环"]
  TURN["turnCount++"]
- CHECK{超过 maxSessionTurns?}
+ CHECK{"超过 maxSessionTurns?"}
  SEND["sendMessageStream"]
  STREAM["流式响应"]
  end

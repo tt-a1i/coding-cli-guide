@@ -125,12 +125,12 @@ export function HookSystem() {
 
  const hookEventFlowChart = `flowchart TD
  trigger([事件触发点])
- planner[HookPlanner<br/>规划执行计划]
- registry[(HookRegistry<br/>Hook 配置注册表)]
- policy{Policy Engine<br/>权限检查}
- runner[HookRunner<br/>Shell 命令执行]
- aggregator[HookAggregator<br/>结果聚合]
- output([Hook 输出<br/>decision/systemMessage])
+ planner["HookPlanner<br/>规划执行计划"]
+ registry["(HookRegistry<br/>Hook 配置注册表)"]
+ policy{"Policy Engine<br/>权限检查"}
+ runner["HookRunner<br/>Shell 命令执行"]
+ aggregator["HookAggregator<br/>结果聚合"]
+ output(["Hook 输出<br/>decision/systemMessage"])
 
  trigger --> planner
  planner --> registry

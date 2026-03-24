@@ -99,16 +99,16 @@ export function MemoryManagement() {
  <MermaidDiagram
  title="压缩决策流程"
  chart={`flowchart TB
- A[检查 Token 使用量] --> B{超过 70% 阈值?}
+ A[检查 Token 使用量] --> B{"超过 70% 阈值?"}
  B -->|否| C[不压缩 NOOP]
  B -->|是| D[计算分割点]
- D --> E[分割历史: 70% 压缩 / 30% 保留]
+ D --> E["分割历史: 70% 压缩 / 30% 保留"]
  E --> F[生成摘要 state_snapshot]
- F --> G{摘要有效?}
- G -->|空摘要| H[失败: EMPTY_SUMMARY]
- G -->|Token 膨胀| I[失败: INFLATED_TOKEN_COUNT]
- G -->|有效| J[替换历史: 摘要 + 保留部分]
- J --> K[成功: COMPRESSED]
+ F --> G{"摘要有效?"}
+ G -->|空摘要| H["失败: EMPTY_SUMMARY"]
+ G -->|Token 膨胀| I["失败: INFLATED_TOKEN_COUNT"]
+ G -->|有效| J["替换历史: 摘要 + 保留部分"]
+ J --> K["成功: COMPRESSED"]
 
  style C fill:${getThemeColor("--mermaid-muted-fill", "#f4f4f2")}
  style H fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")}
@@ -149,14 +149,14 @@ export function MemoryManagement() {
  title="分割点查找逻辑"
  chart={`flowchart LR
  subgraph History["历史消息"]
- M1[User: 问题1]
- M2[Model: 回答1]
- M3[User: 问题2]
- M4[Model: 工具调用]
- M5[User: functionResponse]
- M6[Model: 回答2]
- M7[User: 问题3]
- M8[Model: 回答3]
+ M1["User: 问题1"]
+ M2["Model: 回答1"]
+ M3["User: 问题2"]
+ M4["Model: 工具调用"]
+ M5["User: functionResponse"]
+ M6["Model: 回答2"]
+ M7["User: 问题3"]
+ M8["Model: 回答3"]
  end
 
  subgraph Candidates["候选分割点"]

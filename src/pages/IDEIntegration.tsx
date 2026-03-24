@@ -18,16 +18,16 @@ const relatedPages: RelatedPage[] = [
 
 export function IDEIntegration() {
  const connectionFlowChart = `flowchart TD
- start([启动 CLI<br/>&#40;在 IDE 终端&#41;])
- detect_env[检测环境变量<br/>GEMINI_CLI_IDE_*]
- has_env{有环境变量?}
- check_ext[检查扩展<br/>是否安装]
- ext_ok{扩展可用?}
- connect[建立连接<br/>HTTP/SSE]
- check_workspace{验证工作区<br/>路径匹配}
- connected([连接成功<br/>启用 IDE 功能])
- show_nudge[提示安装<br/>扩展]
- standalone([独立模式<br/>&#40;无 IDE 功能&#41;])
+ start(["启动 CLI<br/>&#40;在 IDE 终端&#41;"])
+ detect_env["检测环境变量<br/>GEMINI_CLI_IDE_*"]
+ has_env{"有环境变量?"}
+ check_ext["检查扩展<br/>是否安装"]
+ ext_ok{"扩展可用?"}
+ connect["建立连接<br/>HTTP/SSE"]
+ check_workspace{"验证工作区<br/>路径匹配"}
+ connected(["连接成功<br/>启用 IDE 功能"])
+ show_nudge["提示安装<br/>扩展"]
+ standalone(["独立模式<br/>&#40;无 IDE 功能&#41;"])
 
  start --> detect_env
  detect_env --> has_env
@@ -52,15 +52,15 @@ export function IDEIntegration() {
  class show_nudge hint`;
 
  const diffFlowChart = `flowchart TD
- start([AI 提议<br/>修改文件])
- check_ide{IDE 已连接?}
- call_mcp[调用 MCP<br/>openDiff 工具]
- cli_diff[在 CLI 中<br/>显示 Diff]
- set_content[DiffContentProvider<br/>设置虚拟文档内容]
- open_diff[vscode.diff<br/>打开对比视图]
+ start(["AI 提议<br/>修改文件"])
+ check_ide{"IDE 已连接?"}
+ call_mcp["调用 MCP<br/>openDiff 工具"]
+ cli_diff["在 CLI 中<br/>显示 Diff"]
+ set_content["DiffContentProvider<br/>设置虚拟文档内容"]
+ open_diff["vscode.diff<br/>打开对比视图"]
  user_action{用户操作}
- accept([接受修改<br/>ide/diffAccepted])
- reject([拒绝修改<br/>ide/diffRejected])
+ accept(["接受修改<br/>ide/diffAccepted"])
+ reject(["拒绝修改<br/>ide/diffRejected"])
 
  start --> check_ide
  check_ide -->|No| cli_diff

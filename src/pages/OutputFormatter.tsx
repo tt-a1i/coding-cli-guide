@@ -99,8 +99,8 @@ export function OutputFormatter() {
  end
 
  subgraph Output["输出"]
- PLAIN[纯文本<br/>response only]
- STRUCT[结构化 JSON<br/>response + stats + error]
+ PLAIN["纯文本<br/>response only"]
+ STRUCT["结构化 JSON<br/>response + stats + error"]
  end
 
  RESP --> MODE

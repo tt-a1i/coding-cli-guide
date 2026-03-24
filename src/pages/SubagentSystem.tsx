@@ -483,9 +483,9 @@ async function loadAgentsFromDirectory(dir: string): Promise<AgentLoadResult> {
  chart={`flowchart LR
  subgraph Init["initialize()"]
  A[加载 Builtin] --> B[监听 ModelChanged]
- B --> C{Agents 启用?}
+ B --> C{"Agents 启用?"}
  C -->|是| D[加载 User 级]
- D --> E{信任文件夹?}
+ D --> E{"信任文件夹?"}
  E -->|是| F[加载 Project 级]
  E -->|否| G[跳过 Project 级]
  end

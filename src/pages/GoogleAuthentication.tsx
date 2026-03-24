@@ -131,10 +131,10 @@ await Promise.race([webLogin.loginCompletePromise, timeoutPromise]);`}
  <MermaidDiagram
  title="PKCE 核心机制"
  chart={`flowchart LR
- A[code_verifier\n(随机)] --> B[SHA-256]
+ A["code_verifier\n(随机)"] --> B[SHA-256]
  B --> C[base64url] --> D[code_challenge]
- D --> E[generateAuthUrl\n(code_challenge)]
- F[粘贴 code] --> G[getToken\n(code_verifier)]
+ D --> E["generateAuthUrl\n(code_challenge)"]
+ F[粘贴 code] --> G["getToken\n(code_verifier)"]
  E --> G
 `}
  />

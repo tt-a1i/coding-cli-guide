@@ -113,16 +113,16 @@ export function AuthenticationFlow() {
  <MermaidDiagram
  title="settings → refreshAuth 的关键链路"
  chart={`flowchart TD
- A[加载 settings\n~/.gemini/settings.json + .gemini/settings.json] --> B{security.auth.selectedType ?}
- B -- 有 --> C[config.refreshAuth(selectedType)]
+ A["加载 settings\n~/.gemini/settings.json + .gemini/settings.json"] --> B{"security.auth.selectedType ?"}
+ B -- 有 --> C["config.refreshAuth(selectedType)"]
  B -- 无 --> D[UI 引导选择登录方式]
  D --> C
 
  C --> E{AuthType}
- E -->|oauth-personal| F[getOauthClient()\n(code_assist/oauth2.ts)]
- E -->|gemini-api-key| G[loadApiKey()\n(GEMINI_API_KEY)]
- E -->|vertex-ai| H[Vertex/Project/Location\n(GOOGLE_CLOUD_*)]
- E -->|compute-default-credentials| I[Compute ADC\n(metadata server)]
+ E -->|oauth-personal| F["getOauthClient()\n(code_assist/oauth2.ts)"]
+ E -->|gemini-api-key| G["loadApiKey()\n(GEMINI_API_KEY)"]
+ E -->|vertex-ai| H["Vertex/Project/Location\n(GOOGLE_CLOUD_*)"]
+ E -->|compute-default-credentials| I["Compute ADC\n(metadata server)"]
  `}
  />
  </Layer>

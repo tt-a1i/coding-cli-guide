@@ -9,18 +9,18 @@ import { getThemeColor } from '../utils/theme';
 export function IDEDiffProtocol() {
  // IDE 连接建立流程
  const connectionFlowChart = `flowchart TD
- start([CLI 启动<br/>/ide enable])
- detect[检测 IDE<br/>进程树]
- try_compat[兼容读取<br/>/tmp/gemini-ide-server-{idePid}.json]
- compat_ok{读取成功?}
- scan_dir[扫描目录<br/>/tmp/gemini/ide/]
- pick_file[筛选文件<br/>gemini-ide-server-{idePid}-*.json]
- read_port[读取端口配置<br/>{ port, workspacePath, authToken }]
- validate{验证 Workspace<br/>路径匹配?}
- mcp_connect[MCP Client<br/>建立 HTTP SSE]
- discover[发现可用工具<br/>openDiff/closeDiff]
- connected([IDEConnectionStatus<br/>= Connected])
- failed([连接失败<br/>提示安装插件])
+ start(["CLI 启动<br/>/ide enable"])
+ detect["检测 IDE<br/>进程树"]
+ try_compat["兼容读取<br/>/tmp/gemini-ide-server-{idePid}.json"]
+ compat_ok{"读取成功?"}
+ scan_dir["扫描目录<br/>/tmp/gemini/ide/"]
+ pick_file["筛选文件<br/>gemini-ide-server-{idePid}-*.json"]
+ read_port["读取端口配置<br/>{ port, workspacePath, authToken }"]
+ validate{"验证 Workspace<br/>路径匹配?"}
+ mcp_connect["MCP Client<br/>建立 HTTP SSE"]
+ discover["发现可用工具<br/>openDiff/closeDiff"]
+ connected(["IDEConnectionStatus<br/>= Connected"])
+ failed(["连接失败<br/>提示安装插件"])
 
  start --> detect
  detect --> try_compat
@@ -43,17 +43,17 @@ export function IDEDiffProtocol() {
 
  // Diff View 完整交互流程
  const diffFlowChart = `flowchart TD
- tool([AI 调用<br/>write_file/replace])
- check_ide{IDE 已连接<br/>且支持 Diff?}
- acquire_mutex[获取 diffMutex<br/>单 Diff 锁]
- send_open[MCP: openDiff<br/>filePath, newContent]
- vscode_diff[VS Code 渲染<br/>原生 Diff View]
+ tool(["AI 调用<br/>write_file/replace"])
+ check_ide{"IDE 已连接<br/>且支持 Diff?"}
+ acquire_mutex["获取 diffMutex<br/>单 Diff 锁"]
+ send_open["MCP: openDiff<br/>filePath, newContent"]
+ vscode_diff["VS Code 渲染<br/>原生 Diff View"]
  user_action{用户操作}
- accept[ide/diffAccepted<br/>通知]
- reject[ide/diffClosed<br/>通知]
+ accept["ide/diffAccepted<br/>通知"]
+ reject["ide/diffClosed<br/>通知"]
  write([写入磁盘])
  cancel([取消修改])
- direct([直接写入<br/>非 IDE 模式])
+ direct(["直接写入<br/>非 IDE 模式"])
 
  tool --> check_ide
  check_ide -->|No| direct

@@ -102,17 +102,17 @@ export function ChatRecording() {
 
  const recordingFlowChart = `flowchart TD
  init([initialize])
- resume{恢复会话?}
+ resume{"恢复会话?"}
  create[创建新会话文件]
  load[加载已有文件]
  msg([recordMessage])
  thought([recordThought])
  tokens([recordMessageTokens])
  tools([recordToolCalls])
- queue[(队列缓冲)]
+ queue["(队列缓冲)"]
  update[updateConversation]
  write[writeConversation]
- file[(JSON 文件)]
+ file["(JSON 文件)"]
 
  init --> resume
  resume -->|是| load

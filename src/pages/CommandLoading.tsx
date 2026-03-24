@@ -107,10 +107,10 @@ export function CommandLoading() {
  end
 
  subgraph Sources["命令来源"]
- builtin[(内置命令<br/>30+)]
- user[(用户目录<br/>~/.config/gemini/commands)]
- project[(项目目录<br/>.gemini/commands)]
- ext[(扩展目录<br/>extensions/*/commands)]
+ builtin["(内置命令<br/>30+)"]
+ user["(用户目录<br/>~/.config/gemini/commands)"]
+ project["(项目目录<br/>.gemini/commands)"]
+ ext["(扩展目录<br/>extensions/*/commands)"]
  end
 
  subgraph Service["CommandService"]

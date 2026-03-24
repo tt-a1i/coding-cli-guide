@@ -98,7 +98,7 @@ export function KeyBindings() {
  const keyBindingFlowChart = `flowchart TD
  subgraph Input["用户输入层"]
  KP[Keypress Event]
- MOD[修饰键状态<br/>ctrl/shift/command]
+ MOD["修饰键状态<br/>ctrl/shift/command"]
  end
 
  subgraph Matching["匹配层"]

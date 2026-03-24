@@ -18,27 +18,27 @@ export function ToolSchedulerDetails() {
 
  // 工具调度完整流程 - Mermaid flowchart
  const toolSchedulerFlowChart = `flowchart TD
- start([AI 请求执行工具])
- schedule_entry[Scheduler.schedule()]
- is_running{是否有工具<br/>正在执行?}
- queue_request[加入等待队列]
- wait_batch[等待当前批次完成]
- build_invocation[查找工具 + build()<br/>schema 校验]
- build_ok{构建是否成功?}
- check_policy[checkPolicy()]
- policy_result{PolicyDecision}
- denied([DENY -> error])
- ask_user[resolveConfirmation()]
- confirm_result{outcome}
- cancelled([Cancel])
- update_policy[updatePolicy()]
- scheduled([scheduled<br/>进入执行队列])
- execute[ToolExecutor.execute]
- convert_response[functionResponse]
- truncate{输出是否<br/>超过阈值?}
- truncate_output[saveTruncatedToolOutput<br/>截断并保存]
- error_response([返回错误响应])
- success_response([返回成功响应])
+ start(["AI 请求执行工具"])
+ schedule_entry["Scheduler.schedule()"]
+ is_running{"是否有工具<br/>正在执行?"}
+ queue_request["加入等待队列"]
+ wait_batch["等待当前批次完成"]
+ build_invocation["查找工具 + build<br/>schema 校验"]
+ build_ok{"构建是否成功?"}
+ check_policy["checkPolicy()"]
+ policy_result{"PolicyDecision"}
+ denied(["DENY - error"])
+ ask_user["resolveConfirmation()"]
+ confirm_result{"outcome"}
+ cancelled(["Cancel"])
+ update_policy["updatePolicy()"]
+ scheduled(["scheduled<br/>进入执行队列"])
+ execute["ToolExecutor.execute"]
+ convert_response["functionResponse"]
+ truncate{"输出是否<br/>超过阈值?"}
+ truncate_output["saveTruncatedToolOutput<br/>截断并保存"]
+ error_response(["返回错误响应"])
+ success_response(["返回成功响应"])
 
  start --> schedule_entry
  schedule_entry --> is_running
@@ -85,7 +85,7 @@ export function ToolSchedulerDetails() {
  allow([ALLOW])
  deny([DENY])
  ask_user[resolveConfirmation]
- wait_confirm[awaitConfirmation<br/>MessageBus]
+ wait_confirm["awaitConfirmation<br/>MessageBus"]
  outcome{outcome}
  proceed([Proceed])
  cancel([Cancel])

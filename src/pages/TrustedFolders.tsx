@@ -17,16 +17,16 @@ export function TrustedFolders() {
  ];
  const trustDecisionFlowChart = `flowchart TD
  start([启动 CLI])
- check_enabled{检查 folderTrust<br/>是否启用}
- check_ide[检查 IDE<br/>信任信号]
- ide_trusted{IDE 信任?}
- check_file[检查<br/>trustedFolders.json]
- file_has_rule{有规则?}
+ check_enabled{"检查 folderTrust<br/>是否启用"}
+ check_ide["检查 IDE<br/>信任信号"]
+ ide_trusted{"IDE 信任?"}
+ check_file["检查<br/>trustedFolders.json"]
+ file_has_rule{"有规则?"}
  show_dialog[显示信任对话框]
  user_choice{用户选择}
  trusted([完全功能模式])
  untrusted([受限安全模式])
- skip([跳过检查<br/>功能未启用])
+ skip(["跳过检查<br/>功能未启用"])
 
  start --> check_enabled
  check_enabled -->|No| skip

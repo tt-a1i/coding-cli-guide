@@ -99,8 +99,8 @@ export function SummarizerSystem() {
  end
 
  subgraph Check["长度检查"]
- LEN{length < maxTokens?}
- SKIP[跳过摘要<br/>返回原文]
+ LEN{"length < maxTokens?"}
+ SKIP["跳过摘要<br/>返回原文"]
  end
 
  subgraph Summarize["LLM 摘要"]
@@ -111,7 +111,7 @@ export function SummarizerSystem() {
 
  subgraph Output["输出"]
  SUMMARY[摘要文本]
- ERR[错误回退<br/>返回原文]
+ ERR["错误回退<br/>返回原文"]
  end
 
  TOOL --> RESULT

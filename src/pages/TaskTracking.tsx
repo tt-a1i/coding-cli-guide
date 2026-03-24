@@ -87,14 +87,14 @@ export function TaskTracking() {
  const [isSummaryExpanded, setIsSummaryExpanded] = useState(true);
 
  const architectureChart = `flowchart TD
- User([用户/AI Agent])
- Tools[TaskTracker Tools<br/>CRUD 工具接口]
- Tracker[TaskTracker<br/>核心协调器]
- Store[(TaskStore<br/>数据存储)]
- Viz[TaskVisualization<br/>可视化渲染]
- Strategy[TaskTracker Strategy<br/>系统提示注入]
- PlanMode[Plan Mode<br/>计划模式]
- FS[(文件系统<br/>JSON 持久化)]
+ User(["用户/AI Agent"])
+ Tools["TaskTracker Tools<br/>CRUD 工具接口"]
+ Tracker["TaskTracker<br/>核心协调器"]
+ Store["(TaskStore<br/>数据存储)"]
+ Viz["TaskVisualization<br/>可视化渲染"]
+ Strategy["TaskTracker Strategy<br/>系统提示注入"]
+ PlanMode["Plan Mode<br/>计划模式"]
+ FS["(文件系统<br/>JSON 持久化)"]
 
  User --> Tools
  Tools --> Tracker
@@ -319,11 +319,11 @@ export class TaskPersistence {
 }`;
 
  const dependencyFlowChart = `flowchart LR
- A[Task A<br/>设计 Schema] --> B[Task B<br/>实现 Model]
- A --> C[Task C<br/>编写迁移脚本]
- B --> D[Task D<br/>实现 API]
+ A["Task A<br/>设计 Schema"] --> B["Task B<br/>实现 Model"]
+ A --> C["Task C<br/>编写迁移脚本"]
+ B --> D["Task D<br/>实现 API"]
  C --> D
- D --> E[Task E<br/>集成测试]
+ D --> E["Task E<br/>集成测试"]
 
  style A fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
  style B fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}

@@ -99,9 +99,9 @@ export function PromptProcessors() {
 
  const pipelineFlowChart = `flowchart TD
  input([TOML prompt 模板])
- atFile[AtFileProcessor<br/>@文件注入]
- shell[ShellProcessor<br/>!命令执行]
- args[DefaultArgumentProcessor<br/>参数追加]
+ atFile["AtFileProcessor<br/>@文件注入"]
+ shell["ShellProcessor<br/>!命令执行"]
+ args["DefaultArgumentProcessor<br/>参数追加"]
  output([最终 Prompt])
 
  input --> atFile

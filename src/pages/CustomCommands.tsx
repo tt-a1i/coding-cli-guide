@@ -21,13 +21,13 @@ export function CustomCommands() {
  const commandLoadingFlow = `flowchart TD
  start([CLI 启动])
  loader_init[FileCommandLoader 初始化]
- check_trust{工作区是否受信任?}
- load_user[加载用户级命令<br/>~/.gemini/commands/]
- load_project[加载项目级命令<br/>.gemini/commands/]
+ check_trust{"工作区是否受信任?"}
+ load_user["加载用户级命令<br/>~/.gemini/commands/"]
+ load_project["加载项目级命令<br/>.gemini/commands/"]
  skip_project[跳过项目级命令]
  load_ext[加载扩展命令]
  merge[合并命令列表]
- resolve_conflict{命名冲突?}
+ resolve_conflict{"命名冲突?"}
  rename[重命名为 ext.cmd]
  register[注册到 CommandRegistry]
  ready([命令就绪])
@@ -57,15 +57,15 @@ export function CustomCommands() {
 
  // Prompt 处理流程
  const promptProcessingFlow = `flowchart TD
- start([用户调用 /custom-cmd args])
+ start(["用户调用 /custom-cmd args"])
  get_template[获取命令的 prompt 模板]
- atfile_check{包含 @&#123;...&#125; ?}
- atfile_proc[AtFileProcessor<br/>读取文件内容注入]
- shell_check{包含 !&#123;...&#125; ?}
- shell_proc[ShellProcessor<br/>执行命令注入]
- args_check{包含 &#123;&#123;args&#125;&#125; ?}
- args_replace[替换 &#123;&#123;args&#125;&#125;<br/>为用户参数]
- default_args[DefaultArgumentProcessor<br/>追加未使用的 args]
+ atfile_check{"包含 @&#123;...&#125; ?"}
+ atfile_proc["AtFileProcessor<br/>读取文件内容注入"]
+ shell_check{"包含 !&#123;...&#125; ?"}
+ shell_proc["ShellProcessor<br/>执行命令注入"]
+ args_check{"包含 &#123;&#123;args&#125;&#125; ?"}
+ args_replace["替换 &#123;&#123;args&#125;&#125;<br/>为用户参数"]
+ default_args["DefaultArgumentProcessor<br/>追加未使用的 args"]
  final_prompt[最终 prompt]
  send_ai([发送给 AI 模型])
 
@@ -98,18 +98,18 @@ export function CustomCommands() {
  // Shell 注入安全流程
  const shellInjectionSafetyFlow = `flowchart TD
  start([检测到 !&#123;command&#125; ])
- parse[解析命令内容<br/>平衡花括号]
- replace_args[替换 &#123;&#123;args&#125;&#125;<br/>为转义后的参数]
+ parse["解析命令内容<br/>平衡花括号"]
+ replace_args["替换 &#123;&#123;args&#125;&#125;<br/>为转义后的参数"]
  check_allow[checkCommandPermissions]
- is_blocklist{在 tools.exclude?}
- hard_deny[硬拒绝<br/>抛出错误]
- is_core_wildcard{tools.core 包含<br/>run_shell_command?}
+ is_blocklist{"在 tools.exclude?"}
+ hard_deny["硬拒绝<br/>抛出错误"]
+ is_core_wildcard{"tools.core 包含<br/>run_shell_command?"}
  auto_allow[自动允许]
- is_global_allowlist{在 tools.core<br/>run_shell_command 列表?}
- is_session_allowlist{在 sessionShellAllowlist?}
- is_yolo{YOLO 模式?}
+ is_global_allowlist{"在 tools.core<br/>run_shell_command 列表?"}
+ is_session_allowlist{"在 sessionShellAllowlist?"}
+ is_yolo{"YOLO 模式?"}
  confirm_dialog[弹出确认对话框]
- user_approve{用户批准?}
+ user_approve{"用户批准?"}
  add_session[添加到 sessionShellAllowlist]
  execute[执行 Shell 命令]
  inject([注入输出到 prompt])

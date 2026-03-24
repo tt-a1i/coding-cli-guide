@@ -15,7 +15,7 @@ export function MemorySystemSplit() {
  memory_cmd[&#47;memory 命令]
  save_memory[save_memory 工具]
  gemini_file[("GEMINI.md" 文件)]
- discovery[memoryDiscovery<br/>层级发现]
+ discovery["memoryDiscovery<br/>层级发现"]
  read_files[读取所有 GEMINI.md]
  concatenate[拼接内容]
  system_prompt[注入 System Prompt]
@@ -48,16 +48,16 @@ export function MemorySystemSplit() {
  // 层级发现流程
  const hierarchyDiscoveryChart = `flowchart TD
  start([开始层级发现])
- global[检查全局记忆<br/>~/.gemini/GEMINI.md]
- project_root[向上查找项目根<br/>包含 .git 的目录]
- current[当前工作目录<br/>./GEMINI.md]
- bfs[BFS 向下搜索<br/>子目录 GEMINI.md]
+ global["检查全局记忆<br/>~/.gemini/GEMINI.md"]
+ project_root["向上查找项目根<br/>包含 .git 的目录"]
+ current["当前工作目录<br/>./GEMINI.md"]
+ bfs["BFS 向下搜索<br/>子目录 GEMINI.md"]
 
- trust_check{folderTrust?}
+ trust_check{"folderTrust?"}
  stop_global([只返回全局记忆])
 
  read_all[读取所有发现的文件]
- process_import[处理 @import 指令]
+ process_import["处理 @import 指令"]
  concatenate[按层级拼接内容]
  result([返回 memoryContent])
 
@@ -84,20 +84,20 @@ export function MemorySystemSplit() {
  // save_memory 工具流程
  const saveMemoryFlowChart = `flowchart TD
  start([AI 调用 save_memory])
- has_scope{指定了 scope?}
- show_selector[显示选择对话框<br/>GLOBAL vs PROJECT]
+ has_scope{"指定了 scope?"}
+ show_selector["显示选择对话框<br/>GLOBAL vs PROJECT"]
  user_select[用户选择 scope]
 
  determine_file[确定目标文件路径]
  read_current[读取当前文件内容]
 
- has_section{存在 ## Gemini<br/>Added Memories?}
+ has_section{"存在 ## Gemini<br/>Added Memories?"}
  append_section[在现有区段追加]
  create_section[文件末尾创建新区段]
 
  compute_diff[计算文件 diff]
  show_preview[显示差异预览]
- user_confirm{用户确认?}
+ user_confirm{"用户确认?"}
 
  write_file[写入文件]
  success([保存成功])

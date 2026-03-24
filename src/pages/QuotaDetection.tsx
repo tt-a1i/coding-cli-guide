@@ -109,9 +109,9 @@ export function QuotaDetection() {
  end
 
  subgraph Decision["决策"]
- FB[触发 Fallback<br/>Pro → Flash]
- STOP[停止重试<br/>配额耗尽]
- RETRY[指数退避重试<br/>限流可恢复]
+ FB["触发 Fallback<br/>Pro → Flash"]
+ STOP["停止重试<br/>配额耗尽"]
+ RETRY["指数退避重试<br/>限流可恢复"]
  PASS[透传错误]
  end
 

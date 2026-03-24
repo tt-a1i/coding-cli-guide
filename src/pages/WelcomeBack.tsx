@@ -8,12 +8,12 @@ import { getThemeColor } from '../utils/theme';
 export function WelcomeBack() {
  const welcomeBackFlowChart = `flowchart TD
  start([启动 CLI])
- check_enabled{检查<br/>settings.ui.enableWelcomeBack}
- check_summary[检查<br/>PROJECT_SUMMARY.md]
- has_summary{存在摘要?}
- show_dialog[显示<br/>Welcome Back 对话框]
+ check_enabled{"检查<br/>settings.ui.enableWelcomeBack"}
+ check_summary["检查<br/>PROJECT_SUMMARY.md"]
+ has_summary{"存在摘要?"}
+ show_dialog["显示<br/>Welcome Back 对话框"]
  user_choice{用户选择}
- prefill_input[预填充输入框<br/>用户需按回车确认]
+ prefill_input["预填充输入框<br/>用户需按回车确认"]
  new_session([新会话])
  continue([继续对话])
 
@@ -36,12 +36,12 @@ export function WelcomeBack() {
  style continue fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
  const quitConfirmFlowChart = `flowchart TD
- start([触发退出<br/>Ctrl+C 或 /quit-confirm])
- show_dialog[显示退出<br/>确认对话框]
+ start(["触发退出<br/>Ctrl+C 或 /quit-confirm"])
+ show_dialog["显示退出<br/>确认对话框"]
  choice{用户选择}
  quit_now([立即退出])
- gen_summary[生成摘要<br/>/summary]
- save_chat[保存对话<br/>/chat save]
+ gen_summary["生成摘要<br/>/summary"]
+ save_chat["保存对话<br/>/chat save"]
  quit_after([退出])
 
  start --> show_dialog

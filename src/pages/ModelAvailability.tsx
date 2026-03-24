@@ -107,8 +107,8 @@ export function ModelAvailability() {
  end
 
  subgraph Check["🔍 可用性检查"]
- SNAP[snapshot(model)]
- SNAP --> |检查| STATE{健康状态?}
+ SNAP["snapshot(model)"]
+ SNAP --> |检查| STATE{"健康状态?"}
  end
 
  REQ --> SNAP
@@ -121,8 +121,8 @@ export function ModelAvailability() {
  CALL --> RESULT{调用结果}
 
  RESULT --> |成功| HEALTHY[markHealthy]
- RESULT --> |配额用尽| TERMINAL[markTerminal: quota]
- RESULT --> |容量不足| TERMINAL2[markTerminal: capacity]
+ RESULT --> |配额用尽| TERMINAL["markTerminal: quota"]
+ RESULT --> |容量不足| TERMINAL2["markTerminal: capacity"]
  RESULT --> |暂时失败| STICKY[markRetryOncePerTurn]
 
  SKIP1 --> NEXT[尝试下一模型]

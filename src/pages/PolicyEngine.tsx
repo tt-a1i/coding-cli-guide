@@ -116,12 +116,12 @@ export function PolicyEngine() {
 
  const policyDecisionFlowChart = `flowchart TD
  request([工具调用请求])
- stringify[参数序列化<br/>stableStringify]
- rules{规则匹配<br/>PolicyRule}
- checkers{Safety Checker<br/>执行}
- allow([ALLOW<br/>自动执行])
- deny([DENY<br/>拒绝执行])
- ask([ASK_USER<br/>用户确认])
+ stringify["参数序列化<br/>stableStringify"]
+ rules{"规则匹配<br/>PolicyRule"}
+ checkers{"Safety Checker<br/>执行"}
+ allow(["ALLOW<br/>自动执行"])
+ deny(["DENY<br/>拒绝执行"])
+ ask(["ASK_USER<br/>用户确认"])
 
  request --> stringify
  stringify --> rules
@@ -700,11 +700,11 @@ async checkHook(
  <div className="space-y-4">
  <MermaidDiagram
  chart={`flowchart TD
- shell[run_shell_command<br/>规则匹配 ALLOW]
- parse[解析命令<br/>splitCommands]
- single{单条命令?}
+ shell["run_shell_command<br/>规则匹配 ALLOW"]
+ parse["解析命令<br/>splitCommands"]
+ single{"单条命令?"}
  allow([ALLOW])
- multi[多条子命令<br/>递归检查]
+ multi["多条子命令<br/>递归检查"]
  sub1{子命令1 决策}
  sub2{子命令2 决策}
  final{聚合决策}

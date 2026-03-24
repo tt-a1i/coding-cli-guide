@@ -98,29 +98,29 @@ export function UIStateManagement() {
 
  const contextHierarchyChart = `flowchart TD
  subgraph Root["根级 Context"]
- App[AppContext<br/>版本/启动警告]
- Config[ConfigContext<br/>用户配置]
+ App["AppContext<br/>版本/启动警告"]
+ Config["ConfigContext<br/>用户配置"]
  end
 
  subgraph Session["会话级 Context"]
- Session[SessionContext<br/>会话指标/统计]
- Streaming[StreamingContext<br/>流式状态]
+ Session["SessionContext<br/>会话指标/统计"]
+ Streaming["StreamingContext<br/>流式状态"]
  end
 
  subgraph UI["UI 级 Context"]
- UIState[UIStateContext<br/>UI 完整状态]
- UIActions[UIActionsContext<br/>状态更新函数]
+ UIState["UIStateContext<br/>UI 完整状态"]
+ UIActions["UIActionsContext<br/>状态更新函数"]
  end
 
  subgraph Input["输入级 Context"]
- Keypress[KeypressContext<br/>键盘事件]
- VimMode[VimModeContext<br/>Vim 模式状态]
- ShellFocus[ShellFocusContext<br/>嵌入式 Shell 焦点]
+ Keypress["KeypressContext<br/>键盘事件"]
+ VimMode["VimModeContext<br/>Vim 模式状态"]
+ ShellFocus["ShellFocusContext<br/>嵌入式 Shell 焦点"]
  end
 
  subgraph Other["其他 Context"]
- Settings[SettingsContext<br/>设置面板]
- Overflow[OverflowContext<br/>滚动溢出]
+ Settings["SettingsContext<br/>设置面板"]
+ Overflow["OverflowContext<br/>滚动溢出"]
  end
 
  App --> Session

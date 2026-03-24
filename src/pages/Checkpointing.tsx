@@ -18,15 +18,15 @@ const relatedPages: RelatedPage[] = [
 
 export function Checkpointing() {
  const checkpointFlowChart = `flowchart TD
- start([工具进入<br/>awaiting approval<br/>状态])
- check_enabled{检查点功能<br/>是否启用?}
- create_snapshot[创建 Git<br/>快照]
- save_conversation[保存对话<br/>历史]
- save_tool_call[保存工具<br/>调用信息]
- wait_approval[等待用户<br/>批准]
+ start(["工具进入<br/>awaiting approval<br/>状态"])
+ check_enabled{"检查点功能<br/>是否启用?"}
+ create_snapshot["创建 Git<br/>快照"]
+ save_conversation["保存对话<br/>历史"]
+ save_tool_call["保存工具<br/>调用信息"]
+ wait_approval["等待用户<br/>批准"]
  execute_tool[执行工具]
  tool_done([工具执行完成])
- skip([等待批准<br/>无检查点])
+ skip(["等待批准<br/>无检查点"])
 
  start --> check_enabled
  check_enabled -->|No| skip
@@ -47,13 +47,13 @@ export function Checkpointing() {
  class wait_approval,check_enabled decision_node`;
 
  const restoreFlowChart = `flowchart TD
- start([执行 #47;restore<br/>命令])
- list[列出可用<br/>检查点]
- select[用户选择<br/>检查点]
- revert_files[恢复文件<br/>restoreProjectFromSnapshot]
- restore_convo[恢复对话<br/>历史]
- restore_tool[重新提议<br/>工具调用]
- restore_done([恢复完成<br/>可重新执行])
+ start(["执行 #47;restore<br/>命令"])
+ list["列出可用<br/>检查点"]
+ select["用户选择<br/>检查点"]
+ revert_files["恢复文件<br/>restoreProjectFromSnapshot"]
+ restore_convo["恢复对话<br/>历史"]
+ restore_tool["重新提议<br/>工具调用"]
+ restore_done(["恢复完成<br/>可重新执行"])
 
  start --> list
  list --> select

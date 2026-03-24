@@ -137,11 +137,11 @@ export function ModelRouting() {
  const strategyChainChart = `flowchart LR
  subgraph Chain["策略链执行流程"]
  direction LR
- A[请求进入] --> B{Fallback<br/>模型可用?}
+ A[请求进入] --> B{"Fallback<br/>模型可用?"}
  B --> |不可用| B1[返回备用模型]
- B --> |可用| C{Override<br/>用户指定?}
+ B --> |可用| C{"Override<br/>用户指定?"}
  C --> |是| C1[返回指定模型]
- C --> |否| D{Classifier<br/>复杂度分析}
+ C --> |否| D{"Classifier<br/>复杂度分析"}
  D --> |简单| D1[返回 Flash]
  D --> |复杂| D2[返回 Pro]
  D --> |无法判断| E[Default]

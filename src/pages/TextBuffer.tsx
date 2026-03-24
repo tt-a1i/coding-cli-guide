@@ -99,16 +99,16 @@ export function TextBuffer() {
  end
 
  subgraph State["状态结构"]
- LINES[lines: string[]]
- CURSOR[cursorRow/cursorCol]
- UNDO[undoStack/redoStack]
+ LINES["lines: string["]]
+ CURSOR["cursorRow/cursorCol"]
+ UNDO["undoStack/redoStack"]
  CLIP[clipboard]
  VISUAL[visualLayout]
  end
 
  subgraph Actions["Action 类型"]
  INSERT[insert]
- DELETE[backspace/delete]
+ DELETE["backspace/delete"]
  MOVE[move_cursor]
  VIM[vim_action]
  SELECTION[set_selection]

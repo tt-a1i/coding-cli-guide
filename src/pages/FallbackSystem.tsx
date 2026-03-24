@@ -98,10 +98,10 @@ export function FallbackSystem() {
 
  const fallbackFlowChart = `flowchart TD
  fail([模型调用失败])
- handler{UI Handler<br/>用户决策}
- retry[retry: 激活回退<br/>继续重试]
- stop[stop: 激活回退<br/>停止当前请求]
- auth[auth: 用户重新认证]
+ handler{"UI Handler<br/>用户决策"}
+ retry["retry: 激活回退<br/>继续重试"]
+ stop["stop: 激活回退<br/>停止当前请求"]
+ auth["auth: 用户重新认证"]
  activate[activateFallbackMode]
  done([完成])
 

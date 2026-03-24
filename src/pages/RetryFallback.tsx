@@ -9,13 +9,13 @@ export function RetryFallback() {
  const retryFlowChart = `flowchart TD
  start([API 请求])
  execute[执行请求]
- success{成功?}
+ success{"成功?"}
  return_result([返回结果])
- check_retry{可重试错误?}
- check_attempts{尝试次数<5?}
- calc_delay[计算延迟<br/>指数退避+抖动]
+ check_retry{"可重试错误?"}
+ check_attempts{"尝试次数<5?"}
+ calc_delay["计算延迟<br/>指数退避+抖动"]
  wait[等待延迟]
- fallback_check{尝试回退?}
+ fallback_check{"尝试回退?"}
  use_fallback[使用回退模型]
  throw_error([抛出错误])
 
@@ -45,12 +45,12 @@ export function RetryFallback() {
  const fallbackFlowChart = `flowchart TD
  start([主模型请求失败])
  check_error[分析错误类型]
- is_recoverable{可恢复?}
- check_fallback{有回退模型?}
- switch_model[切换到<br/>回退模型]
+ is_recoverable{"可恢复?"}
+ check_fallback{"有回退模型?"}
+ switch_model["切换到<br/>回退模型"]
  retry_request[重新请求]
- success{成功?}
- return_result([返回结果<br/>降级])
+ success{"成功?"}
+ return_result(["返回结果<br/>降级"])
  fail([最终失败])
 
  start --> check_error

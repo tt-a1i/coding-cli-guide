@@ -89,10 +89,10 @@ static getInstance(config?: Config): ClearcutLogger | undefined {
 
  const sdkInitChart = `flowchart TD
  start([initializeTelemetry])
- enabled{telemetry.enabled?}
- defer{useCliAuth && no creds?}
+ enabled{"telemetry.enabled?"}
+ defer{"useCliAuth && no creds?"}
  wait[等待 oauth post_auth]
- resource[resource: service.name + session.id]
+ resource["resource: service.name + session.id"]
  target{telemetry.target}
  local[local exporters]
  gcp[gcp exporters]

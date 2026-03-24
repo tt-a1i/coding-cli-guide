@@ -36,7 +36,7 @@ export function AIToolInteraction() {
  S->>Tool: shouldConfirmExecute()
  Tool-->>S: false | confirmationDetails
  S->>Tool: execute()
- Tool-->>S: ToolResult{llmContent,returnDisplay,error?}
+ Tool-->>S: ToolResult{"llmContent,returnDisplay,error?"}
 
  Note over CLI: 将 ToolResult 转成 functionResponse parts
  CLI->>API: continuation(contents + functionResponse)

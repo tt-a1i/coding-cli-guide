@@ -139,16 +139,16 @@ export function AgentFramework() {
  CHECK --> |超时/轮次| WARN[executeFinalWarningTurn]
 
  TURN --> MODEL[调用模型]
- MODEL --> TOOLS{有工具调用?}
+ MODEL --> TOOLS{"有工具调用?"}
 
  TOOLS --> |是| PROCESS[processFunctionCalls]
  TOOLS --> |否| ERROR[ERROR_NO_COMPLETE_TASK_CALL]
 
- PROCESS --> COMPLETE{complete_task?}
+ PROCESS --> COMPLETE{"complete_task?"}
  COMPLETE --> |是| GOAL[✅ GOAL]
  COMPLETE --> |否| CHECK
 
- WARN --> RECOVER{恢复成功?}
+ WARN --> RECOVER{"恢复成功?"}
  RECOVER --> |是| GOAL
  RECOVER --> |否| FAIL[❌ 终止]
  end

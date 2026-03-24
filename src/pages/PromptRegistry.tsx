@@ -104,9 +104,9 @@ export function PromptRegistry() {
  mcp([MCP Server])
  discover[发现 Prompts]
  register[registerPrompt]
- check{名称冲突?}
- rename[重命名:<br/>serverName_promptName]
- store[(Map 存储)]
+ check{"名称冲突?"}
+ rename["重命名:<br/>serverName_promptName"]
+ store["(Map 存储)"]
  query[查询接口]
  output([Prompt 定义])
 
@@ -399,11 +399,11 @@ registry.removePromptsByServer('my-mcp-server');`;
  end
 
  subgraph Registry["注册表"]
- PR[(PromptRegistry)]
+ PR["(PromptRegistry)"]
  end
 
  subgraph Usage["使用层"]
- Slash[/斜杠命令/]
+ Slash["/斜杠命令/"]
  UI[UI 列表]
  end
 

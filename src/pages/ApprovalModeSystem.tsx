@@ -160,15 +160,15 @@ export function ApprovalModeSystem() {
  const [isSummaryExpanded, setIsSummaryExpanded] = useState(true);
  // 工具审批决策流程 - Mermaid flowchart (基于 PolicyEngine)
  const approvalDecisionFlowChart = `flowchart TD
- start([ToolInvocation.shouldConfirmExecute()])
- bus[MessageBus.publish<br/>TOOL_CONFIRMATION_REQUEST]
- policy[PolicyEngine.check<br/>rules + safety checkers]
+ start(["ToolInvocation.shouldConfirmExecute()"])
+ bus["MessageBus.publish<br/>TOOL_CONFIRMATION_REQUEST"]
+ policy["PolicyEngine.check<br/>rules + safety checkers"]
  decision{PolicyDecision}
  allow([ALLOW → 不展示确认])
- deny([DENY → 抛错/拒绝])
+ deny(["DENY → 抛错/拒绝"])
  ask([ASK_USER → 返回确认详情])
- autoApproved{Au?}
- prompt_user([UI 展示确认<br/>Diff/参数/风险])
+ autoApproved{"Au?"}
+ prompt_user(["UI 展示确认<br/>Diff/参数/风险"])
  user_choice{用户选择}
  proceed([Proceed → 执行])
  cancel([Cancel → 取消])
@@ -1664,13 +1664,13 @@ async evaluate(request: ToolRequest): Promise<PolicyDecision> {
  <Layer title="模式选择决策树">
  <MermaidDiagram
  chart={`flowchart TD
- start[选择审批模式] --> q1{是否信任<br/>此项目？}
- q1 -->|否| default[Default 模式<br/>每次确认]
- q1 -->|是| q2{是否需要<br/>完全自动？}
- q2 -->|是| yolo[YOLO 模式<br/>全自动]
- q2 -->|否| q3{是否信任<br/>文件编辑？}
+ start[选择审批模式] --> q1{"是否信任<br/>此项目？"}
+ q1 -->|否| default["Default 模式<br/>每次确认"]
+ q1 -->|是| q2{"是否需要<br/>完全自动？"}
+ q2 -->|是| yolo["YOLO 模式<br/>全自动"]
+ q2 -->|否| q3{"是否信任<br/>文件编辑？"}
  q3 -->|否| default
- q3 -->|是| autoedit[Au模式<br/>自动编辑]
+ q3 -->|是| autoedit["Au模式<br/>自动编辑"]
 
  style start fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
  style default fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}

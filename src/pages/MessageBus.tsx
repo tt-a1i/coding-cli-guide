@@ -101,11 +101,11 @@ export function MessageBus() {
  const [isSummaryExpanded, setIsSummaryExpanded] = useState(true);
 
  const messageFlowChart = `flowchart TD
- pub([Publisher<br/>发布消息])
- bus[MessageBus<br/>消息路由]
- policy{Policy Engine<br/>策略检查}
- sub([Subscriber<br/>消息处理])
- ui([UI Layer<br/>用户交互])
+ pub(["Publisher<br/>发布消息"])
+ bus["MessageBus<br/>消息路由"]
+ policy{"Policy Engine<br/>策略检查"}
+ sub(["Subscriber<br/>消息处理"])
+ ui(["UI Layer<br/>用户交互"])
 
  pub -->|publish| bus
  bus -->|TOOL_CONFIRMATION_REQUEST| policy

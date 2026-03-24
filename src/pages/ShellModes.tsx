@@ -17,7 +17,7 @@ export function ShellModes() {
  shell_processor["shellCommandProcessor.ts<br/>useShellCommandProcessor()"]
  add_history["添加到历史记录"]
  shell_exec_service["ShellExecutionService.execute()"]
- pty_check{启用 PTY?}
+ pty_check{"启用 PTY?"}
  pty_mode["executeWithPty()<br/>支持交互式命令"]
  child_process["childProcessFallback()<br/>仅捕获输出"]
  direct_output["直接输出到终端"]
@@ -29,9 +29,9 @@ export function ShellModes() {
  shell_injector["shellProcessor.ts<br/>ShellProcessor.process()"]
  arg_substitution["参数替换:<br/>{{args}} → shell-escaped"]
  permission_check["checkCommandPermissions()<br/>(default deny)"]
- hard_denial{Hard denial?}
+ hard_denial{"Hard denial?"}
  blocked_error["Error: hard denial<br/>无法确认绕过"]
- needs_confirm{需要确认?}
+ needs_confirm{"需要确认?"}
  confirm_dialog["ShellConfirmationDialog<br/>Allow once / session / cancel"]
  allow_once["Allow once<br/>one-time allowlist"]
  allow_session["Allow for session<br/>update sessionShellAllowlist"]
@@ -82,7 +82,7 @@ export function ShellModes() {
  // PTY vs 子进程执行对比
  const executionMethodChart = `flowchart LR
  shell_exec["ShellExecutionService.execute()"]
- pty_enabled{enableInteractiveShell<br/>+ node-pty 可用?}
+ pty_enabled{"enableInteractiveShell<br/>+ node-pty 可用?"}
 
  subgraph pty["PTY 模式"]
  direction TB
@@ -116,29 +116,29 @@ export function ShellModes() {
 
  // 权限检查流程
  const permissionCheckChart = `flowchart TD
- start([checkCommandPermissions(command, config, sessionAllowlist?)])
+ start(["checkCommandPermissions(command, config, sessionAllowlist?)"])
  parse["parseCommandDetails(command)<br/>Bash(tree-sitter) / PowerShell parser"]
- parse_ok{parse ok?}
- hard_parse([Hard deny<br/>无法安全解析])
+ parse_ok{"parse ok?"}
+ hard_parse(["Hard deny<br/>无法安全解析"])
 
- wildcard_block{tools.exclude includes<br/>run_shell_command/ShellTool?}
- hard_shell_disabled([Hard deny<br/>shell tool disabled])
- exclude_match{any segment matches<br/>tools.exclude patterns?}
- hard_exclude([Hard deny<br/>blocked by configuration])
+ wildcard_block{"tools.exclude includes<br/>run_shell_command/ShellTool?"}
+ hard_shell_disabled(["Hard deny<br/>shell tool disabled"])
+ exclude_match{"any segment matches<br/>tools.exclude patterns?"}
+ hard_exclude(["Hard deny<br/>blocked by configuration"])
 
- wildcard_allow{tools.core includes<br/>run_shell_command/ShellTool?}
- allow_all([Allowed<br/>wildcard allow])
+ wildcard_allow{"tools.core includes<br/>run_shell_command/ShellTool?"}
+ allow_all(["Allowed<br/>wildcard allow"])
 
- mode{sessionAllowlist provided?}
+ mode{"sessionAllowlist provided?"}
 
  default_deny["Default deny mode<br/>(custom command injection)"]
- deny_check{each segment allowed<br/>by sessionAllowlist OR tools.core?}
- soft_deny([Soft deny<br/>needs user confirmation])
+ deny_check{"each segment allowed<br/>by sessionAllowlist OR tools.core?"}
+ soft_deny(["Soft deny<br/>needs user confirmation"])
 
  default_allow["Default allow mode<br/>(direct tool invocation)"]
- strict{tools.core has any<br/>run_shell_command(...) patterns?}
- allow_check{each segment matches<br/>tools.core?}
- soft_deny2([Soft deny<br/>blocked by strict allowlist])
+ strict{"tools.core has any<br/>run_shell_command(...) patterns?"}
+ allow_check{"each segment matches<br/>tools.core?"}
+ soft_deny2(["Soft deny<br/>blocked by strict allowlist"])
 
  allow_default([Allowed])
 

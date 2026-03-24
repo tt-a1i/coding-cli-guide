@@ -57,14 +57,14 @@ ContentGenerator (interface)
  <h4 className="text-heading font-bold mb-2">上游流式管道概览</h4>
  <MermaidDiagram
  chart={`flowchart LR
- A[@google/genai stream] --> B[GeminiChat.sendMessageStream]
+ A["@google/genai stream"] --> B[GeminiChat.sendMessageStream]
  B --> C[Turn.run 事件解码]
  C --> D{GeminiEventType}
  D -->|Thought| T[UI Thought]
  D -->|Content| X[UI TextBuffer]
  D -->|ToolCallRequest| Y[ToolScheduler]
  D -->|Finished| Z[结束 turn + usage]
- B --> R[Retry 通知 (StreamEventType.RETRY)]`}
+ B --> R["Retry 通知 (StreamEventType.RETRY)"]`}
  />
  </div>
  </Layer>

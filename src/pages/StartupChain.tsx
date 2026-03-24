@@ -122,18 +122,18 @@ export function StartupChain() {
 
  const startupFlowDiagram = `flowchart TD
  start([执行 gemini 命令])
- main_entry[main 入口<br/>index.ts:14]
- load_settings[loadSettings<br/>settings.ts:583]
- parse_args[parseArguments<br/>config.ts:130]
- sandbox_check{是否需要<br/>启动沙箱?}
- sandbox_launch[启动沙箱<br/>gemini.tsx:251]
+ main_entry["main 入口<br/>index.ts:14"]
+ load_settings["loadSettings<br/>settings.ts:583"]
+ parse_args["parseArguments<br/>config.ts:130"]
+ sandbox_check{"是否需要<br/>启动沙箱?"}
+ sandbox_launch["启动沙箱<br/>gemini.tsx:251"]
  sandbox_exit([父进程退出])
- load_config[loadCliConfig<br/>config.ts:522]
- init_app[initializeApp<br/>initializer.ts:32]
- mode_check{运行模式?}
- interactive[Interactive Mode<br/>React/Ink UI]
- non_interactive[Non-Interactive<br/>单次执行]
- zed[Zed Integration<br/>ACP Protocol]
+ load_config["loadCliConfig<br/>config.ts:522"]
+ init_app["initializeApp<br/>initializer.ts:32"]
+ mode_check{"运行模式?"}
+ interactive["Interactive Mode<br/>React/Ink UI"]
+ non_interactive["Non-Interactive<br/>单次执行"]
+ zed["Zed Integration<br/>ACP Protocol"]
 
  start --> main_entry
  main_entry --> load_settings
@@ -158,14 +158,14 @@ export function StartupChain() {
 
  const sandboxDetectionDiagram = `flowchart TD
  start([沙箱检测开始])
- check_env{SANDBOX env<br/>已设置?}
- already_in[跳过沙箱启动<br/>已在沙箱内]
- check_gemini_env{GEMINI_SANDBOX<br/>env 设置?}
- check_cli_flag{--sandbox<br/>CLI 参数?}
- check_macos{macOS +<br/>sandbox-exec?}
- check_docker{docker 可用?}
- check_podman{podman 可用?}
- check_settings{settings.tools.<br/>sandbox 配置?}
+ check_env{"SANDBOX env<br/>已设置?"}
+ already_in["跳过沙箱启动<br/>已在沙箱内"]
+ check_gemini_env{"GEMINI_SANDBOX<br/>env 设置?"}
+ check_cli_flag{"--sandbox<br/>CLI 参数?"}
+ check_macos{"macOS +<br/>sandbox-exec?"}
+ check_docker{"docker 可用?"}
+ check_podman{"podman 可用?"}
+ check_settings{"settings.tools.<br/>sandbox 配置?"}
  no_sandbox[无沙箱模式]
  use_seatbelt[使用 Seatbelt]
  use_docker[使用 Docker]

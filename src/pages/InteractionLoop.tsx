@@ -116,19 +116,19 @@ export function InteractionLoop() {
 
  // 主循环流程图
  const mainLoopFlowChart = `flowchart TD
- start([用户输入<br/>TextInput])
- submit[submitQuery<br/>入口]
- collect[收集上下文<br/>IDE/Memory/Files]
- prepare[准备请求<br/>System Prompt]
- stream_start[发起流式请求<br/>sendMessageStream]
- process_events[处理流事件<br/>Content/ToolCall/Thought]
- finished{流结束?}
- has_tools{有工具<br/>调用?}
- schedule[工具调度<br/>CoreToolScheduler]
- execute[并行执行<br/>工具]
- convert[转换为<br/>functionResponse]
- continuation[Continuation<br/>重新进入submitQuery]
- complete([对话完成<br/>等待输入])
+ start(["用户输入<br/>TextInput"])
+ submit["submitQuery<br/>入口"]
+ collect["收集上下文<br/>IDE/Memory/Files"]
+ prepare["准备请求<br/>System Prompt"]
+ stream_start["发起流式请求<br/>sendMessageStream"]
+ process_events["处理流事件<br/>Content/ToolCall/Thought"]
+ finished{"流结束?"}
+ has_tools{"有工具<br/>调用?"}
+ schedule["工具调度<br/>CoreToolScheduler"]
+ execute["并行执行<br/>工具"]
+ convert["转换为<br/>functionResponse"]
+ continuation["Continuation<br/>重新进入submitQuery"]
+ complete(["对话完成<br/>等待输入"])
 
  start --> submit
  submit --> collect

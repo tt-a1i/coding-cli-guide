@@ -1498,30 +1498,30 @@ if (
  <MermaidDiagram
  title="loadCliConfig() 数据流向图"
  chart={`flowchart TB
- Start([CLI 启动]) --> LoadSettings[loadSettings<br/>四层配置加载]
- LoadSettings --> MergeSettings[mergeSettings<br/>配置合并]
- MergeSettings --> TrustCheck{folderTrust<br/>检查}
+ Start([CLI 启动]) --> LoadSettings["loadSettings<br/>四层配置加载"]
+ LoadSettings --> MergeSettings["mergeSettings<br/>配置合并"]
+ MergeSettings --> TrustCheck{"folderTrust<br/>检查"}
 
- TrustCheck -->|受信任| LoadEnv[loadEnvironment<br/>加载 .env]
+ TrustCheck -->|受信任| LoadEnv["loadEnvironment<br/>加载 .env"]
  TrustCheck -->|不受信任| SkipEnv[跳过项目级 .env]
 
- LoadEnv --> LoadMemory[loadHierarchicalGeminiMemory<br/>加载 GEMINI.md]
+ LoadEnv --> LoadMemory["loadHierarchicalGeminiMemory<br/>加载 GEMINI.md"]
  SkipEnv --> LoadMemory
 
- LoadMemory --> MergeMcp[mergeMcpServers<br/>合并 MCP 服务器配置]
+ LoadMemory --> MergeMcp["mergeMcpServers<br/>合并 MCP 服务器配置"]
 
- MergeMcp --> ApprovalCheck{approvalMode<br/>校验}
+ MergeMcp --> ApprovalCheck{"approvalMode<br/>校验"}
  ApprovalCheck -->|不受信任 & yolo/auto_edit| ForceDefault[强制降级至 default]
  ApprovalCheck -->|合法| KeepMode[保持 approval mode]
 
  ForceDefault --> CreateConfig[new Config]
  KeepMode --> CreateConfig
 
- CreateConfig --> ToolRegistry[createToolRegistry<br/>工具集组装]
+ CreateConfig --> ToolRegistry["createToolRegistry<br/>工具集组装"]
 
- ToolRegistry --> CoreTools[注册核心工具<br/>read_file/replace/run_shell_command/...]
- ToolRegistry --> DiscoveryTools[discoveryCommand<br/>发现外部工具]
- ToolRegistry --> McpTools[MCP 工具<br/>从 MCP 服务器]
+ ToolRegistry --> CoreTools["注册核心工具<br/>read_file/replace/run_shell_command/..."]
+ ToolRegistry --> DiscoveryTools["discoveryCommand<br/>发现外部工具"]
+ ToolRegistry --> McpTools["MCP 工具<br/>从 MCP 服务器"]
 
  CoreTools --> FinalConfig([Config 实例])
  DiscoveryTools --> FinalConfig
@@ -2513,9 +2513,9 @@ gemini config --show | grep trust`}
 
  subgraph Sources["配置来源"]
  SysDefaults[system-defaults.json]
- UserSettings[~/.gemini/settings.json]
- WorkspaceSettings[.gemini/settings.json]
- SysSettings[/etc/.../settings.json]
+ UserSettings["~/.gemini/settings.json"]
+ WorkspaceSettings[".gemini/settings.json"]
+ SysSettings["/etc/.../settings.json"]
  EnvFile[.env 文件]
  ShellEnv[Shell 环境变量]
  end

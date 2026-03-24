@@ -78,7 +78,7 @@ export function EnterpriseDeployment() {
  const deploymentFlowChart = `flowchart TD
  subgraph Build["构建阶段"]
  src[源码] --> bundle[esbuild 打包]
- bundle --> dist[dist/cli.js]
+ bundle --> dist["dist/cli.js"]
  end
 
  subgraph Package["分发方式"]
@@ -89,7 +89,7 @@ export function EnterpriseDeployment() {
 
  subgraph Deploy["部署目标"]
  npm --> registry[私有 Registry]
- portable --> share[文件共享/内网下载]
+ portable --> share["文件共享/内网下载"]
  standalone --> exe[Windows exe]
  end
 
@@ -118,7 +118,7 @@ export function EnterpriseDeployment() {
  end
 
  subgraph Strategy["离线策略"]
- bundled_s[内嵌到 app/]
+ bundled_s["内嵌到 app/"]
  download_s[构建时下载]
  mirror_s[使用国内镜像]
  end
