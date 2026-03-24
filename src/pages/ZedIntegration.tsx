@@ -84,23 +84,18 @@ sequenceDiagram
  participant A as Gemini Agent
  participant M as Model API
 
- rect rgb(60, 60, 80)
  Note over Z,A: 初始化阶段
  Z->>A: initialize(protocolVersion, capabilities)
  A->>Z: InitializeResponse(authMethods, agentCapabilities)
  Z->>A: authenticate(methodId: "oauth-personal")
  A->>Z: AuthenticateResponse(success)
- end
 
- rect rgb(60, 80, 60)
  Note over Z,A: 会话创建
  Z->>A: session/new(cwd, mcpServers[])
  A->>A: 创建 Config
  A->>A: 启动 GeminiChat
  A->>Z: NewSessionResponse(sessionId)
- end
 
- rect rgb(80, 60, 60)
  Note over Z,M: 对话循环
  Z->>A: session/prompt(sessionId, contentBlocks[])
  A->>A: 解析 @命令
@@ -116,7 +111,6 @@ sequenceDiagram
  end
 
  A->>Z: PromptResponse(stopReason)
- end
 `} />
  </div>
  )}

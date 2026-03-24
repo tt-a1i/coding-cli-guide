@@ -550,7 +550,7 @@ this.client.setNotificationHandler(
  </div>
  </div>
 
- <CodeBlock code={architectureCode} title="IDE 集成双向通信架构" />
+ <CodeBlock language="typescript" code={architectureCode} title="IDE 集成双向通信架构" />
  </Layer>
 
  {/* 5. 流程图 */}
@@ -559,7 +559,7 @@ this.client.setNotificationHandler(
  <div>
  <h4 className="text-lg font-semibold text-heading mb-3">连接建立流程</h4>
  <MermaidDiagram chart={connectionFlowChart} title="IDE 连接建立流程" />
- <CodeBlock code={portFileCode} title="端口发现机制实现" />
+ <CodeBlock language="typescript" code={portFileCode} title="端口发现机制实现" />
  </div>
 
  <div>
@@ -567,8 +567,8 @@ this.client.setNotificationHandler(
  <MermaidDiagram chart={diffFlowChart} title="完整 Diff 交互流程" />
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
- <CodeBlock code={clientDiffCode} title="CLI 侧 openDiff() 调用" />
- <CodeBlock code={showDiffCode} title="VS Code 侧 showDiff() 实现" />
+ <CodeBlock language="typescript" code={clientDiffCode} title="CLI 侧 openDiff() 调用" />
+ <CodeBlock language="typescript" code={showDiffCode} title="VS Code 侧 showDiff() 实现" />
  </div>
  </div>
  </div>
@@ -836,7 +836,7 @@ this.client.setNotificationHandler(
  {/* 技术细节补充 */}
  <Layer title="技术细节补充">
  <div className="space-y-4">
- <CodeBlock code={diffSchemeCode} title="gemini-diff:// URI Scheme 实现" />
+ <CodeBlock language="typescript" code={diffSchemeCode} title="gemini-diff:// URI Scheme 实现" />
 
  <div className="bg-base/30 rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">URI 结构示例</h4>
@@ -852,7 +852,7 @@ this.client.setNotificationHandler(
  </div>
  </div>
 
- <CodeBlock code={mcpServerCode} title="MCP Server 工具注册" />
+ <CodeBlock language="typescript" code={mcpServerCode} title="MCP Server 工具注册" />
 
  <div className="bg-surface rounded-lg p-4">
  <h4 className="text-heading font-bold mb-3">MCP 通知类型</h4>
@@ -884,7 +884,7 @@ this.client.setNotificationHandler(
  </table>
  </div>
 
- <CodeBlock code={contextSyncCode} title="IDE 上下文双向同步" />
+ <CodeBlock language="typescript" code={contextSyncCode} title="IDE 上下文双向同步" />
 
  <HighlightBox title="工作区信任状态同步" variant="green">
  <p className="text-sm">

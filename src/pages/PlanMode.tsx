@@ -3,6 +3,7 @@ import { HighlightBox } from '../components/HighlightBox';
 import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
 import { Layer } from '../components/Layer';
+import { getThemeColor } from '../utils/theme';
 import { RelatedPages, type RelatedPage } from '../components/RelatedPages';
 
 const relatedPages: RelatedPage[] = [
@@ -315,12 +316,10 @@ sequenceDiagram
  U->>PM: /plan create "重构认证模块"
  PM->>RA: 启动代码分析
 
- rect rgb(26, 30, 38)
  Note over RA: 只读分析阶段
  RA->>RA: 遍历文件结构
  RA->>RA: 分析依赖关系
  RA->>RA: 识别影响范围
- end
 
  RA->>PG: 分析报告
  PG->>PM: 生成初始计划
@@ -334,11 +333,9 @@ sequenceDiagram
  U->>PM: /plan approve
  PM->>PE: 执行已批准计划
 
- rect rgb(26, 30, 38)
  Note over PE: 执行阶段
  PE->>PE: 逐步执行修改
  PE->>U: 报告每步进度
- end
 
  PE->>PM: 执行完成
  PM->>U: 计划完成报告
