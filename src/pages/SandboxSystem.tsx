@@ -615,49 +615,48 @@ async function startContainer(config: DockerSandboxConfig) {
  {/* 架构图 */}
  <section>
  <h3 className="text-xl font-semibold text-heading mb-4">沙箱架构概览</h3>
- <div className="bg-surface rounded-lg p-6">
- <pre className="text-sm text-body overflow-x-auto">
-{`┌──────────────────────────────────────────────────────────────┐
-│ Gemini CLI │
-│ ┌────────────────────────────────────────────────────────┐ │
-│ │ Shell Tool │ │
-│ │ runShellCommand(command, options) │ │
-│ └───────────────────────┬────────────────────────────────┘ │
-│ │ │
-│ ▼ │
-│ ┌────────────────────────────────────────────────────────┐ │
-│ │ Sandbox Decision Layer │ │
-│ │ ┌──────────┐ ┌───────────┐ ┌──────────┐ │ │
-│ │ │ Docker │ │ Podman │ │ Seatbelt │ │ │
-│ │ │ Handler │ │ Handler │ │ Handler │ │ │
-│ │ └────┬─────┘ └─────┬─────┘ └────┬─────┘ │ │
-│ └───────┼──────────────┼─────────────┼──────────────────┘ │
-│ │ │ │ │
-└──────────┼──────────────┼─────────────┼──────────────────────┘
- │ │ │
- ▼ ▼ ▼
-┌──────────────────┐ ┌─────────────┐ ┌──────────────────┐
-│ Docker Engine │ │ Podman │ │ macOS Sandbox │
-│ ┌────────────┐ │ │ │ │ (sandbox-exec) │
-│ │ Container │ │ │ Rootless │ │ │
-│ │ ┌────────┐ │ │ │ Container │ │ .sb Profile │
-│ │ │Workdir │ │ │ │ │ │ ├─ deny default│
-│ │ │ Mount │ │ │ │ UID/GID │ │ ├─ allow read │
-│ │ └────────┘ │ │ │ Mapping │ │ └─ deny network│
-│ └────────────┘ │ │ │ │ │
-└──────────────────┘ └─────────────┘ └──────────────────┘
- │ │ │
- └──────────────┴─────────────┘
- │
- ▼
- ┌───────────────────────┐
- │ Isolated Command │
- │ Execution │
- │ │
- │ stdout/stderr ──────►│──► Result
- └───────────────────────┘`}
- </pre>
- </div>
+ <MermaidDiagram chart={`flowchart TD
+ subgraph GeminiCLI["Gemini CLI"]
+  ShellTool["Shell Tool<br/>runShellCommand command, options"]
+
+  subgraph DecisionLayer["Sandbox Decision Layer"]
+   DockerH["Docker Handler"]
+   PodmanH["Podman Handler"]
+   SeatbeltH["Seatbelt Handler"]
+  end
+
+  ShellTool --> DecisionLayer
+ end
+
+ subgraph DockerEngine["Docker Engine"]
+  Container["Container<br/>Workdir Mount"]
+ end
+
+ subgraph PodmanRT["Podman"]
+  Rootless["Rootless Container<br/>UID/GID Mapping"]
+ end
+
+ subgraph MacOS["macOS Sandbox<br/>sandbox-exec"]
+  Profile[".sb Profile<br/>deny default<br/>allow read<br/>deny network"]
+ end
+
+ DockerH --> DockerEngine
+ PodmanH --> PodmanRT
+ SeatbeltH --> MacOS
+
+ Execution["Isolated Command Execution<br/>stdout/stderr --> Result"]
+
+ DockerEngine --> Execution
+ PodmanRT --> Execution
+ MacOS --> Execution
+
+ style GeminiCLI fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style DecisionLayer fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style DockerEngine fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style PodmanRT fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style MacOS fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Execution fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+`} title="沙箱架构概览" />
  </section>
 
  {/* 最佳实践 */}

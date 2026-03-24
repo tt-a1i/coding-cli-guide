@@ -784,18 +784,30 @@ function attemptJSONFix(
  <h3 className="text-xl font-semibold text-heading mb-4">错误类型定义</h3>
  <CodeBlock code={errorTypesCode} language="typescript" title="自定义错误类" />
 
- <div className="mt-4 bg-surface rounded-lg p-4">
- <h4 className="font-semibold text-heading mb-2">错误类型层级</h4>
- <pre className="text-sm text-body">
-{`CLIError (基类)
-├── APIError - API 调用错误 (状态码、响应)
-├── AuthenticationError - 认证错误 (登录失败)
-├── ToolExecutionError - 工具执行错误 (Shell、文件操作)
-├── ConfigurationError - 配置错误 (无效配置)
-├── NetworkError - 网络错误 (连接失败)
-└── TimeoutError - 超时错误 (操作超时)`}
- </pre>
- </div>
+ <MermaidDiagram chart={`graph TD
+ CLIError["CLIError<br/>基类"]
+ APIError["APIError<br/>API 调用错误<br/>状态码、响应"]
+ AuthError["AuthenticationError<br/>认证错误<br/>登录失败"]
+ ToolError["ToolExecutionError<br/>工具执行错误<br/>Shell、文件操作"]
+ ConfigError["ConfigurationError<br/>配置错误<br/>无效配置"]
+ NetworkError["NetworkError<br/>网络错误<br/>连接失败"]
+ TimeoutError["TimeoutError<br/>超时错误<br/>操作超时"]
+
+ CLIError --> APIError
+ CLIError --> AuthError
+ CLIError --> ToolError
+ CLIError --> ConfigError
+ CLIError --> NetworkError
+ CLIError --> TimeoutError
+
+ style CLIError fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style APIError fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style AuthError fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style ToolError fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style ConfigError fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style NetworkError fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style TimeoutError fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+`} title="错误类型层级" />
  </section>
 
  {/* 错误分类器 */}
@@ -931,62 +943,51 @@ function attemptJSONFix(
  {/* 架构图 */}
  <section>
  <h3 className="text-xl font-semibold text-heading mb-4">错误处理架构</h3>
- <div className="bg-surface rounded-lg p-6">
- <pre className="text-sm text-body overflow-x-auto">
-{`┌──────────────────────────────────────────────────────────────────┐
-│ Error Sources │
-│ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ │
-│ │ API │ │ Tool │ │ Network │ │ UI │ │
-│ │ Calls │ │ Execute │ │ Request │ │ Render │ │
-│ └────┬────┘ └────┬────┘ └────┬────┘ └────┬────┘ │
-│ │ │ │ │ │
-└───────┼────────────┼────────────┼────────────┼───────────────────┘
- │ │ │ │
- └────────────┴────────────┴────────────┘
- │
- ▼
-┌──────────────────────────────────────────────────────────────────┐
-│ Error Capture Layer │
-│ ┌───────────────────┐ ┌───────────────────┐ │
-│ │ Try-Catch │ │ Error Boundary │ │
-│ │ (Sync/Async) │ │ (React UI) │ │
-│ └─────────┬─────────┘ └─────────┬─────────┘ │
-│ │ │ │
-│ └──────────┬───────────┘ │
-│ │ │
-│ ┌────────────────────▼──────────────────────┐ │
-│ │ Global Error Handler │ │
-│ │ unhandledRejection | uncaughtException │ │
-│ └────────────────────┬──────────────────────┘ │
-│ │ │
-└───────────────────────┼──────────────────────────────────────────┘
- │
- ▼
-┌──────────────────────────────────────────────────────────────────┐
-│ Error Classification │
-│ ┌──────────────────────────────────────────────────────────┐ │
-│ │ Error Classifier │ │
-│ │ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ │ │
-│ │ │ Category │ │ Severity │ │Recoverable│ │ Action │ │ │
-│ │ │ API │ │ MEDIUM │ │ true │ │ RETRY │ │ │
-│ │ └──────────┘ └──────────┘ └──────────┘ └──────────┘ │ │
-│ └──────────────────────────────────────────────────────────┘ │
-│ │
-└───────────────────────┬──────────────────────────────────────────┘
- │
- ┌───────────────┴───────────────┐
- │ │
- ▼ ▼
-┌───────────────────┐ ┌───────────────────┐
-│ Recovery Handler │ │ Error Reporter │
-│ ┌───────────────┐ │ │ ┌───────────────┐ │
-│ │ Retry Logic │ │ │ │ User Display │ │
-│ │ Fallback │ │ │ │ File Logging │ │
-│ │ State Reset │ │ │ │ Telemetry │ │
-│ └───────────────┘ │ │ └───────────────┘ │
-└───────────────────┘ └───────────────────┘`}
- </pre>
- </div>
+ <MermaidDiagram chart={`flowchart TD
+ subgraph Sources["Error Sources"]
+  API["API Calls"]
+  Tool["Tool Execute"]
+  Network["Network Request"]
+  UI["UI Render"]
+ end
+
+ subgraph Capture["Error Capture Layer"]
+  TryCatch["Try-Catch<br/>Sync/Async"]
+  ErrorBoundary["Error Boundary<br/>React UI"]
+  TryCatch --> GlobalHandler
+  ErrorBoundary --> GlobalHandler
+  GlobalHandler["Global Error Handler<br/>unhandledRejection | uncaughtException"]
+ end
+
+ subgraph Classification["Error Classification"]
+  Classifier["Error Classifier"]
+  Category["Category: API"]
+  Severity["Severity: MEDIUM"]
+  Recoverable["Recoverable: true"]
+  Action["Action: RETRY"]
+  Classifier --> Category
+  Classifier --> Severity
+  Classifier --> Recoverable
+  Classifier --> Action
+ end
+
+ Recovery["Recovery Handler<br/>Retry Logic<br/>Fallback<br/>State Reset"]
+ Reporter["Error Reporter<br/>User Display<br/>File Logging<br/>Telemetry"]
+
+ API --> Capture
+ Tool --> Capture
+ Network --> Capture
+ UI --> Capture
+ GlobalHandler --> Classification
+ Classifier --> Recovery
+ Classifier --> Reporter
+
+ style Sources fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Capture fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Classification fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Recovery fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Reporter fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+`} title="错误处理架构" />
  </section>
 
  {/* 失败场景速查表 */}

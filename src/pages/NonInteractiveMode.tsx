@@ -54,6 +54,19 @@ flowchart TD
  style has_tools fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
 `;
 
+ const nonInteractiveArchChart = `flowchart TD
+ cmd["Command Line<br/>git diff | gemini review<br/>--output-format json > out.json"]
+ parse["parseArguments / loadCliConfig<br/>--approval-mode / --allowed-tools / --output-format"]
+ input["Input Assembly<br/>stdin prepend if piped<br/>handleAtCommand: @path -> file content"]
+ run["runNonInteractive<br/>loop: sendMessageStream -> ToolCallRequest? -> executeToolCall<br/>output: text / json / stream-json"]
+ exit(["ExitCodes: 0 / 41 / 42 / 52 / 130"])
+
+ cmd --> parse --> input --> run --> exit
+
+ style cmd fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style exit fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+`;
+
  const cliOptionsCode = `// packages/cli/src/config/config.ts - CliArgs (节选)
 
 export interface CliArgs {
@@ -498,39 +511,7 @@ fi`;
  {/* 架构图 */}
  <section>
  <h3 className="text-xl font-semibold text-heading mb-4">非交互模式架构</h3>
- <div className="bg-surface rounded-lg p-6">
- <pre className="text-sm text-body overflow-x-auto">
-{`┌───────────────────────────────────────────────────────────────┐
-│ Command Line │
-│ $ git diff | gemini "review" --output-format json > out.json │
-└───────────────┬───────────────────────────────────────────────┘
- │
- ▼
-┌───────────────────────────────────────────────────────────────┐
-│ parseArguments / loadCliConfig │
-│ - --approval-mode / --allowed-tools / --output-format │
-└───────────────┬───────────────────────────────────────────────┘
- │
- ▼
-┌───────────────────────────────────────────────────────────────┐
-│ Input Assembly │
-│ - stdin prepend (if piped) │
-│ - handleAtCommand: @path → file content │
-└───────────────┬───────────────────────────────────────────────┘
- │
- ▼
-┌───────────────────────────────────────────────────────────────┐
-│ runNonInteractive │
-│ loop: sendMessageStream → ToolCallRequest? → executeToolCall │
-│ output: text / json / stream-json │
-└───────────────┬───────────────────────────────────────────────┘
- │
- ▼
-┌───────────────────────────────────────────────────────────────┐
-│ ExitCodes: 0 / 41 / 42 / 52 / 130 │
-└───────────────────────────────────────────────────────────────┘`}
- </pre>
- </div>
+ <MermaidDiagram chart={nonInteractiveArchChart} title="非交互模式架构" />
  </section>
 
  {/* 最佳实践 */}

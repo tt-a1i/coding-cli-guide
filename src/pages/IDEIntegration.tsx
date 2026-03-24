@@ -886,51 +886,40 @@ GEMINI_CLI_IDE_SERVER_STDIO_ARGS=["extension.js"]`}
 
  {/* 架构图 */}
  <Layer title="集成架构总览">
- <div className="bg-surface rounded-lg p-6">
- <pre className="text-xs text-body overflow-x-auto">
-{`┌─────────────────────────────────────────────────────────────────┐
-│ Visual Studio Code │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │ IDE Companion Extension │ │
-│ │ │ │
-│ │ ┌──────────────┐ ┌──────────────┐ ┌─────────┐ │ │
-│ │ │ IDEServer │ │ DiffManager │ │OpenFiles│ │ │
-│ │ │ │ │ │ │Manager │ │ │
-│ │ │ Express HTTP │ │ gemini-diff │ │ │ │ │
-│ │ │ + MCP Server │ │ :// Provider │ │ Context │ │ │
-│ │ │ │ │ │ │ Sync │ │ │
-│ │ └──────────────┘ └──────────────┘ └─────────┘ │ │
-│ │ │ ▲ │ │ │
-│ └────────────┼───────────────────┼───────────────┼────────┘ │
-│ │ HTTP/SSE │ Diff Events │ Context │
-│ ▼ │ ▼ │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │ Integrated Terminal │ │
-│ │ $ gemini │ │
-│ └─────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘
- │
- ┌───────────────────────┼───────────────────────┐
- │ GEMINI_CLI_IDE_* │ /tmp/gemini/ide/gemini-ide-server-* │
- │ Environment Vars │ Connection Files │
- └───────────────────────┼───────────────────────┘
- ▼
-┌─────────────────────────────────────────────────────────────────┐
-│ Gemini CLI │
-│ ┌──────────────────────────────────────────────────────────┐ │
-│ │ IDE Integration │ │
-│ │ │ │
-│ │ ┌────────────────┐ ┌─────────────┐ ┌──────────────┐ │ │
-│ │ │ IdeClient │ │IdeContext │ │ DiffHandler │ │ │
-│ │ │ │ │Store │ │ │ │ │
-│ │ │ MCP Client │ │ │ │ openDiff() │ │ │
-│ │ │ HTTP/SSE │ │ Subscribe │ │ Mutex │ │ │
-│ │ │ Connection │ │ to updates │ │ 10min timeout│ │ │
-│ │ └────────────────┘ └─────────────┘ └──────────────┘ │ │
-│ └──────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────────┘`}
- </pre>
- </div>
+ <MermaidDiagram chart={`flowchart TD
+ subgraph VSCode["Visual Studio Code"]
+  subgraph Extension["IDE Companion Extension"]
+   IDEServer["IDEServer<br/>Express HTTP<br/>+ MCP Server"]
+   DiffManager["DiffManager<br/>gemini-diff://<br/>Provider"]
+   OpenFiles["OpenFilesManager<br/>Context Sync"]
+  end
+
+  Terminal["Integrated Terminal<br/>$ gemini"]
+
+  IDEServer -->|"HTTP/SSE"| Terminal
+  DiffManager -->|"Diff Events"| Terminal
+  OpenFiles -->|"Context"| Terminal
+ end
+
+ EnvVars["GEMINI_CLI_IDE_*<br/>Environment Vars<br/>/tmp/gemini/ide/gemini-ide-server-*<br/>Connection Files"]
+
+ subgraph CLI["Gemini CLI"]
+  subgraph Integration["IDE Integration"]
+   IdeClient["IdeClient<br/>MCP Client<br/>HTTP/SSE Connection"]
+   IdeContext["IdeContextStore<br/>Subscribe to updates"]
+   DiffHandler["DiffHandler<br/>openDiff<br/>Mutex<br/>10min timeout"]
+  end
+ end
+
+ Terminal --> EnvVars
+ EnvVars --> CLI
+
+ style VSCode fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Extension fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style CLI fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Integration fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style EnvVars fill:${getThemeColor("--mermaid-muted-fill", "#f4f4f2")},color:${getThemeColor("--color-text", "#1c1917")}
+`} title="集成架构总览" />
  </Layer>
 
  {/* 最佳实践 */}

@@ -57,6 +57,25 @@ export function WelcomeBack() {
  style quit_now fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
  style quit_after fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
+ const welcomeBackDialogChart = `flowchart TD
+ title_bar["Welcome Back!<br/>Last updated: 2025-01-10 15:30"]
+ goal["Overall Goal:<br/>构建一个响应式的用户仪表板，支持实时数据更新"]
+ plan["Current Plan:<br/>DONE 用户认证<br/>DONE 仪表板布局<br/>IN PROGRESS 实时数据组件<br/>PENDING 通知系统<br/>PENDING 单元测试"]
+ stats["Tasks: 5 total | 2 done | 1 in progress | 2 pending"]
+ choice{"用户选择"}
+ new_session(["Start new chat session<br/>Esc 开始新会话"])
+ continue(["Continue previous conversation<br/>Enter 确认"])
+
+ title_bar --> goal --> plan --> stats --> choice
+ choice -->|新会话| new_session
+ choice -->|继续| continue
+
+ style title_bar fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style choice fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style new_session fill:${getThemeColor("--mermaid-muted-fill", "#f4f4f2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style continue fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+`;
+
  const projectSummaryFormat = `# Project Summary
 
 ## Overall Goal
@@ -149,37 +168,6 @@ export function WelcomeBack() {
 
 // 快捷键: Ctrl+C 连按两次也会触发此对话框`;
 
- const welcomeBackDialogCode = `// Welcome Back 对话框内容
-
-┌──────────────────────────────────────────────────────────┐
-│ 👋 Welcome Back! │
-│ │
-│ Last updated: 2025-01-10 15:30 │
-│ │
-│ ────────────────────────────────────────────────────── │
-│ │
-│ Overall Goal: │
-│ 构建一个响应式的用户仪表板，支持实时数据更新 │
-│ │
-│ ────────────────────────────────────────────────────── │
-│ │
-│ Current Plan: │
-│ ✓ [DONE] 用户认证 │
-│ ✓ [DONE] 仪表板布局 │
-│ ⏳ [IN PROGRESS] 实时数据组件 │
-│ ○ [PENDING] 通知系统 │
-│ ○ [PENDING] 单元测试 │
-│ │
-│ Tasks: 5 total | 2 done | 1 in progress | 2 pending │
-│ │
-│ ────────────────────────────────────────────────────── │
-│ │
-│ ○ Start new chat session │
-│ ● Continue previous conversation │
-│ │
-│ [Enter] 确认 [Esc] 开始新会话 │
-└──────────────────────────────────────────────────────────┘`;
-
  const fileStructureCode = `// Welcome Back 相关文件结构
 
 your-project/
@@ -264,11 +252,7 @@ your-project/
  {/* Welcome Back 对话框 */}
  <section>
  <h3 className="text-xl font-semibold text-heading mb-4">Welcome Back 对话框</h3>
- <div className="bg-base rounded-lg p-6 border border-edge font-mono text-sm">
- <pre className="text-body whitespace-pre overflow-x-auto">
-{welcomeBackDialogCode}
- </pre>
- </div>
+ <MermaidDiagram chart={welcomeBackDialogChart} title="Welcome Back 对话框" />
 
  <div className="mt-4 grid grid-cols-2 gap-4">
  <HighlightBox title="开始新会话" variant="blue">

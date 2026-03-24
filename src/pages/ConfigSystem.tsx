@@ -1382,31 +1382,31 @@ if (!trustedFolder && approvalMode !== ApprovalMode.DEFAULT) {
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="bg-elevated/10 border-2 border-edge rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">~/.gemini/ (用户级)</h4>
- <pre className="text-sm text-body whitespace-pre-wrap">{`├── settings.json # 用户配置
-├── GEMINI.md # 用户级记忆
-├── oauth_creds.json # OAuth 凭据
-├── mcp-oauth-tokens.json # MCP OAuth tokens
-├── agents/ # 用户级子代理
-├── commands/ # 用户级自定义命令
-├── extensions/ # 用户级扩展
-├── themes/ # 主题文件
-└── tmp/ # 临时文件
- └── <project_hash>/
- ├── chats/ # 聊天记录
- ├── checkpoints/ # 检查点
- └── shell_history # Shell 历史`}</pre>
+ <CodeBlock code={`├── settings.json          # 用户配置
+├── GEMINI.md              # 用户级记忆
+├── oauth_creds.json       # OAuth 凭据
+├── mcp-oauth-tokens.json  # MCP OAuth tokens
+├── agents/                # 用户级子代理
+├── commands/              # 用户级自定义命令
+├── extensions/            # 用户级扩展
+├── themes/                # 主题文件
+└── tmp/                   # 临时文件
+    └── <project_hash>/
+        ├── chats/         # 聊天记录
+        ├── checkpoints/   # 检查点
+        └── shell_history  # Shell 历史`} language="text" title="~/.gemini/ (用户级)" />
  </div>
 
  <div className="bg-elevated border-2 border-edge rounded-lg p-4">
  <h4 className="text-heading font-bold mb-2">.gemini/ (项目级)</h4>
- <pre className="text-sm text-body whitespace-pre-wrap">{`├── settings.json # 项目配置
-├── GEMINI.md # 项目级记忆
-├── agents/ # 项目级子代理
-├── commands/ # 项目级自定义命令
-├── extensions/ # 项目级扩展
-├── sandbox.Dockerfile # 自定义沙箱镜像
-├── sandbox.bashrc # 沙箱 shell 配置
-└── sandbox-macos-*.sb # macOS 沙箱 profile`}</pre>
+ <CodeBlock code={`├── settings.json        # 项目配置
+├── GEMINI.md            # 项目级记忆
+├── agents/              # 项目级子代理
+├── commands/            # 项目级自定义命令
+├── extensions/          # 项目级扩展
+├── sandbox.Dockerfile   # 自定义沙箱镜像
+├── sandbox.bashrc       # 沙箱 shell 配置
+└── sandbox-macos-*.sb   # macOS 沙箱 profile`} language="text" title=".gemini/ (项目级)" />
  </div>
  </div>
  </Layer>

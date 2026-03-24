@@ -264,19 +264,37 @@ npm run build:portable
 
  <div className="bg-surface rounded-lg p-4 border border-edge">
  <h4 className="text-heading font-semibold mb-3">产物结构</h4>
- <pre className="text-sm text-body font-mono">
-{`portable-win-x64/
-├── node/ # Node.js 运行时 (v20.19.0)
-│ └── node.exe
-├── app/ # 应用代码
-│ ├── cli.js # esbuild 打包的主程序
-│ ├── vendor/ # 内置工具 (ripgrep 等)
-│ └── *.sb # 沙箱配置文件
-├── gemini.bat # Windows 启动器
-├── gemini.ps1 # PowerShell 启动器
-├── install.bat # 自动安装脚本
-└── INSTALL.md # 用户说明`}
- </pre>
+ <MermaidDiagram chart={`graph LR
+ Root["portable-win-x64/"]
+
+ Node["node/<br/>Node.js 运行时 v20.19.0"]
+ NodeExe["node.exe"]
+
+ App["app/<br/>应用代码"]
+ CliJS["cli.js<br/>esbuild 打包的主程序"]
+ Vendor["vendor/<br/>内置工具 ripgrep 等"]
+ SB["*.sb<br/>沙箱配置文件"]
+
+ Bat["gemini.bat<br/>Windows 启动器"]
+ PS1["gemini.ps1<br/>PowerShell 启动器"]
+ Install["install.bat<br/>自动安装脚本"]
+ InstallMD["INSTALL.md<br/>用户说明"]
+
+ Root --> Node
+ Node --> NodeExe
+ Root --> App
+ App --> CliJS
+ App --> Vendor
+ App --> SB
+ Root --> Bat
+ Root --> PS1
+ Root --> Install
+ Root --> InstallMD
+
+ style Root fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Node fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style App fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+`} title="产物结构" />
  </div>
 
  <CodeBlock

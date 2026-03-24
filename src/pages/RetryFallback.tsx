@@ -72,6 +72,51 @@ export function RetryFallback() {
  style success fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
 `;
 
+ const circuitBreakerChart = `stateDiagram-v2
+ [*] --> CLOSED
+ CLOSED --> OPEN: 失败次数 >= 5
+ OPEN --> HALF_OPEN: 60秒后
+ HALF_OPEN --> CLOSED: 连续成功 >= 3
+ HALF_OPEN --> OPEN: 失败一次
+
+ CLOSED: 正常状态
+ CLOSED: 请求正常通过
+ OPEN: 熔断状态
+ OPEN: 所有请求被拒绝
+ HALF_OPEN: 半开状态
+ HALF_OPEN: 允许少量请求测试
+`;
+
+ const retryArchitectureChart = `flowchart TD
+ subgraph CLIENT["API Client"]
+  direction TB
+  req["Request Handler"]
+  req --> cb["Circuit Breaker<br/>状态: CLOSED<br/>失败: 0/5"]
+  req --> retry["Retry Handler<br/>尝试: 1/5<br/>延迟: 5s"]
+  req --> fb["Fallback Handler<br/>主模型 -> 回退模型"]
+
+  subgraph EC["Error Classifier"]
+   retryable["Retryable<br/>429, 500<br/>502, 503"]
+   fallback_err["Fallback<br/>Overload<br/>Timeout"]
+   fatal["Fatal<br/>401, 403<br/>Invalid"]
+  end
+ end
+
+ CLIENT --> svc
+
+ subgraph svc["AI Model Service"]
+  primary["Primary Model<br/>gemini-2.5-pro<br/>Fast, Latest"]
+  fallback_model["Fallback Model<br/>gemini-2.5-flash<br/>Stable, Reliable"]
+  primary -->|"failover"| fallback_model
+ end
+
+ style req fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style cb fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style retry fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style fb fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style fatal fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+`;
+
  const retryConfigCode = `// packages/core/src/utils/retry.ts
 
 // 重试配置
@@ -608,90 +653,15 @@ class CircuitBreaker {
  <h3 className="text-xl font-semibold text-heading mb-4">熔断器模式</h3>
  <CodeBlock code={circuitBreakerCode} language="typescript" title="CircuitBreaker" />
 
- <div className="mt-4 bg-surface rounded-lg p-4">
- <h4 className="font-semibold text-heading mb-2">熔断器状态转换</h4>
- <pre className="text-sm text-body">
-{`┌─────────────────────────────────────────────────────────────┐
-│ 熔断器状态机 │
-│ │
-│ ┌──────────┐ 失败次数>=5 ┌──────────┐ │
-│ │ CLOSED │ ─────────────► │ OPEN │ │
-│ │ (正常) │ │ (熔断) │ │
-│ └────┬─────┘ └────┬─────┘ │
-│ │ │ │
-│ │ │ 60秒后 │
-│ 请求成功 │ │
-│ │ ▼ │
-│ │ ┌───────────┐ │
-│ │ │ HALF-OPEN │ │
-│ │ │ (半开) │ │
-│ │ └─────┬─────┘ │
-│ │ │ │
-│ │ ┌───────────────┼───────────────┐ │
-│ │ │ │ │ │
-│ │ 连续成功>=3 失败一次 │ │
-│ │ │ │ │ │
-│ ▼ ▼ ▼ │ │
-│ ┌──────────┐ ┌──────────┐ │ │
-│ │ CLOSED │◄─────────│ OPEN │◄───────────┘ │
-│ └──────────┘ └──────────┘ │
-│ │
-└─────────────────────────────────────────────────────────────┘`}
- </pre>
+ <div className="mt-4">
+ <MermaidDiagram chart={circuitBreakerChart} title="熔断器状态转换" />
  </div>
  </section>
 
  {/* 整体架构 */}
  <section>
  <h3 className="text-xl font-semibold text-heading mb-4">重试回退整体架构</h3>
- <div className="bg-surface rounded-lg p-6">
- <pre className="text-sm text-body overflow-x-auto">
-{`┌──────────────────────────────────────────────────────────────────┐
-│ API Client │
-│ ┌────────────────────────────────────────────────────────────┐ │
-│ │ Request Handler │ │
-│ └────────────────────────┬───────────────────────────────────┘ │
-│ │ │
-│ ┌───────────────┼───────────────┐ │
-│ │ │ │ │
-│ ▼ ▼ ▼ │
-│ ┌────────────────┐ ┌──────────────┐ ┌────────────────┐ │
-│ │ Circuit Breaker│ │ Retry │ │ Fallback │ │
-│ │ │ │ Handler │ │ Handler │ │
-│ │ 状态: CLOSED │ │ │ │ │ │
-│ │ 失败: 0/5 │ │ 尝试: 1/5 │ │ 主模型 ─┐ │ │
-│ └───────┬────────┘ │ 延迟: 5s │ │ │ │ │
-│ │ └──────┬───────┘ │ ▼ │ │
-│ │ │ │ 回退模型 │ │
-│ │ │ └───────────────┘ │
-│ │ │ │
-│ └─────────────────┴────────────────────────────────────┤
-│ │
-│ ┌────────────────────────────────────────────────────────────┐ │
-│ │ Error Classifier │ │
-│ │ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ │ │
-│ │ │ Retryable │ │ Fallback │ │ Fatal │ │ │
-│ │ │ 429, 500 │ │ Overload │ │ 401, 403 │ │ │
-│ │ │ 502, 503 │ │ Timeout │ │ Invalid │ │ │
-│ │ └─────────────┘ └─────────────┘ └─────────────┘ │ │
-│ └────────────────────────────────────────────────────────────┘ │
-│ │
-└──────────────────────────────────────────────────────────────────┘
- │
- ▼
-┌──────────────────────────────────────────────────────────────────┐
-│ AI Model Service │
-│ │
-│ ┌─────────────────┐ ┌─────────────────┐ │
-│ │ Primary Model │ │ Fallback Model │ │
-│ │ gemini-2.5-pro │ │ gemini-2.5-flash│ │
-│ │ │ ───► │ │ │
-│ │ Fast, Latest │ │ Stable, Reliable│ │
-│ └─────────────────┘ └─────────────────┘ │
-│ │
-└──────────────────────────────────────────────────────────────────┘`}
- </pre>
- </div>
+ <MermaidDiagram chart={retryArchitectureChart} title="重试回退整体架构" />
  </section>
 
  {/* 最佳实践 */}

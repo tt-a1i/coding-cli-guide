@@ -51,6 +51,37 @@ export function TrustedFolders() {
  style file_has_rule fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
  style user_choice fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}`;
 
+ const trustArchitectureChart = `flowchart TD
+ CLI(["CLI 启动"])
+ CLI --> FT
+
+ subgraph FT["FolderTrust 检查器"]
+  direction TB
+  check{"settings.security.folderTrust.enabled ?"}
+  check -->|No| disabled["Disabled<br/>跳过检查"]
+  check -->|Yes| enabled["Enabled<br/>进行检查"]
+  enabled --> ide["IDE Signal<br/>Priority 1"]
+  enabled --> local["Local File<br/>Priority 2"]
+  enabled --> dialog["Dialog<br/>Fallback"]
+  ide --> decision
+  local --> decision
+  dialog --> decision
+  decision{"Trust Decision"}
+  decision -->|trusted| trust_out["Trusted"]
+  decision -->|untrusted| untrust_out["Untrusted"]
+ end
+
+ trust_out --> full["Full Access<br/>Load settings<br/>Load .env<br/>All modes<br/>Extensions OK"]
+ untrust_out --> restricted["Restricted Mode<br/>Ignore settings<br/>Ignore .env<br/>default only<br/>No extensions"]
+
+ style CLI fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style full fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style restricted fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style disabled fill:${getThemeColor("--mermaid-muted-fill", "#f4f4f2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style check fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style decision fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+`;
+
  const enableConfigCode = `// ~/.gemini/settings.json
 // 启用 Trusted Folders 功能
 
@@ -392,58 +423,7 @@ async function checkIDETrust(): Promise<boolean | null> {
  {/* 架构图 */}
  <section>
  <h3 className="text-xl font-semibold text-heading mb-4">信任检查架构</h3>
- <div className="bg-surface rounded-lg p-6">
- <pre className="text-sm text-body overflow-x-auto">
-{`┌─────────────────────────────────────────────────────────────────┐
-│ CLI 启动 │
-└──────────────────────────┬──────────────────────────────────────┘
- │
- ▼
-┌─────────────────────────────────────────────────────────────────┐
-│ FolderTrust 检查器 │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │ settings.security.folderTrust.enabled ? │ │
-│ └────────────────────────┬────────────────────────────────┘ │
-│ │ │
-│ ┌──────────────┴──────────────┐ │
-│ │ │ │
-│ ▼ ▼ │
-│ ┌────────────┐ ┌────────────┐ │
-│ │ Disabled │ │ Enabled │ │
-│ │ 跳过检查 │ │ 进行检查 │ │
-│ └────────────┘ └─────┬──────┘ │
-│ │ │
-│ ┌────────────────────┼────────────────────┐ │
-│ │ │ │ │
-│ ▼ ▼ ▼ │
-│ ┌─────────────┐ ┌─────────────┐ ┌──────────┐ │
-│ │ IDE Signal │ │ Local File │ │ Dialog │ │
-│ │ (Priority 1)│ │ (Priority 2)│ │(Fallback)│ │
-│ └──────┬──────┘ └──────┬──────┘ └────┬─────┘ │
-│ │ │ │ │
-│ └──────────────────┼────────────────┘ │
-│ │ │
-│ ▼ │
-│ ┌─────────────────────────────────┐ │
-│ │ Trust Decision │ │
-│ │ │ │
-│ │ trusted │ untrusted │ │
-│ └───────┬──────┴────────┬────────┘ │
-│ │ │ │
-└────────────────────────────┼───────────────┼───────────────────┘
- │ │
- ▼ ▼
- ┌──────────────────┐ ┌──────────────────┐
- │ Full Access │ │ Restricted Mode │
- │ │ │ │
- │ • Load settings │ │ • Ignore settings│
- │ • Load .env │ │ • Ignore .env │
- │ • All modes │ │ • default only │
- │ • Extensions OK │ │ • No extensions │
- │ • AuOK │ │ • default only │
- └──────────────────┘ └──────────────────┘`}
- </pre>
- </div>
+ <MermaidDiagram chart={trustArchitectureChart} title="信任检查架构" />
  </section>
 
  {/* 最佳实践 */}

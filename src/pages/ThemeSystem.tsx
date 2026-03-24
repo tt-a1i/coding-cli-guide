@@ -1,5 +1,7 @@
 import { HighlightBox } from '../components/HighlightBox';
+import { MermaidDiagram } from '../components/MermaidDiagram';
 import { CodeBlock } from '../components/CodeBlock';
+import { getThemeColor } from '../utils/theme';
 
 export function ThemeSystem() {
  const themeDefinitionCode = `// 主题定义
@@ -748,59 +750,43 @@ gemini config export-theme > current-theme.json`;
  {/* 架构图 */}
  <section>
  <h3 className="text-xl font-semibold text-heading mb-4">主题系统架构</h3>
- <div className="bg-surface rounded-lg p-6">
- <pre className="text-sm text-body overflow-x-auto">
-{`┌──────────────────────────────────────────────────────────────────┐
-│ Theme System │
-│ │
-│ ┌────────────────────────────────────────────────────────────┐ │
-│ │ Theme Registry │ │
-│ │ ┌─────────────────────────────────────────────────────┐ │ │
-│ │ │ Built-in Themes │ │ │
-│ │ │ dark | light | dracula | monokai | nord | ... │ │ │
-│ │ └─────────────────────────────────────────────────────┘ │ │
-│ │ ┌─────────────────────────────────────────────────────┐ │ │
-│ │ │ Custom Themes (~/.gemini/themes/) │ │ │
-│ │ │ my-theme.json | company-theme.json | ... │ │ │
-│ │ └─────────────────────────────────────────────────────┘ │ │
-│ └────────────────────────────────────────────────────────────┘ │
-│ │ │
-│ ▼ │
-│ ┌────────────────────────────────────────────────────────────┐ │
-│ │ Theme Service │ │
-│ │ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ │ │
-│ │ │ Theme Loader │ │ Theme Switch │ │ Color Utils │ │ │
-│ │ │ │ │ │ │ │ │ │
-│ │ │ Load JSON │ │ setTheme() │ │ hex→RGB │ │ │
-│ │ │ Validate │ │ Current: ○ │ │ hex→256 │ │ │
-│ │ └──────────────┘ └──────────────┘ └──────────────┘ │ │
-│ └────────────────────────────────────────────────────────────┘ │
-│ │ │
-│ ▼ │
-│ ┌────────────────────────────────────────────────────────────┐ │
-│ │ Terminal Adapter │ │
-│ │ │ │
-│ │ ┌──────────┐ ┌──────────┐ ┌──────────┐ │ │
-│ │ │ TrueColor│ │ 256 │ │ 16 │ │ │
-│ │ │ 24-bit │ │ Colors │ │ Colors │ │ │
-│ │ │ #RRGGBB │ │ \\e[38;5 │ │ \\e[31m │ │ │
-│ │ └──────────┘ └──────────┘ └──────────┘ │ │
-│ │ │ │
-│ └────────────────────────────────────────────────────────────┘ │
-│ │ │
-└──────────────────────────────┼───────────────────────────────────┘
- │
- ▼
-┌──────────────────────────────────────────────────────────────────┐
-│ UI Components │
-│ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ │
-│ │ Prompt │ │ Code Blocks │ │ Messages │ │
-│ │ themed() │ │ highlight() │ │ styled() │ │
-│ └──────────────┘ └──────────────┘ └──────────────┘ │
-│ │
-└──────────────────────────────────────────────────────────────────┘`}
- </pre>
- </div>
+ <MermaidDiagram chart={`flowchart TD
+ subgraph ThemeSystem["Theme System"]
+  subgraph Registry["Theme Registry"]
+   BuiltIn["Built-in Themes<br/>dark | light | dracula | monokai | nord | ..."]
+   Custom["Custom Themes<br/>~/.gemini/themes/<br/>my-theme.json | company-theme.json | ..."]
+  end
+
+  subgraph Service["Theme Service"]
+   Loader["Theme Loader<br/>Load JSON<br/>Validate"]
+   Switch["Theme Switch<br/>setTheme<br/>Current"]
+   ColorUtils["Color Utils<br/>hex to RGB<br/>hex to 256"]
+  end
+
+  subgraph Adapter["Terminal Adapter"]
+   TrueColor["TrueColor<br/>24-bit<br/>#RRGGBB"]
+   Colors256["256 Colors<br/>ESC 38;5;Nm"]
+   Colors16["16 Colors<br/>ESC 31m"]
+  end
+
+  Registry --> Service
+  Service --> Adapter
+ end
+
+ subgraph UIComponents["UI Components"]
+  Prompt["Prompt<br/>themed"]
+  CodeBlocks["Code Blocks<br/>highlight"]
+  Messages["Messages<br/>styled"]
+ end
+
+ Adapter --> UIComponents
+
+ style ThemeSystem fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Registry fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Service fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Adapter fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style UIComponents fill:${getThemeColor("--mermaid-muted-fill", "#f4f4f2")},color:${getThemeColor("--color-text", "#1c1917")}
+`} title="主题系统架构" />
  </section>
 
  {/* 最佳实践 */}

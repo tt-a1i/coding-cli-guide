@@ -506,13 +506,43 @@ export class TaskPersistence {
  <div className="space-y-4">
  <div className="bg-base rounded-lg p-4 font-mono text-xs overflow-x-auto">
  <div className="text-dim mb-2"># 任务列表示例输出</div>
- <pre className="text-heading">{`┌──────────┬────────────────────────┬────────────┬────────┐
-│ task-a1b2 │ ● 设计数据库 Schema │ completed │ HIGH │
-│ task-d4e5 │ ◐ 实现用户 Model │ in_progress│ HIGH │
-│ task-g7h8 │ ○ 编写 API 路由 │ pending │ MED │
-│ task-j1k2 │ ✕ 集成测试 │ blocked │ MED │
-└──────────┴────────────────────────┴────────────┴────────┘
-Progress: [████████████████░░░░░░░░░░░░░░] 1/4 (25%)`}</pre>
+ <table className="w-full text-xs">
+ <thead>
+ <tr>
+ <th className="text-left px-3 py-2">ID</th>
+ <th className="text-left px-3 py-2">任务</th>
+ <th className="text-left px-3 py-2">状态</th>
+ <th className="text-left px-3 py-2">优先级</th>
+ </tr>
+ </thead>
+ <tbody>
+ <tr>
+ <td className="px-3 py-1.5 font-mono">task-a1b2</td>
+ <td className="px-3 py-1.5"><span className="text-green-500">●</span> 设计数据库 Schema</td>
+ <td className="px-3 py-1.5"><span className="text-green-500">completed</span></td>
+ <td className="px-3 py-1.5">HIGH</td>
+ </tr>
+ <tr>
+ <td className="px-3 py-1.5 font-mono">task-d4e5</td>
+ <td className="px-3 py-1.5"><span className="text-blue-500">◐</span> 实现用户 Model</td>
+ <td className="px-3 py-1.5"><span className="text-blue-500">in_progress</span></td>
+ <td className="px-3 py-1.5">HIGH</td>
+ </tr>
+ <tr>
+ <td className="px-3 py-1.5 font-mono">task-g7h8</td>
+ <td className="px-3 py-1.5"><span className="text-dim">○</span> 编写 API 路由</td>
+ <td className="px-3 py-1.5"><span className="text-dim">pending</span></td>
+ <td className="px-3 py-1.5">MED</td>
+ </tr>
+ <tr>
+ <td className="px-3 py-1.5 font-mono">task-j1k2</td>
+ <td className="px-3 py-1.5"><span className="text-red-500">✕</span> 集成测试</td>
+ <td className="px-3 py-1.5"><span className="text-red-500">blocked</span></td>
+ <td className="px-3 py-1.5">MED</td>
+ </tr>
+ </tbody>
+ </table>
+ <div className="mt-2 text-xs text-dim">Progress: [████████████████░░░░░░░░░░░░░░] 1/4 (25%)</div>
  </div>
  <p className="text-sm text-body">
  TaskVisualization 提供 <code>renderTable()</code>、<code>renderProgress()</code> 和 <code>renderDependencyGraph()</code> 三个渲染方法。

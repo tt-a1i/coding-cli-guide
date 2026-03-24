@@ -345,62 +345,53 @@ async function extensionConsentString(extensionConfig, hasHooks, skills = []) {
  {/* 扩展目录结构 */}
  <section>
  <h3 className="text-xl font-semibold text-heading mb-4">扩展目录结构</h3>
- <div className="bg-surface rounded-lg p-4">
- <pre className="text-sm text-body">
-{`~/.gemini/
+ <CodeBlock code={`~/.gemini/
 ├── settings.json
 ├── extensions/
-│ ├── extension-enablement.json # 启用/禁用规则（按路径）
-│ └── my-first-extension/
-│ ├── gemini-extension.json # 扩展清单
-│ ├── .gemini-extension-install.json # 安装来源/类型（git/local/link/github-release，可选）
-│ ├── .env # 扩展 settings 对应的 env（可选）
-│ ├── GEMINI.md # 扩展 context（可选；未配置时也会尝试默认文件名）
-│ ├── commands/ # 扩展 custom commands（可选）
-│ │ └── fs/
-│ │ └── grep-code.toml
-│ ├── hooks/ # 扩展 hooks（可选，需 enableHooks）
-│ │ └── hooks.json
-│ ├── skills/ # 扩展 skills（可选，需 experimental.skills）
-│ │ └── my-skill/
-│ │ └── SKILL.md
-│ └── dist/ # MCP server 构建产物（如果扩展包含 server 代码）
+│   ├── extension-enablement.json   # 启用/禁用规则（按路径）
+│   └── my-first-extension/
+│       ├── gemini-extension.json   # 扩展清单
+│       ├── .gemini-extension-install.json  # 安装来源/类型（git/local/link/github-release，可选）
+│       ├── .env                    # 扩展 settings 对应的 env（可选）
+│       ├── GEMINI.md               # 扩展 context（可选；未配置时也会尝试默认文件名）
+│       ├── commands/               # 扩展 custom commands（可选）
+│       │   └── fs/
+│       │       └── grep-code.toml
+│       ├── hooks/                  # 扩展 hooks（可选，需 enableHooks）
+│       │   └── hooks.json
+│       ├── skills/                 # 扩展 skills（可选，需 experimental.skills）
+│       │   └── my-skill/
+│       │       └── SKILL.md
+│       └── dist/                   # MCP server 构建产物（如果扩展包含 server 代码）
 └── policies/
- └── ...`}
- </pre>
- </div>
+    └── ...`} language="text" title="扩展目录结构" />
  </section>
 
  {/* 架构图 */}
  <section>
  <h3 className="text-xl font-semibold text-heading mb-4">扩展系统架构</h3>
- <div className="bg-surface rounded-lg p-6">
- <pre className="text-sm text-body overflow-x-auto">
-{`┌──────────────────────────────────────────────────────────────────┐
-│ Gemini CLI (process) │
-│ │
-│ ┌──────────────────────── ExtensionManager ───────────────────┐ │
-│ │ scan ~/.gemini/extensions/* │ │
-│ │ load gemini-extension.json (+ hooks/skills/.env) │ │
-│ │ apply enablement rules → GeminiCLIExtension{isActive,...} │ │
-│ └─────────────────────────────────────────────────────────────┘ │
-│ │ │
-│ ▼ │
-│ ┌───────────────────────────── Config ──────────────────────────┐ │
-│ │ extensions[] (active/inactive) │ │
-│ └───────────────────────────────────────────────────────────────┘ │
-│ │ │ │ │ │
-│ │ │ │ │ │
-│ ▼ ▼ ▼ ▼ │
-│ FileCommandLoader Prompt Builder HookSystem McpClientManager
-│ - user commands - ext.contextFiles - ext.hooks - startExtension(ext)
-│ - project cmds - merged w/ user - policy mediated - connect/discover tools
-│ - ext.path/commands (MessageBus) - register tools/resources
-│ │
-│ SkillManager (experimental.skills): ext.skills → system prompt │
-└──────────────────────────────────────────────────────────────────┘`}
- </pre>
- </div>
+ <MermaidDiagram chart={`flowchart TD
+ CLI["Gemini CLI (process)"]
+ EM["ExtensionManager<br/>scan ~/.gemini/extensions/*<br/>load gemini-extension.json + hooks/skills/.env<br/>apply enablement rules → GeminiCLIExtension"]
+ CFG["Config<br/>extensions[] (active/inactive)"]
+ FCL["FileCommandLoader<br/>- user commands<br/>- project cmds<br/>- ext.path/commands"]
+ PB["Prompt Builder<br/>- ext.contextFiles<br/>- merged w/ user"]
+ HS["HookSystem<br/>- ext.hooks<br/>- policy mediated<br/>- MessageBus"]
+ MCM["McpClientManager<br/>- startExtension(ext)<br/>- connect/discover tools<br/>- register tools/resources"]
+ SM["SkillManager (experimental.skills)<br/>ext.skills → system prompt"]
+
+ CLI --> EM --> CFG
+ CFG --> FCL
+ CFG --> PB
+ CFG --> HS
+ CFG --> MCM
+ CLI --> SM
+
+ style CLI fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style EM fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style CFG fill:${getThemeColor("--mermaid-warning-fill", "#fef9c3")},color:${getThemeColor("--color-text", "#1c1917")}
+ style SM fill:${getThemeColor("--mermaid-purple-fill", "#f3e8ff")},color:${getThemeColor("--color-text", "#1c1917")}
+`} />
  </section>
 
  {/* 开发扩展 */}

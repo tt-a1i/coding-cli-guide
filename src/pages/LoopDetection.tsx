@@ -50,6 +50,45 @@ flowchart TD
  style continue fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
 `;
 
+ const loopArchitectureChart = `flowchart TD
+ A(["AI Response"])
+ A --> B
+
+ subgraph B["Loop Detection Service"]
+  direction TB
+  subgraph L1["Layer 1: Tool Call Loop"]
+   T1["Tool A<br/>Hash Map<br/>count: 3"]
+   T2["Tool B<br/>Hash Map<br/>count: 1"]
+   T3["Tool C<br/>Hash Map<br/>count: 5 ⚠"]
+   TH1["Threshold: 5"]
+  end
+
+  L1 -->|Pass| L2
+
+  subgraph L2["Layer 2: Content Loop"]
+   S1["Sentence Hashes<br/>I will try... → abc123 count: 8<br/>Let me read... → def456 count: 10 ⚠<br/>The file contains... → ghi789 count: 2"]
+   TH2["Threshold: 10"]
+  end
+
+  L2 -->|Pass| L3
+
+  subgraph L3["Layer 3: LLM Analysis<br/>Only after 30+ turns"]
+   A1["AI analyzes conversation patterns<br/>- Repeated failures?<br/>- Same errors?<br/>- No progress?"]
+   A2["Confidence: 0.85 ⚠<br/>Pattern: Retry same file without change"]
+  end
+ end
+
+ B --> D1(["Loop Detected<br/>Handle & Break"])
+ B --> D2(["No Loop<br/>Continue"])
+
+ style A fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style D1 fill:${getThemeColor("--mermaid-danger-fill", "#fee2e2")},color:${getThemeColor("--color-text", "#1c1917")}
+ style D2 fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style L1 fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style L2 fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style L3 fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+`;
+
  const thresholdsCode = `// packages/core/src/services/loopDetectionService.ts
 
 // 循环检测阈值常量
@@ -536,63 +575,7 @@ export class GeminiChat {
  {/* 架构图 */}
  <section>
  <h3 className="text-xl font-semibold text-heading mb-4">检测层级架构</h3>
- <div className="bg-surface rounded-lg p-6">
- <pre className="text-sm text-body overflow-x-auto">
-{`┌─────────────────────────────────────────────────────────────┐
-│ AI Response │
-└─────────────────────────┬───────────────────────────────────┘
- │
- ▼
-┌─────────────────────────────────────────────────────────────┐
-│ Loop Detection Service │
-│ ┌───────────────────────────────────────────────────────┐ │
-│ │ Layer 1: Tool Call Loop │ │
-│ │ ┌──────────┐ ┌──────────┐ ┌──────────┐ │ │
-│ │ │ Tool A │ │ Tool B │ │ Tool C │ │ │
-│ │ │ Hash Map │ │ Hash Map │ │ Hash Map │ │ │
-│ │ │ count: 3 │ │ count: 1 │ │ count: 5 │ 🚨 │ │
-│ │ └──────────┘ └──────────┘ └──────────┘ │ │
-│ │ Threshold: 5 │ │
-│ └───────────────────────────────────────────────────────┘ │
-│ │ Pass │
-│ ▼ │
-│ ┌───────────────────────────────────────────────────────┐ │
-│ │ Layer 2: Content Loop │ │
-│ │ ┌─────────────────────────────────────────────────┐ │ │
-│ │ │ Sentence Hashes │ │ │
-│ │ │ "I will try..." -> abc123 (count: 8) │ │ │
-│ │ │ "Let me read..." -> def456 (count: 10) 🚨 │ │ │
-│ │ │ "The file contains..." -> ghi789 (count: 2) │ │ │
-│ │ └─────────────────────────────────────────────────┘ │ │
-│ │ Threshold: 10 │ │
-│ └───────────────────────────────────────────────────────┘ │
-│ │ Pass │
-│ ▼ │
-│ ┌───────────────────────────────────────────────────────┐ │
-│ │ Layer 3: LLM Analysis │ │
-│ │ (Only after 30+ turns) │ │
-│ │ ┌─────────────────────────────────────────────────┐ │ │
-│ │ │ AI analyzes conversation patterns │ │ │
-│ │ │ - Repeated failures? │ │ │
-│ │ │ - Same errors? │ │ │
-│ │ │ - No progress? │ │ │
-│ │ │ │ │ │
-│ │ │ Confidence: 0.85 🚨 │ │ │
-│ │ │ Pattern: "Retry same file without change" │ │ │
-│ │ └─────────────────────────────────────────────────┘ │ │
-│ └───────────────────────────────────────────────────────┘ │
-│ │ │
-└──────────────────────────┼──────────────────────────────────┘
- │
- ┌────────────┴────────────┐
- │ │
- ▼ ▼
- ┌──────────────────┐ ┌──────────────────┐
- │ Loop Detected │ │ No Loop │
- │ Handle & Break │ │ Continue │
- └──────────────────┘ └──────────────────┘`}
- </pre>
- </div>
+ <MermaidDiagram chart={loopArchitectureChart} title="检测层级架构" />
  </section>
 
  {/* 最佳实践 */}

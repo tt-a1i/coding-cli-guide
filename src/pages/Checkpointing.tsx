@@ -775,61 +775,38 @@ async function restoreAction(
  {/* 架构图 */}
  <section>
  <h3 className="text-xl font-semibold text-heading mb-4">Checkpointing 架构</h3>
- <div className="bg-surface rounded-lg p-6">
- <pre className="text-sm text-body overflow-x-auto">
-{`┌─────────────────────────────────────────────────────────────────┐
-│ 用户批准工具执行 │
-└──────────────────────────┬──────────────────────────────────────┘
- │
- ▼
-┌─────────────────────────────────────────────────────────────────┐
-│ CheckpointService │
-│ │
-│ ┌─────────────────────────────────────────────────────────┐ │
-│ │ createCheckpoint() │ │
-│ │ │ │
-│ │ 1. 获取当前文件状态 │ │
-│ │ 2. 复制到影子仓库 │ │
-│ │ 3. Git commit │ │
-│ │ 4. 保存对话历史 │ │
-│ │ 5. 保存工具调用信息 │ │
-│ │ │ │
-│ └─────────────────────────────────────────────────────────┘ │
-│ │
-└──────────────────────────┬──────────────────────────────────────┘
- │
- ┌──────────────────┼──────────────────┐
- │ │ │
- ▼ ▼ ▼
-┌──────────────┐ ┌──────────────┐ ┌──────────────────────┐
-│ 影子 Git 仓库 │ │ 对话历史文件 │ │ 工具调用 JSON │
-│ │ │ │ │ │
-│ ~/.gemini/ │ │ ~/.gemini/ │ │ ~/.gemini/tmp/ │
-│ history/ │ │ tmp/<hash>/ │ │ <hash>/checkpoints/ │
-│ <hash>/ │ │ checkpoints/ │ │ <timestamp>.json │
-│ │ │ │ │ │
-│ ┌──────────┐ │ │ conversation │ │ { │
-│ │ commit 1 │ │ │ history │ │ toolName, │
-│ │ commit 2 │ │ │ │ │ toolCall, │
-│ │ ... │ │ │ │ │ targetFile │
-│ └──────────┘ │ │ │ │ } │
-└──────────────┘ └──────────────┘ └──────────────────────┘
+ <MermaidDiagram chart={`flowchart TD
+ Approve["用户批准工具执行"]
 
- /restore 命令
- │
- ▼
-┌─────────────────────────────────────────────────────────────────┐
-│ restoreCheckpoint() │
-│ │
-│ 1. 读取检查点 JSON │
-│ 2. git checkout <commit> 在影子仓库 │
-│ 3. 复制文件回项目目录 │
-│ 4. 恢复对话历史 │
-│ 5. 重新提议工具调用 │
-│ │
-└─────────────────────────────────────────────────────────────────┘`}
- </pre>
- </div>
+ subgraph CPS["CheckpointService"]
+  Create["createCheckpoint<br/>1. 获取当前文件状态<br/>2. 复制到影子仓库<br/>3. Git commit<br/>4. 保存对话历史<br/>5. 保存工具调用信息"]
+ end
+
+ ShadowGit["影子 Git 仓库<br/>~/.gemini/history/hash/<br/>commit 1, commit 2, ..."]
+ ConvoHistory["对话历史文件<br/>~/.gemini/tmp/hash/<br/>checkpoints/<br/>conversation history"]
+ ToolJSON["工具调用 JSON<br/>~/.gemini/tmp/hash/<br/>checkpoints/timestamp.json<br/>toolName, toolCall, targetFile"]
+
+ Approve --> CPS
+ Create --> ShadowGit
+ Create --> ConvoHistory
+ Create --> ToolJSON
+
+ Restore["/restore 命令"]
+ RestoreFn["restoreCheckpoint<br/>1. 读取检查点 JSON<br/>2. git checkout commit 在影子仓库<br/>3. 复制文件回项目目录<br/>4. 恢复对话历史<br/>5. 重新提议工具调用"]
+
+ ShadowGit --> Restore
+ ConvoHistory --> Restore
+ ToolJSON --> Restore
+ Restore --> RestoreFn
+
+ style Approve fill:${getThemeColor("--mermaid-info-fill", "#dbeafe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style CPS fill:${getThemeColor("--mermaid-warning-fill", "#fef3c7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style ShadowGit fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style ConvoHistory fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style ToolJSON fill:${getThemeColor("--mermaid-purple-fill", "#ede9fe")},color:${getThemeColor("--color-text", "#1c1917")}
+ style Restore fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+ style RestoreFn fill:${getThemeColor("--mermaid-success-fill", "#dcfce7")},color:${getThemeColor("--color-text", "#1c1917")}
+`} title="Checkpointing 架构" />
  </section>
 
  {/* 注意事项 */}

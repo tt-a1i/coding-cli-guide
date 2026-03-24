@@ -139,25 +139,21 @@ export default function SubagentResolutionAnimation() {
  className={`p-3 rounded-lg border transition-all duration-300 ${
  highlighted
  ? 'border-edge bg-elevated scale-105 shadow-lg shadow-black/5'
- : `border-${LEVEL_CONFIG[agent.level].color}-500/30 bg-${LEVEL_CONFIG[agent.level].color}-500/10`
+ : 'border-edge/40 bg-surface/50'
  }`}
  >
- <div className="flex justify-between items-start">
- <div>
  <div className="font-mono text-sm text-heading flex items-center gap-2">
  <span>{agent.name}</span>
- {agent.isBuiltin && <span className="text-xs bg-elevated px-1 rounded">内置</span>}
+ {agent.isBuiltin && <span className="text-xs bg-elevated px-1.5 py-0.5 rounded text-dim">内置</span>}
  </div>
  <div className="text-xs text-body mt-1">{agent.description}</div>
- </div>
  {agent.tools && (
- <div className="flex gap-1 flex-wrap justify-end">
+ <div className="flex gap-1 flex-wrap mt-2">
  {agent.tools.map(tool => (
- <span key={tool} className="text-xs bg-elevated px-1 rounded">{tool}</span>
+ <span key={tool} className="text-xs bg-elevated text-dim px-1.5 py-0.5 rounded">{tool}</span>
  ))}
  </div>
  )}
- </div>
  </div>
  );
 
@@ -183,11 +179,7 @@ export default function SubagentResolutionAnimation() {
  return (
  <div
  key={level}
- className={`bg-base/40 border rounded-lg p-4 transition-all duration-500 ${
- isCurrentStep
- ? `border-${config.color}-400 ring-2 ring-${config.color}-400/50`
- : `border-${config.color}-500/30`
- }`}
+ className="bg-base/40 border border-edge rounded-lg p-4 transition-all duration-500"
  style={{
  borderColor: isCurrentStep ?
  (level === 'project' ? '#22d3ee' : level === 'user' ? '#a855f7' : 'var(--color-success)') :
@@ -197,11 +189,10 @@ export default function SubagentResolutionAnimation() {
  undefined
  }}
  >
- <h3 className={`font-bold mb-3 flex items-center gap-2`}
+ <h3 className="font-bold mb-3 flex items-center gap-2"
  style={{ color: level === 'project' ? '#22d3ee' : level === 'user' ? '#a855f7' : 'var(--color-success)' }}>
- <span className="text-xl">{config.icon}</span>
  <span>{config.label}</span>
- {isCurrentStep && <span className="animate-pulse">🔍</span>}
+ {isCurrentStep && <span className="animate-pulse text-dim">...</span>}
  </h3>
  <div className="text-xs text-dim mb-3 font-mono">{config.path}</div>
 
